@@ -19,7 +19,10 @@ import { SearchUiStore } from './core/services/search-ui.store';
       <router-outlet />
     </main>
     <cma-footer />
-    <cma-search-dialog />
+    <!-- Deferred until idle so the search UI and forms stay out of the initial bundle; opening earlier is queued by the store. Placed after the footer so the late insertion never shifts layout or hydration order of visible content. -->
+    @defer (on idle) {
+      <cma-search-dialog />
+    }
   `,
   host: { '(document:keydown)': 'onKeydown($event)' },
 })
@@ -47,15 +50,20 @@ export class App {
   /** Moves keyboard focus to the main landmark after client-side navigations (not on initial load or anchor jumps). */
   private manageFocusOnNavigation(): void {
     let first = true;
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => {
-      if (first) {
-        first = false;
-        return;
-      }
-      if (event.urlAfterRedirects.includes('#')) return;
-      afterNextRender(() => document.getElementById('main-content')?.focus({ preventScroll: true }), {
-        injector: this.injector,
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        if (first) {
+          first = false;
+          return;
+        }
+        if (event.urlAfterRedirects.includes('#')) return;
+        afterNextRender(
+          () => document.getElementById('main-content')?.focus({ preventScroll: true }),
+          {
+            injector: this.injector,
+          },
+        );
       });
-    });
   }
 }

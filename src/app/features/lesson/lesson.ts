@@ -16,9 +16,20 @@ import { IconComponent } from '../../shared/components/icon/icon';
 import { TutorialContext } from '../technology/tutorial-context';
 import { LessonNavigationComponent } from './lesson-navigation';
 
+const lessonPath = (tech: string, lesson: string): string =>
+  `technologies/${tech}/lessons/${lesson}.json`;
+
 @Component({
   selector: 'cma-lesson',
-  imports: [DatePipe, RouterLink, ContentRendererComponent, BreadcrumbsComponent, EmptyStateComponent, IconComponent, LessonNavigationComponent],
+  imports: [
+    DatePipe,
+    RouterLink,
+    ContentRendererComponent,
+    BreadcrumbsComponent,
+    EmptyStateComponent,
+    IconComponent,
+    LessonNavigationComponent,
+  ],
   templateUrl: './lesson.html',
 })
 export class LessonPage {
@@ -35,12 +46,21 @@ export class LessonPage {
 
   protected readonly lessonResource = resource({
     params: () => ({ tech: this.tech(), lesson: this.lesson() }),
-    loader: ({ params }) => this.content.load<Lesson>(`technologies/${params.tech}/lessons/${params.lesson}.json`),
+    loader: ({ params }) => this.content.load<Lesson>(lessonPath(params.tech, params.lesson)),
   });
-  protected readonly data = computed<Lesson | undefined>(() => (this.lessonResource.hasValue() ? this.lessonResource.value() : undefined));
+  /** Resource value, or the prerendered/transferred lesson while the loader resolves (keeps hydration stable). */
+  protected readonly data = computed<Lesson | undefined>(() =>
+    this.lessonResource.hasValue()
+      ? this.lessonResource.value()
+      : this.content.peek<Lesson>(lessonPath(this.tech(), this.lesson())),
+  );
   protected readonly notFound = computed(() => this.lessonResource.status() === 'error');
-  protected readonly completed = computed(() => this.progress.isCompleted(this.tech(), this.lesson()));
-  protected readonly bookmarked = computed(() => this.bookmarks.isLessonBookmarked(this.tech(), this.lesson()));
+  protected readonly completed = computed(() =>
+    this.progress.isCompleted(this.tech(), this.lesson()),
+  );
+  protected readonly bookmarked = computed(() =>
+    this.bookmarks.isLessonBookmarked(this.tech(), this.lesson()),
+  );
   protected readonly total = computed(() => this.context.lessons().length);
   protected readonly crumbs = computed(() => {
     const lesson = this.data();
@@ -58,7 +78,12 @@ export class LessonPage {
     effect(() => {
       const lesson = this.data();
       if (lesson && this.recent.hydrated()) {
-        this.recent.record({ tech: lesson.technologySlug, techName: lesson.technologyName, slug: lesson.slug, title: lesson.title });
+        this.recent.record({
+          tech: lesson.technologySlug,
+          techName: lesson.technologyName,
+          slug: lesson.slug,
+          title: lesson.title,
+        });
       }
     });
     inject(DestroyRef).onDestroy(() => this.context.activeLesson.set(undefined));
@@ -73,14 +98,21 @@ export class LessonPage {
           jsonLd: [
             breadcrumbList([
               { name: 'Tutorials', url: this.seo.absoluteUrl('/tutorials') },
-              { name: `${lesson.technologyName} Tutorial`, url: this.seo.absoluteUrl(`/tutorials/${lesson.technologySlug}`) },
+              {
+                name: `${lesson.technologyName} Tutorial`,
+                url: this.seo.absoluteUrl(`/tutorials/${lesson.technologySlug}`),
+              },
               { name: lesson.title, url },
             ]),
             techArticle(lesson, url, this.site.name, this.site.siteUrl),
           ],
         });
       } else if (this.notFound()) {
-        this.seo.apply({ title: 'Lesson not found', description: 'This lesson does not exist.', robots: 'noindex,nofollow' });
+        this.seo.apply({
+          title: 'Lesson not found',
+          description: 'This lesson does not exist.',
+          robots: 'noindex,nofollow',
+        });
       }
     });
   }
@@ -91,6 +123,12 @@ export class LessonPage {
 
   protected toggleBookmark(): void {
     const lesson = this.data();
-    if (lesson) this.bookmarks.toggleLesson({ tech: lesson.technologySlug, slug: lesson.slug, title: lesson.title, techName: lesson.technologyName });
+    if (lesson)
+      this.bookmarks.toggleLesson({
+        tech: lesson.technologySlug,
+        slug: lesson.slug,
+        title: lesson.title,
+        techName: lesson.technologyName,
+      });
   }
 }

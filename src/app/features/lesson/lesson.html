@@ -6,13 +6,30 @@
       <h1 class="cma-lesson__title">{{ lesson.title }}</h1>
       <div class="cma-lesson__meta">
         <span><cma-icon name="clock" [size]="14" /> {{ lesson.readingTimeMinutes }} min read</span>
-        <span><cma-icon name="list-ul" [size]="14" /> Lesson {{ lesson.order }}@if (total()) { of {{ total() }} }</span>
-        <span><cma-icon name="arrow-repeat" [size]="14" /> Updated {{ lesson.updatedOn | date: 'd MMM y' }}</span>
+        <span
+          ><cma-icon name="list-ul" [size]="14" /> Lesson {{ lesson.order }}
+          @if (total()) {
+            of {{ total() }}
+          }
+        </span>
+        <span
+          ><cma-icon name="arrow-repeat" [size]="14" /> Updated
+          {{ lesson.updatedOn | date: 'd MMM y' }}</span
+        >
         @if (completed()) {
-          <span class="text-success"><cma-icon name="check-circle-fill" [size]="14" /> Completed</span>
+          <span class="text-success"
+            ><cma-icon name="check-circle-fill" [size]="14" /> Completed</span
+          >
         }
-        <button type="button" class="btn btn-ghost btn-sm ms-auto" (click)="toggleBookmark()" [attr.aria-pressed]="bookmarked()" [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Bookmark this lesson'">
-          <cma-icon [name]="bookmarked() ? 'bookmark-fill' : 'bookmark'" [size]="14" /> {{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm ms-auto"
+          (click)="toggleBookmark()"
+          [attr.aria-pressed]="bookmarked()"
+          [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Bookmark this lesson'"
+        >
+          <cma-icon [name]="bookmarked() ? 'bookmark-fill' : 'bookmark'" [size]="14" />
+          {{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}
         </button>
       </div>
       <p class="lead">{{ lesson.introduction }}</p>
@@ -22,36 +39,62 @@
       <h2 id="objectives-heading" class="h6 mb-2">In this lesson you will</h2>
       <ul>
         @for (objective of lesson.learningObjectives; track objective) {
-          <li><cma-icon name="check2" [size]="16" /> <span>{{ objective }}</span></li>
+          <li>
+            <cma-icon name="check2" [size]="16" /> <span>{{ objective }}</span>
+          </li>
         }
       </ul>
     </section>
 
-    <cma-content-renderer [blocks]="lesson.blocks" />
+    <!-- The lesson body is prerendered; its components hydrate when the browser is idle so the page becomes responsive sooner. -->
+    @defer (hydrate on idle) {
+      <cma-content-renderer [blocks]="lesson.blocks" />
+    }
 
     @if (lesson.relatedLessons.length) {
       <section class="mt-5" aria-labelledby="related-heading">
         <h2 id="related-heading" class="h5">Related lessons</h2>
         <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
           @for (related of lesson.relatedLessons; track related.slug) {
-            <li><a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tutorials', related.technologySlug, related.slug]">{{ related.title }}</a></li>
+            <li>
+              <a
+                class="btn btn-outline-secondary btn-sm"
+                [routerLink]="['/tutorials', related.technologySlug, related.slug]"
+                >{{ related.title }}</a
+              >
+            </li>
           }
         </ul>
       </section>
     }
 
     <div class="d-flex flex-wrap align-items-center gap-3 mt-5 p-3 cma-card">
-      <button type="button" class="btn d-inline-flex align-items-center gap-2" [class.btn-success]="completed()" [class.btn-outline-primary]="!completed()" (click)="toggleComplete()" [attr.aria-pressed]="completed()">
+      <button
+        type="button"
+        class="btn d-inline-flex align-items-center gap-2"
+        [class.btn-success]="completed()"
+        [class.btn-outline-primary]="!completed()"
+        (click)="toggleComplete()"
+        [attr.aria-pressed]="completed()"
+      >
         <cma-icon [name]="completed() ? 'check-circle-fill' : 'check-circle'" />
         {{ completed() ? 'Completed' : 'Mark as completed' }}
       </button>
       <span class="small cma-text-secondary">Progress is saved in this browser only.</span>
     </div>
 
-    <cma-lesson-navigation [previous]="lesson.previousLesson" [next]="lesson.nextLesson" [finishPath]="'/tutorials/' + lesson.technologySlug" />
+    <cma-lesson-navigation
+      [previous]="lesson.previousLesson"
+      [next]="lesson.nextLesson"
+      [finishPath]="'/tutorials/' + lesson.technologySlug"
+    />
   </article>
 } @else if (notFound()) {
-  <cma-empty-state icon="question-circle" title="Lesson not found" text="This lesson does not exist or has not been published yet.">
+  <cma-empty-state
+    icon="question-circle"
+    title="Lesson not found"
+    text="This lesson does not exist or has not been published yet."
+  >
     <a class="btn btn-primary" [routerLink]="['/tutorials', tech()]">Back to the tutorial</a>
   </cma-empty-state>
 } @else {

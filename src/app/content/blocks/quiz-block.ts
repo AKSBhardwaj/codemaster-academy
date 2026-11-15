@@ -8,11 +8,25 @@ import { TutorialContext } from '../../features/technology/tutorial-context';
   selector: 'cma-quiz-block',
   imports: [QuizRunnerComponent],
   template: `
-    <cma-quiz-runner [quizId]="quizId()" [questions]="block().questions" [title]="block().title ?? 'Quick check'" [passPercent]="50" [persist]="false" [compact]="true" />
+    @defer (on idle; hydrate on viewport) {
+      <cma-quiz-runner
+        [quizId]="quizId()"
+        [questions]="block().questions"
+        [title]="block().title ?? 'Quick check'"
+        [passPercent]="50"
+        [persist]="false"
+        [compact]="true"
+      />
+    } @placeholder {
+      <div class="cma-block-note" aria-busy="true">Loading quick check…</div>
+    }
   `,
 })
 export class QuizBlockComponent {
   readonly block = input.required<QuizBlock>();
   private readonly context = inject(TutorialContext, { optional: true });
-  protected readonly quizId = computed(() => `inline:${this.context?.activeLesson()?.id ?? 'lesson'}:${this.block().questions[0]?.id ?? ''}`);
+  protected readonly quizId = computed(
+    () =>
+      `inline:${this.context?.activeLesson()?.id ?? 'lesson'}:${this.block().questions[0]?.id ?? ''}`,
+  );
 }

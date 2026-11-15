@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { DeferBlockBehavior } from '@angular/core/testing';
+import { DeferBlockBehavior, DeferBlockState } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { ContentBlock } from '../../core/models/content';
@@ -9,18 +9,46 @@ import { ContentRendererComponent } from './content-renderer';
 
 const BLOCKS: ContentBlock[] = [
   { type: 'heading', level: 2, text: 'What is HTML?', id: 'what-is-html' },
-  { type: 'paragraph', text: 'HTML stands for **HyperText Markup Language**. See [MDN](https://developer.mozilla.org).' },
+  {
+    type: 'paragraph',
+    text: 'HTML stands for **HyperText Markup Language**. See [MDN](https://developer.mozilla.org).',
+  },
   { type: 'list', ordered: false, items: ['One', 'Two `code`'] },
-  { type: 'code', language: 'html', code: '<p>Hi</p>', tokens: [[['<p>', 'tk-punctuation'], ['Hi'], ['</p>', 'tk-punctuation']]], title: 'index.html' },
+  {
+    type: 'code',
+    language: 'html',
+    code: '<p>Hi</p>',
+    tokens: [[['<p>', 'tk-punctuation'], ['Hi'], ['</p>', 'tk-punctuation']]],
+    title: 'index.html',
+  },
   { type: 'output', content: 'Hi' },
   { type: 'output', content: '<p>Hi</p>', kind: 'html' },
   { type: 'alert', variant: 'warning', text: 'Do not forget the doctype.' },
   { type: 'table', headers: ['Term', 'Meaning'], rows: [['Tag', '`<p>`']] },
-  { type: 'image', src: '/assets/images/example.png', alt: 'An example image', width: 320, height: 200 },
+  {
+    type: 'image',
+    src: '/assets/images/example.png',
+    alt: 'An example image',
+    width: 320,
+    height: 200,
+  },
   { type: 'video', provider: 'youtube', videoId: 'dQw4w9WgXcQ', title: 'Intro video' },
   { type: 'callout', title: 'Tip', text: 'Use semantic elements.' },
   { type: 'interactive', language: 'html', code: '<h1>Edit me</h1>' },
-  { type: 'quiz', questions: [{ id: 'q1', type: 'true-false', lessonSlug: 'intro', difficulty: 'beginner', question: 'HTML is a programming language.', explanation: 'HTML is a markup language, not a programming language.', correct: false }] },
+  {
+    type: 'quiz',
+    questions: [
+      {
+        id: 'q1',
+        type: 'true-false',
+        lessonSlug: 'intro',
+        difficulty: 'beginner',
+        question: 'HTML is a programming language.',
+        explanation: 'HTML is a markup language, not a programming language.',
+        correct: false,
+      },
+    ],
+  },
   { type: 'exercise', exerciseId: 'html-intro-1' },
 ];
 
@@ -44,6 +72,12 @@ describe('ContentRendererComponent', () => {
 
   it('renders every block type as the expected element', async () => {
     const fixture = TestBed.createComponent(HostComponent);
+    await fixture.whenStable();
+    // Three deferred blocks in template order: inline runner, quick-check quiz, exercise. The practice blocks are
+    // rendered here; the runner stays on its code-block placeholder because jsdom cannot host the editor.
+    const deferred = await fixture.getDeferBlocks();
+    expect(deferred.length).toBe(3);
+    for (const block of deferred.slice(1)) await block.render(DeferBlockState.Complete);
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('h2#what-is-html')?.textContent).toContain('What is HTML?');

@@ -10,45 +10,171 @@
     "Recognise boolean attributes and data-* attributes"
   ],
   "blocks": [
-    { "type": "heading", "level": 2, "text": "Attribute syntax" },
-    { "type": "paragraph", "text": "Attributes go inside the opening tag, separated by spaces, as `name=\"value\"` pairs. Always quote the value with double quotes; it is the convention and it is required whenever the value contains spaces or special characters." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<a href=\"https://example.com\" title=\"Visit the example site\" target=\"_blank\">Example</a>" },
-    { "type": "output", "kind": "html", "content": "<a href=\"https://example.com\" title=\"Visit the example site\" target=\"_blank\">Example</a>" },
-    { "type": "alert", "variant": "warning", "text": "An unquoted value stops at the first space: `title=Visit the site` sets the title to `Visit` and then treats `the` and `site` as two bogus attributes. Quote every value." },
-    { "type": "heading", "level": 2, "text": "Global attributes" },
-    { "type": "paragraph", "text": "Global attributes can be used on any element. These are the ones you will use most." },
-    { "type": "table", "headers": ["Attribute", "Purpose", "Example"], "rows": [
-      ["`id`", "A unique identifier for one element on the page. Used by links (`#id`), CSS and JavaScript.", "`<section id=\"pricing\">`"],
-      ["`class`", "One or more names, separated by spaces, shared by any number of elements. The main hook for CSS.", "`<p class=\"note important\">`"],
-      ["`title`", "Advisory text, usually shown as a tooltip on hover.", "`<abbr title=\"HyperText Markup Language\">HTML</abbr>`"],
-      ["`lang`", "The language of the element's content, for screen readers, spell checkers and search engines.", "`<p lang=\"fr\">Bonjour</p>`"],
-      ["`style`", "Inline CSS. Fine for quick tests, avoided in real projects in favour of stylesheets.", "`<p style=\"color: red\">`"],
-      ["`hidden`", "Hides the element completely (it still exists in the document).", "`<div hidden>Not shown</div>`"],
-      ["`tabindex`", "Controls whether and in which order an element receives keyboard focus.", "`<div tabindex=\"0\">`"]
-    ] },
-    { "type": "code", "language": "html", "runnable": true, "code": "<p id=\"intro\" class=\"lead highlight\" title=\"Introduction paragraph\">\n  Hover over this paragraph to see its title.\n</p>\n<p hidden>You cannot see this paragraph.</p>\n<p>The <abbr title=\"World Wide Web Consortium\">W3C</abbr> publishes web standards.</p>" },
-    { "type": "output", "kind": "html", "content": "<p id=\"intro\" class=\"lead highlight\" title=\"Introduction paragraph\">Hover over this paragraph to see its title.</p><p hidden>You cannot see this paragraph.</p><p>The <abbr title=\"World Wide Web Consortium\">W3C</abbr> publishes web standards.</p>" },
-    { "type": "alert", "variant": "danger", "title": "One id per page", "text": "An `id` must be unique in the document. Duplicate ids break fragment links, confuse `document.getElementById` and are invalid HTML. If several elements share a role, use a `class`." },
-    { "type": "heading", "level": 2, "text": "Boolean attributes" },
-    { "type": "paragraph", "text": "Some attributes are on or off and need no value: `hidden`, `disabled`, `checked`, `required`, `readonly`, `autoplay`. Their presence means true. Writing `disabled=\"false\"` does **not** turn the attribute off; the only way to switch it off is to remove it." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<button disabled>Cannot click</button>\n<button disabled=\"false\">Still cannot click</button>\n<button>Can click</button>" },
-    { "type": "output", "kind": "html", "content": "<button disabled>Cannot click</button> <button disabled=\"false\">Still cannot click</button> <button>Can click</button>" },
-    { "type": "heading", "level": 2, "text": "Custom data attributes" },
-    { "type": "paragraph", "text": "When you need to attach your own information to an element for JavaScript to read, use `data-*` attributes. They are valid HTML and show up in JavaScript as `element.dataset`." },
-    { "type": "code", "language": "html", "code": "<li data-product-id=\"42\" data-price=\"19.99\">Notebook</li>" },
-    { "type": "code", "language": "javascript", "title": "Reading them from JavaScript", "code": "const item = document.querySelector('li');\nconsole.log(item.dataset.productId); // \"42\"\nconsole.log(item.dataset.price);     // \"19.99\"" },
-    { "type": "output", "content": "42\n19.99" },
-    { "type": "heading", "level": 2, "text": "Element-specific attributes" },
-    { "type": "paragraph", "text": "Most attributes belong to particular elements: `href` on links, `src` and `alt` on images, `type` and `name` on inputs, `colspan` on table cells. The following lessons introduce them where they belong, and the [HTML reference](/references/html) lists them all in one place." },
-    { "type": "callout", "icon": "lightbulb", "title": "Rule of thumb", "text": "If an attribute changes what the element *is* or *does* (`href`, `src`, `type`), it belongs in HTML. If it changes how the element *looks*, it belongs in CSS, not in a `style` attribute." }
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Attribute syntax"
+    },
+    {
+      "type": "paragraph",
+      "text": "Attributes go inside the opening tag, separated by spaces, as `name=\"value\"` pairs. Always quote the value with double quotes; it is the convention and it is required whenever the value contains spaces or special characters."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<a href=\"https://example.com\" title=\"Visit the example site\" target=\"_blank\">Example</a>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<a href=\"https://example.com\" title=\"Visit the example site\" target=\"_blank\">Example</a>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "An unquoted value stops at the first space: `title=Visit the site` sets the title to `Visit` and then treats `the` and `site` as two bogus attributes. Quote every value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Global attributes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Global attributes can be used on any element. These are the ones you will use most."
+    },
+    {
+      "type": "table",
+      "headers": ["Attribute", "Purpose", "Example"],
+      "rows": [
+        [
+          "`id`",
+          "A unique identifier for one element on the page. Used by links (`#id`), CSS and JavaScript.",
+          "`<section id=\"pricing\">`"
+        ],
+        [
+          "`class`",
+          "One or more names, separated by spaces, shared by any number of elements. The main hook for CSS.",
+          "`<p class=\"note important\">`"
+        ],
+        [
+          "`title`",
+          "Advisory text, usually shown as a tooltip on hover.",
+          "`<abbr title=\"HyperText Markup Language\">HTML</abbr>`"
+        ],
+        [
+          "`lang`",
+          "The language of the element's content, for screen readers, spell checkers and search engines.",
+          "`<p lang=\"fr\">Bonjour</p>`"
+        ],
+        [
+          "`style`",
+          "Inline CSS. Fine for quick tests, avoided in real projects in favour of stylesheets.",
+          "`<p style=\"color: red\">`"
+        ],
+        [
+          "`hidden`",
+          "Hides the element completely (it still exists in the document).",
+          "`<div hidden>Not shown</div>`"
+        ],
+        [
+          "`tabindex`",
+          "Controls whether and in which order an element receives keyboard focus.",
+          "`<div tabindex=\"0\">`"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p id=\"intro\" class=\"lead highlight\" title=\"Introduction paragraph\">\n  Hover over this paragraph to see its title.\n</p>\n<p hidden>You cannot see this paragraph.</p>\n<p>The <abbr title=\"World Wide Web Consortium\">W3C</abbr> publishes web standards.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p id=\"intro\" class=\"lead highlight\" title=\"Introduction paragraph\">Hover over this paragraph to see its title.</p><p hidden>You cannot see this paragraph.</p><p>The <abbr title=\"World Wide Web Consortium\">W3C</abbr> publishes web standards.</p>"
+    },
+    {
+      "type": "alert",
+      "variant": "danger",
+      "title": "One id per page",
+      "text": "An `id` must be unique in the document. Duplicate ids break fragment links, confuse `document.getElementById` and are invalid HTML. If several elements share a role, use a `class`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Boolean attributes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Some attributes are on or off and need no value: `hidden`, `disabled`, `checked`, `required`, `readonly`, `autoplay`. Their presence means true. Writing `disabled=\"false\"` does **not** turn the attribute off; the only way to switch it off is to remove it."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<button disabled>Cannot click</button>\n<button disabled=\"false\">Still cannot click</button>\n<button>Can click</button>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<button disabled>Cannot click</button> <button disabled=\"false\">Still cannot click</button> <button>Can click</button>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Custom data attributes"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you need to attach your own information to an element for JavaScript to read, use `data-*` attributes. They are valid HTML and show up in JavaScript as `element.dataset`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<li data-product-id=\"42\" data-price=\"19.99\">Notebook</li>"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Reading them from JavaScript",
+      "code": "const item = document.querySelector('li');\nconsole.log(item.dataset.productId); // \"42\"\nconsole.log(item.dataset.price);     // \"19.99\""
+    },
+    {
+      "type": "output",
+      "content": "42\n19.99"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Element-specific attributes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most attributes belong to particular elements: `href` on links, `src` and `alt` on images, `type` and `name` on inputs, `colspan` on table cells. The following lessons introduce them where they belong, and the [HTML reference](/references/html) lists them all in one place."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Rule of thumb",
+      "text": "If an attribute changes what the element *is* or *does* (`href`, `src`, `type`), it belongs in HTML. If it changes how the element *looks*, it belongs in CSS, not in a `style` attribute."
+    }
   ],
   "exerciseIds": ["html-attributes-find-error", "html-attributes-boolean"],
   "relatedLessons": [
-    { "technologySlug": "html", "slug": "elements" },
-    { "technologySlug": "html", "slug": "links" }
+    {
+      "technologySlug": "html",
+      "slug": "elements"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "links"
+    }
   ],
   "seo": {
-    "title": "HTML Attributes – Syntax, Global Attributes, Boolean and data-*",
+    "title": "HTML Attributes – Syntax, Globals, Boolean and data-*",
     "description": "Learn HTML attribute syntax, the global attributes id, class, title, lang, style and hidden, how boolean attributes work, and custom data-* attributes."
   },
   "updatedOn": "2026-11-15"

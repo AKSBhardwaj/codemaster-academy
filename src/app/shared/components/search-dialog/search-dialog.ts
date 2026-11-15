@@ -52,7 +52,9 @@ export class SearchDialogComponent {
   protected readonly hits = signal<SearchHit[]>([]);
   protected readonly status = signal<Status>('idle');
   protected readonly activeIndex = signal(0);
-  protected readonly activeId = computed(() => (this.hits().length ? this.optionId(this.activeIndex()) : null));
+  protected readonly activeId = computed(() =>
+    this.hits().length ? this.optionId(this.activeIndex()) : null,
+  );
   protected readonly kindLabel = KIND_LABEL;
   private requestId = 0;
 
@@ -113,6 +115,11 @@ export class SearchDialogComponent {
           event.preventDefault();
           this.activeIndex.set((this.activeIndex() - 1 + count) % count);
         }
+        break;
+      case 'Escape':
+        // Handle it here: a search input otherwise spends the first Escape on clearing its own text.
+        event.preventDefault();
+        this.close();
         break;
       case 'Enter': {
         event.preventDefault();

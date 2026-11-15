@@ -1,5 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CatalogService } from '../../core/services/catalog.service';
+import { SeoService, type PageSeo } from '../../core/services/seo.service';
+import { itemList } from '../../core/seo/json-ld';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 import { PathCardComponent } from '../../shared/components/path-card/path-card';
 
@@ -17,7 +20,9 @@ import { PathCardComponent } from '../../shared/components/path-card/path-card';
         @for (path of catalog.paths(); track path.slug) {
           <div class="col-12 col-sm-6 col-lg-4"><cma-path-card [path]="path" /></div>
         } @empty {
-          <div class="col-12" aria-busy="true"><div class="cma-skeleton" style="height: 10rem"></div></div>
+          <div class="col-12" aria-busy="true">
+            <div class="cma-skeleton" style="height: 10rem"></div>
+          </div>
         }
       </div>
     </div>
@@ -25,4 +30,25 @@ import { PathCardComponent } from '../../shared/components/path-card/path-card';
 })
 export class PathsIndexPage {
   protected readonly catalog = inject(CatalogService);
+  private readonly seo = inject(SeoService);
+  private readonly routeSeo = inject(ActivatedRoute).snapshot.data['seo'] as PageSeo | undefined;
+
+  constructor() {
+    effect(() => {
+      const paths = this.catalog.paths();
+      if (!paths.length || !this.routeSeo) return;
+      this.seo.apply({
+        ...this.routeSeo,
+        jsonLd: [
+          itemList(
+            'Learning paths',
+            paths.map((p) => ({
+              name: p.title,
+              url: this.seo.absoluteUrl(`/learning-paths/${p.slug}`),
+            })),
+          ),
+        ],
+      });
+    });
+  }
 }

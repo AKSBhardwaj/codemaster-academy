@@ -10,54 +10,184 @@
     "Write link text that is descriptive out of context"
   ],
   "blocks": [
-    { "type": "heading", "level": 2, "text": "The anchor element" },
-    { "type": "paragraph", "text": "Everything between `<a>` and `</a>` becomes clickable; `href` (hypertext reference) is the destination." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<p>Learn CSS in our <a href=\"https://codemaster-academy.example/tutorials/css\">CSS tutorial</a>.</p>" },
-    { "type": "output", "kind": "html", "content": "<p>Learn CSS in our <a href=\"https://codemaster-academy.example/tutorials/css\">CSS tutorial</a>.</p>" },
-    { "type": "heading", "level": 2, "text": "Absolute and relative URLs" },
-    { "type": "paragraph", "text": "An **absolute** URL includes the protocol and domain (`https://example.com/about.html`). A **relative** URL is resolved against the address of the current page, which keeps links working when you move the whole site to another domain." },
-    { "type": "table", "headers": ["href", "From page `/blog/post.html`, links to", "Notes"], "rows": [
-      ["`about.html`", "`/blog/about.html`", "Same folder as the current page"],
-      ["`./about.html`", "`/blog/about.html`", "`./` means the current folder (same as above)"],
-      ["`../about.html`", "`/about.html`", "`../` goes up one folder"],
-      ["`/about.html`", "`/about.html`", "Leading slash: from the site root, regardless of current folder"],
-      ["`images/photo.jpg`", "`/blog/images/photo.jpg`", "Into a subfolder"]
-    ] },
-    { "type": "alert", "variant": "warning", "text": "Links that work on your computer but break online are almost always caused by paths. `C:\\Users\\me\\site\\about.html` only exists on your machine; use relative paths and the same folder structure on the server." },
-    { "type": "heading", "level": 2, "text": "Linking to a section of a page" },
-    { "type": "paragraph", "text": "Give the target element an `id` and link to it with `#id`. This works within the current page and across pages (`page.html#section`)." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<nav>\n  <a href=\"#ingredients\">Ingredients</a> ·\n  <a href=\"#method\">Method</a>\n</nav>\n<h2 id=\"ingredients\">Ingredients</h2>\n<p>Flour, water, salt, yeast.</p>\n<h2 id=\"method\">Method</h2>\n<p>Mix, knead, rest, bake.</p>\n<p><a href=\"#top\">Back to top</a></p>" },
-    { "type": "output", "kind": "html", "content": "<nav><a href=\"#ingredients\">Ingredients</a> · <a href=\"#method\">Method</a></nav><h2 id=\"ingredients\">Ingredients</h2><p>Flour, water, salt, yeast.</p><h2 id=\"method\">Method</h2><p>Mix, knead, rest, bake.</p><p><a href=\"#top\">Back to top</a></p>" },
-    { "type": "heading", "level": 2, "text": "Opening links in a new tab" },
-    { "type": "paragraph", "text": "`target=\"_blank\"` opens the destination in a new tab. Add `rel=\"noopener\"` so the new page cannot access your page through `window.opener`; modern browsers do this by default, but writing it explicitly is still good practice. Use new tabs sparingly: users expect links to open in the same tab, and the Back button stops working across tabs." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<a href=\"https://developer.mozilla.org/\" target=\"_blank\" rel=\"noopener\">MDN (opens in a new tab)</a>" },
-    { "type": "output", "kind": "html", "content": "<a href=\"https://developer.mozilla.org/\" target=\"_blank\" rel=\"noopener\">MDN (opens in a new tab)</a>" },
-    { "type": "heading", "level": 2, "text": "Email, phone and download links" },
-    { "type": "code", "language": "html", "runnable": true, "code": "<p><a href=\"mailto:hello@example.com\">Email us</a></p>\n<p><a href=\"tel:+442071234567\">Call +44 20 7123 4567</a></p>\n<p><a href=\"/files/brochure.pdf\" download>Download the brochure (PDF)</a></p>" },
-    { "type": "output", "kind": "html", "content": "<p><a href=\"mailto:hello@example.com\">Email us</a></p><p><a href=\"tel:+442071234567\">Call +44 20 7123 4567</a></p><p><a href=\"/files/brochure.pdf\" download>Download the brochure (PDF)</a></p>" },
-    { "type": "paragraph", "text": "`mailto:` opens the user's email program, `tel:` dials on phones, and the boolean `download` attribute asks the browser to save the file instead of displaying it." },
-    { "type": "heading", "level": 2, "text": "Images as links" },
-    { "type": "code", "language": "html", "runnable": true, "code": "<a href=\"/\">\n  <img src=\"https://placehold.co/120x40/2563eb/ffffff?text=Home\" alt=\"Home page\" width=\"120\" height=\"40\">\n</a>" },
-    { "type": "output", "kind": "html", "content": "<a href=\"/\"><img src=\"https://placehold.co/120x40/2563eb/ffffff?text=Home\" alt=\"Home page\" width=\"120\" height=\"40\"></a>" },
-    { "type": "paragraph", "text": "When an image is the only content of a link, its `alt` text becomes the link text, so describe the destination (\"Home page\"), not the picture." },
-    { "type": "heading", "level": 2, "text": "Writing good link text" },
-    { "type": "paragraph", "text": "Screen-reader users often jump from link to link, hearing only the link text. \"Click here\" and \"read more\" tell them nothing. Describe the destination instead." },
-    { "type": "table", "headers": ["Avoid", "Prefer"], "rows": [
-      ["`<a href=\"...\">Click here</a> to see the pricing`", "`See the <a href=\"...\">pricing page</a>`"],
-      ["`<a href=\"...\">https://example.com/docs/api/v2</a>`", "`<a href=\"...\">API documentation</a>`"],
-      ["`<a href=\"...\">Read more</a>`", "`<a href=\"...\">Read the full interview</a>`"]
-    ] },
-    { "type": "callout", "icon": "lightbulb", "title": "Links versus buttons", "text": "A link takes the user somewhere; a button performs an action (submit, open a menu, play). Using `<a href=\"#\">` as a button breaks keyboard behaviour and confuses assistive technology. If it does something rather than going somewhere, use `<button>`." }
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The anchor element"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything between `<a>` and `</a>` becomes clickable; `href` (hypertext reference) is the destination."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p>Learn CSS in our <a href=\"https://codemaster-academy.example/tutorials/css\">CSS tutorial</a>.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p>Learn CSS in our <a href=\"https://codemaster-academy.example/tutorials/css\">CSS tutorial</a>.</p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Absolute and relative URLs"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **absolute** URL includes the protocol and domain (`https://example.com/about.html`). A **relative** URL is resolved against the address of the current page, which keeps links working when you move the whole site to another domain."
+    },
+    {
+      "type": "table",
+      "headers": ["href", "From page `/blog/post.html`, links to", "Notes"],
+      "rows": [
+        ["`about.html`", "`/blog/about.html`", "Same folder as the current page"],
+        ["`./about.html`", "`/blog/about.html`", "`./` means the current folder (same as above)"],
+        ["`../about.html`", "`/about.html`", "`../` goes up one folder"],
+        [
+          "`/about.html`",
+          "`/about.html`",
+          "Leading slash: from the site root, regardless of current folder"
+        ],
+        ["`images/photo.jpg`", "`/blog/images/photo.jpg`", "Into a subfolder"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "Links that work on your computer but break online are almost always caused by paths. `C:\\Users\\me\\site\\about.html` only exists on your machine; use relative paths and the same folder structure on the server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Linking to a section of a page"
+    },
+    {
+      "type": "paragraph",
+      "text": "Give the target element an `id` and link to it with `#id`. This works within the current page and across pages (`page.html#section`)."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<nav>\n  <a href=\"#ingredients\">Ingredients</a> ·\n  <a href=\"#method\">Method</a>\n</nav>\n<h2 id=\"ingredients\">Ingredients</h2>\n<p>Flour, water, salt, yeast.</p>\n<h2 id=\"method\">Method</h2>\n<p>Mix, knead, rest, bake.</p>\n<p><a href=\"#top\">Back to top</a></p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<nav><a href=\"#ingredients\">Ingredients</a> · <a href=\"#method\">Method</a></nav><h2 id=\"ingredients\">Ingredients</h2><p>Flour, water, salt, yeast.</p><h2 id=\"method\">Method</h2><p>Mix, knead, rest, bake.</p><p><a href=\"#top\">Back to top</a></p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Opening links in a new tab"
+    },
+    {
+      "type": "paragraph",
+      "text": "`target=\"_blank\"` opens the destination in a new tab. Add `rel=\"noopener\"` so the new page cannot access your page through `window.opener`; modern browsers do this by default, but writing it explicitly is still good practice. Use new tabs sparingly: users expect links to open in the same tab, and the Back button stops working across tabs."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<a href=\"https://developer.mozilla.org/\" target=\"_blank\" rel=\"noopener\">MDN (opens in a new tab)</a>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<a href=\"https://developer.mozilla.org/\" target=\"_blank\" rel=\"noopener\">MDN (opens in a new tab)</a>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Email, phone and download links"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p><a href=\"mailto:hello@example.com\">Email us</a></p>\n<p><a href=\"tel:+442071234567\">Call +44 20 7123 4567</a></p>\n<p><a href=\"/files/brochure.pdf\" download>Download the brochure (PDF)</a></p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p><a href=\"mailto:hello@example.com\">Email us</a></p><p><a href=\"tel:+442071234567\">Call +44 20 7123 4567</a></p><p><a href=\"/files/brochure.pdf\" download>Download the brochure (PDF)</a></p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`mailto:` opens the user's email program, `tel:` dials on phones, and the boolean `download` attribute asks the browser to save the file instead of displaying it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Images as links"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<a href=\"/\">\n  <img src=\"https://placehold.co/120x40/2563eb/ffffff?text=Home\" alt=\"Home page\" width=\"120\" height=\"40\">\n</a>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<a href=\"/\"><img src=\"https://placehold.co/120x40/2563eb/ffffff?text=Home\" alt=\"Home page\" width=\"120\" height=\"40\"></a>"
+    },
+    {
+      "type": "paragraph",
+      "text": "When an image is the only content of a link, its `alt` text becomes the link text, so describe the destination (\"Home page\"), not the picture."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing good link text"
+    },
+    {
+      "type": "paragraph",
+      "text": "Screen-reader users often jump from link to link, hearing only the link text. \"Click here\" and \"read more\" tell them nothing. Describe the destination instead."
+    },
+    {
+      "type": "table",
+      "headers": ["Avoid", "Prefer"],
+      "rows": [
+        [
+          "`<a href=\"...\">Click here</a> to see the pricing`",
+          "`See the <a href=\"...\">pricing page</a>`"
+        ],
+        [
+          "`<a href=\"...\">https://example.com/docs/api/v2</a>`",
+          "`<a href=\"...\">API documentation</a>`"
+        ],
+        ["`<a href=\"...\">Read more</a>`", "`<a href=\"...\">Read the full interview</a>`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Links versus buttons",
+      "text": "A link takes the user somewhere; a button performs an action (submit, open a menu, play). Using `<a href=\"#\">` as a button breaks keyboard behaviour and confuses assistive technology. If it does something rather than going somewhere, use `<button>`."
+    }
   ],
   "exerciseIds": ["html-links-relative", "html-links-new-tab"],
   "relatedLessons": [
-    { "technologySlug": "html", "slug": "images" },
-    { "technologySlug": "html", "slug": "attributes" },
-    { "technologySlug": "html", "slug": "semantic-elements" }
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "semantic-elements"
+    }
   ],
   "seo": {
-    "title": "HTML Links – href, Relative URLs, Anchors, Email and Downloads",
-    "description": "Learn HTML links: absolute and relative URLs, linking to page sections, opening in new tabs safely, mailto and tel links, download links and descriptive link text."
+    "title": "HTML Links – href, Relative URLs, Anchors, Email, Downloads",
+    "description": "Learn HTML links: absolute and relative URLs, linking to page sections, opening new tabs safely, mailto and tel links, downloads and descriptive link text."
   },
   "updatedOn": "2026-11-15"
 }

@@ -1,8 +1,22 @@
-import { Component, DestroyRef, ElementRef, Injector, afterNextRender, effect, inject, input, model, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  effect,
+  inject,
+  input,
+  model,
+  signal,
+  viewChild,
+} from '@angular/core';
 import type { EditorView } from '@codemirror/view';
 import type { Compartment } from '@codemirror/state';
 import { PlatformService } from '../../../core/services/platform.service';
 import { ThemeStore } from '../../../core/services/theme.store';
+
+import { editorTheme, type LanguageModule, type Tags } from './code-editor-themes';
 
 type Extension = import('@codemirror/state').Extension;
 
@@ -10,7 +24,8 @@ const LANGUAGE_LOADERS: Record<string, () => Promise<Extension>> = {
   html: () => import('@codemirror/lang-html').then((m) => m.html()),
   css: () => import('@codemirror/lang-css').then((m) => m.css()),
   javascript: () => import('@codemirror/lang-javascript').then((m) => m.javascript()),
-  typescript: () => import('@codemirror/lang-javascript').then((m) => m.javascript({ typescript: true })),
+  typescript: () =>
+    import('@codemirror/lang-javascript').then((m) => m.javascript({ typescript: true })),
   jsx: () => import('@codemirror/lang-javascript').then((m) => m.javascript({ jsx: true })),
   json: () => import('@codemirror/lang-json').then((m) => m.json()),
   sql: () => import('@codemirror/lang-sql').then((m) => m.sql({ dialect: m.SQLite })),
@@ -87,7 +102,14 @@ export class CodeEditorComponent {
   private languageCompartment: Compartment | undefined;
   private themeCompartment: Compartment | undefined;
   private readOnlyCompartment: Compartment | undefined;
-  private modules: { EditorView: typeof EditorView; oneDark: Extension; EditorState: typeof import('@codemirror/state').EditorState } | undefined;
+  private modules:
+    | {
+        EditorView: typeof EditorView;
+        EditorState: typeof import('@codemirror/state').EditorState;
+        language: LanguageModule;
+        tags: Tags;
+      }
+    | undefined;
   private lastExternalValue = '';
 
   constructor() {
@@ -112,13 +134,21 @@ export class CodeEditorComponent {
     effect(() => {
       const dark = this.theme.resolved() === 'dark';
       if (this.view && this.themeCompartment && this.modules) {
-        this.view.dispatch({ effects: this.themeCompartment.reconfigure(dark ? this.modules.oneDark : lightTheme(this.modules.EditorView)) });
+        this.view.dispatch({
+          effects: this.themeCompartment.reconfigure(
+            editorTheme(dark, this.modules.EditorView, this.modules.language, this.modules.tags),
+          ),
+        });
       }
     });
     effect(() => {
       const readOnly = this.readOnly();
       if (this.view && this.readOnlyCompartment && this.modules) {
-        this.view.dispatch({ effects: this.readOnlyCompartment.reconfigure(this.modules.EditorState.readOnly.of(readOnly)) });
+        this.view.dispatch({
+          effects: this.readOnlyCompartment.reconfigure(
+            this.modules.EditorState.readOnly.of(readOnly),
+          ),
+        });
       }
     });
   }
@@ -133,12 +163,14 @@ export class CodeEditorComponent {
   }
 
   private async mount(): Promise<void> {
-    const [{ EditorView, basicSetup }, { Compartment, EditorState }, { oneDark }] = await Promise.all([
-      import('codemirror'),
-      import('@codemirror/state'),
-      import('@codemirror/theme-one-dark'),
-    ]);
-    this.modules = { EditorView, oneDark, EditorState };
+    const [{ EditorView, basicSetup }, { Compartment, EditorState }, languageModule, { tags }] =
+      await Promise.all([
+        import('codemirror'),
+        import('@codemirror/state'),
+        import('@codemirror/language'),
+        import('@lezer/highlight'),
+      ]);
+    this.modules = { EditorView, EditorState, language: languageModule, tags };
     this.languageCompartment = new Compartment();
     this.themeCompartment = new Compartment();
     this.readOnlyCompartment = new Compartment();
@@ -152,8 +184,10 @@ export class CodeEditorComponent {
         extensions: [
           basicSetup,
           this.languageCompartment.of(language),
-          this.themeCompartment.of(dark ? oneDark : lightTheme(EditorView)),
+          this.themeCompartment.of(editorTheme(dark, EditorView, languageModule, tags)),
           this.readOnlyCompartment.of(EditorState.readOnly.of(this.readOnly())),
+          // The editable content is the textbox assistive technology sees; give it the same name as the host.
+          EditorView.contentAttributes.of({ 'aria-label': this.label(), tabindex: '0' }),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               const text = update.state.doc.toString();
@@ -161,7 +195,11 @@ export class CodeEditorComponent {
               this.value.set(text);
             }
           }),
-          EditorView.theme({ '&': { fontSize: '0.875rem' }, '.cm-scroller': { fontFamily: 'var(--bs-font-monospace)', lineHeight: '1.6' }, '.cm-content': { minHeight: `${this.minHeight()}px` } }),
+          EditorView.theme({
+            '&': { fontSize: '0.875rem' },
+            '.cm-scroller': { fontFamily: 'var(--bs-font-monospace)', lineHeight: '1.6' },
+            '.cm-content': { minHeight: `${this.minHeight()}px` },
+          }),
         ],
       }),
     });
@@ -175,19 +213,7 @@ export class CodeEditorComponent {
 
   private async setLanguage(language: string): Promise<void> {
     const extension = await this.loadLanguage(language);
-    if (this.view && this.languageCompartment) this.view.dispatch({ effects: this.languageCompartment.reconfigure(extension) });
+    if (this.view && this.languageCompartment)
+      this.view.dispatch({ effects: this.languageCompartment.reconfigure(extension) });
   }
-}
-
-function lightTheme(view: typeof EditorView): Extension {
-  return view.theme(
-    {
-      '&': { backgroundColor: 'var(--cma-surface)', color: 'var(--cma-text)' },
-      '.cm-gutters': { backgroundColor: 'var(--cma-bg-secondary)', color: 'var(--cma-text-muted)', borderRight: '1px solid var(--cma-border)' },
-      '.cm-activeLine': { backgroundColor: 'rgba(37, 99, 235, 0.06)' },
-      '.cm-activeLineGutter': { backgroundColor: 'rgba(37, 99, 235, 0.08)' },
-      '&.cm-focused': { outline: 'none' },
-    },
-    { dark: false },
-  );
 }

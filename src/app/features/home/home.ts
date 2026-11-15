@@ -1,8 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SITE_CONFIG } from '../../core/config/site-config';
 import { CatalogService } from '../../core/services/catalog.service';
+import { SeoService } from '../../core/services/seo.service';
+import { faqPage, organization, webSite } from '../../core/seo/json-ld';
 import { CategoryCardComponent } from '../../shared/components/category-card/category-card';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { IconComponent } from '../../shared/components/icon/icon';
@@ -34,19 +36,53 @@ export class HomePage {
   private readonly router = inject(Router);
 
   protected readonly home = this.catalog.home;
+  private readonly seo = inject(SeoService);
+
+  constructor() {
+    // Structured data for the home page: who publishes the site, the site search and the FAQ shown below.
+    effect(() => {
+      const home = this.home();
+      if (!home) return;
+      const identity = {
+        name: this.site.name,
+        siteUrl: this.site.siteUrl,
+        logoPath: this.site.logoPath,
+        description: this.site.description,
+        contactEmail: this.site.contactEmail,
+      };
+      this.seo.apply({
+        title: `${this.site.name} – ${this.site.tagline}`,
+        description: this.site.description,
+        withBrandSuffix: false,
+        canonicalPath: '/',
+        jsonLd: [organization(identity), webSite(identity), faqPage(home.faq ?? [])],
+      });
+    });
+  }
   protected readonly featuredPaths = computed(() => {
     const slugs = this.home()?.featuredPaths ?? [];
     const map = new Map(this.catalog.paths().map((p) => [p.slug, p]));
     return slugs.map((slug) => map.get(slug)).filter((p): p is NonNullable<typeof p> => !!p);
   });
-  protected readonly popularLanguages = computed(() => this.catalog.bySlugs(this.home()?.popularLanguages ?? []));
-  protected readonly popularFrameworks = computed(() => this.catalog.bySlugs(this.home()?.popularFrameworks ?? []));
+  protected readonly popularLanguages = computed(() =>
+    this.catalog.bySlugs(this.home()?.popularLanguages ?? []),
+  );
+  protected readonly popularFrameworks = computed(() =>
+    this.catalog.bySlugs(this.home()?.popularFrameworks ?? []),
+  );
   protected readonly categories = computed(() =>
-    this.catalog.byCategory().map(({ category, technologies }) => ({ category, count: technologies.length })),
+    this.catalog
+      .byCategory()
+      .map(({ category, technologies }) => ({ category, count: technologies.length })),
   );
   protected readonly featured = computed(() => this.catalog.featured().slice(0, 12));
   protected readonly recent = this.catalog.recentlyUpdated;
-  protected readonly practice = computed(() => this.catalog.technologies().filter((t) => t.hasExercises || t.hasQuiz).slice(0, 8));
+  protected readonly practice = computed(() =>
+    this.catalog
+      .technologies()
+      .filter((t) => t.hasExercises || t.hasQuiz)
+      .slice(0, 8),
+  );
   protected readonly counts = this.catalog.statusCounts;
   protected readonly totalTechnologies = computed(() => this.catalog.technologies().length);
 

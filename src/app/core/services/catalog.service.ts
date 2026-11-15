@@ -1,5 +1,10 @@
 import { Injectable, computed, inject, resource, type ResourceRef } from '@angular/core';
-import type { Category, HomeConfig, LearningPathSummary, TechnologyCatalogEntry } from '../models/content';
+import type {
+  Category,
+  HomeConfig,
+  LearningPathSummary,
+  TechnologyCatalogEntry,
+} from '../models/content';
 import { ContentService } from './content.service';
 
 export interface CategoryWithTechnologies {
@@ -30,17 +35,37 @@ export class CatalogService {
     loader: () => this.content.load<HomeConfig>('site/home.json'),
   });
 
-  readonly categories = computed<Category[]>(() => valueOr(this.categoriesResource, []));
-  readonly technologies = computed<TechnologyCatalogEntry[]>(() => valueOr(this.technologiesResource, []));
-  readonly paths = computed<LearningPathSummary[]>(() => valueOr(this.pathsResource, []));
+  // Each falls back to already-transferred data so prerendered pages hydrate without a loading flash.
+  readonly categories = computed<Category[]>(() =>
+    valueOr(
+      this.categoriesResource,
+      this.content.peek<Category[]>('catalog/categories.json') ?? [],
+    ),
+  );
+  readonly technologies = computed<TechnologyCatalogEntry[]>(() =>
+    valueOr(
+      this.technologiesResource,
+      this.content.peek<TechnologyCatalogEntry[]>('catalog/technologies.json') ?? [],
+    ),
+  );
+  readonly paths = computed<LearningPathSummary[]>(() =>
+    valueOr(
+      this.pathsResource,
+      this.content.peek<LearningPathSummary[]>('learning-paths/index.json') ?? [],
+    ),
+  );
   readonly home = computed<HomeConfig | undefined>(() =>
-    this.homeResource.hasValue() ? this.homeResource.value() : undefined,
+    this.homeResource.hasValue()
+      ? this.homeResource.value()
+      : this.content.peek<HomeConfig>('site/home.json'),
   );
 
   readonly isLoading = computed(
     () => this.categoriesResource.isLoading() || this.technologiesResource.isLoading(),
   );
-  readonly error = computed(() => this.categoriesResource.error() ?? this.technologiesResource.error());
+  readonly error = computed(
+    () => this.categoriesResource.error() ?? this.technologiesResource.error(),
+  );
 
   readonly technologyMap = computed(() => new Map(this.technologies().map((t) => [t.slug, t])));
   readonly categoryMap = computed(() => new Map(this.categories().map((c) => [c.slug, c])));

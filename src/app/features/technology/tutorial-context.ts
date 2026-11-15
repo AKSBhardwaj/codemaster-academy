@@ -1,5 +1,10 @@
 import { Injectable, computed, inject, resource, signal } from '@angular/core';
-import type { ExerciseSet, Lesson, Technology, TechnologyCatalogEntry } from '../../core/models/content';
+import type {
+  ExerciseSet,
+  Lesson,
+  Technology,
+  TechnologyCatalogEntry,
+} from '../../core/models/content';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ContentService } from '../../core/services/content.service';
 
@@ -8,6 +13,9 @@ import { ContentService } from '../../core/services/content.service';
  * (compiled overview or planned catalog entry), the lesson being read and, on demand, the exercise set.
  * Provided by TutorialLayoutComponent.
  */
+const overviewPath = (slug: string): string => `technologies/${slug}/overview.json`;
+const exercisesPath = (slug: string): string => `technologies/${slug}/exercises.json`;
+
 @Injectable()
 export class TutorialContext {
   private readonly content = inject(ContentService);
@@ -19,29 +27,45 @@ export class TutorialContext {
 
   readonly technologyResource = resource({
     params: () => this.techSlug() || undefined,
-    loader: ({ params }) => this.content.load<Technology>(`technologies/${params}/overview.json`),
+    loader: ({ params }) => this.content.load<Technology>(overviewPath(params)),
   });
   private readonly exerciseSetResource = resource({
     params: () => (this.exercisesWanted() && this.techSlug() ? this.techSlug() : undefined),
-    loader: ({ params }) => this.content.load<ExerciseSet>(`technologies/${params}/exercises.json`),
+    loader: ({ params }) => this.content.load<ExerciseSet>(exercisesPath(params)),
   });
 
   /** Compiled technology (has lessons) or undefined while loading / for planned technologies. */
   readonly technology = computed<Technology | undefined>(() =>
-    this.technologyResource.hasValue() ? this.technologyResource.value() : undefined,
+    this.technologyResource.hasValue()
+      ? this.technologyResource.value()
+      : this.techSlug()
+        ? this.content.peek<Technology>(overviewPath(this.techSlug()))
+        : undefined,
   );
   /** Catalog entry, available for every technology including planned ones. */
-  readonly catalogEntry = computed<TechnologyCatalogEntry | undefined>(() => this.catalog.technology(this.techSlug()));
+  readonly catalogEntry = computed<TechnologyCatalogEntry | undefined>(() =>
+    this.catalog.technology(this.techSlug()),
+  );
   readonly category = computed(() => {
     const entry = this.catalogEntry();
     return entry ? this.catalog.category(entry.categorySlug) : undefined;
   });
   readonly name = computed(() => this.technology()?.name ?? this.catalogEntry()?.name ?? '');
-  readonly isLoading = computed(() => this.technologyResource.isLoading() || this.catalog.isLoading());
+  readonly isLoading = computed(
+    () => this.technologyResource.isLoading() || this.catalog.isLoading(),
+  );
   /** True once we know the slug matches nothing in the catalog. */
-  readonly unknown = computed(() => !this.isLoading() && this.catalog.technologies().length > 0 && !this.catalogEntry());
+  readonly unknown = computed(
+    () => !this.isLoading() && this.catalog.technologies().length > 0 && !this.catalogEntry(),
+  );
   readonly lessons = computed(() => this.technology()?.lessons ?? []);
-  readonly exerciseSet = computed<ExerciseSet | undefined>(() => (this.exerciseSetResource.hasValue() ? this.exerciseSetResource.value() : undefined));
+  readonly exerciseSet = computed<ExerciseSet | undefined>(() =>
+    this.exerciseSetResource.hasValue()
+      ? this.exerciseSetResource.value()
+      : this.exercisesWanted() && this.techSlug()
+        ? this.content.peek<ExerciseSet>(exercisesPath(this.techSlug()))
+        : undefined,
+  );
   readonly exerciseSetStatus = computed(() => this.exerciseSetResource.status());
 
   /** Starts loading the technology's exercise set (used by inline exercise blocks). */

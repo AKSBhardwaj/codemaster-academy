@@ -1,7 +1,13 @@
 <dialog #dialog class="cma-search-dialog" aria-label="Search the site" (close)="onNativeClose()">
-  <form class="cma-search-dialog__header" role="search" (submit)="$event.preventDefault(); goToResultsPage()">
+  <form
+    class="cma-search-dialog__header"
+    role="search"
+    (submit)="$event.preventDefault(); goToResultsPage()"
+  >
     <cma-icon name="search" [size]="18" />
-    <label class="visually-hidden" for="cma-global-search">Search tutorials, lessons and categories</label>
+    <label class="visually-hidden" for="cma-global-search"
+      >Search tutorials, lessons and categories</label
+    >
     <input
       #input
       id="cma-global-search"
@@ -18,8 +24,13 @@
       [formControl]="query"
       (keydown)="onKeydown($event)"
     />
-    <button type="button" class="btn btn-ghost btn-sm cma-search-dialog__close" (click)="close()" aria-label="Close search">
-      <kbd>Esc</kbd>
+    <button
+      type="button"
+      class="btn btn-ghost btn-sm cma-search-dialog__close"
+      (click)="close()"
+      aria-label="Close search"
+    >
+      <kbd aria-hidden="true" data-key="Esc"></kbd>
     </button>
   </form>
 
@@ -30,7 +41,9 @@
           <div class="cma-search-dialog__section">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="cma-search-dialog__label">Recent searches</span>
-              <button type="button" class="btn btn-link btn-sm p-0" (click)="ui.clearRecent()">Clear</button>
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="ui.clearRecent()">
+                Clear
+              </button>
             </div>
             <ul class="list-unstyled mb-0">
               @for (item of ui.recent(); track item) {
@@ -44,9 +57,16 @@
           </div>
         } @else {
           <p class="cma-search-dialog__hint">
-            Try <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Angular')">Angular</button>
-            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('SQL joins')">SQL joins</button>
-            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Python')">Python</button>
+            Try
+            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Angular')">
+              Angular
+            </button>
+            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('SQL joins')">
+              SQL joins
+            </button>
+            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Python')">
+              Python
+            </button>
           </p>
         }
       }
@@ -57,11 +77,18 @@
         <div class="cma-search-dialog__empty" aria-live="polite">
           <cma-icon name="search" [size]="20" />
           <p class="mb-1 fw-semibold">No results for “{{ query.value }}”</p>
-          <p class="mb-0 cma-text-secondary small">Check the spelling or try a broader term such as a language or framework name.</p>
+          <p class="mb-0 cma-text-secondary small">
+            Check the spelling or try a broader term such as a language or framework name.
+          </p>
         </div>
       }
       @case ('results') {
-        <ul id="cma-search-results" class="cma-search-dialog__results list-unstyled mb-0" role="listbox" aria-label="Search results">
+        <ul
+          id="cma-search-results"
+          class="cma-search-dialog__results list-unstyled mb-0"
+          role="listbox"
+          aria-label="Search results"
+        >
           @for (hit of hits(); track hit.id; let i = $index) {
             <li
               role="option"
@@ -74,7 +101,9 @@
               (click)="go(hit)"
               (keydown.enter)="go(hit)"
             >
-              <span class="cma-search-dialog__kind-icon"><cma-icon [name]="kindIcon(hit.kind)" [size]="16" /></span>
+              <span class="cma-search-dialog__kind-icon"
+                ><cma-icon [name]="kindIcon(hit.kind)" [size]="16"
+              /></span>
               <span class="min-w-0 flex-grow-1">
                 <span class="cma-search-dialog__title">
                   @for (segment of hit.title | highlightMatch: hit.terms; track $index) {
@@ -105,7 +134,9 @@
     <span><kbd>Enter</kbd> open</span>
     <span><kbd>Esc</kbd> close</span>
     @if (query.value.trim()) {
-      <button type="button" class="btn btn-link btn-sm ms-auto p-0" (click)="goToResultsPage()">See all results</button>
+      <button type="button" class="btn btn-link btn-sm ms-auto p-0" (click)="goToResultsPage()">
+        See all results
+      </button>
     }
   </div>
 </dialog>

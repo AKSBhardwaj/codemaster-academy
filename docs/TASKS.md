@@ -35,7 +35,8 @@ Phase plan and acceptance criteria live in the approved implementation plan. Thi
 ## Known limitations / follow-ups
 
 - `ng serve` does not run `getPrerenderParams`, so parametrised routes render client-side in development; the production build prerenders them (verified).
-- Logo attribution/credits page for CC-BY logos (Angular, Rust, Go, Git, …) to be added in Phase 7 alongside the footer disclaimer.
+- Lighthouse CLI hangs on every run on this machine (two attempts, background and foreground); `tmp/cwv.ts` measures FCP/LCP/CLS/TBT with Playwright + CDP throttling instead. Re-run Lighthouse on a hosted URL once deployed.
+- Static hosts must serve `<route>/index.html` for prerendered routes and fall back to `index.csr.html` only for unknown paths; a catch-all rewrite to the shell (as `serve-handler` does) silently turns every page into client rendering.
 - Playwright launches `ng serve` directly and refuses to reuse a running server (an orphaned server caused stale-content failures); set `E2E_PORT` when 4200 is taken by a development server.
 - Demo accounts need a secure context (https or localhost) for Web Crypto; the register/login forms show a clear error otherwise.
 
@@ -70,9 +71,18 @@ Phase plan and acceptance criteria live in the approved implementation plan. Thi
 - [x] Verification: build (208 routes), 28 unit tests, lint, 68 e2e tests across 7 specs (desktop + mobile; the navbar account-menu test is desktop-only by design), screenshots at 1440/375 in light and dark.
 - Decision: `/bookmarks` stays open to guests (plan §5 listed it as guarded) because bookmarking works without an account and the data is browser-local either way; gating it would only pretend an account is needed.
 
-## Phase 7 — SEO and optimisation
+## Phase 7 — SEO and optimisation (done)
 
-- [ ] JSON-LD per page type, sitemap/robots generation, noindex rules, budgets, hydration tuning, a11y audit, full e2e suite, credits page.
+- [x] SEO audit script over the prerendered output (titles, descriptions, canonical, robots, Open Graph, Twitter, JSON-LD validity, sitemap coverage): 54 indexable routes match the sitemap exactly, 155 noindex routes (planned tutorials, user pages, playground, search, 404), no duplicate titles or descriptions.
+- [x] JSON-LD per page type: Organization + WebSite (SearchAction) + FAQPage on the home page, ItemList on the catalog, category and learning-path index pages, BreadcrumbList everywhere below the root, TechArticle on lessons, Course only on complete tutorials.
+- [x] Title/description hygiene: adaptive brand suffix (full name up to 60 characters, short name up to 70), lesson titles trimmed to 60 characters and descriptions to 120–160, fuller descriptions for contact, privacy and terms pages.
+- [x] Fixed a Phase 2 regression: `@use 'bootstrap'` resolved to the npm package instead of the project partial, so the Sass overrides (colours, typography, breadcrumb divider, partial module set) never applied and the full Bootstrap stylesheet shipped. The partial is now `_bootstrap-config.scss`; carousel/modal/tooltip/toast CSS is gone.
+- [x] Accessibility: axe audit (WCAG 2.x A/AA + best practice) on 22 pages and 6 interaction states in light and dark themes with zero violations. Fixes: AA-compliant secondary/semantic colours and dark-theme overrides for outline buttons and text utilities, underlined inline links, keyboard hints hidden from control names, named CodeMirror textbox with AA syntax colours for both themes (One Dark replaced), unique output-panel landmarks, Escape closes the search dialog on the first press.
+- [x] Keyboard e2e: skip link, dropdown arrow/Home/End/Escape, search dialog, lesson navigation focus, mobile menu focus restore.
+- [x] Performance: search dialog and forms deferred to idle (initial bundle 763 kB → 706 kB raw, 153 kB transfer), home sections and catalog grid hydrate on viewport/idle, lesson body hydrates on idle, critical-CSS inlining disabled (render-blocking 24 kB stylesheet, no flash), transferred content settled synchronously so prerendered views keep their DOM during hydration (this removed a loading-state flash that scored CLS 0.9 on lessons).
+- [x] Measured on the prerendered build with Playwright + CDP (Lighthouse's CLI never completes a run in this environment): desktop FCP/LCP 130–170 ms, TBT ≤ 55 ms; throttled mobile (4× CPU, slow 4G) FCP/LCP 1.2–1.3 s, TBT 230–580 ms; CLS 0.000 on every page in both profiles.
+- [x] Credits page (`/credits`): CC-BY/CC-BY-SA logo attributions verified against simple-icons metadata and the Rust Foundation policy, Redis trademark notice, open-source credits; linked from the footer and the sitemap.
+- [x] Verification: build (209 routes), 28 unit tests, lint, 132 e2e tests across 9 specs (desktop + mobile; 3 skipped by design), screenshots light/dark.
 
 ## Phase 8 — Content expansion
 

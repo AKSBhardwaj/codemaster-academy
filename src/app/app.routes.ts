@@ -108,17 +108,34 @@ export const routes: Routes = [
   {
     path: 'contact',
     loadComponent: () => import('./features/static-pages/contact').then((m) => m.ContactPage),
-    data: seo('Contact us', 'Get in touch about tutorials, corrections or partnerships.'),
+    data: seo(
+      'Contact us',
+      'Get in touch about tutorials, corrections or partnerships. The form opens your email application; nothing is stored on a server.',
+    ),
   },
   {
     path: 'privacy-policy',
     loadComponent: () => import('./features/static-pages/privacy').then((m) => m.PrivacyPage),
-    data: seo('Privacy policy', 'How CodeMaster Academy handles your data.'),
+    data: seo(
+      'Privacy policy',
+      'How CodeMaster Academy handles your data: learning progress and demo accounts stay in your browser, with no analytics or tracking cookies.',
+    ),
   },
   {
     path: 'terms',
     loadComponent: () => import('./features/static-pages/terms').then((m) => m.TermsPage),
-    data: seo('Terms and conditions', 'Terms of use for CodeMaster Academy.'),
+    data: seo(
+      'Terms and conditions',
+      'Terms of use for CodeMaster Academy: how you may use the tutorials and playground, content accuracy and trademark notices.',
+    ),
+  },
+  {
+    path: 'credits',
+    loadComponent: () => import('./features/static-pages/credits').then((m) => m.CreditsPage),
+    data: seo(
+      'Credits and licences',
+      'Logo attributions, trademark notices and the open-source software CodeMaster Academy is built with.',
+    ),
   },
   {
     path: '404',

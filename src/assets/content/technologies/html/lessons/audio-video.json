@@ -10,44 +10,133 @@
     "Embed hosted video with an iframe safely"
   ],
   "blocks": [
-    { "type": "heading", "level": 2, "text": "The audio element" },
-    { "type": "code", "language": "html", "runnable": true, "code": "<audio controls src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3\">\n  Your browser does not support the audio element.\n</audio>" },
-    { "type": "output", "kind": "html", "content": "<audio controls src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3\">Your browser does not support the audio element.</audio>" },
-    { "type": "paragraph", "text": "`controls` shows the play button, timeline and volume. Without it the audio is invisible and can only be started with JavaScript. The text inside the element is only shown by browsers that do not understand `<audio>` at all, which today means almost none." },
-    { "type": "heading", "level": 2, "text": "The video element" },
-    { "type": "code", "language": "html", "runnable": true, "code": "<video controls width=\"320\" height=\"180\" poster=\"https://placehold.co/320x180/0b1120/ffffff?text=Poster\" preload=\"metadata\">\n  <source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm\" type=\"video/webm\">\n  <source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4\" type=\"video/mp4\">\n  Your browser does not support the video element.\n</video>" },
-    { "type": "output", "kind": "html", "content": "<video controls width=\"320\" height=\"180\" poster=\"https://placehold.co/320x180/0b1120/ffffff?text=Poster\" preload=\"metadata\"><source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm\" type=\"video/webm\"><source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4\" type=\"video/mp4\">Your browser does not support the video element.</video>" },
-    { "type": "table", "headers": ["Attribute", "Purpose"], "rows": [
-      ["`controls`", "Show the native player controls"],
-      ["`width` / `height`", "Reserve space so the page does not jump when the video loads"],
-      ["`poster`", "Image shown before playback starts"],
-      ["`preload`", "`none`, `metadata` or `auto`: how much to download before the user presses play"],
-      ["`autoplay`", "Start automatically. Browsers only allow it when `muted` is also set"],
-      ["`muted`", "Start with the sound off"],
-      ["`loop`", "Restart when finished (background clips)"],
-      ["`playsinline`", "Play inside the page on iPhones instead of going full screen"]
-    ] },
-    { "type": "heading", "level": 2, "text": "Multiple sources" },
-    { "type": "paragraph", "text": "Instead of a single `src`, list several `<source>` elements. The browser plays the first one it supports and ignores the rest. Put the smallest, most modern format first (WebM or AV1) and MP4 (H.264) last as the universal fallback. The `type` attribute lets the browser decide without downloading anything." },
-    { "type": "alert", "variant": "warning", "text": "An `autoplay` video with sound is blocked by every modern browser, and even when allowed it is one of the most disliked things on the web. If you need autoplay for a silent background clip, combine `autoplay muted loop playsinline`." },
-    { "type": "heading", "level": 2, "text": "Captions and subtitles" },
-    { "type": "paragraph", "text": "`<track>` attaches a WebVTT file with captions (for people who cannot hear the audio), subtitles (translations) or descriptions. Captions are not optional for professional content: they are required by accessibility law in many countries and they make video searchable." },
-    { "type": "code", "language": "html", "code": "<video controls width=\"640\" height=\"360\">\n  <source src=\"intro.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"intro-en.vtt\" srclang=\"en\" label=\"English\" default>\n  <track kind=\"subtitles\" src=\"intro-es.vtt\" srclang=\"es\" label=\"Español\">\n</video>" },
-    { "type": "code", "language": "text", "title": "intro-en.vtt", "code": "WEBVTT\n\n00:00:00.000 --> 00:00:03.000\nWelcome to the course.\n\n00:00:03.500 --> 00:00:06.000\nLet's start with the basics." },
-    { "type": "heading", "level": 2, "text": "Embedding hosted video" },
-    { "type": "paragraph", "text": "Video hosted on YouTube, Vimeo and similar services is embedded with an `<iframe>`, which places another web page inside yours. Give it a `title` for screen readers, use the provider's privacy-enhanced domain where available, and keep it responsive with a wrapper and CSS `aspect-ratio`." },
-    { "type": "code", "language": "html", "code": "<iframe\n  src=\"https://www.youtube-nocookie.com/embed/VIDEO_ID\"\n  title=\"Course introduction video\"\n  width=\"560\" height=\"315\"\n  allow=\"accelerometer; encrypted-media; gyroscope; picture-in-picture\"\n  allowfullscreen\n  loading=\"lazy\">\n</iframe>" },
-    { "type": "alert", "variant": "info", "text": "Each embedded player loads hundreds of kilobytes of script. On pages with several videos, show a thumbnail and only load the iframe when the user clicks play; this site does exactly that for its video blocks." },
-    { "type": "callout", "icon": "lightbulb", "title": "Accessibility checklist for media", "text": "Native `controls`, captions for video, a transcript for audio, no autoplay with sound, and never rely on colour or sound alone to convey information." }
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The audio element"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<audio controls src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3\">\n  Your browser does not support the audio element.\n</audio>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<audio controls src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3\">Your browser does not support the audio element.</audio>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`controls` shows the play button, timeline and volume. Without it the audio is invisible and can only be started with JavaScript. The text inside the element is only shown by browsers that do not understand `<audio>` at all, which today means almost none."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The video element"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<video controls width=\"320\" height=\"180\" poster=\"https://placehold.co/320x180/0b1120/ffffff?text=Poster\" preload=\"metadata\">\n  <source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm\" type=\"video/webm\">\n  <source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4\" type=\"video/mp4\">\n  Your browser does not support the video element.\n</video>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<video controls width=\"320\" height=\"180\" poster=\"https://placehold.co/320x180/0b1120/ffffff?text=Poster\" preload=\"metadata\"><source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm\" type=\"video/webm\"><source src=\"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4\" type=\"video/mp4\">Your browser does not support the video element.</video>"
+    },
+    {
+      "type": "table",
+      "headers": ["Attribute", "Purpose"],
+      "rows": [
+        ["`controls`", "Show the native player controls"],
+        ["`width` / `height`", "Reserve space so the page does not jump when the video loads"],
+        ["`poster`", "Image shown before playback starts"],
+        [
+          "`preload`",
+          "`none`, `metadata` or `auto`: how much to download before the user presses play"
+        ],
+        ["`autoplay`", "Start automatically. Browsers only allow it when `muted` is also set"],
+        ["`muted`", "Start with the sound off"],
+        ["`loop`", "Restart when finished (background clips)"],
+        ["`playsinline`", "Play inside the page on iPhones instead of going full screen"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Multiple sources"
+    },
+    {
+      "type": "paragraph",
+      "text": "Instead of a single `src`, list several `<source>` elements. The browser plays the first one it supports and ignores the rest. Put the smallest, most modern format first (WebM or AV1) and MP4 (H.264) last as the universal fallback. The `type` attribute lets the browser decide without downloading anything."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "An `autoplay` video with sound is blocked by every modern browser, and even when allowed it is one of the most disliked things on the web. If you need autoplay for a silent background clip, combine `autoplay muted loop playsinline`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Captions and subtitles"
+    },
+    {
+      "type": "paragraph",
+      "text": "`<track>` attaches a WebVTT file with captions (for people who cannot hear the audio), subtitles (translations) or descriptions. Captions are not optional for professional content: they are required by accessibility law in many countries and they make video searchable."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<video controls width=\"640\" height=\"360\">\n  <source src=\"intro.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"intro-en.vtt\" srclang=\"en\" label=\"English\" default>\n  <track kind=\"subtitles\" src=\"intro-es.vtt\" srclang=\"es\" label=\"Español\">\n</video>"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "intro-en.vtt",
+      "code": "WEBVTT\n\n00:00:00.000 --> 00:00:03.000\nWelcome to the course.\n\n00:00:03.500 --> 00:00:06.000\nLet's start with the basics."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Embedding hosted video"
+    },
+    {
+      "type": "paragraph",
+      "text": "Video hosted on YouTube, Vimeo and similar services is embedded with an `<iframe>`, which places another web page inside yours. Give it a `title` for screen readers, use the provider's privacy-enhanced domain where available, and keep it responsive with a wrapper and CSS `aspect-ratio`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<iframe\n  src=\"https://www.youtube-nocookie.com/embed/VIDEO_ID\"\n  title=\"Course introduction video\"\n  width=\"560\" height=\"315\"\n  allow=\"accelerometer; encrypted-media; gyroscope; picture-in-picture\"\n  allowfullscreen\n  loading=\"lazy\">\n</iframe>"
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "text": "Each embedded player loads hundreds of kilobytes of script. On pages with several videos, show a thumbnail and only load the iframe when the user clicks play; this site does exactly that for its video blocks."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Accessibility checklist for media",
+      "text": "Native `controls`, captions for video, a transcript for audio, no autoplay with sound, and never rely on colour or sound alone to convey information."
+    }
   ],
   "exerciseIds": ["html-media-controls", "html-media-sources"],
   "relatedLessons": [
-    { "technologySlug": "html", "slug": "images" },
-    { "technologySlug": "html", "slug": "apis" }
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "apis"
+    }
   ],
   "seo": {
-    "title": "HTML Audio and Video – audio, video, source, track and Embeds",
-    "description": "Learn to embed media with the HTML audio and video elements, multiple source formats, poster images, captions with track, and responsible iframe embeds of hosted video."
+    "title": "HTML Audio and Video – audio, video, source, track, Embeds",
+    "description": "Learn to embed media with the HTML audio and video elements, multiple source formats, poster images, captions with track and responsible iframe embeds."
   },
   "updatedOn": "2026-11-15"
 }

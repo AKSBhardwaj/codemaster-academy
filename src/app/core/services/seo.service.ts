@@ -40,13 +40,14 @@ export class SeoService {
   /** Applies `data.seo` of the deepest activated route after every navigation. Pages with dynamic data call `apply` themselves. */
   watchRoutes(): void {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      const seo = this.deepestRoute(this.router.routerState.root).snapshot.data['seo'] as PageSeo | undefined;
+      const seo = this.deepestRoute(this.router.routerState.root).snapshot.data['seo'] as
+        PageSeo | undefined;
       if (seo) this.apply(seo);
     });
   }
 
   apply(seo: PageSeo): void {
-    const fullTitle = seo.withBrandSuffix === false ? seo.title : `${seo.title} | ${this.site.name}`;
+    const fullTitle = seo.withBrandSuffix === false ? seo.title : this.brandedTitle(seo.title);
     const canonical = this.absoluteUrl(seo.canonicalPath ?? this.currentPath());
     const image = this.absoluteUrl(seo.image ?? this.site.defaultOgImagePath);
 
@@ -65,6 +66,17 @@ export class SeoService {
     this.setMeta('twitter:image', image);
     this.setCanonical(canonical);
     this.setJsonLd(seo.jsonLd ?? []);
+  }
+
+  /**
+   * Appends the brand while keeping titles readable in search results: the full name when the result stays
+   * within 60 characters, the short name within 70, otherwise the page title alone.
+   */
+  private brandedTitle(title: string): string {
+    const full = `${title} | ${this.site.name}`;
+    if (full.length <= 60) return full;
+    const short = `${title} | ${this.site.shortName}`;
+    return short.length <= 70 ? short : title;
   }
 
   absoluteUrl(path: string): string {
@@ -108,7 +120,10 @@ export class SeoService {
     script.type = 'application/ld+json';
     script.id = JSON_LD_ID;
     // "<" is escaped so content can never close the script element.
-    script.textContent = JSON.stringify(items.length === 1 ? items[0] : items).replace(/</g, '\\u003c');
+    script.textContent = JSON.stringify(items.length === 1 ? items[0] : items).replace(
+      /</g,
+      '\\u003c',
+    );
     this.document.head.appendChild(script);
   }
 }

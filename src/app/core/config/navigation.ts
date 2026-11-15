@@ -31,7 +31,10 @@ export const PRIMARY_NAV: readonly NavItem[] = [
     label: 'Tutorials',
     links: [
       link('All tutorials', '/tutorials', { icon: 'book', description: 'Browse every technology' }),
-      link('Learning paths', '/learning-paths', { icon: 'compass', description: 'Guided roadmaps' }),
+      link('Learning paths', '/learning-paths', {
+        icon: 'compass',
+        description: 'Guided roadmaps',
+      }),
     ],
   },
   link('References', '/references', { icon: 'journal-code' }),
@@ -66,7 +69,11 @@ export const FOOTER_NAV: readonly NavGroup[] = [
   {
     kind: 'group',
     label: 'Practice',
-    links: [link('Exercises', '/exercises'), link('Quizzes', '/quizzes'), link('Playground', '/playground')],
+    links: [
+      link('Exercises', '/exercises'),
+      link('Quizzes', '/quizzes'),
+      link('Playground', '/playground'),
+    ],
   },
   {
     kind: 'group',
@@ -86,6 +93,7 @@ export const FOOTER_NAV: readonly NavGroup[] = [
       link('Contact', '/contact'),
       link('Privacy policy', '/privacy-policy'),
       link('Terms and conditions', '/terms'),
+      link('Credits', '/credits'),
     ],
   },
 ];
