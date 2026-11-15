@@ -44,9 +44,14 @@ Phase plan and acceptance criteria live in the approved implementation plan. Thi
 - [x] HTML tutorial: 18 lessons, 31 exercises, 13-question quiz, 56-entry reference, 12 examples → status complete; 208 prerendered routes; 53-URL sitemap.
 - [x] Verification: build, 12 unit tests (parser, renderer, code block, pipe, shell), lint, 26 e2e tests (desktop + mobile), screenshots.
 
-## Phase 5 — Interactive learning
-- [ ] Playground (CodeMirror, HTML sandbox, SQL worker, templates, capability labels).
-- [ ] Exercises (6 types) + grading; quizzes + results; progress, bookmarks, recently viewed; learning path detail.
+## Phase 5 — Interactive learning (done)
+- [x] Execution engines behind one contract: HTML/CSS/JS sandbox (opaque-origin iframe, CSP, nonce-checked console bridge), SQLite WASM worker seeded with sample tables, honest "unavailable" engine for other languages.
+- [x] Lazy CodeMirror 6 editor (language packs on demand, light/dark, SSR textarea fallback); playground page (templates, run/stop/reset/copy/full-screen, Ctrl+Enter, per-language drafts, capability badges, SQL schema panel); output panel (preview, console, result tables).
+- [x] Inline "try it" runners in lessons (deferred + incremental hydration) and "Try it" handoff from runnable code blocks.
+- [x] Grading module (6 exercise types, output/SQL auto-checks, score summary) with unit tests; exercise + quiz stores.
+- [x] Exercise cards (feedback, explanation, retry, solved state), coding tasks (editor, run, auto-check, checklist, solution), quiz runner (stepper, results, review, retry, history); per-technology pages and indexes; inline quiz/exercise blocks.
+- [x] Bookmarks (tutorials + lessons), recently viewed, learning-path enrolment; learning-path detail with per-stage progress, honest planned-stage note and recommended next lesson; bookmarks page.
+- [x] Verification: build (208 routes), 25 unit tests, lint, 54 e2e tests across 6 specs (desktop + mobile), screenshots.
 
 ## Phase 6 — User experience
 - [ ] Browser-local demo auth, guard, dashboard, profile, bookmarks page, recommendations, certificates.

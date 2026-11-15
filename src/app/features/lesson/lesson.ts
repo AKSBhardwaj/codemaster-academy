@@ -6,6 +6,8 @@ import type { Lesson } from '../../core/models/content';
 import { breadcrumbList, techArticle } from '../../core/seo/json-ld';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
+import { BookmarkStore } from '../../core/services/bookmark.store';
+import { RecentStore } from '../../core/services/recent.store';
 import { SeoService } from '../../core/services/seo.service';
 import { ContentRendererComponent } from '../../content/renderer/content-renderer';
 import { BreadcrumbsComponent } from '../../shared/components/breadcrumbs/breadcrumbs';
@@ -25,6 +27,8 @@ export class LessonPage {
 
   protected readonly context = inject(TutorialContext);
   protected readonly progress = inject(ProgressStore);
+  protected readonly bookmarks = inject(BookmarkStore);
+  private readonly recent = inject(RecentStore);
   private readonly content = inject(ContentService);
   private readonly seo = inject(SeoService);
   private readonly site = inject(SITE_CONFIG);
@@ -36,6 +40,7 @@ export class LessonPage {
   protected readonly data = computed<Lesson | undefined>(() => (this.lessonResource.hasValue() ? this.lessonResource.value() : undefined));
   protected readonly notFound = computed(() => this.lessonResource.status() === 'error');
   protected readonly completed = computed(() => this.progress.isCompleted(this.tech(), this.lesson()));
+  protected readonly bookmarked = computed(() => this.bookmarks.isLessonBookmarked(this.tech(), this.lesson()));
   protected readonly total = computed(() => this.context.lessons().length);
   protected readonly crumbs = computed(() => {
     const lesson = this.data();
@@ -50,6 +55,12 @@ export class LessonPage {
 
   constructor() {
     effect(() => this.context.activeLesson.set(this.data()));
+    effect(() => {
+      const lesson = this.data();
+      if (lesson && this.recent.hydrated()) {
+        this.recent.record({ tech: lesson.technologySlug, techName: lesson.technologyName, slug: lesson.slug, title: lesson.title });
+      }
+    });
     inject(DestroyRef).onDestroy(() => this.context.activeLesson.set(undefined));
     effect(() => {
       const lesson = this.data();
@@ -76,5 +87,10 @@ export class LessonPage {
 
   protected toggleComplete(): void {
     this.progress.toggle(this.tech(), this.lesson());
+  }
+
+  protected toggleBookmark(): void {
+    const lesson = this.data();
+    if (lesson) this.bookmarks.toggleLesson({ tech: lesson.technologySlug, slug: lesson.slug, title: lesson.title, techName: lesson.technologyName });
   }
 }

@@ -1,0 +1,60 @@
+<cma-page-header eyebrow="Your library" title="Bookmarks" lead="Tutorials and lessons you saved, plus the lessons you viewed most recently. Everything here is stored in this browser only." />
+
+<div class="container-xxl py-4 py-lg-5">
+  <section class="mb-5" aria-labelledby="bm-tech">
+    <h2 id="bm-tech" class="h4 mb-3">Bookmarked tutorials</h2>
+    @if (technologies().length) {
+      <div class="row g-3">
+        @for (tech of technologies(); track tech.slug) {
+          <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
+            <cma-technology-card [technology]="tech" />
+            <button type="button" class="btn btn-link btn-sm px-0 mt-1" (click)="bookmarks.toggleTechnology(tech.slug)"><cma-icon name="x-circle" [size]="12" /> Remove bookmark</button>
+          </div>
+        }
+      </div>
+    } @else {
+      <cma-empty-state icon="bookmark" title="No bookmarked tutorials yet" text="Open any tutorial and press “Bookmark” to keep it here.">
+        <a class="btn btn-primary" routerLink="/tutorials">Browse tutorials</a>
+      </cma-empty-state>
+    }
+  </section>
+
+  <section class="mb-5" aria-labelledby="bm-lessons">
+    <h2 id="bm-lessons" class="h4 mb-3">Bookmarked lessons</h2>
+    @if (bookmarks.lessons().length) {
+      <ul class="list-group">
+        @for (lesson of bookmarks.lessons(); track lesson.tech + lesson.slug) {
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+            <span class="min-w-0">
+              <a class="fw-semibold text-decoration-none" [routerLink]="['/tutorials', lesson.tech, lesson.slug]">{{ lesson.title }}</a>
+              <span class="d-block small cma-text-secondary">{{ lesson.techName }} · saved {{ lesson.addedAt | date: 'd MMM y' }}</span>
+            </span>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="bookmarks.toggleLesson(lesson)" [attr.aria-label]="'Remove bookmark for ' + lesson.title"><cma-icon name="x-lg" [size]="12" /></button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <cma-empty-state icon="bookmark" title="No bookmarked lessons yet" text="Use the bookmark button at the top of any lesson." />
+    }
+  </section>
+
+  <section aria-labelledby="bm-recent">
+    <h2 id="bm-recent" class="h4 mb-3">Recently viewed</h2>
+    @if (recent.recent().length) {
+      <ul class="list-group">
+        @for (lesson of recent.recent(); track lesson.tech + lesson.slug) {
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+            <span class="min-w-0">
+              <a class="text-decoration-none" [routerLink]="['/tutorials', lesson.tech, lesson.slug]">{{ lesson.title }}</a>
+              <span class="d-block small cma-text-secondary">{{ lesson.techName }}</span>
+            </span>
+            <span class="small cma-text-secondary">{{ lesson.viewedAt | date: 'd MMM, HH:mm' }}</span>
+          </li>
+        }
+      </ul>
+      <button type="button" class="btn btn-link btn-sm px-0 mt-2" (click)="recent.reset()">Clear history</button>
+    } @else {
+      <cma-empty-state icon="clock" title="No lessons viewed yet" text="Lessons you open appear here so you can pick up where you left off." />
+    }
+  </section>
+</div>

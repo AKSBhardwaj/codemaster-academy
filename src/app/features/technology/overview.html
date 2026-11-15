@@ -8,6 +8,9 @@
       <div class="d-flex flex-wrap align-items-center gap-2">
         <cma-status-badge [status]="entry.status" [lessons]="entry.totalLessons" />
         <span class="cma-chip">{{ difficultyLabel[entry.difficulty] }}</span>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="bookmarks.toggleTechnology(entry.slug)" [attr.aria-pressed]="bookmarked()" [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Bookmark this tutorial'">
+          <cma-icon [name]="bookmarked() ? 'bookmark-fill' : 'bookmark'" [size]="14" /> {{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}
+        </button>
         @if (technology(); as tech) {
           <span class="cma-chip">{{ tech.counts.lessons }} lessons</span>
           @if (estimated()) {

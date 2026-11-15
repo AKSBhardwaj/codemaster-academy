@@ -1,0 +1,122 @@
+@if (path(); as path) {
+  <div class="cma-page-header">
+    <div class="container-xxl">
+      <cma-breadcrumbs [items]="crumbs()" />
+      <div class="d-flex align-items-start gap-3">
+        <span class="cma-path__icon"><cma-icon [name]="icon(path.icon)" [size]="28" /></span>
+        <div class="min-w-0">
+          <p class="cma-eyebrow mb-1">Learning path · {{ difficultyLabel[path.level] }}</p>
+          <h1 class="mb-2">{{ path.title }}</h1>
+          <p class="lead cma-text-secondary mb-3 cma-prose">{{ path.tagline }}</p>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="cma-chip"><cma-icon name="layers" [size]="12" /> {{ path.stageCount }} stages</span>
+            <span class="cma-chip"><cma-icon name="clock" [size]="12" /> ≈ {{ path.estimatedHours }} hours</span>
+            <span class="cma-chip"><cma-icon name="people" [size]="12" /> {{ path.audience }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-xxl py-4 py-lg-5">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <p class="cma-prose">{{ path.description }}</p>
+        @if (totals().plannedStages > 0) {
+          <div class="alert alert-secondary d-flex gap-2 small" role="status">
+            <cma-icon name="cone-striped" [size]="16" />
+            <span>{{ totals().plannedStages }} of the tutorials on this path are still planned. The path shows them so you know the full route; stages become trackable as soon as their lessons are published.</span>
+          </div>
+        }
+
+        <ol class="cma-stages list-unstyled">
+          @for (item of stages(); track item.stage.id) {
+            <li class="cma-stage cma-card" [class.cma-stage--done]="item.done">
+              <div class="cma-stage__number">
+                @if (item.done) {
+                  <cma-icon name="check-circle-fill" [size]="18" label="Completed" />
+                } @else {
+                  {{ item.index + 1 }}
+                }
+              </div>
+              <div class="cma-stage__body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                  <div>
+                    <h2 class="h5 mb-1">{{ item.stage.title }}</h2>
+                    <p class="cma-text-secondary mb-2">{{ item.stage.description }}</p>
+                  </div>
+                  <span class="cma-chip"><cma-icon name="clock" [size]="12" /> ≈ {{ item.stage.estimatedHours }} h</span>
+                </div>
+                @if (item.technology; as tech) {
+                  <a class="cma-stage__tech" [routerLink]="['/tutorials', tech.slug]">
+                    <cma-tech-icon [icon]="tech.icon" [name]="tech.name" [size]="36" [accent]="accentFor(tech)" />
+                    <span class="min-w-0 flex-grow-1">
+                      <span class="d-block fw-semibold">{{ tech.name }} tutorial</span>
+                      @if (item.total > 0) {
+                        <span class="d-block small cma-text-secondary">{{ item.completed }} of {{ item.total }} lessons completed</span>
+                      } @else {
+                        <span class="d-block small cma-text-secondary">Lessons not published yet</span>
+                      }
+                    </span>
+                    <cma-status-badge [status]="tech.status" />
+                  </a>
+                  @if (item.total > 0) {
+                    <div class="progress mt-2" role="progressbar" [attr.aria-valuenow]="item.percent" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="item.stage.title + ' progress'" style="height: 5px">
+                      <div class="progress-bar" [style.width.%]="item.percent"></div>
+                    </div>
+                  }
+                } @else if (item.stage.topicNote) {
+                  <div class="cma-stage__note"><cma-icon name="info-circle" [size]="14" /> {{ item.stage.topicNote }}</div>
+                }
+                @if (item.alternatives.length) {
+                  <div class="small mt-2">
+                    <span class="cma-text-secondary">{{ item.technology ? 'Alternatives:' : 'Covered by:' }}</span>
+                    @for (alt of item.alternatives; track alt.slug) {
+                      <a class="ms-1" [routerLink]="['/tutorials', alt.slug]">{{ alt.name }}</a>
+                    }
+                  </div>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      </div>
+
+      <aside class="col-lg-4">
+        <div class="cma-card p-3 cma-path__side">
+          <h2 class="h6">Your progress</h2>
+          <div class="d-flex align-items-baseline gap-2 mb-1">
+            <span class="display-6 fw-bold">{{ totals().percent }}%</span>
+            <span class="small cma-text-secondary">{{ totals().completed }} of {{ totals().total }} published lessons</span>
+          </div>
+          <div class="progress mb-3" role="progressbar" [attr.aria-valuenow]="totals().percent" aria-valuemin="0" aria-valuemax="100" aria-label="Path progress" style="height: 8px">
+            <div class="progress-bar" [style.width.%]="totals().percent"></div>
+          </div>
+          @if (nextLesson(); as next) {
+            <p class="small mb-1 cma-text-secondary">Recommended next lesson</p>
+            <a class="btn btn-primary w-100 d-flex align-items-center justify-content-between gap-2 mb-3" [routerLink]="['/tutorials', next.tech, next.slug]">
+              <span class="text-truncate">{{ next.title }}</span>
+              <cma-icon name="arrow-right" />
+            </a>
+          } @else if (totals().total > 0 && totals().completed >= totals().total) {
+            <p class="small text-success mb-3"><cma-icon name="trophy" [size]="14" /> You have completed every published lesson on this path.</p>
+          } @else if (totals().total === 0) {
+            <p class="small cma-text-secondary mb-3">None of this path's tutorials have published lessons yet.</p>
+          }
+          <button type="button" class="btn w-100" [class.btn-outline-primary]="!enrolled()" [class.btn-success]="enrolled()" (click)="toggleEnrol()" [attr.aria-pressed]="enrolled()">
+            <cma-icon [name]="enrolled() ? 'check-circle-fill' : 'plus-circle'" [size]="14" /> {{ enrolled() ? 'Enrolled' : 'Enrol in this path' }}
+          </button>
+          <p class="small cma-text-secondary mt-2 mb-0">Enrolment and progress are saved in this browser only.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+} @else if (missing()) {
+  <div class="container-xxl py-5">
+    <cma-empty-state icon="compass" title="Learning path not found" text="This path does not exist. Browse the available roadmaps instead.">
+      <a class="btn btn-primary" routerLink="/learning-paths">All learning paths</a>
+    </cma-empty-state>
+  </div>
+} @else {
+  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 12rem"></div></div>
+}

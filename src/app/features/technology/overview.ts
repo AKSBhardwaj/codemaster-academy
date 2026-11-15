@@ -5,6 +5,7 @@ import { SITE_CONFIG } from '../../core/config/site-config';
 import { breadcrumbList, course } from '../../core/seo/json-ld';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ProgressStore } from '../../core/services/progress.store';
+import { BookmarkStore } from '../../core/services/bookmark.store';
 import { SeoService } from '../../core/services/seo.service';
 import { BreadcrumbsComponent } from '../../shared/components/breadcrumbs/breadcrumbs';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
@@ -22,6 +23,7 @@ import { TutorialContext } from './tutorial-context';
 export class TechnologyOverviewPage {
   protected readonly context = inject(TutorialContext);
   protected readonly progress = inject(ProgressStore);
+  protected readonly bookmarks = inject(BookmarkStore);
   protected readonly difficultyLabel = DIFFICULTY_LABEL;
   private readonly catalog = inject(CatalogService);
   private readonly seo = inject(SeoService);
@@ -39,6 +41,7 @@ export class TechnologyOverviewPage {
     return tech.lessons.find((lesson) => !completed.has(lesson.slug)) ?? tech.lessons[0];
   });
   protected readonly completedCount = computed(() => this.progress.countFor(this.context.techSlug()));
+  protected readonly bookmarked = computed(() => this.bookmarks.isTechnologyBookmarked(this.context.techSlug()));
   protected readonly estimated = computed(() => {
     const minutes = this.technology()?.estimatedMinutes ?? 0;
     if (!minutes) return '';
