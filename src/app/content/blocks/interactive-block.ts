@@ -1,19 +1,21 @@
 import { Component, input } from '@angular/core';
 import type { InteractiveBlock } from '../../core/models/content';
 import { CodeBlockComponent } from '../../shared/components/code-block/code-block';
+import { InlineRunnerComponent } from '../../features/playground/inline-runner/inline-runner';
 
 /**
- * "Try it yourself" block. Until the playground engines land (Phase 5) it shows the editable starting
- * code as a static block with an honest note; Phase 5 replaces the note with the inline runner.
+ * "Try it yourself" block: the static code is prerendered; the editable runner (CodeMirror + sandbox)
+ * is deferred until it scrolls into view, so lesson pages stay light.
  */
 @Component({
   selector: 'cma-interactive-block',
-  imports: [CodeBlockComponent],
+  imports: [CodeBlockComponent, InlineRunnerComponent],
   template: `
-    <cma-code-block [code]="block().code" [language]="block().language" [title]="block().title ?? 'Try it yourself'" />
-    <p class="cma-block-note">
-      This example becomes editable and runnable when the in-lesson playground is released (build phase 5). For now you can copy it into your editor.
-    </p>
+    @defer (on viewport; hydrate on viewport) {
+      <cma-inline-runner [initialCode]="block().code" [language]="block().language" [title]="block().title ?? 'Try it yourself'" [height]="block().height ?? 180" />
+    } @placeholder {
+      <cma-code-block [code]="block().code" [language]="block().language" [title]="block().title ?? 'Try it yourself'" />
+    }
   `,
 })
 export class InteractiveBlockComponent {

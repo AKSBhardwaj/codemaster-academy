@@ -1,0 +1,80 @@
+<div class="cma-playground" [class.cma-playground--fullscreen]="fullscreen()">
+  <div class="cma-playground__toolbar">
+    <div class="cma-playground__group">
+      <label class="visually-hidden" for="pg-language">Language</label>
+      <select id="pg-language" class="form-select form-select-sm" (change)="selectLanguage($any($event.target).value)">
+        @for (item of languages(); track item.id) {
+          <option [value]="item.id" [selected]="item.id === languageId()">{{ item.label }}</option>
+        }
+      </select>
+      <label class="visually-hidden" for="pg-template">Example template</label>
+      <select id="pg-template" class="form-select form-select-sm" (change)="selectTemplate($any($event.target).value)">
+        @if (!templateId()) {
+          <option value="">From lesson</option>
+        }
+        @for (item of templates(); track item.id) {
+          <option [value]="item.id" [selected]="item.id === templateId()">{{ item.title }}</option>
+        }
+      </select>
+      <span class="cma-playground__capability cma-playground__capability--{{ capability() }}" [attr.title]="language()?.note || null">
+        <cma-icon [name]="canRun() ? 'check-circle-fill' : 'dash-circle'" [size]="12" />
+        {{ capabilityLabel[capability()] }}
+      </span>
+    </div>
+    <div class="cma-playground__group">
+      @if (languageId() === 'sql') {
+        <button type="button" class="btn btn-ghost btn-sm" (click)="showSchema.set(!showSchema())" [attr.aria-expanded]="showSchema()">
+          <cma-icon name="database" [size]="14" /> Tables
+        </button>
+      }
+      <button type="button" class="btn btn-ghost btn-sm" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy code'">
+        <cma-icon [name]="copied() ? 'clipboard-check' : 'clipboard'" [size]="14" /> {{ copied() ? 'Copied' : 'Copy' }}
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="reset()"><cma-icon name="arrow-counterclockwise" [size]="14" /> Reset</button>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="toggleFullscreen()" [attr.aria-label]="fullscreen() ? 'Exit full screen' : 'Full screen'">
+        <cma-icon [name]="fullscreen() ? 'fullscreen-exit' : 'fullscreen'" [size]="14" />
+        <span class="d-none d-md-inline">{{ fullscreen() ? 'Exit' : 'Full screen' }}</span>
+      </button>
+      @if (session.state() === 'running') {
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="stop()"><cma-icon name="stop-fill" [size]="14" /> Stop</button>
+      }
+      <button type="button" class="btn btn-primary btn-sm cma-playground__run" (click)="run()" [disabled]="!canRun()" [attr.title]="canRun() ? 'Run (Ctrl+Enter)' : language()?.note">
+        <cma-icon name="play-fill" [size]="16" /> Run
+      </button>
+    </div>
+  </div>
+
+  @if (!canRun() && language()?.note; as note) {
+    <div class="alert alert-secondary py-2 small mb-2 d-flex gap-2" role="status">
+      <cma-icon name="info-circle" [size]="16" />
+      <span>{{ note }}</span>
+    </div>
+  }
+  @if (languageId() === 'sql' && showSchema()) {
+    <div class="cma-playground__schema" role="region" aria-label="Sample database tables">
+      @for (table of schema(); track table.table) {
+        <span><strong>{{ table.table }}</strong> ({{ table.columns.join(', ') }})</span>
+      }
+      <span class="cma-text-secondary">The database is recreated before every run.</span>
+    </div>
+  }
+
+  <div class="cma-playground__workspace" [class.cma-playground__workspace--no-preview]="!showPreview()">
+    <section class="cma-playground__editor" aria-label="Code editor">
+      <cma-code-editor [(value)]="code" [language]="language()?.editorLanguage ?? languageId()" [minHeight]="320" label="Playground code editor" />
+      <p class="small cma-text-secondary mt-2 mb-0 d-none d-md-block">
+        Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run. Drafts are kept in this browser per language.
+      </p>
+    </section>
+    <section class="cma-playground__output" aria-label="Output">
+      <cma-output-panel [events]="session.events()" [state]="session.state()" [showPreview]="showPreview()" />
+    </section>
+  </div>
+
+  @if (!fullscreen()) {
+    <p class="small cma-text-secondary mt-3 mb-0">
+      HTML, CSS and JavaScript run inside a sandboxed frame that cannot access this site's data; SQL runs on an in-browser SQLite engine.
+      Other languages are shown for reference only. <a routerLink="/tutorials">Browse tutorials</a> for runnable examples.
+    </p>
+  }
+</div>

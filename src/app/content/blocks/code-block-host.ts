@@ -15,6 +15,7 @@ import { CodeBlockComponent } from '../../shared/components/code-block/code-bloc
       [caption]="block().caption"
       [highlightLines]="block().highlightLines"
       [showLineNumbers]="block().showLineNumbers ?? false"
+      [runnable]="block().runnable ?? false"
     />
   `,
 })

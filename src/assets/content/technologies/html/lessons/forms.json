@@ -10,40 +10,166 @@
     "Explain how submitted data travels and when to use GET or POST"
   ],
   "blocks": [
-    { "type": "heading", "level": 2, "text": "The form element" },
-    { "type": "paragraph", "text": "`<form>` wraps the fields. `action` is the URL that receives the data and `method` is how it is sent. When the user presses the submit button, the browser collects every field that has a `name` and sends `name=value` pairs to the action URL." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<form action=\"/subscribe\" method=\"post\">\n  <label for=\"email\">Email address</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  <button type=\"submit\">Subscribe</button>\n</form>" },
-    { "type": "output", "kind": "html", "content": "<form action=\"/subscribe\" method=\"post\"><label for=\"email\">Email address</label> <input type=\"email\" id=\"email\" name=\"email\" required> <button type=\"submit\">Subscribe</button></form>" },
-    { "type": "heading", "level": 2, "text": "Labels and names" },
-    { "type": "paragraph", "text": "Two attributes are easy to forget and both matter. The label's `for` must equal the field's `id`; that connection lets screen readers announce the label and lets users click the label to focus the field. The `name` is the key under which the value is sent; a field without a `name` is silently left out of the submission." },
-    { "type": "alert", "variant": "danger", "title": "Two silent bugs", "text": "A `<label>` without a matching `for`/`id` pair is not connected to anything, and an `<input>` without `name` never reaches the server. Neither produces an error message; you only notice when data goes missing." },
-    { "type": "paragraph", "text": "You can also wrap the field inside the label, which connects them without ids:" },
-    { "type": "code", "language": "html", "runnable": true, "code": "<label>\n  Your name\n  <input type=\"text\" name=\"name\">\n</label>" },
-    { "type": "output", "kind": "html", "content": "<label>Your name <input type=\"text\" name=\"name\"></label>" },
-    { "type": "heading", "level": 2, "text": "A complete contact form" },
-    { "type": "code", "language": "html", "title": "contact.html", "runnable": true, "code": "<form action=\"/contact\" method=\"post\">\n  <fieldset>\n    <legend>Your details</legend>\n    <p>\n      <label for=\"name\">Name</label>\n      <input type=\"text\" id=\"name\" name=\"name\" required>\n    </p>\n    <p>\n      <label for=\"email\">Email</label>\n      <input type=\"email\" id=\"email\" name=\"email\" required>\n    </p>\n  </fieldset>\n\n  <fieldset>\n    <legend>Your message</legend>\n    <p>\n      <label for=\"topic\">Topic</label>\n      <select id=\"topic\" name=\"topic\">\n        <option value=\"question\">Question</option>\n        <option value=\"bug\">Report a problem</option>\n        <option value=\"other\">Something else</option>\n      </select>\n    </p>\n    <p>\n      <label for=\"message\">Message</label><br>\n      <textarea id=\"message\" name=\"message\" rows=\"4\" cols=\"40\" required></textarea>\n    </p>\n    <p>\n      <label>\n        <input type=\"checkbox\" name=\"newsletter\" value=\"yes\">\n        Send me the monthly newsletter\n      </label>\n    </p>\n  </fieldset>\n\n  <button type=\"submit\">Send message</button>\n  <button type=\"reset\">Clear</button>\n</form>" },
-    { "type": "output", "kind": "html", "content": "<form action=\"/contact\" method=\"post\"><fieldset><legend>Your details</legend><p><label for=\"name\">Name</label> <input type=\"text\" id=\"name\" name=\"name\" required></p><p><label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" required></p></fieldset><fieldset><legend>Your message</legend><p><label for=\"topic\">Topic</label> <select id=\"topic\" name=\"topic\"><option value=\"question\">Question</option><option value=\"bug\">Report a problem</option><option value=\"other\">Something else</option></select></p><p><label for=\"message\">Message</label><br><textarea id=\"message\" name=\"message\" rows=\"4\" cols=\"40\" required></textarea></p><p><label><input type=\"checkbox\" name=\"newsletter\" value=\"yes\"> Send me the monthly newsletter</label></p></fieldset><button type=\"submit\">Send message</button> <button type=\"reset\">Clear</button></form>" },
-    { "type": "table", "headers": ["Element", "Purpose"], "rows": [
-      ["`<fieldset>` + `<legend>`", "Group related fields under a heading; screen readers read the legend with each field"],
-      ["`<select>` + `<option>`", "A drop-down list; the chosen option's `value` is submitted"],
-      ["`<textarea>`", "Multi-line text; `rows` and `cols` set the initial size"],
-      ["`<button type=\"submit\">`", "Sends the form (also the default type inside a form)"],
-      ["`<button type=\"reset\">`", "Restores every field to its initial value"],
-      ["`<button type=\"button\">`", "Does nothing by itself; for JavaScript actions"]
-    ] },
-    { "type": "heading", "level": 2, "text": "GET or POST?" },
-    { "type": "paragraph", "text": "With `method=\"get\"` the values are appended to the URL as a query string (`/search?q=html&page=2`). That is right for searches and filters: the result can be bookmarked and shared. With `method=\"post\"` the values travel in the request body, which is right for anything that changes data (sign-ups, orders, messages) or contains private information." },
-    { "type": "code", "language": "html", "runnable": true, "code": "<form action=\"/search\" method=\"get\">\n  <label for=\"q\">Search</label>\n  <input type=\"search\" id=\"q\" name=\"q\" placeholder=\"e.g. tables\">\n  <button type=\"submit\">Go</button>\n</form>" },
-    { "type": "output", "kind": "html", "content": "<form action=\"/search\" method=\"get\"><label for=\"q\">Search</label> <input type=\"search\" id=\"q\" name=\"q\" placeholder=\"e.g. tables\"> <button type=\"submit\">Go</button></form>" },
-    { "type": "paragraph", "text": "Submitting that form with \"tables\" typed in navigates to `/search?q=tables`. Try it on any site with a search box: the URL tells you the form used GET." },
-    { "type": "heading", "level": 2, "text": "What happens on the server" },
-    { "type": "paragraph", "text": "HTML only sends the data. Something on the server, written in [Node.js](/tutorials/nodejs), [Python](/tutorials/python), [PHP](/tutorials/php) or another language, reads the `name=value` pairs and stores them, emails them or replies with a new page. Without a server, submitting a form just reloads the page with the values in the URL." },
-    { "type": "callout", "icon": "lightbulb", "title": "Required fields", "text": "The `required` attribute stops the browser from submitting an empty field and shows a built-in message. It is a convenience for users, not security: anyone can bypass it, so the server must validate again. The next lesson covers validation attributes in detail." }
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The form element"
+    },
+    {
+      "type": "paragraph",
+      "text": "`<form>` wraps the fields. `action` is the URL that receives the data and `method` is how it is sent. When the user presses the submit button, the browser collects every field that has a `name` and sends `name=value` pairs to the action URL."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<form action=\"/subscribe\" method=\"post\">\n  <label for=\"email\">Email address</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  <button type=\"submit\">Subscribe</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<form action=\"/subscribe\" method=\"post\"><label for=\"email\">Email address</label> <input type=\"email\" id=\"email\" name=\"email\" required> <button type=\"submit\">Subscribe</button></form>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Labels and names"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two attributes are easy to forget and both matter. The label's `for` must equal the field's `id`; that connection lets screen readers announce the label and lets users click the label to focus the field. The `name` is the key under which the value is sent; a field without a `name` is silently left out of the submission."
+    },
+    {
+      "type": "alert",
+      "variant": "danger",
+      "title": "Two silent bugs",
+      "text": "A `<label>` without a matching `for`/`id` pair is not connected to anything, and an `<input>` without `name` never reaches the server. Neither produces an error message; you only notice when data goes missing."
+    },
+    {
+      "type": "paragraph",
+      "text": "You can also wrap the field inside the label, which connects them without ids:"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<label>\n  Your name\n  <input type=\"text\" name=\"name\">\n</label>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<label>Your name <input type=\"text\" name=\"name\"></label>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A complete contact form"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "contact.html",
+      "runnable": true,
+      "code": "<form action=\"/contact\" method=\"post\">\n  <fieldset>\n    <legend>Your details</legend>\n    <p>\n      <label for=\"name\">Name</label>\n      <input type=\"text\" id=\"name\" name=\"name\" required>\n    </p>\n    <p>\n      <label for=\"email\">Email</label>\n      <input type=\"email\" id=\"email\" name=\"email\" required>\n    </p>\n  </fieldset>\n\n  <fieldset>\n    <legend>Your message</legend>\n    <p>\n      <label for=\"topic\">Topic</label>\n      <select id=\"topic\" name=\"topic\">\n        <option value=\"question\">Question</option>\n        <option value=\"bug\">Report a problem</option>\n        <option value=\"other\">Something else</option>\n      </select>\n    </p>\n    <p>\n      <label for=\"message\">Message</label><br>\n      <textarea id=\"message\" name=\"message\" rows=\"4\" cols=\"40\" required></textarea>\n    </p>\n    <p>\n      <label>\n        <input type=\"checkbox\" name=\"newsletter\" value=\"yes\">\n        Send me the monthly newsletter\n      </label>\n    </p>\n  </fieldset>\n\n  <button type=\"submit\">Send message</button>\n  <button type=\"reset\">Clear</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<form action=\"/contact\" method=\"post\"><fieldset><legend>Your details</legend><p><label for=\"name\">Name</label> <input type=\"text\" id=\"name\" name=\"name\" required></p><p><label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" required></p></fieldset><fieldset><legend>Your message</legend><p><label for=\"topic\">Topic</label> <select id=\"topic\" name=\"topic\"><option value=\"question\">Question</option><option value=\"bug\">Report a problem</option><option value=\"other\">Something else</option></select></p><p><label for=\"message\">Message</label><br><textarea id=\"message\" name=\"message\" rows=\"4\" cols=\"40\" required></textarea></p><p><label><input type=\"checkbox\" name=\"newsletter\" value=\"yes\"> Send me the monthly newsletter</label></p></fieldset><button type=\"submit\">Send message</button> <button type=\"reset\">Clear</button></form>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Element",
+        "Purpose"
+      ],
+      "rows": [
+        [
+          "`<fieldset>` + `<legend>`",
+          "Group related fields under a heading; screen readers read the legend with each field"
+        ],
+        [
+          "`<select>` + `<option>`",
+          "A drop-down list; the chosen option's `value` is submitted"
+        ],
+        [
+          "`<textarea>`",
+          "Multi-line text; `rows` and `cols` set the initial size"
+        ],
+        [
+          "`<button type=\"submit\">`",
+          "Sends the form (also the default type inside a form)"
+        ],
+        [
+          "`<button type=\"reset\">`",
+          "Restores every field to its initial value"
+        ],
+        [
+          "`<button type=\"button\">`",
+          "Does nothing by itself; for JavaScript actions"
+        ]
+      ]
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: build a sign-up form",
+      "height": 220,
+      "code": "<form>\n  <p>\n    <label for=\"username\">Username</label>\n    <input id=\"username\" name=\"username\" required>\n  </p>\n  <!-- Add an email field with a connected label, then a submit button -->\n</form>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "GET or POST?"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `method=\"get\"` the values are appended to the URL as a query string (`/search?q=html&page=2`). That is right for searches and filters: the result can be bookmarked and shared. With `method=\"post\"` the values travel in the request body, which is right for anything that changes data (sign-ups, orders, messages) or contains private information."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<form action=\"/search\" method=\"get\">\n  <label for=\"q\">Search</label>\n  <input type=\"search\" id=\"q\" name=\"q\" placeholder=\"e.g. tables\">\n  <button type=\"submit\">Go</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<form action=\"/search\" method=\"get\"><label for=\"q\">Search</label> <input type=\"search\" id=\"q\" name=\"q\" placeholder=\"e.g. tables\"> <button type=\"submit\">Go</button></form>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Submitting that form with \"tables\" typed in navigates to `/search?q=tables`. Try it on any site with a search box: the URL tells you the form used GET."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens on the server"
+    },
+    {
+      "type": "paragraph",
+      "text": "HTML only sends the data. Something on the server, written in [Node.js](/tutorials/nodejs), [Python](/tutorials/python), [PHP](/tutorials/php) or another language, reads the `name=value` pairs and stores them, emails them or replies with a new page. Without a server, submitting a form just reloads the page with the values in the URL."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Required fields",
+      "text": "The `required` attribute stops the browser from submitting an empty field and shows a built-in message. It is a convenience for users, not security: anyone can bypass it, so the server must validate again. The next lesson covers validation attributes in detail."
+    }
   ],
-  "exerciseIds": ["html-forms-label", "html-forms-method"],
+  "exerciseIds": [
+    "html-forms-label",
+    "html-forms-method"
+  ],
   "relatedLessons": [
-    { "technologySlug": "html", "slug": "input-types" },
-    { "technologySlug": "html", "slug": "attributes" }
+    {
+      "technologySlug": "html",
+      "slug": "input-types"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    }
   ],
   "seo": {
     "title": "HTML Forms – form, label, input, select, textarea and Submission",

@@ -1,0 +1,72 @@
+<div class="cma-output-panel" [class.cma-output-panel--compact]="compact()">
+  @if (showPreview()) {
+    <section class="cma-output-panel__preview" aria-label="Rendered output">
+      <div class="cma-output-panel__bar">
+        <span><cma-icon name="window-sidebar" [size]="12" /> Preview</span>
+        @if (state() === 'idle') {
+          <span class="cma-text-secondary">Press Run to render</span>
+        }
+      </div>
+      <div #frameHost class="cma-output-panel__frame-host"></div>
+    </section>
+  } @else {
+    <div #frameHost hidden></div>
+  }
+
+  <section class="cma-output-panel__console" aria-label="Console and results" aria-live="polite">
+    <div class="cma-output-panel__bar">
+      <span><cma-icon name="terminal" [size]="12" /> {{ results().length ? 'Results' : 'Console' }}</span>
+      @if (done(); as finished) {
+        <span class="cma-text-secondary">Finished in {{ finished.durationMs }} ms</span>
+      } @else if (state() === 'running') {
+        <span class="cma-text-secondary">Running…</span>
+      }
+    </div>
+    <div class="cma-output-panel__body">
+      @if (state() === 'idle') {
+        <p class="cma-output-panel__hint">Output, console messages and errors appear here.</p>
+      }
+      @if (status(); as status) {
+        @if (state() === 'running') {
+          <p class="cma-output-panel__hint">{{ status.message }}</p>
+        }
+      }
+      @for (result of results(); track $index) {
+        <div class="table-responsive mb-2">
+          <table class="table table-sm table-bordered cma-output-panel__table">
+            <thead>
+              <tr>
+                @for (column of result.columns; track $index) {
+                  <th scope="col">{{ column }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of result.rows; track $index) {
+                <tr>
+                  @for (value of row; track $index) {
+                    <td [class.cma-output-panel__null]="value === null">{{ cell(value) }}</td>
+                  }
+                </tr>
+              } @empty {
+                <tr><td [attr.colspan]="result.columns.length" class="cma-text-secondary">No rows</td></tr>
+              }
+            </tbody>
+          </table>
+          <p class="small cma-text-secondary mb-0">{{ result.rows.length }} {{ result.rows.length === 1 ? 'row' : 'rows' }}</p>
+        </div>
+      }
+      <ol class="cma-output-panel__log list-unstyled mb-0">
+        @for (entry of consoleEvents(); track $index) {
+          <li class="cma-output-panel__line cma-output-panel__line--{{ entry.type === 'error' ? 'error' : entry.level }}">
+            <span class="cma-output-panel__level">{{ entry.type === 'error' ? 'error' : entry.level }}</span>
+            <pre class="cma-output-panel__text">{{ entry.type === 'error' ? entry.message : entry.text }}</pre>
+          </li>
+        }
+      </ol>
+      @if (state() === 'done' && consoleEvents().length === 0 && results().length === 0) {
+        <p class="cma-output-panel__hint">Finished without console output.</p>
+      }
+    </div>
+  </section>
+</div>

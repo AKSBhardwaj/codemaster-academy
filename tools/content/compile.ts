@@ -17,6 +17,8 @@ import {
   exampleSetSourceSchema,
   technologyOverviewSourceSchema,
   technologySourceSchema,
+  playgroundConfigSchema,
+  type PlaygroundConfig,
   type Category,
   type HomeConfig,
   type LearningPath,
@@ -49,6 +51,7 @@ export interface CompileResult {
   compiled: Map<string, CompiledTechnology>;
   paths: LearningPath[];
   home: HomeConfig;
+  playground: PlaygroundConfig;
   manifest: PrerenderManifest;
   searchCore: SearchDocument[];
   searchLessons: SearchDocument[];
@@ -246,6 +249,8 @@ export async function compile(): Promise<CompileResult> {
 
   const paths = await loadLearningPaths(technologies);
   const home = await loadHome(technologies, paths, uiIcons);
+  const playgroundFile = resolve(SOURCE_DIR, 'site', 'playground.json');
+  const playground = parseWith(playgroundConfigSchema, await readJson(playgroundFile), playgroundFile);
 
   // Valid internal link targets for the broken-link check.
   const validPaths = new Set<string>([...STATIC_INDEXABLE, ...STATIC_NOINDEX]);
@@ -321,7 +326,7 @@ export async function compile(): Promise<CompileResult> {
   const missing = unavailableHighlightLanguages();
   if (missing.length) warnings.push(`no syntax highlighting grammar for: ${missing.join(', ')} (rendered as plain text)`);
 
-  return { categories, technologies, compiled, paths, home, manifest, searchCore, searchLessons, sitemap: buildSitemap(sitemapEntries), warnings };
+  return { categories, technologies, compiled, paths, home, playground, manifest, searchCore, searchLessons, sitemap: buildSitemap(sitemapEntries), warnings };
 }
 
 async function writeJson(path: string, value: unknown): Promise<void> {
@@ -339,6 +344,7 @@ export async function emit(result: CompileResult): Promise<void> {
   await writeJson(out('learning-paths', 'index.json'), summaries);
   for (const path of result.paths) await writeJson(out('learning-paths', `${path.slug}.json`), path);
   await writeJson(out('site', 'home.json'), result.home);
+  await writeJson(out('site', 'playground.json'), result.playground);
   for (const [slug, bundle] of result.compiled) {
     await writeJson(out('technologies', slug, 'overview.json'), bundle.overview);
     for (const lesson of bundle.lessons) await writeJson(out('technologies', slug, 'lessons', `${lesson.slug}.json`), lesson);
@@ -364,6 +370,7 @@ export async function emitJsonSchemas(): Promise<void> {
     'technologies.schema.json': z.array(technologySourceSchema),
     'learning-path.schema.json': learningPathSourceSchema,
     'home.schema.json': homeConfigSchema,
+    'playground.schema.json': playgroundConfigSchema,
     'overview.schema.json': technologyOverviewSourceSchema,
     'lesson.schema.json': lessonSourceSchema,
     'exercises.schema.json': exerciseSetSourceSchema,

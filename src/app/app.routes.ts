@@ -46,7 +46,7 @@ export const routes: Routes = [
   },
   {
     path: 'playground',
-    loadComponent: () => import('./features/playground/playground').then((m) => m.PlaygroundPage),
+    loadComponent: () => import('./features/playground/playground-page').then((m) => m.PlaygroundRoutePage),
     data: seo(
       'Code Playground',
       'Write and run HTML, CSS, JavaScript and SQL directly in your browser with a safe, sandboxed playground.',
