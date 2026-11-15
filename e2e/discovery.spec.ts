@@ -18,6 +18,8 @@ test.describe('discovery', () => {
     await expect(page.getByRole('link', { name: 'COBOL', exact: true })).toBeVisible();
     await page.locator('#catalog-search').fill('');
     await page.getByLabel('Planned').uncheck();
+    await expect(page.getByText(/Showing 1 of 148 technologies/)).toBeVisible();
+    await page.getByLabel('Complete').uncheck();
     await expect(page.getByText('No technologies match these filters')).toBeVisible();
     await page.getByRole('button', { name: 'Reset filters' }).first().click();
     await expect(page.getByText(/Showing 148 of 148 technologies/)).toBeVisible();

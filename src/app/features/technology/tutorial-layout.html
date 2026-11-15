@@ -1,7 +1,13 @@
 <div class="container-xxl">
   <div class="cma-tutorial" [class.cma-tutorial--collapsed]="collapsed()">
     <aside class="cma-tutorial__sidebar d-none d-lg-block" aria-label="Tutorial navigation">
-      <cma-tutorial-sidebar [title]="techName()" [sections]="sections()" [(collapsed)]="collapsed" />
+      <cma-tutorial-sidebar
+        [title]="context.name()"
+        [overviewPath]="'/tutorials/' + tech()"
+        [sections]="sections()"
+        [collapsed]="collapsed()"
+        (collapsedChange)="setCollapsed($event)"
+      />
     </aside>
 
     <div class="cma-tutorial__main">
@@ -20,11 +26,17 @@
     </div>
 
     <aside class="cma-tutorial__context d-none d-xl-block" aria-label="Page context">
-      <!-- Phase 4: on this page, related tutorials, popular examples, recommended exercises, progress -->
+      <cma-context-sidebar />
     </aside>
   </div>
 </div>
 
-<cma-offcanvas [(open)]="drawerOpen" [title]="techName() + ' lessons'">
-  <cma-tutorial-sidebar [title]="techName()" [sections]="sections()" variant="drawer" (navigated)="drawerOpen.set(false)" />
+<cma-offcanvas [(open)]="drawerOpen" [title]="context.name() + ' lessons'">
+  <cma-tutorial-sidebar
+    [title]="context.name()"
+    [overviewPath]="'/tutorials/' + tech()"
+    [sections]="sections()"
+    variant="drawer"
+    (navigated)="drawerOpen.set(false)"
+  />
 </cma-offcanvas>

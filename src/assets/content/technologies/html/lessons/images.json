@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "slug": "images",
+  "title": "HTML Images",
+  "summary": "Embed images with img, write useful alt text, reserve space with width and height, add captions with figure, and serve responsive images with srcset.",
+  "introduction": "Images are the heaviest part of most pages and the part most often done badly: missing alt text, layouts that jump while images load, huge photos sent to small phones. This lesson covers the `<img>` element and its attributes, captions with `<figure>`, responsive images with `srcset` and `sizes`, lazy loading and the formats worth using today.",
+  "learningObjectives": [
+    "Embed an image with the correct src, alt, width and height",
+    "Write alt text for informative and decorative images",
+    "Serve responsive images and lazy-load images below the fold"
+  ],
+  "blocks": [
+    { "type": "heading", "level": 2, "text": "The img element" },
+    { "type": "paragraph", "text": "`<img>` is an empty element with two required attributes: `src`, the image location, and `alt`, a text alternative. `width` and `height` give the image's natural size in pixels so the browser can reserve the space before the file arrives." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<img src=\"https://placehold.co/320x180/0891b2/ffffff?text=Coast\" alt=\"Rocky coastline at sunset with waves breaking on the shore\" width=\"320\" height=\"180\">" },
+    { "type": "output", "kind": "html", "content": "<img src=\"https://placehold.co/320x180/0891b2/ffffff?text=Coast\" alt=\"Rocky coastline at sunset with waves breaking on the shore\" width=\"320\" height=\"180\">" },
+    { "type": "alert", "variant": "warning", "title": "Layout shift", "text": "Without `width` and `height`, the page renders with zero space for the image and then jumps when it loads. That jump is measured by Google as Cumulative Layout Shift and hurts both users and rankings. Always include both attributes; CSS can still scale the image." },
+    { "type": "heading", "level": 2, "text": "Writing alt text" },
+    { "type": "paragraph", "text": "`alt` is read aloud by screen readers, shown when the image fails to load and used by search engines. Describe what the image conveys in context, not what it looks like in isolation." },
+    { "type": "table", "headers": ["Image", "Good alt", "Why"], "rows": [
+      ["Product photo in a shop", "`alt=\"Blue canvas backpack, 20 litres\"`", "Says what a buyer needs to know"],
+      ["Chart in an article", "`alt=\"Sales rose from 1.2M to 1.8M between 2024 and 2026\"`", "Gives the information, not \"a chart\""],
+      ["Purely decorative flourish", "`alt=\"\"`", "Empty alt tells screen readers to skip it"],
+      ["Logo that links home", "`alt=\"Acme home page\"`", "Describes the link destination"]
+    ] },
+    { "type": "alert", "variant": "danger", "text": "Never omit `alt` entirely. A missing attribute makes screen readers announce the file name (\"IMG underscore 2048 dot jpg\"). If the image is decorative, write `alt=\"\"` explicitly." },
+    { "type": "heading", "level": 2, "text": "Captions with figure" },
+    { "type": "paragraph", "text": "When an image needs a visible caption, wrap it in `<figure>` and put the caption in `<figcaption>`. The caption is for everyone; the `alt` text is still needed for people who cannot see the image." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<figure>\n  <img src=\"https://placehold.co/320x200/7c3aed/ffffff?text=Bridge\" alt=\"Suspension bridge seen from the riverbank\" width=\"320\" height=\"200\">\n  <figcaption>Figure 1: The Clifton Suspension Bridge, Bristol.</figcaption>\n</figure>" },
+    { "type": "output", "kind": "html", "content": "<figure><img src=\"https://placehold.co/320x200/7c3aed/ffffff?text=Bridge\" alt=\"Suspension bridge seen from the riverbank\" width=\"320\" height=\"200\"><figcaption>Figure 1: The Clifton Suspension Bridge, Bristol.</figcaption></figure>" },
+    { "type": "heading", "level": 2, "text": "Responsive images" },
+    { "type": "paragraph", "text": "A 2000-pixel photo is wasted on a 360-pixel phone screen. `srcset` lists several versions of the image with their widths, and `sizes` tells the browser how wide the image will be displayed, so it can pick the smallest file that still looks sharp." },
+    { "type": "code", "language": "html", "code": "<img\n  src=\"hero-800.jpg\"\n  srcset=\"hero-400.jpg 400w, hero-800.jpg 800w, hero-1600.jpg 1600w\"\n  sizes=\"(max-width: 600px) 100vw, 800px\"\n  alt=\"Volunteers planting trees in a city park\"\n  width=\"800\" height=\"500\">" },
+    { "type": "list", "ordered": false, "items": [
+      "`srcset` = the candidate files and their real pixel widths (`400w`).",
+      "`sizes` = how wide the image is rendered: full viewport width on screens up to 600px, otherwise 800px.",
+      "`src` = the fallback for very old browsers."
+    ] },
+    { "type": "paragraph", "text": "Use `<picture>` when you want different crops per screen size or want to offer a modern format with a fallback:" },
+    { "type": "code", "language": "html", "code": "<picture>\n  <source srcset=\"photo.avif\" type=\"image/avif\">\n  <source srcset=\"photo.webp\" type=\"image/webp\">\n  <img src=\"photo.jpg\" alt=\"Street market at dusk\" width=\"800\" height=\"533\">\n</picture>" },
+    { "type": "heading", "level": 2, "text": "Lazy loading" },
+    { "type": "paragraph", "text": "`loading=\"lazy\"` tells the browser to download an image only when it is about to scroll into view. Use it for images below the first screen, never for the main hero image, which should load as early as possible." },
+    { "type": "code", "language": "html", "code": "<img src=\"gallery-12.jpg\" alt=\"Hand-thrown ceramic bowl\" width=\"400\" height=\"400\" loading=\"lazy\">" },
+    { "type": "heading", "level": 2, "text": "Choosing a format" },
+    { "type": "table", "headers": ["Format", "Best for", "Notes"], "rows": [
+      ["AVIF / WebP", "Photos and graphics on the modern web", "Much smaller than JPEG at the same quality; use `<picture>` for fallbacks"],
+      ["JPEG", "Photos (fallback)", "Lossy; no transparency"],
+      ["PNG", "Screenshots, graphics needing transparency", "Lossless, large for photos"],
+      ["SVG", "Logos, icons, diagrams", "Vector, scales to any size, tiny file"],
+      ["GIF", "Legacy animations", "256 colours; prefer video or animated WebP"]
+    ] },
+    { "type": "callout", "icon": "lightbulb", "title": "Quick checklist", "text": "Every image: `src`, meaningful `alt` (or `alt=\"\"`), `width`, `height`. Below the fold: `loading=\"lazy\"`. Large photos: `srcset` and `sizes`." }
+  ],
+  "exerciseIds": ["html-images-alt", "html-images-find-error"],
+  "relatedLessons": [
+    { "technologySlug": "html", "slug": "links" },
+    { "technologySlug": "html", "slug": "audio-video" },
+    { "technologySlug": "html", "slug": "seo" }
+  ],
+  "seo": {
+    "title": "HTML Images – img, alt Text, figure, srcset and Lazy Loading",
+    "description": "Learn to embed HTML images correctly: src, alt text that helps, width and height to avoid layout shift, captions with figure, responsive srcset and lazy loading."
+  },
+  "updatedOn": "2026-11-15"
+}

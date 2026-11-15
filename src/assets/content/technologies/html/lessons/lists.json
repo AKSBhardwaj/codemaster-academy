@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "slug": "lists",
+  "title": "HTML Lists",
+  "summary": "Unordered, ordered and description lists, nested lists, and the attributes that control numbering.",
+  "introduction": "Lists are everywhere on the web: navigation menus, steps in a recipe, feature bullet points, glossaries. HTML offers three kinds: unordered lists for items without a sequence, ordered lists for steps or rankings, and description lists for term-and-definition pairs. Using the right one gives screen readers useful information (\"list, 4 items\") and gives you a structure that is easy to style.",
+  "learningObjectives": [
+    "Create unordered, ordered and description lists",
+    "Nest lists correctly",
+    "Control numbering with start, reversed and type"
+  ],
+  "blocks": [
+    { "type": "heading", "level": 2, "text": "Unordered lists" },
+    { "type": "paragraph", "text": "Use `<ul>` when the order of the items does not matter. Each item is an `<li>`; nothing else may be a direct child of `<ul>`." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<ul>\n  <li>Keyboard</li>\n  <li>Mouse</li>\n  <li>Monitor</li>\n</ul>" },
+    { "type": "output", "kind": "html", "content": "<ul><li>Keyboard</li><li>Mouse</li><li>Monitor</li></ul>" },
+    { "type": "heading", "level": 2, "text": "Ordered lists" },
+    { "type": "paragraph", "text": "Use `<ol>` when the sequence matters: instructions, rankings, steps. Browsers number the items automatically, so you do not type the numbers." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<ol>\n  <li>Boil the water.</li>\n  <li>Add the pasta.</li>\n  <li>Cook for nine minutes.</li>\n</ol>" },
+    { "type": "output", "kind": "html", "content": "<ol><li>Boil the water.</li><li>Add the pasta.</li><li>Cook for nine minutes.</li></ol>" },
+    { "type": "heading", "level": 3, "text": "Controlling the numbering" },
+    { "type": "code", "language": "html", "runnable": true, "code": "<p>Continue from step 4:</p>\n<ol start=\"4\">\n  <li>Drain.</li>\n  <li>Serve.</li>\n</ol>\n\n<p>Top three, counting down:</p>\n<ol reversed>\n  <li>Bronze</li>\n  <li>Silver</li>\n  <li>Gold</li>\n</ol>\n\n<p>Letters instead of numbers:</p>\n<ol type=\"a\">\n  <li>Option one</li>\n  <li>Option two</li>\n</ol>" },
+    { "type": "output", "kind": "html", "content": "<p>Continue from step 4:</p><ol start=\"4\"><li>Drain.</li><li>Serve.</li></ol><p>Top three, counting down:</p><ol reversed><li>Bronze</li><li>Silver</li><li>Gold</li></ol><p>Letters instead of numbers:</p><ol type=\"a\"><li>Option one</li><li>Option two</li></ol>" },
+    { "type": "table", "headers": ["Attribute", "Effect"], "rows": [
+      ["`start=\"4\"`", "Begin counting at 4"],
+      ["`reversed`", "Count downwards"],
+      ["`type=\"a\"`, `\"A\"`, `\"i\"`, `\"I\"`, `\"1\"`", "Lower/upper letters, lower/upper Roman numerals, numbers"]
+    ] },
+    { "type": "heading", "level": 2, "text": "Nested lists" },
+    { "type": "paragraph", "text": "To nest a list, place the inner `<ul>` or `<ol>` **inside** an `<li>` of the outer list, after the item's text." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<ul>\n  <li>Frontend\n    <ul>\n      <li>HTML</li>\n      <li>CSS</li>\n      <li>JavaScript</li>\n    </ul>\n  </li>\n  <li>Backend\n    <ul>\n      <li>Node.js</li>\n      <li>Python</li>\n    </ul>\n  </li>\n</ul>" },
+    { "type": "output", "kind": "html", "content": "<ul><li>Frontend<ul><li>HTML</li><li>CSS</li><li>JavaScript</li></ul></li><li>Backend<ul><li>Node.js</li><li>Python</li></ul></li></ul>" },
+    { "type": "alert", "variant": "warning", "text": "Putting the inner `<ul>` *between* two `<li>` elements (as a direct child of the outer `<ul>`) is invalid, even though browsers often display it. The nested list belongs inside the item it relates to." },
+    { "type": "heading", "level": 2, "text": "Description lists" },
+    { "type": "paragraph", "text": "A description list `<dl>` pairs terms (`<dt>`) with descriptions (`<dd>`). It suits glossaries, metadata (\"Author: …\") and FAQs. A term may have several descriptions and vice versa." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<dl>\n  <dt>HTML</dt>\n  <dd>The markup language that structures web pages.</dd>\n  <dt>CSS</dt>\n  <dd>The language that styles web pages.</dd>\n  <dt>JavaScript</dt>\n  <dd>The language that adds behaviour.</dd>\n  <dd>Also used on servers through Node.js.</dd>\n</dl>" },
+    { "type": "output", "kind": "html", "content": "<dl><dt>HTML</dt><dd>The markup language that structures web pages.</dd><dt>CSS</dt><dd>The language that styles web pages.</dd><dt>JavaScript</dt><dd>The language that adds behaviour.</dd><dd>Also used on servers through Node.js.</dd></dl>" },
+    { "type": "heading", "level": 2, "text": "Lists for navigation" },
+    { "type": "paragraph", "text": "A site menu is a list of links, so mark it up as one inside a `<nav>` element. Screen readers then announce how many items the menu has, and CSS can lay the items out horizontally." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<nav aria-label=\"Main\">\n  <ul>\n    <li><a href=\"/\">Home</a></li>\n    <li><a href=\"/tutorials\">Tutorials</a></li>\n    <li><a href=\"/about\">About</a></li>\n  </ul>\n</nav>" },
+    { "type": "output", "kind": "html", "content": "<nav aria-label=\"Main\"><ul><li><a href=\"/\">Home</a></li><li><a href=\"/tutorials\">Tutorials</a></li><li><a href=\"/about\">About</a></li></ul></nav>" },
+    { "type": "callout", "icon": "lightbulb", "title": "Bullets are just a style", "text": "If you want a list without bullets, keep the `<ul>` and remove the markers with CSS (`list-style: none`). Replacing the list with a stack of `<div>` elements throws away the meaning." }
+  ],
+  "exerciseIds": ["html-lists-nested", "html-lists-choose"],
+  "relatedLessons": [
+    { "technologySlug": "html", "slug": "tables" },
+    { "technologySlug": "html", "slug": "links" },
+    { "technologySlug": "html", "slug": "semantic-elements" }
+  ],
+  "seo": {
+    "title": "HTML Lists – ul, ol, dl, Nested Lists and Numbering",
+    "description": "Learn HTML unordered, ordered and description lists, how to nest lists correctly, control numbering with start, reversed and type, and build navigation menus from lists."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,66 @@
+@if (reference(); as reference) {
+  <cma-page-header eyebrow="Reference" [title]="reference.title" [lead]="reference.description">
+    <div slot="top"><cma-breadcrumbs [items]="crumbs()" /></div>
+    <form class="mt-3" role="search" (submit)="$event.preventDefault()">
+      <label class="visually-hidden" for="reference-filter">Filter entries</label>
+      <input id="reference-filter" type="search" class="form-control" style="max-width: 24rem" placeholder="Filter {{ total() }} entries…" autocomplete="off" [formControl]="filter" />
+    </form>
+  </cma-page-header>
+  <div class="container-xxl py-4 py-lg-5">
+    <div class="row g-4">
+      <nav class="col-lg-3 d-none d-lg-block" aria-label="Reference groups">
+        <div class="cma-reference__nav">
+          <ul class="list-unstyled mb-0">
+            @for (group of reference.groups; track group.id) {
+              <li><a [href]="'#' + group.id">{{ group.title }} <span class="cma-text-secondary">({{ group.entries.length }})</span></a></li>
+            }
+          </ul>
+          @if (entry(); as entry) {
+            <a class="btn btn-outline-secondary btn-sm mt-3 w-100" [routerLink]="['/tutorials', entry.slug]">{{ entry.name }} tutorial</a>
+          }
+        </div>
+      </nav>
+      <div class="col-lg-9">
+        @for (group of groups(); track group.id) {
+          <section class="mb-5" [attr.aria-labelledby]="group.id + '-heading'">
+            <h2 class="h4 mb-3" [id]="group.id">{{ group.title }}</h2>
+            @for (item of group.entries; track item.slug) {
+              <article class="cma-reference__entry cma-card" [id]="item.slug">
+                <h3 class="h6 mb-1"><code class="cma-reference__name">{{ item.name }}</code></h3>
+                <p class="mb-2">{{ item.summary }}</p>
+                @if (item.syntax) {
+                  <p class="mb-2"><span class="cma-text-secondary small">Syntax:</span> <code>{{ item.syntax }}</code></p>
+                }
+                @if (item.example) {
+                  <cma-code-block [code]="item.example.code" [language]="item.example.language" />
+                }
+                @if (item.notes?.length) {
+                  <ul class="small mb-2 ps-3">
+                    @for (note of item.notes; track note) {
+                      <li>{{ note }}</li>
+                    }
+                  </ul>
+                }
+                @if (item.lessonSlug) {
+                  <a class="small" [routerLink]="['/tutorials', reference.technologySlug, item.lessonSlug]">Learn more in the lesson</a>
+                }
+              </article>
+            }
+          </section>
+        } @empty {
+          <cma-empty-state icon="funnel" title="No entries match" text="Try a different word or clear the filter." />
+        }
+      </div>
+    </div>
+  </div>
+} @else if (missing()) {
+  <cma-page-header eyebrow="Reference" [title]="(entry()?.name ?? 'Technology') + ' reference'" />
+  <div class="container-xxl py-5">
+    <cma-empty-state icon="journal-code" title="This reference is not published yet" text="References ship together with each tutorial's lessons. Check the tutorial page for its current status.">
+      <a class="btn btn-primary" [routerLink]="['/tutorials', tech()]">Go to the tutorial</a>
+      <a class="btn btn-outline-secondary" routerLink="/references">All references</a>
+    </cma-empty-state>
+  </div>
+} @else {
+  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 10rem"></div></div>
+}

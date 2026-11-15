@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "slug": "tables",
+  "title": "HTML Tables",
+  "summary": "Build data tables with thead, tbody, th and td, make them accessible with scope and caption, merge cells with colspan and rowspan, and know when not to use a table.",
+  "introduction": "Tables present data that has rows and columns: prices, timetables, comparison charts. HTML tables have a reputation for being complicated because they were once abused for page layout. Used for actual data and structured with header cells and a caption, they are straightforward and work beautifully with screen readers. This lesson builds one up step by step.",
+  "learningObjectives": [
+    "Structure a table with caption, thead, tbody, tr, th and td",
+    "Associate header cells with data cells using scope",
+    "Span cells across columns and rows"
+  ],
+  "blocks": [
+    { "type": "heading", "level": 2, "text": "A basic table" },
+    { "type": "paragraph", "text": "A `<table>` contains rows (`<tr>`); each row contains header cells (`<th>`) or data cells (`<td>`)." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<table>\n  <tr>\n    <th>Language</th>\n    <th>First released</th>\n  </tr>\n  <tr>\n    <td>Python</td>\n    <td>1991</td>\n  </tr>\n  <tr>\n    <td>JavaScript</td>\n    <td>1995</td>\n  </tr>\n</table>" },
+    { "type": "output", "kind": "html", "content": "<table><tr><th>Language</th><th>First released</th></tr><tr><td>Python</td><td>1991</td></tr><tr><td>JavaScript</td><td>1995</td></tr></table>" },
+    { "type": "paragraph", "text": "Browsers show tables without borders by default; the borders in these previews come from a little CSS. Styling tables is covered in the [CSS tutorial](/tutorials/css)." },
+    { "type": "heading", "level": 2, "text": "Head, body, foot and caption" },
+    { "type": "paragraph", "text": "Group the header row in `<thead>`, the data in `<tbody>` and totals in `<tfoot>`. Add a `<caption>` as the first child to give the table a title that screen readers announce. The `scope` attribute on `<th>` states whether the header applies to its column or its row." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<table>\n  <caption>Monthly expenses (EUR)</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Category</th>\n      <th scope=\"col\">January</th>\n      <th scope=\"col\">February</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\">Rent</th>\n      <td>900</td>\n      <td>900</td>\n    </tr>\n    <tr>\n      <th scope=\"row\">Groceries</th>\n      <td>310</td>\n      <td>285</td>\n    </tr>\n  </tbody>\n  <tfoot>\n    <tr>\n      <th scope=\"row\">Total</th>\n      <td>1210</td>\n      <td>1185</td>\n    </tr>\n  </tfoot>\n</table>" },
+    { "type": "output", "kind": "html", "content": "<table><caption>Monthly expenses (EUR)</caption><thead><tr><th scope=\"col\">Category</th><th scope=\"col\">January</th><th scope=\"col\">February</th></tr></thead><tbody><tr><th scope=\"row\">Rent</th><td>900</td><td>900</td></tr><tr><th scope=\"row\">Groceries</th><td>310</td><td>285</td></tr></tbody><tfoot><tr><th scope=\"row\">Total</th><td>1210</td><td>1185</td></tr></tfoot></table>" },
+    { "type": "paragraph", "text": "With `scope` in place, a screen reader reading the cell `285` announces \"Groceries, February, 285\", which is exactly what a sighted reader works out from the position." },
+    { "type": "heading", "level": 2, "text": "Merging cells" },
+    { "type": "paragraph", "text": "`colspan` makes a cell span several columns; `rowspan` makes it span several rows. The merged cell replaces the cells it covers, so the following rows contain fewer cells." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<table>\n  <thead>\n    <tr>\n      <th scope=\"col\">Day</th>\n      <th scope=\"col\" colspan=\"2\">Sessions</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\" rowspan=\"2\">Monday</th>\n      <td>09:00 Yoga</td>\n      <td>10:00 Pilates</td>\n    </tr>\n    <tr>\n      <td>18:00 Spinning</td>\n      <td>19:00 Boxing</td>\n    </tr>\n  </tbody>\n</table>" },
+    { "type": "output", "kind": "html", "content": "<table><thead><tr><th scope=\"col\">Day</th><th scope=\"col\" colspan=\"2\">Sessions</th></tr></thead><tbody><tr><th scope=\"row\" rowspan=\"2\">Monday</th><td>09:00 Yoga</td><td>10:00 Pilates</td></tr><tr><td>18:00 Spinning</td><td>19:00 Boxing</td></tr></tbody></table>" },
+    { "type": "alert", "variant": "warning", "text": "Count your cells after adding `colspan` or `rowspan`. A row with too many cells pushes extra cells outside the grid, and a row with too few leaves gaps. Keep merged cells to a minimum; complex merges are hard for screen readers to describe." },
+    { "type": "heading", "level": 2, "text": "When not to use a table" },
+    { "type": "paragraph", "text": "Tables are for tabular data only. Do not use them to position a sidebar next to content or to line up form fields; that is layout, which belongs to CSS grid and flexbox. A layout table confuses screen readers, which announce it as data, and makes responsive design nearly impossible." },
+    { "type": "callout", "icon": "lightbulb", "title": "Responsive tables", "text": "Wide tables overflow on phones. The usual fix is a wrapper element with `overflow-x: auto` in CSS so the table scrolls horizontally instead of breaking the page." },
+    { "type": "quiz", "title": "Quick check", "questions": [
+      { "id": "tables-qc-1", "type": "multiple-choice", "lessonSlug": "tables", "difficulty": "beginner", "question": "Which attribute tells a screen reader that a header cell applies to its whole row?", "explanation": "`scope=\"row\"` associates the header with the cells in its row; `scope=\"col\"` with its column.", "options": ["`colspan=\"row\"`", "`scope=\"row\"`", "`headers=\"row\"`", "`role=\"row\"`"], "correctIndex": 1 }
+    ] }
+  ],
+  "exerciseIds": ["html-tables-build", "html-tables-find-error"],
+  "relatedLessons": [
+    { "technologySlug": "html", "slug": "lists" },
+    { "technologySlug": "html", "slug": "semantic-elements" }
+  ],
+  "seo": {
+    "title": "HTML Tables – thead, tbody, th scope, caption, colspan and rowspan",
+    "description": "Learn to build accessible HTML data tables with caption, thead, tbody, tfoot, th scope, colspan and rowspan, and when a table is the wrong tool."
+  },
+  "updatedOn": "2026-11-15"
+}

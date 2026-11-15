@@ -1,17 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { CatalogService } from '../../core/services/catalog.service';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
-import { WorkInProgressComponent } from '../../shared/components/work-in-progress/work-in-progress';
+import { TechnologyLinkListComponent } from '../../shared/components/technology-link-list/technology-link-list';
 
 @Component({
   selector: 'cma-examples-index',
-  imports: [PageHeaderComponent, WorkInProgressComponent],
+  imports: [PageHeaderComponent, EmptyStateComponent, TechnologyLinkListComponent],
   template: `
-    <cma-page-header
-      eyebrow="Examples"
-      title="Code examples"
-      lead="Short, focused snippets you can copy or open in the playground."
-    />
-    <div class="container-xxl py-5"><cma-work-in-progress feature="Examples" [phase]="4" /></div>
+    <cma-page-header eyebrow="Examples" title="Code examples" lead="Short, focused snippets with expected output that you can copy into your own projects." />
+    <div class="container-xxl py-4 py-lg-5">
+      @if (available().length) {
+        <cma-technology-link-list [technologies]="available()" basePath="/examples" label="Examples" />
+      } @else if (!catalog.isLoading()) {
+        <cma-empty-state icon="file-earmark-code" title="No example sets published yet" text="Examples appear here as tutorials reach the in-progress and complete stages." />
+      }
+    </div>
   `,
 })
-export class ExamplesIndexPage {}
+export class ExamplesIndexPage {
+  protected readonly catalog = inject(CatalogService);
+  protected readonly available = computed(() => this.catalog.technologies().filter((t) => t.hasExamples));
+}

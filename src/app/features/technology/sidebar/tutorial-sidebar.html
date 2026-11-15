@@ -1,7 +1,13 @@
 <div class="cma-sidebar" [class.cma-sidebar--collapsed]="!showBody()">
   <div class="cma-sidebar__header">
     @if (showBody()) {
-      <h2 class="cma-sidebar__title h6 mb-0">{{ title() }} tutorial</h2>
+      <h2 class="cma-sidebar__title h6 mb-0">
+        @if (overviewPath()) {
+          <a class="cma-sidebar__overview" [routerLink]="overviewPath()" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="navigated.emit()">{{ title() }} tutorial</a>
+        } @else {
+          {{ title() }} tutorial
+        }
+      </h2>
     }
     @if (variant() === 'sidebar') {
       <button
@@ -18,17 +24,20 @@
   </div>
 
   @if (showBody()) {
-    <div class="cma-sidebar__search">
-      <label class="visually-hidden" [for]="searchId">Search lessons in this tutorial</label>
-      <input
-        [id]="searchId"
-        type="search"
-        class="form-control form-control-sm"
-        placeholder="Search lessons…"
-        autocomplete="off"
-        [formControl]="filter"
-      />
-    </div>
+    @if (totalItems() > 0) {
+      <p class="cma-sidebar__progress small cma-text-secondary">{{ completedItems() }} of {{ totalItems() }} lessons completed</p>
+      <div class="cma-sidebar__search">
+        <label class="visually-hidden" [for]="searchId">Search lessons in this tutorial</label>
+        <input
+          [id]="searchId"
+          type="search"
+          class="form-control form-control-sm"
+          placeholder="Search lessons…"
+          autocomplete="off"
+          [formControl]="filter"
+        />
+      </div>
+    }
 
     <nav class="cma-sidebar__nav" [attr.aria-label]="title() + ' lessons'">
       @for (section of visibleSections(); track section.id) {

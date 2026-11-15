@@ -32,13 +32,17 @@ Phase plan and acceptance criteria live in the approved implementation plan. Thi
 ## Known limitations / follow-ups
 - `ng serve` does not run `getPrerenderParams`, so parametrised routes render client-side in development; the production build prerenders them (verified).
 - Logo attribution/credits page for CC-BY logos (Angular, Rust, Go, Git, …) to be added in Phase 7 alongside the footer disclaimer.
-- Content search index currently covers technologies, categories and paths; lessons/examples are added by the Phase 4 compiler.
+- Interactive, quiz and exercise blocks render honest static placeholders until the Phase 5 engines land.
+- Playwright launches `ng serve` directly and refuses to reuse a running server (an orphaned server caused stale-content failures).
 
-## Phase 4 — Tutorial engine
-- [ ] Technology overview/lesson/exercise/quiz/reference/example schemas; compiler enrichment (reading time, prev/next, heading ids, Shiki tokens, lessons search index, sitemap).
-- [ ] Renderer with all block components; code block; inline markup.
-- [ ] Technology overview, lesson page, sidebars from content, TOC, prev/next, breadcrumbs.
-- [ ] HTML tutorial authored (~20 lessons).
+## Phase 4 — Tutorial engine (done)
+- [x] Zod schemas for overview, lessons (13 block types), exercises (6 types), quizzes, references, examples; JSON Schemas for editors.
+- [x] Compiler: per-technology compile with sidebar-order validation, reading time, heading ids + TOC, prev/next, build-time Shiki tokens (css-variables theme → CSS classes, no runtime highlighter), referential checks (exercises, quiz, related lessons), internal broken-link check across all markup, status derivation, lesson/example search index, sitemap.xml (served at root), manifest for prerendering.
+- [x] Renderer: @switch over block types with 13 block components; code block from precomputed tokens (copy, line numbers, highlighted lines, caption); inline markup AST renderer (no innerHTML); HTML output previews in a fully sandboxed iframe; click-to-load video embeds.
+- [x] Tutorial layout with route-scoped context: sidebar from content with completed markers and search, contextual sidebar (TOC with active heading, progress, practice links, related tutorials), overview page (complete and honest planned states, Course JSON-LD only when complete), lesson page (breadcrumbs, meta, objectives, related, prev/next, mark complete), references and examples pages with filters, index pages listing published sets.
+- [x] Progress store (browser-local, hydration-safe), breadcrumb/TechArticle JSON-LD builders.
+- [x] HTML tutorial: 18 lessons, 31 exercises, 13-question quiz, 56-entry reference, 12 examples → status complete; 208 prerendered routes; 53-URL sitemap.
+- [x] Verification: build, 12 unit tests (parser, renderer, code block, pipe, shell), lint, 26 e2e tests (desktop + mobile), screenshots.
 
 ## Phase 5 — Interactive learning
 - [ ] Playground (CodeMirror, HTML sandbox, SQL worker, templates, capability labels).

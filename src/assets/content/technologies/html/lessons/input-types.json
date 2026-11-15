@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "slug": "input-types",
+  "title": "HTML Input Types",
+  "summary": "The input types browsers understand, from text and email to date, range, colour and file, plus the attributes that validate input without JavaScript.",
+  "introduction": "The `<input>` element is a chameleon: its `type` attribute turns it into a text box, a password field, a checkbox, a date picker, a colour picker or a file chooser. Choosing the right type gives users the right keyboard on phones, the right picker, and free validation. This lesson walks through the useful types and the attributes that constrain what users may enter.",
+  "learningObjectives": [
+    "Pick the right input type for each kind of data",
+    "Use checkboxes and radio buttons correctly",
+    "Validate input with required, min, max, pattern and friends"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Text-like inputs"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p><label>Username <input type=\"text\" name=\"username\"></label></p>\n<p><label>Password <input type=\"password\" name=\"password\"></label></p>\n<p><label>Email <input type=\"email\" name=\"email\"></label></p>\n<p><label>Website <input type=\"url\" name=\"website\"></label></p>\n<p><label>Phone <input type=\"tel\" name=\"phone\"></label></p>\n<p><label>Search <input type=\"search\" name=\"q\"></label></p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p><label>Username <input type=\"text\" name=\"username\"></label></p><p><label>Password <input type=\"password\" name=\"password\"></label></p><p><label>Email <input type=\"email\" name=\"email\"></label></p><p><label>Website <input type=\"url\" name=\"website\"></label></p><p><label>Phone <input type=\"tel\" name=\"phone\"></label></p><p><label>Search <input type=\"search\" name=\"q\"></label></p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "They look alike on a desktop, but on a phone `email` shows a keyboard with `@`, `tel` shows a number pad, and `url` offers `.com`. `email` and `url` also validate their format on submit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Numbers, ranges and dates"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p><label>Quantity <input type=\"number\" name=\"qty\" min=\"1\" max=\"10\" step=\"1\" value=\"1\"></label></p>\n<p><label>Volume <input type=\"range\" name=\"volume\" min=\"0\" max=\"100\" value=\"40\"></label></p>\n<p><label>Date <input type=\"date\" name=\"date\"></label></p>\n<p><label>Time <input type=\"time\" name=\"time\"></label></p>\n<p><label>Month <input type=\"month\" name=\"month\"></label></p>\n<p><label>Colour <input type=\"color\" name=\"colour\" value=\"#2563eb\"></label></p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p><label>Quantity <input type=\"number\" name=\"qty\" min=\"1\" max=\"10\" step=\"1\" value=\"1\"></label></p><p><label>Volume <input type=\"range\" name=\"volume\" min=\"0\" max=\"100\" value=\"40\"></label></p><p><label>Date <input type=\"date\" name=\"date\"></label></p><p><label>Time <input type=\"time\" name=\"time\"></label></p><p><label>Month <input type=\"month\" name=\"month\"></label></p><p><label>Colour <input type=\"color\" name=\"colour\" value=\"#2563eb\"></label></p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`min`, `max` and `step` constrain numeric and date inputs; the browser refuses out-of-range values. Date fields always submit values in ISO format (`2026-11-15`) regardless of how they are displayed, which makes server code simpler."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Checkboxes and radio buttons"
+    },
+    {
+      "type": "paragraph",
+      "text": "Checkboxes let users pick any number of options; radio buttons let them pick exactly one. Radio buttons in the same group **must share the same `name`**, otherwise the browser treats them as separate groups and lets the user select several."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<fieldset>\n  <legend>Toppings</legend>\n  <label><input type=\"checkbox\" name=\"topping\" value=\"cheese\" checked> Cheese</label>\n  <label><input type=\"checkbox\" name=\"topping\" value=\"olives\"> Olives</label>\n</fieldset>\n<fieldset>\n  <legend>Size</legend>\n  <label><input type=\"radio\" name=\"size\" value=\"s\"> Small</label>\n  <label><input type=\"radio\" name=\"size\" value=\"m\" checked> Medium</label>\n  <label><input type=\"radio\" name=\"size\" value=\"l\"> Large</label>\n</fieldset>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<fieldset><legend>Toppings</legend><label><input type=\"checkbox\" name=\"topping\" value=\"cheese\" checked> Cheese</label> <label><input type=\"checkbox\" name=\"topping\" value=\"olives\"> Olives</label></fieldset><fieldset><legend>Size</legend><label><input type=\"radio\" name=\"size\" value=\"s\"> Small</label> <label><input type=\"radio\" name=\"size\" value=\"m\" checked> Medium</label> <label><input type=\"radio\" name=\"size\" value=\"l\"> Large</label></fieldset>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "Radio buttons with different `name` values are the number one form bug: everything looks right until the user can select Small *and* Large at the same time. Give the whole group one name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Files and hidden values"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\">\n  <label>Photo <input type=\"file\" name=\"photo\" accept=\"image/*\"></label>\n  <input type=\"hidden\" name=\"album\" value=\"holiday-2026\">\n  <button type=\"submit\">Upload</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><label>Photo <input type=\"file\" name=\"photo\" accept=\"image/*\"></label> <input type=\"hidden\" name=\"album\" value=\"holiday-2026\"> <button type=\"submit\">Upload</button></form>"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "File uploads need `method=\"post\"` **and** `enctype=\"multipart/form-data\"` on the form; without the enctype only the file name is sent.",
+        "`accept` filters the file picker (`image/*`, `.pdf`); `multiple` allows several files.",
+        "`type=\"hidden\"` carries a value the user does not see or edit, such as an id. Users can still change it with developer tools, so never trust it for security."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Validation attributes"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Attribute",
+        "Effect",
+        "Example"
+      ],
+      "rows": [
+        [
+          "`required`",
+          "Field must not be empty",
+          "`<input required>`"
+        ],
+        [
+          "`minlength` / `maxlength`",
+          "Length limits for text",
+          "`maxlength=\"120\"`"
+        ],
+        [
+          "`min` / `max` / `step`",
+          "Range and granularity for numbers and dates",
+          "`min=\"18\"`"
+        ],
+        [
+          "`pattern`",
+          "Regular expression the value must match",
+          "`pattern=\"[A-Z]{3}-[0-9]{4}\"`"
+        ],
+        [
+          "`placeholder`",
+          "Hint shown when empty; **not** a replacement for a label",
+          "`placeholder=\"ABC-1234\"`"
+        ],
+        [
+          "`autocomplete`",
+          "Lets the browser fill known values",
+          "`autocomplete=\"email\"`"
+        ],
+        [
+          "`disabled` / `readonly`",
+          "Disabled fields are not submitted; read-only fields are",
+          "`<input readonly>`"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<form action=\"/register\" method=\"post\">\n  <p><label for=\"code\">Booking code</label>\n     <input id=\"code\" name=\"code\" required pattern=\"[A-Z]{3}-[0-9]{4}\" placeholder=\"ABC-1234\" title=\"Three capital letters, a dash and four digits\"></p>\n  <p><label for=\"age\">Age</label>\n     <input type=\"number\" id=\"age\" name=\"age\" min=\"18\" max=\"120\" required></p>\n  <button type=\"submit\">Register</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<form action=\"/register\" method=\"post\"><p><label for=\"code\">Booking code</label> <input id=\"code\" name=\"code\" required pattern=\"[A-Z]{3}-[0-9]{4}\" placeholder=\"ABC-1234\" title=\"Three capital letters, a dash and four digits\"></p><p><label for=\"age\">Age</label> <input type=\"number\" id=\"age\" name=\"age\" min=\"18\" max=\"120\" required></p><button type=\"submit\">Register</button></form>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Press *Register* with an invalid code and the browser blocks the submission and shows the `title` text as the error hint. All of this works without a line of JavaScript."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "text": "Browser validation improves the experience but anyone can disable it. Treat it as a first line of defence and validate again on the server."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Placeholders are not labels",
+      "text": "Placeholder text disappears as soon as the user types and has poor contrast. Always provide a visible `<label>`; use `placeholder` only for an example of the expected format."
+    }
+  ],
+  "exerciseIds": [
+    "html-input-types-choose",
+    "html-input-types-validation"
+  ],
+  "relatedLessons": [
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    }
+  ],
+  "seo": {
+    "title": "HTML Input Types – text, email, number, date, checkbox, radio, file",
+    "description": "Learn every useful HTML input type and the validation attributes required, min, max, step, pattern and maxlength, with checkbox, radio and file examples."
+  },
+  "updatedOn": "2026-11-15"
+}

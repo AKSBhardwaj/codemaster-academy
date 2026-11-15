@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "slug": "elements",
+  "title": "HTML Elements",
+  "summary": "How elements are built from tags and content, how nesting creates the document tree, which elements are empty, and the block versus inline distinction.",
+  "introduction": "An element is the basic building block of HTML. Most elements have an opening tag, some content and a closing tag; a few have no content at all. Elements sit inside other elements, forming a tree that the browser, CSS and JavaScript all navigate. Understanding this structure makes every later topic easier and prevents the most common beginner bugs: unclosed tags and wrong nesting.",
+  "learningObjectives": [
+    "Identify the parts of an element and close tags correctly",
+    "Nest elements properly and read the resulting tree",
+    "Distinguish empty elements and block versus inline elements"
+  ],
+  "blocks": [
+    { "type": "heading", "level": 2, "text": "Anatomy of an element" },
+    { "type": "code", "language": "html", "code": "<p class=\"intro\">Welcome to my site.</p>" },
+    { "type": "table", "headers": ["Part", "In the example"], "rows": [
+      ["Opening tag", "`<p class=\"intro\">`"],
+      ["Attribute", "`class=\"intro\"`"],
+      ["Content", "`Welcome to my site.`"],
+      ["Closing tag", "`</p>`"]
+    ] },
+    { "type": "paragraph", "text": "Tag names are case-insensitive, so `<P>` works, but the universal convention is lowercase. Use it; mixed case looks careless and makes searching your code harder." },
+    { "type": "heading", "level": 2, "text": "Nesting and the document tree" },
+    { "type": "paragraph", "text": "Elements inside other elements must be closed in the reverse order they were opened, like boxes inside boxes. The inner element closes before the outer one." },
+    { "type": "code", "language": "html", "title": "Correct nesting", "runnable": true, "code": "<p>This is <strong>very <em>important</em></strong> text.</p>" },
+    { "type": "output", "kind": "html", "content": "<p>This is <strong>very <em>important</em></strong> text.</p>" },
+    { "type": "code", "language": "html", "title": "Wrong nesting (overlapping tags)", "code": "<p>This is <strong>very <em>important</strong></em> text.</p>" },
+    { "type": "alert", "variant": "warning", "text": "Overlapping tags like `<strong><em>…</strong></em>` are invalid. Browsers try to repair the damage, but the repaired tree is often not what you intended and CSS or JavaScript then behaves strangely. Close the most recently opened element first." },
+    { "type": "paragraph", "text": "Because elements nest, every HTML document is a tree. The `<html>` element is the root, `<head>` and `<body>` are its children, and so on. Developer tools show this tree in the Elements panel, and JavaScript calls it the **DOM** (Document Object Model), which you will meet in the [JavaScript DOM](/tutorials/javascript-dom) tutorial." },
+    { "type": "code", "language": "text", "title": "The tree for a small page", "code": "html\n├── head\n│   ├── meta\n│   └── title\n└── body\n    ├── h1\n    └── p\n        └── a" },
+    { "type": "heading", "level": 2, "text": "Empty (void) elements" },
+    { "type": "paragraph", "text": "Some elements never have content, so they have no closing tag. The most common are `<br>` (line break), `<img>` (image), `<hr>` (thematic break), `<input>` (form field), `<meta>` and `<link>`. Writing them as `<br />` with a slash is allowed and harmless, but not required in HTML." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<p>First line<br>Second line</p>\n<hr>\n<p>After a horizontal rule.</p>" },
+    { "type": "output", "kind": "html", "content": "<p>First line<br>Second line</p><hr><p>After a horizontal rule.</p>" },
+    { "type": "heading", "level": 2, "text": "Block and inline elements" },
+    { "type": "paragraph", "text": "By default, some elements start on a new line and take the full available width: these are **block-level** elements such as `<p>`, `<h1>`, `<ul>`, `<div>` and `<section>`. Others sit inside a line of text and only take the space they need: **inline** elements such as `<a>`, `<strong>`, `<em>`, `<span>` and `<img>`." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<div>A block element</div>\n<div>Another block element</div>\n<span>An inline element</span>\n<span>sits next to the previous one.</span>" },
+    { "type": "output", "kind": "html", "content": "<div>A block element</div><div>Another block element</div><span>An inline element</span> <span>sits next to the previous one.</span>" },
+    { "type": "paragraph", "text": "The rule that matters most: **inline elements should not contain block elements**. A `<span>` may not wrap a `<p>`, and an `<a>` wrapping a whole `<div>` is allowed only in modern HTML for linking cards. CSS can change how any element displays, which is covered in the [CSS tutorial](/tutorials/css)." },
+    { "type": "heading", "level": 2, "text": "Generic containers: div and span" },
+    { "type": "paragraph", "text": "`<div>` (block) and `<span>` (inline) have no meaning of their own; they exist to group content for styling or scripting. They are useful, but reach for a meaningful element first: `<nav>` for navigation, `<article>` for a post, `<button>` for a button. The [semantic elements](/tutorials/html/semantic-elements) lesson covers this in depth." },
+    { "type": "callout", "icon": "lightbulb", "title": "Validate your HTML", "text": "The free [W3C Markup Validation Service](https://validator.w3.org/) reports unclosed tags, bad nesting and misspelled elements. Running it on your pages catches problems browsers silently repair." },
+    { "type": "quiz", "title": "Quick check", "questions": [
+      { "id": "elements-qc-1", "type": "multiple-choice", "lessonSlug": "elements", "difficulty": "beginner", "question": "Which of these is an empty (void) element?", "explanation": "`<img>` never has content or a closing tag. The others wrap content.", "options": ["`<p>`", "`<img>`", "`<strong>`", "`<ul>`"], "correctIndex": 1 }
+    ] }
+  ],
+  "exerciseIds": ["html-elements-fix-nesting", "html-elements-block-inline"],
+  "relatedLessons": [
+    { "technologySlug": "html", "slug": "attributes" },
+    { "technologySlug": "html", "slug": "semantic-elements" }
+  ],
+  "seo": {
+    "title": "HTML Elements – Tags, Nesting, Empty Elements, Block vs Inline",
+    "description": "Learn how HTML elements are built from tags and content, how nesting forms the document tree, which elements are empty, and the difference between block and inline."
+  },
+  "updatedOn": "2026-11-15"
+}

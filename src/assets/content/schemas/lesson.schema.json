@@ -1,0 +1,861 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 90
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 200
+    },
+    "introduction": {
+      "type": "string",
+      "minLength": 60,
+      "maxLength": 600
+    },
+    "learningObjectives": {
+      "minItems": 2,
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 140
+      }
+    },
+    "blocks": {
+      "minItems": 3,
+      "maxItems": 80,
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "heading"
+              },
+              "level": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": 2
+                  },
+                  {
+                    "type": "number",
+                    "const": 3
+                  },
+                  {
+                    "type": "number",
+                    "const": 4
+                  }
+                ]
+              },
+              "text": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 120
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "type",
+              "level",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "paragraph"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "type",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "list"
+              },
+              "ordered": {
+                "type": "boolean"
+              },
+              "items": {
+                "minItems": 1,
+                "maxItems": 30,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              }
+            },
+            "required": [
+              "type",
+              "ordered",
+              "items"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "code"
+              },
+              "language": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30
+              },
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "caption": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "highlightLines": {
+                "maxItems": 50,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "showLineNumbers": {
+                "type": "boolean"
+              },
+              "runnable": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "type",
+              "language",
+              "code"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "output"
+              },
+              "content": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 10000
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "html"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80
+              }
+            },
+            "required": [
+              "type",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "alert"
+              },
+              "variant": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "warning",
+                  "success",
+                  "danger"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "type",
+              "variant",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "table"
+              },
+              "caption": {
+                "type": "string",
+                "maxLength": 120
+              },
+              "headers": {
+                "minItems": 2,
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                }
+              },
+              "rows": {
+                "minItems": 1,
+                "maxItems": 60,
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                }
+              }
+            },
+            "required": [
+              "type",
+              "headers",
+              "rows"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "image"
+              },
+              "src": {
+                "type": "string",
+                "minLength": 1
+              },
+              "alt": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 200
+              },
+              "width": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "height": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "caption": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "type",
+              "src",
+              "alt",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "video"
+              },
+              "provider": {
+                "type": "string",
+                "const": "youtube"
+              },
+              "videoId": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{6,20}$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "type",
+              "provider",
+              "videoId",
+              "title"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "callout"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 80
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "type",
+              "title",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "interactive"
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "html",
+                  "sql"
+                ]
+              },
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20000
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 80,
+                "maximum": 800
+              }
+            },
+            "required": [
+              "type",
+              "language",
+              "code"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "quiz"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "questions": {
+                "minItems": 1,
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "lessonSlug": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "beginner",
+                            "intermediate",
+                            "advanced"
+                          ]
+                        },
+                        "question": {
+                          "type": "string",
+                          "minLength": 10,
+                          "maxLength": 600
+                        },
+                        "explanation": {
+                          "type": "string",
+                          "minLength": 20,
+                          "maxLength": 800
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "multiple-choice"
+                        },
+                        "options": {
+                          "minItems": 2,
+                          "maxItems": 6,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        },
+                        "correctIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lessonSlug",
+                        "difficulty",
+                        "question",
+                        "explanation",
+                        "type",
+                        "options",
+                        "correctIndex"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "lessonSlug": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "beginner",
+                            "intermediate",
+                            "advanced"
+                          ]
+                        },
+                        "question": {
+                          "type": "string",
+                          "minLength": 10,
+                          "maxLength": 600
+                        },
+                        "explanation": {
+                          "type": "string",
+                          "minLength": 20,
+                          "maxLength": 800
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "true-false"
+                        },
+                        "correct": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lessonSlug",
+                        "difficulty",
+                        "question",
+                        "explanation",
+                        "type",
+                        "correct"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "lessonSlug": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "beginner",
+                            "intermediate",
+                            "advanced"
+                          ]
+                        },
+                        "question": {
+                          "type": "string",
+                          "minLength": 10,
+                          "maxLength": 600
+                        },
+                        "explanation": {
+                          "type": "string",
+                          "minLength": 20,
+                          "maxLength": 800
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "fill-blank"
+                        },
+                        "answers": {
+                          "minItems": 1,
+                          "maxItems": 6,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          }
+                        },
+                        "caseSensitive": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lessonSlug",
+                        "difficulty",
+                        "question",
+                        "explanation",
+                        "type",
+                        "answers"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "lessonSlug": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "beginner",
+                            "intermediate",
+                            "advanced"
+                          ]
+                        },
+                        "question": {
+                          "type": "string",
+                          "minLength": 10,
+                          "maxLength": 600
+                        },
+                        "explanation": {
+                          "type": "string",
+                          "minLength": 20,
+                          "maxLength": 800
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "predict-output"
+                        },
+                        "language": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "code": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000
+                        },
+                        "options": {
+                          "minItems": 2,
+                          "maxItems": 6,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        },
+                        "correctIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lessonSlug",
+                        "difficulty",
+                        "question",
+                        "explanation",
+                        "type",
+                        "language",
+                        "code",
+                        "options",
+                        "correctIndex"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "lessonSlug": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "beginner",
+                            "intermediate",
+                            "advanced"
+                          ]
+                        },
+                        "question": {
+                          "type": "string",
+                          "minLength": 10,
+                          "maxLength": 600
+                        },
+                        "explanation": {
+                          "type": "string",
+                          "minLength": 20,
+                          "maxLength": 800
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "find-error"
+                        },
+                        "language": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "code": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000
+                        },
+                        "options": {
+                          "minItems": 2,
+                          "maxItems": 6,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        },
+                        "correctIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "errorLine": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "lessonSlug",
+                        "difficulty",
+                        "question",
+                        "explanation",
+                        "type",
+                        "language",
+                        "code",
+                        "options",
+                        "correctIndex"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "type",
+              "questions"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "exercise"
+              },
+              "exerciseId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "exerciseId"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "exerciseIds": {
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relatedLessons": {
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "technologySlug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "required": [
+          "technologySlug",
+          "slug"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "seo": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 70
+        },
+        "description": {
+          "type": "string",
+          "minLength": 50,
+          "maxLength": 170
+        },
+        "keywords": {
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "image": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "updatedOn": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "slug",
+    "title",
+    "summary",
+    "introduction",
+    "learningObjectives",
+    "blocks",
+    "relatedLessons",
+    "seo",
+    "updatedOn"
+  ],
+  "additionalProperties": false
+}

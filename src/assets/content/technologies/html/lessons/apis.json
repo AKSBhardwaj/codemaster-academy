@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "slug": "apis",
+  "title": "HTML APIs",
+  "summary": "The browser features that pair HTML with a little JavaScript: data attributes, dialog, template, canvas, drag and drop, Web Storage and Geolocation.",
+  "introduction": "Modern HTML is more than static markup. Several elements and attributes come with programming interfaces (APIs) that JavaScript uses to build interactive features: a native modal dialog, a drawing surface, drag-and-drop, local storage and the user's location. This lesson introduces the most useful ones with short, honest examples. You do not need to master JavaScript yet; the goal is to know what exists so you reach for the built-in tool instead of a heavy library later.",
+  "learningObjectives": [
+    "Pass data from HTML to JavaScript with data attributes",
+    "Use the dialog, template and canvas elements",
+    "Describe what Web Storage, Geolocation and drag and drop offer"
+  ],
+  "blocks": [
+    { "type": "heading", "level": 2, "text": "What an HTML API is" },
+    { "type": "paragraph", "text": "An API (application programming interface) is a set of functions and properties that JavaScript can call. The HTML standard defines APIs for its elements: every `<video>` has `play()` and `pause()`, every form field has `checkValidity()`, every element exposes its `data-*` attributes. The examples below mix HTML with a few lines of [JavaScript](/tutorials/javascript); the HTML part is the subject of this lesson." },
+    { "type": "heading", "level": 2, "text": "Data attributes" },
+    { "type": "code", "language": "html", "runnable": true, "code": "<button id=\"buy\" data-product=\"notebook\" data-price=\"4.50\">Buy</button>\n\n<script>\n  const button = document.getElementById('buy');\n  button.addEventListener('click', () => {\n    console.log(`Adding ${button.dataset.product} at ${button.dataset.price}`);\n  });\n</script>" },
+    { "type": "output", "content": "Adding notebook at 4.50" },
+    { "type": "paragraph", "text": "`dataset` converts `data-product` to `dataset.product`. Data attributes are the cleanest way to attach information to markup that a script needs later." },
+    { "type": "heading", "level": 2, "text": "The dialog element" },
+    { "type": "paragraph", "text": "`<dialog>` is a native pop-up. Opened with `showModal()`, it traps focus, dims the page behind a backdrop and closes with the Escape key, all without a library." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<button id=\"open\">Delete account</button>\n\n<dialog id=\"confirm\">\n  <p>Delete your account? This cannot be undone.</p>\n  <form method=\"dialog\">\n    <button value=\"cancel\">Cancel</button>\n    <button value=\"delete\">Delete</button>\n  </form>\n</dialog>\n\n<script>\n  const dialog = document.getElementById('confirm');\n  document.getElementById('open').addEventListener('click', () => dialog.showModal());\n  dialog.addEventListener('close', () => console.log('Choice:', dialog.returnValue));\n</script>" },
+    { "type": "output", "content": "Choice: delete" },
+    { "type": "paragraph", "text": "A form with `method=\"dialog\"` closes the dialog when submitted and stores the pressed button's `value` in `returnValue`. The search box on this site is built with a `<dialog>`." },
+    { "type": "heading", "level": 2, "text": "The template element" },
+    { "type": "paragraph", "text": "Content inside `<template>` is parsed but not rendered. Scripts clone it to create repeated elements, such as rows in a list, without building HTML strings." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<ul id=\"todos\"></ul>\n\n<template id=\"todo-item\">\n  <li><input type=\"checkbox\"> <span class=\"text\"></span></li>\n</template>\n\n<script>\n  const list = document.getElementById('todos');\n  const template = document.getElementById('todo-item');\n  for (const text of ['Buy milk', 'Water plants']) {\n    const item = template.content.cloneNode(true);\n    item.querySelector('.text').textContent = text;\n    list.append(item);\n  }\n</script>" },
+    { "type": "output", "kind": "html", "content": "<ul><li><input type=\"checkbox\"> Buy milk</li><li><input type=\"checkbox\"> Water plants</li></ul>" },
+    { "type": "heading", "level": 2, "text": "Canvas" },
+    { "type": "paragraph", "text": "`<canvas>` is a bitmap drawing surface. The HTML part is just the element with a size; everything drawn on it comes from the Canvas API in JavaScript. Charts, games and image editors use it. Give it fallback text, because canvas content is invisible to screen readers." },
+    { "type": "code", "language": "html", "runnable": true, "code": "<canvas id=\"chart\" width=\"200\" height=\"100\">Bar chart: sales by quarter</canvas>\n\n<script>\n  const ctx = document.getElementById('chart').getContext('2d');\n  const values = [30, 70, 50, 90];\n  values.forEach((value, i) => {\n    ctx.fillStyle = '#2563eb';\n    ctx.fillRect(i * 50 + 10, 100 - value, 30, value);\n  });\n</script>" },
+    { "type": "heading", "level": 2, "text": "Drag and drop" },
+    { "type": "paragraph", "text": "Any element with `draggable=\"true\"` can be dragged. JavaScript listens for `dragstart`, `dragover` and `drop` events to move data between elements. The HTML side is tiny; most of the work is in the event handlers." },
+    { "type": "code", "language": "html", "code": "<p id=\"card\" draggable=\"true\">Drag me</p>\n<div id=\"target\" style=\"min-height: 60px; border: 2px dashed #94a3b8\">Drop here</div>\n\n<script>\n  const target = document.getElementById('target');\n  target.addEventListener('dragover', (event) => event.preventDefault());\n  target.addEventListener('drop', () => target.textContent = 'Dropped!');\n</script>" },
+    { "type": "heading", "level": 2, "text": "Web Storage" },
+    { "type": "paragraph", "text": "`localStorage` keeps small amounts of data (strings) in the browser between visits; `sessionStorage` keeps them until the tab closes. They are used for preferences, drafts and progress, which is exactly how this site remembers your theme and completed lessons. Nothing is sent to a server, and the user can clear it at any time." },
+    { "type": "code", "language": "javascript", "runnable": true, "code": "localStorage.setItem('theme', 'dark');\nconsole.log(localStorage.getItem('theme'));\nlocalStorage.removeItem('theme');\nconsole.log(localStorage.getItem('theme'));" },
+    { "type": "output", "content": "dark\nnull" },
+    { "type": "heading", "level": 2, "text": "Geolocation" },
+    { "type": "paragraph", "text": "`navigator.geolocation` asks the user for permission and then reports their coordinates. It only works on secure (HTTPS) pages and the browser always shows a permission prompt; a site can never read the location silently." },
+    { "type": "code", "language": "javascript", "code": "navigator.geolocation.getCurrentPosition(\n  (position) => console.log(position.coords.latitude, position.coords.longitude),\n  (error) => console.log('Location unavailable:', error.message)\n);" },
+    { "type": "alert", "variant": "info", "text": "Ask for location only when the user does something that needs it, such as pressing \"Find stores near me\". Prompting on page load is the fastest way to get the request denied." },
+    { "type": "callout", "icon": "lightbulb", "title": "Where to go next", "text": "The [Web APIs](/tutorials/web-apis) tutorial covers Fetch, IndexedDB, Web Workers and more in depth, and the [JavaScript DOM](/tutorials/javascript-dom) tutorial teaches the scripting these examples rely on." }
+  ],
+  "exerciseIds": ["html-apis-storage", "html-apis-dialog"],
+  "relatedLessons": [
+    { "technologySlug": "html", "slug": "attributes" },
+    { "technologySlug": "html", "slug": "audio-video" }
+  ],
+  "seo": {
+    "title": "HTML APIs – data Attributes, dialog, template, canvas, Storage",
+    "description": "An introduction to the HTML APIs that connect markup to JavaScript: data attributes, the dialog and template elements, canvas, drag and drop, Web Storage and Geolocation."
+  },
+  "updatedOn": "2026-11-15"
+}

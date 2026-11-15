@@ -1,0 +1,22 @@
+<figure class="cma-code" [attr.aria-label]="ariaLabel()">
+  <figcaption class="cma-code__header">
+    <span class="d-inline-flex align-items-center gap-2 min-w-0">
+      @if (title()) {
+        <span class="cma-code__title text-truncate">{{ title() }}</span>
+        <span class="cma-code__lang">{{ languageLabel() }}</span>
+      } @else {
+        <span class="cma-code__lang">{{ languageLabel() }}</span>
+      }
+    </span>
+    <button type="button" class="btn btn-sm cma-code__copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied to clipboard' : 'Copy code to clipboard'">
+      <cma-icon [name]="copied() ? 'clipboard-check' : 'clipboard'" [size]="14" />
+      <span aria-live="polite">{{ copied() ? 'Copied' : 'Copy' }}</span>
+    </button>
+  </figcaption>
+  <div class="cma-code__body">
+    <pre tabindex="0"><code>@for (line of lines(); track $index) {<span class="cma-code__line" [class.cma-code__line--highlight]="highlighted().has($index + 1)">@if (showLineNumbers()) {<span class="cma-code__ln" aria-hidden="true">{{ $index + 1 }}</span>}@for (token of line; track $index) {<span [class]="token[1] || null">{{ token[0] }}</span>}</span>}</code></pre>
+  </div>
+  @if (caption()) {
+    <div class="cma-code__caption"><cma-inline [text]="caption()" /></div>
+  }
+</figure>

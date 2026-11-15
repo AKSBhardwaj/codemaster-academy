@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "slug": "seo",
+  "title": "HTML and SEO",
+  "summary": "The on-page search engine optimisation that lives in HTML: titles, meta descriptions, headings, semantic structure, alt text, links, canonical URLs, Open Graph and structured data.",
+  "introduction": "Search engines read HTML, not screenshots. The title in the browser tab, the description under a search result, the headings, the image alt text and the links between pages are all HTML, and getting them right is the foundation of search engine optimisation (SEO). No trick in this lesson replaces useful content, but useful content with sloppy HTML gets found less often than it deserves. Here is the checklist that depends on markup.",
+  "learningObjectives": [
+    "Write effective title and meta description tags",
+    "Use headings, semantic elements, alt text and links the way search engines expect",
+    "Add canonical, robots, Open Graph and JSON-LD metadata"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The title and description"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `<title>` is the headline of your search result and the label of the browser tab. The meta description is the grey snippet under it. Both live in `<head>` and both should be unique per page."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Growing Tomatoes on a Balcony – Garden Notes</title>\n  <meta name=\"description\" content=\"A beginner's guide to growing cherry tomatoes in containers: choosing a variety, soil, watering and harvesting in a small space.\">\n</head>"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Keep titles around **50–60 characters**, put the specific topic first and the site name last.",
+        "Write descriptions of **120–160 characters** that say what the reader will get. Search engines may rewrite them, but a good one earns more clicks.",
+        "Never reuse the same title or description on two pages."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Headings and structure"
+    },
+    {
+      "type": "paragraph",
+      "text": "Search engines use your heading outline to understand the topic and sub-topics of a page, and they treat `<main>` and `<article>` content as more important than `<nav>` and `<footer>` boilerplate. Everything from the [headings](/tutorials/html/headings) and [semantic elements](/tutorials/html/semantic-elements) lessons applies directly: one `<h1>` that names the topic, logical `<h2>`/`<h3>` sections, one `<main>`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Images and links"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**Alt text** is how image search understands pictures and how your page stays meaningful when images do not load. Describe the content; do not stuff keywords.",
+        "**Descriptive link text** (\"HTML forms tutorial\" rather than \"click here\") tells search engines what the linked page is about.",
+        "**Internal links** between related pages help crawlers discover content and spread authority. Every page should be reachable from the navigation or from other pages.",
+        "**Readable URLs** such as `/tutorials/html/forms` beat `/page?id=8821`; keep them lowercase, hyphenated and stable."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Language, canonical URL and robots"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<html lang=\"en\">\n<head>\n  <link rel=\"canonical\" href=\"https://gardennotes.example/posts/balcony-tomatoes\">\n  <meta name=\"robots\" content=\"index, follow\">\n</head>"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Tag",
+        "Purpose"
+      ],
+      "rows": [
+        [
+          "`lang` on `<html>`",
+          "Tells search engines and screen readers the page language; affects which users see the page"
+        ],
+        [
+          "`<link rel=\"canonical\">`",
+          "Names the preferred URL when the same content is reachable at several addresses (with and without `www`, with tracking parameters), so ranking signals are not split"
+        ],
+        [
+          "`<meta name=\"robots\">`",
+          "`index, follow` is the default; use `noindex` for pages that should not appear in results, such as search results pages or thin drafts"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Social sharing with Open Graph"
+    },
+    {
+      "type": "paragraph",
+      "text": "When someone shares a link on social networks or chat apps, the preview card is built from Open Graph meta tags. They do not affect ranking directly, but they decide whether a shared link gets clicked."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<meta property=\"og:type\" content=\"article\">\n<meta property=\"og:title\" content=\"Growing Tomatoes on a Balcony\">\n<meta property=\"og:description\" content=\"A beginner's guide to cherry tomatoes in containers.\">\n<meta property=\"og:image\" content=\"https://gardennotes.example/images/tomatoes-1200x630.jpg\">\n<meta property=\"og:url\" content=\"https://gardennotes.example/posts/balcony-tomatoes\">\n<meta name=\"twitter:card\" content=\"summary_large_image\">"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Structured data"
+    },
+    {
+      "type": "paragraph",
+      "text": "Structured data describes the page in a machine-readable vocabulary ([schema.org](https://schema.org)) so search engines can show rich results: star ratings, recipe times, breadcrumbs, FAQ accordions. The recommended format is JSON-LD inside a `<script type=\"application/ld+json\">` tag in `<head>`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"Growing Tomatoes on a Balcony\",\n  \"datePublished\": \"2026-05-02\",\n  \"author\": { \"@type\": \"Person\", \"name\": \"Ada Gardener\" }\n}\n</script>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "Only describe what is actually on the page. Marking up a five-star rating that users cannot see, or an FAQ that does not exist, violates search engine guidelines and can get a site penalised."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Performance and mobile"
+    },
+    {
+      "type": "paragraph",
+      "text": "Speed and mobile usability are ranking factors measured on real HTML: the `viewport` meta tag, image `width`/`height` to avoid layout shift, `loading=\"lazy\"` on offscreen images, and compressed modern image formats. The [Web Performance](/tutorials/web-performance) tutorial goes deeper."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Beyond the page"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two small text files complete the picture. `robots.txt` at the site root tells crawlers which areas to skip, and `sitemap.xml` lists every URL you want indexed with its last-modified date. Both are generated by most site builders, including the build pipeline behind this site."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "On-page SEO checklist",
+      "text": "Unique `<title>` and description · one `<h1>` and a logical outline · `<main>` and semantic landmarks · alt text on every image · descriptive internal links · readable URLs · `lang`, canonical and robots tags · Open Graph tags · honest structured data · fast, mobile-friendly markup."
+    }
+  ],
+  "exerciseIds": [
+    "html-seo-title",
+    "html-seo-checklist"
+  ],
+  "relatedLessons": [
+    {
+      "technologySlug": "html",
+      "slug": "headings"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "semantic-elements"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    }
+  ],
+  "seo": {
+    "title": "HTML and SEO – Title, Meta, Headings, Alt Text and Structured Data",
+    "description": "Learn the on-page SEO that lives in HTML: title and meta description, heading outlines, landmarks, alt text, links, canonical and robots tags, Open Graph and JSON-LD."
+  },
+  "updatedOn": "2026-11-15"
+}

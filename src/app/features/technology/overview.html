@@ -1,0 +1,176 @@
+@if (entry(); as entry) {
+  <cma-breadcrumbs [items]="crumbs()" />
+  <header class="cma-overview__header">
+    <cma-tech-icon [icon]="entry.icon" [name]="entry.name" [size]="64" [accent]="category()?.accent" />
+    <div class="min-w-0">
+      <p class="cma-eyebrow mb-1">{{ category()?.name }}</p>
+      <h1 class="mb-2">{{ entry.name }} Tutorial</h1>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <cma-status-badge [status]="entry.status" [lessons]="entry.totalLessons" />
+        <span class="cma-chip">{{ difficultyLabel[entry.difficulty] }}</span>
+        @if (technology(); as tech) {
+          <span class="cma-chip">{{ tech.counts.lessons }} lessons</span>
+          @if (estimated()) {
+            <span class="cma-chip"><cma-icon name="clock" [size]="12" /> ≈ {{ estimated() }}</span>
+          }
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (technology(); as tech) {
+    <p class="lead cma-prose mt-3">{{ tech.description }}</p>
+    @if (tech.versionNote) {
+      <p class="small cma-text-secondary"><cma-icon name="info-circle" [size]="14" /> {{ tech.versionNote }}</p>
+    }
+
+    <div class="d-flex flex-wrap gap-2 my-4">
+      @if (nextLesson(); as lesson) {
+        <a class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2" [routerLink]="['/tutorials', tech.slug, lesson.slug]">
+          @if (completedCount() > 0 && lesson.slug !== firstLesson()?.slug) {
+            Continue: {{ lesson.title }}
+          } @else {
+            Start learning
+          }
+          <cma-icon name="arrow-right" />
+        </a>
+      }
+      @if (tech.hasExercises) {
+        <a class="btn btn-outline-secondary btn-lg" [routerLink]="['/exercises', tech.slug]">Exercises</a>
+      }
+      @if (tech.hasQuiz) {
+        <a class="btn btn-outline-secondary btn-lg" [routerLink]="['/quizzes', tech.slug]">Quiz</a>
+      }
+      @if (tech.hasReference) {
+        <a class="btn btn-outline-secondary btn-lg" [routerLink]="['/references', tech.slug]">Reference</a>
+      }
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <section class="cma-overview__panel h-100" aria-labelledby="wyl-heading">
+          <h2 id="wyl-heading" class="h5">What you will learn</h2>
+          <ul class="cma-overview__checklist">
+            @for (item of tech.whatYouWillLearn; track item) {
+              <li><cma-icon name="check2" [size]="16" /> {{ item }}</li>
+            }
+          </ul>
+        </section>
+      </div>
+      <div class="col-md-6">
+        <section class="cma-overview__panel h-100" aria-labelledby="obj-heading">
+          <h2 id="obj-heading" class="h5">Learning objectives</h2>
+          <ol class="ps-3 mb-0">
+            @for (item of tech.learningObjectives; track item) {
+              <li class="mb-1">{{ item }}</li>
+            }
+          </ol>
+        </section>
+      </div>
+    </div>
+
+    @if (prerequisites().length) {
+      <section class="mb-4" aria-labelledby="prereq-heading">
+        <h2 id="prereq-heading" class="h5">Before you start</h2>
+        <p class="cma-text-secondary">Recommended prerequisites:</p>
+        <ul class="list-inline">
+          @for (item of prerequisites(); track item.slug) {
+            <li class="list-inline-item mb-2">
+              <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tutorials', item.slug]">{{ item.name }}<span class="visually-hidden"> ({{ item.status }})</span></a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section aria-labelledby="lessons-heading">
+      <h2 id="lessons-heading" class="h4 mb-3">Lessons</h2>
+      @for (group of lessonGroups(); track group.id) {
+        <h3 class="h6 text-uppercase cma-text-secondary mt-4 mb-2" style="letter-spacing: 0.06em">{{ group.title }}</h3>
+        <ol class="cma-lesson-list list-unstyled">
+          @for (lesson of group.lessons; track lesson.slug) {
+            <li>
+              <a class="cma-lesson-list__item" [routerLink]="['/tutorials', tech.slug, lesson.slug]" [class.cma-lesson-list__item--done]="progress.isCompleted(tech.slug, lesson.slug)">
+                <span class="cma-lesson-list__number">
+                  @if (progress.isCompleted(tech.slug, lesson.slug)) {
+                    <cma-icon name="check-circle-fill" [size]="16" label="Completed" />
+                  } @else {
+                    {{ lesson.order }}
+                  }
+                </span>
+                <span class="min-w-0">
+                  <span class="cma-lesson-list__title">{{ lesson.title }}</span>
+                  <span class="cma-lesson-list__summary">{{ lesson.summary }}</span>
+                </span>
+                <span class="cma-lesson-list__time"><cma-icon name="clock" [size]="12" /> {{ lesson.readingTimeMinutes }} min</span>
+              </a>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  } @else if (!context.isLoading()) {
+    <!-- Planned technology: catalog entry only, no lessons yet -->
+    <p class="lead cma-prose mt-3">{{ entry.shortDescription }}</p>
+    <div class="alert alert-secondary d-flex gap-3 align-items-start" role="status">
+      <cma-icon name="cone-striped" [size]="20" />
+      <div>
+        <strong>This tutorial is planned.</strong>
+        <span class="d-block">Its lessons have not been published yet, so nothing here is pretending to be a course. The outline below shows what it will cover; the status badge changes to “In progress” as soon as the first lesson goes live.</span>
+      </div>
+    </div>
+
+    <section class="cma-overview__panel mb-4" aria-labelledby="planned-heading">
+      <h2 id="planned-heading" class="h5">What this tutorial will cover</h2>
+      <ul class="cma-overview__checklist mb-0">
+        @for (item of entry.highlights; track item) {
+          <li><cma-icon name="check2" [size]="16" /> {{ item }}</li>
+        }
+      </ul>
+    </section>
+
+    @if (prerequisites().length) {
+      <section class="mb-4" aria-labelledby="prereq-planned-heading">
+        <h2 id="prereq-planned-heading" class="h5">Recommended prerequisites</h2>
+        <ul class="list-inline">
+          @for (item of prerequisites(); track item.slug) {
+            <li class="list-inline-item mb-2">
+              <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tutorials', item.slug]">{{ item.name }}</a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (relatedComplete().length) {
+      <section class="mb-4" aria-labelledby="start-heading">
+        <h2 id="start-heading" class="h5">Available now in {{ category()?.name }}</h2>
+        <ul class="list-inline">
+          @for (item of relatedComplete(); track item.slug) {
+            <li class="list-inline-item mb-2"><a class="btn btn-outline-primary btn-sm" [routerLink]="['/tutorials', item.slug]">{{ item.name }}</a></li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (pathsIncluding().length) {
+      <section class="mb-4" aria-labelledby="paths-heading">
+        <h2 id="paths-heading" class="h5">Part of these learning paths</h2>
+        <ul class="list-inline">
+          @for (path of pathsIncluding(); track path.slug) {
+            <li class="list-inline-item mb-2"><a class="btn btn-outline-secondary btn-sm" [routerLink]="['/learning-paths', path.slug]">{{ path.title }}</a></li>
+          }
+        </ul>
+      </section>
+    }
+    <a class="btn btn-primary" routerLink="/tutorials">Browse the catalog</a>
+  } @else {
+    <div class="mt-4" aria-busy="true"><div class="cma-skeleton" style="height: 12rem"></div></div>
+  }
+} @else if (context.unknown()) {
+  <cma-empty-state icon="question-circle" title="Tutorial not found" text="There is no technology with this address. Check the spelling or browse the catalog.">
+    <a class="btn btn-primary" routerLink="/tutorials">All tutorials</a>
+  </cma-empty-state>
+} @else {
+  <div aria-busy="true"><div class="cma-skeleton" style="height: 12rem"></div></div>
+}

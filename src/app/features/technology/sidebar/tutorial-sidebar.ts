@@ -28,6 +28,7 @@ let nextId = 0;
 })
 export class TutorialSidebarComponent {
   readonly title = input.required<string>();
+  readonly overviewPath = input<string>('');
   readonly sections = input.required<readonly SidebarSection[]>();
   readonly variant = input<'sidebar' | 'drawer'>('sidebar');
   readonly collapsed = model(false);
@@ -54,7 +55,10 @@ export class TutorialSidebarComponent {
       }))
       .filter((section) => section.items.length > 0);
   });
-
+  protected readonly totalItems = computed(() => this.sections().reduce((sum, s) => sum + s.items.length, 0));
+  protected readonly completedItems = computed(() =>
+    this.sections().reduce((sum, s) => sum + s.items.filter((i) => i.completed).length, 0),
+  );
   protected readonly showBody = computed(() => this.variant() === 'drawer' || !this.collapsed());
 
   protected isExpanded(id: string): boolean {

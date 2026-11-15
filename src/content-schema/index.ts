@@ -4,3 +4,8 @@ export * from './learning-path';
 export * from './site';
 export * from './search';
 export * from './manifest';
+export * from './exercise';
+export * from './blocks';
+export * from './technology';
+export * from './inline-markup';
+export * from './site-constants';

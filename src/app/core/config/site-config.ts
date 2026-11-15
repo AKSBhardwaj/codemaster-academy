@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { UiIconName } from '../../shared/icons/ui-icons.generated';
+import { SITE_NAME, SITE_URL } from '../../../content-schema/site-constants';
 
 /** Brand and site identity. Change these values to rebrand without touching application logic. */
 export interface SiteConfig {
@@ -23,13 +24,13 @@ export interface SocialLink {
 }
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
-  name: 'CodeMaster Academy',
+  name: SITE_NAME,
   shortName: 'CodeMaster',
   tagline: 'Learn to code with clear, practical tutorials',
   description:
     'Free, structured programming tutorials with runnable examples, exercises and quizzes covering 100+ languages, frameworks, databases and developer tools.',
-  // Placeholder origin until hosting is decided; used for canonical URLs and the sitemap.
-  siteUrl: 'https://codemaster-academy.example',
+  // Placeholder origin until hosting is decided; shared with the sitemap generator via content-schema/site-constants.
+  siteUrl: SITE_URL,
   logoPath: '/brand/logo.svg',
   defaultOgImagePath: '/brand/og-default.png',
   contactEmail: 'hello@codemaster-academy.example',

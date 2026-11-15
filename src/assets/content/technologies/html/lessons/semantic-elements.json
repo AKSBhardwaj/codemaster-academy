@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "semantic-elements",
+  "title": "HTML Semantic Elements",
+  "summary": "Structure pages with header, nav, main, section, article, aside and footer so that browsers, assistive technology and search engines understand the layout.",
+  "introduction": "A page built only from `<div>` elements works, but it tells the browser nothing about which part is the navigation, which is the main content and which is a sidebar. Semantic elements name those parts. Screen-reader users can jump straight to the main content, search engines know which text matters, and your code becomes readable without comments. This lesson shows each structural element and how they fit together on a real page.",
+  "learningObjectives": [
+    "Lay out a page with header, nav, main, section, article, aside and footer",
+    "Decide between section, article and div",
+    "Use details, summary and address for common patterns"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why semantics matter"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compare the two snippets. They render identically, but only the second one tells assistive technology and search engines what each part is."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Meaningless",
+      "code": "<div class=\"header\">…</div>\n<div class=\"nav\">…</div>\n<div class=\"content\">…</div>\n<div class=\"footer\">…</div>"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Semantic",
+      "code": "<header>…</header>\n<nav>…</nav>\n<main>…</main>\n<footer>…</footer>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Screen readers expose these elements as **landmarks**. A user can press one key to jump to the `<main>` landmark and skip the header and navigation on every page. Search engines treat text inside `<main>` and `<article>` as the page's real content and text inside `<nav>` and `<footer>` as boilerplate."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The structural elements"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Element",
+        "Use it for",
+        "How many per page"
+      ],
+      "rows": [
+        [
+          "`<header>`",
+          "Introductory content: logo, site title, main navigation. Also the header of an article or section.",
+          "One per page or section"
+        ],
+        [
+          "`<nav>`",
+          "A block of navigation links (main menu, table of contents, pagination).",
+          "As many as you have menus; label each with `aria-label`"
+        ],
+        [
+          "`<main>`",
+          "The unique content of this page, not repeated across the site.",
+          "Exactly one"
+        ],
+        [
+          "`<section>`",
+          "A thematic grouping of content, almost always with a heading.",
+          "Any number"
+        ],
+        [
+          "`<article>`",
+          "Self-contained content that makes sense on its own: a post, a product, a comment.",
+          "Any number"
+        ],
+        [
+          "`<aside>`",
+          "Content related to, but separate from, the main content: sidebars, pull quotes, related links.",
+          "Any number"
+        ],
+        [
+          "`<footer>`",
+          "Closing content: copyright, contact, legal links. Also the footer of an article.",
+          "One per page or section"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A complete page"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "blog.html",
+      "runnable": true,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Garden Notes – Growing tomatoes</title>\n</head>\n<body>\n  <header>\n    <h1>Garden Notes</h1>\n    <nav aria-label=\"Main\">\n      <ul>\n        <li><a href=\"/\">Home</a></li>\n        <li><a href=\"/posts\">Posts</a></li>\n        <li><a href=\"/about\">About</a></li>\n      </ul>\n    </nav>\n  </header>\n\n  <main>\n    <article>\n      <header>\n        <h2>Growing tomatoes on a balcony</h2>\n        <p>Posted on <time datetime=\"2026-05-02\">2 May 2026</time></p>\n      </header>\n      <section>\n        <h3>Choosing a variety</h3>\n        <p>Cherry tomatoes cope best with small pots.</p>\n      </section>\n      <section>\n        <h3>Watering</h3>\n        <p>Water every morning in summer.</p>\n      </section>\n      <footer>\n        <p>Tags: tomatoes, containers</p>\n      </footer>\n    </article>\n\n    <aside>\n      <h2>Related posts</h2>\n      <ul>\n        <li><a href=\"/posts/herbs\">Herbs for beginners</a></li>\n      </ul>\n    </aside>\n  </main>\n\n  <footer>\n    <p>© 2026 Garden Notes</p>\n    <address>Contact: <a href=\"mailto:hi@gardennotes.example\">hi@gardennotes.example</a></address>\n  </footer>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<header><h1>Garden Notes</h1><nav aria-label=\"Main\"><ul><li><a href=\"/\">Home</a></li><li><a href=\"/posts\">Posts</a></li><li><a href=\"/about\">About</a></li></ul></nav></header><main><article><header><h2>Growing tomatoes on a balcony</h2><p>Posted on <time datetime=\"2026-05-02\">2 May 2026</time></p></header><section><h3>Choosing a variety</h3><p>Cherry tomatoes cope best with small pots.</p></section><section><h3>Watering</h3><p>Water every morning in summer.</p></section><footer><p>Tags: tomatoes, containers</p></footer></article><aside><h2>Related posts</h2><ul><li><a href=\"/posts/herbs\">Herbs for beginners</a></li></ul></aside></main><footer><p>© 2026 Garden Notes</p><address>Contact: <a href=\"mailto:hi@gardennotes.example\">hi@gardennotes.example</a></address></footer>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice that `<header>` and `<footer>` appear twice: once for the page and once inside the article. That is correct; their meaning is relative to the nearest sectioning element."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "section, article or div?"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Would the content make sense in an RSS feed on its own? Use **`<article>`**.",
+        "Is it a distinct part of the page with its own heading? Use **`<section>`**.",
+        "Do you only need a box for styling or scripting, with no meaning? Use **`<div>`**."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "text": "A `<section>` without a heading is usually a `<div>` in disguise. If you cannot think of a heading for it, it is probably not a section."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Other useful semantic elements"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<details>\n  <summary>Do I need a garden?</summary>\n  <p>No. A sunny balcony or windowsill is enough for cherry tomatoes.</p>\n</details>\n\n<address>\n  Garden Notes HQ<br>\n  12 Allotment Lane, Bristol\n</address>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<details><summary>Do I need a garden?</summary><p>No. A sunny balcony or windowsill is enough for cherry tomatoes.</p></details><address>Garden Notes HQ<br>12 Allotment Lane, Bristol</address>"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`<details>` and `<summary>` create a disclosure widget (an accordion item) with keyboard support and no JavaScript.",
+        "`<address>` holds contact information for the nearest article or the page.",
+        "`<figure>`, `<time>` and `<mark>`, covered in earlier lessons, are semantic too."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Test with landmarks",
+      "text": "Open your page in the browser's accessibility inspector (Chrome: DevTools → Accessibility tab) or a screen reader and list the landmarks. If `main`, `navigation` and `contentinfo` (footer) are missing, your structure needs work."
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "semantic-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "semantic-elements",
+          "difficulty": "beginner",
+          "question": "How many `<main>` elements should a page have?",
+          "explanation": "`<main>` marks the unique primary content; exactly one visible `<main>` per page.",
+          "options": [
+            "None, it is optional decoration",
+            "Exactly one",
+            "One per section",
+            "As many as needed"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": [
+    "html-semantic-choose",
+    "html-semantic-fix"
+  ],
+  "relatedLessons": [
+    {
+      "technologySlug": "html",
+      "slug": "elements"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "headings"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "seo"
+    }
+  ],
+  "seo": {
+    "title": "HTML Semantic Elements – header, nav, main, article, aside, footer",
+    "description": "Learn to structure pages with semantic HTML: header, nav, main, section, article, aside, footer, details and address, and why landmarks matter for accessibility and SEO."
+  },
+  "updatedOn": "2026-11-15"
+}
