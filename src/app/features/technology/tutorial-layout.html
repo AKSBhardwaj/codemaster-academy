@@ -1,0 +1,30 @@
+<div class="container-xxl">
+  <div class="cma-tutorial" [class.cma-tutorial--collapsed]="collapsed()">
+    <aside class="cma-tutorial__sidebar d-none d-lg-block" aria-label="Tutorial navigation">
+      <cma-tutorial-sidebar [title]="techName()" [sections]="sections()" [(collapsed)]="collapsed" />
+    </aside>
+
+    <div class="cma-tutorial__main">
+      <div class="d-lg-none mb-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2"
+          (click)="drawerOpen.set(true)"
+          [attr.aria-expanded]="drawerOpen()"
+        >
+          <cma-icon name="list" />
+          Lessons
+        </button>
+      </div>
+      <router-outlet />
+    </div>
+
+    <aside class="cma-tutorial__context d-none d-xl-block" aria-label="Page context">
+      <!-- Phase 4: on this page, related tutorials, popular examples, recommended exercises, progress -->
+    </aside>
+  </div>
+</div>
+
+<cma-offcanvas [(open)]="drawerOpen" [title]="techName() + ' lessons'">
+  <cma-tutorial-sidebar [title]="techName()" [sections]="sections()" variant="drawer" (navigated)="drawerOpen.set(false)" />
+</cma-offcanvas>

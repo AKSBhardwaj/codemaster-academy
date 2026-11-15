@@ -1,0 +1,83 @@
+<div class="cma-sidebar" [class.cma-sidebar--collapsed]="!showBody()">
+  <div class="cma-sidebar__header">
+    @if (showBody()) {
+      <h2 class="cma-sidebar__title h6 mb-0">{{ title() }} tutorial</h2>
+    }
+    @if (variant() === 'sidebar') {
+      <button
+        type="button"
+        class="btn btn-ghost btn-icon btn-sm"
+        (click)="toggleCollapsed()"
+        [attr.aria-label]="collapsed() ? 'Expand lesson list' : 'Collapse lesson list'"
+        [attr.aria-expanded]="!collapsed()"
+        [attr.title]="collapsed() ? 'Expand lesson list' : 'Collapse lesson list'"
+      >
+        <cma-icon [name]="collapsed() ? 'chevron-right' : 'chevron-left'" />
+      </button>
+    }
+  </div>
+
+  @if (showBody()) {
+    <div class="cma-sidebar__search">
+      <label class="visually-hidden" [for]="searchId">Search lessons in this tutorial</label>
+      <input
+        [id]="searchId"
+        type="search"
+        class="form-control form-control-sm"
+        placeholder="Search lessons…"
+        autocomplete="off"
+        [formControl]="filter"
+      />
+    </div>
+
+    <nav class="cma-sidebar__nav" [attr.aria-label]="title() + ' lessons'">
+      @for (section of visibleSections(); track section.id) {
+        <div class="cma-sidebar__section">
+          <button
+            type="button"
+            class="cma-sidebar__section-toggle"
+            (click)="toggleSection(section.id)"
+            [attr.aria-expanded]="isExpanded(section.id)"
+            [attr.aria-controls]="searchId + '-' + section.id"
+          >
+            <cma-icon [name]="isExpanded(section.id) ? 'chevron-down' : 'chevron-right'" [size]="12" />
+            {{ section.title }}
+          </button>
+          @if (isExpanded(section.id)) {
+            <ul class="list-unstyled cma-sidebar__items mb-0" [id]="searchId + '-' + section.id">
+              @for (item of section.items; track item.path) {
+                <li>
+                  <a
+                    class="cma-sidebar__link"
+                    [routerLink]="item.path"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    (click)="navigated.emit()"
+                  >
+                    <span
+                      class="cma-sidebar__marker"
+                      [class.cma-sidebar__marker--done]="item.completed"
+                      aria-hidden="true"
+                    ></span>
+                    <span>{{ item.label }}</span>
+                    @if (item.completed) {
+                      <span class="visually-hidden">(completed)</span>
+                    }
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      } @empty {
+        <p class="cma-sidebar__empty small cma-text-secondary">
+          @if (query()) {
+            No lessons match “{{ query() }}”.
+          } @else {
+            Lessons for this tutorial are not published yet.
+          }
+        </p>
+      }
+    </nav>
+  }
+</div>

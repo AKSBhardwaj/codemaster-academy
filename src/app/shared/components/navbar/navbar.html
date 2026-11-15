@@ -1,0 +1,155 @@
+<header class="cma-header sticky-top">
+  <nav class="navbar navbar-expand-lg cma-navbar" aria-label="Primary">
+    <div class="container-xxl">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-lg-4" routerLink="/">
+        <img [ngSrc]="site.logoPath" width="28" height="28" alt="" priority />
+        <span class="cma-brand-name">{{ site.name }}</span>
+      </a>
+
+      <ul class="navbar-nav d-none d-lg-flex me-auto">
+        @for (item of nav; track item.label) {
+          @if (item.kind === 'group') {
+            <li class="nav-item dropdown" cmaDropdown>
+              <button type="button" class="nav-link dropdown-toggle" cmaDropdownToggle>{{ item.label }}</button>
+              <ul class="dropdown-menu" cmaDropdownMenu>
+                @for (link of item.links; track link.path) {
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="link.path"
+                      routerLinkActive="active"
+                      ariaCurrentWhenActive="page"
+                    >
+                      @if (link.icon) {
+                        <cma-icon [name]="link.icon" />
+                      }
+                      <span>
+                        {{ link.label }}
+                        @if (link.description) {
+                          <small class="d-block cma-text-secondary">{{ link.description }}</small>
+                        }
+                      </span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </li>
+          } @else {
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                [routerLink]="item.path"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: !!item.exact }"
+                ariaCurrentWhenActive="page"
+                >{{ item.label }}</a
+              >
+            </li>
+          }
+        }
+      </ul>
+
+      <div class="d-flex align-items-center gap-1 ms-auto">
+        <button type="button" class="btn btn-ghost cma-search-trigger" (click)="openSearch()" aria-label="Search">
+          <cma-icon name="search" [size]="18" />
+          <span class="d-none d-md-inline d-lg-none d-xl-inline">Search</span>
+          <kbd class="d-none d-xl-inline-block">Ctrl K</kbd>
+        </button>
+        <cma-theme-toggle />
+        <div class="dropdown d-none d-lg-block" cmaDropdown>
+          <button
+            type="button"
+            class="btn btn-ghost btn-icon"
+            cmaDropdownToggle
+            aria-label="Account menu"
+            title="Account"
+          >
+            <cma-icon name="person-circle" [size]="20" />
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" cmaDropdownMenu>
+            @for (link of accountLinks; track link.path) {
+              <li>
+                <a class="dropdown-item" [routerLink]="link.path">
+                  @if (link.icon) {
+                    <cma-icon [name]="link.icon" />
+                  }
+                  {{ link.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-icon d-lg-none"
+          (click)="menuOpen.set(true)"
+          aria-label="Open menu"
+          [attr.aria-expanded]="menuOpen()"
+        >
+          <cma-icon name="list" [size]="22" />
+        </button>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<cma-offcanvas [(open)]="menuOpen" [title]="site.name">
+  <nav aria-label="Mobile">
+    <ul class="list-unstyled cma-mobile-nav mb-0">
+      @for (item of nav; track item.label) {
+        @if (item.kind === 'group') {
+          <li class="cma-mobile-nav__group">
+            <span class="cma-mobile-nav__heading">{{ item.label }}</span>
+            <ul class="list-unstyled">
+              @for (link of item.links; track link.path) {
+                <li>
+                  <a
+                    class="cma-mobile-nav__link"
+                    [routerLink]="link.path"
+                    routerLinkActive="active"
+                    (click)="closeMenu()"
+                  >
+                    @if (link.icon) {
+                      <cma-icon [name]="link.icon" />
+                    }
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </li>
+        } @else {
+          <li>
+            <a
+              class="cma-mobile-nav__link"
+              [routerLink]="item.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: !!item.exact }"
+              (click)="closeMenu()"
+            >
+              @if (item.icon) {
+                <cma-icon [name]="item.icon" />
+              }
+              {{ item.label }}
+            </a>
+          </li>
+        }
+      }
+      <li class="cma-mobile-nav__group">
+        <span class="cma-mobile-nav__heading">Account</span>
+        <ul class="list-unstyled">
+          @for (link of accountLinks; track link.path) {
+            <li>
+              <a class="cma-mobile-nav__link" [routerLink]="link.path" (click)="closeMenu()">
+                @if (link.icon) {
+                  <cma-icon [name]="link.icon" />
+                }
+                {{ link.label }}
+              </a>
+            </li>
+          }
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</cma-offcanvas>

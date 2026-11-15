@@ -1,0 +1,46 @@
+@use 'sass:map';
+
+.cma-tutorial {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  padding-block: 1.5rem 3rem;
+
+  @media (min-width: 992px) {
+    grid-template-columns: var(--cma-sidebar-width) minmax(0, 1fr);
+    padding-top: 2rem;
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: var(--cma-sidebar-width) minmax(0, 1fr) var(--cma-context-width);
+  }
+
+  &--collapsed {
+    @media (min-width: 992px) {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+    }
+
+    @media (min-width: 1200px) {
+      grid-template-columns: 3.25rem minmax(0, 1fr) var(--cma-context-width);
+    }
+  }
+}
+
+.cma-tutorial__sidebar,
+.cma-tutorial__context {
+  position: sticky;
+  top: calc(var(--cma-navbar-height) + 1rem);
+  max-height: calc(100vh - var(--cma-navbar-height) - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.cma-tutorial__sidebar {
+  background: var(--cma-sidebar-bg);
+  border: 1px solid var(--cma-border);
+  border-radius: var(--cma-radius-lg);
+}
+
+.cma-tutorial__main {
+  min-width: 0;
+}
