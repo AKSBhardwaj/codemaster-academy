@@ -1,24 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import type { PrerenderManifest } from '../../../content-schema/manifest';
 
-/**
- * Shape of `.generated/content/manifest.json`, produced by `npm run content:build`.
- * Used by the server route configuration to enumerate prerender parameters.
- */
-export interface PrerenderManifest {
-  categories: string[];
-  technologies: string[];
-  lessons: { tech: string; lesson: string }[];
-  references: string[];
-  examples: string[];
-  exercises: string[];
-  quizzes: string[];
-  learningPaths: string[];
-}
+export type { PrerenderManifest };
 
 const EMPTY: PrerenderManifest = {
+  generatedOn: '',
   categories: [],
   technologies: [],
+  indexableTechnologies: [],
   lessons: [],
   references: [],
   examples: [],
@@ -29,7 +19,10 @@ const EMPTY: PrerenderManifest = {
 
 let cached: Promise<PrerenderManifest> | undefined;
 
-/** Reads the manifest once per build. A missing manifest yields no parametrised routes instead of failing the build. */
+/**
+ * Reads `.generated/content/manifest.json` (written by `npm run content:build`) once per build.
+ * A missing manifest yields no parametrised routes instead of failing the build.
+ */
 export function readPrerenderManifest(): Promise<PrerenderManifest> {
   cached ??= (async () => {
     const file = resolve(process.cwd(), '.generated', 'content', 'manifest.json');
@@ -37,9 +30,7 @@ export function readPrerenderManifest(): Promise<PrerenderManifest> {
       const raw = await readFile(file, 'utf8');
       return { ...EMPTY, ...(JSON.parse(raw) as Partial<PrerenderManifest>) };
     } catch {
-      console.warn(
-        `[prerender] manifest not found at ${file}; run "npm run content:build" to prerender content routes.`,
-      );
+      console.warn(`[prerender] manifest not found at ${file}; run "npm run content:build" first.`);
       return EMPTY;
     }
   })();

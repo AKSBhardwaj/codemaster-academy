@@ -1,0 +1,111 @@
+<dialog #dialog class="cma-search-dialog" aria-label="Search the site" (close)="onNativeClose()">
+  <form class="cma-search-dialog__header" role="search" (submit)="$event.preventDefault(); goToResultsPage()">
+    <cma-icon name="search" [size]="18" />
+    <label class="visually-hidden" for="cma-global-search">Search tutorials, lessons and categories</label>
+    <input
+      #input
+      id="cma-global-search"
+      type="search"
+      class="cma-search-dialog__input"
+      placeholder="Search tutorials, lessons, categories…"
+      autocomplete="off"
+      spellcheck="false"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-controls="cma-search-results"
+      [attr.aria-expanded]="hits().length > 0"
+      [attr.aria-activedescendant]="activeId()"
+      [formControl]="query"
+      (keydown)="onKeydown($event)"
+    />
+    <button type="button" class="btn btn-ghost btn-sm cma-search-dialog__close" (click)="close()" aria-label="Close search">
+      <kbd>Esc</kbd>
+    </button>
+  </form>
+
+  <div class="cma-search-dialog__body">
+    @switch (status()) {
+      @case ('idle') {
+        @if (ui.recent().length) {
+          <div class="cma-search-dialog__section">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="cma-search-dialog__label">Recent searches</span>
+              <button type="button" class="btn btn-link btn-sm p-0" (click)="ui.clearRecent()">Clear</button>
+            </div>
+            <ul class="list-unstyled mb-0">
+              @for (item of ui.recent(); track item) {
+                <li>
+                  <button type="button" class="cma-search-dialog__recent" (click)="useRecent(item)">
+                    <cma-icon name="clock" [size]="14" /> {{ item }}
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else {
+          <p class="cma-search-dialog__hint">
+            Try <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Angular')">Angular</button>
+            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('SQL joins')">SQL joins</button>
+            <button type="button" class="cma-search-dialog__chip" (click)="useRecent('Python')">Python</button>
+          </p>
+        }
+      }
+      @case ('loading') {
+        <p class="cma-search-dialog__hint" aria-live="polite">Searching…</p>
+      }
+      @case ('empty') {
+        <div class="cma-search-dialog__empty" aria-live="polite">
+          <cma-icon name="search" [size]="20" />
+          <p class="mb-1 fw-semibold">No results for “{{ query.value }}”</p>
+          <p class="mb-0 cma-text-secondary small">Check the spelling or try a broader term such as a language or framework name.</p>
+        </div>
+      }
+      @case ('results') {
+        <ul id="cma-search-results" class="cma-search-dialog__results list-unstyled mb-0" role="listbox" aria-label="Search results">
+          @for (hit of hits(); track hit.id; let i = $index) {
+            <li
+              role="option"
+              class="cma-search-dialog__option"
+              [id]="optionId(i)"
+              [class.active]="i === activeIndex()"
+              [attr.aria-selected]="i === activeIndex()"
+              tabindex="-1"
+              (mousemove)="activeIndex.set(i)"
+              (click)="go(hit)"
+              (keydown.enter)="go(hit)"
+            >
+              <span class="cma-search-dialog__kind-icon"><cma-icon [name]="kindIcon(hit.kind)" [size]="16" /></span>
+              <span class="min-w-0 flex-grow-1">
+                <span class="cma-search-dialog__title">
+                  @for (segment of hit.title | highlightMatch: hit.terms; track $index) {
+                    @if (segment.match) {
+                      <mark>{{ segment.text }}</mark>
+                    } @else {
+                      {{ segment.text }}
+                    }
+                  }
+                </span>
+                <span class="cma-search-dialog__subtitle">{{ hit.subtitle }}</span>
+              </span>
+              <span class="cma-search-dialog__meta">
+                <span class="cma-search-dialog__kind">{{ kindLabel[hit.kind] }}</span>
+                @if (hit.status) {
+                  <cma-status-badge [status]="hit.status" />
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    }
+  </div>
+
+  <div class="cma-search-dialog__footer">
+    <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+    <span><kbd>Enter</kbd> open</span>
+    <span><kbd>Esc</kbd> close</span>
+    @if (query.value.trim()) {
+      <button type="button" class="btn btn-link btn-sm ms-auto p-0" (click)="goToResultsPage()">See all results</button>
+    }
+  </div>
+</dialog>

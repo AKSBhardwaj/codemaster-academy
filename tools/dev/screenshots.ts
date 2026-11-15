@@ -73,7 +73,7 @@ async function main(): Promise<void> {
         for (const target of pages) {
           await page.goto(`${baseUrl}${target.path}`, { waitUntil: 'networkidle' });
           const suffix = scheme === 'dark' ? '-dark' : '';
-          await page.screenshot({ path: resolve(OUT_DIR, `${target.name}-${viewport.width}${suffix}.png`) });
+          await page.screenshot({ path: resolve(OUT_DIR, `${target.name}-${viewport.width}${suffix}.png`), fullPage: target.name === 'home' });
         }
         await context.close();
       }

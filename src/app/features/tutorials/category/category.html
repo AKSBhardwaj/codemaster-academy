@@ -1,0 +1,45 @@
+@if (entry(); as category) {
+  <div class="cma-page-header" [style.--accent]="category.accent">
+    <div class="container-xxl">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumb mb-3">
+          <li class="breadcrumb-item"><a routerLink="/tutorials">Tutorials</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+      </nav>
+      <div class="d-flex align-items-center gap-3">
+        <span class="cma-category-hero__icon"><cma-icon [name]="icon(category.icon)" [size]="28" /></span>
+        <div>
+          <h1 class="mb-1">{{ category.name }}</h1>
+          <p class="lead cma-text-secondary mb-0 cma-prose">{{ category.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-xxl py-4 py-lg-5">
+    <p class="cma-text-secondary small mb-3">{{ technologies().length }} technologies in this category</p>
+    <div class="row g-3">
+      @for (tech of technologies(); track tech.slug) {
+        <div class="col-12 col-sm-6 col-lg-4 col-xxl-3"><cma-technology-card [technology]="tech" /></div>
+      }
+    </div>
+
+    <h2 class="h5 mt-5 mb-3">Other categories</h2>
+    <ul class="list-inline">
+      @for (other of otherCategories(); track other.slug) {
+        <li class="list-inline-item mb-2">
+          <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tutorials/category', other.slug]">{{ other.name }}</a>
+        </li>
+      }
+    </ul>
+  </div>
+} @else if (loaded()) {
+  <div class="container-xxl py-5">
+    <cma-empty-state icon="question-circle" title="Category not found" text="This category does not exist. Browse the catalog to find what you are looking for.">
+      <a class="btn btn-primary" routerLink="/tutorials">All tutorials</a>
+    </cma-empty-state>
+  </div>
+} @else {
+  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 6rem"></div></div>
+}

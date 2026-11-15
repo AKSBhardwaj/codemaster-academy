@@ -1,0 +1,34 @@
+@if (variant() === 'compact') {
+  <a class="cma-tech-tile cma-card cma-card--link" [routerLink]="link()">
+    <cma-tech-icon [icon]="technology().icon" [name]="technology().name" [size]="40" [accent]="category()?.accent" />
+    <span class="cma-tech-tile__name">{{ technology().name }}</span>
+    <span
+      class="cma-tech-tile__dot cma-tech-tile__dot--{{ technology().status }}"
+      [attr.title]="technology().status"
+      aria-hidden="true"
+    ></span>
+    <span class="visually-hidden">({{ technology().status }})</span>
+  </a>
+} @else {
+  <article class="cma-tech-card cma-card h-100">
+    <div class="cma-tech-card__head">
+      <cma-tech-icon [icon]="technology().icon" [name]="technology().name" [size]="48" [accent]="category()?.accent" />
+      <div class="min-w-0">
+        <h3 class="cma-tech-card__title h6 mb-1">
+          <a class="stretched-link" [routerLink]="link()">{{ technology().name }}</a>
+        </h3>
+        @if (category(); as category) {
+          <span class="cma-tech-card__category" [style.color]="category.accent">{{ category.shortName }}</span>
+        }
+      </div>
+    </div>
+    <p class="cma-tech-card__description cma-truncate-3">{{ technology().shortDescription }}</p>
+    <div class="cma-tech-card__meta">
+      <cma-status-badge [status]="technology().status" [lessons]="technology().totalLessons" />
+      <span class="cma-chip">{{ difficulty() }}</span>
+      @if (technology().totalLessons > 0) {
+        <span class="cma-chip">{{ technology().totalLessons }} lessons</span>
+      }
+    </div>
+  </article>
+}
