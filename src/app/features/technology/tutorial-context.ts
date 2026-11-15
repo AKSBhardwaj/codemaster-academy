@@ -1,11 +1,12 @@
 import { Injectable, computed, inject, resource, signal } from '@angular/core';
-import type { Lesson, Technology, TechnologyCatalogEntry } from '../../core/models/content';
+import type { ExerciseSet, Lesson, Technology, TechnologyCatalogEntry } from '../../core/models/content';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ContentService } from '../../core/services/content.service';
 
 /**
  * Shared state for everything rendered inside the tutorial layout: the current technology
- * (compiled overview or planned catalog entry) and the lesson being read. Provided by TutorialLayoutComponent.
+ * (compiled overview or planned catalog entry), the lesson being read and, on demand, the exercise set.
+ * Provided by TutorialLayoutComponent.
  */
 @Injectable()
 export class TutorialContext {
@@ -14,10 +15,15 @@ export class TutorialContext {
 
   readonly techSlug = signal('');
   readonly activeLesson = signal<Lesson | undefined>(undefined);
+  private readonly exercisesWanted = signal(false);
 
   readonly technologyResource = resource({
     params: () => this.techSlug() || undefined,
     loader: ({ params }) => this.content.load<Technology>(`technologies/${params}/overview.json`),
+  });
+  private readonly exerciseSetResource = resource({
+    params: () => (this.exercisesWanted() && this.techSlug() ? this.techSlug() : undefined),
+    loader: ({ params }) => this.content.load<ExerciseSet>(`technologies/${params}/exercises.json`),
   });
 
   /** Compiled technology (has lessons) or undefined while loading / for planned technologies. */
@@ -35,4 +41,11 @@ export class TutorialContext {
   /** True once we know the slug matches nothing in the catalog. */
   readonly unknown = computed(() => !this.isLoading() && this.catalog.technologies().length > 0 && !this.catalogEntry());
   readonly lessons = computed(() => this.technology()?.lessons ?? []);
+  readonly exerciseSet = computed<ExerciseSet | undefined>(() => (this.exerciseSetResource.hasValue() ? this.exerciseSetResource.value() : undefined));
+  readonly exerciseSetStatus = computed(() => this.exerciseSetResource.status());
+
+  /** Starts loading the technology's exercise set (used by inline exercise blocks). */
+  ensureExercises(): void {
+    this.exercisesWanted.set(true);
+  }
 }

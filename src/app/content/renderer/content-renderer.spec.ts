@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { DeferBlockBehavior } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { ContentBlock } from '../../core/models/content';
@@ -36,6 +37,8 @@ describe('ContentRendererComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
       providers: [provideRouter([]), provideTestContent(), TutorialContext],
+      // Deferred blocks (the inline runner) stay on their placeholders; jsdom has no IntersectionObserver.
+      deferBlockBehavior: DeferBlockBehavior.Manual,
     }).compileComponents();
   });
 
@@ -58,7 +61,8 @@ describe('ContentRendererComponent', () => {
     expect(root.querySelector('figure img')?.getAttribute('alt')).toBe('An example image');
     expect(root.querySelector('.cma-video button')).not.toBeNull();
     expect(root.querySelector('.cma-video iframe')).toBeNull();
-    expect(root.querySelectorAll('aside.cma-callout').length).toBe(3);
+    expect(root.querySelectorAll('aside.cma-callout').length).toBe(2); // callout block + exercise fallback
+    expect(root.querySelector('cma-quiz-runner')).not.toBeNull();
     expect(root.querySelectorAll('figure.cma-code').length).toBe(2);
     expect(root.innerHTML).not.toContain('innerHTML');
   });

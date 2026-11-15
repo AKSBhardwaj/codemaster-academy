@@ -1,27 +1,18 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import type { QuizBlock } from '../../core/models/content';
-import { IconComponent } from '../../shared/components/icon/icon';
-import { InlineMarkupComponent } from '../../shared/components/inline-markup/inline-markup';
+import { QuizRunnerComponent } from '../../features/quizzes/quiz-runner/quiz-runner';
+import { TutorialContext } from '../../features/technology/tutorial-context';
 
-/** Inline quick-check questions. Interactive answering and grading arrive with the quiz engine (Phase 5). */
+/** Inline quick-check quiz inside a lesson (not persisted; the technology quiz tracks scores). */
 @Component({
   selector: 'cma-quiz-block',
-  imports: [IconComponent, InlineMarkupComponent],
+  imports: [QuizRunnerComponent],
   template: `
-    <aside class="cma-callout" [attr.aria-label]="block().title ?? 'Quick check'">
-      <span class="cma-callout__icon"><cma-icon name="patch-check" [size]="20" /></span>
-      <div>
-        <div class="cma-callout__title">{{ block().title ?? 'Quick check' }}</div>
-        <ol class="mb-2 ps-3">
-          @for (question of block().questions; track question.id) {
-            <li><cma-inline [text]="question.question" /></li>
-          }
-        </ol>
-        <small class="cma-text-secondary">Think about your answer; interactive answering with instant feedback arrives in build phase 5.</small>
-      </div>
-    </aside>
+    <cma-quiz-runner [quizId]="quizId()" [questions]="block().questions" [title]="block().title ?? 'Quick check'" [passPercent]="50" [persist]="false" [compact]="true" />
   `,
 })
 export class QuizBlockComponent {
   readonly block = input.required<QuizBlock>();
+  private readonly context = inject(TutorialContext, { optional: true });
+  protected readonly quizId = computed(() => `inline:${this.context?.activeLesson()?.id ?? 'lesson'}:${this.block().questions[0]?.id ?? ''}`);
 }

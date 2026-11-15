@@ -25,8 +25,8 @@ export default defineConfig({
   webServer: useExternalServer
     ? undefined
     : {
-        // ng serve is launched directly (not via npm) so Playwright can terminate the whole process tree on Windows.
-        command: 'npx ng serve --port 4200',
+        // The CLI is started as a single node process (no npm/npx wrappers) so Playwright can terminate it on Windows.
+        command: 'node node_modules/@angular/cli/bin/ng.js serve --port 4200',
         url: baseURL,
         reuseExistingServer: false,
         timeout: 180_000,

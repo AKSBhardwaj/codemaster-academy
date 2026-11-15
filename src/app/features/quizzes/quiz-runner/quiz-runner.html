@@ -1,0 +1,81 @@
+<div class="cma-quiz" [class.cma-quiz--compact]="compact()">
+  @switch (phase()) {
+    @case ('intro') {
+      <div class="cma-quiz__intro">
+        <span class="cma-quiz__icon"><cma-icon name="patch-check" [size]="28" /></span>
+        <h2 class="h4 mb-1">{{ title() }}</h2>
+        <p class="cma-text-secondary mb-3">
+          {{ total() }} {{ total() === 1 ? 'question' : 'questions' }} · pass mark {{ passPercent() }}%
+          @if (history(); as history) {
+            · your best score: {{ history.best }}%
+          }
+        </p>
+        <button type="button" class="btn btn-primary" (click)="start()">{{ history() ? 'Take the quiz again' : 'Start the quiz' }}</button>
+        @if (persist()) {
+          <p class="small cma-text-secondary mt-3 mb-0">Results are saved in this browser only.</p>
+        }
+      </div>
+    }
+    @case ('question') {
+      @if (current(); as question) {
+        <div class="cma-quiz__question">
+          <div class="d-flex justify-content-between align-items-center small cma-text-secondary mb-2">
+            <span>Question {{ index() + 1 }} of {{ total() }}</span>
+            <span>{{ progress() }}% complete</span>
+          </div>
+          <div class="progress mb-3" role="progressbar" [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100" aria-label="Quiz progress" style="height: 6px">
+            <div class="progress-bar" [style.width.%]="progress()"></div>
+          </div>
+          <cma-question-input [question]="question" [answer]="currentAnswer()" (answerChange)="setAnswer($event)" />
+          <div class="d-flex justify-content-between align-items-center gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="previous()" [disabled]="index() === 0">
+              <cma-icon name="arrow-left" [size]="14" /> Previous
+            </button>
+            <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" (click)="next()">
+              {{ index() + 1 < total() ? 'Next' : 'Finish' }} <cma-icon name="arrow-right" [size]="14" />
+            </button>
+          </div>
+        </div>
+      }
+    }
+    @case ('results') {
+      <div class="cma-quiz__results">
+        <div class="cma-quiz__score" [class.cma-quiz__score--passed]="summary().passed" [class.cma-quiz__score--failed]="!summary().passed">
+          <span class="cma-quiz__percent">{{ summary().percent }}%</span>
+          <span class="cma-quiz__verdict">{{ summary().passed ? 'Passed' : 'Not passed yet' }}</span>
+        </div>
+        <dl class="cma-quiz__stats">
+          <div><dt>Total questions</dt><dd>{{ summary().total }}</dd></div>
+          <div><dt>Correct</dt><dd class="text-success">{{ summary().correct }}</dd></div>
+          <div><dt>Incorrect</dt><dd class="text-danger">{{ summary().incorrect }}</dd></div>
+          <div><dt>Pass mark</dt><dd>{{ passPercent() }}%</dd></div>
+        </dl>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button type="button" class="btn btn-primary btn-sm" (click)="start()"><cma-icon name="arrow-repeat" [size]="14" /> Retry</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="reviewOpen.set(!reviewOpen())" [attr.aria-expanded]="reviewOpen()">
+            {{ reviewOpen() ? 'Hide answers' : 'Review answers' }}
+          </button>
+        </div>
+        @if (reviewOpen()) {
+          <ol class="cma-quiz__review list-unstyled">
+            @for (question of questions(); track question.id; let i = $index) {
+              <li class="cma-quiz__review-item" [class.cma-quiz__review-item--correct]="results()[i]" [class.cma-quiz__review-item--wrong]="!results()[i]">
+                <div class="d-flex gap-2 align-items-start">
+                  <cma-icon [name]="results()[i] ? 'check-circle-fill' : 'x-circle'" [size]="16" />
+                  <div class="min-w-0">
+                    <p class="mb-1 fw-semibold">{{ i + 1 }}. <cma-inline [text]="question.question" /></p>
+                    <p class="mb-1 small"><span class="cma-text-secondary">Your answer:</span> <cma-inline [text]="given(question)" /></p>
+                    @if (!results()[i]) {
+                      <p class="mb-1 small"><span class="cma-text-secondary">Correct answer:</span> <cma-inline [text]="expected(question)" /></p>
+                    }
+                    <p class="mb-0 small cma-text-secondary"><cma-inline [text]="question.explanation" /></p>
+                  </div>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    }
+  }
+</div>

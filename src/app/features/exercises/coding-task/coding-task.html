@@ -1,0 +1,66 @@
+<div class="cma-task">
+  <p class="cma-task__question"><cma-inline [text]="task().question" /></p>
+
+  <div class="cma-task__editor">
+    <div class="cma-task__bar">
+      <span class="small fw-semibold cma-text-secondary">Your code ({{ task().language }})</span>
+      <div class="d-flex gap-1">
+        <button type="button" class="btn btn-ghost btn-sm" (click)="reset()"><cma-icon name="arrow-counterclockwise" [size]="14" /> Reset</button>
+        @if (canRun()) {
+          <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" (click)="run()"><cma-icon name="play-fill" [size]="14" /> Run</button>
+        }
+      </div>
+    </div>
+    <div class="cma-task__grid" [class.cma-task__grid--single]="!canRun()">
+      <cma-code-editor [(value)]="code" [language]="task().language" [minHeight]="200" label="Coding task editor" />
+      @if (canRun()) {
+        <cma-output-panel [events]="session.events()" [state]="session.state()" [showPreview]="task().language !== 'sql' && task().language !== 'javascript'" [compact]="true" />
+      }
+    </div>
+    @if (!canRun()) {
+      <p class="small cma-text-secondary mt-2 mb-0">Running {{ task().language }} is not available in the browser; work through the checklist and compare with the solution.</p>
+    }
+  </div>
+
+  @if (task().check && canRun()) {
+    <div class="cma-task__auto" [class.cma-task__auto--passed]="autoCheck() === 'passed'" [class.cma-task__auto--failed]="autoCheck() === 'failed'" role="status">
+      @switch (autoCheck()) {
+        @case ('passed') {
+          <cma-icon name="check-circle-fill" [size]="16" /> Automatic check passed: the output matches what was expected.
+        }
+        @case ('failed') {
+          <cma-icon name="x-circle" [size]="16" /> Automatic check failed: the output does not match yet. Compare with the expected result and run again.
+        }
+        @default {
+          <cma-icon name="info-circle" [size]="16" /> Run your code; the output is checked automatically.
+        }
+      }
+    </div>
+  }
+
+  <div class="cma-task__checklist">
+    <p class="small fw-semibold mb-2">Self-check</p>
+    @for (item of task().checklist; track $index; let i = $index) {
+      <label class="cma-task__check">
+        <input type="checkbox" class="form-check-input" [checked]="checklist()[i]" (change)="toggleItem(i)" />
+        <span>{{ item }}</span>
+      </label>
+    }
+  </div>
+
+  <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+    <button type="button" class="btn btn-sm" [class.btn-success]="done()" [class.btn-outline-primary]="!done()" (click)="markDone()" [disabled]="done() || !canComplete()" [attr.title]="canComplete() ? null : 'Pass the automatic check or tick every checklist item first'">
+      <cma-icon [name]="done() ? 'check-circle-fill' : 'check-circle'" [size]="14" /> {{ done() ? 'Done' : 'Mark as done' }}
+    </button>
+    <button type="button" class="btn btn-ghost btn-sm" (click)="solutionShown.set(!solutionShown())" [attr.aria-expanded]="solutionShown()">
+      <cma-icon [name]="solutionShown() ? 'eye-slash' : 'eye'" [size]="14" /> {{ solutionShown() ? 'Hide solution' : 'Show solution' }}
+    </button>
+  </div>
+
+  @if (solutionShown()) {
+    <div class="mt-2">
+      <cma-code-block [code]="task().solutionCode" [language]="task().language" title="One possible solution" />
+      <p class="small cma-text-secondary"><cma-inline [text]="task().explanation" /></p>
+    </div>
+  }
+</div>
