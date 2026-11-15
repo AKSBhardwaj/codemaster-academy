@@ -3,7 +3,14 @@ import type { QuizQuestion } from '../../../core/models/content';
 import { QuizStore } from '../../../core/services/quiz.store';
 import { IconComponent } from '../../../shared/components/icon/icon';
 import { InlineMarkupComponent } from '../../../shared/components/inline-markup/inline-markup';
-import { correctAnswerText, givenAnswerText, gradeAnswer, summarise, type Answer, type ScoreSummary } from '../../exercises/grading';
+import {
+  correctAnswerText,
+  givenAnswerText,
+  gradeAnswer,
+  summarise,
+  type Answer,
+  type ScoreSummary,
+} from '../../exercises/grading';
 import { QuestionInputComponent } from '../../exercises/question-input/question-input';
 
 type Phase = 'intro' | 'question' | 'results';
@@ -31,12 +38,22 @@ export class QuizRunnerComponent {
   protected readonly index = signal(0);
   protected readonly answers = signal<Map<string, Answer | null>>(new Map());
   protected readonly current = computed(() => this.questions()[this.index()]);
-  protected readonly currentAnswer = computed(() => this.answers().get(this.current()?.id ?? '') ?? null);
+  protected readonly currentAnswer = computed(
+    () => this.answers().get(this.current()?.id ?? '') ?? null,
+  );
   protected readonly total = computed(() => this.questions().length);
-  protected readonly progress = computed(() => Math.round((this.index() / Math.max(1, this.total())) * 100));
-  protected readonly results = computed(() => this.questions().map((q) => gradeAnswer(q, this.answers().get(q.id) ?? null)));
-  protected readonly summary = computed<ScoreSummary>(() => summarise(this.results(), this.passPercent()));
-  protected readonly history = computed(() => (this.persist() ? this.store.historyFor(this.quizId()) : undefined));
+  protected readonly progress = computed(() =>
+    Math.round((this.index() / Math.max(1, this.total())) * 100),
+  );
+  protected readonly results = computed(() =>
+    this.questions().map((q) => gradeAnswer(q, this.answers().get(q.id) ?? null)),
+  );
+  protected readonly summary = computed<ScoreSummary>(() =>
+    summarise(this.results(), this.passPercent()),
+  );
+  protected readonly history = computed(() =>
+    this.persist() ? this.store.historyFor(this.quizId()) : undefined,
+  );
   protected readonly reviewOpen = signal(false);
 
   protected start(): void {
@@ -68,7 +85,11 @@ export class QuizRunnerComponent {
     this.phase.set('results');
     if (this.persist()) {
       const s = this.summary();
-      this.store.record(this.quizId(), { total: s.total, correct: s.correct, percent: s.percent, passed: s.passed });
+      this.store.record(
+        this.quizId(),
+        { total: s.total, correct: s.correct, percent: s.percent, passed: s.passed },
+        this.title(),
+      );
     }
   }
 

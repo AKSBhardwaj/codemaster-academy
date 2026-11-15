@@ -2,9 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * End-to-end tests run against the Angular dev server by default.
- * Set E2E_BASE_URL to point at a served production build (npm run preview).
+ * Set E2E_BASE_URL to point at a served production build (npm run preview), or E2E_PORT to start the dev server
+ * on another port when 4200 is already in use.
  */
-const baseURL = process.env['E2E_BASE_URL'] ?? 'http://localhost:4200';
+const port = process.env['E2E_PORT'] ?? '4200';
+const baseURL = process.env['E2E_BASE_URL'] ?? `http://localhost:${port}`;
 const useExternalServer = !!process.env['E2E_BASE_URL'];
 
 export default defineConfig({
@@ -26,7 +28,7 @@ export default defineConfig({
     ? undefined
     : {
         // The CLI is started as a single node process (no npm/npx wrappers) so Playwright can terminate it on Windows.
-        command: 'node node_modules/@angular/cli/bin/ng.js serve --port 4200',
+        command: `node node_modules/@angular/cli/bin/ng.js serve --port ${port}`,
         url: baseURL,
         reuseExistingServer: false,
         timeout: 180_000,

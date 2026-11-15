@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import type { PageSeo } from './core/services/seo.service';
+import { authGuard } from './core/guards/auth.guard';
 
 const seo = (title: string, description: string, robots?: PageSeo['robots']): { seo: PageSeo } => ({
   seo: { title, description, robots },
@@ -21,19 +22,23 @@ export const routes: Routes = [
   },
   {
     path: 'tutorials',
-    loadChildren: () => import('./features/tutorials/tutorials.routes').then((m) => m.TUTORIALS_ROUTES),
+    loadChildren: () =>
+      import('./features/tutorials/tutorials.routes').then((m) => m.TUTORIALS_ROUTES),
   },
   {
     path: 'references',
-    loadChildren: () => import('./features/references/references.routes').then((m) => m.REFERENCES_ROUTES),
+    loadChildren: () =>
+      import('./features/references/references.routes').then((m) => m.REFERENCES_ROUTES),
   },
   {
     path: 'examples',
-    loadChildren: () => import('./features/examples/examples.routes').then((m) => m.EXAMPLES_ROUTES),
+    loadChildren: () =>
+      import('./features/examples/examples.routes').then((m) => m.EXAMPLES_ROUTES),
   },
   {
     path: 'exercises',
-    loadChildren: () => import('./features/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
+    loadChildren: () =>
+      import('./features/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
   },
   {
     path: 'quizzes',
@@ -42,11 +47,14 @@ export const routes: Routes = [
   {
     path: 'learning-paths',
     loadChildren: () =>
-      import('./features/learning-paths/learning-paths.routes').then((m) => m.LEARNING_PATHS_ROUTES),
+      import('./features/learning-paths/learning-paths.routes').then(
+        (m) => m.LEARNING_PATHS_ROUTES,
+      ),
   },
   {
     path: 'playground',
-    loadComponent: () => import('./features/playground/playground-page').then((m) => m.PlaygroundRoutePage),
+    loadComponent: () =>
+      import('./features/playground/playground-page').then((m) => m.PlaygroundRoutePage),
     data: seo(
       'Code Playground',
       'Write and run HTML, CSS, JavaScript and SQL directly in your browser with a safe, sandboxed playground.',
@@ -66,15 +74,21 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./features/authentication/register').then((m) => m.RegisterPage),
-    data: seo('Create account', 'Create an account to track your learning progress.', 'noindex,follow'),
+    data: seo(
+      'Create account',
+      'Create an account to track your learning progress.',
+      'noindex,follow',
+    ),
   },
   {
     path: 'dashboard',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.DashboardPage),
     data: seo('Dashboard', 'Your learning dashboard.', 'noindex,nofollow'),
   },
   {
     path: 'profile',
+    canActivate: [authGuard],
     loadComponent: () => import('./features/profile/profile').then((m) => m.ProfilePage),
     data: seo('Profile', 'Manage your profile and local data.', 'noindex,nofollow'),
   },
@@ -86,7 +100,10 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () => import('./features/static-pages/about').then((m) => m.AboutPage),
-    data: seo('About us', 'Who builds CodeMaster Academy and how the tutorials are written and reviewed.'),
+    data: seo(
+      'About us',
+      'Who builds CodeMaster Academy and how the tutorials are written and reviewed.',
+    ),
   },
   {
     path: 'contact',
@@ -106,11 +123,19 @@ export const routes: Routes = [
   {
     path: '404',
     loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFoundPage),
-    data: seo('Page not found', 'The page you were looking for does not exist.', 'noindex,nofollow'),
+    data: seo(
+      'Page not found',
+      'The page you were looking for does not exist.',
+      'noindex,nofollow',
+    ),
   },
   {
     path: '**',
     loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFoundPage),
-    data: seo('Page not found', 'The page you were looking for does not exist.', 'noindex,nofollow'),
+    data: seo(
+      'Page not found',
+      'The page you were looking for does not exist.',
+      'noindex,nofollow',
+    ),
   },
 ];

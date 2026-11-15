@@ -23,10 +23,18 @@ test.describe('exercises', () => {
     await expect(first.getByRole('button', { name: 'Try again' })).toBeVisible();
     await page.reload();
     await page.locator('#ex-type').selectOption('multiple-choice');
-    await expect(page.locator('cma-exercise-card').first().getByText(/Solved|Correct|Not quite/).first()).toBeVisible({ timeout: 10000 });
+    await expect(
+      page
+        .locator('cma-exercise-card')
+        .first()
+        .getByText(/Solved|Correct|Not quite/)
+        .first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 
-  test('find-the-error exercises show code with line numbers; fill-blank accepts typed answers', async ({ page }) => {
+  test('find-the-error exercises show code with line numbers; fill-blank accepts typed answers', async ({
+    page,
+  }) => {
     await page.goto('/exercises/html');
     await page.locator('#ex-type').selectOption('find-error');
     const card = page.locator('cma-exercise-card').first();
@@ -80,8 +88,10 @@ test.describe('quizzes', () => {
     const quick = page.locator('cma-quiz-block cma-quiz-runner').first();
     await quick.scrollIntoViewIfNeeded();
     await quick.getByRole('button', { name: 'Start the quiz' }).click();
+    await expect(quick.getByText('Question 1 of 2')).toBeVisible();
     await answerCurrentQuestion(quick);
     await quick.getByRole('button', { name: 'Next' }).click();
+    await expect(quick.getByText('Question 2 of 2')).toBeVisible();
     await answerCurrentQuestion(quick);
     await quick.getByRole('button', { name: 'Finish' }).click();
     await expect(quick.locator('.cma-quiz__percent')).toBeVisible();

@@ -1,0 +1,95 @@
+<cma-page-header
+  eyebrow="Company"
+  title="Contact us"
+  lead="Questions, corrections or partnership ideas are welcome. Corrections to lessons get answered first."
+/>
+<div class="container-xxl py-4 py-lg-5">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <form class="cma-card p-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="alert alert-info d-flex gap-2 small" role="note">
+          <cma-icon name="info-circle" [size]="16" />
+          <span
+            >This site has no server, so the form opens your email application with the message
+            prefilled. Nothing you type is stored or sent by the site itself.</span
+          >
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="contact-name">Name</label>
+            <input
+              id="contact-name"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              autocomplete="name"
+              [class.is-invalid]="submitted() && form.controls.name.invalid"
+            />
+            @if (submitted() && form.controls.name.invalid) {
+              <div class="invalid-feedback">Please tell us your name.</div>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="contact-email">Email</label>
+            <input
+              id="contact-email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              autocomplete="email"
+              [class.is-invalid]="submitted() && form.controls.email.invalid"
+            />
+            @if (submitted() && form.controls.email.invalid) {
+              <div class="invalid-feedback">Enter a valid email address so we can reply.</div>
+            }
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="contact-topic">Topic</label>
+            <select id="contact-topic" class="form-select" formControlName="topic">
+              <option value="correction">Report a mistake in a lesson</option>
+              <option value="question">Question</option>
+              <option value="suggestion">Suggestion</option>
+              <option value="partnership">Partnership</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="contact-message">Message</label>
+            <textarea
+              id="contact-message"
+              class="form-control"
+              rows="5"
+              formControlName="message"
+              [class.is-invalid]="submitted() && form.controls.message.invalid"
+            ></textarea>
+            @if (submitted() && form.controls.message.invalid) {
+              <div class="invalid-feedback">Write at least 10 characters (up to 2000).</div>
+            }
+          </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+          <button type="submit" class="btn btn-primary">
+            <cma-icon name="envelope" [size]="14" /> Open in my email app
+          </button>
+          @if (handedOff()) {
+            <span class="small text-success" role="status"
+              >Your email application should have opened with the message. If it did not, email us
+              directly at {{ site.contactEmail }}.</span
+            >
+          }
+        </div>
+      </form>
+    </div>
+    <div class="col-lg-5">
+      <div class="cma-card p-4">
+        <h2 class="h5">Other ways to reach us</h2>
+        <p class="mb-2">
+          Email: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a>
+        </p>
+        <p class="small cma-text-secondary mb-0">
+          We read every message and reply to corrections first. Please include the lesson URL when
+          reporting a mistake.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

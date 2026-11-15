@@ -15,6 +15,7 @@ export interface QuizAttempt {
 
 export interface QuizHistory {
   best: number;
+  title?: string;
   attempts: QuizAttempt[];
 }
 
@@ -39,11 +40,18 @@ export class QuizStore {
     }
   }
 
-  record(quizId: string, attempt: Omit<QuizAttempt, 'at'>): void {
+  record(quizId: string, attempt: Omit<QuizAttempt, 'at'>, title?: string): void {
     this.history.update((map) => {
       const previous = map[quizId] ?? { best: 0, attempts: [] };
       const entry: QuizAttempt = { ...attempt, at: new Date().toISOString() };
-      return { ...map, [quizId]: { best: Math.max(previous.best, attempt.percent), attempts: [entry, ...previous.attempts].slice(0, MAX_ATTEMPTS) } };
+      return {
+        ...map,
+        [quizId]: {
+          best: Math.max(previous.best, attempt.percent),
+          title: title ?? previous.title,
+          attempts: [entry, ...previous.attempts].slice(0, MAX_ATTEMPTS),
+        },
+      };
     });
     this.persistence.write(KEY, this.history());
   }

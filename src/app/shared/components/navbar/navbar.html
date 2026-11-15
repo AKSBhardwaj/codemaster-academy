@@ -10,7 +10,9 @@
         @for (item of nav(); track item.label) {
           @if (item.kind === 'group') {
             <li class="nav-item dropdown" cmaDropdown>
-              <button type="button" class="nav-link dropdown-toggle" cmaDropdownToggle>{{ item.label }}</button>
+              <button type="button" class="nav-link dropdown-toggle" cmaDropdownToggle>
+                {{ item.label }}
+              </button>
               <ul class="dropdown-menu" cmaDropdownMenu>
                 @for (link of item.links; track link.path) {
                   <li>
@@ -50,7 +52,12 @@
       </ul>
 
       <div class="d-flex align-items-center gap-1 ms-auto">
-        <button type="button" class="btn btn-ghost cma-search-trigger" (click)="openSearch()" aria-label="Search">
+        <button
+          type="button"
+          class="btn btn-ghost cma-search-trigger"
+          (click)="openSearch()"
+          aria-label="Search"
+        >
           <cma-icon name="search" [size]="18" />
           <span class="d-none d-md-inline d-lg-none d-xl-inline">Search</span>
           <kbd class="d-none d-xl-inline-block">Ctrl K</kbd>
@@ -67,7 +74,15 @@
             <cma-icon name="person-circle" [size]="20" />
           </button>
           <ul class="dropdown-menu dropdown-menu-end" cmaDropdownMenu>
-            @for (link of accountLinks; track link.path) {
+            @if (auth.user(); as user) {
+              <li class="px-3 py-1 small cma-text-secondary">
+                Signed in as <strong class="text-body">{{ user.name }}</strong><span class="d-block"
+                  >demo account (this browser)</span
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+            }
+            @for (link of accountLinks(); track link.path) {
               <li>
                 <a class="dropdown-item" [routerLink]="link.path">
                   @if (link.icon) {
@@ -75,6 +90,14 @@
                   }
                   {{ link.label }}
                 </a>
+              </li>
+            }
+            @if (auth.isAuthenticated()) {
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <button type="button" class="dropdown-item" (click)="logout()">
+                  <cma-icon name="box-arrow-right" /> Log out
+                </button>
               </li>
             }
           </ul>
@@ -138,7 +161,7 @@
       <li class="cma-mobile-nav__group">
         <span class="cma-mobile-nav__heading">Account</span>
         <ul class="list-unstyled">
-          @for (link of accountLinks; track link.path) {
+          @for (link of accountLinks(); track link.path) {
             <li>
               <a class="cma-mobile-nav__link" [routerLink]="link.path" (click)="closeMenu()">
                 @if (link.icon) {
@@ -146,6 +169,17 @@
                 }
                 {{ link.label }}
               </a>
+            </li>
+          }
+          @if (auth.isAuthenticated()) {
+            <li>
+              <button
+                type="button"
+                class="cma-mobile-nav__link w-100 border-0 bg-transparent"
+                (click)="logout()"
+              >
+                <cma-icon name="box-arrow-right" /> Log out
+              </button>
             </li>
           }
         </ul>

@@ -1,0 +1,99 @@
+<cma-page-header
+  eyebrow="Account"
+  title="Create account"
+  lead="A demo profile that keeps your progress, bookmarks and quiz history together in this browser."
+/>
+<div class="container-xxl py-4 py-lg-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <cma-demo-notice />
+      <form class="cma-card p-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (error()) {
+          <div class="alert alert-danger" role="alert">{{ error() }}</div>
+        }
+        <div class="mb-3">
+          <label class="form-label" for="reg-name">Display name</label>
+          <input
+            id="reg-name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            autocomplete="name"
+            [class.is-invalid]="submitted() && form.controls.name.invalid"
+          />
+          @if (submitted() && form.controls.name.invalid) {
+            <div class="invalid-feedback">Enter a name between 2 and 60 characters.</div>
+          }
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="reg-email">Email</label>
+          <input
+            id="reg-email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            autocomplete="email"
+            [class.is-invalid]="submitted() && form.controls.email.invalid"
+          />
+          @if (submitted() && form.controls.email.invalid) {
+            <div class="invalid-feedback">Enter a valid email address.</div>
+          }
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="reg-password">Password</label>
+          <input
+            id="reg-password"
+            type="password"
+            class="form-control"
+            formControlName="password"
+            autocomplete="new-password"
+            [class.is-invalid]="submitted() && form.controls.password.invalid"
+          />
+          @if (submitted() && form.controls.password.invalid) {
+            <div class="invalid-feedback">Use at least 8 characters.</div>
+          }
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="reg-confirm">Confirm password</label>
+          <input
+            id="reg-confirm"
+            type="password"
+            class="form-control"
+            formControlName="confirm"
+            autocomplete="new-password"
+            [class.is-invalid]="
+              submitted() && (form.controls.confirm.invalid || form.hasError('mismatch'))
+            "
+          />
+          @if (submitted() && (form.controls.confirm.invalid || form.hasError('mismatch'))) {
+            <div class="invalid-feedback">The passwords do not match.</div>
+          }
+        </div>
+        <div class="form-check mb-4">
+          <input
+            id="reg-terms"
+            type="checkbox"
+            class="form-check-input"
+            formControlName="terms"
+            [class.is-invalid]="submitted() && form.controls.terms.invalid"
+          />
+          <label class="form-check-label" for="reg-terms"
+            >I understand this is a browser-local demo account and I accept the
+            <a routerLink="/terms">terms</a>.</label
+          >
+          @if (submitted() && form.controls.terms.invalid) {
+            <div class="invalid-feedback d-block">
+              Please confirm you understand how the demo account works.
+            </div>
+          }
+        </div>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="busy()">
+          {{ busy() ? 'Creating…' : 'Create demo account' }}
+        </button>
+        <p class="small cma-text-secondary mt-3 mb-0 text-center">
+          Already have one? <a routerLink="/login">Log in</a>.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>

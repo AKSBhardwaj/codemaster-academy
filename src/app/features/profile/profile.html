@@ -1,0 +1,160 @@
+@if (auth.user(); as user) {
+  <cma-page-header
+    eyebrow="Account"
+    title="Profile"
+    lead="Your demo account details and the data this site keeps in your browser."
+  />
+  <div class="container-xxl py-4 py-lg-5">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <cma-demo-notice />
+        <form
+          class="cma-card p-4 mb-4"
+          [formGroup]="form"
+          (ngSubmit)="save()"
+          novalidate
+          aria-labelledby="profile-form-heading"
+        >
+          <h2 id="profile-form-heading" class="h5 mb-3">Account details</h2>
+          @if (message()) {
+            <div class="alert alert-success" role="status">{{ message() }}</div>
+          }
+          @if (error()) {
+            <div class="alert alert-danger" role="alert">{{ error() }}</div>
+          }
+          <div class="mb-3">
+            <label class="form-label" for="profile-name">Display name</label>
+            <input
+              id="profile-name"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              [class.is-invalid]="submitted() && form.controls.name.invalid"
+            />
+            @if (submitted() && form.controls.name.invalid) {
+              <div class="invalid-feedback">Enter a name between 2 and 60 characters.</div>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="profile-email">Email</label>
+            <input
+              id="profile-email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="submitted() && form.controls.email.invalid"
+            />
+            @if (submitted() && form.controls.email.invalid) {
+              <div class="invalid-feedback">Enter a valid email address.</div>
+            }
+          </div>
+          <p class="small cma-text-secondary">
+            Member since {{ user.createdAt | date: 'd MMM y' }}
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="logout()">
+              <cma-icon name="box-arrow-right" [size]="14" /> Log out
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-6">
+        <section class="cma-card p-4 mb-4" aria-labelledby="data-heading">
+          <h2 id="data-heading" class="h5 mb-2">Your data in this browser</h2>
+          <ul class="list-unstyled small mb-3">
+            <li>
+              <strong>{{ progress.totalCompleted() }}</strong>
+              {{ progress.totalCompleted() === 1 ? 'lesson' : 'lessons' }} completed
+            </li>
+            <li>
+              <strong>{{ exercises.solvedIds().size }}</strong>
+              {{ exercises.solvedIds().size === 1 ? 'exercise' : 'exercises' }} solved
+            </li>
+            <li>
+              <strong>{{ bookmarks.count() }}</strong>
+              {{ bookmarks.count() === 1 ? 'bookmark' : 'bookmarks' }}
+            </li>
+            <li>
+              <strong>{{ storedKeys() }}</strong> storage entries under the <code>cma:</code> prefix
+            </li>
+          </ul>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportData()">
+              <cma-icon name="download" [size]="14" /> Export as JSON
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" routerLink="/bookmarks"
+              >Bookmarks and history</a
+            >
+          </div>
+          <h3 class="h6">Reset learning data</h3>
+          <p class="small cma-text-secondary">
+            Removes progress, exercise and quiz history, bookmarks, recent lessons and enrolments
+            from this browser. Your account stays.
+          </p>
+          @if (confirmReset()) {
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-danger btn-sm" (click)="resetLearningData()">
+                Yes, reset everything
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                (click)="confirmReset.set(false)"
+              >
+                Cancel
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="confirmReset.set(true)"
+            >
+              Reset learning data…
+            </button>
+          }
+        </section>
+
+        <section class="cma-card p-4" aria-labelledby="delete-heading">
+          <h2 id="delete-heading" class="h5 mb-2">Delete demo account</h2>
+          <p class="small cma-text-secondary">
+            Deletes the account and all learning data from this browser. This cannot be undone.
+          </p>
+          @if (confirmDelete()) {
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-danger btn-sm" (click)="deleteAccount()">
+                Yes, delete my account
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                (click)="confirmDelete.set(false)"
+              >
+                Cancel
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              (click)="confirmDelete.set(true)"
+            >
+              Delete account…
+            </button>
+          }
+        </section>
+      </div>
+    </div>
+  </div>
+} @else {
+  <cma-page-header eyebrow="Account" title="Profile" />
+  <div class="container-xxl py-5" aria-busy="true">
+    @if (!auth.hydrated()) {
+      <div class="cma-skeleton" style="height: 8rem"></div>
+    } @else {
+      <p class="cma-text-secondary">Redirecting…</p>
+    }
+  </div>
+}
