@@ -197,8 +197,11 @@ test.describe('learning without an account', () => {
     await expect(page.getByLabel('Ready to copy')).toHaveValue(
       /The HTML heading example needs one more step/,
     );
-    await expect(page.getByRole('button', { name: 'Open in my email app' })).toHaveCount(0);
-    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Open in my email app' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'aksbhardwajg@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:aksbhardwajg@gmail.com',
+    );
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download message' }).click();
     const file = testInfo.outputPath('feedback.txt');

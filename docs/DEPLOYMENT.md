@@ -14,6 +14,46 @@ For a custom domain, use GitHub Pages settings to configure the domain and the D
 shows. Enable HTTPS, then rerun the workflow. The workflow uses the configured domain for every
 canonical link and sitemap entry. Do not keep old copies of the site at several unrelated domains.
 
+## Create the repository
+
+Use these details on [GitHub's new repository page](https://github.com/new):
+
+| Setting                           | Recommended value                                                                                               |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Repository name                   | `codemaster-academy`                                                                                            |
+| Description                       | Free beginner coding tutorials, hands-on examples, DSA in six languages, and system design. Built with Angular. |
+| Visibility                        | Public                                                                                                          |
+| Add README, .gitignore or license | Leave unchecked when uploading this existing project.                                                           |
+
+This checkout already has Git history on the `master` branch and an `origin` remote set to
+`https://github.com/AKSBhardwaj/codemaster-academy.git`. That local setting does not confirm that
+the repository has been created on GitHub. If it already exists in your account, use it and skip
+creating another repository.
+
+In a terminal opened in this project folder, review and commit any remaining changes:
+
+```powershell
+git status
+git add .
+git commit -m "Prepare CodeMaster Academy for GitHub Pages"
+```
+
+If Git reports no changes, skip the commit. Then check the destination and upload the project:
+
+```powershell
+git remote -v
+git push -u origin master
+```
+
+If you choose a different account or repository name, first update the existing remote with
+`git remote set-url origin https://github.com/YOURNAME/YOUR-REPOSITORY.git`. For a fresh copy
+without an `origin`, use `git remote add origin` with that address instead. Use your current branch
+name when pushing; the supplied workflow runs automatically for both `main` and `master`.
+
+For the currently configured account and repository, the expected free site address is
+`https://AKSBhardwaj.github.io/codemaster-academy/`. The address becomes available after Pages is
+enabled and the first deployment succeeds. You do not need a paid domain or a separate backend.
+
 ## Deploy from GitHub
 
 1. Push these files and `package-lock.json` to your repository.

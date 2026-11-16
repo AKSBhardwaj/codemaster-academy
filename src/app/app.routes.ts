@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
 import type { PageSeo } from './core/services/seo.service';
+import { CREATOR_PROFILE } from './core/config/creator-profile';
+import { SITE_NAME, absoluteSiteUrl } from '../content-schema/site-constants';
+
+const aboutDescription = `Meet ${CREATOR_PROFILE.name}, the creator of ${SITE_NAME}. Learn about his software work, AI interests and aim to make coding easy for beginners.`;
+const aboutUrl = absoluteSiteUrl('/about');
 
 const seo = (title: string, description: string, robots?: PageSeo['robots']): { seo: PageSeo } => ({
   seo: { title, description, robots },
@@ -105,10 +110,31 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () => import('./features/static-pages/about').then((m) => m.AboutPage),
-    data: seo(
-      'About us',
-      'Who builds CodeMaster Academy and how the tutorials are written and reviewed.',
-    ),
+    data: {
+      seo: {
+        title: `About ${CREATOR_PROFILE.name}`,
+        description: aboutDescription,
+        jsonLd: [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            '@id': aboutUrl,
+            url: aboutUrl,
+            name: `About ${SITE_NAME}`,
+            description: aboutDescription,
+            mainEntity: {
+              '@type': 'Person',
+              '@id': `${aboutUrl}#creator`,
+              name: CREATOR_PROFILE.name,
+              image: absoluteSiteUrl(CREATOR_PROFILE.photoPath),
+              jobTitle: CREATOR_PROFILE.role,
+              worksFor: { '@type': 'Organization', name: CREATOR_PROFILE.employer },
+              knowsAbout: CREATOR_PROFILE.skills.flatMap((skill) => [...skill.tools]),
+            },
+          },
+        ],
+      } satisfies PageSeo,
+    },
   },
   {
     path: 'contact',

@@ -33,8 +33,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   siteUrl: SITE_URL,
   logoPath: publicPath('/brand/logo.svg'),
   defaultOgImagePath: '/brand/og-default.png',
-  // Set a real address to enable the optional email handoff on the feedback page.
-  contactEmail: '',
+  // Public contact address used by the feedback page and site metadata.
+  contactEmail: 'aksbhardwajg@gmail.com',
   // Add real profiles here; the footer hides the section while this list is empty.
   social: [],
   foundedYear: 2026,

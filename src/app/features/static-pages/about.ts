@@ -1,11 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CREATOR_PROFILE } from '../../core/config/creator-profile';
 import { SITE_CONFIG } from '../../core/config/site-config';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'cma-about',
-  imports: [PageHeaderComponent, RouterLink],
+  imports: [PageHeaderComponent, RouterLink, NgOptimizedImage],
+  styleUrl: './about.scss',
   template: `
     <cma-page-header
       eyebrow="Meet your learning space"
@@ -13,6 +16,55 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
       [lead]="site.tagline"
     />
     <div class="container-xxl py-5">
+      <section id="creator" class="cma-creator mb-5" aria-labelledby="creator-name" tabindex="-1">
+        <div class="cma-creator__identity">
+          <img
+            class="cma-creator__portrait"
+            [ngSrc]="creator.photoPath"
+            [alt]="creator.name"
+            width="128"
+            height="128"
+            priority
+          />
+          <p class="cma-eyebrow mb-2">Meet the creator</p>
+          <h2 id="creator-name" class="cma-creator__name">Hi, I'm {{ creator.name }}</h2>
+          <p class="cma-creator__role">{{ creator.role }}</p>
+          <p class="cma-creator__experience">
+            <strong>{{ creator.experience }}</strong>
+            <span>years of building software</span>
+          </p>
+          <p class="small cma-text-secondary mb-0">Currently working at {{ creator.employer }}.</p>
+          <p class="cma-creator__motto">{{ creator.motto }}</p>
+        </div>
+        <div class="cma-creator__story">
+          <h3 class="h4 fw-bold">Making coding easier to learn</h3>
+          <p>
+            I build websites and the code that runs behind them. I enjoy turning big ideas into
+            useful tools that are easy to use. I care about clear code, fast apps and solving real
+            problems.
+          </p>
+          <p>
+            I created {{ site.name }} to help more people learn to code. My aim is simple: explain
+            each idea in small steps, show an example and give you something to try. You do not need
+            to know everything to get started.
+          </p>
+          <h3 class="h5 fw-bold mt-4 mb-3">What I work with and explore</h3>
+          <ul class="cma-creator__skills">
+            @for (skill of creator.skills; track skill.title) {
+              <li>
+                <h4 class="h6 fw-bold mb-1">{{ skill.title }}</h4>
+                <p class="small mb-2">{{ skill.description }}</p>
+                <p class="cma-creator__tools mb-0">{{ skill.tools.join(', ') }}</p>
+              </li>
+            }
+          </ul>
+          <p class="cma-creator__learning mb-0">
+            <strong>I am a learner, too.</strong> I enjoy trying new technology, exploring AI tools
+            and building personal projects. I believe learning never stops. Great software starts
+            with a real problem and gets better one step at a time.
+          </p>
+        </div>
+      </section>
       <div class="cma-prose">
         <h2 class="h4">Learn one small step at a time</h2>
         <p>
@@ -46,4 +98,5 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 })
 export class AboutPage {
   protected readonly site = inject(SITE_CONFIG);
+  protected readonly creator = CREATOR_PROFILE;
 }
