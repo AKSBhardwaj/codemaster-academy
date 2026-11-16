@@ -41,23 +41,24 @@ const LANGUAGE_LOADERS: Record<string, () => Promise<Extension>> = {
 };
 
 /**
- * CodeMirror 6 editor loaded lazily on the client. During prerendering (and before the editor mounts)
- * a read-only <textarea> with the same value is rendered, so the markup is stable and usable without JS.
+ * CodeMirror 6 editor loaded lazily on the client. The prerendered textarea is readable but read-only
+ * until its input handler is attached. Edits made while CodeMirror loads are kept in the value model.
  */
 @Component({
   selector: 'cma-code-editor',
   template: `
     <div class="cma-editor" [class.cma-editor--ready]="ready()" [style.min-height.px]="minHeight()">
       <textarea
+        #fallback
         class="cma-editor__fallback"
         [class.d-none]="ready()"
         [attr.aria-label]="label()"
         [value]="value()"
-        [readonly]="readOnly()"
+        [readonly]="!interactive() || readOnly()"
         (input)="onFallbackInput($event)"
         spellcheck="false"
       ></textarea>
-      <div #host class="cma-editor__host" [attr.aria-label]="label()"></div>
+      <div #host class="cma-editor__host"></div>
     </div>
   `,
   styles: `
@@ -93,15 +94,17 @@ export class CodeEditorComponent {
   readonly minHeight = input(240);
   readonly label = input('Code editor');
   protected readonly ready = signal(false);
+  protected readonly interactive = signal(false);
 
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
+  private readonly fallback = viewChild.required<ElementRef<HTMLTextAreaElement>>('fallback');
   private readonly platform = inject(PlatformService);
   private readonly theme = inject(ThemeStore);
   private readonly injector = inject(Injector);
   private view: EditorView | undefined;
   private languageCompartment: Compartment | undefined;
   private themeCompartment: Compartment | undefined;
-  private readOnlyCompartment: Compartment | undefined;
+  private inputOptionsCompartment: Compartment | undefined;
   private modules:
     | {
         EditorView: typeof EditorView;
@@ -114,7 +117,13 @@ export class CodeEditorComponent {
 
   constructor() {
     if (this.platform.isBrowser) {
-      afterNextRender(() => void this.mount(), { injector: this.injector });
+      afterNextRender(
+        () => {
+          this.interactive.set(true);
+          void this.mount();
+        },
+        { injector: this.injector },
+      );
     }
     inject(DestroyRef).onDestroy(() => this.view?.destroy());
     // Keep the editor in sync with programmatic value changes (template switch, reset).
@@ -143,11 +152,17 @@ export class CodeEditorComponent {
     });
     effect(() => {
       const readOnly = this.readOnly();
-      if (this.view && this.readOnlyCompartment && this.modules) {
+      const label = this.label();
+      if (this.view && this.inputOptionsCompartment && this.modules) {
         this.view.dispatch({
-          effects: this.readOnlyCompartment.reconfigure(
+          effects: this.inputOptionsCompartment.reconfigure([
             this.modules.EditorState.readOnly.of(readOnly),
-          ),
+            this.modules.EditorView.contentAttributes.of({
+              'aria-label': label,
+              'aria-readonly': String(readOnly),
+              tabindex: '0',
+            }),
+          ]),
         });
       }
     });
@@ -155,10 +170,12 @@ export class CodeEditorComponent {
 
   /** Focuses the editor (or the fallback textarea). */
   focus(): void {
-    this.view?.focus();
+    if (this.view) this.view.focus();
+    else this.fallback().nativeElement.focus();
   }
 
   protected onFallbackInput(event: Event): void {
+    if (!this.interactive() || this.readOnly()) return;
     this.value.set((event.target as HTMLTextAreaElement).value);
   }
 
@@ -173,7 +190,7 @@ export class CodeEditorComponent {
     this.modules = { EditorView, EditorState, language: languageModule, tags };
     this.languageCompartment = new Compartment();
     this.themeCompartment = new Compartment();
-    this.readOnlyCompartment = new Compartment();
+    this.inputOptionsCompartment = new Compartment();
     const language = await this.loadLanguage(this.language());
     const dark = this.theme.resolved() === 'dark';
     this.lastExternalValue = this.value();
@@ -185,9 +202,15 @@ export class CodeEditorComponent {
           basicSetup,
           this.languageCompartment.of(language),
           this.themeCompartment.of(editorTheme(dark, EditorView, languageModule, tags)),
-          this.readOnlyCompartment.of(EditorState.readOnly.of(this.readOnly())),
-          // The editable content is the textbox assistive technology sees; give it the same name as the host.
-          EditorView.contentAttributes.of({ 'aria-label': this.label(), tabindex: '0' }),
+          // Name the actual textbox, matching the native textarea shown before CodeMirror loads.
+          this.inputOptionsCompartment.of([
+            EditorState.readOnly.of(this.readOnly()),
+            EditorView.contentAttributes.of({
+              'aria-label': this.label(),
+              'aria-readonly': String(this.readOnly()),
+              tabindex: '0',
+            }),
+          ]),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               const text = update.state.doc.toString();

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "slug": "browser-client",
+  "title": "Connect a small browser page",
+  "summary": "Run the optional Reading List page locally and call the C# API with fetch. Learn JSON, exact CORS origins and safe text rendering.",
+  "introduction": "Our API can answer PowerShell. Now a small web page can use it too. The page has a title box, a read checkbox and a list. It sends HTTP requests to C#; it never needs the Oracle password.",
+  "learningObjectives": [
+    "Serve the optional browser page on the allowed local origin",
+    "Send GET and POST requests with fetch",
+    "Keep passwords and untrusted HTML out of the browser"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Allow the one local browser origin"
+    },
+    {
+      "type": "paragraph",
+      "text": "Stop the API, open a terminal in ReadingListApi, and enable the optional development setting. Then restart using the same launch profile."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "dotnet user-secrets set \"Development:CorsEnabled\" \"true\"\ndotnet run --launch-profile ReadingListApi",
+      "title": "Enable the local browser demo",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The API allows http://localhost:5500 only in Development. An **origin** is the scheme, host and port together. localhost and 127.0.0.1 are different origins, and port 5501 is different from 5500. Match the address exactly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Serve the page locally"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a static file server for the browser-client folder on port 5500. If Python 3 is installed, run this in another terminal from the extracted sample root. A code editor's local web server can also serve that folder at the same address."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "python -m http.server 5500 --bind localhost --directory browser-client",
+      "title": "Optional local static server",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Open http://localhost:5500 in your browser. Do not double-click index.html: a file:// page has a different origin. The page can list and add books; the API's update and delete actions can still be tested with PowerShell."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the request in JavaScript"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const response = await fetch(\"http://localhost:5080/api/books\");\nif (!response.ok) {\n  throw new Error(`Could not load books: HTTP ${response.status}`);\n}\nconst books = await response.json();",
+      "title": "The GET idea",
+      "runnable": false,
+      "caption": "Run this inside an async function, as in browser-client/app.js. This excerpt is not a standalone script."
+    },
+    {
+      "type": "paragraph",
+      "text": "fetch sends the request. Check response.ok because a reply such as HTTP 500 is still a reply. response.json reads the JSON body. The complete app.js handles errors and lets the learner try Refresh list again."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const response = await fetch(\"http://localhost:5080/api/books\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ title: \"Asha\\'s Book\", isRead: false })\n});",
+      "title": "The POST idea",
+      "runnable": false,
+      "caption": "This belongs inside an async function. The downloaded app.js checks the reply before showing success."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Treat a title as text"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const item = document.createElement(\"li\");\nitem.textContent = book.title;\nlist.append(item);",
+      "title": "Display one title safely",
+      "runnable": false,
+      "caption": "Here book is one API result and list is the page's list element."
+    },
+    {
+      "type": "paragraph",
+      "text": "textContent shows the title as text. Do not put a book title into innerHTML, because a title is not trusted page markup. If someone types <b>Book</b>, those characters should appear as the title rather than becoming a bold HTML element."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "CORS is not a password",
+      "text": "CORS is a browser rule about which origins may read a reply. It does not stop PowerShell or other clients from calling an API. This local sample has no sign-in and must not be treated as a protected public service."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a book in the local page, then request /api/books from PowerShell. Both should show the same Oracle data. Stop the API and use Refresh list to see the page's useful error message."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-browser-client-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-browser-client-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "finish-project"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "test-api"
+    }
+  ],
+  "seo": {
+    "title": "Connect a small browser page | C# .NET and Oracle",
+    "description": "Run the optional Reading List page locally and call the C# API with fetch. Learn JSON, exact CORS origins and safe text rendering."
+  },
+  "updatedOn": "2026-11-16"
+}

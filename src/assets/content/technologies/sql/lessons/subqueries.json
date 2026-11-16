@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "subqueries",
+  "title": "Subqueries",
+  "summary": "A subquery is a query inside another query. Its answer helps the outer query do its job.",
+  "introduction": "A subquery is a query inside another query. Its answer helps the outer query do its job. First find an average. Then use that answer to find rows above the average. Read the inner question before the outer one.",
+  "learningObjectives": [
+    "Use a scalar subquery as a value in WHERE",
+    "Filter with IN, NOT IN and EXISTS subqueries",
+    "Write correlated subqueries and derived tables",
+    "Structure multi-step queries with common table expressions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scalar subqueries"
+    },
+    {
+      "type": "paragraph",
+      "text": "A subquery that returns exactly one row and one column can be used wherever a single value can. The database evaluates the inner query first (the average price is about 26.12) and then runs the outer query with that value:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price\nFROM products\nWHERE price > (SELECT AVG(price) FROM products);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price\n--------------------+------\nMechanical keyboard | 89\nMonitor stand       | 39.5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "IN and NOT IN"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the inner query returns a list of values, `IN` tests membership. This finds the customers who have never bought electronics by listing those who have and excluding them:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name\nFROM customers\nWHERE id NOT IN (\n  SELECT o.customer_id\n  FROM orders o\n  JOIN products p ON p.id = o.product_id\n  WHERE p.category = 'Electronics'\n);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name\n-----------------\nLinus Torvalds\nMargaret Hamilton"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "NOT IN and NULL",
+      "text": "If the subquery can return a NULL (for example from a nullable `customer_id`), `NOT IN` returns no rows at all, because `x <> NULL` is never true. Add `WHERE customer_id IS NOT NULL` to the subquery or use `NOT EXISTS`, which does not have the problem. A second trap: a scalar subquery that returns several rows raises an error in PostgreSQL and MySQL, while SQLite silently uses the first row."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Correlated subqueries and EXISTS"
+    },
+    {
+      "type": "paragraph",
+      "text": "A *correlated* subquery refers to the outer row (`p.id` below) and is evaluated once per outer row. `EXISTS` is true when the subquery returns at least one row; `NOT EXISTS` is the robust way to express \"has no such row\". Products never ordered in a quantity above one:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT p.name\nFROM products p\nWHERE NOT EXISTS (\n  SELECT 1 FROM orders o\n  WHERE o.product_id = p.id AND o.quantity > 1\n);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name\n-------------------\nMechanical keyboard\nMonitor stand"
+    },
+    {
+      "type": "paragraph",
+      "text": "A correlated subquery can also appear in the SELECT list, producing one computed value per row:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT c.name,\n       (SELECT COUNT(*) FROM orders o WHERE o.customer_id = c.id) AS orders\nFROM customers c\nORDER BY c.id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | orders\n------------------+-------\nAda Lovelace      | 2\nGrace Hopper      | 2\nLinus Torvalds    | 2\nMargaret Hamilton | 1\nGuido van Rossum  | 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Correlated subqueries are easy to read but can be slow on large tables because they run once per row; a join with GROUP BY often does the same work in one pass."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Subqueries in FROM: derived tables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A subquery in the FROM clause acts as a temporary table and needs an alias. It is the natural way to aggregate an already computed value, such as the average value of an order line:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT ROUND(AVG(line_total), 2) AS avg_order_value\nFROM (\n  SELECT p.price * o.quantity AS line_total\n  FROM orders o\n  JOIN products p ON p.id = o.product_id\n) AS lines;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "avg_order_value\n---------------\n38.12"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Common table expressions: WITH"
+    },
+    {
+      "type": "paragraph",
+      "text": "Deep nesting gets hard to read. A **common table expression** (CTE) names a subquery up front with `WITH name AS (...)` and lets the main query use it like a table, even several times. SQLite, PostgreSQL, MySQL 8+, SQL Server and Oracle all support it. Customers who spent more than the average customer:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "WITH totals AS (\n  SELECT o.customer_id, SUM(p.price * o.quantity) AS spent\n  FROM orders o\n  JOIN products p ON p.id = o.product_id\n  GROUP BY o.customer_id\n)\nSELECT c.name, ROUND(t.spent, 2) AS spent\nFROM totals t\nJOIN customers c ON c.id = t.customer_id\nWHERE t.spent > (SELECT AVG(spent) FROM totals)\nORDER BY spent DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name             | spent\n-----------------+------\nAda Lovelace     | 102.5\nGuido van Rossum | 89"
+    },
+    {
+      "type": "paragraph",
+      "text": "`totals` is used twice: as a table in the join and inside the scalar subquery that computes the average. Recursive CTEs (`WITH RECURSIVE`) extend the idea to hierarchical data such as org charts and category trees."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Find the products that cost less than the cheapest electronics product, then rewrite the query with a CTE named `cheapest`."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT name, price\nFROM products\nWHERE price < (SELECT MIN(price) FROM products WHERE category = 'Electronics');"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-subqueries-stationery"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "subqueries-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "subqueries",
+          "difficulty": "beginner",
+          "question": "What does `WHERE price > (SELECT AVG(price) FROM products)` compare each price against?",
+          "explanation": "The inner query is independent of the outer row, so it is computed once and yields a single number that every row is compared with.",
+          "options": [
+            "Each product's own price",
+            "A single number computed once",
+            "A list of all prices",
+            "The first product's price"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "subqueries-qc-2",
+          "type": "true-false",
+          "lessonSlug": "subqueries",
+          "difficulty": "intermediate",
+          "question": "`NOT EXISTS` behaves correctly even when the subquery's columns contain NULL values.",
+          "explanation": "EXISTS only asks whether any row comes back, so NULLs inside those rows do not matter. NOT IN is the construct that breaks with NULLs.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-subqueries-stationery"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "group-by-having"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "filtering-operators"
+    }
+  ],
+  "seo": {
+    "title": "SQL Subqueries – IN, EXISTS, Derived Tables and WITH",
+    "description": "Learn SQL subqueries: scalar subqueries, IN and NOT IN, correlated subqueries with EXISTS, derived tables in FROM, and common table expressions with WITH."
+  },
+  "updatedOn": "2026-11-16"
+}

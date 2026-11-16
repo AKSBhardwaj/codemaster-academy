@@ -60,13 +60,16 @@ const PAGES = [
   '/tutorials/css',
   '/references/html',
   '/examples/html',
+  '/tutorials/data-structures-algorithms/introduction',
+  '/examples/data-structures-algorithms',
   '/exercises/html',
   '/quizzes/html',
   '/learning-paths',
   '/learning-paths/frontend-developer',
   '/search?q=html',
-  '/login',
-  '/register',
+  '/start',
+  '/settings',
+  '/dashboard',
   '/contact',
   '/about',
   '/privacy-policy',
@@ -77,6 +80,22 @@ const PAGES = [
 
 test.describe('accessibility (axe)', () => {
   test.describe.configure({ timeout: 60_000 });
+
+  test('DSA language tabs remain accessible with another language in both themes', async ({
+    page,
+  }) => {
+    for (const colorScheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme });
+      await open(page, '/tutorials/data-structures-algorithms/introduction');
+      const group = page.locator('cma-code-tabs-block').first();
+      await group.getByRole('tab', { name: 'C++', exact: true }).click();
+      await expect(group.getByRole('tab', { name: 'C++', exact: true })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await scan(page, `DSA C++ in ${colorScheme} mode`);
+    }
+  });
 
   for (const path of PAGES) {
     test(`${path} has no WCAG violations`, async ({ page }) => {
@@ -126,19 +145,21 @@ test.describe('accessibility (axe)', () => {
     await scan(page, 'quiz results');
   });
 
-  test('signed-in dashboard and profile have no WCAG violations', async ({ page }) => {
-    await page.goto('/register');
-    await page.getByLabel('Display name').fill('Ada Lovelace');
-    await page.getByLabel('Email').fill('ada@example.com');
-    await page.getByLabel('Password', { exact: true }).fill('correct-horse-9');
-    await page.getByLabel('Confirm password').fill('correct-horse-9');
-    await page.getByLabel(/I understand this is a browser-local demo account/).check();
-    await page.getByRole('button', { name: 'Create demo account' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Hi, Ada' })).toBeVisible();
-    await page.waitForLoadState('networkidle');
-    await scan(page, '/dashboard');
-    await open(page, '/profile');
-    await scan(page, '/profile');
+  test('learning settings confirmations and feedback draft have no WCAG violations', async ({
+    page,
+  }) => {
+    await open(page, '/settings');
+    await page.getByRole('button', { name: 'Reset learning data', exact: true }).click();
+    await scan(page, '/settings reset confirmation');
+    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+    await page.getByRole('button', { name: 'Clear all saved data', exact: true }).click();
+    await scan(page, '/settings clear confirmation');
+    await open(page, '/contact');
+    await page
+      .getByLabel('Message', { exact: true })
+      .fill('The HTML lesson has a small spelling mistake.');
+    await page.getByRole('button', { name: 'Prepare my message' }).click();
+    await scan(page, '/contact prepared feedback');
   });
 
   test('dark theme pages have no WCAG violations', async ({ page }) => {

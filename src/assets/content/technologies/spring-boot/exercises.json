@@ -1,0 +1,162 @@
+{
+  "title": "Spring Boot Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "spring-boot-first-route-check",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/hello\") String hello() { return \"Hello, Asha!\"; }\n }\n}\n",
+      "question": "@RestController makes return values into HTTP responses. GET /hello calls this method. What result does this example give after the setup steps?",
+      "explanation": "Boot configures an HTTP server and imports the controller. GetMapping connects /hello to its returned text. A mapping must use the same path and HTTP method as the request.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-boot-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/book\") Map<String, Object> book() { return Map.of(\"title\", \"Moon Trip\"); }\n }\n}\n",
+      "question": "Spring Boot writes a Map as JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The Map key title becomes a JSON field with value Moon Trip. JSON object field order is not part of its meaning.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "spring-boot-path-inputs-check",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/hello/{name}\") String hello(@PathVariable(\"name\") String name) { return \"Hi, \" + name + \"!\"; }\n }\n}\n",
+      "question": "@PathVariable reads a value from a named path position. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "The explicit path-variable name matches the placeholder. Spring passes Ravi to the method. Use the explicit input name so compilation settings do not affect binding.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-query-defaults-check",
+      "lessonSlug": "query-defaults",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/page\") Map<String, Integer> page(@RequestParam(name=\"n\", defaultValue=\"1\") int n) { return Map.of(\"page\", n); }\n }\n}\n",
+      "question": "@RequestParam reads a query value. GET /page without n uses the default 1. What result does this example give after the setup steps?",
+      "explanation": "The missing query input is replaced by defaultValue 1 and parsed as an int. Text that cannot become an int is rejected before this method runs.",
+      "options": ["[1]", "{\"page\":1}", "{\"page\":2}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-typed-paths-check",
+      "lessonSlug": "typed-paths",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/double/{n}\") Map<String, Integer> twice(@PathVariable(\"n\") int n) { return Map.of(\"answer\", n * 2); }\n }\n}\n",
+      "question": "An int path input is parsed by Spring. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "Spring converts the path text 4 to an int before invoking the method. The product is 8. A type checks the shape, not whether the number fits your business rule.",
+      "options": ["{\"answer\":9}", "[8]", "{\"answer\":8}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "spring-boot-request-bodies-check",
+      "lessonSlug": "request-bodies",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") Book create(@RequestBody Book book) { return book; }\n }\n}\n",
+      "question": "@RequestBody reads JSON into a Java record. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The JSON title is bound to the record field. Returning the record serialises that field again. A record defines fields but does not automatically make every value valid.",
+      "options": ["[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-validation-check",
+      "lessonSlug": "validation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") ResponseEntity<?> create(@RequestBody Book book) {\n if (book.title() == null || book.title().isBlank()) return ResponseEntity.badRequest().body(Map.of(\"error\", \"Title needed\"));\n return ResponseEntity.status(201).body(book);\n}\n }\n}\n",
+      "question": "A handler can check a body value and send 400 when it is not usable. Send POST /books with {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The title is present and not blank, so the handler returns 201 with the book body. Check input before storing or acting on it.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "spring-boot-status-check",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/missing\") ResponseEntity<?> missing() { return ResponseEntity.status(404).body(Map.of(\"error\", \"Book not found\")); }\n }\n}\n",
+      "question": "ResponseEntity lets code choose a status and body. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "ResponseEntity carries both 404 and the error object to the response writer. A failure should not use a success status just because it has a body.",
+      "options": [
+        "[\"Book not found\"]",
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-lists-check",
+      "lessonSlug": "lists",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/books\") List<String> books() { return List.of(\"Moon Trip\", \"Sun Trip\"); }\n }\n}\n",
+      "question": "A list becomes a JSON array. Open GET /books. What result does this example give after the setup steps?",
+      "explanation": "The two list items become two JSON array entries in their original order. List.of makes a list that cannot be changed in place.",
+      "options": [
+        "[\"Moon Trip\",\"Sun Trip\"]",
+        "[\"Sun Trip\",\"Sun Trip\"]",
+        "[\"Sun Trip\",\"Moon Trip\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-boot-headers-check",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/note\") ResponseEntity<String> note() { return ResponseEntity.ok().header(\"Cache-Control\", \"no-store\").body(\"Practice note\"); }\n }\n}\n",
+      "question": "A response can carry cache instructions. Open GET /note and inspect Cache-Control. What result does this example give after the setup steps?",
+      "explanation": "The response builder adds the header, then gives the response its text body. Headers need to be set before the response is sent.",
+      "options": ["practice note", "Practice note", "Welcome"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-redirects-check",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/start\") ResponseEntity<Void> start() { return ResponseEntity.status(302).header(\"Location\", \"/hello\").build(); }\n@GetMapping(\"/hello\") String hello() { return \"Welcome\"; }\n }\n}\n",
+      "question": "A 302 reply with Location asks a browser to make another request. GET /start ends at /hello. What result does this example give after the setup steps?",
+      "explanation": "The first response has status 302 and a Location header. The browser follows it to the greeting. Redirects are client actions, not calls to another Java method.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-boot-exception-handler-check",
+      "lessonSlug": "exception-handler",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/broken\") String broken() { throw new IllegalStateException(\"Practice failure\"); }\n@ExceptionHandler(IllegalStateException.class) ResponseEntity<?> failure() { return ResponseEntity.status(500).body(Map.of(\"error\", \"Try again later\")); }\n }\n}\n",
+      "question": "@ExceptionHandler formats one error type for this controller. Open GET /broken. What result does this example give after the setup steps?",
+      "explanation": "The controller handler catches the declared exception type and replaces it with a controlled 500 reply. Do not expose private stack traces or internal values in error replies.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "[\"Try again later\"]",
+        "{\"error\":\"Try again later\"}"
+      ],
+      "correctIndex": 2
+    }
+  ]
+}

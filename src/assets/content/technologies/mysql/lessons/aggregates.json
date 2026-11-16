@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "slug": "aggregates",
+  "title": "Aggregates and GROUP BY",
+  "summary": "Summarise the roastery data with COUNT, SUM, AVG, MIN and MAX, group it with GROUP BY and HAVING, build lists with GROUP_CONCAT, and understand ONLY_FULL_GROUP_BY, WITH ROLLUP and window functions.",
+  "introduction": "Reports ask questions about groups of rows: how many orders, revenue per customer, bags sold per status. Aggregate functions collapse many rows into one value, and GROUP BY decides which rows belong together. MySQL follows the standard here but adds two things worth knowing: the ONLY_FULL_GROUP_BY rule that rejects ambiguous queries, and GROUP_CONCAT, which turns a group into a comma-separated list. All queries run against the data loaded in the CRUD lesson.",
+  "learningObjectives": [
+    "Use COUNT, SUM, AVG, MIN and MAX and predict their result types",
+    "Group rows with GROUP BY and filter groups with HAVING",
+    "Explain and fix the ONLY_FULL_GROUP_BY error",
+    "Build per-group lists with GROUP_CONCAT and subtotals with WITH ROLLUP"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Aggregate functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "An aggregate takes many rows and returns one value. Without `GROUP BY` the whole table is one group, so the query below returns exactly one row. Note the result types: `SUM` of integers is an integer, while `AVG` of integers is a decimal with four places."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT COUNT(*) AS orders, SUM(quantity) AS bags, AVG(quantity) AS avg_bags\nFROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------+------+----------+\n| orders | bags | avg_bags |\n+--------+------+----------+\n|      7 |   12 |   1.7143 |\n+--------+------+----------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`AVG` of a `DECIMAL(6,2)` adds four decimals to the column's two; wrap it in `ROUND(AVG(price), 2)` for display. `MIN` and `MAX` work on strings and dates as well as numbers."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT MIN(price), MAX(price), AVG(price) FROM coffees;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+------------+------------+------------+\n| MIN(price) | MAX(price) | AVG(price) |\n+------------+------------+------------+\n|      12.50 |      16.00 |  14.300000 |\n+------------+------------+------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`COUNT(*)` counts rows; `COUNT(column)` counts rows where that column is not NULL. The difference is the number of unshipped orders:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT COUNT(*) AS all_rows, COUNT(shipped_at) AS shipped_rows FROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----------+--------------+\n| all_rows | shipped_rows |\n+----------+--------------+\n|        7 |            2 |\n+----------+--------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "GROUP BY"
+    },
+    {
+      "type": "paragraph",
+      "text": "`GROUP BY status` makes one group per distinct status and the aggregates are computed per group. Since MySQL 8.0, `GROUP BY` no longer sorts its output, so add `ORDER BY`; sorting by the `ENUM` column gives definition order, which reads well for a status."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT status, COUNT(*) AS orders, SUM(quantity) AS bags\nFROM orders\nGROUP BY status\nORDER BY status;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+-----------+--------+------+\n| status    | orders | bags |\n+-----------+--------+------+\n| pending   |      2 |    3 |\n| paid      |      2 |    5 |\n| shipped   |      2 |    3 |\n| cancelled |      1 |    1 |\n+-----------+--------+------+\n4 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Grouping across a join is the everyday report. A `LEFT JOIN` keeps Hannah; `COUNT(o.id)` gives her 0 because it ignores NULL, and `COALESCE` turns the NULL sum into 0.00. Group by the key *and* the name: the id makes groups correct even if two customers share a name, and listing the name satisfies the rule explained below."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT c.name, COUNT(o.id) AS orders,\n       COALESCE(SUM(k.price * o.quantity), 0) AS revenue\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nLEFT JOIN coffees k ON k.id = o.coffee_id\nGROUP BY c.id, c.name\nORDER BY revenue DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+--------+---------+\n| name          | orders | revenue |\n+---------------+--------+---------+\n| Tomás Ribeiro |      2 |   69.50 |\n| Priya Nair    |      3 |   55.00 |\n| Mei Chen      |      1 |   32.00 |\n| Yusuf Demir   |      1 |   12.50 |\n| Hannah Weiss  |      0 |    0.00 |\n+---------------+--------+---------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "HAVING"
+    },
+    {
+      "type": "paragraph",
+      "text": "`WHERE` filters rows before they are grouped; `HAVING` filters groups after the aggregates exist. Writing `WHERE COUNT(*) > 1` fails with `ERROR 1111 (HY000): Invalid use of group function`, because no count exists yet at that stage."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT customer_id, COUNT(*) AS orders\nFROM orders\nGROUP BY customer_id\nHAVING COUNT(*) >= 2\nORDER BY customer_id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+-------------+--------+\n| customer_id | orders |\n+-------------+--------+\n|           1 |      3 |\n|           2 |      2 |\n+-------------+--------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ONLY_FULL_GROUP_BY"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every column in the `SELECT` list must either be grouped or be inside an aggregate. Asking for `ordered_at` per customer is ambiguous, since each customer has several, and MySQL's default `sql_mode` rejects it:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT customer_id, ordered_at, COUNT(*)\nFROM orders\nGROUP BY customer_id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ERROR 1055 (42000): Expression #2 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'roastery.orders.ordered_at' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+    },
+    {
+      "type": "paragraph",
+      "text": "Say what you mean instead: `MAX(ordered_at)` for the latest order, `MIN` for the first, or add the column to `GROUP BY` if you want one row per date. MySQL understands functional dependencies, so grouping by a primary key lets you select the other columns of that table freely, which is why `GROUP BY c.id, c.name` above is accepted. `ANY_VALUE(ordered_at)` silences the error when you genuinely do not care which value appears."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not remove ONLY_FULL_GROUP_BY to make a query run",
+      "text": "Old advice is to delete `ONLY_FULL_GROUP_BY` from `sql_mode`. The query then runs and returns an *arbitrary* `ordered_at` from each group, so the report shows a date that is sometimes right, and nobody notices until a customer does. Keep the mode on and choose the value with an aggregate."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "GROUP_CONCAT"
+    },
+    {
+      "type": "paragraph",
+      "text": "`GROUP_CONCAT` is MySQL's aggregate that joins the values of a group into one string. It accepts `ORDER BY` and `SEPARATOR` inside the call (PostgreSQL calls this `STRING_AGG`). The result is truncated at `group_concat_max_len` bytes, 1024 by default, with only a warning; raise it with `SET SESSION group_concat_max_len = 100000;` before building long lists."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT c.name,\n       GROUP_CONCAT(k.name ORDER BY k.name SEPARATOR ', ') AS coffees\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN coffees k ON k.id = o.coffee_id\nGROUP BY c.id, c.name\nORDER BY c.id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+--------------------------------------------+\n| name          | coffees                                    |\n+---------------+--------------------------------------------+\n| Priya Nair    | Espresso Roast, Morning Blend, Yirgacheffe |\n| Tomás Ribeiro | Decaf Colombia, Espresso Roast             |\n| Mei Chen      | Yirgacheffe                                |\n| Yusuf Demir   | Morning Blend                              |\n+---------------+--------------------------------------------+\n4 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "WITH ROLLUP"
+    },
+    {
+      "type": "paragraph",
+      "text": "`WITH ROLLUP` appends a grand-total row in which the grouping column is NULL. With several grouping columns it adds a subtotal row for each level. `GROUPING(status)` returns 1 on those extra rows so you can label them *Total*."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT status, SUM(quantity) AS bags\nFROM orders\nGROUP BY status WITH ROLLUP;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+-----------+------+\n| status    | bags |\n+-----------+------+\n| pending   |    3 |\n| paid      |    5 |\n| shipped   |    3 |\n| cancelled |    1 |\n| NULL      |   12 |\n+-----------+------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Beyond GROUP BY: window functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sometimes you want an aggregate *next to* each row rather than instead of it: a running total, a rank, a share of the whole. Window functions, supported since MySQL 8.0, do that with `OVER`. The row count stays the same; only a column is added."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, quantity, SUM(quantity) OVER (ORDER BY id) AS running\nFROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+----------+---------+\n| id | quantity | running |\n+----+----------+---------+\n|  1 |        2 |       2 |\n|  2 |        1 |       3 |\n|  3 |        3 |       6 |\n|  4 |        2 |       8 |\n|  5 |        1 |       9 |\n|  6 |        2 |      11 |\n|  7 |        1 |      12 |\n+----+----------+---------+\n7 rows in set (0.00 sec)"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-agg-where-vs-having"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "aggregates-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "aggregates",
+          "difficulty": "beginner",
+          "question": "Which expression counts only the orders that have a `shipped_at` value?",
+          "explanation": "COUNT(column) skips NULLs, so it counts rows where shipped_at is set. COUNT(*) counts every row regardless.",
+          "options": [
+            "`COUNT(*)`",
+            "`COUNT(shipped_at)`",
+            "`SUM(shipped_at)`",
+            "`COUNT(DISTINCT *)`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "aggregates-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "aggregates",
+          "difficulty": "beginner",
+          "question": "To keep only groups with more than one order, write `GROUP BY customer_id ___ COUNT(*) > 1`.",
+          "explanation": "HAVING filters groups after aggregation; WHERE filters rows before it and cannot see COUNT(*).",
+          "answers": ["HAVING"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-agg-where-vs-having"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "indexes"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "aggregates"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "group-by-having"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Aggregates and GROUP BY – COUNT, SUM, GROUP_CONCAT",
+    "description": "Summarise MySQL data with COUNT, SUM, AVG, MIN and MAX, group with GROUP BY and HAVING, build lists with GROUP_CONCAT, and handle ONLY_FULL_GROUP_BY and WITH ROLLUP."
+  },
+  "updatedOn": "2026-11-15"
+}

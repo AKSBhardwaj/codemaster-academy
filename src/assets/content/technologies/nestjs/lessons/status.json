@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "status",
+  "title": "Choose a reply status",
+  "summary": "NestJS: Choose a reply status. Use an HTTP client to inspect the 200 status.",
+  "introduction": "@HttpCode changes a handler status. POST /check returns 200 instead of the usual Nest POST status.",
+  "learningObjectives": [
+    "Choose a reply status with NestJS",
+    "Use an HTTP client to inspect the 200 status"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a reply status"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Choose a reply status",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"check\") @HttpCode(200) check() { return { ready: true }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "HttpCode overrides the usual POST status. The returned object still controls the JSON body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"ready\":true}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use an HTTP client to inspect the 200 status."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A status describes the reply; it does not change the returned data."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-status-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-status-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "defaults"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Choose a reply status",
+    "description": "NestJS: Choose a reply status. Use an HTTP client to inspect the 200 status. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

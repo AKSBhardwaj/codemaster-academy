@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "slug": "async-patterns",
+  "title": "Async Patterns: Callbacks, Promises and async/await",
+  "summary": "Recognise error-first callbacks, convert them to promises, see how the event loop orders work, run tasks in parallel with Promise.all and avoid the unhandled rejection that crashes a server.",
+  "introduction": "Almost everything a Node program does, reading files, querying databases, calling other services, takes time, and Node never waits idly. Over the years it has offered three ways to express 'do this when that finishes': callbacks, promises and `async`/`await`. You will write the third, but you will read all three in packages and documentation. This lesson shows each style on the same task, makes the event loop visible with a four-line experiment, and covers the patterns that separate a correct server from one that hangs or crashes: parallel work, error handling and timeouts.",
+  "learningObjectives": [
+    "Read error-first callbacks and convert them to promises with util.promisify",
+    "Predict the order in which synchronous code, promise callbacks and timers run",
+    "Run independent tasks in parallel and handle rejections, including forgotten awaits"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three styles for the same job"
+    },
+    {
+      "type": "paragraph",
+      "text": "The oldest style is the **error-first callback**: you pass a function as the last argument, and Node calls it later with an error as the first parameter (or `null`) and the result as the second. The whole `node:fs` module still offers this form, and so do many older packages:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "callback.js",
+      "code": "import { readFile } from 'node:fs';\n\nreadFile('notes.txt', 'utf8', (error, text) => {\n  if (error) {\n    console.error('Could not read notes.txt:', error.message);\n    return;\n  }\n  console.log('Notes:', text.trim());\n});\n\nconsole.log('Reading in the background...');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node callback.js (notes.txt from the introduction lesson)",
+      "content": "Reading in the background...\nNotes: Remember to water the plants"
+    },
+    {
+      "type": "paragraph",
+      "text": "Callbacks work, but each dependent step nests one level deeper and every step must repeat the `if (error)` check. **Promises** flatten that: an operation returns an object that will *settle* later, either fulfilled with a value or rejected with an error, and `async`/`await` lets you write the waiting as if it were sequential code. The `node:fs/promises` version of the same program is the one you saw in the file system lesson. For an API that only offers callbacks, `util.promisify` wraps it:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "promisified.js",
+      "code": "import { promisify } from 'node:util';\nimport { exec } from 'node:child_process';\nimport { setTimeout as sleep } from 'node:timers/promises';\n\nconst run = promisify(exec);\n\nconst { stdout } = await run('node --version');\nconsole.log('Node is', stdout.trim());\n\nawait sleep(500);\nconsole.log('half a second later');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node promisified.js",
+      "content": "Node is v24.11.0\nhalf a second later"
+    },
+    {
+      "type": "paragraph",
+      "text": "`promisify` works with any function that follows the error-first convention. `node:timers/promises` is the promise-based version of `setTimeout`, which is why `await sleep(500)` reads so naturally; the old `setTimeout` takes a callback and returns a timer object, not a promise."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The event loop, in one example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node runs your script top to bottom, then repeatedly checks a set of queues: promise callbacks (the **microtask** queue) are drained first, then timers, then I/O events, then the whole loop starts over. Four lines are enough to watch it:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "loop.js",
+      "code": "console.log('1. script start');\n\nsetTimeout(() => console.log('4. timer callback'), 0);\n\nPromise.resolve().then(() => console.log('3. promise callback'));\n\nconsole.log('2. script end');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node loop.js",
+      "content": "1. script start\n2. script end\n3. promise callback\n4. timer callback"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Synchronous code always finishes first; nothing asynchronous can interrupt it. A long synchronous loop therefore delays every callback, timer and request.",
+        "Promise callbacks run as soon as the current script (or callback) finishes, before any timer, even a zero-millisecond one.",
+        "A timer's delay is a *minimum*: the callback runs on a later turn of the loop, once everything already queued has run.",
+        "`await` is a promise callback in disguise: the code after it runs on the microtask queue."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sequential versus parallel"
+    },
+    {
+      "type": "paragraph",
+      "text": "`await` pauses until one promise settles. Writing two awaits in a row therefore runs two operations one after the other, even when they do not depend on each other. Start both first and await them together with `Promise.all`, and the total time is the slowest one rather than the sum:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "parallel.js",
+      "code": "import { setTimeout as sleep } from 'node:timers/promises';\n\nasync function fetchBook(id) {\n  await sleep(300); // stands in for a database or network call\n  return { id, title: `Book ${id}` };\n}\n\nconsole.time('one after another');\nconst a = await fetchBook(1);\nconst b = await fetchBook(2);\nconsole.timeEnd('one after another');\n\nconsole.time('at the same time');\nconst [c, d] = await Promise.all([fetchBook(1), fetchBook(2)]);\nconsole.timeEnd('at the same time');\n\nconsole.log(a.title, b.title, c.title, d.title);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node parallel.js (exact milliseconds vary)",
+      "content": "one after another: 603.812ms\nat the same time: 301.455ms\nBook 1 Book 2 Book 1 Book 2"
+    },
+    {
+      "type": "table",
+      "headers": ["Combinator", "Settles when", "Use for"],
+      "rows": [
+        [
+          "`Promise.all(list)`",
+          "All fulfil, or the first one rejects",
+          "Independent tasks that are all required"
+        ],
+        [
+          "`Promise.allSettled(list)`",
+          "All have settled, success or failure",
+          "Reporting every result, such as a batch import"
+        ],
+        [
+          "`Promise.race(list)`",
+          "The first one settles, either way",
+          "Timeouts and first-response-wins"
+        ],
+        ["`Promise.any(list)`", "The first one fulfils", "Trying several mirrors or caches"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "A rejected promise becomes an exception at the `await`, so ordinary `try`/`catch` handles it. As in the file system lesson, handle the failures you expect and rethrow the rest:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "fallback.js",
+      "code": "import { readFile } from 'node:fs/promises';\n\nasync function loadConfig() {\n  try {\n    return JSON.parse(await readFile('config.json', 'utf8'));\n  } catch (error) {\n    if (error.code !== 'ENOENT') throw error;\n    console.error('No config.json, using defaults');\n    return { port: 3000 };\n  }\n}\n\nconsole.log(await loadConfig());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node fallback.js (without a config.json)",
+      "content": "No config.json, using defaults\n{ port: 3000 }"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The forgotten await",
+      "text": "Calling an async function without `await` (or `.catch`) means its rejection has no handler. Since Node 15 an **unhandled rejection** terminates the process with exit code 1, exactly like an uncaught exception. The symptom is a server that logs `this line still runs` and then dies: `save();` instead of `await save();` is the whole bug. Lint rules such as `no-floating-promises` catch it automatically."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "forgot.js",
+      "code": "async function save() {\n  throw new Error('disk full');\n}\n\nsave(); // no await, no catch\nconsole.log('this line still runs');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node forgot.js (stack shortened)",
+      "content": "this line still runs\nfile:///home/ada/bookshelf/forgot.js:2\n  throw new Error('disk full');\n        ^\n\nError: disk full\n    at save (file:///home/ada/bookshelf/forgot.js:2:9)\n    at file:///home/ada/bookshelf/forgot.js:5:1\n    ...\n\nNode.js v24.11.0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Timeouts and cancellation"
+    },
+    {
+      "type": "paragraph",
+      "text": "A promise that never settles is worse than one that rejects, because nothing ever runs. Network calls therefore need a deadline. `AbortSignal.timeout(ms)` creates a signal that aborts after the delay; `fetch`, `node:fs/promises`, timers and many packages accept it through the `signal` option and reject with a `TimeoutError` when it fires:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "deadline.js",
+      "code": "try {\n  const response = await fetch('http://localhost:3000/api/books', {\n    signal: AbortSignal.timeout(2000),\n  });\n  console.log(await response.json());\n} catch (error) {\n  console.error(`Gave up: ${error.name}`);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node deadline.js, when the server accepts the connection but never answers",
+      "content": "Gave up: TimeoutError"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep the loop free",
+      "text": "Asynchronous code only helps if the synchronous parts stay short. Parsing a huge JSON string, hashing a password with a slow algorithm or looping over a million rows blocks every other request while it runs. Move such work to `node:worker_threads` or a separate process, or break it into chunks with `await` between them."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-async-patterns-order"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-async-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "async-patterns",
+          "difficulty": "intermediate",
+          "question": "Two database queries do not depend on each other and each takes 200 ms. Which version finishes in about 200 ms?",
+          "explanation": "Promise.all starts both operations before waiting, so they overlap; two awaits in sequence wait for the first to finish before starting the second, taking about 400 ms.",
+          "options": [
+            "`const a = await q1(); const b = await q2();`",
+            "`const [a, b] = await Promise.all([q1(), q2()]);`",
+            "Both take about 400 ms",
+            "Both take about 200 ms"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-async-qc-2",
+          "type": "true-false",
+          "lessonSlug": "async-patterns",
+          "difficulty": "intermediate",
+          "question": "In Node 24, a promise rejection that nothing handles only prints a warning and the process keeps running.",
+          "explanation": "Since Node 15 the default is to treat an unhandled rejection like an uncaught exception: the error is printed and the process exits with code 1.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-async-patterns-order"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "events-streams"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "databases"
+    }
+  ],
+  "seo": {
+    "title": "Node.js Async Patterns – Callbacks, Promises, async/await",
+    "description": "Asynchronous Node.js explained: error-first callbacks, util.promisify, event loop order, Promise.all for parallel work, unhandled rejections and timeouts."
+  },
+  "updatedOn": "2026-11-15"
+}

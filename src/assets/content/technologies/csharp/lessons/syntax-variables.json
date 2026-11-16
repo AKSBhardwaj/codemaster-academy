@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax-variables",
+  "title": "Syntax and Variables",
+  "summary": "Statements, blocks and comments; declaring variables with int, double, bool, char and string; var and const; string interpolation; arithmetic and console input.",
+  "introduction": "Every C# program is built from the same few pieces: statements that do one thing each, variables that hold values of a declared type, and expressions that combine them. This lesson covers the syntax you will use in every file from now on: how to declare and name variables, the difference between var and an explicit type, constants, string interpolation, integer versus floating-point arithmetic, and reading a value typed by the user.",
+  "learningObjectives": [
+    "Declare variables with explicit types, var and const",
+    "Build strings with interpolation and do arithmetic with the right numeric type",
+    "Read input from the console and convert it to a number"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Statements, blocks and comments"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **statement** is one instruction and ends with a semicolon. Line breaks and indentation do not matter to the compiler, so a long statement may span several lines. Curly braces group statements into a **block**, which you will use with `if`, loops, methods and classes. Comments are ignored by the compiler: `//` comments to the end of the line, `/* ... */` can span lines, and `///` starts a documentation comment that editors show as a tooltip."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "// A single-line comment\nConsole.WriteLine(\"One statement\");\n\n/* A comment that\n   spans two lines */\nConsole.WriteLine(\n    \"A statement split across lines\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "One statement\nA statement split across lines"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable is a named slot that holds a value of one **type**. You declare it by writing the type, a name and, usually, an initial value. The type is fixed for the life of the variable: an `int` can never hold text, and the compiler enforces that."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int age = 30;\ndouble height = 1.72;\nbool isStudent = false;\nchar initial = 'G';\nstring name = \"Grace\";\n\nConsole.WriteLine($\"{name} ({initial}) is {age}, {height} m tall. Student: {isStudent}\");\n\nage = 31;              // reassigning is fine\nConsole.WriteLine(age);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Grace (G) is 30, 1.72 m tall. Student: False\n31"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Holds", "Example literal"],
+      "rows": [
+        [
+          "`int`",
+          "Whole numbers from about -2.1 billion to 2.1 billion",
+          "`42`, `-7`, `1_000_000`"
+        ],
+        ["`long`", "Much larger whole numbers", "`9_000_000_000L`"],
+        ["`double`", "Numbers with a fractional part (binary floating point)", "`3.14`, `1e6`"],
+        ["`decimal`", "Exact decimal numbers, the right choice for money", "`19.99m`"],
+        ["`bool`", "`true` or `false`", "`true`"],
+        ["`char`", "One UTF-16 character, in single quotes", "`'A'`"],
+        ["`string`", "Text, in double quotes", "`\"hello\"`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The [next lesson](/tutorials/csharp/types) looks at these types in depth. Note the suffixes: `m` makes a literal a `decimal`, `L` makes it a `long`, and `1_000_000` uses digit separators that the compiler ignores. A `bool` prints as `True` or `False` with a capital letter."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Naming rules and conventions"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Names contain letters, digits and underscores and cannot start with a digit. They are case-sensitive: `total` and `Total` are different variables.",
+        "Keywords such as `int`, `class` or `if` cannot be used as names.",
+        "By convention local variables and parameters use **camelCase** (`orderTotal`), while types, methods and properties use **PascalCase** (`OrderTotal`). Choose names that say what the value *means*, not what type it is."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "var and const"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the type is obvious from the right-hand side, `var` lets the compiler infer it. The variable is still statically typed: `var city = \"Lisbon\";` makes `city` a `string` forever. `const` declares a value that can never change and must be known at compile time."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var city = \"Lisbon\";          // inferred as string\nvar population = 548_000;     // inferred as int\nconst int DaysInWeek = 7;\n\npopulation += 1_000;\nConsole.WriteLine($\"{city} has about {population} residents.\");\nConsole.WriteLine($\"Two weeks are {DaysInWeek * 2} days.\");\n\n// city = 42;         would not compile: cannot convert int to string\n// DaysInWeek = 8;    would not compile: a const cannot be assigned"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Lisbon has about 549000 residents.\nTwo weeks are 14 days."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use `var` when the type is visible on the same line (a literal, a `new` expression, a cast) and write the type out when it is not, for example for the result of a method call, so readers do not have to guess."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Working with strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "Strings can be joined with `+`, but the readable way to build text is an **interpolated string**: prefix it with `$` and put any expression inside braces. A colon after the expression adds a format, such as `:F2` for two decimal places."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string first = \"Ada\";\nstring last = \"Lovelace\";\ndouble balance = 1234.5;\n\nstring full = first + \" \" + last;\nConsole.WriteLine(full);\nConsole.WriteLine($\"{first} has {full.Length} characters in her full name.\");\nConsole.WriteLine($\"Balance: {balance:F2}\");\nConsole.WriteLine($\"Upper: {first.ToUpper()}, starts with A: {first.StartsWith(\"A\")}\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada Lovelace\nAda has 12 characters in her full name.\nBalance: 1234.50\nUpper: ADA, starts with A: True"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two other string forms are useful. A **verbatim** string (`@\"C:\\temp\"`) keeps backslashes as they are, which is handy for Windows paths. A **raw string literal** (C# 11 and later) starts and ends with three double quotes and may contain quotes and line breaks without escaping, which is perfect for JSON or SQL snippets. Strings are immutable: `ToUpper()` returns a new string and leaves `first` unchanged."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arithmetic"
+    },
+    {
+      "type": "paragraph",
+      "text": "C# has the usual operators `+ - * / %` plus `++`, `--` and compound forms such as `+=`. One rule surprises everyone once: dividing two integers produces an integer, with the remainder thrown away. Convert one operand to `double` when you want a fraction, and use `%` to get the remainder itself."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int apples = 7;\nint people = 2;\n\nConsole.WriteLine(apples / people);            // integer division\nConsole.WriteLine(apples % people);            // remainder\nConsole.WriteLine(apples / (double)people);    // real division\nConsole.WriteLine(10 / 4 * 4);                 // left to right: (10 / 4) * 4\n\nint counter = 5;\ncounter++;\ncounter += 10;\nConsole.WriteLine(counter);\nConsole.WriteLine(Math.Max(3, 9) + Math.Sqrt(16));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\n1\n3.5\n8\n16\n13"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Math` is a static class with `Max`, `Min`, `Abs`, `Pow`, `Sqrt`, `Round` and more. Mixing an `int` with a `double`, as in the last line, promotes the result to `double`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading input"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Console.ReadLine()` returns what the user typed as a `string`, or `null` if the input stream has ended, which is why its declared type is `string?`. To treat the text as a number, convert it with `int.Parse` or `double.Parse`; the next lesson introduces `TryParse` for input that may be invalid."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.Write(\"How many tickets? \");\nstring input = Console.ReadLine() ?? \"0\";\nint tickets = int.Parse(input);\ndecimal price = 12.50m;\n\nConsole.WriteLine($\"{tickets} tickets cost {tickets * price:F2}\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output after typing 3",
+      "content": "How many tickets? 3\n3 tickets cost 37.50"
+    },
+    {
+      "type": "paragraph",
+      "text": "Numbers are printed using your machine's regional settings: on a computer set to German, the same program prints `37,50`. The outputs in this tutorial assume English settings."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Unassigned variables",
+      "text": "A local variable must be given a value before it is read. `int count; Console.WriteLine(count);` is rejected with *error CS0165: Use of unassigned local variable 'count'*. The same strictness applies to types: `int total = \"5\";` fails with *CS0029: Cannot implicitly convert type 'string' to 'int'*, which is exactly the kind of bug static typing exists to catch."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-variables-greeting"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-syntax-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "Both operands are integers, so `9 / 2` is `4` (the fraction is dropped) and `9 % 2` is the remainder `1`. Their sum is `5`.",
+          "language": "csharp",
+          "code": "int a = 9;\nint b = 2;\nConsole.WriteLine(a / b + a % b);",
+          "options": ["4.5", "5", "4", "5.5"],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-syntax-qc-2",
+          "type": "true-false",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "`var total = 10;` creates a variable whose type can later change, for example to a string.",
+          "explanation": "`var` only asks the compiler to infer the type from the initial value. `total` is an `int` for its whole life; assigning a string to it is a compile error.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-variables-predict", "csharp-variables-greeting"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "types"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "control-flow"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "variables"
+    }
+  ],
+  "seo": {
+    "title": "C# Syntax and Variables – Types, var, const, Strings",
+    "description": "Learn C# statements, comments and variables: int, double, bool, char and string, var and const, string interpolation, integer division and reading console input."
+  },
+  "updatedOn": "2026-11-15"
+}

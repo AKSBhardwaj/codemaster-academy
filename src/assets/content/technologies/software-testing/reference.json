@@ -1,0 +1,144 @@
+{
+  "title": "Software Testing Reference",
+  "description": "A quick reminder of the ideas and examples in the Software Testing lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Expected and actual results",
+          "summary": "A test compares an expected result with the actual result. A passing test only checks the case you gave it.",
+          "example": {
+            "language": "javascript",
+            "code": "const add = (a, b) => a + b;\nconsole.log(add(2, 3) === 5);"
+          },
+          "notes": ["One passing example is not proof that a whole program has no bugs."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "choose-useful-cases",
+          "name": "Choose useful cases",
+          "summary": "A test case includes inputs and the expected result. Choose cases that exercise different rules.",
+          "example": {
+            "language": "javascript",
+            "code": "const isFree = age => age < 5;\nconsole.log(isFree(3), isFree(8));"
+          },
+          "notes": ["Do not test only many inputs that all take the same path."],
+          "lessonSlug": "choose-useful-cases"
+        },
+        {
+          "slug": "boundaries-catch-small-mistakes",
+          "name": "Boundaries catch small mistakes",
+          "summary": "A boundary is where a rule changes. Values just before, on and after it are especially useful tests.",
+          "example": {
+            "language": "javascript",
+            "code": "const canEnter = age => age >= 10;\nconsole.log(canEnter(9), canEnter(10), canEnter(11));"
+          },
+          "notes": ["A greater-than sign and a greater-than-or-equal sign do different jobs."],
+          "lessonSlug": "boundaries-catch-small-mistakes"
+        },
+        {
+          "slug": "empty-input-is-a-real-case",
+          "name": "Empty input is a real case",
+          "summary": "An empty list has no items. Decide what your program should do with it before writing a test.",
+          "example": {
+            "language": "javascript",
+            "code": "const total = values => values.reduce((sum, value) => sum + value, 0);\nconsole.log(total([]));"
+          },
+          "notes": ["Without the starting value, reduce on an empty array throws an error."],
+          "lessonSlug": "empty-input-is-a-real-case"
+        },
+        {
+          "slug": "negative-tests",
+          "name": "Negative tests",
+          "summary": "A negative test checks how a program rejects an invalid input. The expected result may be a useful error instead of a normal value.",
+          "example": {
+            "language": "javascript",
+            "code": "function squareSize(side) {\n  if (side < 0) throw new Error(\"Side must not be negative\");\n  return side * side;\n}\ntry { squareSize(-2); } catch (error) { console.log(error.message); }"
+          },
+          "notes": ["Do not call an expected rejection a failing test."],
+          "lessonSlug": "negative-tests"
+        },
+        {
+          "slug": "unit-and-integration-tests",
+          "name": "Unit and integration tests",
+          "summary": "A unit test checks a small part. An integration test checks parts working together. Each finds different mistakes.",
+          "example": {
+            "language": "text",
+            "code": "Unit: price(2, 3) returns 6\nIntegration: basket passes its items to the price calculator\nEnd-to-end: a learner adds an item and sees the total"
+          },
+          "notes": ["Do not replace every small test with a slow whole-app test."],
+          "lessonSlug": "unit-and-integration-tests"
+        },
+        {
+          "slug": "make-a-bug-report-useful",
+          "name": "Make a bug report useful",
+          "summary": "A bug report should let another person repeat the problem. Include steps, expected behaviour and actual behaviour.",
+          "example": {
+            "language": "text",
+            "code": "Steps: open quiz, answer 2 questions, press Next\nExpected: question 3 appears\nActual: question 2 stays visible\nBrowser: the browser used for the test"
+          },
+          "notes": ["A report that only says broken does not explain how to reproduce the issue."],
+          "lessonSlug": "make-a-bug-report-useful"
+        },
+        {
+          "slug": "regression-tests-protect-fixes",
+          "name": "Regression tests protect fixes",
+          "summary": "A regression happens when something that worked stops working. Add a test for a fixed bug so later changes check it again.",
+          "example": {
+            "language": "text",
+            "code": "Bug: empty basket crashed\nFix: use zero as the starting total\nRegression test: empty basket total equals zero"
+          },
+          "notes": ["Do not remove the test as soon as the bug is fixed."],
+          "lessonSlug": "regression-tests-protect-fixes"
+        },
+        {
+          "slug": "repeatable-tests",
+          "name": "Repeatable tests",
+          "summary": "A repeatable test gives the same result with the same inputs. Pass changing values in instead of hiding the current time in the calculation.",
+          "example": {
+            "language": "javascript",
+            "code": "const isLate = (due, today) => today > due;\nconsole.log(isLate(5, 6));"
+          },
+          "notes": ["A test that depends on the real clock can change overnight."],
+          "lessonSlug": "repeatable-tests"
+        },
+        {
+          "slug": "explore-with-a-question",
+          "name": "Explore with a question",
+          "summary": "Exploratory testing uses a goal and careful observation. You choose the next step from what you discover.",
+          "example": {
+            "language": "text",
+            "code": "Goal: can I use the search with only a keyboard?\nTry: Tab to search, type a word, press Enter\nRecord: focus order, result, unexpected behaviour"
+          },
+          "notes": ["Random clicking without notes makes useful findings hard to repeat."],
+          "lessonSlug": "explore-with-a-question"
+        },
+        {
+          "slug": "accessibility-is-part-of-quality",
+          "name": "Accessibility is part of quality",
+          "summary": "Accessibility means people with different needs can use the app. Test labels, keyboard access and visible focus as well as mouse clicks.",
+          "example": {
+            "language": "text",
+            "code": "Input label: Search lessons\nKeyboard: Tab reaches input; Enter submits\nFocus: a visible border marks the active control"
+          },
+          "notes": ["A color change alone may not explain an error to every learner."],
+          "lessonSlug": "accessibility-is-part-of-quality"
+        },
+        {
+          "slug": "report-what-was-checked",
+          "name": "Report what was checked",
+          "summary": "A test summary says what ran, what passed and what remains unchecked. It should not promise more than the evidence supports.",
+          "example": {
+            "language": "text",
+            "code": "Checked: search, lesson links, quiz scoring\nPassed: 14 cases\nFailed: 1 keyboard case\nNot checked: old browser versions"
+          },
+          "notes": ["Do not say all browsers work when only one browser was checked."],
+          "lessonSlug": "report-what-was-checked"
+        }
+      ]
+    }
+  ]
+}

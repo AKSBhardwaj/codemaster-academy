@@ -1,0 +1,154 @@
+{
+  "title": "Terraform Reference",
+  "description": "A quick reminder of the ideas and examples in the Terraform lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Configuration before action",
+          "summary": "Infrastructure as code means describing resources in files. Terraform reads those files and compares the desired result with recorded state.",
+          "example": {
+            "language": "bash",
+            "code": "terraform version"
+          },
+          "notes": [
+            "A tool that can manage infrastructure must be pointed at the intended project."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "a-local-resource-example",
+          "name": "A local resource example",
+          "summary": "terraform_data is a built-in resource that stores an input in Terraform state. It does not create a cloud machine.",
+          "example": {
+            "language": "hcl",
+            "code": "terraform {\n  required_version = \">= 1.4.0\"\n}\nresource \"terraform_data\" \"greeting\" {\n  input = \"Hello, club\"\n}"
+          },
+          "notes": ["Do not add provisioner commands to this simple practice resource."],
+          "lessonSlug": "a-local-resource-example"
+        },
+        {
+          "slug": "initialise-the-folder",
+          "name": "Initialise the folder",
+          "summary": "init prepares a working directory. Backend configuration controls where state is stored; this practice keeps remote backends disabled.",
+          "example": {
+            "language": "bash",
+            "code": "terraform init -backend=false"
+          },
+          "notes": ["init does not mean a configuration is safe to apply."],
+          "lessonSlug": "initialise-the-folder"
+        },
+        {
+          "slug": "format-and-validate",
+          "name": "Format and validate",
+          "summary": "fmt checks or rewrites formatting. validate checks whether the configuration is internally valid after needed initialization.",
+          "example": {
+            "language": "bash",
+            "code": "terraform fmt -check\nterraform validate"
+          },
+          "notes": [
+            "Validation does not prove the planned infrastructure is appropriate or affordable."
+          ],
+          "lessonSlug": "format-and-validate"
+        },
+        {
+          "slug": "variables-accept-inputs",
+          "name": "Variables accept inputs",
+          "summary": "A variable declares an input and can provide a default. Types make the expected kind of value clear.",
+          "example": {
+            "language": "hcl",
+            "code": "variable \"club_name\" {\n  type = string\n  default = \"Reading club\"\n}\nresource \"terraform_data\" \"club\" {\n  input = var.club_name\n}"
+          },
+          "notes": ["A variable default is not a safe place for a real secret."],
+          "lessonSlug": "variables-accept-inputs"
+        },
+        {
+          "slug": "outputs-show-selected-values",
+          "name": "Outputs show selected values",
+          "summary": "An output exposes a useful result from the configuration. It does not automatically make a private value safe to publish.",
+          "example": {
+            "language": "hcl",
+            "code": "output \"club_message\" {\n  value = terraform_data.greeting.output\n}"
+          },
+          "notes": [
+            "Marking an output sensitive hides some display, but does not remove it from state."
+          ],
+          "lessonSlug": "outputs-show-selected-values"
+        },
+        {
+          "slug": "read-a-plan",
+          "name": "Read a plan",
+          "summary": "plan describes proposed changes. It gives you a chance to review before choosing whether to apply.",
+          "example": {
+            "language": "bash",
+            "code": "terraform plan"
+          },
+          "notes": [
+            "Do not approve a plan you have not read, especially one that removes resources."
+          ],
+          "lessonSlug": "read-a-plan"
+        },
+        {
+          "slug": "state-records-managed-resources",
+          "name": "State records managed resources",
+          "summary": "State links configuration to managed objects and their data. It can contain sensitive information, so treat it as important private project data.",
+          "example": {
+            "language": "text",
+            "code": "Configuration: what you want\nState: what Terraform recorded\nProvider reads: what exists now"
+          },
+          "notes": ["Do not edit state files manually as a normal way to change resources."],
+          "lessonSlug": "state-records-managed-resources"
+        },
+        {
+          "slug": "local-values-name-expressions",
+          "name": "Local values name expressions",
+          "summary": "locals name calculated values used inside a configuration. They are not inputs supplied from outside like variables.",
+          "example": {
+            "language": "hcl",
+            "code": "locals {\n  greeting = \"Hello, ${var.club_name}\"\n}\nresource \"terraform_data\" \"message\" {\n  input = local.greeting\n}"
+          },
+          "notes": ["Use local.greeting for a local value and var.club_name for a variable."],
+          "lessonSlug": "local-values-name-expressions"
+        },
+        {
+          "slug": "references-express-dependencies",
+          "name": "References express dependencies",
+          "summary": "A reference to another resource's result tells Terraform about a dependency. It can then choose a valid order of work.",
+          "example": {
+            "language": "hcl",
+            "code": "resource \"terraform_data\" \"first\" { input = \"Book\" }\nresource \"terraform_data\" \"second\" { input = terraform_data.first.output }"
+          },
+          "notes": ["File order alone is not how Terraform decides resource dependencies."],
+          "lessonSlug": "references-express-dependencies"
+        },
+        {
+          "slug": "modules-package-configuration",
+          "name": "Modules package configuration",
+          "summary": "A module is a group of Terraform configuration files used together. The current folder is the root module; other modules can be called from it.",
+          "example": {
+            "language": "text",
+            "code": "Root module\n  -> local module for a repeated group of settings\nModule inputs: variables\nModule results: outputs"
+          },
+          "notes": ["Do not trust a downloaded module without reading what it manages."],
+          "lessonSlug": "modules-package-configuration"
+        },
+        {
+          "slug": "separate-review-from-applying",
+          "name": "Separate review from applying",
+          "summary": "apply performs the reviewed changes. A safe workflow checks scope, target and the exact plan before changing any real resources.",
+          "example": {
+            "language": "text",
+            "code": "Read configuration\nCheck working directory and state target\nValidate and plan\nReview proposed effects\nApply only when authorised"
+          },
+          "notes": [
+            "Never run broad destruction commands against a project you do not fully own and understand."
+          ],
+          "lessonSlug": "separate-review-from-applying"
+        }
+      ]
+    }
+  ]
+}

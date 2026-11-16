@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-compiler",
+  "title": "Installing a Compiler and Building a Program",
+  "summary": "Install GCC or Clang on Windows, macOS or Linux, understand the four build stages, and learn the compiler flags that catch bugs before your program runs.",
+  "introduction": "A C compiler is a command-line program that turns source files into executables, and every C programmer should know how to drive one directly, even when an editor or IDE hides it. This lesson installs GCC or Clang on each major operating system, walks through preprocessing, compiling, assembling and linking one step at a time, and introduces the warning and debugging flags you should use on every build from now on.",
+  "learningObjectives": [
+    "Install a C17-capable compiler on Windows, macOS or Linux",
+    "Run the preprocessing, compile, assemble and link stages individually",
+    "Use warning, standard and sanitizer flags on every build",
+    "Read a program's exit status from the shell"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which compiler?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two free compilers implement C17 completely and are used interchangeably in this tutorial: **GCC** (the GNU Compiler Collection) and **Clang** (part of the LLVM project). They accept the same command-line flags for everything covered here. Microsoft's MSVC also compiles C, but its flags differ and its C17 support arrived late, so on Windows the smoothest route is GCC through MSYS2, or GCC inside the Windows Subsystem for Linux (WSL)."
+    },
+    {
+      "type": "table",
+      "headers": ["Platform", "Install", "Check"],
+      "rows": [
+        ["Ubuntu / Debian", "`sudo apt install build-essential`", "`gcc --version`"],
+        ["Fedora", "`sudo dnf install gcc`", "`gcc --version`"],
+        [
+          "macOS",
+          "`xcode-select --install` (installs Apple Clang; the `gcc` command runs Clang)",
+          "`cc --version`"
+        ],
+        [
+          "Windows (MSYS2)",
+          "In the UCRT64 shell: `pacman -S mingw-w64-ucrt-x86_64-gcc`",
+          "`gcc --version`"
+        ],
+        [
+          "Windows (WSL)",
+          "Install Ubuntu from the Microsoft Store, then `sudo apt install build-essential`",
+          "`gcc --version`"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Checking the installation",
+      "code": "gcc --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (Ubuntu 24.04; your version line will differ)",
+      "content": "$ gcc --version\ngcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    {
+      "type": "paragraph",
+      "text": "Any GCC from version 8 or Clang from version 7 onwards understands `-std=c17`. For the C23 notes in later lessons you need GCC 14 or Clang 18 and the flag `-std=c23`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The four stages of a build"
+    },
+    {
+      "type": "paragraph",
+      "text": "`gcc hello.c -o hello` looks like one step, but the driver program runs four tools behind the scenes. You can stop after each stage and inspect the intermediate file, which is the best way to understand what `#include` really does and where linker errors come from. Use `hello.c` from the [introduction](/tutorials/c/introduction)."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Building hello.c one stage at a time",
+      "code": "gcc -E hello.c -o hello.i   # 1. preprocess: expand #include and macros\ngcc -S hello.i -o hello.s   # 2. compile: C to assembly\ngcc -c hello.s -o hello.o   # 3. assemble: assembly to object code\ngcc hello.o -o hello        # 4. link: object code + C library = executable\n./hello"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Hello, world!"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open `hello.i` in an editor: your seven-line program has become several hundred lines, because the whole of `stdio.h` was pasted in. `hello.s` is readable assembly, and `hello.o` is binary machine code that cannot run yet because `printf` is still only a name. The linker resolves that name against the C standard library and produces the executable. In day-to-day work you only use two forms: `-c` to produce an object file, and the full command without `-c` to produce a program."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Flags you should always use"
+    },
+    {
+      "type": "paragraph",
+      "text": "By default the compiler is quiet and permissive. The flags below make it strict, and strictness is free bug-finding. The table lists the ones that matter at this stage; the full command used throughout the tutorial is `gcc -Wall -Wextra -std=c17 file.c -o program`."
+    },
+    {
+      "type": "table",
+      "headers": ["Flag", "Effect"],
+      "rows": [
+        [
+          "`-Wall`",
+          "Turns on the most useful warnings: unused variables, missing return values, suspicious comparisons"
+        ],
+        ["`-Wextra`", "Adds more, including unused parameters and signed/unsigned comparisons"],
+        [
+          "`-std=c17`",
+          "Compile against the C17 standard; `-std=c23` selects C23 on GCC 14+ and Clang 18+"
+        ],
+        ["`-pedantic`", "Warn about GCC and Clang extensions that another compiler might reject"],
+        ["`-g`", "Include debugging information for `gdb`, `lldb` and the sanitizers"],
+        ["`-O2`", "Optimise for speed; leave it off (the default `-O0`) while debugging"],
+        ["`-o name`", "Name the output file; without it you get `a.out` (or `a.exe` on Windows)"],
+        [
+          "`-fsanitize=address,undefined`",
+          "Add run-time checks for memory errors and undefined behaviour"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Here is a warning in action. The program compiles and runs, but the compiler tells you about a variable that is never used, which in a larger program is often the sign of a logic error."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "unused.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int unused = 42;\n    int count = 3;\n    printf(\"count = %d\\n\", count);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 unused.c -o unused\nunused.c: In function 'main':\nunused.c:5:9: warning: unused variable 'unused' [-Wunused-variable]\n    5 |     int unused = 42;\n      |         ^~~~~~\n$ ./unused\ncount = 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice that `main` has no `return` statement. Since C99, reaching the closing brace of `main` returns 0 automatically; `main` is the only function with that privilege, and most style guides still write the `return 0;` explicitly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Exit status"
+    },
+    {
+      "type": "paragraph",
+      "text": "The value returned from `main` is the program's **exit status**. Shell scripts, build tools and continuous-integration systems use it to decide whether a step succeeded: 0 means success, anything else means failure. In Bash and zsh the status of the last command is in `$?`; in PowerShell it is `$LASTEXITCODE`. Error messages belong on the standard error stream, `stderr`, so that they are kept apart from normal output."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "status.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int items = 0;\n\n    if (items == 0) {\n        fprintf(stderr, \"status: nothing to process\\n\");\n        return 2;\n    }\n    printf(\"processed %d items\\n\", items);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 status.c -o status\n$ ./status\nstatus: nothing to process\n$ echo $?\n2"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: compiling without warnings",
+      "text": "A plain `gcc hello.c` compiles with almost no diagnostics and names the result `a.out`. Beginners then spend hours on bugs that `-Wall -Wextra` would have pointed at in a second, such as a variable used before it is given a value. Make the full command a habit, or put it in a shell alias or a Makefile, which is covered in [Headers and Multi-file Programs](/tutorials/c/headers-multifile)."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Running programs on Windows",
+      "text": "On Windows the output file is `hello.exe` and you run it as `.\\hello` in PowerShell or `hello` in cmd. Inside an MSYS2 or WSL shell, `./hello` works exactly as on Linux."
+    },
+    {
+      "type": "callout",
+      "icon": "tools",
+      "title": "Editor setup",
+      "text": "Any text editor works, but [Visual Studio Code](/tutorials/vscode) with the C/C++ or clangd extension gives you inline error squiggles, auto-completion and a debugger front end. Keep compiling from the terminal as well, so that you always know what the editor is doing for you."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-setup-output-flag"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-compiler",
+          "difficulty": "beginner",
+          "question": "Which flag makes the compiler stop after producing an object file instead of linking?",
+          "explanation": "`-c` compiles and assembles but does not link, producing a `.o` file. `-o` only names the output and `-S` stops after producing assembly.",
+          "options": ["`-o`", "`-c`", "`-S`", "`-g`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "c-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup-compiler",
+          "difficulty": "beginner",
+          "question": "`-Wall` enables every warning the compiler is capable of producing.",
+          "explanation": "Despite its name, `-Wall` enables a curated set of common warnings. `-Wextra` adds more, and many specific warnings must still be requested individually.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-setup-output-flag"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "headers-multifile"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "common-bugs"
+    }
+  ],
+  "seo": {
+    "title": "Install a C Compiler – GCC and Clang Setup",
+    "description": "Install GCC or Clang on Windows, macOS and Linux, build a C program through preprocessing, compiling and linking, and use warning flags that catch bugs early."
+  },
+  "updatedOn": "2026-11-15"
+}

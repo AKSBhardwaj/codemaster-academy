@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "slug": "generics",
+  "title": "Generics",
+  "summary": "A generic lets code keep track of a type chosen when the code is used.",
+  "introduction": "A generic lets code keep track of a type chosen when the code is used. Think of a box that keeps the label of whatever you put inside. A helper can work with many kinds of values without forgetting their types.",
+  "learningObjectives": [
+    "Write a generic function and explain how the compiler infers its type arguments",
+    "Constrain a type parameter with extends and relate two parameters with keyof",
+    "Declare generic interfaces and classes such as ApiResponse<T> and Stack<T>"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The problem generics solve"
+    },
+    {
+      "type": "paragraph",
+      "text": "`firstLoose` below accepts any array and returns `any`, so the caller gets no information back: `loose` can be used as a number, a string or a function without complaint. `first` declares a *type parameter* `T` in angle brackets, uses it for both the element type and the return type, and lets the compiler infer `T` from each call."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "identity.ts",
+      "code": "function firstLoose(items: any[]): any {\n  return items[0];\n}\n\nfunction first<T>(items: T[]): T | undefined {\n  return items[0];\n}\n\nconst loose = firstLoose([1, 2, 3]);\nconst num = first([1, 2, 3]);\nconst str = first([\"a\", \"b\"]);\nconst explicit = first<boolean>([]);\n\nconsole.log(loose, num, str, explicit);\nconsole.log(num.toFixed(1));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc identity.ts",
+      "content": "identity.ts:15:13 - error TS18048: 'num' is possibly 'undefined'.\n\n15 console.log(num.toFixed(1));\n               ~~~\n\n\nFound 1 error in identity.ts:15"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hover over the variables: `loose` is `any`, `num` is `number | undefined`, `str` is `string | undefined`, and `explicit` is `boolean | undefined` because the type argument was written out for an empty array that offers nothing to infer from. The first `console.log` prints `1 1 a undefined`. The error on the last line is the generic version being *honest*: an empty array has no first element, and the return type says so, which `firstLoose` never could."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Constraints"
+    },
+    {
+      "type": "paragraph",
+      "text": "An unconstrained `T` could be anything, so inside the function you may not touch its properties. `extends` narrows what `T` can be. `T extends { length: number }` accepts strings, arrays and any object with a numeric `length`, and `a.length` becomes legal in the body while callers still get back exactly the type they passed in."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "constraint.ts",
+      "code": "function longest<T extends { length: number }>(a: T, b: T): T {\n  return a.length >= b.length ? a : b;\n}\n\nconsole.log(longest(\"apple\", \"fig\"));\nconsole.log(longest([1, 2], [3]));\n\nlongest(10, 20);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc constraint.ts",
+      "content": "constraint.ts:8:9 - error TS2345: Argument of type 'number' is not assignable to parameter of type '{ length: number; }'.\n\n8 longest(10, 20);\n          ~~\n\n\nFound 1 error in constraint.ts:8"
+    },
+    {
+      "type": "paragraph",
+      "text": "The two valid calls print `apple` and `[ 1, 2 ]`, and their results are typed `string` and `number[]` rather than the constraint type. Numbers have no `length`, so the third call is rejected at the call site, before the body ever runs."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: using T as if it had properties",
+      "text": "`function describe<T>(value: T) { return value.length; }` fails with `TS2339: Property 'length' does not exist on type 'T'.` Beginners react by changing `T` to `any`, which throws away the type information generics exist to preserve. Add a constraint that names what you need (`T extends { length: number }`) or, if the function really does not care about the value, do not read its properties at all."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Relating parameters with keyof"
+    },
+    {
+      "type": "paragraph",
+      "text": "`keyof T` is the union of the property names of `T`. Constraining a second type parameter with `K extends keyof T` ties a key argument to the object argument, and the indexed access type `T[K]` is the type of that property. The result is a `pluck` function that knows that `pluck(user, \"name\")` returns a `string`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "keyof.ts",
+      "code": "function pluck<T, K extends keyof T>(source: T, key: K): T[K] {\n  return source[key];\n}\n\nconst user = { id: 1, name: \"Ada\", admin: true };\n\nconst name = pluck(user, \"name\");\nconst admin = pluck(user, \"admin\");\nconsole.log(name.toUpperCase(), admin);\n\npluck(user, \"email\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc keyof.ts",
+      "content": "keyof.ts:11:13 - error TS2345: Argument of type '\"email\"' is not assignable to parameter of type '\"name\" | \"id\" | \"admin\"'.\n\n11 pluck(user, \"email\");\n               ~~~~~~~\n\n\nFound 1 error in keyof.ts:11"
+    },
+    {
+      "type": "paragraph",
+      "text": "The valid lines print `ADA true`. Notice that `name.toUpperCase()` compiled: the compiler resolved `T[K]` to `string` for that call. Misspell a key and the error lists every real key, which is also what the editor's autocomplete offers as you type the quotes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Generic interfaces and classes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Type parameters work on interfaces and classes the same way. `ApiResponse<T>` describes an envelope whose `data` type varies per endpoint; `Stack<T>` is a container whose methods all share one `T`. You have been using generic types since the first lesson: `string[]` is `Array<string>`, and every `async` function returns a `Promise<T>`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "stack.ts",
+      "code": "interface ApiResponse<T> {\n  ok: boolean;\n  data: T;\n}\n\nclass Stack<T> {\n  private items: T[] = [];\n\n  push(item: T): void {\n    this.items.push(item);\n  }\n\n  pop(): T | undefined {\n    return this.items.pop();\n  }\n\n  get size(): number {\n    return this.items.length;\n  }\n}\n\nconst stack = new Stack<number>();\nstack.push(1);\nstack.push(2);\nconsole.log(stack.pop(), stack.size);\n\nconst response: ApiResponse<string[]> = { ok: true, data: [\"a\", \"b\"] };\nconsole.log(response.data.length);\n\nstack.push(\"three\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc stack.ts",
+      "content": "stack.ts:30:12 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\n\n30 stack.push(\"three\");\n              ~~~~~~~\n\n\nFound 1 error in stack.ts:30"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without the last line the file prints `2 1` and then `2`. Because the class was instantiated as `Stack<number>`, every method is specialised: `push` accepts only numbers and `pop` returns `number | undefined`. Type parameters can also have defaults (`interface ApiResponse<T = unknown>`), and TypeScript 5.4 added `NoInfer<T>` for the rare case where one argument should not influence inference."
+    },
+    {
+      "type": "table",
+      "headers": ["Syntax", "Meaning"],
+      "rows": [
+        ["`function f<T>(x: T): T`", "Declare a type parameter and use it in the signature"],
+        ["`f<string>(\"a\")`", "Pass a type argument explicitly; usually inferred instead"],
+        ["`T extends Shape`", "Constrain what `T` may be"],
+        ["`K extends keyof T`", "`K` must be a property name of `T`"],
+        ["`T[K]`", "The type of property `K` in `T` (indexed access type)"],
+        ["`T = unknown`", "Default type argument"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Naming type parameters",
+      "text": "`T` is conventional for a single parameter, `K` and `V` for keys and values, `E` for elements. In larger signatures prefer descriptive names such as `TItem` or `TResponse`; a generic with four single letters is hard to read six months later."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-generics-last-of"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-generics-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "generics",
+          "difficulty": "beginner",
+          "question": "What is the type of `result` in `const result = first([\"x\", \"y\"]);` given `function first<T>(items: T[]): T | undefined`?",
+          "explanation": "The compiler infers T as string from the array literal, so the return type T | undefined becomes string | undefined.",
+          "options": ["`string`", "`string | undefined`", "`T | undefined`", "`unknown`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-generics-qc-2",
+          "type": "true-false",
+          "lessonSlug": "generics",
+          "difficulty": "intermediate",
+          "question": "In `function get<T, K extends keyof T>(obj: T, key: K): T[K]`, calling `get({ a: 1 }, \"b\")` is a compile error.",
+          "explanation": "keyof { a: number } is \"a\", so \"b\" does not satisfy the constraint on K and the compiler rejects the argument.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-generics-last-of"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "utility-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Generics – Type Parameters, Constraints, keyof",
+    "description": "Learn TypeScript generics step by step: generic functions with inference, extends constraints, keyof and indexed access, and generic interfaces and classes."
+  },
+  "updatedOn": "2026-11-16"
+}

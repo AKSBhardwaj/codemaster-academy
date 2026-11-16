@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "hooks",
+  "title": "Run a step before a handler",
+  "summary": "Fastify: Run a step before a handler. Change the school value.",
+  "introduction": "A preHandler hook runs before the route handler. GET / uses the request field set by the hook.",
+  "learningObjectives": ["Run a step before a handler with Fastify", "Change the school value"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a step before a handler"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Run a step before a handler",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.decorateRequest(\"school\", \"\");\napp.addHook(\"preHandler\", async request => { request.school = \"Oak School\"; });\napp.get(\"/\", async request => request.school);\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "decorateRequest declares the field. The hook fills it before the route reads it."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the school value."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use async hooks or callback hooks consistently; do not mix both styles."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-hooks-check"
+    }
+  ],
+  "exerciseIds": ["fastify-hooks-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "schemas"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Run a step before a handler",
+    "description": "Fastify: Run a step before a handler. Change the school value. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

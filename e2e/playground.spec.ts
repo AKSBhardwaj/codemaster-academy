@@ -65,22 +65,24 @@ test.describe('playground', () => {
       .click();
     await expect(page).toHaveURL(/\/playground\?lang=html&from=lesson/);
     await waitForEditor(page);
-    await expect(page.locator('.cm-content')).toContainText('Hello, world!');
+    await expect(page.locator('.cm-content')).toContainText('My school garden');
     await page.getByRole('button', { name: 'Run' }).click();
     await expect(
-      page.frameLocator('iframe.cma-sandbox-frame').getByRole('heading', { name: 'Hello, world!' }),
+      page
+        .frameLocator('iframe.cma-sandbox-frame')
+        .getByRole('heading', { name: 'My school garden' }),
     ).toBeVisible();
   });
 
   test('inline "try it" runner in a lesson executes the example', async ({ page }) => {
     await page.goto('/tutorials/html/introduction');
     // The runner lives in a deferred block that loads/hydrates once its placeholder scrolls into view.
-    await page.getByText('Try it yourself').first().scrollIntoViewIfNeeded();
+    await page.getByText('Make your own club page').first().scrollIntoViewIfNeeded();
     const runner = page.locator('cma-inline-runner').first();
     await expect(runner.locator('.cm-editor')).toBeVisible({ timeout: 15000 });
     await runner.getByRole('button', { name: 'Run' }).click();
     await expect(
-      runner.frameLocator('iframe.cma-sandbox-frame').getByRole('heading', { name: 'Edit me' }),
+      runner.frameLocator('iframe.cma-sandbox-frame').getByRole('heading', { name: 'My club' }),
     ).toBeVisible();
   });
 });

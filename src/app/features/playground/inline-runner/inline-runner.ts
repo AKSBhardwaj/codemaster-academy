@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, linkedSignal, viewChild } from '@angular/core';
+import {
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CodeEditorComponent } from '../../../shared/components/code-editor/code-editor';
 import { IconComponent } from '../../../shared/components/icon/icon';
 import { ExecutionService } from '../engines/execution.service';
@@ -13,18 +22,49 @@ import { RunSession } from '../run-session';
   template: `
     <div class="cma-inline-runner">
       <div class="cma-inline-runner__bar">
-        <span class="cma-inline-runner__title"><cma-icon name="play-circle" [size]="14" /> {{ title() }}</span>
+        <span class="cma-inline-runner__title"
+          ><cma-icon name="play-circle" [size]="14" /> {{ title() }}</span
+        >
         <div class="d-flex gap-1">
-          <button type="button" class="btn btn-ghost btn-sm" (click)="reset()"><cma-icon name="arrow-counterclockwise" [size]="14" /> Reset</button>
-          <button type="button" class="btn btn-ghost btn-sm" (click)="openInPlayground()"><cma-icon name="arrow-up-right" [size]="14" /> Playground</button>
-          <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" (click)="run()" [disabled]="!canRun()">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            (click)="reset()"
+            [disabled]="!interactive()"
+          >
+            <cma-icon name="arrow-counterclockwise" [size]="14" /> Reset
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            (click)="openInPlayground()"
+            [disabled]="!interactive()"
+          >
+            <cma-icon name="arrow-up-right" [size]="14" /> Playground
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
+            (click)="run()"
+            [disabled]="!interactive() || !canRun()"
+          >
             <cma-icon name="play-fill" [size]="14" /> Run
           </button>
         </div>
       </div>
       <div class="cma-inline-runner__grid">
-        <cma-code-editor [(value)]="code" [language]="language()" [minHeight]="height()" [label]="title() + ' editor'" />
-        <cma-output-panel [events]="session.events()" [state]="session.state()" [showPreview]="language() !== 'sql'" [compact]="true" />
+        <cma-code-editor
+          [(value)]="code"
+          [language]="language()"
+          [minHeight]="height()"
+          [label]="title() + ' editor'"
+        />
+        <cma-output-panel
+          [events]="session.events()"
+          [state]="session.state()"
+          [showPreview]="language() !== 'sql'"
+          [compact]="true"
+        />
       </div>
     </div>
   `,
@@ -37,6 +77,7 @@ import { RunSession } from '../run-session';
     }
     .cma-inline-runner__bar {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 0.5rem;
@@ -45,6 +86,7 @@ import { RunSession } from '../run-session';
     }
     .cma-inline-runner__title {
       display: inline-flex;
+      flex: 1 1 12rem;
       align-items: center;
       gap: 0.4rem;
       font-weight: 600;
@@ -71,12 +113,17 @@ export class InlineRunnerComponent {
   readonly height = input(180);
 
   protected readonly session = new RunSession();
+  protected readonly interactive = signal(false);
   /** Editable copy of the example; resets whenever the input changes, otherwise keeps the learner's edits. */
   protected readonly code = linkedSignal(() => this.initialCode());
   private readonly execution = inject(ExecutionService);
   private readonly handoff = inject(PlaygroundHandoffService);
   private readonly output = viewChild(OutputPanelComponent);
   protected readonly canRun = computed(() => this.execution.canRun(this.language()));
+
+  constructor() {
+    afterNextRender(() => this.interactive.set(true));
+  }
 
   protected run(): void {
     this.session.run(this.language(), this.code(), this.output()?.host);

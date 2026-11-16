@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "avoid-replacing-an-existing-item",
+  "title": "Avoid replacing an existing item",
+  "summary": "A conditional put can require that a key does not already exist.",
+  "introduction": "A conditional put can require that a key does not already exist. Your task: Try the condition with a genuinely new book key.",
+  "learningObjectives": [
+    "Try the condition with a genuinely new book key.",
+    "Explain the example for avoid replacing an existing item"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A conditional put can require that a key does not already exist. The condition is checked as part of the write."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"Item\":{\"reader\":{\"S\":\"mia\"},\"book\":{\"S\":\"moon-trip\"},\"title\":{\"S\":\"Another title\"}},\"ConditionExpression\":\"attribute_not_exists(#reader)\",\"ExpressionAttributeNames\":{\"#reader\":\"reader\"}}",
+      "title": "Avoid replacing an existing item",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ConditionExpression` checks the current item as part of the write, so a failed condition prevents the change.",
+        "`attribute_not_exists` requires that the named attribute is absent at the targeted item key.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The write fails with a condition error if that exact key already has an item."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A condition failure is an expected outcome to handle, not a reason to retry the same forbidden overwrite forever."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Try the condition with a genuinely new book key."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-avoid-replacing-an-existing-item-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-avoid-replacing-an-existing-item-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "update-one-attribute"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Avoid replacing an existing item",
+    "description": "A conditional put can require that a key does not already exist. The condition is checked as part of the write."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Add response metadata",
+  "summary": "Gin: Add response metadata. Use curl -i to see the header.",
+  "introduction": "Header sets a response header. Open GET /note and inspect Cache-Control.",
+  "learningObjectives": ["Add response metadata with Gin", "Use curl -i to see the header"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Add response metadata"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Add response metadata",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/note\", func(c *gin.Context) { c.Header(\"Cache-Control\", \"no-store\"); c.String(http.StatusOK, \"Practice note\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Header sets Cache-Control before String writes the body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use curl -i to see the header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Set headers before writing the response body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-headers-check"
+    }
+  ],
+  "exerciseIds": ["gin-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "middleware"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Add response metadata",
+    "description": "Gin: Add response metadata. Use curl -i to see the header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

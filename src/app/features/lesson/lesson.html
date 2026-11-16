@@ -46,10 +46,8 @@
       </ul>
     </section>
 
-    <!-- The lesson body is prerendered; its components hydrate when the browser is idle so the page becomes responsive sooner. -->
-    @defer (hydrate on idle) {
-      <cma-content-renderer [blocks]="lesson.blocks" />
-    }
+    <!-- Keep visible lesson actions ready on first click. Editors and quizzes defer their own heavy code. -->
+    <cma-content-renderer [blocks]="lesson.blocks" [idPrefix]="lesson.id" />
 
     @if (lesson.relatedLessons.length) {
       <section class="mt-5" aria-labelledby="related-heading">

@@ -1,4 +1,4 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, afterNextRender, computed, input, model, signal } from '@angular/core';
 import type { QuizQuestion } from '../../../core/models/content';
 import { CodeBlockComponent } from '../../../shared/components/code-block/code-block';
 import { InlineMarkupComponent } from '../../../shared/components/inline-markup/inline-markup';
@@ -20,22 +20,40 @@ export class QuestionInputComponent {
   /** After grading: highlight the correct option and the learner's wrong one. */
   readonly reveal = input(false);
   readonly headingLevel = input<'h2' | 'h3' | 'p'>('p');
+  protected readonly interactive = signal(false);
 
   protected readonly name = `cma-q-${instance++}`;
   protected readonly options = computed(() => {
     const q = this.question();
-    return q.type === 'multiple-choice' || q.type === 'predict-output' || q.type === 'find-error' ? q.options : [];
+    return q.type === 'multiple-choice' || q.type === 'predict-output' || q.type === 'find-error'
+      ? q.options
+      : [];
   });
   protected readonly code = computed(() => {
     const q = this.question();
-    return q.type === 'predict-output' || q.type === 'find-error' ? { code: q.code, language: q.language } : null;
+    return q.type === 'predict-output' || q.type === 'find-error'
+      ? { code: q.code, language: q.language }
+      : null;
   });
-  protected readonly displayQuestion = computed(() => this.question().question.replace(/___/g, '______'));
+  protected readonly displayQuestion = computed(() =>
+    this.question().question.replace(/___/g, '______'),
+  );
   protected readonly correctIndex = computed(() => {
     const q = this.question();
-    return q.type === 'multiple-choice' || q.type === 'predict-output' || q.type === 'find-error' ? q.correctIndex : -1;
+    return q.type === 'multiple-choice' || q.type === 'predict-output' || q.type === 'find-error'
+      ? q.correctIndex
+      : -1;
   });
-  protected readonly correctBoolean = computed(() => (this.question().type === 'true-false' ? (this.question() as { correct: boolean }).correct : null));
+  protected readonly correctBoolean = computed(() =>
+    this.question().type === 'true-false'
+      ? (this.question() as { correct: boolean }).correct
+      : null,
+  );
+
+  constructor() {
+    // Prerendered and deferred questions become editable once their handlers are attached.
+    afterNextRender(() => this.interactive.set(true));
+  }
 
   protected choose(index: number): void {
     if (!this.disabled()) this.answer.set({ kind: 'choice', index });

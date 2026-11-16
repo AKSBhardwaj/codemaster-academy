@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "slug": "containers-grid",
+  "title": "Containers and the Grid",
+  "summary": "Bootstrap puts page content in containers. Its grid divides rows into 12 parts for arranging columns.",
+  "introduction": "Bootstrap puts page content in containers. Its grid divides rows into 12 parts for arranging columns. Think of sharing 12 squares between boxes. Try two boxes with 6 parts each, then three boxes with 4 parts each.",
+  "learningObjectives": [
+    "Choose between container, container-fluid and the breakpoint containers",
+    "Build rows of equal, fixed-width and content-sized columns",
+    "Adjust gutters, alignment and offsets with grid classes",
+    "Explain the padding and negative-margin mechanism behind row and col"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Containers"
+    },
+    {
+      "type": "paragraph",
+      "text": "A container is a centred block with horizontal padding that stops content stretching across very wide screens. `.container` has a `max-width` that steps up at each breakpoint; `.container-fluid` is always the full width of the viewport. Both add 12px of padding on the left and right, which is half of the default gutter and the reason columns line up with container edges, as you will see below."
+    },
+    {
+      "type": "table",
+      "caption": "Container max-width at each breakpoint",
+      "headers": ["Breakpoint", "Viewport width", "`.container` max-width", "`.container-fluid`"],
+      "rows": [
+        ["xs", "below 576px", "100%", "100%"],
+        ["sm", "576px and up", "540px", "100%"],
+        ["md", "768px and up", "720px", "100%"],
+        ["lg", "992px and up", "960px", "100%"],
+        ["xl", "1200px and up", "1140px", "100%"],
+        ["xxl", "1400px and up", "1320px", "100%"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`.container-md`, `.container-lg` and the other breakpoint containers are full width until the named breakpoint and then behave like `.container`. They suit pages that should fill a phone screen but not a monitor."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Two containers compared",
+      "code": "<div class=\"container border\">\n  <p>.container: fixed max-width, centred</p>\n</div>\n<div class=\"container-fluid border mt-3\">\n  <p>.container-fluid: always full width</p>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result at a 1000px wide viewport",
+      "content": "First box: 960px wide, centred, with 20px of empty space on each side; the text starts 12px inside the border\nSecond box: 1000px wide, touching both viewport edges; the text starts 12px inside the border\nThe second box sits 1rem (16px) below the first because of mt-3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Rows and columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside a container you place a `.row`, and inside the row you place columns. The row is a flex container with `flex-wrap: wrap`, so columns sit side by side until they run out of room. Widths are expressed in twelfths: `.col-4` is one third of the row, `.col-6` one half, `.col-12` the whole row. Twelve was chosen because it divides evenly by 2, 3, 4 and 6, so most layouts need no fractions."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Fixed-width columns",
+      "code": "<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"col-8 border p-3\">Main content (col-8)</div>\n    <div class=\"col-4 border p-3\">Sidebar (col-4)</div>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "One line with two bordered boxes: the first takes 66.67% of the row width, the second 33.33%\nEach box has 1rem of inner padding from p-3\nThe left edge of the first box lines up with the container's left padding edge"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "More than twelve wraps"
+    },
+    {
+      "type": "paragraph",
+      "text": "Columns whose widths add up to more than twelve do not shrink; the column that no longer fits moves to a new line, because the row wraps. That is useful on purpose (a second line of cards) and confusing by accident."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Thirteen twelfths",
+      "code": "<div class=\"row\">\n  <div class=\"col-8 border p-3\">A (col-8)</div>\n  <div class=\"col-5 border p-3\">B (col-5)</div>\n  <div class=\"col-3 border p-3\">C (col-3)</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Line 1: box A at 66.67% width, then empty space (B does not fit)\nLine 2: box B at 41.67% width, then box C at 25% width"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Auto-layout columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "You do not have to count. A bare `.col` has `flex: 1 0 0%`, so several of them share the row equally. `.col-auto` is only as wide as its content. `.row-cols-3` on the row makes every child one third wide without classes on the columns, which is ideal for lists of cards."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Equal and content-sized columns",
+      "code": "<div class=\"row\">\n  <div class=\"col border p-3\">Equal</div>\n  <div class=\"col border p-3\">Equal</div>\n  <div class=\"col border p-3\">Equal</div>\n</div>\n\n<div class=\"row mt-3\">\n  <div class=\"col-auto border p-3\">As wide as this text</div>\n  <div class=\"col border p-3\">Takes the rest</div>\n</div>\n\n<div class=\"row row-cols-2 mt-3\">\n  <div class=\"col border p-3\">1</div>\n  <div class=\"col border p-3\">2</div>\n  <div class=\"col border p-3\">3</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Row 1: three boxes of exactly one third each\nRow 2: a box just wide enough for its text plus padding, then a box filling the remaining width\nRow 3: boxes 1 and 2 side by side at 50% each, box 3 alone on a second line at 50%"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Gutters: how the spacing works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Columns are separated by **gutters**, and gutters are padding: every column has 12px of padding on each side, half of the 24px (`1.5rem`) gutter width stored in the `--bs-gutter-x` variable. To stop the first and last column being indented by 12px, the row has a negative margin of -12px on both sides. Padding and negative margin cancel at the edges, which is why column content aligns perfectly with the container's own padding edge."
+    },
+    {
+      "type": "paragraph",
+      "text": "The `g-*` classes set the gutter size from `g-0` (none) to `g-5` (3rem). `gx-*` changes only the horizontal gutter and `gy-*` only the vertical one, which matters when a row wraps onto several lines."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Changing gutters",
+      "code": "<div class=\"row g-0\">\n  <div class=\"col-6\"><div class=\"border p-3\">No gutter</div></div>\n  <div class=\"col-6\"><div class=\"border p-3\">No gutter</div></div>\n</div>\n\n<div class=\"row g-4 mt-1\">\n  <div class=\"col-6\"><div class=\"border p-3\">1.5rem gutter</div></div>\n  <div class=\"col-6\"><div class=\"border p-3\">1.5rem gutter</div></div>\n  <div class=\"col-6\"><div class=\"border p-3\">1.5rem gutter</div></div>\n  <div class=\"col-6\"><div class=\"border p-3\">1.5rem gutter</div></div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Row 1: two bordered boxes whose borders touch in the middle; no space between them\nRow 2: four boxes in a 2 by 2 arrangement with a 24px gap between the columns and a 24px gap between the two lines"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice the inner `<div class=\"border\">` in that example. Borders and backgrounds belong on an element *inside* the column, not on the column itself: the column's padding is the gutter, so a border on the column would wrap the gutter and the boxes would appear to touch."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: skipping the row",
+      "text": "Columns must be direct children of a `.row`, and rows should sit inside a container. Put a `.col-6` straight into a `.container` and its 12px padding adds to the container's 12px, so the content is indented by 24px and never lines up with anything. Put text straight into a `.row` and the row's negative margins push it 12px outside the container's edge. Whenever something is off by 12px, look for a missing row."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Alignment, offsets and order"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because a row is a flex container, the [flexbox](/tutorials/css) alignment utilities work on it. `justify-content-center` centres columns that do not fill the row, `align-items-center` centres them vertically when one is taller, and `offset-*` pushes a column to the right by a number of twelfths using a left margin. `order-*` changes the visual order without touching the markup."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Centring and offsetting",
+      "code": "<div class=\"row justify-content-center\">\n  <div class=\"col-6 border p-3\">Centred half-width column</div>\n</div>\n\n<div class=\"row mt-3\">\n  <div class=\"col-4 offset-4 border p-3\">Pushed right by four columns</div>\n</div>\n\n<div class=\"row mt-3\">\n  <div class=\"col-6 order-2 border p-3\">First in the HTML</div>\n  <div class=\"col-6 order-1 border p-3\">Second in the HTML</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Row 1: a 50% wide box with equal empty space on the left and right\nRow 2: a 33.33% wide box starting at the horizontal centre of the row, empty space to its left\nRow 3: \"Second in the HTML\" is displayed on the left, \"First in the HTML\" on the right"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nesting"
+    },
+    {
+      "type": "paragraph",
+      "text": "A column can contain its own row, and the twelve columns of that inner row span the width of the parent column, not the page. Nesting is how you build a sidebar with its own two-column widget list."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A row inside a column",
+      "code": "<div class=\"row\">\n  <div class=\"col-9 border p-3\">\n    Article\n    <div class=\"row mt-2\">\n      <div class=\"col-6\"><div class=\"border p-2\">Half of the article</div></div>\n      <div class=\"col-6\"><div class=\"border p-2\">Half of the article</div></div>\n    </div>\n  </div>\n  <div class=\"col-3 border p-3\">Sidebar</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A 75% wide \"Article\" box next to a 25% wide \"Sidebar\" box\nInside the article, below the word \"Article\", two boxes each exactly half of the article's width"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "See the gutters",
+      "text": "In the browser's DevTools, hover a `.col-*` element. The highlighted green padding area on each side is the gutter, and the orange margin area on the `.row` shows the matching negative margin. Resize the window and watch the container's max-width jump at 576, 768, 992, 1200 and 1400px."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-grid-three-columns"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-grid-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "containers-grid",
+          "difficulty": "beginner",
+          "question": "A row contains `col-6`, `col-6` and `col-4` in that order. Where does the `col-4` appear?",
+          "explanation": "The first two columns fill all twelve twelfths. The row wraps, so the third column starts a new line and is one third wide.",
+          "options": [
+            "Squeezed onto the first line at a smaller width",
+            "On a second line, one third of the row wide",
+            "On a second line, full width",
+            "It is hidden"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "bs-grid-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "containers-grid",
+          "difficulty": "beginner",
+          "question": "To remove all space between columns you add the class `___` to the row.",
+          "explanation": "g-0 sets both the horizontal and vertical gutter to zero. gx-0 would remove only the horizontal one.",
+          "answers": ["g-0"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-grid-wrap", "bootstrap-grid-three-columns"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "breakpoints-responsive"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "utilities-spacing-flex"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Containers and Grid – Rows, Columns, Gutters",
+    "description": "Learn the Bootstrap 5.3 grid: container widths, rows and twelve columns, auto-layout, gutters, alignment, offsets and nesting, with the CSS behind each class."
+  },
+  "updatedOn": "2026-11-16"
+}

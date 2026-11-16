@@ -1,0 +1,126 @@
+{
+  "title": "PyTorch Examples",
+  "description": "Small PyTorch examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Create a tensor",
+      "description": "A PyTorch tensor stores numbers with a shape and a data type. torch.tensor makes one from a small Python list.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor([2, 4, 6])\nprint(x.tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "inspect-shape-and-dimensions",
+      "title": "Inspect shape and dimensions",
+      "description": "Shape gives the size of each dimension. ndim tells you how many dimensions there are.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor([[1, 2], [3, 4]])\nprint(tuple(x.shape), x.ndim)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "inspect-shape-and-dimensions"
+    },
+    {
+      "id": "set-a-dtype",
+      "title": "Set a dtype",
+      "description": "A dtype specifies how numbers are represented. Floating-point tensors are commonly used for model calculations and gradients.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor([1, 2], dtype=torch.float32)\nprint(x.dtype)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "set-a-dtype"
+    },
+    {
+      "id": "add-matching-values",
+      "title": "Add matching values",
+      "description": "Tensor arithmetic can combine matching positions. Shapes must match or follow broadcasting rules.",
+      "language": "python",
+      "code": "import torch\n\na = torch.tensor([1, 2])\nb = torch.tensor([3, 4])\nprint((a + b).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-matching-values"
+    },
+    {
+      "id": "use-matrix-multiplication",
+      "title": "Use matrix multiplication",
+      "description": "Matrix multiplication combines rows with columns. The inner dimensions must match. It is different from element-wise multiplication.",
+      "language": "python",
+      "code": "import torch\n\na = torch.tensor([[1., 2.]])\nb = torch.tensor([[3.], [4.]])\nprint((a @ b).item())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-matrix-multiplication"
+    },
+    {
+      "id": "reshape-values",
+      "title": "Reshape values",
+      "description": "reshape changes the layout of a tensor while keeping the same number of values.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor([1, 2, 3, 4, 5, 6])\nprint(x.reshape(2, 3).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "reshape-values"
+    },
+    {
+      "id": "track-a-gradient",
+      "title": "Track a gradient",
+      "description": "requires_grad asks PyTorch to track operations for automatic differentiation. backward fills the gradient of the scalar result with respect to the input.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor(3.0, requires_grad=True)\ny = x * x\ny.backward()\nprint(x.grad.item())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "track-a-gradient"
+    },
+    {
+      "id": "disable-tracking-for-a-calculation",
+      "title": "Disable tracking for a calculation",
+      "description": "torch.no_grad runs operations without building a gradient-tracking graph. This is useful when you only need predictions.",
+      "language": "python",
+      "code": "import torch\n\nx = torch.tensor(3.0, requires_grad=True)\nwith torch.no_grad():\n    y = x * 2\nprint(y.requires_grad)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "disable-tracking-for-a-calculation"
+    },
+    {
+      "id": "a-linear-layer-learns-weights",
+      "title": "A linear layer learns weights",
+      "description": "nn.Linear combines input features into output values using learned weights and a bias. Two inputs can produce one output.",
+      "language": "python",
+      "code": "import torch\n\nlayer = torch.nn.Linear(2, 1)\nx = torch.tensor([[1.0, 2.0]])\nprint(tuple(layer(x).shape))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "a-linear-layer-learns-weights"
+    },
+    {
+      "id": "build-a-small-sequential-model",
+      "title": "Build a small sequential model",
+      "description": "A sequential model applies layers in order. An activation such as ReLU keeps positive values and changes negative values to zero.",
+      "language": "python",
+      "code": "import torch\n\nmodel = torch.nn.Sequential(torch.nn.Linear(2, 3), torch.nn.ReLU(), torch.nn.Linear(3, 1))\nprint(tuple(model(torch.tensor([[1.0, 2.0]])).shape))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-small-sequential-model"
+    },
+    {
+      "id": "one-training-step",
+      "title": "One training step",
+      "description": "A training step clears old gradients, computes loss, finds new gradients and updates weights. Each step has a separate job.",
+      "language": "python",
+      "code": "import torch\n\nmodel = torch.nn.Linear(1, 1)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.01)\nx = torch.tensor([[1.], [2.]])\ny = torch.tensor([[2.], [4.]])\noptimizer.zero_grad()\nloss = torch.nn.functional.mse_loss(model(x), y)\nloss.backward()\noptimizer.step()\nprint(loss.item() >= 0)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "one-training-step"
+    },
+    {
+      "id": "evaluation-mode-and-checking",
+      "title": "Evaluation mode and checking",
+      "description": "model.eval switches training-sensitive layers to evaluation behaviour. Use it with no_grad when making ordinary evaluation predictions.",
+      "language": "python",
+      "code": "import torch\n\nmodel = torch.nn.Sequential(torch.nn.Linear(1, 1))\nmodel.eval()\nwith torch.no_grad():\n    result = model(torch.tensor([[3.0]]))\nprint(tuple(result.shape))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "evaluation-mode-and-checking"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "title": "MariaDB Small Examples",
+  "description": "Use these small MariaDB examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Check your database session",
+      "description": "A database client sends SQL to the MariaDB server.",
+      "language": "sql",
+      "code": "SELECT VERSION() AS server_version,DATABASE() AS current_database;",
+      "output": "The result identifies your MariaDB version and selected database. The database value is NULL if none is selected.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "create-an-innodb-sample-table",
+      "title": "Create an InnoDB sample table",
+      "description": "InnoDB is a storage engine that supports transactions and foreign keys.",
+      "language": "sql",
+      "code": "CREATE TABLE cma_maria_books(id INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(80) NOT NULL,pages INT) ENGINE=InnoDB;",
+      "output": "The practice database now has an empty book table with an automatic id column.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "create-an-innodb-sample-table"
+    },
+    {
+      "id": "insert-a-row-and-read-its-id",
+      "title": "Insert a row and read its id",
+      "description": "After an insert in the same connection, LAST_INSERT_ID can report the automatically generated id.",
+      "language": "sql",
+      "code": "INSERT INTO cma_maria_books(title,pages) VALUES('Moon Trip',60);\nSELECT LAST_INSERT_ID() AS new_book_id;",
+      "output": "The result is the id generated for that insert in this session.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "insert-a-row-and-read-its-id"
+    },
+    {
+      "id": "search-a-lowercase-form",
+      "title": "Search a lowercase form",
+      "description": "LOWER makes text lowercase for a comparison.",
+      "language": "sql",
+      "code": "SELECT title FROM cma_maria_books WHERE LOWER(title) LIKE 'moon%';",
+      "output": "The sample Moon Trip row matches the lowercase moon pattern.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "search-a-lowercase-form"
+    },
+    {
+      "id": "take-a-sorted-sample",
+      "title": "Take a sorted sample",
+      "description": "ORDER BY arranges rows before LIMIT chooses a few.",
+      "language": "sql",
+      "code": "SELECT title,pages FROM cma_maria_books ORDER BY pages,title LIMIT 3;",
+      "output": "The query returns at most three rows with the smallest page counts first.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "take-a-sorted-sample"
+    },
+    {
+      "id": "join-grouped-text",
+      "title": "Join grouped text",
+      "description": "GROUP_CONCAT joins text values from a group into one string.",
+      "language": "sql",
+      "code": "WITH books AS (SELECT 'story' AS kind,'Moon Trip' AS title UNION ALL SELECT 'story','Tiny Seed')\nSELECT kind,GROUP_CONCAT(title ORDER BY title SEPARATOR ', ') AS titles FROM books GROUP BY kind;",
+      "output": "The story group has the text Moon Trip, Tiny Seed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "join-grouped-text"
+    },
+    {
+      "id": "use-a-short-recursive-query",
+      "title": "Use a short recursive query",
+      "description": "A recursive CTE can use earlier results to make later ones.",
+      "language": "sql",
+      "code": "WITH RECURSIVE numbers(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM numbers WHERE n<4) SELECT n FROM numbers;",
+      "output": "The query returns 1, 2, 3 and 4.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-short-recursive-query"
+    },
+    {
+      "id": "check-json-text",
+      "title": "Check JSON text",
+      "description": "MariaDB can work with JSON text using JSON functions.",
+      "language": "sql",
+      "code": "SELECT JSON_VALID('{\"title\":\"Moon Trip\"}') AS valid_json,JSON_UNQUOTE(JSON_EXTRACT('{\"title\":\"Moon Trip\"}','$.title')) AS title;",
+      "output": "valid_json is 1 and title is Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-json-text"
+    },
+    {
+      "id": "handle-a-duplicate-key-deliberately",
+      "title": "Handle a duplicate key deliberately",
+      "description": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key.",
+      "language": "sql",
+      "code": "CREATE TEMPORARY TABLE cma_maria_scores(name VARCHAR(40) PRIMARY KEY,points INT);\nINSERT INTO cma_maria_scores VALUES('Mia',2);\nINSERT INTO cma_maria_scores VALUES('Mia',5) ON DUPLICATE KEY UPDATE points=5;\nSELECT points FROM cma_maria_scores WHERE name='Mia';",
+      "output": "Mia's points become 5 rather than creating a second row with the same key.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-a-duplicate-key-deliberately"
+    },
+    {
+      "id": "undo-row-changes-in-a-transaction",
+      "title": "Undo row changes in a transaction",
+      "description": "A transaction on InnoDB can undo row changes before they are committed.",
+      "language": "sql",
+      "code": "CREATE TEMPORARY TABLE cma_maria_points(points INT) ENGINE=InnoDB;\nSTART TRANSACTION;\nINSERT INTO cma_maria_points VALUES(5);\nROLLBACK;\nSELECT COUNT(*) AS rows_left FROM cma_maria_points;",
+      "output": "The final count is 0 after the insert is rolled back.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "undo-row-changes-in-a-transaction"
+    },
+    {
+      "id": "inspect-the-actual-table-rules",
+      "title": "Inspect the actual table rules",
+      "description": "SHOW CREATE TABLE prints the database's stored definition.",
+      "language": "sql",
+      "code": "SHOW CREATE TABLE cma_maria_books;",
+      "output": "The result includes the practice table definition as MariaDB stores it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "inspect-the-actual-table-rules"
+    },
+    {
+      "id": "make-a-practice-database-backup",
+      "title": "Make a practice database backup",
+      "description": "A logical dump writes SQL that can recreate database objects and rows.",
+      "language": "bash",
+      "code": "mariadb-dump --single-transaction --user=practice_user --password practice_db > practice-backup.sql",
+      "output": "The client asks for a password and writes a dump of the named practice database to a local file.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-practice-database-backup"
+    }
+  ]
+}

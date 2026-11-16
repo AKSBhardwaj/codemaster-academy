@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "slug": "transactions",
+  "title": "Transactions",
+  "summary": "Understand the atomicity single documents already have, then run multi-document transactions with sessions in mongosh and with withTransaction in the Node.js driver.",
+  "introduction": "Every write to a single document in MongoDB is atomic, and a well-designed schema makes that enough for most operations. Sometimes it is not: moving money between two accounts or recording an order while decrementing stock in another collection must succeed or fail as a whole. MongoDB supports multi-document ACID transactions for exactly those cases. This lesson shows what you get for free, when a transaction is justified, how to run one from the shell and from Node.js, and the rules that keep transactions correct and fast.",
+  "learningObjectives": [
+    "Explain which writes are atomic without a transaction",
+    "Run a transaction with a session in mongosh",
+    "Use withTransaction in the Node.js driver with automatic retry and abort",
+    "Apply the requirements and limits of transactions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Atomicity you already have"
+    },
+    {
+      "type": "paragraph",
+      "text": "A single `insertOne`, `updateOne` or `replaceOne` is atomic however many fields, embedded documents and array elements it touches. Other readers see the document either as it was or as it became, never half-way. This is the deeper reason the [Schema Design](/tutorials/mongodb/schema-design) lesson favours embedding: an order whose lines are embedded is written in one atomic step, whereas an order split across two collections needs a transaction to get the same guarantee."
+    },
+    {
+      "type": "paragraph",
+      "text": "So the first question is always whether a transaction is needed at all. A balance transfer between two account documents, an order that must reserve stock in `products`, or a user rename that updates copies in several collections are genuine cases. Updating one document, or several documents where partial success is acceptable, is not."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Requirements"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "The deployment must be a **replica set** or a sharded cluster. Every Atlas cluster is one, including the free tier. A standalone local `mongod` is not; start it with `--replSet rs0` and run `rs.initiate()` once, or use Docker with the same option.",
+        "All operations in the transaction must be given the **session** that started it; an operation without the session runs outside the transaction and commits immediately.",
+        "A transaction must finish within `transactionLifetimeLimitSeconds`, 60 seconds by default, and holds locks on the documents it writes, so keep it small and short.",
+        "Transactions can read and write across collections and databases, but should not create or drop collections or indexes."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A transaction in mongosh"
+    },
+    {
+      "type": "paragraph",
+      "text": "The shell exposes the raw steps: start a session, start a transaction on it, obtain collection handles *through the session*, perform the writes, and commit. Watch the two balances before and after:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.accounts.insertMany([{ _id: 'ann', balance: 100 }, { _id: 'ben', balance: 20 }])\nconst session = db.getMongo().startSession()\nsession.startTransaction()\nconst accounts = session.getDatabase('shop').accounts\naccounts.updateOne({ _id: 'ann' }, { $inc: { balance: -50 } })\naccounts.updateOne({ _id: 'ben' }, { $inc: { balance: 50 } })\nsession.commitTransaction()\nsession.endSession()\ndb.accounts.find()"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\n{ acknowledged: true, insertedIds: { '0': 'ann', '1': 'ben' } }\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n[ { _id: 'ann', balance: 50 }, { _id: 'ben', balance: 70 } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Between `startTransaction()` and `commitTransaction()`, a second mongosh window still sees 100 and 20: transactions read from a snapshot and their writes become visible all at once on commit. Had you called `session.abortTransaction()` instead, both balances would be unchanged. In the shell this is useful for understanding; in applications you use the driver's helper, which adds retry logic you do not want to write yourself."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Mixing session-less calls into a transaction. Writing `db.accounts.updateOne(...)` instead of `accounts.updateOne(...)` in the example above, or forgetting `{ session }` in the driver, runs that one operation outside the transaction: it commits immediately, is not rolled back on abort, and can even deadlock against the transaction's own locks until the transaction times out. Every read and write inside a transaction must carry the session."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "withTransaction in the Node.js driver"
+    },
+    {
+      "type": "paragraph",
+      "text": "`session.withTransaction(callback)` starts the transaction, runs your callback, commits when it returns and aborts when it throws. It also retries the whole callback on transient errors such as a replica set election, and retries the commit when the server asks it to, which is why the callback must be safe to run more than once. Since driver 6.0 it returns whatever the callback returns. Here is a transfer that refuses to overdraw:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "transfer.mjs",
+      "code": "import { MongoClient } from 'mongodb';\n\nconst client = new MongoClient(process.env.MONGODB_URI);\nconst accounts = client.db('shop').collection('accounts');\n\nasync function transfer(from, to, amount) {\n  const session = client.startSession();\n  try {\n    return await session.withTransaction(async () => {\n      const source = await accounts.findOne({ _id: from }, { session });\n      if (!source || source.balance < amount) {\n        throw new Error(`insufficient funds in ${from}`);\n      }\n      await accounts.updateOne({ _id: from }, { $inc: { balance: -amount } }, { session });\n      await accounts.updateOne({ _id: to }, { $inc: { balance: amount } }, { session });\n      return 'committed';\n    });\n  } finally {\n    await session.endSession();\n  }\n}\n\nconsole.log(await transfer('ben', 'ann', 30));\ntry {\n  await transfer('ben', 'ann', 500);\n} catch (error) {\n  console.log('aborted:', error.message);\n}\nconsole.log(await accounts.find().toArray());\nawait client.close();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node transfer.mjs",
+      "content": "committed\naborted: insufficient funds in ben\n[ { _id: 'ann', balance: 80 }, { _id: 'ben', balance: 40 } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first transfer moves 30 and commits. The second reads Ben's balance inside the transaction, finds 40 is less than 500 and throws; `withTransaction` aborts, nothing changes, and the error reaches the caller. Because the balance check and the two updates happen inside one snapshot, no concurrent transfer can slip between the check and the write: a conflicting transaction gets a write conflict, is retried by the helper, and sees the new balance on its second attempt."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Rules for good transactions"
+    },
+    {
+      "type": "table",
+      "headers": ["Rule", "Why"],
+      "rows": [
+        [
+          "Keep them short and small",
+          "Locks are held until commit; the 60-second limit aborts long ones"
+        ],
+        [
+          "Make the callback idempotent",
+          "`withTransaction` may run it again after a transient error"
+        ],
+        ["Pass the session to every operation", "Anything without it is outside the transaction"],
+        [
+          "Do not wait for user input inside one",
+          "A transaction open across a network round trip to a browser will time out"
+        ],
+        [
+          "Prefer the default write concern `majority`",
+          "Committed data survives a primary failover"
+        ],
+        [
+          "Use a transaction only when a single document cannot do the job",
+          "Embedding gives atomicity at a fraction of the cost"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Performance-wise, a transaction costs a few extra round trips and some contention on the documents it writes. For a shop that is nothing; for a counter that every request increments it is a bottleneck, and the better design is an atomic `$inc` on a single document, which needs no transaction at all."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Open two mongosh windows. In the first, start a transaction and update Ann's balance without committing. In the second, run `db.accounts.find()` and see the old value, then try an update to the same document and watch it wait. Commit in the first window and see the second one proceed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-transactions-requirements"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-transactions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "transactions",
+          "difficulty": "beginner",
+          "question": "An update changes three fields and pushes two elements into an array of one document. Does it need a transaction to be atomic?",
+          "explanation": "A single-document write is atomic no matter how many fields or array elements it touches. Transactions are for changes that span several documents.",
+          "options": [
+            "Yes, because it touches more than one field",
+            "Yes, because arrays are stored separately",
+            "No, every single-document write is atomic",
+            "Only on a sharded cluster"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "mongodb-transactions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "transactions",
+          "difficulty": "intermediate",
+          "question": "If the callback passed to `withTransaction` throws, the driver aborts the transaction and rethrows the error.",
+          "explanation": "That is the helper's contract: return commits, throw aborts. Transient errors are retried first; other errors propagate to the caller.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-transactions-requirements"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "node-driver"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "update-delete"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "transactions"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Transactions – Sessions and withTransaction",
+    "description": "Learn when MongoDB needs a multi-document transaction, run one with a session in mongosh, use withTransaction in the Node.js driver and follow the rules that keep it."
+  },
+  "updatedOn": "2026-11-15"
+}

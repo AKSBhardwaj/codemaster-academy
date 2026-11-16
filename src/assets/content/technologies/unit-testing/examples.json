@@ -1,0 +1,126 @@
+{
+  "title": "Unit Testing Examples",
+  "description": "Small Unit Testing examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "One small behaviour",
+      "description": "A unit is a small piece of behaviour, often a function. Test what it returns for a clear input.",
+      "language": "javascript",
+      "code": "function double(n) { return n * 2; }\nconsole.log(double(4) === 8);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "arrange-act-assert",
+      "title": "Arrange act assert",
+      "description": "Arrange prepares input. Act runs the code. Assert checks the result. These three steps make a test easy to read.",
+      "language": "javascript",
+      "code": "const input = 3; // arrange\nconst actual = input * input; // act\nconsole.log(actual === 9); // assert",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "arrange-act-assert"
+    },
+    {
+      "id": "name-the-rule",
+      "title": "Name the rule",
+      "description": "A useful test name says the rule and the situation. Someone should understand a failure without opening every line of code.",
+      "language": "javascript",
+      "code": "const title = \"empty name gets a friendly greeting\";\nconst greet = name => name ? \"Hi \" + name : \"Hello!\";\nconsole.log(title, greet(\"\") === \"Hello!\");",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "name-the-rule"
+    },
+    {
+      "id": "compare-values-carefully",
+      "title": "Compare values carefully",
+      "description": "Equality checks need to match the data you care about. Two different objects are not the same object even if their fields match.",
+      "language": "javascript",
+      "code": "const actual = { score: 8 };\nconst expected = { score: 8 };\nconsole.log(actual === expected);\nconsole.log(actual.score === expected.score);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "compare-values-carefully"
+    },
+    {
+      "id": "boundary-cases-in-a-unit",
+      "title": "Boundary cases in a unit",
+      "description": "Choose a value where a rule changes. Test both sides so a wrong comparison sign is visible.",
+      "language": "javascript",
+      "code": "const passes = score => score >= 5;\nconsole.log(passes(4) === false, passes(5) === true);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "boundary-cases-in-a-unit"
+    },
+    {
+      "id": "test-expected-errors",
+      "title": "Test expected errors",
+      "description": "Some functions should reject bad input. Check that the rejection happens and that its message is useful.",
+      "language": "javascript",
+      "code": "function divide(a, b) { if (b === 0) throw new Error(\"Zero divisor\"); return a / b; }\nlet message = \"\";\ntry { divide(4, 0); } catch (error) { message = error.message; }\nconsole.log(message === \"Zero divisor\");",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "test-expected-errors"
+    },
+    {
+      "id": "fresh-data-for-each-test",
+      "title": "Fresh data for each test",
+      "description": "Tests should not depend on the order they run. Make fresh input when a function changes its input.",
+      "language": "javascript",
+      "code": "const makeList = () => [\"book\"];\nconst first = makeList();\nfirst.push(\"pen\");\nconsole.log(makeList().length === 1);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "fresh-data-for-each-test"
+    },
+    {
+      "id": "inject-a-dependency",
+      "title": "Inject a dependency",
+      "description": "A dependency is another function or object that code uses. Passing it in lets a test choose a simple, predictable replacement.",
+      "language": "javascript",
+      "code": "function greetFrom(getName) { return \"Hi \" + getName(); }\nconsole.log(greetFrom(() => \"Asha\") === \"Hi Asha\");",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "inject-a-dependency"
+    },
+    {
+      "id": "spies-record-calls",
+      "title": "Spies record calls",
+      "description": "A spy records how a dependency was used. This helps test actions such as saving a message.",
+      "language": "javascript",
+      "code": "const calls = [];\nconst save = value => calls.push(value);\nfunction storeScore(score, saveScore) { saveScore(score); }\nstoreScore(8, save);\nconsole.log(calls.length === 1 && calls[0] === 8);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "spies-record-calls"
+    },
+    {
+      "id": "wait-for-async-work",
+      "title": "Wait for async work",
+      "description": "Async work finishes later. A test must wait for its promise before checking the result.",
+      "language": "javascript",
+      "code": "async function getScore() { return 8; }\ngetScore().then(score => console.log(score === 8));",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "wait-for-async-work"
+    },
+    {
+      "id": "use-several-cases",
+      "title": "Use several cases",
+      "description": "A table of cases checks the same rule with several inputs. Keep each expected result easy to see.",
+      "language": "javascript",
+      "code": "const cases = [[0, 0], [2, 4], [-3, -6]];\nfor (const [input, expected] of cases) console.log(input * 2 === expected);",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "use-several-cases"
+    },
+    {
+      "id": "read-a-failure-before-fixing-it",
+      "title": "Read a failure before fixing it",
+      "description": "A failure is evidence that actual and expected results differ. Check the requirement before changing either the code or the expected answer.",
+      "language": "javascript",
+      "code": "const actual = 2 + 2;\nconst expected = 5;\nconsole.log({ actual, expected, passed: actual === expected });",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-failure-before-fixing-it"
+    }
+  ]
+}

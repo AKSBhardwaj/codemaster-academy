@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "pseudo-classes-elements",
+  "title": "Pseudo-classes and Pseudo-elements",
+  "summary": "CSS can style a page part when it is in a certain state, such as a link under a mouse pointer.",
+  "introduction": "CSS can style a page part when it is in a certain state, such as a link under a mouse pointer. You can also style a small part of an element. Try one state at a time, including the focus state used by a keyboard.",
+  "learningObjectives": [
+    "Style interaction states with :hover, :focus-visible, :active and :visited",
+    "Select elements by position with :first-child, :last-child and :nth-child()",
+    "Generate decorative content with ::before and ::after and style parts with ::marker and ::first-letter"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pseudo-classes: selecting by state"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pseudo-class starts with a single colon and matches an element only while it is in a particular state. Links have four: `:link` (not yet visited), `:visited`, `:hover` (pointer over it) and `:active` (being pressed). Because these rules usually have the same specificity, their order decides which wins when several apply at once, so write them in that order: link, visited, hover, active. `:focus` matches an element that has keyboard focus or was just clicked; `:focus-visible` matches only when the browser would show a focus ring, which in practice means keyboard navigation, so it is the right hook for custom focus styles."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "a:link    { color: #1d4ed8; }\na:visited { color: #6b21a8; }\na:hover   { text-decoration-thickness: 3px; }\na:active  { color: #dc2626; }\n\nbutton {\n  padding: 0.5rem 1rem;\n  border: 2px solid #1d4ed8;\n  background: white;\n  color: #1d4ed8;\n}\n\nbutton:hover {\n  background: #1d4ed8;\n  color: white;\n}\n\nbutton:focus-visible {\n  outline: 3px solid #f59e0b;\n  outline-offset: 2px;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run it, then hover the link and the button, and press Tab to move focus onto them: the orange ring appears for keyboard focus but not for a mouse click, which is exactly the behaviour users expect."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Selecting by position"
+    },
+    {
+      "type": "paragraph",
+      "text": "Structural pseudo-classes pick elements by their place among siblings. `:first-child` and `:last-child` are self-explanatory; `:nth-child()` takes a formula of the form `an+b`, where `n` counts from 0, so `2n` selects the even positions, `2n+1` the odd ones, `n+3` everything from the third onwards and `-n+3` the first three. The keywords `odd` and `even` are accepted too. These count *every* sibling regardless of type; `:nth-of-type()`, `:first-of-type` and `:last-of-type` count only siblings of the same element type."
+    },
+    {
+      "type": "table",
+      "headers": ["Selector", "Matches"],
+      "rows": [
+        ["`li:first-child`", "The first item"],
+        ["`li:last-child`", "The last item"],
+        ["`li:nth-child(even)` or `li:nth-child(2n)`", "The 2nd, 4th, 6th… items"],
+        ["`li:nth-child(3)`", "Exactly the third item"],
+        ["`li:nth-child(n+3)`", "The third item and every item after it"],
+        ["`li:nth-child(-n+3)`", "The first three items"],
+        [
+          "`p:first-of-type`",
+          "The first paragraph among its siblings, even if other elements come before it"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "ul {\n  padding: 0;\n  list-style: none;\n}\n\nli {\n  padding: 0.5rem;\n}\n\nli:nth-child(odd) {\n  background: #eff6ff;      /* zebra stripes */\n}\n\nli:first-child {\n  border-top: 2px solid #1d4ed8;\n}\n\nli:last-child {\n  border-bottom: 2px solid #1d4ed8;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>ul{padding:0;list-style:none;margin:0}li{padding:6px}li:nth-child(odd){background:#eff6ff}li:first-child{border-top:2px solid #1d4ed8}li:last-child{border-bottom:2px solid #1d4ed8}</style><ul><li>First item</li><li>Second item</li><li>Third item</li></ul>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Form and content states"
+    },
+    {
+      "type": "paragraph",
+      "text": "Form controls expose their state to CSS: `:checked`, `:disabled` and `:enabled`, `:required`, `:valid` and `:invalid`, `:placeholder-shown`. `:invalid` is true as soon as the page loads, before the user has typed anything, so a red border on `:invalid` shouts at people prematurely; `:user-invalid` waits until they have interacted with the field, which is what a form should do. `:empty` matches elements with no children at all. And `:has()` lets you reach *outward*: style the label that contains a checked box, or the form that contains an invalid field."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  body { font-family: system-ui, sans-serif; }\n  input:user-invalid { border: 2px solid #dc2626; }\n  input:disabled { background: #e2e8f0; }\n  label:has(input:checked) { font-weight: 700; color: #1d4ed8; }\n  .field:has(:required) label::after { content: \" *\"; color: #dc2626; }\n</style>\n<form>\n  <p class=\"field\"><label for=\"email\">Email</label> <input id=\"email\" type=\"email\" required></p>\n  <p><input type=\"text\" value=\"A disabled field\" disabled></p>\n  <p><label><input type=\"checkbox\"> Subscribe (tick me)</label></p>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "title": "Rendered output after the checkbox has been ticked",
+      "content": "<style>input:user-invalid{border:2px solid #dc2626}input:disabled{background:#e2e8f0}label:has(input:checked){font-weight:700;color:#1d4ed8}.field:has(:required) label::after{content:\" *\";color:#dc2626}p{margin:0 0 6px}</style><p class=\"field\"><label for=\"email\">Email</label> <input id=\"email\" type=\"email\" required></p><p><input type=\"text\" value=\"A disabled field\" disabled></p><p><label><input type=\"checkbox\" checked> Subscribe (ticked)</label></p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Type an incomplete address into the email field and move away from it: the red border appears only after you have interacted, thanks to `:user-invalid`. Tick the box and its label turns bold through `:has()`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pseudo-elements: parts and generated content"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pseudo-element starts with a double colon and styles a *part* of an element or adds a part that is not in the HTML. `::before` and `::after` insert a box as the first or last child, and that box only exists if the rule sets `content`, even an empty string. `::first-letter` and `::first-line` target the typographic parts of a block of text, `::marker` is the bullet or number of a list item, `::placeholder` the hint text in a field and `::selection` the highlighted text. Browsers still accept the old single-colon spelling `:before` for the original four pseudo-elements, but write the double colon so the difference from pseudo-classes stays visible."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h2::before {\n  content: \"# \";\n  color: #1d4ed8;\n}\n\np::first-letter {\n  font-size: 2em;\n  font-weight: 700;\n  float: left;\n  line-height: 1;\n  padding-right: 0.25rem;\n}\n\nli::marker {\n  color: #1d4ed8;\n  font-size: 1.2em;\n}\n\n::selection {\n  background: #fde68a;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h2::before{content:\"# \";color:#1d4ed8}h2{font-size:1.1em}p::first-letter{font-size:2em;font-weight:700;float:left;line-height:1;padding-right:4px}li::marker{color:#1d4ed8;font-size:1.2em}ul{margin:0}</style><h2>Card title</h2><p>A card element with a drop cap on its first letter.</p><ul><li>First item</li><li>Second item</li></ul>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "No content, no pseudo-element",
+      "text": "A `::before` or `::after` rule without a `content` declaration generates nothing, however many other properties it sets; add `content: \"\";` for purely decorative boxes. And never put essential text or icons-with-meaning into generated content: screen readers handle it inconsistently and users cannot select or copy it. Decoration only."
+    },
+    {
+      "type": "table",
+      "headers": ["Pseudo-element", "Styles", "Typical use"],
+      "rows": [
+        [
+          "`::before`, `::after`",
+          "A generated first or last child",
+          "Icons, quotes, decorative lines, clearfix boxes"
+        ],
+        ["`::first-letter`", "The first letter of a block", "Drop caps"],
+        [
+          "`::first-line`",
+          "The first formatted line",
+          "Small caps or a heavier weight on the opening line"
+        ],
+        ["`::marker`", "A list item's bullet or number", "Coloured or custom bullets"],
+        ["`::placeholder`", "Placeholder text in inputs", "Lighter colour, italic hints"],
+        ["`::selection`", "Text the user has highlighted", "Brand-coloured selection"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "One colon or two?",
+      "text": "Pseudo-*classes* describe a state of an existing element and use one colon (`:hover`). Pseudo-*elements* describe a part of an element and use two (`::before`). If you can ask \"is the element currently…?\" it is a pseudo-class; if you can ask \"which piece of the element?\" it is a pseudo-element."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: states, positions and parts",
+      "height": 240,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Pseudo-classes and pseudo-elements</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    /* 1. Give every even row a light background (#f1f5f9). */\n    /* 2. Add a check mark (content: \"\\2713 \") before each .done item. */\n    /* 3. Make links red while hovered. */\n    li { padding: 4px 8px; list-style: none; }\n  </style>\n</head>\n<body>\n  <ul>\n    <li class=\"done\">Read the lesson</li>\n    <li class=\"done\">Run the examples</li>\n    <li>Write the selectors above</li>\n    <li>Take the <a href=\"#\">quick check</a></li>\n  </ul>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-pseudo-classes-hover-order"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-pseudo-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "pseudo-classes-elements",
+          "difficulty": "beginner",
+          "question": "Which selector matches the 2nd, 4th and 6th items of a list?",
+          "explanation": "`:nth-child(even)` (or `2n`) selects the even positions. `:nth-child(2)` selects only the second item and `:first-child` only the first.",
+          "options": [
+            "`li:nth-child(2)`",
+            "`li:nth-child(even)`",
+            "`li:first-child`",
+            "`li:nth-child(n+2)`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-pseudo-qc-2",
+          "type": "true-false",
+          "lessonSlug": "pseudo-classes-elements",
+          "difficulty": "beginner",
+          "question": "`::before` and `::after` generate nothing unless the rule includes a `content` declaration.",
+          "explanation": "The `content` property creates the pseudo-element's box. Without it, nothing is generated, whatever else the rule sets.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-pseudo-classes-hover-order"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "selectors"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "transitions-animations"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "CSS Pseudo-classes and Pseudo-elements – :hover, ::before",
+    "description": "Learn CSS pseudo-classes and pseudo-elements: :hover, :focus-visible, :nth-child(), form states like :checked, and ::before, ::after and ::marker."
+  },
+  "updatedOn": "2026-11-16"
+}

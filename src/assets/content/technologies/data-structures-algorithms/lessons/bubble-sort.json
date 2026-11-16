@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "slug": "bubble-sort",
+  "title": "Bubble Sort",
+  "summary": "Sort a short list by swapping neighbours. Trace each bubble sort pass, understand the early stop, and compare programs in six languages.",
+  "introduction": "Picture children lining up from shortest to tallest. Two neighbours swap places when they are in the wrong order. Bubble sort repeats this idea for numbers. After a trip along the list, one large number has reached its final place.",
+  "learningObjectives": [
+    "Trace neighbour comparisons and swaps",
+    "Explain when the early-stop rule saves work"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A swap exchanges two items. A pass is one trip across the part of the list we are checking. Bubble sort compares neighbours and swaps them when the left value is bigger."
+    },
+    {
+      "type": "paragraph",
+      "text": "After each pass, the largest value in that area is at the right end. The next pass can stop one position earlier. The swapped flag remembers whether anything moved."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [4, 2, 3, 1]. Compare 4 and 2, then swap: [2, 4, 3, 1].",
+        "Compare 4 and 3, then 4 and 1. The first pass ends with [2, 3, 1, 4]. The 4 is finished.",
+        "On the next pass, 2 and 3 stay put. Swap 3 and 1, giving [2, 1, 3, 4].",
+        "On the last pass, swap 2 and 1. The result is [1, 2, 3, 4]."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Bubble Sort example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const a = [4, 2, 3, 1];\nconst n = a.length;\nfor (let end = n - 1; end > 0; end--) {\n    let swapped = false;\n    for (let i = 0; i < end; i++) {\n        if (a[i] > a[i + 1]) {\n            let temp = a[i];\n            a[i] = a[i + 1];\n            a[i + 1] = temp;\n            swapped = true;\n        }\n    }\n    if (!swapped) break;\n}\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int a[] = {4, 2, 3, 1};\n    int n = sizeof a / sizeof a[0];\n    for (int end = n - 1; end > 0; end--) {\n        int swapped = 0;\n        for (int i = 0; i < end; i++) {\n            if (a[i] > a[i + 1]) {\n                int temp = a[i];\n                a[i] = a[i + 1];\n                a[i + 1] = temp;\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> a = {4, 2, 3, 1};\n    int n = static_cast<int>(a.size());\n    for (int end = n - 1; end > 0; end--) {\n        bool swapped = false;\n        for (int i = 0; i < end; i++) {\n            if (a[i] > a[i + 1]) {\n                int temp = a[i];\n                a[i] = a[i + 1];\n                a[i + 1] = temp;\n                swapped = true;\n            }\n        }\n        if (!swapped) break;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "a = [4, 2, 3, 1]\nn = len(a)\nfor end in range(n - 1, 0, -1):\n    swapped = False\n    for i in range(end):\n        if a[i] > a[i + 1]:\n            a[i], a[i + 1] = a[i + 1], a[i]\n            swapped = True\n    if not swapped:\n        break\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {4, 2, 3, 1};\nint n = a.Length;\nfor (int end = n - 1; end > 0; end--) {\n    bool swapped = false;\n    for (int i = 0; i < end; i++) {\n        if (a[i] > a[i + 1]) {\n            int temp = a[i];\n            a[i] = a[i + 1];\n            a[i + 1] = temp;\n            swapped = true;\n        }\n    }\n    if (!swapped) break;\n}\nConsole.WriteLine(string.Join(\" \", a));",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[] a = {4, 2, 3, 1};\n        int n = a.length;\n        for (int end = n - 1; end > 0; end--) {\n            boolean swapped = false;\n            for (int i = 0; i < end; i++) {\n                if (a[i] > a[i + 1]) {\n                    int temp = a[i];\n                    a[i] = a[i + 1];\n                    a[i + 1] = temp;\n                    swapped = true;\n                }\n            }\n            if (!swapped) break;\n        }\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The four original numbers appear in ascending order. The program prints only the final list; the numbered walk-through shows the work between the start and that output."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Empty and one-item lists need no pass. Negative numbers work with the same comparison. Equal numbers are not swapped because the rule uses >, not >=."
+    },
+    {
+      "type": "paragraph",
+      "text": "This version changes the input list. It is stable: equal items keep their old relative order because equal neighbours never cross. This matters when numbers are attached to records such as score cards."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "For n items, the longest run makes (n - 1) + (n - 2) + ... + 1 comparisons. That grows like n squared, written O(n²). Doubling a large list can make about four times as much work."
+    },
+    {
+      "type": "paragraph",
+      "text": "If the list is already sorted, one pass makes no swaps and we stop. That gives O(n) best time for this version. Only a few positions, one temporary value, and a flag are stored, so extra space is O(1)."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the input to [1, 2, 3, 4]. Trace the first pass. swapped stays false, so the next pass is skipped and the output stays the same."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Reset swapped at the start of every pass. If you leave an old true value there, the early stop cannot spot a later pass with no changes. Keep i < end so i + 1 stays inside the list."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-bubble-sort"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-bubble-sort"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "sorting-numbers"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "selection-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "insertion-sort"
+    }
+  ],
+  "seo": {
+    "title": "Bubble Sort in Six Languages | DSA",
+    "description": "Sort a short list by swapping neighbours. Trace each bubble sort pass, understand the early stop, and compare programs in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

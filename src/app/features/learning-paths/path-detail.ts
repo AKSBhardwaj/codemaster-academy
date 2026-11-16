@@ -1,6 +1,12 @@
 import { Component, computed, effect, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DIFFICULTY_LABEL, type LearningPath, type PathStage, type Technology, type TechnologyCatalogEntry } from '../../core/models/content';
+import {
+  DIFFICULTY_LABEL,
+  type LearningPath,
+  type PathStage,
+  type Technology,
+  type TechnologyCatalogEntry,
+} from '../../core/models/content';
 import { breadcrumbList } from '../../core/seo/json-ld';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ContentService } from '../../core/services/content.service';
@@ -27,7 +33,14 @@ export interface StageView {
 
 @Component({
   selector: 'cma-path-detail',
-  imports: [RouterLink, BreadcrumbsComponent, EmptyStateComponent, IconComponent, StatusBadgeComponent, TechIconComponent],
+  imports: [
+    RouterLink,
+    BreadcrumbsComponent,
+    EmptyStateComponent,
+    IconComponent,
+    StatusBadgeComponent,
+    TechIconComponent,
+  ],
   templateUrl: './path-detail.html',
   styleUrl: './path-detail.scss',
 })
@@ -44,7 +57,11 @@ export class PathDetailPage {
     params: () => this.slug(),
     loader: ({ params }) => this.content.load<LearningPath>(`learning-paths/${params}.json`),
   });
-  protected readonly path = computed(() => (this.pathResource.hasValue() ? this.pathResource.value() : undefined));
+  protected readonly path = computed(() =>
+    this.pathResource.hasValue()
+      ? this.pathResource.value()
+      : this.content.peek<LearningPath>(`learning-paths/${this.slug()}.json`),
+  );
   protected readonly missing = computed(() => this.pathResource.status() === 'error');
   protected readonly enrolled = computed(() => this.paths.isEnrolled(this.slug()));
 
@@ -52,7 +69,9 @@ export class PathDetailPage {
     const path = this.path();
     if (!path) return [];
     return path.stages.map((stage, index) => {
-      const technology = stage.technologySlug ? this.catalog.technology(stage.technologySlug) : undefined;
+      const technology = stage.technologySlug
+        ? this.catalog.technology(stage.technologySlug)
+        : undefined;
       const total = technology?.totalLessons ?? 0;
       const completed = technology ? Math.min(total, this.progress.countFor(technology.slug)) : 0;
       return {
@@ -71,7 +90,12 @@ export class PathDetailPage {
     const withLessons = this.stages().filter((s) => s.total > 0);
     const total = withLessons.reduce((sum, s) => sum + s.total, 0);
     const completed = withLessons.reduce((sum, s) => sum + s.completed, 0);
-    return { total, completed, percent: total ? Math.round((completed / total) * 100) : 0, availableStages: withLessons.length, plannedStages: this.stages().filter((s) => s.technology && s.total === 0).length };
+    return {
+      total,
+      completed,
+      percent: total ? Math.round((completed / total) * 100) : 0,
+      availableStages: withLessons.length,
+    };
   });
   /** First stage with published lessons that is not finished yet. */
   protected readonly nextStage = computed(() => this.stages().find((s) => s.total > 0 && !s.done));
@@ -80,13 +104,21 @@ export class PathDetailPage {
     loader: ({ params }) => this.content.load<Technology>(`technologies/${params}/overview.json`),
   });
   protected readonly nextLesson = computed(() => {
-    const overview = this.nextOverview.hasValue() ? this.nextOverview.value() : undefined;
+    const slug = this.nextStage()?.technology?.slug;
+    const overview = this.nextOverview.hasValue()
+      ? this.nextOverview.value()
+      : slug
+        ? this.content.peek<Technology>(`technologies/${slug}/overview.json`)
+        : undefined;
     if (!overview) return undefined;
     const completed = this.progress.completedFor(overview.slug);
     const lesson = overview.lessons.find((l) => !completed.has(l.slug));
     return lesson ? { tech: overview.slug, techName: overview.name, ...lesson } : undefined;
   });
-  protected readonly crumbs = computed(() => [{ label: 'Learning paths', path: '/learning-paths' }, { label: this.path()?.title ?? '' }]);
+  protected readonly crumbs = computed(() => [
+    { label: 'Learning paths', path: '/learning-paths' },
+    { label: this.path()?.title ?? '' },
+  ]);
 
   constructor() {
     effect(() => {
@@ -95,10 +127,19 @@ export class PathDetailPage {
         this.seo.apply({
           title: path.seo.title,
           description: path.seo.description,
-          jsonLd: [breadcrumbList([{ name: 'Learning paths', url: this.seo.absoluteUrl('/learning-paths') }, { name: path.title, url: this.seo.absoluteUrl(`/learning-paths/${path.slug}`) }])],
+          jsonLd: [
+            breadcrumbList([
+              { name: 'Learning paths', url: this.seo.absoluteUrl('/learning-paths') },
+              { name: path.title, url: this.seo.absoluteUrl(`/learning-paths/${path.slug}`) },
+            ]),
+          ],
         });
       } else if (this.missing()) {
-        this.seo.apply({ title: 'Learning path not found', description: 'This learning path does not exist.', robots: 'noindex,nofollow' });
+        this.seo.apply({
+          title: 'Learning path not found',
+          description: 'This learning path does not exist.',
+          robots: 'noindex,nofollow',
+        });
       }
     });
   }

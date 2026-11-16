@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "directives",
+  "title": "Choose fields with a flag",
+  "summary": "GraphQL: Choose fields with a flag. Set details to true.",
+  "introduction": "The include directive can choose whether a field is requested. The flag is false here.",
+  "learningObjectives": ["Choose fields with a flag with GraphQL", "Set details to true"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose fields with a flag"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Choose fields with a flag",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { title: String!, pages: Int! }\");\n\nconst rootValue = { title: () => \"Moon Trip\", pages: () => 24 };\nconst result = await graphql({ schema, rootValue, source: \"query Card($details: Boolean!) { title pages @include(if: $details) }\", variableValues: { details: false } });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The include flag is false, so pages is skipped even though its resolver exists."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Set details to true."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The directive input is Boolean, not the text \"true\" or \"false\"."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-directives-check"
+    }
+  ],
+  "exerciseIds": ["graphql-directives-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "non-null"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Choose fields with a flag",
+    "description": "GraphQL: Choose fields with a flag. Set details to true. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "slug": "finish-project",
+  "title": "Finish and troubleshoot the project",
+  "summary": "Check the complete C# and Oracle project, fix common setup errors and understand what needs to change before a local API becomes a public service.",
+  "introduction": "You now have the pieces of a real data app: a browser, a C# API and an Oracle table. Finishing means checking how they work together, knowing how to find a problem, and keeping the local learning project separate from a public service.",
+  "learningObjectives": [
+    "Trace a request through all three parts",
+    "Use error clues to check the right setting",
+    "Explain why GitHub Pages hosts lessons but not this backend"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Show the whole journey"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start Oracle and the API.",
+        "Add one made-up book through the optional browser page or PowerShell.",
+        "Read that same row in SQL*Plus.",
+        "Mark it as read with PUT and request it again.",
+        "Restart the API and check that the row is still in Oracle.",
+        "Delete only the practice row you added."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "If the row survives an API restart, you have seen what a database is for. The data does not live only in a temporary C# list or in browser storage."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use the error as a clue"
+    },
+    {
+      "type": "table",
+      "headers": ["Clue", "What to check"],
+      "rows": [
+        ["dotnet is not found", "Install the SDK and open a new terminal."],
+        [
+          "Startup asks for ConnectionStrings:Oracle",
+          "Run the secret helper for the supplied project."
+        ],
+        [
+          "ORA-12541 or a connection refused message",
+          "Check that the Oracle listener is running and the host and port are correct."
+        ],
+        ["ORA-12514", "Check the actual application service, such as FREEPDB1."],
+        ["ORA-01017", "Check the reading_app username and its password."],
+        [
+          "ORA-00942",
+          "Check which user and service you connected to and whether its book table exists."
+        ],
+        ["HTTP 400", "Read the validation problem and correct the request body or numeric ID."],
+        [
+          "Browser fails but PowerShell works",
+          "Check the page origin, development CORS setting and API address."
+        ]
+      ],
+      "caption": "Start with the part named by the failure"
+    },
+    {
+      "type": "paragraph",
+      "text": "The API sends a general HTTP 500 problem if database work fails. Read the API terminal for the cause, but do not share passwords or a full connection string when asking for help. Fix one thing at a time and repeat the same test."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Know what you have built"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "A complete local learning API with list, read, create, update and delete actions.",
+        "Input checks, named Oracle parameters and explicit write transactions.",
+        "A small browser page for listing and adding books.",
+        "Database setup files and a repeatable API test script."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What changes before going public?"
+    },
+    {
+      "type": "paragraph",
+      "text": "GitHub Pages can host this tutorial and static files. It cannot run dotnet or an Oracle database. A public backend needs a separate host that runs .NET and can reach Oracle. Keep credentials on that host, use HTTPS, and choose who is allowed to read and change records."
+    },
+    {
+      "type": "paragraph",
+      "text": "Before storing real data, add suitable access control, a limited database runtime account, backups, request limits and a plan for checking errors. Add pagination before a book list becomes large. The sample intentionally returns the whole small list and has no sign-in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your final challenge"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write a short note explaining what happens after POST /api/books. Name the controller, request model, repository, table, commit and HTTP 201 reply. Then show a friend one valid request and one invalid request."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep learning with the [C# tutorial](/tutorials/csharp), [ASP.NET Core tutorial](/tutorials/aspnet-core), [Oracle Database tutorial](/tutorials/oracle-database) and [combined learning path](/learning-paths/dotnet-oracle-backend)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Official guides"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "[.NET 10 downloads](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)",
+        "[ASP.NET Core web APIs](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-10.0)",
+        "[Oracle provider requirements](https://docs.oracle.com/en/database/oracle/oracle-database/26/odpnt/InstallSystemRequirements.html)",
+        "[Oracle Free installation](https://www.oracle.com/database/free/get-started/)"
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-finish-project-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-finish-project-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "browser-client"
+    }
+  ],
+  "seo": {
+    "title": "Finish and troubleshoot the project | C# .NET and Oracle",
+    "description": "Check the complete C# and Oracle project, fix common setup errors and understand what needs to change before a local API becomes a public service."
+  },
+  "updatedOn": "2026-11-16"
+}

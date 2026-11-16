@@ -31,8 +31,14 @@ import {
   type TechnologySource,
 } from '../../src/content-schema/index';
 import { unavailableHighlightLanguages } from './highlight';
+import { buildAgentDiscovery } from './agent-discovery';
 import { buildSitemap, type SitemapEntry } from './sitemap';
-import { ContentError, compileTechnologyFolder, type CompiledTechnology } from './technology';
+import {
+  ContentError,
+  codeTabSearchKeywords,
+  compileTechnologyFolder,
+  type CompiledTechnology,
+} from './technology';
 
 export { ContentError };
 export const ROOT = resolve(import.meta.dirname, '..', '..');
@@ -44,6 +50,7 @@ const SCHEMA_DIR = resolve(SOURCE_DIR, 'schemas');
 
 const STATIC_INDEXABLE = [
   '/',
+  '/start',
   '/tutorials',
   '/references',
   '/examples',
@@ -56,16 +63,7 @@ const STATIC_INDEXABLE = [
   '/terms',
   '/credits',
 ];
-const STATIC_NOINDEX = [
-  '/playground',
-  '/search',
-  '/login',
-  '/register',
-  '/dashboard',
-  '/profile',
-  '/bookmarks',
-  '/404',
-];
+const STATIC_NOINDEX = ['/playground', '/search', '/dashboard', '/settings', '/bookmarks', '/404'];
 
 export interface CompileResult {
   categories: Category[];
@@ -295,6 +293,25 @@ function resolveCrossReferences(
   }
 }
 
+/**
+ * Optional restriction to a subset of technology folders ("--only=css,sql" or CONTENT_ONLY=css,sql); the HTML
+ * tutorial is always included because other tutorials link to its lessons. Technologies outside the set are
+ * treated as planned, so the result is only meant for validation, never for a real build.
+ */
+function onlyTechnologies(): Set<string> | undefined {
+  const arg =
+    process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length) ??
+    process.env['CONTENT_ONLY'];
+  if (!arg) return undefined;
+  return new Set([
+    'html',
+    ...arg
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  ]);
+}
+
 export async function compile(): Promise<CompileResult> {
   if (!(await exists(SOURCE_DIR)))
     throw new ContentError(`content source directory not found: ${SOURCE_DIR}`);
@@ -306,9 +323,20 @@ export async function compile(): Promise<CompileResult> {
 
   const technologies: TechnologyCatalogEntry[] = [];
   const compiled = new Map<string, CompiledTechnology>();
+  const only = onlyTechnologies();
+  const problems: string[] = [];
   for (const source of sources) {
     const base = { ...source, id: source.slug };
-    const bundle = await compileTechnologyFolder(source, base, SOURCE_DIR, ROOT);
+    let bundle: CompiledTechnology | null | undefined;
+    if (!only || only.has(source.slug)) {
+      try {
+        bundle = await compileTechnologyFolder(source, base, SOURCE_DIR, ROOT);
+      } catch (error) {
+        // Keep going so every technology's problems are reported in one run (authors work concurrently).
+        if (!(error instanceof ContentError)) throw error;
+        problems.push(error.message);
+      }
+    }
     if (bundle) {
       compiled.set(source.slug, bundle);
       const {
@@ -337,6 +365,13 @@ export async function compile(): Promise<CompileResult> {
     }
   }
   technologies.sort((a, b) => a.name.localeCompare(b.name));
+  if (problems.length) {
+    const plural = problems.length === 1 ? '' : 's';
+    const list = problems.map((p) => `  - ${p}`).join('\n');
+    throw new ContentError(
+      `${problems.length} technology folder${plural} failed validation:\n${list}\n  Tip: validate one tutorial at a time with "npm run content:validate -- --only=<slug>" while others are being written.`,
+    );
+  }
 
   const paths = await loadLearningPaths(technologies);
   const home = await loadHome(technologies, paths, uiIcons);
@@ -349,6 +384,12 @@ export async function compile(): Promise<CompileResult> {
 
   // Valid internal link targets for the broken-link check.
   const validPaths = new Set<string>([...STATIC_INDEXABLE, ...STATIC_NOINDEX]);
+  const downloads = resolve(ROOT, 'public/downloads');
+  if (await exists(downloads)) {
+    for (const entry of await readdir(downloads, { withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith('.zip')) validPaths.add(`/downloads/${entry.name}`);
+    }
+  }
   for (const category of categories) validPaths.add(`/tutorials/category/${category.slug}`);
   for (const path of paths) validPaths.add(`/learning-paths/${path.slug}`);
   for (const tech of technologies) {
@@ -401,7 +442,11 @@ export async function compile(): Promise<CompileResult> {
         url: `/tutorials/${tech.slug}/${lesson.slug}`,
         technology: tech.name,
         category,
-        keywords: [tech.name, ...lesson.toc.map((t) => t.text)],
+        keywords: [
+          tech.name,
+          ...lesson.toc.map((t) => t.text),
+          ...codeTabSearchKeywords(lesson.blocks),
+        ],
         status: tech.status,
       });
     }
@@ -616,6 +661,9 @@ export async function emit(result: CompileResult): Promise<void> {
   await writeJson(out('manifest.json'), result.manifest);
   await mkdir(out('root'), { recursive: true });
   await writeFile(out('root', 'sitemap.xml'), result.sitemap, 'utf8');
+  const discovery = buildAgentDiscovery(result.technologies);
+  await writeFile(out('root', 'llms.txt'), discovery.llms, 'utf8');
+  await writeJson(out('root', '.well-known', 'ard.json'), discovery.ard);
 }
 
 /** JSON Schemas for editor autocompletion of authored files (mapped in .vscode/settings.json). */

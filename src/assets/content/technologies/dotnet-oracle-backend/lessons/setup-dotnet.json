@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-dotnet",
+  "title": "Set up the .NET project",
+  "summary": "Install the .NET 10 SDK, open the Reading List project and build it. Learn what the project files do before connecting Oracle.",
+  "introduction": "We need a tool that can turn C# files into a running app. That tool comes in the .NET SDK. SDK means software development kit. Think of it as a box of tools for building your program.",
+  "learningObjectives": [
+    "Check that a .NET SDK is installed",
+    "Restore packages and build the sample project",
+    "Find the controller, model and data files"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install the SDK"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the **.NET 10 SDK**, the long-term support version used here. The runtime alone is not enough to build code. Use the [official .NET download page](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Pick the installer for your operating system and processor."
+    },
+    {
+      "type": "paragraph",
+      "text": "On Windows, you can use this command if the Windows package manager is available. Then open a new terminal so it can find dotnet."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "winget install Microsoft.DotNet.SDK.10\ndotnet --list-sdks",
+      "title": "Windows: install and check the SDK",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The list should include a 10.0 SDK. A newer compatible SDK can also build the sample because its project file targets net10.0. This course uses .NET 10 features; it does not require .NET 11."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Open the downloaded folder"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Download and extract the ZIP from the first lesson.",
+        "Open the extracted dotnet-oracle-backend folder in a code editor.",
+        "Open a terminal in that folder. Keep it there for the first command below."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "cd ReadingListApi\ndotnet restore\ndotnet build",
+      "title": "Restore and build the API",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "**Restore** gets the packages named in ReadingListApi.csproj. **Build** checks the code and creates a runnable program. A successful build does not prove that Oracle is connected. We will test that later."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Find your way around"
+    },
+    {
+      "type": "table",
+      "headers": ["File or folder", "What it does"],
+      "rows": [
+        ["ReadingListApi.csproj", "Chooses net10.0 and names the packages."],
+        ["Program.cs", "Connects the parts and starts the API."],
+        ["Models", "Describes a book and the data a user may send."],
+        ["Controllers/BooksController.cs", "Handles the book web addresses."],
+        ["Data/BookRepository.cs", "Reads and changes rows in Oracle."],
+        [
+          "database, scripts, browser-client",
+          "Contain setup SQL, useful commands and the optional web page."
+        ]
+      ],
+      "caption": "A map of the download"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Oracle driver is called Oracle.ManagedDataAccess.Core. Version 23.26.400 supports .NET 10. The project pins its package versions so everyone starts with the same code."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Keep the project together",
+      "text": "Open the extracted folder, not a file still inside the ZIP. Do not copy bin or obj folders into the tutorial website. They are build output, not lesson content."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open BooksController.cs and BookRepository.cs. You do not need to understand every line yet. Find the words HttpGet in the first file and SELECT in the second."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-setup-dotnet-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-setup-dotnet-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "oracle-setup"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "Set up the .NET project | C# .NET and Oracle",
+    "description": "Install the .NET 10 SDK, open the Reading List project and build it. Learn what the project files do before connecting Oracle."
+  },
+  "updatedOn": "2026-11-16"
+}

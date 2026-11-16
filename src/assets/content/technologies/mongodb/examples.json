@@ -1,0 +1,146 @@
+{
+  "title": "MongoDB Examples",
+  "description": "Use these examples with the setup steps in their lessons. These technologies need tools on your computer and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "introduction-example",
+      "title": "MongoDB: Read a book document",
+      "description": "The braces hold the document. title and pages are fields. The title is text. The page count is a number. This first example just shows the shape of the data.",
+      "language": "json",
+      "code": "{\n  \"title\": \"Moon Trip\",\n  \"pages\": 24\n}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "setup-atlas-shell-example",
+      "title": "Setting Up Atlas and mongosh",
+      "description": "Follow the setting up atlas and mongosh lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "text",
+      "code": "mongodb+srv://appuser:<password>@cluster0.ab12cd.mongodb.net/",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "setup-atlas-shell"
+    },
+    {
+      "id": "documents-collections-example",
+      "title": "Documents and Collections",
+      "description": "Follow the documents and collections lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.products.insertOne({\n  _id: 1,\n  name: 'Desk lamp',\n  price: 24.5,\n  stock: 40,\n  active: true,\n  tags: ['led', 'office'],\n  dimensions: { height: 45, base: 18 },\n  addedOn: new Date('2026-02-01'),\n  discontinuedOn: null\n})\ndb.products.findOne({ _id: 1 })",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "documents-collections",
+      "output": "switched to db shop\n{ acknowledged: true, insertedId: 1 }\n{\n  _id: 1,\n  name: 'Desk lamp',\n  price: 24.5,\n  stock: 40,\n  active: true,\n  tags: [ 'led', 'office' ],\n  dimensions: { height: 45, base: 18 },\n  addedOn: ISODate('2026-02-01T00:00:00.000Z'),\n  discontinuedOn: null\n}"
+    },
+    {
+      "id": "crud-insert-find-example",
+      "title": "Inserting and Finding Documents",
+      "description": "Follow the inserting and finding documents lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.products.drop()\ndb.products.insertMany([\n  { _id: 1, name: 'Mechanical keyboard', price: 89.5, category: 'peripherals', stock: 12, tags: ['usb', 'backlit'], rating: 4.6 },\n  { _id: 2, name: 'Wireless mouse', price: 24.99, category: 'peripherals', stock: 0, tags: ['wireless', 'usb'], rating: 4.1 },\n  { _id: 3, name: '27-inch monitor', price: 219, category: 'displays', stock: 5, tags: ['4k', 'hdmi'], rating: 4.8 },\n  { _id: 4, name: 'Desk lamp', price: 24.5, category: 'office', stock: 40, tags: ['led'] },\n  { _id: 5, name: 'USB-C hub', price: 39, category: 'peripherals', stock: 8, tags: ['usb'], rating: 3.9 },\n  { _id: 6, name: 'Webcam', price: 59, category: 'peripherals', stock: 3, tags: ['usb', 'video'], rating: 4.3, discontinued: true }\n])",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "crud-insert-find",
+      "output": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6 }\n}"
+    },
+    {
+      "id": "query-operators-example",
+      "title": "Query Operators",
+      "description": "Follow the query operators lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.products.drop()\ndb.products.insertMany([\n  { _id: 1, name: 'Mechanical keyboard', price: 89.5, category: 'peripherals', stock: 12, tags: ['usb', 'backlit'], rating: 4.6 },\n  { _id: 2, name: 'Wireless mouse', price: 24.99, category: 'peripherals', stock: 0, tags: ['wireless', 'usb'], rating: 4.1 },\n  { _id: 3, name: '27-inch monitor', price: 219, category: 'displays', stock: 5, tags: ['4k', 'hdmi'], rating: 4.8 },\n  { _id: 4, name: 'Desk lamp', price: 24.5, category: 'office', stock: 40, tags: ['led'] },\n  { _id: 5, name: 'USB-C hub', price: 39, category: 'peripherals', stock: 8, tags: ['usb'], rating: 3.9 },\n  { _id: 6, name: 'Webcam', price: 59, category: 'peripherals', stock: 3, tags: ['usb', 'video'], rating: 4.3, discontinued: true }\n])",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "query-operators",
+      "output": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6 }\n}"
+    },
+    {
+      "id": "update-delete-example",
+      "title": "Updating and Deleting",
+      "description": "Follow the updating and deleting lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.products.updateOne({ _id: 2 }, { $set: { stock: 25, price: 22.99 } })\ndb.products.findOne({ _id: 2 }, { _id: 0, name: 1, price: 1, stock: 1 })",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "update-delete",
+      "output": "switched to db shop\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{ name: 'Wireless mouse', price: 22.99, stock: 25 }"
+    },
+    {
+      "id": "schema-design-example",
+      "title": "Schema Design",
+      "description": "Follow the schema design lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.orders.insertOne({\n  _id: 1001,\n  customerId: 1,\n  placedAt: new Date('2026-03-02T10:15:00Z'),\n  status: 'paid',\n  shipping: { street: '12 Rua Augusta', city: 'Lisbon', country: 'PT' },\n  lines: [\n    { productId: 1, name: 'Mechanical keyboard', qty: 1, price: 89.5 },\n    { productId: 5, name: 'USB-C hub', qty: 2, price: 39 }\n  ],\n  total: 167.5\n})\ndb.orders.findOne({ _id: 1001 }, { _id: 0, 'lines.name': 1, 'lines.qty': 1, total: 1 })",
+      "runnable": false,
+      "tags": ["design", "practice"],
+      "lessonSlug": "schema-design",
+      "output": "switched to db shop\n{ acknowledged: true, insertedId: 1001 }\n{\n  lines: [\n    { name: 'Mechanical keyboard', qty: 1 },\n    { name: 'USB-C hub', qty: 2 }\n  ],\n  total: 167.5\n}"
+    },
+    {
+      "id": "indexes-example",
+      "title": "Indexes",
+      "description": "Follow the indexes lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.customers.drop()\nconst docs = []\nfor (let i = 1; i <= 10000; i++) {\n  docs.push({\n    name: `Customer ${i}`,\n    email: `user${i}@example.com`,\n    city: ['Lisbon', 'Porto', 'Faro'][i % 3],\n    loyaltyPoints: i % 500\n  })\n}\ndb.customers.insertMany(docs).acknowledged\ndb.customers.countDocuments()",
+      "runnable": false,
+      "tags": ["design", "practice"],
+      "lessonSlug": "indexes",
+      "output": "switched to db shop\ntrue\ntrue\n10000"
+    },
+    {
+      "id": "aggregation-example",
+      "title": "The Aggregation Pipeline",
+      "description": "Follow the the aggregation pipeline lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.orders.drop()\ndb.orders.insertMany([\n  { _id: 1001, customerId: 1, status: 'paid', placedAt: new Date('2026-03-02'),\n    lines: [{ productId: 1, category: 'peripherals', qty: 1, price: 89.5 }, { productId: 5, category: 'peripherals', qty: 2, price: 39 }] },\n  { _id: 1002, customerId: 2, status: 'paid', placedAt: new Date('2026-03-03'),\n    lines: [{ productId: 3, category: 'displays', qty: 1, price: 219 }] },\n  { _id: 1003, customerId: 1, status: 'cancelled', placedAt: new Date('2026-03-05'),\n    lines: [{ productId: 4, category: 'office', qty: 3, price: 24.5 }] },\n  { _id: 1004, customerId: 3, status: 'paid', placedAt: new Date('2026-04-01'),\n    lines: [{ productId: 4, category: 'office', qty: 2, price: 24.5 }, { productId: 2, category: 'peripherals', qty: 1, price: 22.99 }] },\n  { _id: 1005, customerId: 2, status: 'paid', placedAt: new Date('2026-04-09'),\n    lines: [{ productId: 1, category: 'peripherals', qty: 1, price: 89.5 }] }\n])",
+      "runnable": false,
+      "tags": ["design", "practice"],
+      "lessonSlug": "aggregation",
+      "output": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1001, '1': 1002, '2': 1003, '3': 1004, '4': 1005 }\n}"
+    },
+    {
+      "id": "relationships-example",
+      "title": "Modelling Relationships",
+      "description": "Follow the modelling relationships lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.customers.drop()\ndb.customers.insertMany([\n  { _id: 1, name: 'Ann Lee', email: 'ann@example.com', city: 'Lisbon', wishlist: [3, 5] },\n  { _id: 2, name: 'Ben Costa', email: 'ben@example.com', city: 'Porto', wishlist: [3] },\n  { _id: 3, name: 'Chloe Martin', email: 'chloe@example.com', city: 'Faro', wishlist: [] }\n])\ndb.orders.find({ customerId: 2 }, { status: 1 })",
+      "runnable": false,
+      "tags": ["design", "practice"],
+      "lessonSlug": "relationships",
+      "output": "switched to db shop\ntrue\n{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }\n[ { _id: 1002, status: 'paid' }, { _id: 1005, status: 'paid' } ]"
+    },
+    {
+      "id": "node-driver-example",
+      "title": "Using the Node.js Driver",
+      "description": "Follow the using the node.js driver lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "mkdir shop-app && cd shop-app\nnpm init -y\nnpm install mongodb@6",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "node-driver",
+      "output": "added 12 packages in 2s"
+    },
+    {
+      "id": "transactions-example",
+      "title": "Transactions",
+      "description": "Follow the transactions lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "javascript",
+      "code": "use shop\ndb.accounts.insertMany([{ _id: 'ann', balance: 100 }, { _id: 'ben', balance: 20 }])\nconst session = db.getMongo().startSession()\nsession.startTransaction()\nconst accounts = session.getDatabase('shop').accounts\naccounts.updateOne({ _id: 'ann' }, { $inc: { balance: -50 } })\naccounts.updateOne({ _id: 'ben' }, { $inc: { balance: 50 } })\nsession.commitTransaction()\nsession.endSession()\ndb.accounts.find()",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "transactions",
+      "output": "switched to db shop\n{ acknowledged: true, insertedIds: { '0': 'ann', '1': 'ben' } }\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n[ { _id: 'ann', balance: 50 }, { _id: 'ben', balance: 70 } ]"
+    },
+    {
+      "id": "security-basics-example",
+      "title": "Security Basics",
+      "description": "Follow the security basics lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "yaml",
+      "code": "net:\n  bindIp: 127.0.0.1,10.0.0.5\n  port: 27017\n  tls:\n    mode: requireTLS\n    certificateKeyFile: /etc/ssl/mongodb.pem\nsecurity:\n  authorization: enabled",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "security-basics"
+    }
+  ]
+}

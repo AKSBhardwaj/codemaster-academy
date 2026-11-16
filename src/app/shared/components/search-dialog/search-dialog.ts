@@ -68,8 +68,12 @@ export class SearchDialogComponent {
         if (typeof element.showModal === 'function') element.showModal();
         else element.setAttribute('open', '');
         void this.search.warmUp();
-        setTimeout(() => this.input()?.nativeElement.focus(), 0);
+        setTimeout(() => {
+          if (this.ui.isOpen()) this.input()?.nativeElement.focus();
+        }, 0);
       } else if (!open && element.open) {
+        // Native cancel also updates the store. The asynchronous close event can arrive
+        // after a new opening, so it must not reset the store a second time.
         element.close();
       }
     });
@@ -80,11 +84,6 @@ export class SearchDialogComponent {
   }
 
   protected close(): void {
-    this.ui.close();
-  }
-
-  /** The native dialog closed itself (Escape); keep the store in sync. */
-  protected onNativeClose(): void {
     this.ui.close();
   }
 

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "singleton",
+  "title": "Share one bean instance",
+  "summary": "Spring Framework: Share one bean instance. Compare a separately created new Object too.",
+  "introduction": "The normal Spring scope is singleton: one instance per bean definition in the container.",
+  "learningObjectives": [
+    "Share one bean instance with Spring Framework",
+    "Compare a separately created new Object too"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Share one bean instance"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Share one bean instance",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean Object box() { return new Object(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"box\") == context.getBean(\"box\"));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The default scope returns the same Object on both lookups. Reference equality is therefore true."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "true"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compare a separately created new Object too."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Singleton means one per container bean definition, not one in every program everywhere."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-singleton-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-singleton-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "dependencies"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Share one bean instance",
+    "description": "Spring Framework: Share one bean instance. Compare a separately created new Object too. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

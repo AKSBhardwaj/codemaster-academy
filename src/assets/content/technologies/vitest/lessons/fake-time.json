@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "slug": "fake-time",
+  "title": "Fake time",
+  "summary": "Vitest can replace timers with a controlled clock. This makes a timer test quick and repeatable.",
+  "introduction": "Vitest can replace timers with a controlled clock. This makes a timer test quick and repeatable. We will use a small example so you can follow each step.",
+  "learningObjectives": ["Explain fake time", "Use the example to answer a practice question"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Vitest can replace timers with a controlled clock. This makes a timer test quick and repeatable."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"waits for reminder\", () => { vi.useFakeTimers(); try { const remind = vi.fn(); setTimeout(remind, 500); vi.advanceTimersByTime(500); expect(remind).toHaveBeenCalledTimes(1); } finally { vi.useRealTimers(); } });",
+      "title": "Fake time",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The fake clock reaches 500 milliseconds and triggers the reminder once."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Advance only 499 milliseconds and check no call happened.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Fake timers should be restored even when an assertion throws."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "vitest-fake-time"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Vitest further reading](https://vitest.dev/guide/)."
+    }
+  ],
+  "exerciseIds": ["vitest-fake-time"],
+  "relatedLessons": [
+    {
+      "technologySlug": "vitest",
+      "slug": "dom-tests-need-an-environment"
+    }
+  ],
+  "seo": {
+    "title": "Vitest: Fake time",
+    "description": "Learn about fake time in Vitest. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

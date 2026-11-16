@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read a query string",
+  "summary": "Fiber: Read a query string. Visit /page?n=3.",
+  "introduction": "Query reads a query value and can take a default. Open GET /page.",
+  "learningObjectives": ["Read a query string with Fiber", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query string"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Read a query string",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/page\", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{\"page\": c.Query(\"n\", \"1\")}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Query has no n input, so it returns the default string 1."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":\"1\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A query value remains text until you parse it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-query-check"
+    }
+  ],
+  "exerciseIds": ["fiber-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "path-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Read a query string",
+    "description": "Fiber: Read a query string. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

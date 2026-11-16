@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "path-inputs",
+  "title": "Read a path value",
+  "summary": "Spring Boot: Read a path value. Visit /hello/Asha.",
+  "introduction": "@PathVariable reads a value from a named path position. Open GET /hello/Ravi.",
+  "learningObjectives": ["Read a path value with Spring Boot", "Visit /hello/Asha"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a path value"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Read a path value",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/hello/{name}\") String hello(@PathVariable(\"name\") String name) { return \"Hi, \" + name + \"!\"; }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The explicit path-variable name matches the placeholder. Spring passes Ravi to the method."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hi, Ravi!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /hello/Asha."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use the explicit input name so compilation settings do not affect binding."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-path-inputs-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-path-inputs-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Read a path value",
+    "description": "Spring Boot: Read a path value. Visit /hello/Asha. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

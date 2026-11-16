@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "binary",
+  "title": "Receive bytes",
+  "summary": "WebSockets: Receive bytes. Send bytes 4, 5 and 6.",
+  "introduction": "A binary message carries bytes rather than text. This server sends three small byte values.",
+  "learningObjectives": ["Receive bytes with WebSockets", "Send bytes 4, 5 and 6"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Receive bytes"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Receive bytes",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.send(Buffer.from([1, 2, 3])));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", (data, isBinary) => { console.log([...data].join(\", \")); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Buffer contains bytes 1, 2 and 3. The client spreads those bytes and joins their numeric values."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "1, 2, 3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send bytes 4, 5 and 6."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not decode arbitrary binary bytes as if they were normal text."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-binary-check"
+    }
+  ],
+  "exerciseIds": ["websockets-binary-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "ready-state"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Receive bytes",
+    "description": "WebSockets: Receive bytes. Send bytes 4, 5 and 6. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

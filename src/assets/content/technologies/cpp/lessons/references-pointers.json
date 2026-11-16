@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "references-pointers",
+  "title": "References and Pointers",
+  "summary": "Pass by reference, const references, pointers and nullptr, the arrow operator, the three const pointer forms, and the dangling-reference bug every C++ programmer meets once.",
+  "introduction": "Every value in C++ lives somewhere in memory, and references and pointers are the two ways to talk about that place instead of copying the value. References give a function access to the caller's variable; pointers can also point at nothing, be re-pointed, and walk through arrays. Knowing which to use, and when neither is needed, is the first skill that separates C++ from the scripting languages. This lesson builds that skill with four short programs.",
+  "learningObjectives": [
+    "Pass arguments by reference and by const reference and explain the difference from pass by value",
+    "Declare, dereference and re-point a pointer and test it against nullptr",
+    "Read the three const pointer forms correctly",
+    "Recognise and avoid dangling references and pointers"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "References: another name for an object"
+    },
+    {
+      "type": "paragraph",
+      "text": "A reference is declared with `&` after the type and must be initialised with an existing object; from then on it *is* that object under another name. It can never be re-bound or be null. Functions use reference parameters for two reasons: to modify the caller's variable, and to avoid copying something large. For the second case add `const`, which lets the function read but not write."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "references.cpp",
+      "code": "#include <iostream>\n#include <string>\n\nvoid swapValues(int& a, int& b) {\n    int temp = a;\n    a = b;\n    b = temp;\n}\n\nvoid shout(const std::string& text) {   // read-only, nothing is copied\n    std::cout << text << \"!\\n\";\n}\n\nint main() {\n    int x{1};\n    int y{2};\n    swapValues(x, y);\n    std::cout << \"x=\" << x << \" y=\" << y << '\\n';\n\n    int& alias = x;   // alias is another name for x\n    alias = 10;\n    std::cout << \"x=\" << x << '\\n';\n\n    std::string name{\"Grace\"};\n    shout(name);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra references.cpp -o references\n$ ./references\nx=2 y=1\nx=10\nGrace!"
+    },
+    {
+      "type": "paragraph",
+      "text": "If swapValues took plain int inputs, it would only swap copies. References let it change the original values. Use const references when a function should read a large value without copying or changing it. For example, std::sort(v.begin(), v.end()) changes the order of a vector. std::size(v) only reads its size."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pointers: an address you can inspect"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pointer is a variable that holds the **address** of another object. `&value` produces the address, `int* p` declares a pointer to an `int`, and `*p` (dereferencing) reaches the object at that address. Unlike a reference, a pointer can be changed to point elsewhere and can hold `nullptr`, meaning \"points at nothing\". Those two abilities are exactly when you want a pointer: optional results and data structures whose links change."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "pointers.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    int value{42};\n    int* p = &value;        // p holds the address of value\n\n    std::cout << *p << '\\n';   // read through the pointer\n    *p = 43;                   // write through the pointer\n    std::cout << value << '\\n';\n\n    int other{7};\n    p = &other;                // pointers can be re-pointed\n    std::cout << *p << '\\n';\n\n    p = nullptr;               // points at nothing\n    if (p == nullptr) {\n        std::cout << \"p is null\\n\";\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra pointers.cpp -o pointers\n$ ./pointers\n42\n43\n7\np is null"
+    },
+    {
+      "type": "paragraph",
+      "text": "Dereferencing a null pointer is undefined behaviour and usually crashes the program with a segmentation fault, so test for `nullptr` before using a pointer that might be empty. Use `nullptr`, never `0` or the C macro `NULL`: `nullptr` has its own type, so it cannot be mistaken for an integer in overload resolution."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pointers to structs and the arrow operator"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `struct` groups named fields into one type. Through a pointer you reach a field with `->`, shorthand for `(*p).field`. The function below returns a pointer precisely because the answer may not exist; a reference could not express \"not found\"."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "find.cpp",
+      "code": "#include <iostream>\n#include <string>\n#include <vector>\n\nstruct Student {\n    std::string name;\n    int score;\n};\n\n// Returns the first student with that name, or nullptr if there is none.\nconst Student* findByName(const std::vector<Student>& students, const std::string& name) {\n    for (const Student& s : students) {\n        if (s.name == name) return &s;\n    }\n    return nullptr;\n}\n\nint main() {\n    std::vector<Student> students{{\"Ada\", 91}, {\"Linus\", 78}};\n\n    if (const Student* found = findByName(students, \"Linus\")) {\n        std::cout << found->name << \" scored \" << found->score << '\\n';\n    }\n    if (findByName(students, \"Grace\") == nullptr) {\n        std::cout << \"Grace not found\\n\";\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra find.cpp -o find\n$ ./find\nLinus scored 78\nGrace not found"
+    },
+    {
+      "type": "paragraph",
+      "text": "The returned pointer is a `const Student*`: a pointer to a `const` object, so the caller can read the student but not change it. `const` can sit in two places around a pointer, and they mean different things."
+    },
+    {
+      "type": "table",
+      "headers": ["Declaration", "Can change the pointee", "Can re-point", "Read it as"],
+      "rows": [
+        ["`const int* p`", "No", "Yes", "pointer to const int"],
+        ["`int* const p`", "Yes", "No", "const pointer to int"],
+        ["`const int* const p`", "No", "No", "const pointer to const int"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "References in range-based for loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "The loop variable of a range-based `for` is a fresh copy of each element unless you declare it as a reference. That difference decides whether the loop can modify the container, and for large elements whether it copies them needlessly. `const auto&` is the safe default when you only read."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "loopref.cpp",
+      "code": "#include <iostream>\n#include <vector>\n\nvoid print(const std::vector<int>& v) {\n    for (std::size_t i = 0; i < v.size(); ++i) {\n        std::cout << (i == 0 ? \"\" : \", \") << v[i];\n    }\n    std::cout << '\\n';\n}\n\nint main() {\n    std::vector<int> prices{10, 20, 30};\n\n    for (int p : prices) {        // p is a copy of each element\n        p *= 2;\n        std::cout << \"doubled copy: \" << p << '\\n';\n    }\n    print(prices);                // unchanged\n\n    for (int& p : prices) {       // p refers to the element itself\n        p *= 2;\n    }\n    print(prices);                // changed\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra loopref.cpp -o loopref\n$ ./loopref\ndoubled copy: 20\ndoubled copy: 40\ndoubled copy: 60\n10, 20, 30\n20, 40, 60"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: returning a reference to a local variable",
+      "text": "`const std::string& makeName() { std::string local{\"temp\"}; return local; }` compiles, but `local` is destroyed when the function returns, so the caller receives a **dangling reference** to freed memory. Reading it is undefined behaviour and often appears to work until the memory is reused. GCC warns with `reference to local variable 'local' returned [-Wreturn-local-addr]`. The fix is simple: return the `std::string` by value. The same bug exists with pointers (`return &local;`) and with references stored in objects that outlive what they refer to."
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "Use"],
+      "rows": [
+        [
+          "Function must see or modify the caller's object",
+          "Reference (`T&`, or `const T&` to read only)"
+        ],
+        ["Value may be absent", "Pointer (`T*` with `nullptr`), or `std::optional<T>` for values"],
+        [
+          "Link that changes over time (list nodes, tree children)",
+          "Pointer, usually a smart pointer"
+        ],
+        ["Ownership of heap memory", "`std::unique_ptr` or `std::shared_ptr`, never a raw `new`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Raw pointers do not own anything",
+      "text": "In modern C++ a plain `T*` means \"I can look at this object but I am not responsible for deleting it\". Memory you allocate yourself belongs in a smart pointer; the [smart pointers lesson](/tutorials/cpp/smart-pointers) shows why `new` and `delete` almost never appear in new code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-references-swap"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-references-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "references-pointers",
+          "difficulty": "beginner",
+          "question": "Which statement about references is true?",
+          "explanation": "A reference must be bound when declared and stays bound to that object for its whole life. Pointers are the ones that can be null or re-pointed.",
+          "options": [
+            "A reference can be re-bound to another object later",
+            "A reference must be initialised and cannot be null",
+            "A reference holds a copy of the object",
+            "A reference needs `*` to read the value"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "cpp-references-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "references-pointers",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`p` points at `a`, so `*p = 5` changes `a` to 5. `b` was initialised with a copy of `a` before that change and stays 1.",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int a{1};\n    int b{a};\n    int* p = &a;\n    *p = 5;\n    std::cout << a << ' ' << b << '\\n';\n}",
+          "options": ["1 1", "5 5", "5 1", "1 5"],
+          "correctIndex": 2
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-references-swap"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "smart-pointers"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "stl-containers"
+    }
+  ],
+  "seo": {
+    "title": "C++ References and Pointers \u2013 When to Use Which",
+    "description": "Understand C++ references and pointers: pass by reference, const references, nullptr, the arrow operator, the const pointer forms and how to avoid dangling references."
+  },
+  "updatedOn": "2026-11-15"
+}

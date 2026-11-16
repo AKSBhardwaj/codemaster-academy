@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "slug": "rate-limits-and-backpressure",
+  "title": "Rate limits and backpressure",
+  "summary": "Keep a busy service from taking too much work. Compare a request limit with a signal to slow down, then trace a small JavaScript model.",
+  "introduction": "A library desk can serve only so many people at once. If everyone pushes forward, nobody gets a good turn. A system also needs a clear rule for how much work it can accept.",
+  "learningObjectives": [
+    "Explain a rate limit with a small time window",
+    "Describe backpressure and a bounded waiting queue",
+    "Trace allowed and delayed requests in a model"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Two ways to protect a busy service"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **rate limit** allows only a certain number of requests in a time period. Our example allows one learner to start three searches in any rolling 60 seconds. A rolling window moves forward with the clock."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Backpressure** means telling the part sending work to slow down because the next part is full. Think of a librarian saying, \"Please wait until this tray has room.\" A rate limit sets a rule; backpressure reacts to how much work is waiting."
+    },
+    {
+      "type": "paragraph",
+      "text": "The rule should say what it counts: one person, one API key, or the whole service. A limit per person is useful for fairness, but the service still needs a total capacity limit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Trace five search requests"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "At 0 seconds, accept the first search. One spot is used.",
+        "At 10 and 20 seconds, accept two more. All three spots are used.",
+        "At 30 seconds, ask the learner to wait. Do not add this rejected request to the accepted list.",
+        "At 60 seconds, the request from 0 seconds leaves our window. Accept the new request."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const requests = [0, 10, 20, 30, 60];\nconst limit = 3;\nconst windowSeconds = 60;\nlet accepted = [];\nfor (const now of requests) {\n  accepted = accepted.filter(time => now - time < windowSeconds);\n  if (accepted.length < limit) {\n    accepted.push(now);\n    console.log(now + \"s allow\");\n  } else {\n    console.log(now + \"s wait\");\n  }\n}",
+      "runnable": true,
+      "title": "Small JavaScript model",
+      "caption": "This model uses made-up values in your browser. It does not contact a service."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0s allow\n10s allow\n20s allow\n30s wait\n60s allow",
+      "title": "Expected output"
+    },
+    {
+      "type": "paragraph",
+      "text": "In this model, a request exactly 60 seconds old no longer counts. The clock moves only when the next made-up request is checked. There are no real timers or network requests."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Plan what happens when the limit is reached"
+    },
+    {
+      "type": "table",
+      "headers": ["Situation", "Useful response"],
+      "rows": [
+        [
+          "A learner makes too many requests",
+          "Return HTTP 429, which means too many requests. When possible, include a Retry-After wait time."
+        ],
+        [
+          "The whole service is full",
+          "Reject extra work clearly, often with HTTP 503, rather than pretending to accept it."
+        ],
+        [
+          "A worker queue reaches its limit",
+          "Pause the producer or reject new jobs until there is room. Keep a maximum wait time too."
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A queue with no size limit can fill memory and make people wait for old, useless work. A bounded queue has a maximum size. Choose which work may wait and which work needs a quick answer."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Know the limits of this model"
+    },
+    {
+      "type": "paragraph",
+      "text": "The array covers one learner on one computer. A real service with several servers needs shared counters, or another coordinated rule. Checking and updating a counter must happen safely together, so two servers do not use the same last spot."
+    },
+    {
+      "type": "paragraph",
+      "text": "An IP address can be shared by a whole school. Treating every shared address as one person may block innocent users. Choose fair rules and measure how often valid requests are rejected."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the final request time from 60 to 59. Predict the last line before running.",
+        "The last line becomes 59s wait. All three earlier accepted requests are still less than 60 seconds old."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not retry rejected work right away in a tight loop. Respect the wait time, limit retries, and stop work that is no longer needed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-rate-limits-and-backpressure"
+    }
+  ],
+  "exerciseIds": ["system-design-rate-limits-and-backpressure"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Rate limits and backpressure",
+    "description": "Keep a busy service from taking too much work. Compare a request limit with a signal to slow down, then trace a small JavaScript model."
+  },
+  "updatedOn": "2026-11-16"
+}

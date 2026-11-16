@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "action-results",
+  "title": "Choose between result kinds",
+  "summary": "ASP.NET Web API: Choose between result kinds. Visit /score/-1.",
+  "introduction": "IActionResult allows different outcomes. GET /score/8 returns a success; a negative score returns 400.",
+  "learningObjectives": ["Choose between result kinds with ASP.NET Web API", "Visit /score/-1"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose between result kinds"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Choose between result kinds",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"score/{n:int}\")] public IActionResult Score(int n) { if (n < 0) return BadRequest(new { error = \"Use zero or more\" }); return Ok(new { score = n }); }\n}\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The positive route number bypasses BadRequest. The success branch returns score 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"score\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /score/-1."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check invalid input before returning a success result."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-action-results-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-action-results-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "no-content"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Choose between result kinds",
+    "description": "ASP.NET Web API: Choose between result kinds. Visit /score/-1. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,465 @@
+{
+  "title": "React Reference",
+  "description": "A compact reference of the React 19 APIs, hooks, JSX rules and ecosystem commands used in the tutorial, grouped by topic, with syntax, a short example and the lesson that explains each entry.",
+  "groups": [
+    {
+      "id": "jsx",
+      "title": "JSX and rendering",
+      "entries": [
+        {
+          "slug": "jsx-expression",
+          "name": "{expression}",
+          "summary": "Embeds any JavaScript expression inside JSX: variables, calls, arithmetic, ternaries. Statements such as if and for are not allowed.",
+          "syntax": "<p>{user.name} has {items.length} items</p>",
+          "lessonSlug": "jsx"
+        },
+        {
+          "slug": "classname",
+          "name": "className",
+          "summary": "The JSX name for the HTML class attribute. for becomes htmlFor, and multi-word attributes are camelCase (tabIndex, onClick).",
+          "syntax": "<label htmlFor=\"email\" className=\"field\">",
+          "notes": [
+            "Boolean attributes take an expression: `disabled={isBusy}`",
+            "Unknown lowercase names are passed through with a development warning"
+          ],
+          "lessonSlug": "jsx"
+        },
+        {
+          "slug": "style-object",
+          "name": "style={{ … }}",
+          "summary": "Inline styles are an object with camelCase property names and string or number values.",
+          "syntax": "<span style={{ backgroundColor: 'navy', padding: 4 }}>",
+          "notes": ["Unitless numbers become px for most properties"],
+          "lessonSlug": "jsx"
+        },
+        {
+          "slug": "fragment",
+          "name": "<>…</> and <Fragment>",
+          "summary": "Groups several elements without adding a DOM node. Use the long form when the group needs a key, for example inside map.",
+          "syntax": "<>\n  <dt>Term</dt>\n  <dd>Meaning</dd>\n</>",
+          "example": {
+            "language": "jsx",
+            "code": "import { Fragment } from 'react';\n\n{items.map((item) => (\n  <Fragment key={item.id}>\n    <dt>{item.term}</dt>\n    <dd>{item.meaning}</dd>\n  </Fragment>\n))}"
+          },
+          "lessonSlug": "jsx"
+        },
+        {
+          "slug": "conditional-rendering",
+          "name": "cond && <X /> and cond ? <A /> : <B />",
+          "summary": "Render conditionally with JavaScript operators. false, null, undefined and true render nothing; 0 and NaN render as text.",
+          "syntax": "{count > 0 && <Badge count={count} />}",
+          "notes": [
+            "Compare explicitly to avoid a stray 0: `items.length > 0 &&`",
+            "`return null` from a component renders nothing"
+          ],
+          "lessonSlug": "jsx"
+        },
+        {
+          "slug": "list-map",
+          "name": "array.map with key",
+          "summary": "Renders a list by mapping data to elements. Every element needs a key that is unique among siblings and stable across renders.",
+          "example": {
+            "language": "jsx",
+            "code": "<ul>\n  {tasks.map((task) => (\n    <li key={task.id}>{task.title}</li>\n  ))}\n</ul>"
+          },
+          "notes": [
+            "Do not use the index when the list can reorder or filter",
+            "`key` is not passed to the child as a prop"
+          ],
+          "lessonSlug": "lists-keys"
+        },
+        {
+          "slug": "create-root",
+          "name": "createRoot(container).render(…)",
+          "summary": "Mounts a React tree into a DOM element; the entry point of every client-rendered app. Imported from react-dom/client.",
+          "example": {
+            "language": "jsx",
+            "code": "import { createRoot } from 'react-dom/client';\nimport App from './App.jsx';\n\ncreateRoot(document.getElementById('root')).render(<App />);"
+          },
+          "lessonSlug": "setup-vite"
+        },
+        {
+          "slug": "strict-mode",
+          "name": "<StrictMode>",
+          "summary": "Development-only wrapper that renders components twice and runs effects twice to surface impure code and missing cleanups. It has no effect in production.",
+          "syntax": "<StrictMode><App /></StrictMode>",
+          "lessonSlug": "setup-vite"
+        }
+      ]
+    },
+    {
+      "id": "components",
+      "title": "Components and props",
+      "entries": [
+        {
+          "slug": "function-component",
+          "name": "function Component(props)",
+          "summary": "A component is a capitalized function that receives one props object and returns JSX or null. It must be pure during render.",
+          "example": {
+            "language": "jsx",
+            "code": "function Welcome({ name }) {\n  return <h1>Welcome, {name}!</h1>;\n}\n\n<Welcome name=\"Ada\" />"
+          },
+          "lessonSlug": "components-props"
+        },
+        {
+          "slug": "props",
+          "name": "props",
+          "summary": "Attributes written on a component tag arrive as one object. Non-string values go in braces, a bare attribute is true, and defaults are set with destructuring.",
+          "syntax": "function Price({ amount, currency = 'EUR', onSale = false }) { … }",
+          "notes": [
+            "Props are read-only; the parent owns the data",
+            "`defaultProps` is not supported on function components in React 19"
+          ],
+          "lessonSlug": "components-props"
+        },
+        {
+          "slug": "children",
+          "name": "children",
+          "summary": "The content between a component's opening and closing tags, available as props.children; the basis of wrapper and layout components.",
+          "syntax": "<Card title=\"Weather\"><p>Sunny</p></Card>",
+          "lessonSlug": "components-props"
+        },
+        {
+          "slug": "memo",
+          "name": "memo(Component)",
+          "summary": "Returns a component that skips re-rendering when every prop is Object.is-equal to the previous render's props.",
+          "syntax": "const Row = memo(function Row({ item }) { … });",
+          "notes": [
+            "Inline objects and functions defeat it; pair with useMemo and useCallback",
+            "The React Compiler makes manual memo mostly unnecessary"
+          ],
+          "lessonSlug": "performance-memo"
+        },
+        {
+          "slug": "lazy",
+          "name": "lazy() and <Suspense>",
+          "summary": "lazy loads a component's module on first render; Suspense shows a fallback while it, or a promise read with use, is pending.",
+          "example": {
+            "language": "jsx",
+            "code": "import { lazy, Suspense } from 'react';\n\nconst Chart = lazy(() => import('./Chart.jsx'));\n\n<Suspense fallback={<p>Loading…</p>}>\n  <Chart />\n</Suspense>"
+          },
+          "lessonSlug": "data-fetching"
+        }
+      ]
+    },
+    {
+      "id": "state",
+      "title": "State hooks",
+      "entries": [
+        {
+          "slug": "usestate",
+          "name": "useState(initial)",
+          "summary": "Declares a state variable and its setter. The initial value is used on the first render only; pass a function for lazy initialization.",
+          "syntax": "const [count, setCount] = useState(0);",
+          "notes": [
+            "Setting state schedules a re-render; the variable changes on the next render",
+            "Replace objects and arrays instead of mutating them"
+          ],
+          "lessonSlug": "state-usestate"
+        },
+        {
+          "slug": "updater-function",
+          "name": "setState(prev => next)",
+          "summary": "Passing a function to the setter computes the next value from the latest state, so queued updates build on each other.",
+          "syntax": "setCount((c) => c + 1);",
+          "lessonSlug": "state-usestate"
+        },
+        {
+          "slug": "useactionstate",
+          "name": "useActionState(action, initialState)",
+          "summary": "React 19. Wraps an async form action and returns its latest result, a wrapped action for the form, and a pending flag.",
+          "syntax": "const [state, formAction, isPending] = useActionState(action, {});",
+          "notes": ["The action receives (previousState, formData)"],
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "useformstatus",
+          "name": "useFormStatus()",
+          "summary": "React 19, from react-dom. Reads the pending state of the enclosing form's action, typically inside a submit button component.",
+          "syntax": "const { pending } = useFormStatus();",
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "usetransition",
+          "name": "useTransition()",
+          "summary": "Marks state updates as non-urgent so React keeps the UI responsive; in React 19 it also tracks async Actions outside forms.",
+          "syntax": "const [isPending, startTransition] = useTransition();",
+          "lessonSlug": "performance-memo"
+        },
+        {
+          "slug": "usedeferredvalue",
+          "name": "useDeferredValue(value)",
+          "summary": "Returns a copy of a value that lags behind during expensive renders, so typing stays smooth while a heavy list catches up.",
+          "syntax": "const deferredQuery = useDeferredValue(query);",
+          "lessonSlug": "performance-memo"
+        }
+      ]
+    },
+    {
+      "id": "effects-refs",
+      "title": "Effects and refs",
+      "entries": [
+        {
+          "slug": "useeffect",
+          "name": "useEffect(setup, deps)",
+          "summary": "Runs setup after React commits to the DOM and re-runs it when a dependency changes. Use it to synchronize with things outside React.",
+          "example": {
+            "language": "jsx",
+            "code": "useEffect(() => {\n  document.title = `${count} new messages`;\n}, [count]);"
+          },
+          "lessonSlug": "effects"
+        },
+        {
+          "slug": "effect-cleanup",
+          "name": "Effect cleanup",
+          "summary": "A function returned from the setup; React calls it before the next run and on unmount. Clear timers, remove listeners, abort requests, flip ignore flags.",
+          "example": {
+            "language": "jsx",
+            "code": "useEffect(() => {\n  const id = setInterval(tick, 1000);\n  return () => clearInterval(id);\n}, []);"
+          },
+          "lessonSlug": "effects"
+        },
+        {
+          "slug": "dependency-array",
+          "name": "Dependency array",
+          "summary": "Omitted: the effect runs after every render. []: after the first render only. [a, b]: whenever a or b changes. List everything the effect reads.",
+          "lessonSlug": "effects"
+        },
+        {
+          "slug": "useref",
+          "name": "useRef(initial)",
+          "summary": "Returns a mutable object whose .current persists across renders; changing it never re-renders. Holds DOM nodes, timer ids and other non-rendered values.",
+          "syntax": "const inputRef = useRef(null);\n<input ref={inputRef} />",
+          "lessonSlug": "refs"
+        },
+        {
+          "slug": "ref-prop",
+          "name": "ref as a prop (React 19)",
+          "summary": "Function components receive ref as a normal prop and can forward it to an element; forwardRef is no longer needed.",
+          "example": {
+            "language": "jsx",
+            "code": "function TextField({ label, ref, ...props }) {\n  return (\n    <label>\n      {label}\n      <input ref={ref} {...props} />\n    </label>\n  );\n}"
+          },
+          "lessonSlug": "refs"
+        },
+        {
+          "slug": "ref-callback",
+          "name": "ref={node => …}",
+          "summary": "A function ref is called with the DOM node on mount; in React 19 it may return a cleanup that runs on unmount.",
+          "example": {
+            "language": "jsx",
+            "code": "<div\n  ref={(node) => {\n    const observer = new ResizeObserver(onResize);\n    observer.observe(node);\n    return () => observer.disconnect();\n  }}\n/>"
+          },
+          "lessonSlug": "refs"
+        },
+        {
+          "slug": "useimperativehandle",
+          "name": "useImperativeHandle(ref, create)",
+          "summary": "Exposes a custom object (for example { focus }) through a ref instead of the raw DOM node. Rarely needed; forwarding the node is usually enough.",
+          "syntax": "useImperativeHandle(ref, () => ({ focus: () => inputRef.current.focus() }));",
+          "lessonSlug": "refs"
+        }
+      ]
+    },
+    {
+      "id": "context-hooks",
+      "title": "Context and custom hooks",
+      "entries": [
+        {
+          "slug": "createcontext",
+          "name": "createContext(defaultValue)",
+          "summary": "Creates a context object. The default is returned to readers that have no matching provider above them.",
+          "syntax": "const ThemeContext = createContext('light');",
+          "lessonSlug": "context"
+        },
+        {
+          "slug": "context-provider",
+          "name": "<Context value={…}>",
+          "summary": "React 19 renders the context object itself as the provider; <Context.Provider> still works. Consumers re-render when value changes.",
+          "syntax": "<ThemeContext value={{ theme, toggle }}>{children}</ThemeContext>",
+          "notes": ["Memoize object values with useMemo if consumers re-render too often"],
+          "lessonSlug": "context"
+        },
+        {
+          "slug": "usecontext",
+          "name": "useContext(Context)",
+          "summary": "Reads the nearest provider's value for the given context, or the default if there is none.",
+          "syntax": "const theme = useContext(ThemeContext);",
+          "lessonSlug": "context"
+        },
+        {
+          "slug": "use",
+          "name": "use(resource)",
+          "summary": "React 19. Reads a context or a promise. Unlike other hooks it may be called conditionally; a pending promise suspends to the nearest Suspense boundary.",
+          "syntax": "const settings = use(SettingsContext);\nconst data = use(cachedPromise);",
+          "notes": ["Promises must be stable across renders, never created during render"],
+          "lessonSlug": "data-fetching"
+        },
+        {
+          "slug": "rules-of-hooks",
+          "name": "Rules of hooks",
+          "summary": "Call hooks only at the top level of components or custom hooks, in the same order on every render, and never from plain functions. Enforced by eslint-plugin-react-hooks.",
+          "lessonSlug": "custom-hooks"
+        },
+        {
+          "slug": "custom-hook",
+          "name": "function useSomething()",
+          "summary": "Any function that starts with use and calls hooks. It shares logic, not state: every call gets its own state.",
+          "example": {
+            "language": "jsx",
+            "code": "function useToggle(initial = false) {\n  const [value, setValue] = useState(initial);\n  const toggle = () => setValue((v) => !v);\n  return [value, toggle];\n}"
+          },
+          "lessonSlug": "custom-hooks"
+        }
+      ]
+    },
+    {
+      "id": "events-forms",
+      "title": "Events and forms",
+      "entries": [
+        {
+          "slug": "event-handler",
+          "name": "onClick={handler}",
+          "summary": "Event props are camelCase and take a function reference. Use an arrow function to pass arguments.",
+          "syntax": "<button onClick={() => remove(id)}>Delete</button>",
+          "notes": ["`onClick={handler()}` calls the function during render instead of on click"],
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "event-object",
+          "name": "event (SyntheticEvent)",
+          "summary": "Handlers receive an event object with the DOM API: target, currentTarget, preventDefault(), stopPropagation().",
+          "syntax": "function handleSubmit(e) { e.preventDefault(); }",
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "controlled-input",
+          "name": "value + onChange",
+          "summary": "An input whose value comes from state and whose onChange writes back to it. Checkboxes use checked; select and textarea use value.",
+          "example": {
+            "language": "jsx",
+            "code": "const [name, setName] = useState('');\n\n<input value={name} onChange={(e) => setName(e.target.value)} />"
+          },
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "form-action",
+          "name": "<form action={fn}>",
+          "summary": "React 19. Passes the FormData to a function on submit; async functions become Actions with pending tracking and automatic reset of uncontrolled fields.",
+          "syntax": "<form action={formAction}>…</form>",
+          "lessonSlug": "events-forms"
+        },
+        {
+          "slug": "formdata",
+          "name": "new FormData(form)",
+          "summary": "Reads all named fields of a form at once; the natural fit for uncontrolled inputs and form Actions.",
+          "syntax": "const data = new FormData(e.currentTarget);\ndata.get('email');",
+          "lessonSlug": "events-forms"
+        }
+      ]
+    },
+    {
+      "id": "tooling",
+      "title": "Vite, React Router and TanStack Query",
+      "entries": [
+        {
+          "slug": "npm-create-vite",
+          "name": "npm create vite@latest",
+          "summary": "Scaffolds a project from a template; use --template react or react-ts. The -- forwards the option to create-vite.",
+          "syntax": "npm create vite@latest my-app -- --template react",
+          "lessonSlug": "setup-vite"
+        },
+        {
+          "slug": "npm-run-dev",
+          "name": "npm run dev",
+          "summary": "Starts the Vite development server with hot module replacement, by default at http://localhost:5173.",
+          "lessonSlug": "setup-vite"
+        },
+        {
+          "slug": "npm-run-build",
+          "name": "npm run build / npm run preview",
+          "summary": "Builds the optimized static site into dist/ and, with preview, serves that folder locally for checking.",
+          "lessonSlug": "setup-vite"
+        },
+        {
+          "slug": "browserrouter",
+          "name": "<BrowserRouter>",
+          "summary": "Connects React Router to the browser URL; wrap the app once in main.jsx. Imported from the react-router package (version 7).",
+          "syntax": "<BrowserRouter><App /></BrowserRouter>",
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "routes-route",
+          "name": "<Routes> and <Route>",
+          "summary": "Routes picks the best matching Route by path and renders its element. path=\"*\" catches unmatched URLs; index marks the parent's own path.",
+          "example": {
+            "language": "jsx",
+            "code": "<Routes>\n  <Route element={<Layout />}>\n    <Route index element={<Home />} />\n    <Route path=\"products/:id\" element={<Product />} />\n    <Route path=\"*\" element={<NotFound />} />\n  </Route>\n</Routes>"
+          },
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "link-navlink",
+          "name": "<Link> and <NavLink>",
+          "summary": "Client-side navigation without a reload. NavLink additionally adds an active class and aria-current when its route matches.",
+          "syntax": "<NavLink to=\"/about\">About</NavLink>",
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "useparams",
+          "name": "useParams()",
+          "summary": "Returns the dynamic segments of the current URL as strings, keyed by the names used in the route path.",
+          "syntax": "const { id } = useParams(); // for path=\"/users/:id\"",
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "outlet",
+          "name": "<Outlet />",
+          "summary": "Placeholder inside a layout route's element where the matched child route is rendered.",
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "usenavigate",
+          "name": "useNavigate()",
+          "summary": "Returns a function for programmatic navigation: navigate('/path'), navigate(-1) to go back, or { replace: true } to replace the history entry.",
+          "syntax": "const navigate = useNavigate();\nnavigate('/dashboard', { replace: true });",
+          "lessonSlug": "routing"
+        },
+        {
+          "slug": "queryclientprovider",
+          "name": "QueryClientProvider",
+          "summary": "Provides a QueryClient, which holds the cache, to the component tree. Create one client at the root of the app.",
+          "example": {
+            "language": "jsx",
+            "code": "const queryClient = new QueryClient();\n\n<QueryClientProvider client={queryClient}>\n  <App />\n</QueryClientProvider>"
+          },
+          "lessonSlug": "data-fetching"
+        },
+        {
+          "slug": "usequery",
+          "name": "useQuery({ queryKey, queryFn })",
+          "summary": "Fetches and caches data by key; returns data, isPending, isError, error, isFetching and refetch. Components that share a key share one request and one cache entry.",
+          "example": {
+            "language": "jsx",
+            "code": "const { data, isPending, isError } = useQuery({\n  queryKey: ['users', id],\n  queryFn: () => fetchUser(id),\n  staleTime: 60_000,\n});"
+          },
+          "notes": [
+            "Put every variable the fetch depends on into the key",
+            "staleTime controls how long data counts as fresh"
+          ],
+          "lessonSlug": "data-fetching"
+        },
+        {
+          "slug": "usemutation",
+          "name": "useMutation({ mutationFn })",
+          "summary": "Wraps a write operation with pending and error state; call invalidateQueries in onSuccess to refetch the lists it affects.",
+          "example": {
+            "language": "jsx",
+            "code": "const mutation = useMutation({\n  mutationFn: createTodo,\n  onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),\n});\n\nmutation.mutate({ title: 'Write docs' });"
+          },
+          "lessonSlug": "data-fetching"
+        }
+      ]
+    }
+  ]
+}

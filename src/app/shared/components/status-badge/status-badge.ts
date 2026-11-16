@@ -16,7 +16,10 @@ const ICONS: Record<TechnologyStatus, UiIconName> = {
   template: `
     <span class="cma-status-badge cma-status-badge--{{ status() }}" [attr.title]="title()">
       <cma-icon [name]="icon()" [size]="12" />
-      {{ label() }}@if (lessons() > 0 && status() === 'in-progress') { · {{ lessons() }} lessons }
+      {{ label() }}
+      @if (lessons() > 0 && status() === 'in-progress') {
+        · {{ lessons() }} lessons
+      }
     </span>
   `,
 })

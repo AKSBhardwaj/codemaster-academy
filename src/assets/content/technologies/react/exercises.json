@@ -1,0 +1,266 @@
+{
+  "title": "React Exercises",
+  "description": "Practice every React lesson with multiple-choice questions, output prediction, find-the-error tasks and small coding tasks. The code targets React 19 and is checked against a checklist and a reference solution.",
+  "exercises": [
+    {
+      "id": "react-intro-library",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What is React used for?",
+      "explanation": "React helps build page parts called components. You can reuse a part many times. Some other jobs, such as switching between page addresses, often use extra libraries.",
+      "options": [
+        "It includes every tool every app will need",
+        "It helps build page parts called components",
+        "It replaces the need to learn JavaScript",
+        "It can only make one button per page"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-setup-template",
+      "type": "fill-blank",
+      "lessonSlug": "setup-vite",
+      "difficulty": "beginner",
+      "question": "Complete the command that scaffolds a JavaScript React project with Vite: `npm create vite@latest my-app -- --template ___`",
+      "explanation": "The `react` template creates a JavaScript project with `@vitejs/plugin-react`; `react-ts` is the TypeScript variant. The `--` passes the `--template` option on to create-vite instead of npm.",
+      "answers": ["react"],
+      "caseSensitive": false
+    },
+    {
+      "id": "react-jsx-classname",
+      "type": "find-error",
+      "lessonSlug": "jsx",
+      "difficulty": "beginner",
+      "question": "This component renders, but React logs warnings about invalid DOM properties in development. What is wrong?",
+      "explanation": "JSX compiles to JavaScript, where `class` and `for` are keywords, so React renamed those attributes to `className` and `htmlFor`. React still passes the unknown names through to the DOM, which is why the markup appears to work, but it warns, and tools such as TypeScript reject it.",
+      "language": "jsx",
+      "code": "function Consent() {\n  return (\n    <div class=\"notice\">\n      <label for=\"agree\">I agree to the terms</label>\n      <input id=\"agree\" type=\"checkbox\" />\n    </div>\n  );\n}",
+      "options": [
+        "`<input>` needs an explicit closing tag",
+        "`class` and `for` are JavaScript reserved words; JSX uses `className` and `htmlFor`",
+        "A component cannot return a `<div>` with more than one child",
+        "The checkbox is missing a `value` attribute"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "react-jsx-zero",
+      "type": "predict-output",
+      "lessonSlug": "jsx",
+      "difficulty": "beginner",
+      "question": "What does `<Inbox messages={[]} />` render inside the `<section>`?",
+      "explanation": "`[].length` is `0`, and `0 && anything` evaluates to `0`. React renders numbers, so a stray `0` appears. Only `false`, `null`, `undefined` and `true` render nothing. Write `messages.length > 0 && ...` or use a ternary.",
+      "language": "jsx",
+      "code": "function Inbox({ messages }) {\n  return (\n    <section>\n      {messages.length && <p>You have {messages.length} messages</p>}\n    </section>\n  );\n}",
+      "options": ["Nothing", "`0`", "`You have 0 messages`", "A runtime error"],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-props-card",
+      "type": "coding-task",
+      "lessonSlug": "components-props",
+      "difficulty": "beginner",
+      "question": "Write a `Panel` component that accepts a `title` prop and `children`. It renders a `<section>` with the title in an `<h2>`, followed by the children, or the text \"Nothing to show\" in a `<p>` when no children are passed. Render it twice from `App`: once with content and once without.",
+      "explanation": "`children` is `undefined` when a component is used as a self-closing tag, so `children ?? fallback` picks the fallback only in that case. Destructuring in the parameter list keeps the component short, and the capitalized name tells JSX it is a component.",
+      "language": "jsx",
+      "starterCode": "function Panel(/* destructure the props here */) {\n  // return a <section> with an <h2> and the children (or a fallback)\n}\n\nexport default function App() {\n  return (\n    <>\n      {/* <Panel title=\"Inbox\"> ... </Panel> */}\n      {/* <Panel title=\"Archive\" /> */}\n    </>\n  );\n}",
+      "solutionCode": "function Panel({ title, children }) {\n  return (\n    <section>\n      <h2>{title}</h2>\n      {children ?? <p>Nothing to show</p>}\n    </section>\n  );\n}\n\nexport default function App() {\n  return (\n    <>\n      <Panel title=\"Inbox\">\n        <p>2 unread messages</p>\n      </Panel>\n      <Panel title=\"Archive\" />\n    </>\n  );\n}",
+      "checklist": [
+        "Panel destructures title and children from its props",
+        "The title is rendered inside an h2 within a section",
+        "When children is undefined the fallback paragraph \"Nothing to show\" is rendered",
+        "App renders Panel once with nested content and once as a self-closing tag"
+      ]
+    },
+    {
+      "id": "react-props-readonly",
+      "type": "true-false",
+      "lessonSlug": "components-props",
+      "difficulty": "beginner",
+      "question": "A child component may assign a new value to one of its props, and the parent will re-render to reflect the change.",
+      "explanation": "Props are read-only. Assigning to them does not notify React and breaks the one-way data flow. A child that needs to change a value asks the parent through a callback prop, and the parent updates its own state.",
+      "correct": false
+    },
+    {
+      "id": "react-state-snapshot",
+      "type": "predict-output",
+      "lessonSlug": "state-usestate",
+      "difficulty": "beginner",
+      "question": "After one click, what is logged to the console and what does the button show?",
+      "explanation": "`count` is a snapshot of the render in which the handler was created, so both calls compute `0 + 1` and the log prints `0`. React re-renders once with `1`. To add two, use updater functions: `setCount((c) => c + 1)` twice.",
+      "language": "jsx",
+      "code": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  function handleClick() {\n    setCount(count + 1);\n    setCount(count + 1);\n    console.log(count);\n  }\n\n  return <button onClick={handleClick}>{count}</button>;\n}",
+      "options": [
+        "Logs `0`, the button shows `1`",
+        "Logs `2`, the button shows `2`",
+        "Logs `0`, the button shows `2`",
+        "Logs `1`, the button shows `1`"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "react-state-counter",
+      "type": "coding-task",
+      "lessonSlug": "state-usestate",
+      "difficulty": "beginner",
+      "question": "Build a `Stepper` component that keeps a number in state starting at 0. Add a button that increases it by 5 using an updater function and a Reset button that sets it back to 0. The Reset button must be disabled while the value is already 0.",
+      "explanation": "The updater form `(v) => v + 5` always works from the latest state, which matters once several updates are queued in one event. `disabled` is a boolean attribute: passing an expression that evaluates to `true` or `false` adds or removes it.",
+      "language": "jsx",
+      "starterCode": "import { useState } from 'react';\n\nexport default function Stepper() {\n  // declare the state here\n\n  return (\n    <>\n      <p>Value: </p>\n      <button>+5</button>\n      <button>Reset</button>\n    </>\n  );\n}",
+      "solutionCode": "import { useState } from 'react';\n\nexport default function Stepper() {\n  const [value, setValue] = useState(0);\n\n  return (\n    <>\n      <p>Value: {value}</p>\n      <button onClick={() => setValue((v) => v + 5)}>+5</button>\n      <button onClick={() => setValue(0)} disabled={value === 0}>\n        Reset\n      </button>\n    </>\n  );\n}",
+      "checklist": [
+        "useState is called at the top level with an initial value of 0",
+        "The +5 button calls the setter with an updater function",
+        "The Reset button sets the value back to 0",
+        "The Reset button has disabled={value === 0}",
+        "The current value is displayed in the paragraph"
+      ]
+    },
+    {
+      "id": "react-forms-controlled",
+      "type": "coding-task",
+      "lessonSlug": "events-forms",
+      "difficulty": "beginner",
+      "question": "Create a `Feedback` component with a controlled `<textarea>` limited to 140 characters and a submit button. Show how many characters remain below the field, prevent the browser's default submission, and log the message to the console when the form is submitted.",
+      "explanation": "A controlled textarea keeps the text in React state, so the remaining-character count is just an expression over that state. `preventDefault` stops the full page reload that a native form submission would cause. Pressing Enter and clicking the button both trigger `onSubmit`, which is why the handler belongs on the form.",
+      "language": "jsx",
+      "starterCode": "import { useState } from 'react';\n\nexport default function Feedback() {\n  // state for the message\n\n  function handleSubmit(e) {\n    // prevent the reload and log the message\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"message\">Your feedback</label>\n      <textarea id=\"message\" maxLength={140} />\n      <p> characters left</p>\n      <button type=\"submit\">Send</button>\n    </form>\n  );\n}",
+      "solutionCode": "import { useState } from 'react';\n\nexport default function Feedback() {\n  const [message, setMessage] = useState('');\n\n  function handleSubmit(e) {\n    e.preventDefault();\n    console.log(message);\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label htmlFor=\"message\">Your feedback</label>\n      <textarea\n        id=\"message\"\n        maxLength={140}\n        value={message}\n        onChange={(e) => setMessage(e.target.value)}\n      />\n      <p>{140 - message.length} characters left</p>\n      <button type=\"submit\">Send</button>\n    </form>\n  );\n}",
+      "checklist": [
+        "The textarea has value={message} and an onChange that updates the state",
+        "The remaining count is computed from message.length during render, not stored in state",
+        "handleSubmit calls e.preventDefault() before logging",
+        "The form uses onSubmit rather than a click handler on the button"
+      ]
+    },
+    {
+      "id": "react-events-prevent",
+      "type": "fill-blank",
+      "lessonSlug": "events-forms",
+      "difficulty": "beginner",
+      "question": "Inside an `onSubmit` handler, call `event.___()` so the browser does not reload the page when the form is submitted.",
+      "explanation": "The default action of a submit event is a navigation to the form's `action` URL. `preventDefault()` cancels it so React can handle the data in place. `stopPropagation()` only stops the event from bubbling and does not prevent the reload.",
+      "answers": ["preventDefault", "preventDefault()"],
+      "caseSensitive": false
+    },
+    {
+      "id": "react-lists-filter",
+      "type": "coding-task",
+      "lessonSlug": "lists-keys",
+      "difficulty": "beginner",
+      "question": "Given the `books` array, write a `LongBooks` component that renders a `<ul>` with the titles of books that have more than 300 pages, using each book's `isbn` as the key. When no book qualifies, render `<p>No long books</p>` instead.",
+      "explanation": "Filtering is a derived value, so it belongs in the render body. The ISBN is unique and stable, which makes it a correct key; the array index would break if the list were sorted or filtered differently later. Handling the empty case up front keeps the JSX below it simple.",
+      "language": "jsx",
+      "starterCode": "const books = [\n  { isbn: '978-0', title: 'Refactoring', pages: 448 },\n  { isbn: '978-1', title: 'The Pragmatic Programmer', pages: 352 },\n  { isbn: '978-2', title: 'Clean Code', pages: 464 },\n  { isbn: '978-3', title: 'Short Guide', pages: 120 },\n];\n\nexport default function LongBooks() {\n  // filter, then render\n}",
+      "solutionCode": "const books = [\n  { isbn: '978-0', title: 'Refactoring', pages: 448 },\n  { isbn: '978-1', title: 'The Pragmatic Programmer', pages: 352 },\n  { isbn: '978-2', title: 'Clean Code', pages: 464 },\n  { isbn: '978-3', title: 'Short Guide', pages: 120 },\n];\n\nexport default function LongBooks() {\n  const long = books.filter((book) => book.pages > 300);\n\n  if (long.length === 0) return <p>No long books</p>;\n\n  return (\n    <ul>\n      {long.map((book) => (\n        <li key={book.isbn}>{book.title}</li>\n      ))}\n    </ul>\n  );\n}",
+      "checklist": [
+        "The list is filtered with pages > 300 during render, not stored in state",
+        "Each li has key={book.isbn}",
+        "An empty filtered list renders the paragraph instead of an empty ul",
+        "The titles of exactly three books appear in the list"
+      ]
+    },
+    {
+      "id": "react-effects-cleanup",
+      "type": "find-error",
+      "lessonSlug": "effects",
+      "difficulty": "intermediate",
+      "question": "In development with Strict Mode this counter increases by 2 every second, and after navigating away the timer keeps running. What is missing?",
+      "explanation": "Every interval an effect starts must be stopped in its cleanup: `const id = setInterval(...); return () => clearInterval(id);`. Strict Mode mounts, unmounts and remounts the component in development, so without cleanup two intervals run, and on a real unmount the interval would leak and keep calling `setTick` for a component that no longer exists.",
+      "language": "jsx",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction Ticker() {\n  const [tick, setTick] = useState(0);\n\n  useEffect(() => {\n    setInterval(() => setTick((t) => t + 1), 1000);\n  }, []);\n\n  return <p>{tick}</p>;\n}",
+      "options": [
+        "The dependency array should contain `tick`",
+        "The effect must return a cleanup function that clears the interval",
+        "`setInterval` cannot be used inside `useEffect`",
+        "`setTick` needs the current value instead of an updater function"
+      ],
+      "correctIndex": 1,
+      "errorLine": 7
+    },
+    {
+      "id": "react-context-default",
+      "type": "multiple-choice",
+      "lessonSlug": "context",
+      "difficulty": "beginner",
+      "question": "A component calls `useContext(ThemeContext)` but there is no `ThemeContext` provider anywhere above it in the tree. What does the hook return?",
+      "explanation": "`createContext(defaultValue)` stores a fallback that is returned whenever no provider is found. That is convenient for optional settings, but for required values it hides mistakes; a custom hook that throws when it sees the default makes a missing provider obvious.",
+      "options": [
+        "`undefined`, always",
+        "`null`, always",
+        "The default value that was passed to `createContext`",
+        "It throws an error"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "react-hooks-toggle",
+      "type": "coding-task",
+      "lessonSlug": "custom-hooks",
+      "difficulty": "intermediate",
+      "question": "Write a `useToggle(initial = false)` hook that returns `[value, toggle]`, where `toggle` flips the boolean using an updater function. Use it in a `Details` component with a button that shows or hides a paragraph.",
+      "explanation": "A custom hook is just a function that calls hooks. Returning `[value, toggle]` mirrors `useState`, so callers can name the pair however they like. The updater form makes `toggle` safe to call several times in one event and keeps it independent of the current render's value.",
+      "language": "jsx",
+      "starterCode": "import { useState } from 'react';\n\nexport function useToggle(initial = false) {\n  // state plus a toggle function\n}\n\nexport default function Details() {\n  // use the hook\n\n  return (\n    <>\n      <button>Show details</button>\n      {/* render the paragraph only when open */}\n    </>\n  );\n}",
+      "solutionCode": "import { useState } from 'react';\n\nexport function useToggle(initial = false) {\n  const [value, setValue] = useState(initial);\n  const toggle = () => setValue((v) => !v);\n  return [value, toggle];\n}\n\nexport default function Details() {\n  const [open, toggle] = useToggle();\n\n  return (\n    <>\n      <button onClick={toggle}>{open ? 'Hide details' : 'Show details'}</button>\n      {open && <p>Shipping takes 2 to 4 working days.</p>}\n    </>\n  );\n}",
+      "checklist": [
+        "The hook's name starts with use and it calls useState at the top level",
+        "toggle uses the updater form setValue((v) => !v)",
+        "The hook returns an array with the value first and the toggle function second",
+        "The paragraph is rendered only while the value is true",
+        "The button label reflects the current state"
+      ]
+    },
+    {
+      "id": "react-refs-rerender",
+      "type": "multiple-choice",
+      "lessonSlug": "refs",
+      "difficulty": "beginner",
+      "question": "A component stores a number in `useRef` and increments `ref.current` in a click handler, but the number displayed in the JSX never changes. Why?",
+      "explanation": "A ref is a mutable box that React deliberately ignores when deciding whether to render. The value in it changes, but nothing asks React to redraw. Anything that should appear on screen belongs in state; refs are for values used only in handlers and effects, and for DOM nodes.",
+      "options": [
+        "Refs can only hold DOM elements",
+        "Changing `ref.current` does not trigger a re-render, so the JSX is not re-evaluated",
+        "`useRef` resets to its initial value on every click",
+        "The click handler runs before the ref is created"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-routing-params",
+      "type": "fill-blank",
+      "lessonSlug": "routing",
+      "difficulty": "beginner",
+      "question": "For the route `<Route path=\"/users/:id\" element={<User />} />`, the React Router hook that gives `User` access to the `id` value is `___`.",
+      "explanation": "`useParams()` returns an object with one string property per dynamic segment, here `{ id: '42' }` for `/users/42`. `useSearchParams` is for the query string and `useNavigate` is for moving to another route.",
+      "answers": ["useParams", "useParams()"],
+      "caseSensitive": false
+    },
+    {
+      "id": "react-fetch-race",
+      "type": "multiple-choice",
+      "lessonSlug": "data-fetching",
+      "difficulty": "intermediate",
+      "question": "A search component fetches results inside an effect that depends on `query`. The user types \"re\" and then \"rea\", and the response for \"re\" happens to arrive last. Without an ignore flag or an AbortController, what happens?",
+      "explanation": "Each effect run starts its own request, and each `.then` calls the setter when its response arrives, in whatever order the network delivers them. React has no idea which response is newer. The cleanup must either flip an `ignore` flag so the stale handler does nothing or abort the request with `AbortController`.",
+      "options": [
+        "React automatically discards the older response",
+        "The results for \"re\" overwrite the results for \"rea\"",
+        "The second request never starts",
+        "The effect throws an error"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-memo-guarantee",
+      "type": "true-false",
+      "lessonSlug": "performance-memo",
+      "difficulty": "intermediate",
+      "question": "Wrapping a component in `memo` guarantees that it never re-renders while its parent re-renders.",
+      "explanation": "`memo` skips a render only when every prop is `Object.is`-equal to the previous one. A new inline object, array or function prop defeats it, and the component still re-renders when its own state or a context it reads changes.",
+      "correct": false
+    }
+  ]
+}

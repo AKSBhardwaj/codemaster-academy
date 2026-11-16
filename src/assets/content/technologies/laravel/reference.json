@@ -1,0 +1,156 @@
+{
+  "title": "Laravel Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Return a greeting",
+          "summary": "Route::get connects a URL to a function. Open GET /.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/\", fn () => \"Hello, Asha!\");\n"
+          },
+          "notes": ["Use routes/web.php for these unprefixed web routes."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Send JSON data",
+          "summary": "The response helper can make JSON. Open GET /book.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/book\", fn () => response()->json([\"title\" => \"Moon Trip\", \"pages\" => 24]));\n"
+          },
+          "notes": ["Use a JSON response when sending data rather than HTML."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "route-inputs",
+          "name": "Read a name in the path",
+          "summary": "Curly braces mark a route input. Open GET /hello/Ravi.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/hello/{name}\", fn (string $name) => response(\"Hi, \" . $name . \"!\")->header(\"Content-Type\", \"text/plain\"));\n"
+          },
+          "notes": ["Do not place raw user input in HTML."],
+          "lessonSlug": "route-inputs"
+        },
+        {
+          "slug": "query",
+          "name": "Read a query value",
+          "summary": "Laravel can give the route a Request object. GET /search?q=cat reads the query value.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/search\", fn (Request $request) => response()->json([\"term\" => $request->query(\"q\", \"\")]));\n"
+          },
+          "notes": ["Query inputs should be checked before important use."],
+          "lessonSlug": "query"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "constraints",
+          "name": "Limit a route input",
+          "summary": "whereNumber only matches numeric path text. Open GET /double/4.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/double/{n}\", fn (string $n) => response()->json([\"answer\" => (int) $n * 2]))->whereNumber(\"n\");\n"
+          },
+          "notes": ["A route rule checks matching; it does not set every business limit."],
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "named-routes",
+          "name": "Build a URL from a name",
+          "summary": "name gives a route a reusable label. GET /link builds a relative URL to that named route.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/hello/{name}\", fn (string $name) => $name)->name(\"hello\");\nRoute::get(\"/link\", fn () => route(\"hello\", [\"name\" => \"Asha\"], false));\n"
+          },
+          "notes": ["The route input key must match the placeholder name."],
+          "lessonSlug": "named-routes"
+        },
+        {
+          "slug": "redirects",
+          "name": "Send a client to another page",
+          "summary": "redirect makes an HTTP redirect. A browser following GET /start reaches /hello.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/start\", fn () => redirect(\"/hello\"));\nRoute::get(\"/hello\", fn () => \"Welcome\");\n"
+          },
+          "notes": ["A redirect tells the client to make a new request."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "not-found",
+          "name": "Report a missing item",
+          "summary": "A JSON response can include an error status. Open GET /missing.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/missing\", fn () => response()->json([\"error\" => \"Book not found\"], 404));\n"
+          },
+          "notes": ["An error message should use an appropriate error status."],
+          "lessonSlug": "not-found"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "headers",
+          "name": "Set a cache rule",
+          "summary": "The header method adds response metadata. GET /note has a no-store rule.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/note\", fn () => response(\"Practice note\")->header(\"Cache-Control\", \"no-store\"));\n"
+          },
+          "notes": ["A header is separate from the response body."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "collections",
+          "name": "Filter a collection",
+          "summary": "A collection wraps values with useful methods. GET /scores filters scores and resets their numeric keys.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/scores\", fn () => response()->json(collect([4, 8, 9])->filter(fn ($n) => $n >= 7)->values()->all()));\n"
+          },
+          "notes": ["values resets keys so this result remains a JSON array."],
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "mapping",
+          "name": "Transform a collection",
+          "summary": "map makes a new value for every collection item. Open GET /double.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/double\", fn () => response()->json(collect([2, 3])->map(fn ($n) => $n * 2)->all()));\n"
+          },
+          "notes": ["map transforms values; filter chooses which values remain."],
+          "lessonSlug": "mapping"
+        },
+        {
+          "slug": "route-groups",
+          "name": "Share a path prefix",
+          "summary": "A route group can share a prefix. Open GET /api/books.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::prefix(\"api\")->group(function () {\n Route::get(\"books\", fn () => response()->json([\"Moon Trip\"]));\n});\n"
+          },
+          "notes": ["In this web.php example the api prefix is added explicitly."],
+          "lessonSlug": "route-groups"
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,28 @@ export class PersistenceService {
   private readonly platform = inject(PlatformService);
   readonly prefix = 'cma:v1:';
 
+  constructor() {
+    // Remove credentials left by earlier demo versions. Learning data stays available.
+    this.remove('auth:accounts');
+    this.remove('auth:session');
+  }
+
+  /** A snapshot for the learner's download, including drafts and settings. */
+  snapshot(): Record<string, unknown> {
+    const data: Record<string, unknown> = {};
+    if (!this.platform.isBrowser) return data;
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith(this.prefix) && !key.startsWith(this.prefix + 'auth:')) {
+          data[key.slice(this.prefix.length)] = this.read(key.slice(this.prefix.length), null);
+        }
+      }
+    } catch {
+      // Browsers can disable storage; learning still works in memory.
+    }
+    return data;
+  }
+
   read<T>(key: string, fallback: T): T {
     if (!this.platform.isBrowser) return fallback;
     try {

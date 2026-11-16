@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-route",
+  "title": "Make a controller reply",
+  "summary": "Phoenix: Make a controller reply. Change the greeting.",
+  "introduction": "The router maps GET /hello to a controller action. text sends a plain response.",
+  "learningObjectives": ["Make a controller reply with Phoenix", "Change the greeting"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Make a controller reply"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Make a controller reply",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, _params), do: text(conn, \"Hello, Asha!\")\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The router names the controller action. text sends the greeting through the connection value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hello, Asha!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the greeting."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The SchoolWeb module prefix must match the app name school."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-first-route-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-first-route-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Make a controller reply",
+    "description": "Phoenix: Make a controller reply. Change the greeting. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

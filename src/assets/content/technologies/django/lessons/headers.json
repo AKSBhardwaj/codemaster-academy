@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set response metadata",
+  "summary": "Django: Set response metadata. Inspect Cache-Control with curl -i.",
+  "introduction": "A response object can store headers. GET /note/ has a no-store cache rule.",
+  "learningObjectives": ["Set response metadata with Django", "Inspect Cache-Control with curl -i"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set response metadata"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Set response metadata",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef note(request):\n    response = HttpResponse(\"Practice note\", content_type=\"text/plain\")\n    response[\"Cache-Control\"] = \"no-store\"\n    return response\nurlpatterns = [\npath(\"note/\", note),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The header is set on the response object before the view returns it."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect Cache-Control with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Set headers before returning the response."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-headers-check"
+    }
+  ],
+  "exerciseIds": ["django-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "list-data"
+    }
+  ],
+  "seo": {
+    "title": "Django: Set response metadata",
+    "description": "Django: Set response metadata. Inspect Cache-Control with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

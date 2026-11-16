@@ -8,7 +8,7 @@ import { TutorialContext } from '../../features/technology/tutorial-context';
   selector: 'cma-quiz-block',
   imports: [QuizRunnerComponent],
   template: `
-    @defer (on idle; hydrate on viewport) {
+    @defer (on idle; hydrate on idle; hydrate on viewport) {
       <cma-quiz-runner
         [quizId]="quizId()"
         [questions]="block().questions"

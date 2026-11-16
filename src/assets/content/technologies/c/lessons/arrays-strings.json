@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "arrays-strings",
+  "title": "Arrays and Strings",
+  "summary": "Fixed-size arrays, how to find their length, two-dimensional grids, and C strings as char arrays ending in a zero byte, with the string.h functions and safe input.",
+  "introduction": "An array is a block of elements of one type stored side by side in memory, and a C string is nothing more than an array of `char` that ends with a zero byte. No length is stored anywhere and no check ensures an index is in range, which is why arrays are where C programs most often go wrong. This lesson shows how to declare, initialise and iterate arrays, how to compute their length, how strings work underneath, and which standard functions copy, compare and read them safely.",
+  "learningObjectives": [
+    "Declare, initialise and loop over one- and two-dimensional arrays",
+    "Compute an array's element count with sizeof",
+    "Explain the null terminator and the difference between strlen and sizeof",
+    "Copy, compare and read strings with the safe functions from string.h and stdio.h"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring and using arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "`int scores[5];` reserves room for five `int` values numbered 0 to 4. An initialiser list fills them in order; if it is shorter than the array the remaining elements become zero, and if you omit the size the compiler counts the initialisers for you. The index operator `[]` reads or writes one element. Because C stores no length with the array, you track it yourself. The idiom `sizeof scores / sizeof scores[0]` computes the element count of an array that is in scope, since `sizeof` reports the whole array's size in bytes."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "scores.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int scores[] = {72, 95, 58, 81};\n    size_t count = sizeof scores / sizeof scores[0];\n    int total = 0;\n\n    for (size_t i = 0; i < count; i++) {\n        total += scores[i];\n    }\n    printf(\"count = %zu\\n\", count);\n    printf(\"bytes = %zu\\n\", sizeof scores);\n    printf(\"average = %.1f\\n\", (double)total / count);\n\n    scores[2] = 60;             /* write one element */\n    int zeros[4] = {0};         /* every element is zero */\n    printf(\"%d %d\\n\", scores[2], zeros[3]);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 scores.c -o scores\n$ ./scores\ncount = 4\nbytes = 16\naverage = 76.5\n60 0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexes are of type `size_t`, the unsigned type returned by `sizeof`, which avoids the signed/unsigned warning you would get from comparing an `int` counter with `count`. The `sizeof` trick works only where the array itself is visible; inside a function that receives the array as a parameter it reports the size of a pointer instead, as the [pointers](/tutorials/c/pointers) lesson explains."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Two-dimensional arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "An array of arrays gives you a grid. `int grid[3][4]` holds 3 rows of 4 columns, stored row after row in one block of 12 integers. Nested braces initialise it row by row, and nested loops visit every cell."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "grid.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int grid[3][4] = {\n        {1, 2, 3, 4},\n        {5, 6, 7, 8},\n        {9, 10, 11, 12}\n    };\n\n    for (int row = 0; row < 3; row++) {\n        int sum = 0;\n        for (int col = 0; col < 4; col++) {\n            sum += grid[row][col];\n        }\n        printf(\"row %d sums to %d\\n\", row, sum);\n    }\n    printf(\"grid[2][1] = %d\\n\", grid[2][1]);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "row 0 sums to 10\nrow 1 sums to 26\nrow 2 sums to 42\ngrid[2][1] = 10"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strings are arrays of char"
+    },
+    {
+      "type": "paragraph",
+      "text": "`char name[] = \"Ada\";` creates an array of **four** bytes: the three letters plus a terminating `'\\0'`, the byte with value zero, that marks where the string ends. Every function in `<string.h>` and `<stdio.h>` relies on that terminator. `strlen` counts characters up to it, while `sizeof` reports the whole array including it. A string literal such as `\"Ada\"` used on its own is read-only memory; writing into it is undefined behaviour, so declare an array whenever you intend to modify text."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "strings.c",
+      "code": "#include <stdio.h>\n#include <string.h>\n\nint main(void)\n{\n    char name[] = \"Ada\";\n    char buffer[16];\n\n    printf(\"strlen = %zu, sizeof = %zu\\n\", strlen(name), sizeof name);\n    printf(\"last byte is %d\\n\", name[3]);\n\n    strcpy(buffer, name);           /* copy, including the terminator */\n    strcat(buffer, \" Lovelace\");    /* append; 13 bytes fit in 16 */\n    printf(\"%s (%zu chars)\\n\", buffer, strlen(buffer));\n\n    buffer[0] = 'a';                /* arrays are writable */\n    printf(\"%s\\n\", buffer);\n\n    printf(\"%d\\n\", strcmp(\"apple\", \"banana\") < 0);  /* alphabetical? */\n    printf(\"%d\\n\", strcmp(\"same\", \"same\"));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "strlen = 3, sizeof = 4\nlast byte is 0\nAda Lovelace (12 chars)\nada Lovelace\n1\n0"
+    },
+    {
+      "type": "table",
+      "headers": ["Function", "Purpose", "Watch out"],
+      "rows": [
+        [
+          "`strlen(s)`",
+          "Number of characters before the terminator",
+          "Walks the whole string each call; cache it in loops"
+        ],
+        [
+          "`strcpy(dst, src)`",
+          "Copy `src` into `dst`, terminator included",
+          "`dst` must have room for `strlen(src) + 1` bytes"
+        ],
+        [
+          "`strcat(dst, src)`",
+          "Append `src` to the end of `dst`",
+          "Same room requirement, counting the existing content"
+        ],
+        [
+          "`strcmp(a, b)`",
+          "0 if equal, negative if `a` sorts first, positive otherwise",
+          "Never compare strings with `==`; that compares addresses"
+        ],
+        [
+          "`strchr(s, c)`",
+          "Pointer to the first `c` in `s`, or `NULL`",
+          "Check for `NULL` before using the result"
+        ],
+        [
+          "`snprintf(buf, n, fmt, ...)`",
+          "Format into a buffer of size `n`, always terminated",
+          "The safe way to build strings from numbers and text"
+        ],
+        [
+          "`strtol(s, &end, 10)`",
+          "Parse an integer and report where parsing stopped",
+          "Prefer it to `atoi`, which cannot report errors"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading strings safely"
+    },
+    {
+      "type": "paragraph",
+      "text": "Never use `gets` (removed from the language in C11) or `scanf(\"%s\")` without a width: both write past the end of the buffer when the input is longer than expected. `fgets(buffer, sizeof buffer, stdin)` reads at most `sizeof buffer - 1` characters and always terminates the string. It keeps the newline when one fits, and `strcspn` finds its position so that one assignment removes it."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "greet.c",
+      "code": "#include <stdio.h>\n#include <string.h>\n\nint main(void)\n{\n    char name[32];\n\n    printf(\"Your name? \");\n    if (fgets(name, sizeof name, stdin) == NULL) {\n        return 1;                          /* end of input or error */\n    }\n    name[strcspn(name, \"\\n\")] = '\\0';      /* drop the trailing newline */\n\n    printf(\"Hello, %s! Your name has %zu letters.\\n\", name, strlen(name));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (the user typed Grace)",
+      "content": "$ ./greet\nYour name? Grace\nHello, Grace! Your name has 5 letters."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting the terminator's byte",
+      "text": "`char word[5]; strcpy(word, \"hello\");` overflows: the five letters need six bytes, and the terminator lands in whatever variable happens to follow `word` in memory. The same off-by-one appears in loops written as `for (i = 0; i <= n; i++)` over an array of `n` elements. Size string buffers as `length + 1`, loop with `<`, and compile with `-fsanitize=address` while developing so the first overrun aborts with a clear report instead of corrupting data silently."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Shrink the `name` buffer in `greet.c` to 6 bytes and type a long name. `fgets` stops after five characters and the program still behaves; the rest of the line stays in the input buffer. Then replace `fgets` with `scanf(\"%s\", name)` and compile with `-fsanitize=address` to watch the sanitizer catch the overflow."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-arrays-off-by-one"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-arrays-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "arrays-strings",
+          "difficulty": "beginner",
+          "question": "How many bytes does `char s[] = \"hi\";` occupy?",
+          "explanation": "Two letters plus the terminating zero byte make three bytes. `strlen(s)` is 2, but `sizeof s` is 3.",
+          "options": ["2", "3", "4", "It depends on the compiler"],
+          "correctIndex": 1
+        },
+        {
+          "id": "c-arrays-qc-2",
+          "type": "true-false",
+          "lessonSlug": "arrays-strings",
+          "difficulty": "beginner",
+          "question": "In `int a[3]; a[3] = 1;` the assignment writes to the last element of the array.",
+          "explanation": "The valid indexes of a three-element array are 0, 1 and 2. Index 3 is one past the end, and writing there is undefined behaviour.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-arrays-off-by-one", "c-arrays-strlen-sizeof"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "pointers"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "memory-management"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "C Arrays and Strings – Indexing, sizeof, string.h",
+    "description": "Learn C arrays and strings: declare and loop over arrays, find their length with sizeof, the null terminator, string.h functions and safe input with fgets."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,189 @@
+{
+  "id": "mongodb-quiz",
+  "title": "MongoDB Quiz",
+  "description": "Review the ideas from the lessons. Take your time. After each answer, read the note that explains the rule. You can try again.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "mongodb-review-1",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is one record called in MongoDB?",
+      "explanation": "A document keeps named values together. A book document could have title and pages fields.",
+      "options": ["A document", "A slide", "A browser tab"],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-2",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "A group of MongoDB documents is called a ___.",
+      "explanation": "A collection groups documents, just as a shelf groups books. A database can have several collections.",
+      "answers": ["collection"]
+    },
+    {
+      "id": "mongodb-review-3",
+      "lessonSlug": "setup-atlas-shell",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does a connection string tell a database tool?",
+      "explanation": "A connection string is like an address for a database. Keep a real connection string private if it includes a password.",
+      "options": [
+        "How many lines a lesson has",
+        "Where the database is and how to connect",
+        "Which colour to paint the page"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "mongodb-review-4",
+      "lessonSlug": "documents-collections",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "On a new empty collection, what number is printed after these commands in mongosh?",
+      "explanation": "insertOne adds one document. pages is just a field value; it does not add extra documents.",
+      "language": "javascript",
+      "code": "db.lessonBooks.insertOne({ title: \"Moon Trip\", pages: 24 });\nprint(db.lessonBooks.countDocuments({}));",
+      "options": ["1", "0", "24"],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-5",
+      "lessonSlug": "crud-insert-find",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does findOne return when nothing matches?",
+      "explanation": "findOne gives one matching document, or null if none matches. find gives a cursor you can read through.",
+      "options": ["An empty database", "null", "Every document"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mongodb-review-6",
+      "lessonSlug": "query-operators",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "Why is this not the right filter for pages greater than 20?",
+      "explanation": "MongoDB query operators start with $. Write { pages: { $gt: 20 } } for greater than 20.",
+      "language": "javascript",
+      "code": "db.lessonBooks.find({ pages: { gt: 20 } });",
+      "options": [
+        "The operator must be $gt",
+        "The number must be text",
+        "The collection must have only one book"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-7",
+      "lessonSlug": "query-operators",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "Fill the gap to find red or blue books: { colour: { ___: [\"red\", \"blue\"] } }.",
+      "explanation": "$in matches any value in the list. It is useful when several answers are allowed.",
+      "answers": ["$in"]
+    },
+    {
+      "id": "mongodb-review-8",
+      "lessonSlug": "update-delete",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "Assume lessonScores starts empty. What score is printed in mongosh?",
+      "explanation": "$inc adds to a number that is already there. Three plus two is five.",
+      "language": "javascript",
+      "code": "db.lessonScores.insertOne({ name: \"Asha\", score: 3 });\ndb.lessonScores.updateOne({ name: \"Asha\" }, { $inc: { score: 2 } });\nprint(db.lessonScores.findOne({ name: \"Asha\" }).score);",
+      "options": ["2", "5", "3"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mongodb-review-9",
+      "lessonSlug": "update-delete",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "What is wrong with this updateOne command?",
+      "explanation": "Use { $set: { pages: 30 } } to change one field. Use replaceOne when you want to replace a whole document.",
+      "language": "javascript",
+      "code": "db.lessonBooks.updateOne({ title: \"Moon Trip\" }, { pages: 30 });",
+      "options": [
+        "The change needs an update operator such as $set",
+        "The title cannot contain a space",
+        "The number 30 is too large"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-10",
+      "lessonSlug": "schema-design",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A book has three short notes that are always read with it. What is a simple way to store them?",
+      "explanation": "Small related values that are read together can fit in one document. Very large or shared lists may need separate documents.",
+      "options": [
+        "In a different database for every word",
+        "As the database password",
+        "As a small array inside the book document"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "mongodb-review-11",
+      "lessonSlug": "relationships",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "In $lookup, the field in the current collection is named ___.",
+      "explanation": "localField names the current-side field. foreignField names the matching field in the other collection.",
+      "answers": ["localField"]
+    },
+    {
+      "id": "mongodb-review-12",
+      "lessonSlug": "indexes",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "An index is { name: 1, score: 1 }. Which field is its first, or prefix, field?",
+      "explanation": "The field order matters. This index starts with name, so searches by name can use that first part.",
+      "options": ["name", "score", "_id"],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-13",
+      "lessonSlug": "aggregation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "lessonFruit contains three documents: apple, apple, pear. How many groups does this pipeline produce?",
+      "explanation": "There are two different names. Both apple documents go into one group; pear goes into the other.",
+      "language": "javascript",
+      "code": "db.lessonFruit.aggregate([{ $group: { _id: \"$name\", count: { $sum: 1 } } }]);",
+      "options": ["1", "2", "3"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mongodb-review-14",
+      "lessonSlug": "transactions",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which deployment supports MongoDB transactions?",
+      "explanation": "A transaction groups changes into one all-or-nothing job. MongoDB needs a replica set or sharded cluster for it.",
+      "options": [
+        "A replica set or a sharded cluster",
+        "Only an HTML file",
+        "Any standalone server with no replica set"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mongodb-review-15",
+      "lessonSlug": "security-basics",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A tool only needs to read books. Which role should it get?",
+      "explanation": "Give a tool only the access it needs. A read-only tool does not need permission to delete documents.",
+      "options": [
+        "A shared password printed on the page",
+        "A read-only role for the needed database",
+        "An admin role for every database"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

@@ -1,90 +1,111 @@
-# CodeMaster Academy — build progress
+# CodeMaster Academy release status
 
-Phase plan and acceptance criteria live in the approved implementation plan. This file tracks what is done and what is pending; it is updated at the end of every phase.
+Current release: 2026-11-16. This replaces the earlier phase notes and account-based design.
 
-## Phase 1 — Planning
+## Application
 
-- [x] Implementation plan (20 sections) approved on 2026-11-15.
+- [x] Frontend-only Angular application with static HTML for public routes.
+- [x] Remove login, registration, authentication guards and account providers.
+- [x] Keep learning progress, bookmarks, quiz results and drafts in browser storage.
+- [x] Provide learning settings, a nickname, progress export and confirmed reset controls.
+- [x] Provide a first-code guide, working playground, exercises, quizzes, references and learning paths.
+- [x] Prepare feedback locally with copy/download; do not pretend a message was sent.
+- [x] Modern typography, updated brand assets, light/dark themes and clearer lesson layouts.
+- [x] Responsive navigation with mobile bottom tabs, touch controls and safe-area spacing.
+- [x] Correct lesson section and skip links on nested pages and repository-based URLs.
+- [x] Preserve early input during startup; make inline practice ready for mouse, touch and keyboard use.
 
-## Phase 2 — Project foundation (done, commit "Phase 2")
+## Curriculum
 
-- [x] Angular 22.2 workspace (standalone, zoneless, strict TS 6, Vitest, SCSS) generated with `npx -p @angular/cli@22`.
-- [x] `@angular/ssr` in static output mode; Express server removed; server routes with manifest-driven prerender params.
-- [x] Bootstrap 5.3.9 configured through SCSS variables (partial imports only), design tokens as CSS variables, light/dark themes with no-flash inline script.
-- [x] ESLint (angular-eslint 22) + Prettier; `tools/` TypeScript config; Playwright config with desktop + mobile projects.
-- [x] App shell: sticky navbar with Angular-native dropdowns, mobile offcanvas menu, theme switcher (system/light/dark, persisted), footer with trademark disclaimer, skip link, focus management after navigation.
-- [x] SEO service (title, description, robots, canonical, Open Graph, Twitter, JSON-LD) applied from route data.
-- [x] Routes for all 23 pages (lazy), tutorial layout with collapsible/searchable sidebar and mobile drawer, honest "being built" notices on unfinished pages.
-- [x] Tooling: UI icon generator (Bootstrap Icons → path data, no icon font), technology logo copier (devicon), content pipeline stub, screenshot script.
-- [x] Verification: production build, unit tests, lint, e2e smoke (desktop + mobile), responsive screenshots, committed.
+- [x] Finish the original 16 tutorials with 242 lessons.
+- [x] Add all 132 remaining catalog tutorials with 12 lessons each.
+- [x] Include exercises, quizzes, worked examples and references for every tutorial.
+- [x] Use short explanations, topic-specific walkthroughs and small practice tasks in new lessons.
+- [x] Replace obsolete Planned filters, notices and FAQ text.
+- [x] Keep course descriptions accurate to their introductory scope.
+- [x] Derive completion from validated content; reject incomplete release builds.
 
-## Phase 3 — Homepage and discovery (done)
+There are 149 tutorials, 1,874 lessons and 12 learning paths. The original 132 added tutorials each
+began with 12 exercises and 12 recap questions, in addition to the original practice material.
 
-- [x] Catalog data: 8 categories, 148 technologies (HTML5/CSS3 merged into HTML/CSS per spec) with genuine descriptions, three "what you will learn" highlights, tags, prerequisites, difficulty, popular/featured flags.
-- [x] 11 learning paths (the 6 from spec §12 plus the §5 roadmap list) with honest topic stages for Projects, Authentication, Deployment, Maths and Angular Testing.
-- [x] Home config (why-us, FAQ, playground promo, popular lists).
-- [x] Zod content schemas (single source of truth; app imports types only) + JSON Schemas for VS Code; compiler validates references/icons/slugs, derives status (all 148 currently `planned`), emits compiled catalog, paths, home, search index, prerender manifest.
-- [x] Content loading: `CONTENT_SOURCE` seam (HTTP in browser, disk on server) + TransferState handoff; `CatalogService` with signals/resources.
-- [x] Icon pipeline: 116 devicon logos (plain variants for oversized files) + Bootstrap glyph tiles for topic entries.
-- [x] Home page: all 12 sections (hero with live status counts, learning paths, popular languages, popular frameworks, categories, playground promo, featured, recently published with honest empty state, exercises/quizzes with honest empty state, why us, FAQ accordion, footer).
-- [x] Tutorials catalog with search/category/status/difficulty filters, category pages with breadcrumbs + JSON-LD, learning paths index, technology/category/path cards, status badges.
-- [x] Search: MiniSearch (lazy-loaded) over the compiled index, Ctrl/Cmd+K dialog (native `<dialog>`, keyboard navigation, recent searches, highlighted matches, empty state), `/search` results page with type filters; navbar Tutorials menu lists the categories.
-- [x] Every route prerendered (186 routes), `404.html` generated post-build; `resource` error states guarded.
-- [x] Verification: build, 5 unit tests, lint, 18 e2e tests (desktop + mobile), screenshots.
+The Data Structures and Algorithms course now has 28 lessons in JavaScript, C, C++, Python, C#,
+and Java, with accessible language tabs, 42 exercises, 28 quiz questions, 28 references, and 84
+examples with a language filter. Its source ZIP contains all 168 complete lesson programs and
+their expected results. JavaScript runs in the existing playground; the other languages run locally.
 
-## Known limitations / follow-ups
+The System Design course now has 30 lessons, eight responsive diagrams, 30 exercises, 30 quiz
+questions, 30 examples, and 30 reference entries. Five worked app designs build on requests,
+data, scaling, caching, queues, reliability, recovery, and privacy. The original 12 lesson URLs
+and exercise IDs remain valid. Twelve JavaScript models and two SQLite examples run locally in
+the browser; the plans do not add backend services to the application.
 
-- `ng serve` does not run `getPrerenderParams`, so parametrised routes render client-side in development; the production build prerenders them (verified).
-- Lighthouse CLI hangs on every run on this machine (two attempts, background and foreground); `tmp/cwv.ts` measures FCP/LCP/CLS/TBT with Playwright + CDP throttling instead. Re-run Lighthouse on a hosted URL once deployed.
-- Static hosts must serve `<route>/index.html` for prerendered routes and fall back to `index.csr.html` only for unknown paths; a catch-all rewrite to the shell (as `serve-handler` does) silently turns every page into client rendering.
-- Playwright launches `ng serve` directly and refuses to reuse a running server (an orphaned server caused stale-content failures); set `E2E_PORT` when 4200 is taken by a development server.
-- Demo accounts need a secure context (https or localhost) for Web Crypto; the register/login forms show a clear error otherwise.
+The C# .NET and Oracle Backend course adds 14 project lessons, exercises, quiz questions,
+examples and reference entries, plus a four-stage learning path. Its downloadable Reading List
+API is a separate local teaching project; the website still deploys static frontend files only.
+The download is rebuilt from `examples/dotnet-oracle-backend` during content builds, without
+build output or local secret files. The sample includes .NET 10, a pinned Oracle provider,
+parameterized SQL, transactions, validation, SQL setup and a local browser client.
 
-## Phase 4 — Tutorial engine (done)
+## Deployment and SEO
 
-- [x] Zod schemas for overview, lessons (13 block types), exercises (6 types), quizzes, references, examples; JSON Schemas for editors.
-- [x] Compiler: per-technology compile with sidebar-order validation, reading time, heading ids + TOC, prev/next, build-time Shiki tokens (css-variables theme → CSS classes, no runtime highlighter), referential checks (exercises, quiz, related lessons), internal broken-link check across all markup, status derivation, lesson/example search index, sitemap.xml (served at root), manifest for prerendering.
-- [x] Renderer: @switch over block types with 13 block components; code block from precomputed tokens (copy, line numbers, highlighted lines, caption); inline markup AST renderer (no innerHTML); HTML output previews in a fully sandboxed iframe; click-to-load video embeds.
-- [x] Tutorial layout with route-scoped context: sidebar from content with completed markers and search, contextual sidebar (TOC with active heading, progress, practice links, related tutorials), overview page (complete and honest planned states, Course JSON-LD only when complete), lesson page (breadcrumbs, meta, objectives, related, prev/next, mark complete), references and examples pages with filters, index pages listing published sets.
-- [x] Progress store (browser-local, hydration-safe), breadcrumb/TechArticle JSON-LD builders.
-- [x] HTML tutorial: 18 lessons, 31 exercises, 13-question quiz, 56-entry reference, 12 examples → status complete; 208 prerendered routes; 53-URL sitemap.
-- [x] Verification: build, 12 unit tests (parser, renderer, code block, pipe, shell), lint, 26 e2e tests (desktop + mobile), screenshots.
+- [x] Generate deployment configuration from GitHub Pages or PUBLIC_SITE_URL.
+- [x] Support a GitHub project prefix, a user Pages domain and custom domains.
+- [x] Generate canonical URLs, titles, descriptions, social cards and structured data.
+- [x] Generate sitemap.xml, robots.txt, 404.html, .nojekyll and an app manifest.
+- [x] Audit final rendered HTML, sitemap coverage, internal links and required assets.
+- [x] Provide a GitHub Actions build/test/deploy workflow that uploads only static files.
+- [x] Document domain configuration, verification and sitemap submission in DEPLOYMENT.md.
+- [x] Generate linked llms.txt and ARD guides for the real static tutorial resources.
 
-## Phase 5 — Interactive learning (done)
+## Loading speed
 
-- [x] Execution engines behind one contract: HTML/CSS/JS sandbox (opaque-origin iframe, CSP, nonce-checked console bridge), SQLite WASM worker seeded with sample tables, honest "unavailable" engine for other languages.
-- [x] Lazy CodeMirror 6 editor (language packs on demand, light/dark, SSR textarea fallback); playground page (templates, run/stop/reset/copy/full-screen, Ctrl+Enter, per-language drafts, capability badges, SQL schema panel); output panel (preview, console, result tables).
-- [x] Inline "try it" runners in lessons (deferred + incremental hydration) and "Try it" handoff from runnable code blocks.
-- [x] Grading module (6 exercise types, output/SQL auto-checks, score summary) with unit tests; exercise + quiz stores.
-- [x] Exercise cards (feedback, explanation, retry, solved state), coding tasks (editor, run, auto-check, checklist, solution), quiz runner (stepper, results, review, retry, history); per-technology pages and indexes; inline quiz/exercise blocks.
-- [x] Bookmarks (tutorials + lessons), recently viewed, learning-path enrolment; learning-path detail with per-stage progress, honest planned-stage note and recommended next lesson; bookmarks page.
-- [x] Verification: build (208 routes), 25 unit tests, lint, 54 e2e tests across 6 specs (desktop + mobile), screenshots.
+- [x] Inline production page CSS and preserve dark mode and the local font before external CSS arrives.
+- [x] Preload the font, remove unused negative-margin rules, and defer global search and offscreen card hydration.
+- [x] Preserve home search input and fix rapid search close/reopen handling.
+- [x] Add compressed static preview responses with safe request cancellation.
+- [x] Measure final production output in stable Chrome: mobile performance 95 median (92–97),
+      desktop 100, accessibility/best practices/SEO 100, and applicable browsing checks 4/4.
 
-## Phase 6 — User experience (done)
+The measurement method and limitations are recorded in [PERFORMANCE.md](PERFORMANCE.md).
 
-- [x] Browser-local demo accounts behind an `AUTH_PROVIDER` seam (salted SHA-256 password hashes via Web Crypto, session restored after hydration); every account screen carries the "demo account, this browser only" notice; register/login Reactive Forms with validation, duplicate-email and wrong-password errors, `returnUrl` support.
-- [x] `authGuard` on dashboard and profile: the prerendered shell is allowed before the session is known, then a one-shot post-hydration redirect to `/login?returnUrl=`; client-side navigations are blocked immediately. Navbar and mobile menu switch between guest and signed-in links with a log-out action.
-- [x] Dashboard: stats, continue learning, per-tutorial progress, enrolled-path progress, quiz history (with quiz titles), rule-based recommendations that state their rule and skip finished tutorials/enrolled paths, self-issued certificate offered only at 100 % of a path's published lessons (labelled unverified, printable).
-- [x] Profile: edit name/email (persisted), member-since date, data summary, JSON export, "reset learning data" and "delete account" with inline confirmation.
-- [x] Contact form: validated Reactive Form that hands the message to the visitor's email application (mailto) and states that nothing is stored or sent server-side.
-- [x] Print stylesheet (certificate), `E2E_PORT` override for Playwright when port 4200 is in use.
-- [x] Verification: build (208 routes), 28 unit tests, lint, 68 e2e tests across 7 specs (desktop + mobile; the navbar account-menu test is desktop-only by design), screenshots at 1440/375 in light and dark.
-- Decision: `/bookmarks` stays open to guests (plan §5 listed it as guarded) because bookmarking works without an account and the data is browser-local either way; gating it would only pretend an account is needed.
+## Validation
 
-## Phase 7 — SEO and optimisation (done)
+- Production and SEO counts are recorded in `dist/codemaster-academy/seo-report.json` after each build.
+- Browser suite: 192 desktop/mobile checks passed, including DSA language tabs, accessibility scans, delayed CSS,
+  search reopening, the project download and the static-host suite (STATIC_SITE=1). Two checks are skipped on the viewport where
+  they do not apply.
+- Cross-browser suite: 28 Firefox/WebKit checks passed for practice, delayed script loading,
+  saved playground drafts, static routes, assets and responsive layouts.
+  Four additional Firefox/WebKit checks passed for the new backend course's download and accessibility.
+  The latest performance pass also verified 34 Firefox/WebKit checks for loading, keyboard focus,
+  search, static routes and responsive layouts, with two intentional viewport skips.
+- Static hosting: root and project-prefix checks cover direct links, no-JavaScript lessons, SQL,
+  manifests, 404 responses and five screen widths. Additional checks use Firefox and WebKit.
+- DSA browser coverage: 32 checks across Chromium desktop/mobile, Firefox and WebKit cover
+  language tabs, keyboard controls, copying, JavaScript execution, filters, source downloads and hydration.
+- System Design release checks: 24 browser checks passed across Chromium desktop/mobile,
+  Firefox and WebKit, plus 54 regression checks for DSA, the backend course, practice, references,
+  and static hosting. The 30-question quiz scored 100% with its authored answers; all eight
+  diagrams loaded and stayed within the page. Light/dark accessibility and no-JavaScript pages passed.
+- Application: 31 unit tests, lint and tool type checks pass. Deployment, critical stylesheet loading,
+  fonts, discovery guides, code tabs, source packaging and System Design models have 41 focused tests.
+- Content: ran 45 HTML, 11 SQLite, 84 language/backend, 122 Python and 67 JavaScript examples;
+  compiled 24 ASP.NET programs and syntax-checked additional framework examples.
+- DSA: all 168 complete programs compiled or ran with matching output (C11, C++17, Java 17,
+  JavaScript, Python 3 and C#). Another 152 JavaScript/Python edge cases and both extra JavaScript
+  coding-task solutions passed. C# checks used the download's .NET 8 target and newer-runtime setting.
+- System Design: all 12 JavaScript and two SQLite models match their stated outputs. Additional
+  change and failure checks cover empty routing, cache expiry, retry limits, and transaction rollback.
+- Oracle project: Release build has no warnings/errors, dependency audit is clear, and 14
+  API health/validation/error/CORS checks passed. The browser demo was checked with mocked HTTP.
+  Live Oracle CRUD and transaction checks require a database; none was available here.
 
-- [x] SEO audit script over the prerendered output (titles, descriptions, canonical, robots, Open Graph, Twitter, JSON-LD validity, sitemap coverage): 54 indexable routes match the sitemap exactly, 155 noindex routes (planned tutorials, user pages, playground, search, 404), no duplicate titles or descriptions.
-- [x] JSON-LD per page type: Organization + WebSite (SearchAction) + FAQPage on the home page, ItemList on the catalog, category and learning-path index pages, BreadcrumbList everywhere below the root, TechArticle on lessons, Course only on complete tutorials.
-- [x] Title/description hygiene: adaptive brand suffix (full name up to 60 characters, short name up to 70), lesson titles trimmed to 60 characters and descriptions to 120–160, fuller descriptions for contact, privacy and terms pages.
-- [x] Fixed a Phase 2 regression: `@use 'bootstrap'` resolved to the npm package instead of the project partial, so the Sass overrides (colours, typography, breadcrumb divider, partial module set) never applied and the full Bootstrap stylesheet shipped. The partial is now `_bootstrap-config.scss`; carousel/modal/tooltip/toast CSS is gone.
-- [x] Accessibility: axe audit (WCAG 2.x A/AA + best practice) on 22 pages and 6 interaction states in light and dark themes with zero violations. Fixes: AA-compliant secondary/semantic colours and dark-theme overrides for outline buttons and text utilities, underlined inline links, keyboard hints hidden from control names, named CodeMirror textbox with AA syntax colours for both themes (One Dark replaced), unique output-panel landmarks, Escape closes the search dialog on the first press.
-- [x] Keyboard e2e: skip link, dropdown arrow/Home/End/Escape, search dialog, lesson navigation focus, mobile menu focus restore.
-- [x] Performance: search dialog and forms deferred to idle (initial bundle 763 kB → 706 kB raw, 153 kB transfer), home sections and catalog grid hydrate on viewport/idle, lesson body hydrates on idle, critical-CSS inlining disabled (render-blocking 24 kB stylesheet, no flash), transferred content settled synchronously so prerendered views keep their DOM during hydration (this removed a loading-state flash that scored CLS 0.9 on lessons).
-- [x] Measured on the prerendered build with Playwright + CDP (Lighthouse's CLI never completes a run in this environment): desktop FCP/LCP 130–170 ms, TBT ≤ 55 ms; throttled mobile (4× CPU, slow 4G) FCP/LCP 1.2–1.3 s, TBT 230–580 ms; CLS 0.000 on every page in both profiles.
-- [x] Credits page (`/credits`): CC-BY/CC-BY-SA logo attributions verified against simple-icons metadata and the Rust Foundation policy, Redis trademark notice, open-source credits; linked from the footer and the sitemap.
-- [x] Verification: build (209 routes), 28 unit tests, lint, 132 e2e tests across 9 specs (desktop + mobile; 3 skipped by design), screenshots light/dark.
+External framework and database examples have not all been run against installed services.
+The new datasets and model lessons use local samples; no paid model API is needed by the app.
 
-## Phase 8 — Content expansion
+## Operational limits
 
-- [ ] Tier A: CSS, JavaScript, Python, SQL, TypeScript.
-- [ ] Tier B: Bootstrap, Angular, React, Node.js, Java, C, C++, C#, MySQL, MongoDB, Git, GitHub, PHP, Spring Boot.
+No site has been published from this workspace. The owner must enable GitHub Pages and run the
+workflow. Search-console verification/submission requires the owner's account and a live URL.
+Search engines control indexing and rankings. Browser-local progress does not sync between devices,
+and the site needs a connection to load files; no offline service worker is included.

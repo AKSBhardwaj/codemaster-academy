@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json-body",
+  "title": "Read a body into a struct",
+  "summary": "Fiber: Read a body into a struct. Send an empty object.",
+  "introduction": "BodyParser fills a struct from the request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a body into a struct with Fiber", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a body into a struct"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Read a body into a struct",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\ntype Book struct { Title string `json:\"title\"` }\napp.Post(\"/books\", func(c *fiber.Ctx) error { var book Book; if err := c.BodyParser(&book); err != nil || book.Title == \"\" { return c.Status(400).JSON(fiber.Map{\"error\": \"Title needed\"}) }; return c.Status(201).JSON(book) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "BodyParser fills the struct by pointer. The nonempty Title check succeeds before the 201 reply."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Parsing does not replace checks for a useful field value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-json-body-check"
+    }
+  ],
+  "exerciseIds": ["fiber-json-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "typed-params"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Read a body into a struct",
+    "description": "Fiber: Read a body into a struct. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

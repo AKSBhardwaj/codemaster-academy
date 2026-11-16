@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Point a client elsewhere",
+  "summary": "ASP.NET Core: Point a client elsewhere. Inspect the initial Location header.",
+  "introduction": "Results.Redirect sends a location. A browser following GET /start reaches /hello.",
+  "learningObjectives": [
+    "Point a client elsewhere with ASP.NET Core",
+    "Inspect the initial Location header"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n School, enter School, and replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. Stop the app before changing examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Point a client elsewhere"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Point a client elsewhere",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/start\", () => Results.Redirect(\"/hello\"));\napp.MapGet(\"/hello\", () => \"Welcome\");\napp.Run();\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The redirect response points to /hello. The follow-up GET receives Welcome."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the initial Location header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect asks the client to make a second request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-core-redirects-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-core-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-core",
+      "slug": "not-found"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Core: Point a client elsewhere",
+    "description": "ASP.NET Core: Point a client elsewhere. Inspect the initial Location header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

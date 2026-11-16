@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "field-checks",
+  "title": "Check a message shape",
+  "summary": "WebSockets: Check a message shape. Send {\"text\":\"Hi\"} as JSON.",
+  "introduction": "A parsed object may still be missing a field. This example sends an empty object and gets a clear reply.",
+  "learningObjectives": ["Check a message shape with WebSockets", "Send {\"text\":\"Hi\"} as JSON"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check a message shape"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Check a message shape",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { const message = JSON.parse(data.toString()); socket.send(typeof message.text === \"string\" ? message.text : \"Message needed\"); }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"{}\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The object has no text string, so the type check chooses Message needed."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Message needed"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send {\"text\":\"Hi\"} as JSON."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Parsing JSON and checking its field types are separate jobs."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-field-checks-check"
+    }
+  ],
+  "exerciseIds": ["websockets-field-checks-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Check a message shape",
+    "description": "WebSockets: Check a message shape. Send {\"text\":\"Hi\"} as JSON. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

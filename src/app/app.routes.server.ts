@@ -8,7 +8,10 @@ import { readPrerenderManifest } from './core/ssr/prerender-manifest';
  */
 type Manifest = Awaited<ReturnType<typeof readPrerenderManifest>>;
 
-const fromManifest = (path: string, params: (manifest: Manifest) => Record<string, string>[]): ServerRoute => ({
+const fromManifest = (
+  path: string,
+  params: (manifest: Manifest) => Record<string, string>[],
+): ServerRoute => ({
   path,
   renderMode: RenderMode.Prerender,
   fallback: PrerenderFallback.Client,
@@ -16,7 +19,9 @@ const fromManifest = (path: string, params: (manifest: Manifest) => Record<strin
 });
 
 export const serverRoutes: ServerRoute[] = [
-  fromManifest('tutorials/category/:category', (m) => m.categories.map((category) => ({ category }))),
+  fromManifest('tutorials/category/:category', (m) =>
+    m.categories.map((category) => ({ category })),
+  ),
   fromManifest('tutorials/:tech', (m) => m.technologies.map((tech) => ({ tech }))),
   fromManifest('tutorials/:tech/:lesson', (m) => m.lessons),
   fromManifest('references/:tech', (m) => m.references.map((tech) => ({ tech }))),

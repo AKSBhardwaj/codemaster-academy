@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set reply metadata",
+  "summary": "Spring Boot: Set reply metadata. Use curl -i to see the header.",
+  "introduction": "A response can carry cache instructions. Open GET /note and inspect Cache-Control.",
+  "learningObjectives": ["Set reply metadata with Spring Boot", "Use curl -i to see the header"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set reply metadata"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Set reply metadata",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/note\") ResponseEntity<String> note() { return ResponseEntity.ok().header(\"Cache-Control\", \"no-store\").body(\"Practice note\"); }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response builder adds the header, then gives the response its text body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use curl -i to see the header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Headers need to be set before the response is sent."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-headers-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Set reply metadata",
+    "description": "Spring Boot: Set reply metadata. Use curl -i to see the header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

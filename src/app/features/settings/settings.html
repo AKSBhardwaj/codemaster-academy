@@ -1,0 +1,163 @@
+<cma-page-header
+  eyebrow="My learning"
+  title="Learning settings"
+  lead="Make this space yours. You can start learning right away without an account."
+/>
+<div class="container-xxl py-4 py-lg-5">
+  @if (message()) {
+    <div class="alert alert-success" role="status">{{ message() }}</div>
+  }
+  @if (error()) {
+    <div class="alert alert-warning" role="alert">{{ error() }}</div>
+  }
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <form
+        class="cma-card p-4 mb-4"
+        [formGroup]="form"
+        (ngSubmit)="save()"
+        novalidate
+        aria-labelledby="nickname-heading"
+      >
+        <h2 id="nickname-heading" class="h5 mb-2">Choose a nickname</h2>
+        <p class="small cma-text-secondary">
+          This name appears on your learning page and keepsake certificates. You can leave it blank.
+        </p>
+        <div class="mb-3">
+          <label class="form-label" for="learner-nickname">Nickname (optional)</label>
+          <input
+            id="learner-nickname"
+            type="text"
+            class="form-control"
+            formControlName="nickname"
+            maxlength="40"
+            autocomplete="off"
+            aria-describedby="nickname-help"
+            [class.is-invalid]="submitted() && form.controls.nickname.invalid"
+          />
+          <div id="nickname-help" class="form-text">
+            A made-up name is fine. No email or password is needed.
+          </div>
+          @if (submitted() && form.controls.nickname.invalid) {
+            <div class="invalid-feedback">Please use 40 characters or fewer.</div>
+          }
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="!interactive()">
+          Save nickname
+        </button>
+      </form>
+      <section class="cma-card p-4" aria-labelledby="storage-heading">
+        <h2 id="storage-heading" class="h5">Where is my progress saved?</h2>
+        <p class="small cma-text-secondary">
+          Your browser remembers your lessons, quiz scores, saved pages and code drafts on this
+          device. They do not move to another device. If you clear your browser data, you lose this
+          progress.
+        </p>
+        <a class="btn btn-outline-secondary btn-sm" routerLink="/dashboard">Go to my learning</a>
+      </section>
+    </div>
+    <div class="col-lg-6">
+      <section class="cma-card p-4 mb-4" aria-labelledby="data-heading">
+        <h2 id="data-heading" class="h5 mb-2">Your progress</h2>
+        <ul class="list-unstyled small mb-3">
+          <li>
+            <strong>{{ progress.totalCompleted() }}</strong>
+            {{ progress.totalCompleted() === 1 ? 'lesson' : 'lessons' }} completed
+          </li>
+          <li>
+            <strong>{{ exercises.solvedIds().size }}</strong>
+            {{ exercises.solvedIds().size === 1 ? 'exercise' : 'exercises' }} solved
+          </li>
+          <li>
+            <strong>{{ bookmarks.count() }}</strong>
+            {{ bookmarks.count() === 1 ? 'bookmark' : 'bookmarks' }}
+          </li>
+        </ul>
+        <p class="small cma-text-secondary">
+          Download a copy of your saved work as a data file (JSON).
+        </p>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm mb-4"
+          [disabled]="!interactive()"
+          (click)="exportData()"
+        >
+          <cma-icon name="download" [size]="14" /> Download my progress
+        </button>
+        <h3 class="h6">Start the lessons again</h3>
+        <p class="small cma-text-secondary">
+          Clear completed lessons, quiz scores, exercise answers, saved pages and learning paths.
+          Your nickname and code drafts will stay.
+        </p>
+        @if (confirmReset()) {
+          <p class="small">
+            This cannot be undone. Download a copy first if you want to keep a record.
+          </p>
+          <div class="d-flex gap-2">
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              [disabled]="!interactive()"
+              (click)="resetLearningData()"
+            >
+              Yes, reset my learning
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              [disabled]="!interactive()"
+              (click)="confirmReset.set(false)"
+            >
+              Cancel
+            </button>
+          </div>
+        } @else {
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm"
+            [disabled]="!interactive()"
+            (click)="confirmReset.set(true)"
+          >
+            Reset learning data
+          </button>
+        }
+      </section>
+      <section class="cma-card p-4" aria-labelledby="clear-heading">
+        <h2 id="clear-heading" class="h5 mb-2">Clear all saved data</h2>
+        <p class="small cma-text-secondary">
+          Remove everything this site saved in this browser, including your nickname, progress, code
+          drafts and settings. This cannot be undone.
+        </p>
+        @if (confirmClear()) {
+          <div class="d-flex gap-2">
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              [disabled]="!interactive()"
+              (click)="clearAllData()"
+            >
+              Yes, clear all saved data
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              [disabled]="!interactive()"
+              (click)="confirmClear.set(false)"
+            >
+              Cancel
+            </button>
+          </div>
+        } @else {
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm"
+            [disabled]="!interactive()"
+            (click)="confirmClear.set(true)"
+          >
+            Clear all saved data
+          </button>
+        }
+      </section>
+    </div>
+  </div>
+</div>

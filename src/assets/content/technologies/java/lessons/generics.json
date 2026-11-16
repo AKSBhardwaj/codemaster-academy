@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "generics",
+  "title": "Generics",
+  "summary": "Write classes and methods that work for any element type while staying type-safe: type parameters, bounded types, extends and super wildcards, and the limits of type erasure.",
+  "introduction": "You have used generics every time you wrote List<String>: the angle brackets tell the compiler what the list holds, so it rejects a wrong element at compile time and hands back the right type without a cast. This lesson shows how to write that kind of code yourself. You build a generic Box class, write generic methods, constrain a type parameter with a bound so you can compare elements, use wildcards to accept whole families of lists, and learn which things generics cannot do because the type information is erased at run time.",
+  "learningObjectives": [
+    "Explain what generics fix compared with raw types and casts",
+    "Declare a generic class and a generic method with a type parameter",
+    "Constrain a type parameter with extends and use extends and super wildcards",
+    "Recognise the limits imposed by type erasure"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why generics?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before Java 5 a list held `Object` values. Anything could be added, every read needed a cast, and a wrong element surfaced only at run time as a `ClassCastException`, often far from the line that caused it. **Raw types** still compile today for backwards compatibility, but the compiler warns you, and the warning is worth taking seriously."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Raw.java",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Raw {\n    public static void main(String[] args) {\n        List names = new ArrayList();        // raw type: anything goes in\n        names.add(\"Ada\");\n        names.add(42);                       // nobody stops this\n        String first = (String) names.get(0); // cast needed on every read\n        System.out.println(first.length());\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "javac Raw.java, then java Raw",
+      "content": "Note: Raw.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n3"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `List<String>` the `names.add(42)` line does not compile, `get` returns a `String`, and the cast disappears. Generics move the check from the user of the program to the compiler, which is always the cheaper place to find a bug."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A generic class"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **type parameter** in angle brackets after the class name stands for a type that the user of the class chooses. Inside the class `T` is used like any type: for fields, parameters and return values. By convention type parameters are single capital letters: `T` for a type, `E` for an element, `K` and `V` for a key and a value."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Box.java",
+      "code": "public class Box<T> {\n    private T content;\n\n    public void put(T item) {\n        content = item;\n    }\n\n    public T take() {\n        T item = content;\n        content = null;\n        return item;\n    }\n\n    public boolean isEmpty() {\n        return content == null;\n    }\n\n    public static void main(String[] args) {\n        Box<String> words = new Box<>();\n        words.put(\"hello\");\n        String word = words.take();          // no cast needed\n        System.out.println(word.toUpperCase());\n        System.out.println(words.isEmpty());\n\n        Box<Integer> numbers = new Box<>();\n        numbers.put(21);\n        int doubled = numbers.take() * 2;    // unboxed automatically\n        System.out.println(doubled);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Box.java",
+      "content": "HELLO\ntrue\n42"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Box<String>` and `Box<Integer>` are two uses of the same class, each checked separately: `words.put(42)` would be a compile error. The empty diamond `<>` on the right-hand side tells the compiler to copy the type argument from the declaration."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Generic methods and bounded types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A single method can have its own type parameter, declared in angle brackets **before the return type**. The compiler infers `T` from the arguments at each call. When the method needs to do something with the elements beyond passing them around, it needs a **bound**: `<T extends Comparable<T>>` promises that every `T` has a `compareTo` method, which is exactly what `max` needs."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Utils.java",
+      "code": "import java.util.List;\n\npublic class Utils {\n    static <T> T firstOrDefault(List<T> items, T fallback) {\n        return items.isEmpty() ? fallback : items.get(0);\n    }\n\n    static <T extends Comparable<T>> T max(List<T> items) {\n        T best = items.get(0);\n        for (T item : items) {\n            if (item.compareTo(best) > 0) {\n                best = item;\n            }\n        }\n        return best;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(firstOrDefault(List.of(\"x\", \"y\"), \"none\"));\n        System.out.println(firstOrDefault(List.<Integer>of(), -1));\n        System.out.println(max(List.of(3, 9, 4)));\n        System.out.println(max(List.of(\"pear\", \"apple\", \"zebra\")));\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Utils.java",
+      "content": "x\n-1\n9\nzebra"
+    },
+    {
+      "type": "paragraph",
+      "text": "`max` works for `Integer`, `String`, `LocalDate` and any class that implements `Comparable`, and it refuses at compile time a list of a class that does not. Without the bound, `item.compareTo(best)` would not compile, because a plain `T` is only known to be an `Object`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Wildcards"
+    },
+    {
+      "type": "paragraph",
+      "text": "Generics are **invariant**: a `List<Integer>` is not a `List<Number>`, even though an `Integer` is a `Number`, because otherwise a method holding the `List<Number>` view could add a `Double` into a list of integers. Wildcards relax this where it is safe. `List<? extends Number>` accepts a list of any subtype of `Number` and lets you **read** elements as `Number`; `List<? super Integer>` accepts a list of `Integer` or any supertype and lets you **write** integers into it. The memory aid is PECS: producer `extends`, consumer `super`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Totals.java",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Totals {\n    static double total(List<? extends Number> numbers) {\n        double sum = 0;\n        for (Number n : numbers) {\n            sum += n.doubleValue();\n        }\n        return sum;\n    }\n\n    static void addDefaults(List<? super Integer> target) {\n        target.add(0);\n        target.add(1);\n    }\n\n    public static void main(String[] args) {\n        System.out.println(total(List.of(1, 2, 3)));\n        System.out.println(total(List.of(1.5, 2.5)));\n        List<Number> mixed = new ArrayList<>();\n        addDefaults(mixed);\n        mixed.add(2.5);\n        System.out.println(mixed);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Totals.java",
+      "content": "6.0\n4.0\n[0, 1, 2.5]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What generics cannot do"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java implements generics by **type erasure**: after compilation a `Box<String>` is just a `Box`, and the type argument is gone. That design kept old code working, but it rules out a few things you may expect from other languages."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Type arguments must be reference types: `List<int>` is an error; use `List<Integer>`.",
+        "You cannot write `new T()` or `new T[10]`, because at run time nobody knows what `T` was.",
+        "`obj instanceof List<String>` cannot be checked; only `instanceof List<?>` is allowed.",
+        "A static field cannot have type `T`, since static members are shared by all `Box<...>` uses.",
+        "Assigning between different type arguments is an error, which is the invariance rule from above."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Invariance.java",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Invariance {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>();\n        List<Object> anything = names;\n        anything.add(42);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "javac Invariance.java",
+      "content": "Invariance.java:7: error: incompatible types: List<String> cannot be converted to List<Object>\n        List<Object> anything = names;\n                                ^\n1 error"
+    },
+    {
+      "type": "paragraph",
+      "text": "The compiler is right to refuse: if line 7 were allowed, line 8 would place an `Integer` into a list that `names` still believes holds only strings. When you need a method that accepts lists of anything, use `List<?>` or a wildcard bound instead of `List<Object>`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Primitives are not type arguments",
+      "text": "`List<int> numbers = new ArrayList<>();` fails with `error: unexpected type` followed by `required: reference` and `found: int`. Use the wrapper class, `List<Integer>`, and let autoboxing convert values on the way in and out. The same applies to `Map<String, double>`: write `Map<String, Double>`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "How much to write yourself",
+      "text": "Most day-to-day Java uses generics rather than defines them: you will declare `List<Order>` far more often than `class Repository<T>`. Write a generic class when you catch yourself copying a container or utility for a second element type, and keep its type parameters few and well named."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-generics-bounded"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-generics-qc-1",
+          "type": "true-false",
+          "lessonSlug": "generics",
+          "difficulty": "intermediate",
+          "question": "Because `String` extends `Object`, a `List<String>` can be assigned to a variable of type `List<Object>`.",
+          "explanation": "Generic types are invariant. Allowing the assignment would let code add any `Object` to a list that other code treats as strings.",
+          "correct": false
+        },
+        {
+          "id": "java-generics-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "generics",
+          "difficulty": "beginner",
+          "question": "Which declaration is valid Java?",
+          "explanation": "Type arguments must be reference types, so the wrapper class `Integer` is used; `int`, `integer` and `Int` are not accepted.",
+          "options": ["`List<int>`", "`List<Integer>`", "`List<integer>`", "`List<Int>`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-generics-bounded"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "collections"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "records-streams"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "inheritance-interfaces"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "generics"
+    }
+  ],
+  "seo": {
+    "title": "Java Generics – Type Parameters, Bounds, Wildcards",
+    "description": "Write type-safe Java code with generic classes and methods, bounded type parameters, extends and super wildcards, and learn the limits of type erasure."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,150 @@
+{
+  "title": "NumPy Reference",
+  "description": "A quick reminder of the ideas and examples in the NumPy lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Make a number array",
+          "summary": "A NumPy array holds values with a shared data type. np.array builds one from a Python list.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nscores = np.array([2, 4, 6])\nprint(scores.tolist())"
+          },
+          "notes": ["Do not confuse an array with one single number."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "read-the-shape",
+          "name": "Read the shape",
+          "summary": "Shape tells you the size of each dimension. A table-like array has a row count and a column count.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\ngrid = np.array([[1, 2, 3], [4, 5, 6]])\nprint(grid.shape)"
+          },
+          "notes": ["The first shape number is not always the total number of values."],
+          "lessonSlug": "read-the-shape"
+        },
+        {
+          "slug": "choose-a-data-type",
+          "name": "Choose a data type",
+          "summary": "A data type describes how values are stored. An explicit type avoids guessing when size or precision matters.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nvalues = np.array([1, 2], dtype=np.float32)\nprint(values.dtype)"
+          },
+          "notes": ["Floating-point values cannot represent every decimal fraction exactly."],
+          "lessonSlug": "choose-a-data-type"
+        },
+        {
+          "slug": "index-a-position",
+          "name": "Index a position",
+          "summary": "An index selects a position. NumPy, like Python lists, starts counting at zero.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nvalues = np.array([5, 7, 9])\nprint(values[1])"
+          },
+          "notes": ["Index 3 is outside this three-value array."],
+          "lessonSlug": "index-a-position"
+        },
+        {
+          "slug": "slice-a-range",
+          "name": "Slice a range",
+          "summary": "A slice selects a range. Its starting index is included and its stopping index is excluded.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nvalues = np.array([2, 4, 6, 8])\nprint(values[1:3].tolist())"
+          },
+          "notes": [
+            "Basic slicing often gives a view of the original data, not an independent copy."
+          ],
+          "lessonSlug": "slice-a-range"
+        },
+        {
+          "slug": "calculate-element-by-element",
+          "name": "Calculate element by element",
+          "summary": "Adding two arrays of the same shape adds matching positions. This is element-wise addition.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\na = np.array([1, 2, 3])\nb = np.array([10, 20, 30])\nprint((a + b).tolist())"
+          },
+          "notes": ["Array addition is not the same as joining two Python lists."],
+          "lessonSlug": "calculate-element-by-element"
+        },
+        {
+          "slug": "broadcast-one-value",
+          "name": "Broadcast one value",
+          "summary": "Broadcasting lets some differently shaped values work together. A single number can be used for every item in an array.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nscores = np.array([2, 4, 6])\nprint((scores + 1).tolist())"
+          },
+          "notes": [
+            "Not every pair of shapes can broadcast; their dimensions must follow NumPy's rules."
+          ],
+          "lessonSlug": "broadcast-one-value"
+        },
+        {
+          "slug": "sum-along-an-axis",
+          "name": "Sum along an axis",
+          "summary": "An axis is one direction through an array. For this two-dimensional table, axis 0 combines rows to produce a total for each column.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\ngrid = np.array([[1, 2], [3, 4]])\nprint(grid.sum(axis=0).tolist())"
+          },
+          "notes": ["Draw the table before choosing an axis if the direction is confusing."],
+          "lessonSlug": "sum-along-an-axis"
+        },
+        {
+          "slug": "reshape-without-changing-the-count",
+          "name": "Reshape without changing the count",
+          "summary": "reshape changes the arrangement of values. The new shape must hold the same total number of values.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nvalues = np.array([1, 2, 3, 4, 5, 6])\nprint(values.reshape(2, 3).tolist())"
+          },
+          "notes": ["You cannot reshape six values into a full 2 by 2 table."],
+          "lessonSlug": "reshape-without-changing-the-count"
+        },
+        {
+          "slug": "filter-with-a-boolean-mask",
+          "name": "Filter with a boolean mask",
+          "summary": "A boolean mask is a list of true-or-false choices. True positions are kept when used to select array values.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nscores = np.array([3, 8, 5])\nmask = scores >= 5\nprint(scores[mask].tolist())"
+          },
+          "notes": [
+            "Use element-wise logical operators carefully; normal Python and/or do not combine whole array masks."
+          ],
+          "lessonSlug": "filter-with-a-boolean-mask"
+        },
+        {
+          "slug": "make-an-independent-copy",
+          "name": "Make an independent copy",
+          "summary": "A copy owns separate data. It is useful when changing a result must not change the original array.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\noriginal = np.array([1, 2, 3])\ncopy = original.copy()\ncopy[0] = 99\nprint(original.tolist())"
+          },
+          "notes": ["Assigning copy = original only gives the same array another name."],
+          "lessonSlug": "make-an-independent-copy"
+        },
+        {
+          "slug": "summarise-a-small-dataset",
+          "name": "Summarise a small dataset",
+          "summary": "The mean is the total divided by the number of values. The minimum and maximum describe the range.",
+          "example": {
+            "language": "python",
+            "code": "import numpy as np\n\nscores = np.array([2, 4, 6])\nprint(float(scores.mean()), int(scores.min()), int(scores.max()))"
+          },
+          "notes": ["One average can hide important differences between individual values."],
+          "lessonSlug": "summarise-a-small-dataset"
+        }
+      ]
+    }
+  ]
+}

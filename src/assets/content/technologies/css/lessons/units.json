@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "slug": "units",
+  "title": "CSS Units and Values",
+  "summary": "CSS units tell the browser how to measure a size or space. Some use a fixed amount, and others depend on nearby sizes.",
+  "introduction": "CSS units tell the browser how to measure a size or space. Some use a fixed amount, and others depend on nearby sizes. Compare pixels, percentages and rem units. Change the screen or text size and see which measurements change with it.",
+  "learningObjectives": [
+    "Choose between px, em, rem, % and viewport units for a given property",
+    "Explain how em compounds and why rem is predictable",
+    "Compute values with calc() and keep them within limits using clamp()"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Absolute units"
+    },
+    {
+      "type": "paragraph",
+      "text": "The only absolute unit you will use on screen is the pixel, `px`. A CSS pixel is a reference unit (1/96 of an inch), not a physical dot, which is why `16px` text looks about the same size on a cheap monitor and a high-density phone. Pixels are right for things that should not scale: hairline borders, box shadows, tiny offsets. `cm`, `mm`, `in` and `pt` exist for print stylesheets."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Relative units"
+    },
+    {
+      "type": "table",
+      "headers": ["Unit", "Relative to", "Typical use"],
+      "rows": [
+        [
+          "`em`",
+          "The element's own font size (for `font-size`, the parent's)",
+          "Padding and margins that scale with a component's text"
+        ],
+        [
+          "`rem`",
+          "The root (`html`) font size, 16px by default",
+          "Font sizes, spacing scales, breakpoints"
+        ],
+        ["`%`", "The same property on the containing block", "Widths, `max-width: 100%` on images"],
+        ["`vw`, `vh`", "1% of the viewport width or height", "Full-screen sections, fluid type"],
+        [
+          "`dvh`",
+          "1% of the *dynamic* viewport height",
+          "Full-height layouts on phones, where the address bar hides and shows"
+        ],
+        [
+          "`ch`",
+          "The width of the `0` character of the current font",
+          "Limiting line length: `max-width: 65ch`"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "html {\n  font-size: 100%;        /* 16px by default, and respects the user's setting */\n}\n\nh1 {\n  font-size: 2rem;         /* 32px */\n}\n\np {\n  font-size: 1.125rem;     /* 18px */\n  max-width: 45ch;         /* about 45 characters per line */\n}\n\n.card {\n  font-size: 0.875rem;     /* 14px */\n  padding: 1.5em;          /* 1.5 x 14px = 21px, scales with the card's text */\n  border: 1px solid #cbd5e1;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{font-size:2rem}p{font-size:1.125rem;max-width:45ch}.card{font-size:.875rem;padding:1.5em;border:1px solid #cbd5e1}</style><h1>Sample heading</h1><div class=\"card\"><p style=\"font-size:inherit;margin:0\">A card with 14px text and 21px of padding.</p></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "em compounds, rem does not"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because `em` is relative to the *parent's* font size when used on `font-size`, nested elements multiply. A list item set to `1.2em` inside another `1.2em` list item is 1.44 times the base size, and a third level is 1.728 times. `rem` always refers to the root, so `1.2rem` is the same size at every depth."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>em versus rem</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .em li  { font-size: 1.2em; }   /* grows at every level */\n    .rem li { font-size: 1.2rem; }  /* same size at every level */\n  </style>\n</head>\n<body>\n  <ul class=\"em\">\n    <li>19.2px\n      <ul><li>23px\n        <ul><li>27.6px</li></ul>\n      </li></ul>\n    </li>\n  </ul>\n  <ul class=\"rem\">\n    <li>19.2px\n      <ul><li>19.2px\n        <ul><li>19.2px</li></ul>\n      </li></ul>\n    </li>\n  </ul>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>body{margin:8px;font-size:16px;line-height:1.1}ul{margin:0;padding-left:18px}.em li{font-size:1.2em}.rem li{font-size:1.2rem}</style><ul class=\"em\"><li>em: 19.2px<ul><li>23px<ul><li>27.6px</li></ul></li></ul></li></ul><ul class=\"rem\"><li>rem: 19.2px<ul><li>19.2px<ul><li>19.2px</li></ul></li></ul></li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compounding is a feature when you want it: `padding: 1em` on a button means the padding grows with the button's text, so a large button is spacious and a small one compact, with one rule. For font sizes, use `rem`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not fix the root font size in pixels",
+      "text": "`html { font-size: 10px; }` makes the rem arithmetic easy (1rem = 10px) but it overrides the font size the user chose in their browser settings, which people with low vision depend on. Leave the root at `100%` and use the real values (`1.25rem` is 20px), or if you must have the 10px base use `font-size: 62.5%`, which still scales with the user's setting."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Percentages and viewport units"
+    },
+    {
+      "type": "paragraph",
+      "text": "A percentage refers to the same property of the containing block: `width: 50%` is half the parent's width. `height: 100%` only works when the parent has an explicit height, which is why full-screen sections use viewport units instead: `height: 100vh` is the full viewport height. On phones the browser's toolbars appear and disappear, so `100vh` can be taller than the visible area; `100dvh` (dynamic viewport height) follows the visible area. Viewport units are also what makes text *fluid*: `font-size: 4vw` grows and shrinks with the window, but with no limit, which is where the next section comes in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Math functions: calc(), min(), max() and clamp()"
+    },
+    {
+      "type": "paragraph",
+      "text": "`calc()` does arithmetic and may mix units: `calc(100% - 2rem)` is the parent's width minus a fixed margin. `min()` takes the smallest of its arguments, `max()` the largest, and `clamp(minimum, preferred, maximum)` keeps a preferred value within two limits. Together they replace many media queries. One syntax rule to remember: the `+` and `-` operators must have spaces around them."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "/* Never wider than 40rem, never wider than the viewport minus a margin */\nbody {\n  width: min(100% - 2rem, 40rem);\n  margin: 0 auto;\n}\n\n/* Fluid heading: at least 1.5rem, at most 3rem, 2.5vw-based in between */\nh1 {\n  font-size: clamp(1.5rem, 1rem + 2.5vw, 3rem);\n}\n\n.card {\n  padding: calc(0.5rem + 1vw);\n  border: 1px solid #cbd5e1;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run it and resize the browser window: the heading scales smoothly between its limits, and the page keeps a margin on narrow screens without a single media query."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Values without units"
+    },
+    {
+      "type": "paragraph",
+      "text": "Some values are plain numbers. `line-height: 1.5` is a multiplier of the element's own font size and is the recommended way to write it. `0` needs no unit (`margin: 0`). `opacity`, `flex`, `z-index` and `font-weight` are unitless. Angles use `deg` or `turn` (`rotate(90deg)`), durations use `s` or `ms` (`transition: 200ms`), and resolutions in media queries use `dppx`."
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "Reach for"],
+      "rows": [
+        ["Font sizes", "`rem`, or `clamp()` with a `vw` middle value for fluid headings"],
+        ["Spacing inside a component", "`em` (scales with the component) or `rem` (consistent)"],
+        ["Borders, shadows, 1px offsets", "`px`"],
+        ["Layout widths", "`%`, `min()`, `max-width` in `rem` or `ch`"],
+        ["Full-height screens", "`dvh` (fallback `vh`)"],
+        ["Line height", "A unitless number such as `1.5`"]
+      ]
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: swap units and resize",
+      "height": 200,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Units</title>\n  <style>\n    body { font-family: system-ui, sans-serif; margin: 0 auto; width: min(100% - 2rem, 36rem); }\n    /* Try: 24px, 1.5rem, 1.5em, 4vw, clamp(1.25rem, 1rem + 2vw, 2.5rem) */\n    h1 { font-size: 4vw; }\n    .box { padding: 1em; background: #eff6ff; font-size: 0.875rem; }\n  </style>\n</head>\n<body>\n  <h1>Resize the window</h1>\n  <div class=\"box\">This box has 1em of padding, so its padding scales with its 14px text.</div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-units-rem-em"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-units-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "units",
+          "difficulty": "beginner",
+          "question": "With the root font size at its default, how large is `font-size: 1.5rem`?",
+          "explanation": "The default root font size is 16px, and rem is always relative to the root, so 1.5rem is 24px regardless of nesting.",
+          "options": ["15px", "24px", "16px", "It depends on the parent's font size"],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-units-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "units",
+          "difficulty": "intermediate",
+          "question": "`font-size: ___(1rem, 2vw, 2rem);` keeps a fluid value between a minimum and a maximum.",
+          "explanation": "`clamp(min, preferred, max)` returns the preferred value but never less than the minimum or more than the maximum.",
+          "answers": ["clamp"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-units-rem-em"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "typography"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "responsive-design"
+    }
+  ],
+  "seo": {
+    "title": "CSS Units – px, em, rem, %, vw, vh and clamp()",
+    "description": "Learn CSS units: absolute px, relative em, rem, percentages and viewport units, how em compounds, and calc(), min(), max() and clamp() for fluid sizes."
+  },
+  "updatedOn": "2026-11-16"
+}

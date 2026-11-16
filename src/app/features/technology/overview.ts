@@ -16,7 +16,14 @@ import { TutorialContext } from './tutorial-context';
 
 @Component({
   selector: 'cma-technology-overview',
-  imports: [RouterLink, BreadcrumbsComponent, EmptyStateComponent, IconComponent, StatusBadgeComponent, TechIconComponent],
+  imports: [
+    RouterLink,
+    BreadcrumbsComponent,
+    EmptyStateComponent,
+    IconComponent,
+    StatusBadgeComponent,
+    TechIconComponent,
+  ],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
 })
@@ -32,7 +39,9 @@ export class TechnologyOverviewPage {
   protected readonly entry = this.context.catalogEntry;
   protected readonly technology = this.context.technology;
   protected readonly category = this.context.category;
-  protected readonly prerequisites = computed(() => this.catalog.bySlugs(this.entry()?.prerequisites ?? []));
+  protected readonly prerequisites = computed(() =>
+    this.catalog.bySlugs(this.entry()?.prerequisites ?? []),
+  );
   protected readonly firstLesson = computed(() => this.technology()?.lessons[0]);
   protected readonly nextLesson = computed(() => {
     const tech = this.technology();
@@ -40,12 +49,18 @@ export class TechnologyOverviewPage {
     const completed = this.progress.completedFor(tech.slug);
     return tech.lessons.find((lesson) => !completed.has(lesson.slug)) ?? tech.lessons[0];
   });
-  protected readonly completedCount = computed(() => this.progress.countFor(this.context.techSlug()));
-  protected readonly bookmarked = computed(() => this.bookmarks.isTechnologyBookmarked(this.context.techSlug()));
+  protected readonly completedCount = computed(() =>
+    this.progress.countFor(this.context.techSlug()),
+  );
+  protected readonly bookmarked = computed(() =>
+    this.bookmarks.isTechnologyBookmarked(this.context.techSlug()),
+  );
   protected readonly estimated = computed(() => {
     const minutes = this.technology()?.estimatedMinutes ?? 0;
     if (!minutes) return '';
-    return minutes < 60 ? `${minutes} min` : `${Math.round(minutes / 60)} h ${minutes % 60 ? (minutes % 60) + ' min' : ''}`.trim();
+    return minutes < 60
+      ? `${minutes} min`
+      : `${Math.floor(minutes / 60)} h ${minutes % 60 ? (minutes % 60) + ' min' : ''}`.trim();
   });
   protected readonly lessonGroups = computed(() => {
     const tech = this.technology();
@@ -53,20 +68,10 @@ export class TechnologyOverviewPage {
     const bySlug = new Map(tech.lessons.map((lesson) => [lesson.slug, lesson]));
     return tech.sidebarCategories.map((category) => ({
       ...category,
-      lessons: category.lessonSlugs.map((slug) => bySlug.get(slug)).filter((l): l is NonNullable<typeof l> => !!l),
+      lessons: category.lessonSlugs
+        .map((slug) => bySlug.get(slug))
+        .filter((l): l is NonNullable<typeof l> => !!l),
     }));
-  });
-  protected readonly relatedComplete = computed(() => {
-    const entry = this.entry();
-    if (!entry) return [];
-    return this.catalog
-      .technologies()
-      .filter((t) => t.categorySlug === entry.categorySlug && t.slug !== entry.slug && t.status !== 'planned')
-      .slice(0, 4);
-  });
-  protected readonly pathsIncluding = computed(() => {
-    const slug = this.context.techSlug();
-    return this.catalog.paths().filter((path) => path.technologySlugs.includes(slug));
   });
   protected readonly crumbs = computed(() => {
     const entry = this.entry();
@@ -83,7 +88,12 @@ export class TechnologyOverviewPage {
       const entry = this.entry();
       const tech = this.technology();
       if (!entry) {
-        if (this.context.unknown()) this.seo.apply({ title: 'Tutorial not found', description: 'This tutorial does not exist.', robots: 'noindex,nofollow' });
+        if (this.context.unknown())
+          this.seo.apply({
+            title: 'Tutorial not found',
+            description: 'This tutorial does not exist.',
+            robots: 'noindex,nofollow',
+          });
         return;
       }
       const url = this.seo.absoluteUrl(`/tutorials/${entry.slug}`);
@@ -96,11 +106,16 @@ export class TechnologyOverviewPage {
           title: tech.seo.title,
           description: tech.seo.description,
           robots: tech.status === 'planned' ? 'noindex,follow' : 'index,follow',
-          jsonLd: [breadcrumbList(crumbs), ...(tech.status === 'complete' ? [course(tech, url, this.site.name, this.site.siteUrl)] : [])],
+          jsonLd: [
+            breadcrumbList(crumbs),
+            ...(tech.status === 'complete'
+              ? [course(tech, url, this.site.name, this.site.siteUrl)]
+              : []),
+          ],
         });
       } else if (!this.context.isLoading()) {
         this.seo.apply({
-          title: `${entry.name} Tutorial (planned)`,
+          title: `${entry.name} Tutorial`,
           description: entry.shortDescription,
           robots: 'noindex,follow',
           jsonLd: [breadcrumbList(crumbs)],

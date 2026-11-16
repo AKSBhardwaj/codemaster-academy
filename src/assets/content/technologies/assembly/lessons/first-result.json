@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-result",
+  "title": "Return a small result",
+  "summary": "Assembly: Return a small result. Change 5 to 7.",
+  "introduction": "rdi is a register: a tiny storage place in the processor. Linux exit reads its status from rdi.",
+  "learningObjectives": ["Return a small result with Assembly", "Change 5 to 7"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a small result"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Return a small result",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    mov rax, 60\n    syscall\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "mov puts 5 in rdi. The exit syscall takes its code from that register."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "exit code: 5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change 5 to 7."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Exit codes are only 0 to 255; use small values in these lessons."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-first-result-check"
+    }
+  ],
+  "exerciseIds": ["assembly-first-result-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "copy-register"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Return a small result",
+    "description": "Assembly: Return a small result. Change 5 to 7. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

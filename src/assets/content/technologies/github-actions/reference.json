@@ -1,0 +1,148 @@
+{
+  "title": "GitHub Actions Reference",
+  "description": "A quick reminder of the ideas and examples in the GitHub Actions lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "A workflow file",
+          "summary": "A workflow describes jobs GitHub Actions can run for a repository. The YAML file lives under .github/workflows.",
+          "example": {
+            "language": "yaml",
+            "code": "name: Say hello\non: workflow_dispatch\njobs:\n  hello:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Hello, club\""
+          },
+          "notes": [
+            "Running hosted workflows uses the service's permissions and usage rules; no run is needed to read this course."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "events-start-workflows",
+          "name": "Events start workflows",
+          "summary": "An event tells GitHub when to consider running a workflow. workflow_dispatch is manual; push reacts to selected pushed changes.",
+          "example": {
+            "language": "yaml",
+            "code": "on:\n  push:\n    branches: [main]\n  workflow_dispatch:"
+          },
+          "notes": ["A filter must match the real branch name to react to its pushes."],
+          "lessonSlug": "events-start-workflows"
+        },
+        {
+          "slug": "jobs-and-steps",
+          "name": "Jobs and steps",
+          "summary": "A job runs a list of steps on a runner. Steps in one job run in order and share that job's working environment.",
+          "example": {
+            "language": "yaml",
+            "code": "jobs:\n  explain:\n    runs-on: ubuntu-latest\n    steps:\n      - name: First step\n        run: echo \"Read\"\n      - name: Second step\n        run: echo \"Check\""
+          },
+          "notes": ["Do not assume a file from one job appears in another job automatically."],
+          "lessonSlug": "jobs-and-steps"
+        },
+        {
+          "slug": "runners-execute-jobs",
+          "name": "Runners execute jobs",
+          "summary": "A runner is the machine environment that executes a job. runs-on chooses a matching runner label.",
+          "example": {
+            "language": "yaml",
+            "code": "runs-on: ubuntu-latest"
+          },
+          "notes": ["latest is a moving label, not a permanent operating-system version."],
+          "lessonSlug": "runners-execute-jobs"
+        },
+        {
+          "slug": "name-steps-clearly",
+          "name": "Name steps clearly",
+          "summary": "Step names appear in the run log. Clear names help someone find the part that failed.",
+          "example": {
+            "language": "yaml",
+            "code": "steps:\n  - name: Show working directory\n    run: pwd\n  - name: Print learning message\n    run: echo \"Read the result\""
+          },
+          "notes": ["A step name should describe its action, not claim it passed."],
+          "lessonSlug": "name-steps-clearly"
+        },
+        {
+          "slug": "environment-values",
+          "name": "Environment values",
+          "summary": "env gives a job or step named environment values. A shell can read them without repeating the literal text in each command.",
+          "example": {
+            "language": "yaml",
+            "code": "env:\n  CLUB_NAME: Reading club\nsteps:\n  - run: echo \"$CLUB_NAME\""
+          },
+          "notes": ["Ordinary environment values in source are not a safe place for credentials."],
+          "lessonSlug": "environment-values"
+        },
+        {
+          "slug": "job-dependencies",
+          "name": "Job dependencies",
+          "summary": "needs makes a job wait for another job to succeed. This states the order between jobs.",
+          "example": {
+            "language": "yaml",
+            "code": "jobs:\n  check:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Check\"\n  report:\n    needs: check\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"Checks finished\""
+          },
+          "notes": ["A dependency does not copy files between jobs."],
+          "lessonSlug": "job-dependencies"
+        },
+        {
+          "slug": "matrices-repeat-a-job",
+          "name": "Matrices repeat a job",
+          "summary": "A matrix runs variations of a job. Each combination gets its own job run.",
+          "example": {
+            "language": "yaml",
+            "code": "strategy:\n  matrix:\n    fruit: [apple, pear]\nsteps:\n  - run: echo \"${{ matrix.fruit }}\""
+          },
+          "notes": ["A large matrix multiplies work and usage; choose useful cases."],
+          "lessonSlug": "matrices-repeat-a-job"
+        },
+        {
+          "slug": "limit-token-permissions",
+          "name": "Limit token permissions",
+          "summary": "The workflow token can be given small permissions. Give only the access a job actually needs.",
+          "example": {
+            "language": "yaml",
+            "code": "permissions:\n  contents: read"
+          },
+          "notes": ["Do not give broad write permissions to untrusted changes."],
+          "lessonSlug": "limit-token-permissions"
+        },
+        {
+          "slug": "handle-untrusted-text-as-data",
+          "name": "Handle untrusted text as data",
+          "summary": "A workflow may receive text from a pull request. Do not paste untrusted text directly into a shell script; pass it as data and quote it.",
+          "example": {
+            "language": "yaml",
+            "code": "env:\n  NOTE: A fixed practice message\nsteps:\n  - run: printf \"%s\\n\" \"$NOTE\""
+          },
+          "notes": ["Never execute a message or title as if it were a trusted command."],
+          "lessonSlug": "handle-untrusted-text-as-data"
+        },
+        {
+          "slug": "avoid-duplicate-obsolete-runs",
+          "name": "Avoid duplicate obsolete runs",
+          "summary": "Concurrency can group related runs. cancel-in-progress can stop an older run when a newer run in the same group starts.",
+          "example": {
+            "language": "yaml",
+            "code": "concurrency:\n  group: learning-${{ github.ref }}\n  cancel-in-progress: true"
+          },
+          "notes": [
+            "Do not blindly cancel a deployment or other action that has important partial effects."
+          ],
+          "lessonSlug": "avoid-duplicate-obsolete-runs"
+        },
+        {
+          "slug": "read-the-run-result",
+          "name": "Read the run result",
+          "summary": "A run log shows which jobs and steps completed. A green result means the configured commands passed, not that every product requirement was checked.",
+          "example": {
+            "language": "text",
+            "code": "Check run:\n  syntax check: passed\n  unit tests: passed\n  visual review: not part of this workflow"
+          },
+          "notes": ["Never print real secrets just to diagnose a workflow."],
+          "lessonSlug": "read-the-run-result"
+        }
+      ]
+    }
+  ]
+}

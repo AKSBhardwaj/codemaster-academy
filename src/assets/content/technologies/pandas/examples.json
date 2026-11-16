@@ -1,0 +1,126 @@
+{
+  "title": "Pandas Examples",
+  "description": "Small Pandas examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Build a DataFrame",
+      "description": "A DataFrame is a table with labelled columns and rows. Each list supplied here becomes one column.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nprint(df.shape)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "select-a-column",
+      "title": "Select a column",
+      "description": "Selecting one column by name returns a Series. A Series is a labelled one-dimensional set of values.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nprint(df[\"score\"].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-a-column"
+    },
+    {
+      "id": "read-by-label-with-loc",
+      "title": "Read by label with loc",
+      "description": "loc selects using row and column labels. This table has default row labels 0, 1 and 2.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nprint(df.loc[1, \"name\"])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-by-label-with-loc"
+    },
+    {
+      "id": "read-by-position-with-iloc",
+      "title": "Read by position with iloc",
+      "description": "iloc selects by zero-based positions. Its row and column numbers describe where values are placed.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nprint(df.iloc[0, 1])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-by-position-with-iloc"
+    },
+    {
+      "id": "filter-rows",
+      "title": "Filter rows",
+      "description": "A condition creates a true-or-false value for each row. Use that condition to keep matching rows.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\npassed = df[df[\"score\"] >= 8]\nprint(passed[\"name\"].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-rows"
+    },
+    {
+      "id": "add-a-calculated-column",
+      "title": "Add a calculated column",
+      "description": "A new column can come from a calculation on an existing one. Matching rows keep their relationship.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\ndf[\"bonus_score\"] = df[\"score\"] + 1\nprint(df[\"bonus_score\"].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-calculated-column"
+    },
+    {
+      "id": "sort-rows-by-a-value",
+      "title": "Sort rows by a value",
+      "description": "sort_values orders rows by a selected column. The other columns move with their row so names and scores stay matched.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nordered = df.sort_values(\"score\")\nprint(ordered[\"name\"].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "sort-rows-by-a-value"
+    },
+    {
+      "id": "handle-missing-values",
+      "title": "Handle missing values",
+      "description": "A missing value means data is absent. isna identifies missing entries; filling them requires a justified choice.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nvalues = pd.Series([2.0, None, 6.0])\nprint(values.isna().tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-missing-values"
+    },
+    {
+      "id": "group-and-summarise",
+      "title": "Group and summarise",
+      "description": "groupby gathers rows with the same key. An aggregation, such as mean, gives one summary for each group.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nmeans = df.groupby(\"team\")[\"score\"].mean()\nprint(float(means.loc[\"red\"]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-and-summarise"
+    },
+    {
+      "id": "join-related-tables",
+      "title": "Join related tables",
+      "description": "merge combines tables using shared keys. Check whether each key is unique before deciding how the join should behave.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nteams = pd.DataFrame({\"team\": [\"red\", \"blue\"], \"room\": [\"A\", \"B\"]})\njoined = df.merge(teams, on=\"team\", validate=\"many_to_one\")\nprint(joined.loc[joined[\"name\"] == \"Ben\", \"room\"].iloc[0])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "join-related-tables"
+    },
+    {
+      "id": "read-a-tiny-csv",
+      "title": "Read a tiny CSV",
+      "description": "CSV stores rows as text separated by commas. read_csv can read it from a file or, here, an in-memory text buffer.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nfrom io import StringIO\nsmall = pd.read_csv(StringIO(\"item,count\\nbook,2\\npen,3\\n\"))\nprint(small[\"count\"].sum())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-tiny-csv"
+    },
+    {
+      "id": "copy-a-selected-table-before-changing-it",
+      "title": "Copy a selected table before changing it",
+      "description": "Make your intended copy explicit when you want to edit a subset independently. This keeps the original table easier to reason about.",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nselected = df.loc[df[\"team\"] == \"red\"].copy()\nselected[\"score\"] = 0\nprint(df[\"score\"].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "copy-a-selected-table-before-changing-it"
+    }
+  ]
+}

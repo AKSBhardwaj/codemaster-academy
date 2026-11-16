@@ -4,14 +4,28 @@
  *   npm run content:validate   validate every authored file, report problems, write nothing
  *   npm run content:build      validate + emit compiled content to .generated/content + refresh JSON schemas
  */
-import { ContentError, OUTPUT_DIR, compile, emit, emitJsonSchemas, type CompileResult } from './compile';
+import {
+  ContentError,
+  OUTPUT_DIR,
+  compile,
+  emit,
+  emitJsonSchemas,
+  type CompileResult,
+} from './compile';
+import { packageBackendTutorial } from '../build/package-backend-tutorial';
+import { packageDsaTutorial } from '../build/package-dsa-tutorial';
 
 function summary(result: CompileResult): string {
-  const statuses = result.technologies.reduce<Record<string, number>>((acc, t) => ({ ...acc, [t.status]: (acc[t.status] ?? 0) + 1 }), {});
+  const statuses = result.technologies.reduce<Record<string, number>>(
+    (acc, t) => ({ ...acc, [t.status]: (acc[t.status] ?? 0) + 1 }),
+    {},
+  );
   const lessons = [...result.compiled.values()].reduce((sum, b) => sum + b.lessons.length, 0);
   return `${result.technologies.length} technologies (${Object.entries(statuses)
     .map(([k, v]) => `${v} ${k}`)
-    .join(', ')}), ${lessons} lessons, ${result.paths.length} learning paths, ${result.searchCore.length + result.searchLessons.length} search documents`;
+    .join(
+      ', ',
+    )}), ${lessons} lessons, ${result.paths.length} learning paths, ${result.searchCore.length + result.searchLessons.length} search documents`;
 }
 
 async function validate(): Promise<void> {
@@ -21,6 +35,15 @@ async function validate(): Promise<void> {
 }
 
 async function build(): Promise<void> {
+  await packageBackendTutorial();
+  await packageDsaTutorial();
+  const only =
+    process.argv.find((arg) => arg.startsWith('--only='))?.slice(7) ?? process.env['CONTENT_ONLY'];
+  if (only) {
+    console.warn(
+      `[content] WARN partial build: only ${only} (plus html) compiled; other tutorials are treated as planned. Do not deploy this output.`,
+    );
+  }
   const result = await compile();
   await emit(result);
   await emitJsonSchemas();

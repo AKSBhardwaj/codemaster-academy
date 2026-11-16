@@ -32,7 +32,9 @@ export interface ExecutionEngine {
   run(request: RunRequest): Observable<RunEvent>;
 }
 
-export const EXECUTION_ENGINES = new InjectionToken<readonly ExecutionEngine[]>('EXECUTION_ENGINES');
+export const EXECUTION_ENGINES = new InjectionToken<readonly ExecutionEngine[]>(
+  'EXECUTION_ENGINES',
+);
 
 export const CAPABILITY_LABEL: Record<RunCapability, string> = {
   browser: 'Runs in your browser',

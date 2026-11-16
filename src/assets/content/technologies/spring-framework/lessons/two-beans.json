@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "two-beans",
+  "title": "Choose between two values",
+  "summary": "Spring Framework: Choose between two values. Ask for red instead.",
+  "introduction": "A container can hold several beans of one type. A name selects the one you need.",
+  "learningObjectives": ["Choose between two values with Spring Framework", "Ask for red instead"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose between two values"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Choose between two values",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String red() { return \"red\"; }\n@Bean String blue() { return \"blue\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"blue\", String.class));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both beans have type String. The explicit name blue selects one unambiguously."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "blue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ask for red instead."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A lookup by type alone is ambiguous when two beans match."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-two-beans-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-two-beans-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "bean-names"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Choose between two values",
+    "description": "Spring Framework: Choose between two values. Ask for red instead. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

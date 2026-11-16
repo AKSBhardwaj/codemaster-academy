@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "partitioning-data",
+  "title": "Partitioning data",
+  "summary": "Split records across shards using a clear key. Trace a simple remainder rule, then check hot keys, cross-shard work, and the cost of moving data.",
+  "introduction": "A large library may keep shelves in several rooms. A sign tells each visitor which room holds a book. Partitioning data does something similar: a rule tells the app which storage part holds a record.",
+  "learningObjectives": [
+    "Explain a partition key and a shard",
+    "Trace a simple record-to-shard rule",
+    "Identify hot keys and operations that cross shards"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **partition** holds part of the data. When those parts live on separate storage servers, people often call them **shards**. A **partition key** is the value used to choose the part."
+    },
+    {
+      "type": "paragraph",
+      "text": "A useful key spreads both stored data and request work. Equal record counts do not guarantee equal traffic. One very popular book can create a **hot key**: one key receiving much more work than others."
+    },
+    {
+      "type": "paragraph",
+      "text": "Some systems split by ranges, such as book IDs 1 to 1000 and 1001 to 2000. Others apply a hash, a repeatable mixing rule, before picking a shard. This lesson uses a very small remainder rule so we can work it out by hand."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Use 3 shards numbered 0, 1, and 2.",
+        "For each numeric book ID, compute ID remainder 3.",
+        "Book 10 goes to shard 1 because 10 divided by 3 leaves 1.",
+        "Book 13 also goes to shard 1. The app must use the same rule when it reads either book."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const shardCount = 3;\nconst bookIds = [10, 11, 12, 13];\nfor (const id of bookIds) {\n  console.log(`book ${id}: shard ${id % shardCount}`);\n}",
+      "title": "Partitioning data model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "book 10: shard 1\nbook 11: shard 2\nbook 12: shard 0\nbook 13: shard 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "This model assumes nonnegative integer IDs. It demonstrates routing, not a production sharding library. Changing shardCount can move many IDs, so existing records need a safe migration plan."
+    },
+    {
+      "type": "paragraph",
+      "text": "Partitioning splits data. Replication copies data. A large system may use both: several shards, each with its own replicas and backups."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Range partitions",
+          "Nearby key values can be read together",
+          "A busy newest range may receive most of the writes"
+        ],
+        [
+          "Hash-based partitions",
+          "Can spread many distinct keys more evenly",
+          "Range searches may need to ask several shards"
+        ],
+        [
+          "Keep related records together",
+          "Can make some local operations simpler",
+          "One large or busy group may overload its shard"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "A report across all books may need answers from every shard. A transaction that changes records on different shards also needs a clear agreement rule; it is harder than one local change."
+    },
+    {
+      "type": "paragraph",
+      "text": "If one popular book dominates traffic, adding shards may not spread that single key. A cache, separate read copies, or a different data model may help, depending on the job."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change shardCount to 4. Predict where book 12 goes and whether book 10 moves.",
+        "Book 12 still goes to shard 0, but book 10 moves from shard 1 to shard 2. Changing the rule requires moving or locating existing data safely."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not change the shard rule while leaving old records behind without a routing and migration plan. A correct new calculation can still point to the wrong place for old data."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-partitioning-data"
+    }
+  ],
+  "exerciseIds": ["system-design-partitioning-data"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "copies-improve-availability"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "caches-keep-useful-copies"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Partitioning data",
+    "description": "Split records across shards using a clear key. Trace a simple remainder rule, then check hot keys, cross-shard work, and the cost of moving data."
+  },
+  "updatedOn": "2026-11-16"
+}

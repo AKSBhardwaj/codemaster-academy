@@ -1,0 +1,352 @@
+{
+  "title": "System Design Quick Reference",
+  "description": "Find a short meaning, a useful rule, and the cost of a design choice. Open the linked lesson for its full walkthrough and example.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "Start with the problem",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Begin with the goal",
+          "summary": "Plan a small school library service. Name the users, their main task, the data, and a clear goal before choosing any tools.",
+          "notes": [
+            "Start with users, tasks, data, and measurable goals. Add parts only when a requirement or a test gives a reason."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "requirements-and-tradeoffs",
+          "name": "Requirements and tradeoffs",
+          "summary": "Separate actions from quality goals. Compare two library plans, keep the rules that must hold, and write down a useful tradeoff.",
+          "notes": [
+            "Separate functional requirements, quality goals, constraints, and data rules before comparing designs."
+          ],
+          "lessonSlug": "requirements-and-tradeoffs"
+        },
+        {
+          "slug": "follow-one-request",
+          "name": "Follow one request",
+          "summary": "Trace a book search from a browser to a service and database, then follow the reply back. Find where a slow step adds waiting time.",
+          "notes": [
+            "Trace validation, data access, and the complete response. Distinguish empty results from unavailable parts."
+          ],
+          "lessonSlug": "follow-one-request"
+        },
+        {
+          "slug": "estimate-demand",
+          "name": "Estimate demand",
+          "summary": "Estimate searches per day and per second using simple numbers. Compare an average with a busy period and leave room for uncertainty.",
+          "notes": [
+            "requests per second = requests / seconds. State assumptions and estimate busy periods separately from daily averages."
+          ],
+          "lessonSlug": "estimate-demand"
+        },
+        {
+          "slug": "latency-and-throughput",
+          "name": "Latency and throughput",
+          "summary": "Measure how long one request takes and how much work finishes. Use a small p95 example to notice slow replies that an average can hide.",
+          "notes": [
+            "Latency measures one request's elapsed time; throughput counts completed work per period. p95 is not the maximum or a future guarantee."
+          ],
+          "lessonSlug": "latency-and-throughput"
+        }
+      ]
+    },
+    {
+      "id": "data-and-apis",
+      "title": "Plan the data and requests",
+      "entries": [
+        {
+          "slug": "apis-and-contracts",
+          "name": "APIs and contracts",
+          "summary": "Design a small book-search API with clear inputs, replies, limits, and errors. Learn why both sides need the same contract.",
+          "notes": [
+            "An API contract includes inputs, outputs, limits, errors, paging order, and compatibility rules. Empty searches can return a successful empty list."
+          ],
+          "lessonSlug": "apis-and-contracts"
+        },
+        {
+          "slug": "choose-the-data",
+          "name": "Choose the data",
+          "summary": "Separate a book title from its physical copies. Use stable IDs and links to keep the library facts clear without repeating every detail.",
+          "notes": [
+            "Separate entities such as Book, Copy, and Loan. Stable IDs connect records; changing titles and shelves should not change identity."
+          ],
+          "lessonSlug": "choose-the-data"
+        },
+        {
+          "slug": "sql-and-nosql",
+          "name": "SQL and NoSQL choices",
+          "summary": "Compare tables, documents, and key-value storage using library tasks. Choose by needed reads, writes, and rules instead of a label.",
+          "notes": [
+            "Compare actual database features against queries and correctness rules. SQL/NoSQL labels alone do not determine transactions, speed, or scale."
+          ],
+          "lessonSlug": "sql-and-nosql"
+        },
+        {
+          "slug": "indexes-help-find-records",
+          "name": "Indexes help find records",
+          "summary": "Use a book index to understand database indexes. Create a small SQLite title index and learn why faster reads can cost space and write work.",
+          "notes": [
+            "Use indexes for known query patterns. They consume space and add write work; inspect query plans and measure realistic workloads."
+          ],
+          "lessonSlug": "indexes-help-find-records"
+        },
+        {
+          "slug": "transactions-and-safe-updates",
+          "name": "Transactions and safe updates",
+          "summary": "Keep a book-copy claim and its loan record together. Use a small SQLite transaction and conditional update to prevent a second claim.",
+          "notes": [
+            "Claim with a conditional write, check whether it succeeded, and keep the claim plus related data in one short transaction. Roll back on error."
+          ],
+          "lessonSlug": "transactions-and-safe-updates"
+        }
+      ]
+    },
+    {
+      "id": "growing-a-system",
+      "title": "Help a system grow",
+      "entries": [
+        {
+          "slug": "scaling-up-and-out",
+          "name": "Scaling up and out",
+          "summary": "Compare one bigger server with several smaller servers. Use a tiny capacity model, then check the shared parts that may still slow the service.",
+          "notes": [
+            "Scale up adds power to one machine; scale out adds machines.",
+            "Capacity estimates depend on workload and shared bottlenecks.",
+            "Keep spare room for failures and startup delays."
+          ],
+          "lessonSlug": "scaling-up-and-out"
+        },
+        {
+          "slug": "load-balancers",
+          "name": "Load balancers",
+          "summary": "Send requests across healthy servers with a load balancer. Trace round-robin routing and see why shared state and useful health checks matter.",
+          "notes": [
+            "Route only to servers considered ready, with a fallback for no ready targets.",
+            "Health checks do not guarantee future request success.",
+            "Round robin balances counts, not necessarily work."
+          ],
+          "lessonSlug": "load-balancers"
+        },
+        {
+          "slug": "caches-keep-useful-copies",
+          "name": "Caches keep useful copies",
+          "summary": "Save a copy of a repeated answer in a cache. Trace a hit, a miss, and expiry, then decide which data can safely be a little old.",
+          "notes": [
+            "A cache is a copy, not the official record.",
+            "TTL expiry does not promise immediate freshness.",
+            "Plan invalidation, key isolation, misses, and cache failure."
+          ],
+          "lessonSlug": "caches-keep-useful-copies"
+        },
+        {
+          "slug": "cdn-and-static-files",
+          "name": "CDNs and static files",
+          "summary": "Use a content delivery network to bring public files closer to readers. Plan cache headers, versioned names, and safe rules for private responses.",
+          "notes": [
+            "A CDN edge can cache an origin's public files closer to readers.",
+            "Cache headers and cache keys control reuse.",
+            "Versioned files still need page-update and old-link plans."
+          ],
+          "lessonSlug": "cdn-and-static-files"
+        },
+        {
+          "slug": "copies-improve-availability",
+          "name": "Copies improve availability",
+          "summary": "Use replicas to keep extra data copies, then trace a delayed update and a failed leader. Learn why replicas still need backups and safe failover.",
+          "notes": [
+            "Replicas copy changes; asynchronous replicas can lag.",
+            "Failover needs a safe leader decision and routing plan.",
+            "Use tested backups to recover from bad changes."
+          ],
+          "lessonSlug": "copies-improve-availability"
+        },
+        {
+          "slug": "partitioning-data",
+          "name": "Partitioning data",
+          "summary": "Split records across shards using a clear key. Trace a simple remainder rule, then check hot keys, cross-shard work, and the cost of moving data.",
+          "notes": [
+            "Choose a partition key based on data and access patterns.",
+            "Partitioning splits data; replication copies it.",
+            "Plan hot keys, cross-shard work, and migrations."
+          ],
+          "lessonSlug": "partitioning-data"
+        }
+      ]
+    },
+    {
+      "id": "reliable-work",
+      "title": "Keep work reliable",
+      "entries": [
+        {
+          "slug": "consistency-describes-agreement",
+          "name": "Consistency describes agreement",
+          "summary": "Compare fresh and delayed reads across copies. Use a book checkout to explain consistency promises and the choices made during a network break.",
+          "notes": [
+            "State the exact read/write guarantee required by each action.",
+            "Eventual consistency alone gives no fixed convergence deadline.",
+            "During partitions, strict agreement may require refusing some work."
+          ],
+          "lessonSlug": "consistency-describes-agreement"
+        },
+        {
+          "slug": "queues-handle-work-later",
+          "name": "Queues handle work later",
+          "summary": "Put slow jobs in a queue and let workers finish them later. Count a growing backlog, then plan acknowledgments, duplicate jobs, and failure handling.",
+          "notes": [
+            "A queue stores waiting work; sustained overload still grows the backlog.",
+            "At-least-once delivery can repeat a job.",
+            "Acknowledge after safe completion and monitor old or failed jobs."
+          ],
+          "lessonSlug": "queues-handle-work-later"
+        },
+        {
+          "slug": "retries-need-safe-rules",
+          "name": "Retries need safe rules",
+          "summary": "Retry a temporary failure with limits and increasing delays. Use stable request IDs so a lost reply does not repeat an important action.",
+          "notes": [
+            "A lost reply leaves the outcome uncertain.",
+            "Use limited attempts, backoff, jitter, and an overall deadline.",
+            "A durable idempotency design must protect the effect and record atomically."
+          ],
+          "lessonSlug": "retries-need-safe-rules"
+        },
+        {
+          "slug": "timeouts-and-circuit-breakers",
+          "name": "Timeouts and circuit breakers",
+          "summary": "Limit waiting with timeouts and pause calls to a failing service with a circuit breaker. Trace closed, open, and half-open states using a small model.",
+          "notes": [
+            "Timeouts limit one wait; deadlines limit the whole job.",
+            "Closed allows calls, open blocks them, and half-open tests recovery.",
+            "A timeout does not prove the remote write was canceled."
+          ],
+          "lessonSlug": "timeouts-and-circuit-breakers"
+        },
+        {
+          "slug": "rate-limits-and-backpressure",
+          "name": "Rate limits and backpressure",
+          "summary": "Keep a busy service from taking too much work. Compare a request limit with a signal to slow down, then trace a small JavaScript model.",
+          "notes": [
+            "Define who and what each limit counts.",
+            "Bound queues by size and waiting time.",
+            "Coordinate counters when several servers enforce one limit."
+          ],
+          "lessonSlug": "rate-limits-and-backpressure"
+        }
+      ]
+    },
+    {
+      "id": "care-for-the-system",
+      "title": "Protect, recover, and observe",
+      "entries": [
+        {
+          "slug": "backups-and-recovery",
+          "name": "Backups and recovery",
+          "summary": "Plan how to recover lost data. Tell backups from replicas, set simple recovery targets, and practise restoring a safe copy.",
+          "notes": [
+            "A replica may copy an accidental deletion.",
+            "Measure both lost changes and recovery time.",
+            "Restore a backup in a safe practice environment and check its records."
+          ],
+          "lessonSlug": "backups-and-recovery"
+        },
+        {
+          "slug": "observe-and-review-the-design",
+          "name": "Observe and review the design",
+          "summary": "Use metrics, logs, and traces to understand a service. Check a small error-rate calculation, then review a design with clear evidence.",
+          "notes": [
+            "Show traffic, error rates, latency, and capacity together.",
+            "Label the time window and which requests are included.",
+            "Avoid secret or unnecessary personal data in logs."
+          ],
+          "lessonSlug": "observe-and-review-the-design"
+        },
+        {
+          "slug": "security-and-privacy",
+          "name": "Security and privacy in a design",
+          "summary": "Protect private facts at each boundary. Learn identity checks, permissions, safe inputs, and why a design should collect only the data it needs.",
+          "notes": [
+            "Authentication checks identity; authorization checks permission.",
+            "Treat input crossing a boundary as untrusted.",
+            "Keep service secrets out of browser code and public repositories."
+          ],
+          "lessonSlug": "security-and-privacy"
+        }
+      ]
+    },
+    {
+      "id": "worked-designs",
+      "title": "Put the ideas together",
+      "entries": [
+        {
+          "slug": "monoliths-and-services",
+          "name": "One app or several services?",
+          "summary": "Compare one application with several services. Keep clear module boundaries, then decide when a separate service is worth its extra work.",
+          "notes": [
+            "A monolith can have clear, well-tested modules.",
+            "Service boundaries add network and data coordination work.",
+            "Split to meet a measured need, not a diagram-size target."
+          ],
+          "lessonSlug": "monoliths-and-services"
+        },
+        {
+          "slug": "design-a-library",
+          "name": "Design a school library service",
+          "summary": "Plan book search, borrowing, and returns for a small library. Follow one safe loan and explain what happens when two readers want the same copy.",
+          "notes": [
+            "Use a separate ID for each physical copy.",
+            "Protect borrow and return rules in database transactions.",
+            "Treat cached availability as a hint, not permission to lend."
+          ],
+          "lessonSlug": "design-a-library"
+        },
+        {
+          "slug": "design-a-url-shortener",
+          "name": "Design a URL shortener",
+          "summary": "Plan a service that turns a long web address into a short link. Handle code collisions, redirects, expired links, and unsafe destinations.",
+          "notes": [
+            "Enforce code uniqueness in storage.",
+            "A redirect need not fetch the destination page.",
+            "Plan expiry, blocked links, cache rules, and abuse reports."
+          ],
+          "lessonSlug": "design-a-url-shortener"
+        },
+        {
+          "slug": "design-a-chat-app",
+          "name": "Design a small chat app",
+          "summary": "Plan saved messages and live delivery for a small chat. Handle repeated sends, missing connections, message order, and private group access.",
+          "notes": [
+            "A WebSocket carries live updates; storage keeps history.",
+            "Use stable IDs for retries and removing repeated deliveries.",
+            "Distinguish saved, delivered, and read acknowledgements."
+          ],
+          "lessonSlug": "design-a-chat-app"
+        },
+        {
+          "slug": "design-a-news-feed",
+          "name": "Design a news feed",
+          "summary": "Build a small feed of recent posts. Compare making the feed when it is read with preparing it when a post is written, and protect private posts.",
+          "notes": [
+            "Build on read keeps writes simple; build on write shifts work to fan-out.",
+            "A time-and-ID cursor gives stable ordering for paging.",
+            "Recheck current permissions for cached feed candidates."
+          ],
+          "lessonSlug": "design-a-news-feed"
+        },
+        {
+          "slug": "design-a-file-upload",
+          "name": "Design a file-upload service",
+          "summary": "Plan a private file upload without sending large files through every app server. Track upload states, check the stored bytes, and clean up failed work.",
+          "notes": [
+            "Store bytes separately from file metadata.",
+            "A temporary upload grant must have a narrow key, operation, and lifetime.",
+            "Check and serve the same immutable bytes; clean up abandoned uploads."
+          ],
+          "lessonSlug": "design-a-file-upload"
+        }
+      ]
+    }
+  ]
+}

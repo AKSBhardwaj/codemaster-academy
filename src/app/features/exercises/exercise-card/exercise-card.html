@@ -7,31 +7,58 @@
       <span class="cma-exercise__type">{{ typeLabel() }}</span>
       <span class="cma-chip">{{ difficultyLabel() }}</span>
       @if (solved()) {
-        <span class="cma-status-badge cma-status-badge--complete"><cma-icon name="check-circle-fill" [size]="12" /> Solved</span>
+        <span class="cma-status-badge cma-status-badge--complete"
+          ><cma-icon name="check-circle-fill" [size]="12" /> Solved</span
+        >
       }
     </div>
     @if (showLessonLink() && technologySlug()) {
-      <a class="small" [routerLink]="['/tutorials', technologySlug(), exercise().lessonSlug]">Related lesson</a>
+      <a class="small" [routerLink]="['/tutorials', technologySlug(), exercise().lessonSlug]"
+        >Related lesson</a
+      >
     }
   </header>
 
   @if (coding()) {
-    <cma-coding-task [task]="$any(exercise())" [done]="solved()" (completed)="completeCodingTask()" />
+    <cma-coding-task
+      [task]="$any(exercise())"
+      [done]="solved()"
+      (completed)="completeCodingTask()"
+    />
   } @else if (question(); as question) {
-    <cma-question-input [question]="question" [(answer)]="answer" [disabled]="checked()" [reveal]="checked()" />
+    <cma-question-input
+      [question]="question"
+      [(answer)]="answer"
+      [disabled]="checked()"
+      [reveal]="checked()"
+    />
 
     <div class="cma-exercise__actions">
       @if (!checked()) {
-        <button type="button" class="btn btn-primary btn-sm" (click)="check()" [disabled]="!answer()">Check answer</button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="check()"
+          [disabled]="!answer()"
+        >
+          Check answer
+        </button>
       } @else {
-        <div class="cma-exercise__feedback" [class.cma-exercise__feedback--correct]="correct()" [class.cma-exercise__feedback--wrong]="!correct()" role="status">
+        <div
+          class="cma-exercise__feedback"
+          [class.cma-exercise__feedback--correct]="correct()"
+          [class.cma-exercise__feedback--wrong]="!correct()"
+          role="status"
+        >
           <cma-icon [name]="correct() ? 'check-circle-fill' : 'x-circle'" [size]="16" />
           <div>
             <strong>{{ correct() ? 'Correct!' : 'Not quite.' }}</strong>
             <span class="d-block"><cma-inline [text]="exercise().explanation" /></span>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="retry()">Try again</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="retry()">
+          Try again
+        </button>
       }
     </div>
   }

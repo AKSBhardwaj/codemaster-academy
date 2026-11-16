@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "size-limit",
+  "title": "Limit message size",
+  "summary": "WebSockets: Limit message size. Send only four bytes and add an echo handler to see it accepted.",
+  "introduction": "maxPayload limits incoming message bytes. The client sends five bytes to a server limited to four.",
+  "learningObjectives": [
+    "Limit message size with WebSockets",
+    "Send only four bytes and add an echo handler to see it accepted"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Limit message size"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Limit message size",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 4 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => { socket.on(\"error\", () => {}); });\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"ABCDE\"));\nclient.on(\"close\", code => { console.log(code); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Five text bytes exceed the four-byte receive limit. The server closes the connection with size-error code 1009."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "1009"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send only four bytes and add an echo handler to see it accepted."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Keep limits clear; a message that is too large is closed with a protocol size error."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-size-limit-check"
+    }
+  ],
+  "exerciseIds": ["websockets-size-limit-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "bad-json"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Limit message size",
+    "description": "WebSockets: Limit message size. Send only four bytes and add an echo handler to see it accepted. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,138 @@
+{
+  "title": "JavaScript DOM Small Examples",
+  "description": "Use these small JavaScript DOM examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Find a page element",
+      "description": "The DOM gives JavaScript a way to work with the parts of a page.",
+      "language": "html",
+      "code": "<h1 id=\"title\">Reading club</h1>\n<script>\n  const title = document.querySelector(\"#title\");\n  console.log(title.textContent);\n</script>",
+      "output": "The heading stays on the page. The console shows Reading club.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "change-words-safely",
+      "title": "Change words safely",
+      "description": "textContent replaces the text inside an element.",
+      "language": "html",
+      "code": "<p id=\"message\">Waiting</p>\n<script>\n  document.querySelector(\"#message\").textContent = \"Welcome, Mia!\";\n</script>",
+      "output": "The paragraph changes from Waiting to Welcome, Mia!.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "change-words-safely"
+    },
+    {
+      "id": "choose-several-elements",
+      "title": "Choose several elements",
+      "description": "querySelectorAll gives a list of all matches.",
+      "language": "html",
+      "code": "<ul><li>Seeds</li><li>Water</li></ul>\n<script>\n  document.querySelectorAll(\"li\").forEach((item) => {\n    item.textContent = \"Pack: \" + item.textContent;\n  });\n</script>",
+      "output": "The list shows Pack: Seeds and Pack: Water.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-several-elements"
+    },
+    {
+      "id": "change-a-class",
+      "title": "Change a class",
+      "description": "classList changes class names on an element.",
+      "language": "html",
+      "code": "<style>.bright { background: gold; }</style>\n<p id=\"note\">Bring a book.</p>\n<script>\n  document.querySelector(\"#note\").classList.add(\"bright\");\n</script>",
+      "output": "The paragraph gets the bright class, so its background becomes gold.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "change-a-class"
+    },
+    {
+      "id": "react-to-a-click",
+      "title": "React to a click",
+      "description": "An event listener is a function that runs when an event happens.",
+      "language": "html",
+      "code": "<button id=\"hello\">Say hello</button><p id=\"reply\"></p>\n<script>\n  document.querySelector(\"#hello\").addEventListener(\"click\", () => {\n    document.querySelector(\"#reply\").textContent = \"Hello, reader!\";\n  });\n</script>",
+      "output": "Clicking the button puts Hello, reader! in the paragraph.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "react-to-a-click"
+    },
+    {
+      "id": "read-a-form-value",
+      "title": "Read a form value",
+      "description": "An input value is the text currently typed into a field.",
+      "language": "html",
+      "code": "<form id=\"form\"><label for=\"name\">Name</label><input id=\"name\"><button>Greet</button></form><p id=\"reply\"></p>\n<script>\n  document.querySelector(\"#form\").addEventListener(\"submit\", (event) => {\n    event.preventDefault();\n    document.querySelector(\"#reply\").textContent = \"Hi, \" + document.querySelector(\"#name\").value;\n  });\n</script>",
+      "output": "Typing Mia and submitting shows Hi, Mia without loading a new page.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-form-value"
+    },
+    {
+      "id": "create-a-new-element",
+      "title": "Create a new element",
+      "description": "createElement makes a new page part. append puts that part inside an existing element.",
+      "language": "html",
+      "code": "<ul id=\"books\"></ul>\n<script>\n  const item = document.createElement(\"li\");\n  item.textContent = \"Moon Trip\";\n  document.querySelector(\"#books\").append(item);\n</script>",
+      "output": "The empty list gains one item named Moon Trip.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "create-a-new-element"
+    },
+    {
+      "id": "remove-a-page-part",
+      "title": "Remove a page part",
+      "description": "The remove method takes an element out of the page.",
+      "language": "html",
+      "code": "<p id=\"tip\">This tip can be closed.</p><button id=\"close\">Close tip</button>\n<script>\n  document.querySelector(\"#close\").addEventListener(\"click\", () => {\n    document.querySelector(\"#tip\")?.remove();\n  });\n</script>",
+      "output": "The first click removes the tip. Later clicks do nothing because ?. checks that the tip still exists.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "remove-a-page-part"
+    },
+    {
+      "id": "use-one-listener-for-a-list",
+      "title": "Use one listener for a list",
+      "description": "Events often travel from a child to its parent.",
+      "language": "html",
+      "code": "<div id=\"list\"><button data-book=\"Moon Trip\">Choose</button></div><p id=\"choice\"></p>\n<script>\n  document.querySelector(\"#list\").addEventListener(\"click\", (event) => {\n    const button = event.target.closest(\"button[data-book]\");\n    if (button) document.querySelector(\"#choice\").textContent = button.dataset.book;\n  });\n</script>",
+      "output": "Clicking Choose shows Moon Trip. The listener lives on the parent div.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "use-one-listener-for-a-list"
+    },
+    {
+      "id": "keep-focus-visible",
+      "title": "Keep focus visible",
+      "description": "Focus marks the control that receives keyboard input.",
+      "language": "html",
+      "code": "<label for=\"search\">Find a book</label><input id=\"search\"><button id=\"start\">Go to search</button>\n<script>\n  document.querySelector(\"#start\").addEventListener(\"click\", () => {\n    document.querySelector(\"#search\").focus();\n  });\n</script>",
+      "output": "Clicking Go to search moves focus into the search field. You can then type.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-focus-visible"
+    },
+    {
+      "id": "read-an-extra-data-value",
+      "title": "Read an extra data value",
+      "description": "A data attribute stores a small extra value on an HTML element.",
+      "language": "html",
+      "code": "<p id=\"book\" data-pages=\"40\">Garden Days</p>\n<script>\n  const pages = Number(document.querySelector(\"#book\").dataset.pages);\n  console.log(pages + 5);\n</script>",
+      "output": "The console shows 45. Number changes the text 40 into a number before adding 5.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "read-an-extra-data-value"
+    },
+    {
+      "id": "build-a-tiny-counter",
+      "title": "Build a tiny counter",
+      "description": "A page can keep a number in JavaScript and show it in an element.",
+      "language": "html",
+      "code": "<button id=\"add\">Read one more</button><p>Books read: <output id=\"count\">0</output></p>\n<script>\n  let count = 0;\n  document.querySelector(\"#add\").addEventListener(\"click\", () => {\n    count += 1;\n    document.querySelector(\"#count\").textContent = String(count);\n  });\n</script>",
+      "output": "Three clicks make the output show 3. Reloading this example starts again at zero.",
+      "runnable": true,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-tiny-counter"
+    }
+  ]
+}

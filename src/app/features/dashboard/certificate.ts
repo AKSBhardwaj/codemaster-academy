@@ -27,8 +27,8 @@ import { PlatformService } from '../../core/services/platform.service';
           {{ lessons() }} lessons · ≈ {{ hours() }} hours · {{ completedOn() | date: 'd MMMM y' }}
         </p>
         <p class="cma-certificate__disclaimer">
-          Self-issued demo certificate generated from progress stored in this browser. Not verified,
-          signed or accredited.
+          A keepsake made from the lessons you marked as done in this browser. This is not an
+          official school or job certificate.
         </p>
       </div>
     </div>

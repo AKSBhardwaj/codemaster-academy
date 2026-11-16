@@ -1,0 +1,150 @@
+{
+  "title": "Cypress Reference",
+  "description": "A quick reminder of the ideas and examples in the Cypress lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Meet the Cypress runner",
+          "summary": "Cypress runs browser checks as a chain of commands. This example starts with a blank local practice page.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"meet the cypress runner\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = \"<h1>Library</h1>\"; });\n    cy.contains(\"h1\", \"Library\").should(\"be.visible\");\n  });\n});"
+          },
+          "notes": [
+            "Serve a blank practice.html from your local frontend project and configure baseUrl first."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "select-a-clear-target",
+          "name": "Select a clear target",
+          "summary": "A stable data attribute can identify a control without tying a test to its visual style.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"select a clear target\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = '<button data-cy=\"borrow\">Borrow</button>'; });\n    cy.get('[data-cy=\"borrow\"]').should(\"have.text\", \"Borrow\");\n  });\n});"
+          },
+          "notes": ["A color class is often a fragile test selector because design changes it."],
+          "lessonSlug": "select-a-clear-target"
+        },
+        {
+          "slug": "type-into-a-field",
+          "name": "Type into a field",
+          "summary": "type enters text and clear removes existing text. A final value check confirms the input received it.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"type into a field\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = '<label for=\"title\">Title</label><input id=\"title\">'; });\n    cy.get(\"#title\").type(\"Moon\").should(\"have.value\", \"Moon\");\n  });\n});"
+          },
+          "notes": [
+            "Cypress commands are queued; do not read their result like an immediate normal value."
+          ],
+          "lessonSlug": "type-into-a-field"
+        },
+        {
+          "slug": "click-and-check-the-effect",
+          "name": "Click and check the effect",
+          "summary": "A click test needs an observable result. Here the button changes its own text.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"click and check the effect\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { const b=doc.createElement(\"button\"); b.textContent=\"Save\"; b.onclick=()=>b.textContent=\"Done\"; doc.body.replaceChildren(b); });\n    cy.contains(\"button\", \"Save\").click();\n    cy.contains(\"button\", \"Done\").should(\"be.visible\");\n  });\n});"
+          },
+          "notes": ["Do not consider a click alone proof of the business result."],
+          "lessonSlug": "click-and-check-the-effect"
+        },
+        {
+          "slug": "retry-an-assertion",
+          "name": "Retry an assertion",
+          "summary": "Cypress retries many queries and assertions until they pass or time out. Check a real condition instead of guessing a delay.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"retry an assertion\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<p>Ready</p>\"; });\n    cy.contains(\"p\", \"Ready\").should(\"be.visible\");\n  });\n});"
+          },
+          "notes": ["Arbitrary cy.wait delays can make tests both slow and unreliable."],
+          "lessonSlug": "retry-an-assertion"
+        },
+        {
+          "slug": "read-a-yielded-value",
+          "name": "Read a yielded value",
+          "summary": "then receives the value yielded by the previous command. This is how you inspect queued results.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"read a yielded value\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<p>Moon</p>\"; });\n    cy.get(\"p\").then($p => { expect($p.text()).to.equal(\"Moon\"); });\n  });\n});"
+          },
+          "notes": ["Do not assign cy.get to a variable and treat it as the DOM element."],
+          "lessonSlug": "read-a-yielded-value"
+        },
+        {
+          "slug": "work-with-checkboxes",
+          "name": "Work with checkboxes",
+          "summary": "check requests the checked state. It states intent more clearly than a toggle click.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"work with checkboxes\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML='<label><input id=\"remember\" type=\"checkbox\">Remember</label>'; });\n    cy.get(\"#remember\").check().should(\"be.checked\");\n  });\n});"
+          },
+          "notes": ["Check applies to checkboxes and radio buttons, not an arbitrary button."],
+          "lessonSlug": "work-with-checkboxes"
+        },
+        {
+          "slug": "select-a-dropdown-value",
+          "name": "Select a dropdown value",
+          "summary": "select chooses a native option by value or text. Assert the stored value after the action.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"select a dropdown value\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML='<select id=\"size\"><option value=\"s\">Small</option><option value=\"l\">Large</option></select>'; });\n    cy.get(\"#size\").select(\"l\").should(\"have.value\", \"l\");\n  });\n});"
+          },
+          "notes": ["A custom popup is not a native select and needs different actions."],
+          "lessonSlug": "select-a-dropdown-value"
+        },
+        {
+          "slug": "count-a-collection",
+          "name": "Count a collection",
+          "summary": "A query can find several elements. have.length checks how many the query found.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"count a collection\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<ul><li>Moon</li><li>Ocean</li></ul>\"; });\n    cy.get(\"li\").should(\"have.length\", 2);\n  });\n});"
+          },
+          "notes": ["A correct count does not guarantee correct item text."],
+          "lessonSlug": "count-a-collection"
+        },
+        {
+          "slug": "intercept-a-request",
+          "name": "Intercept a request",
+          "summary": "intercept can supply a known network response. Set it up before the page sends the request.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"intercept a request\", () => {\n    cy.intercept(\"GET\", \"/books.json\", { body: [{ title: \"Moon\" }] }).as(\"books\");\n    cy.visit(\"/practice.html\");\n    cy.window().then(win => win.fetch(\"/books.json\"));\n    cy.wait(\"@books\").its(\"response.statusCode\").should(\"eq\", 200);\n  });\n});"
+          },
+          "notes": [
+            "A mocked response tests the frontend contract, not a real server implementation."
+          ],
+          "lessonSlug": "intercept-a-request"
+        },
+        {
+          "slug": "keep-tests-independent",
+          "name": "Keep tests independent",
+          "summary": "A test should set up the state it needs. Cypress test isolation helps avoid state leaking from a previous test.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"keep tests independent\", () => {\n    cy.visit(\"/practice.html\");\n    cy.window().then(win => { win.localStorage.setItem(\"theme\", \"light\"); });\n    cy.window().its(\"localStorage\").invoke(\"getItem\", \"theme\").should(\"eq\", \"light\");\n  });\n});"
+          },
+          "notes": ["Do not rely on one test running before another to prepare data."],
+          "lessonSlug": "keep-tests-independent"
+        },
+        {
+          "slug": "review-failures-and-screenshots",
+          "name": "Review failures and screenshots",
+          "summary": "A failed assertion tells you which expected condition was not met. Use the command log and screenshot to understand it.",
+          "example": {
+            "language": "typescript",
+            "code": "describe(\"local practice\", () => {\n  it(\"review failures and screenshots\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<h1>Library</h1>\"; });\n    cy.contains(\"h1\", \"Library\").should(\"be.visible\");\n    cy.screenshot(\"library-page\");\n  });\n});"
+          },
+          "notes": ["Do not hide a failure by deleting its assertion."],
+          "lessonSlug": "review-failures-and-screenshots"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "pass-a-query-parameter",
+  "title": "Pass a query parameter",
+  "summary": "A parameter keeps a data value separate from the SQL command text.",
+  "introduction": "A parameter keeps a data value separate from the SQL command text. Your task: Change the wanted value and predict the answer.",
+  "learningObjectives": [
+    "Change the wanted value and predict the answer.",
+    "Explain the example for pass a query parameter"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A parameter keeps a data value separate from the SQL command text. It avoids building the command by joining input strings."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use SQL Server 2019+ in a separate practice database with a SQL editor. T-SQL is different from the SQLite engine on this site, so these examples are for that separate tool."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DECLARE @wanted int=4;\nEXEC sys.sp_executesql\n N'SELECT @number + 1 AS next_number;',\n N'@number int',\n @number=@wanted;",
+      "title": "Pass a query parameter",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`sp_executesql` accepts SQL text, parameter definitions and parameter values as separate inputs.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The parameter value 4 produces next_number equal to 5."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not join untrusted text into dynamic SQL. Parameters represent values, not arbitrary table names."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the wanted value and predict the answer."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-server-pass-a-query-parameter-check"
+    }
+  ],
+  "exerciseIds": ["sql-server-pass-a-query-parameter-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql-server",
+      "slug": "undo-a-sample-transaction"
+    }
+  ],
+  "seo": {
+    "title": "Microsoft SQL Server: Pass a query parameter",
+    "description": "A parameter keeps a data value separate from the SQL command text. It avoids building the command by joining input strings."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "slug": "routing-middleware",
+  "title": "Routing and Middleware",
+  "summary": "Understand the Express middleware pipeline, write a request logger, split routes into Router modules, match Express 5 route patterns and handle 404s and errors in one place.",
+  "introduction": "Every Express feature is built from one idea: a request passes through an ordered list of functions, and each function either responds or hands over to the next one. Logging, body parsing, authentication, routing and error handling are all just functions in that list. Once you see the pipeline clearly, Express stops being a bag of tricks. In this lesson you write your own middleware, organise routes into modules with `Router`, and add the two handlers every API needs: a JSON 404 and a central error handler.",
+  "learningObjectives": [
+    "Write middleware with (req, res, next) and explain why order matters",
+    "Group related routes in an express.Router module",
+    "Add a JSON 404 handler and an error-handling middleware with four parameters"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The middleware pipeline"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **middleware** is a function with the signature `(req, res, next)`. Express calls the registered functions in the order they were added, and each one decides: send a response and stop, or call `next()` to pass control on. `app.use(fn)` registers a function for every request; `app.get(path, fn)` registers one for a method and path. A request logger is the classic first middleware:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "app.js",
+      "code": "import express from 'express';\n\nconst app = express();\n\napp.use((req, res, next) => {\n  const started = Date.now();\n  res.on('finish', () => {\n    console.log(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - started} ms)`);\n  });\n  next();\n});\n\napp.get('/api/books', (req, res) => {\n  res.json([{ id: 1, title: 'Dune' }]);\n});\n\napp.listen(3000, () => console.log('Listening on http://localhost:3000'));"
+    },
+    {
+      "type": "paragraph",
+      "text": "Request `/api/books` and then `/nope` with curl, and the server's terminal shows one line per request, including the 404 that Express generated itself:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Server terminal (timings vary)",
+      "content": "Listening on http://localhost:3000\nGET /api/books -> 200 (3 ms)\nGET /nope -> 404 (1 ms)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The logger listens for the response's `'finish'` event, so it can report the final status code and the time taken, then calls `next()` immediately so the request continues down the pipeline. Middleware can also attach data for later handlers: an authentication middleware typically sets `req.user` and calls `next()`, or responds with `401` and stops."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting next()",
+      "text": "A middleware that neither responds nor calls `next()` leaves the request hanging forever: Express is waiting for you. The opposite mistake, calling `next()` *after* sending a response, lets later handlers try to respond again and logs `ERR_HTTP_HEADERS_SENT`. Each middleware should do exactly one of the two, and `return next()` makes the intent obvious."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Order matters"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Loggers and `express.json()` go first, so every route sees a parsed body.",
+        "Routes come next, most specific first: `/api/books/featured` must be registered before `/api/books/:id`, or `featured` is treated as an id.",
+        "The 404 handler goes after all routes; it only runs when nothing above responded.",
+        "The error handler goes last, so that errors from everything above reach it."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Splitting routes into modules"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Router()` creates a mini application with its own routes and middleware. You define routes relative to the router, then mount it under a prefix with `app.use`. One router per resource keeps `app.js` short as the API grows:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "routes/books.js",
+      "code": "import { Router } from 'express';\n\nconst books = [\n  { id: 1, title: 'Dune' },\n  { id: 2, title: 'Neuromancer' },\n];\n\nexport const booksRouter = Router();\n\nbooksRouter.get('/', (req, res) => {\n  res.json(books);\n});\n\nbooksRouter.get('/:id', (req, res) => {\n  const book = books.find((b) => b.id === Number(req.params.id));\n  if (!book) return res.status(404).json({ error: 'Book not found' });\n  res.json(book);\n});"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "app.js",
+      "code": "import express from 'express';\nimport { booksRouter } from './routes/books.js';\n\nconst app = express();\n\napp.use('/api/books', booksRouter);\n\napp.use((req, res) => {\n  res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` });\n});\n\napp.use((err, req, res, next) => {\n  console.error(err);\n  res.status(500).json({ error: 'Something went wrong' });\n});\n\napp.listen(3000);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s http://localhost:3000/api/books/2\ncurl -s http://localhost:3000/api/books/9\ncurl -s http://localhost:3000/api/authors"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (one line per command)",
+      "content": "{\"id\":2,\"title\":\"Neuromancer\"}\n{\"error\":\"Book not found\"}\n{\"error\":\"No route for GET /api/authors\"}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside the router, `/:id` is relative to the mount point, so it matches `/api/books/2`. `req.originalUrl` keeps the full path for logging, while `req.path` inside a router is the part after the prefix. Routers can also have their own `router.use` middleware, which is how you protect only `/api/admin` with an authentication check."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Express 5 route patterns"
+    },
+    {
+      "type": "table",
+      "headers": ["Pattern", "Matches", "Notes"],
+      "rows": [
+        ["`/books/:id`", "`/books/42`", "`req.params.id === '42'`; one segment only"],
+        [
+          "`/files/*path`",
+          "`/files/img/logo.png`",
+          "Named wildcard; `req.params.path` holds the rest. The bare `*` of Express 4 no longer works"
+        ],
+        [
+          "`/books{/:id}`",
+          "`/books` and `/books/42`",
+          "Braces mark an optional group; replaces the Express 4 `/:id?` syntax"
+        ],
+        [
+          "`/books/:id/reviews/:reviewId`",
+          "`/books/42/reviews/7`",
+          "Any number of parameters; each is one segment"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling errors in one place"
+    },
+    {
+      "type": "paragraph",
+      "text": "An error handler is a middleware with **four** parameters; Express recognises it by the arity, so `next` must stay in the signature even if you do not use it. Any route that throws, or calls `next(err)`, skips the remaining routes and lands here. Since Express 5 this includes rejected promises from `async` handlers, which Express 4 silently dropped:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "An async route that fails",
+      "code": "app.get('/api/boom', async (req, res) => {\n  throw new Error('database down');\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "curl -s http://localhost:3000/api/boom, and the server terminal",
+      "content": "{\"error\":\"Something went wrong\"}\n\nError: database down\n    at file:///home/ada/bookshelf/app.js:8:9\n    ... (stack shortened)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The client receives a generic message while the terminal gets the full stack. Never send `err.message` or `err.stack` to clients in production: they can reveal file paths, queries and library versions. If you need distinguishable errors, give them a `status` property (`err.status = 404`) and let the handler use `err.status ?? 500`."
+    },
+    {
+      "type": "table",
+      "headers": ["Built-in middleware", "Purpose"],
+      "rows": [
+        [
+          "`express.json()`",
+          "Parses JSON bodies into `req.body` when `Content-Type` is `application/json`; limit 100 kB by default"
+        ],
+        [
+          "`express.urlencoded()`",
+          "Parses HTML form submissions (`application/x-www-form-urlencoded`)"
+        ],
+        ["`express.static(folder)`", "Serves files from a folder"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Third-party middleware",
+      "text": "Most cross-cutting needs already exist as packages that follow the same `(req, res, next)` contract: `cors` for cross-origin requests from browsers, `helmet` for security headers, `morgan` for logging, `express-rate-limit` for throttling. Add them with `app.use` in the same order rules as your own middleware."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-routing-middleware-next"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-routing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "routing-middleware",
+          "difficulty": "beginner",
+          "question": "How does Express tell an error-handling middleware apart from a normal one?",
+          "explanation": "Express checks the function's length: a middleware declared with four parameters (err, req, res, next) is treated as an error handler.",
+          "options": [
+            "It is registered with `app.error()`",
+            "It has four parameters: `(err, req, res, next)`",
+            "It must be the first middleware",
+            "It returns a promise"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-routing-qc-2",
+          "type": "true-false",
+          "lessonSlug": "routing-middleware",
+          "difficulty": "intermediate",
+          "question": "In Express 5, an error thrown inside an `async` route handler is passed to the error-handling middleware automatically.",
+          "explanation": "Express 5 catches rejected promises returned by handlers and calls next(err) for you; in Express 4 such a request would hang unless you caught the error yourself.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-routing-middleware-next"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "express-basics"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "json-apis"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "async-patterns"
+    }
+  ],
+  "seo": {
+    "title": "Express Routing and Middleware – Router, next(), Errors",
+    "description": "Learn the Express 5 middleware pipeline: write a request logger, order middleware, split routes with Router, match route patterns and handle 404s and errors."
+  },
+  "updatedOn": "2026-11-15"
+}

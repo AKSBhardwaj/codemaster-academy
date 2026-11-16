@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json",
+  "title": "Return named data",
+  "summary": "NestJS: Return named data. Add an author field.",
+  "introduction": "Nest sends returned objects as JSON. Open GET /book. Read the example, then check the result.",
+  "learningObjectives": ["Return named data with NestJS", "Add an author field"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return named data"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Return named data",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"book\") book() { return { title: \"Moon Trip\", pages: 24 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The controller returns an object. Nest serialises title and pages into JSON."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\",\"pages\":24}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add an author field."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Let Nest write the returned object instead of writing a second response."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-json-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "controllers"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Return named data",
+    "description": "NestJS: Return named data. Add an author field. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

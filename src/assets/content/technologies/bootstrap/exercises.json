@@ -1,0 +1,267 @@
+{
+  "title": "Bootstrap Exercises",
+  "description": "Practice every Bootstrap lesson with multiple-choice questions, output prediction, find-the-error tasks and small coding tasks you check against a solution and a checklist.",
+  "exercises": [
+    {
+      "id": "bootstrap-intro-purpose",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Does Bootstrap handle every job in a web app?",
+      "explanation": "Bootstrap gives you styles and some controls, such as menus that open. Your own code handles jobs such as saving data and deciding how the app works.",
+      "options": [
+        "Yes, it does every job",
+        "No, it gives styles and some controls; other jobs need more code",
+        "Yes, if every button is blue",
+        "No, because Bootstrap has no styles"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "bootstrap-setup-find-error",
+      "type": "find-error",
+      "lessonSlug": "setup",
+      "difficulty": "beginner",
+      "question": "On a phone the two columns sit side by side in tiny text instead of stacking. What is wrong with this page?",
+      "explanation": "Without the viewport meta tag a phone lays the page out at a virtual width of about 980px and shrinks it, so the md breakpoint (768px and up) applies and the columns never stack. Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the head.",
+      "language": "html",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Shop</title>\n  <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"row\">\n      <div class=\"col-md-6\">Products</div>\n      <div class=\"col-md-6\">Cart</div>\n    </div>\n  </div>\n</body>\n</html>",
+      "options": [
+        "The viewport meta tag is missing, so the phone renders a wide virtual page and the md breakpoint applies",
+        "`col-md-6` should be `col-6`",
+        "The JavaScript bundle is missing, so the grid cannot work",
+        "`container` must be `container-fluid` on phones"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "bootstrap-setup-viewport",
+      "type": "fill-blank",
+      "lessonSlug": "setup",
+      "difficulty": "beginner",
+      "question": "Complete the tag Bootstrap requires for responsive behaviour: `<meta name=\"___\" content=\"width=device-width, initial-scale=1\">`.",
+      "explanation": "The viewport meta tag tells mobile browsers to use the real device width instead of a zoomed-out desktop width, which is what every breakpoint is measured against.",
+      "answers": ["viewport"],
+      "caseSensitive": false
+    },
+    {
+      "id": "bootstrap-grid-wrap",
+      "type": "predict-output",
+      "lessonSlug": "containers-grid",
+      "difficulty": "beginner",
+      "question": "How are the four boxes arranged on a wide screen?",
+      "explanation": "A and B use 8 of the 12 twelfths. C needs 6 more, which does not fit, so the row wraps and C starts a second line; D fits beside it because 6 + 6 = 12.",
+      "language": "html",
+      "code": "<div class=\"row\">\n  <div class=\"col-4\">A</div>\n  <div class=\"col-4\">B</div>\n  <div class=\"col-6\">C</div>\n  <div class=\"col-6\">D</div>\n</div>",
+      "options": [
+        "A, B and C on the first line; D on the second",
+        "A and B on the first line (two thirds of it); C and D on the second",
+        "All four on one line, shrunk to fit",
+        "Each box on its own line"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "bootstrap-grid-three-columns",
+      "type": "coding-task",
+      "lessonSlug": "containers-grid",
+      "difficulty": "beginner",
+      "question": "Build a container with one row of three columns: a \"Menu\" sidebar that takes 3 twelfths, a \"Content\" area that takes 6 and an \"Adverts\" column that takes 3. Put a border and 1rem of padding on each column's content and remove the gutters so the boxes touch.",
+      "explanation": "Columns must be direct children of a row, their widths should add up to 12, and g-0 removes the gutters. Borders belong on an element inside the column, because the column's own padding is the gutter.",
+      "language": "html",
+      "starterCode": "<div class=\"container\">\n  <!-- Add a row with three columns here -->\n</div>",
+      "solutionCode": "<div class=\"container\">\n  <div class=\"row g-0\">\n    <div class=\"col-3\"><div class=\"border p-3\">Menu</div></div>\n    <div class=\"col-6\"><div class=\"border p-3\">Content</div></div>\n    <div class=\"col-3\"><div class=\"border p-3\">Adverts</div></div>\n  </div>\n</div>",
+      "checklist": [
+        "The three columns are direct children of a .row",
+        "The column classes are col-3, col-6 and col-3, adding up to 12",
+        "The row has g-0 so the boxes touch",
+        "The border and p-3 are on an inner element, not on the column itself"
+      ]
+    },
+    {
+      "id": "bootstrap-breakpoints-min-width",
+      "type": "multiple-choice",
+      "lessonSlug": "breakpoints-responsive",
+      "difficulty": "beginner",
+      "question": "An element has the classes `col-12 col-sm-6 col-xl-3`. How wide is it in a viewport that is 900px wide?",
+      "explanation": "Breakpoints are min-width rules. At 900px the sm rule (576px and up) applies and the xl rule (1200px and up) does not, so the element is half the row: 50%.",
+      "options": ["100%", "50%", "25%", "33.33%"],
+      "correctIndex": 1
+    },
+    {
+      "id": "bootstrap-typography-lead",
+      "type": "fill-blank",
+      "lessonSlug": "typography-utilities",
+      "difficulty": "beginner",
+      "question": "The class that makes an introductory paragraph larger (1.25rem) and lighter (weight 300) is `___`.",
+      "explanation": "lead is Bootstrap's class for a standout opening paragraph. fs-5 would give the same size but keep the normal weight.",
+      "answers": ["lead"],
+      "caseSensitive": false
+    },
+    {
+      "id": "bootstrap-buttons-find-error",
+      "type": "find-error",
+      "lessonSlug": "buttons",
+      "difficulty": "beginner",
+      "question": "This link is supposed to look like a large blue button, but it renders as an ordinary underlined link. Why?",
+      "explanation": "Since Bootstrap 5.2 the variant and size classes only define CSS variables; the base class btn is what applies the padding, border, radius and colours. Add btn: `class=\"btn btn-primary btn-lg\"`.",
+      "language": "html",
+      "code": "<a href=\"/checkout\" class=\"btn-primary btn-lg\">Checkout</a>",
+      "options": [
+        "Links cannot be styled as buttons; it must be a <button>",
+        "The base class btn is missing, so the variant and size classes have nothing to apply to",
+        "btn-lg must come before btn-primary",
+        "The href attribute prevents button styling"
+      ],
+      "correctIndex": 1,
+      "errorLine": 1
+    },
+    {
+      "id": "bootstrap-buttons-group",
+      "type": "coding-task",
+      "lessonSlug": "buttons",
+      "difficulty": "beginner",
+      "question": "Create a horizontal button group labelled \"Text alignment\" with three outline-secondary buttons: Left, Centre and Right. Mark Centre as the active (pressed) one and make the whole group small.",
+      "explanation": "btn-group joins the buttons and btn-group-sm sizes all of them at once. role=\"group\" with an aria-label describes the group to assistive technology, and the pressed button needs both the active class (visual) and aria-pressed=\"true\" (announced).",
+      "language": "html",
+      "starterCode": "<!-- Build the button group here -->\n",
+      "solutionCode": "<div class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"Text alignment\">\n  <button type=\"button\" class=\"btn btn-outline-secondary\">Left</button>\n  <button type=\"button\" class=\"btn btn-outline-secondary active\" aria-pressed=\"true\">Centre</button>\n  <button type=\"button\" class=\"btn btn-outline-secondary\">Right</button>\n</div>",
+      "checklist": [
+        "The wrapper has btn-group and btn-group-sm, with role=\"group\" and an aria-label",
+        "Every button has type=\"button\" and the classes btn btn-outline-secondary",
+        "The Centre button has the active class and aria-pressed=\"true\"",
+        "No button is disabled"
+      ]
+    },
+    {
+      "id": "bootstrap-forms-validation-class",
+      "type": "multiple-choice",
+      "lessonSlug": "forms",
+      "difficulty": "intermediate",
+      "question": "A form has `required` inputs with `.invalid-feedback` messages, and its submit handler calls `checkValidity()`. Submitting with empty fields shows nothing red. What is most likely missing?",
+      "explanation": "Bootstrap's client-side styles only apply once the form has the was-validated class, which your handler must add. The form also needs novalidate; otherwise the browser blocks the submit with its own bubbles and the handler never runs.",
+      "options": [
+        "The handler must add was-validated to the form, and the form needs novalidate so the browser does not block the submit",
+        "Each input needs the is-valid class",
+        "The JavaScript bundle validates forms automatically and must be loaded",
+        "The feedback elements must be placed before each input"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "bootstrap-forms-signup",
+      "type": "coding-task",
+      "lessonSlug": "forms",
+      "difficulty": "intermediate",
+      "question": "Build a sign-up form with a Username text field, an Email address field and a \"Remember me\" checkbox, followed by a primary submit button. Use Bootstrap's form classes, connect every label to its field, and space the rows with mb-3.",
+      "explanation": "Text-like inputs take form-control and their labels form-label; a checkbox needs the form-check wrapper with form-check-input and form-check-label. Matching for and id attributes connect each label, and name attributes make the values submit.",
+      "language": "html",
+      "starterCode": "<form>\n  <!-- Username, Email address, Remember me, submit button -->\n</form>",
+      "solutionCode": "<form>\n  <div class=\"mb-3\">\n    <label for=\"username\" class=\"form-label\">Username</label>\n    <input type=\"text\" class=\"form-control\" id=\"username\" name=\"username\" required>\n  </div>\n  <div class=\"mb-3\">\n    <label for=\"email\" class=\"form-label\">Email address</label>\n    <input type=\"email\" class=\"form-control\" id=\"email\" name=\"email\" required>\n  </div>\n  <div class=\"form-check mb-3\">\n    <input class=\"form-check-input\" type=\"checkbox\" id=\"remember\" name=\"remember\">\n    <label class=\"form-check-label\" for=\"remember\">Remember me</label>\n  </div>\n  <button type=\"submit\" class=\"btn btn-primary\">Sign up</button>\n</form>",
+      "checklist": [
+        "The text and email inputs have form-control and their labels have form-label",
+        "Each label's for attribute matches its input's id",
+        "The checkbox is wrapped in form-check with form-check-input and form-check-label",
+        "Each row is spaced with mb-3",
+        "The submit button has type=\"submit\" and btn btn-primary"
+      ]
+    },
+    {
+      "id": "bootstrap-navbar-expand",
+      "type": "true-false",
+      "lessonSlug": "navbar",
+      "difficulty": "beginner",
+      "question": "With `navbar-expand-lg`, the links are collapsed behind the toggler in a viewport that is 1000px wide.",
+      "explanation": "lg starts at 992px, so at 1000px the navbar is expanded and the links display inline. The toggler only appears below 992px.",
+      "correct": false
+    },
+    {
+      "id": "bootstrap-cards-product",
+      "type": "coding-task",
+      "lessonSlug": "cards",
+      "difficulty": "beginner",
+      "question": "Create a product card 18rem wide with an image at the top (any src, with alt text), the title \"Trowel\", the text \"Stainless steel, ash handle.\", the price \"£12.50\" in secondary text, and a primary \"Add to basket\" button.",
+      "explanation": "Card regions stack in source order, so the image with card-img-top comes before card-body. Inside the body, card-title and card-text set the spacing, text-body-secondary greys the price in a colour-mode-aware way, and the button is an ordinary btn btn-primary.",
+      "language": "html",
+      "starterCode": "<div class=\"card\" style=\"width: 18rem;\">\n  <!-- image, then a body with title, text, price and button -->\n</div>",
+      "solutionCode": "<div class=\"card\" style=\"width: 18rem;\">\n  <img src=\"images/trowel.jpg\" class=\"card-img-top\" alt=\"A hand trowel with an ash handle\">\n  <div class=\"card-body\">\n    <h2 class=\"card-title h5\">Trowel</h2>\n    <p class=\"card-text\">Stainless steel, ash handle.</p>\n    <p class=\"card-text text-body-secondary\">£12.50</p>\n    <a href=\"/basket/add/trowel\" class=\"btn btn-primary\">Add to basket</a>\n  </div>\n</div>",
+      "checklist": [
+        "The image has card-img-top and comes before card-body",
+        "The image has meaningful alt text",
+        "The title uses card-title and the paragraphs use card-text",
+        "The price uses text-body-secondary rather than text-muted",
+        "The button has btn btn-primary"
+      ]
+    },
+    {
+      "id": "bootstrap-alerts-dismiss",
+      "type": "fill-blank",
+      "lessonSlug": "alerts-badges",
+      "difficulty": "beginner",
+      "question": "To make a btn-close button remove its alert, give the button the attribute `___=\"alert\"`.",
+      "explanation": "data-bs-dismiss=\"alert\" tells the bundle to close the nearest alert when the button is clicked. The Bootstrap 4 spelling data-dismiss is ignored by version 5.",
+      "answers": ["data-bs-dismiss"],
+      "caseSensitive": false
+    },
+    {
+      "id": "bootstrap-modal-toggle",
+      "type": "multiple-choice",
+      "lessonSlug": "modals-offcanvas",
+      "difficulty": "beginner",
+      "question": "Which pair of attributes on a `<button>` opens the modal with `id=\"help\"` without writing any JavaScript?",
+      "explanation": "Bootstrap 5 data attributes are prefixed with bs-. data-bs-toggle names the component and data-bs-target the element to open, with the # selector prefix. The unprefixed form is Bootstrap 4 syntax.",
+      "options": [
+        "`data-toggle=\"modal\" data-target=\"#help\"`",
+        "`data-bs-toggle=\"modal\" data-bs-target=\"#help\"`",
+        "`data-bs-toggle=\"modal\" href=\"help\"`",
+        "`data-bs-open=\"help\"`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "bootstrap-spacing-scale",
+      "type": "predict-output",
+      "lessonSlug": "utilities-spacing-flex",
+      "difficulty": "beginner",
+      "question": "With the default 16px root font size, what spacing does this box get?",
+      "explanation": "p-4 is 1.5rem (24px) of padding on all sides, mt-5 is 3rem (48px) of top margin, and ms-2 is .5rem (8px) of margin on the start side, which is the left in a left-to-right page.",
+      "language": "html",
+      "code": "<div class=\"p-4 mt-5 ms-2\">Box</div>",
+      "options": [
+        "24px padding all round, 48px top margin, 8px left margin",
+        "16px padding all round, 20px top margin, 2px left margin",
+        "4px padding all round, 5px top margin, 2px left margin",
+        "24px padding all round, 48px top margin, 8px right margin"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "bootstrap-dark-mode-attribute",
+      "type": "fill-blank",
+      "lessonSlug": "dark-mode-theming",
+      "difficulty": "beginner",
+      "question": "To render an entire page in dark mode, add the attribute `___=\"dark\"` to the `<html>` element.",
+      "explanation": "data-bs-theme switches the CSS variables that every component reads. It works on any element, so it can also darken a single navbar or footer.",
+      "answers": ["data-bs-theme"],
+      "caseSensitive": false
+    },
+    {
+      "id": "bootstrap-sass-order",
+      "type": "find-error",
+      "lessonSlug": "sass-customisation",
+      "difficulty": "intermediate",
+      "question": "After compiling this file the buttons are still Bootstrap blue and the corners are still .375rem. Why?",
+      "explanation": "Bootstrap declares its variables with !default, meaning the first value assigned wins. The import runs first here and sets the defaults, so the assignments below it come too late. Move both variables above the @import line.",
+      "language": "scss",
+      "code": "// custom.scss\n@import \"../node_modules/bootstrap/scss/bootstrap\";\n\n$primary: #6f42c1;\n$border-radius: .75rem;",
+      "options": [
+        "The variables are set after the import; Bootstrap's defaults use !default, so the first value wins",
+        "Hex colours are not valid in Sass variables",
+        "$border-radius must be given in pixels",
+        "The bootstrap file must be imported a second time after the variables"
+      ],
+      "correctIndex": 0,
+      "errorLine": 2
+    }
+  ]
+}

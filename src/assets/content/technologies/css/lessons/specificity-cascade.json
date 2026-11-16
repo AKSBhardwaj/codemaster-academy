@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "slug": "specificity-cascade",
+  "title": "Specificity, Inheritance and the Cascade",
+  "summary": "Sometimes two CSS rules choose the same part of a page. The browser has rules for deciding which value wins.",
+  "introduction": "Sometimes two CSS rules choose the same part of a page. The browser has rules for deciding which value wins. Start with two different colours for one heading. Learn how importance, selector strength and order affect the result.",
+  "learningObjectives": [
+    "Calculate the specificity of a selector and predict which rule wins",
+    "Explain the steps of the cascade: origin, importance, layers, specificity and order",
+    "Use inherit, initial, unset and revert, and avoid !important"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The cascade, step by step"
+    },
+    {
+      "type": "paragraph",
+      "text": "When several declarations target the same property on the same element, the browser sorts them by the criteria below and the first criterion that differs decides. Most day-to-day conflicts are settled by the last two, but the earlier ones explain the surprising cases."
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "**Origin and importance.** Styles come from the browser (user agent), the user and the author (you). Normal author declarations beat user and browser defaults. `!important` reverses the order: an important browser or user declaration beats everything of yours.",
+        "**Inline styles.** A declaration in a `style` attribute beats any author rule with a selector, except `!important` rules.",
+        "**Cascade layers.** For normal declarations, a later `@layer` beats earlier layers, and declarations outside any layer beat all layered ones (with `!important` the layer order is reversed).",
+        "**Specificity.** The more specific selector wins (details below).",
+        "**Order of appearance.** Everything else equal, the declaration the browser read last wins."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Specificity: three numbers"
+    },
+    {
+      "type": "paragraph",
+      "text": "Specificity is a triple **A-B-C**. A counts id selectors, B counts class selectors, attribute selectors and pseudo-classes, and C counts type selectors and pseudo-elements. Compare A first; only if it ties compare B, then C. No amount of classes ever beats one id. The universal selector `*`, combinators and `:where()` add nothing; `:is()`, `:not()` and `:has()` take the specificity of their most specific argument."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Selector",
+        "A (ids)",
+        "B (classes, attributes, pseudo-classes)",
+        "C (types, pseudo-elements)"
+      ],
+      "rows": [
+        ["`p`", "0", "0", "1"],
+        ["`.note`", "0", "1", "0"],
+        ["`#intro`", "1", "0", "0"],
+        ["`ul li a`", "0", "0", "3"],
+        ["`.card h2`", "0", "1", "1"],
+        ["`a:hover`", "0", "1", "1"],
+        ["`p::first-line`", "0", "0", "2"],
+        ["`nav .menu li.active a`", "0", "2", "3"],
+        ["`:is(#intro, p)`", "1", "0", "0"],
+        ["`:where(#intro, p)`", "0", "0", "0"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  p        { color: green; }    /* 0-0-1 */\n  .text    { color: blue; }     /* 0-1-0 */\n  #intro p { color: red; }      /* 1-0-1: the id wins inside #intro */\n  .text    { color: orange; }   /* 0-1-0: same as blue, but later */\n</style>\n<div id=\"intro\">\n  <p class=\"text\">Inside #intro: red, because 1-0-1 beats 0-1-0.</p>\n</div>\n<p class=\"text\">Outside: orange, the later of the two equal .text rules.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>p{color:green}.text{color:blue}#intro p{color:red}.text{color:orange}</style><div id=\"intro\"><p class=\"text\">Inside #intro: red, because 1-0-1 beats 0-1-0.</p></div><p class=\"text\">Outside: orange, the later of the two equal .text rules.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Work it through: the first paragraph matches all four rules. `#intro p` has an id, so its A value of 1 beats every other rule regardless of their B and C values. The second paragraph is not inside `#intro`, so the contest is between `p` (0-0-1) and the two `.text` rules (0-1-0 each): the class rules win on B, and between the two of them the later one, orange, wins on order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keeping specificity low"
+    },
+    {
+      "type": "paragraph",
+      "text": "Low, flat specificity is what makes a stylesheet easy to change: when most rules are a single class (0-1-0), any later single class can override them. Style with classes rather than ids, avoid long descendant chains, and wrap base styles that components should override in `:where()`, which contributes nothing, so `:where(ul, ol) { padding: 0; }` can be overridden by any class at all. The `!important` flag is the opposite strategy and should be rare."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": "/* Base styles with zero specificity: any class can override them */\n:where(h1, h2, h3) {\n  line-height: 1.2;\n  margin-block: 0 0.5em;\n}\n\n/* A component rule: one class, easy to override later */\n.card-title {\n  margin-block: 0;\n}\n\n/* Only ever beaten by another !important rule with higher specificity */\n.sr-only {\n  position: absolute !important;\n}"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "!important does not fix specificity, it escalates it",
+      "text": "Adding `!important` wins today and loses tomorrow, when the next override needs an `!important` with a more specific selector, and the one after that another. The fix for a rule that will not override is to *lower* the specificity of the rule in the way: replace the id with a class, shorten the chain, or move the base style into a cascade layer. Keep `!important` for utility classes that must win by design."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "text": "Some properties pass their computed value down to descendants unless a descendant sets its own. Text-related properties inherit: `color`, every `font-*` property, `line-height`, `letter-spacing`, `text-align`, `list-style`, `visibility`, `cursor`. Box-related properties do not: `width`, `height`, `margin`, `padding`, `border`, `background`, `display` and `position` apply only to the element they are set on. Form controls are the common surprise: browsers give `button`, `input` and `select` their own font, so a page's typography stops at them until you tell them to inherit."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "body {\n  color: #1e3a8a;\n  font-family: Georgia, serif;   /* inherited by headings, paragraphs, list items... */\n}\n\nbutton {\n  font: inherit;                 /* ...and now by the button too */\n  color: inherit;\n  padding: 0.5rem 1rem;\n}\n\n.card {\n  border: 2px solid;             /* not inherited: the card's h2 and p get no border */\n  padding: 1rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>body{color:#1e3a8a;font-family:Georgia,serif}button{font:inherit;color:inherit;padding:6px 14px}.card{border:2px solid;padding:10px}.card h2{font-size:1.1em;margin:0 0 6px}.card p{margin:0 0 6px}</style><div class=\"card\"><h2>Card title</h2><p>The text and the button share the body's font and colour; only the card has a border.</p><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "table",
+      "headers": ["Keyword", "Effect"],
+      "rows": [
+        [
+          "`inherit`",
+          "Take the parent's computed value, even for properties that do not inherit by default"
+        ],
+        [
+          "`initial`",
+          "Reset to the property's specification default (`color: initial` is black, not the parent's colour)"
+        ],
+        ["`unset`", "`inherit` for inherited properties, `initial` for the others"],
+        ["`revert`", "Undo author styles and fall back to the browser's or user's styles"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Cascade layers"
+    },
+    {
+      "type": "paragraph",
+      "text": "`@layer` groups rules into named layers whose order you declare up front. Between layers, order beats specificity: a one-class rule in a later layer overrides an id-based rule in an earlier layer. Rules outside any layer beat every layer. The usual arrangement is reset, then base, then components, with third-party CSS imported into a low layer so that your own rules always win without specificity games. All current browsers support layers."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": "@layer reset, base, components;   /* declare the order first */\n\n@layer reset {\n  *, *::before, *::after { box-sizing: border-box; margin: 0; }\n}\n\n@layer base {\n  #main a { color: #1d4ed8; }       /* 1-0-1, but in an earlier layer... */\n}\n\n@layer components {\n  .nav-link { color: white; }       /* ...so this 0-1-0 rule still wins */\n}"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Read the cascade in developer tools",
+      "text": "Select an element and look at the *Styles* panel: rules are listed from the one that wins downwards, and every declaration that lost is struck through. Hovering a selector shows its specificity in current browsers. When a style will not apply, this view tells you *which* rule beat it, and why."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: predict, then run",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Cascade</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    /* Predict each paragraph's colour before you run. Then reorder or edit the rules. */\n    article p   { color: green; }\n    .highlight  { color: orange; }\n    #lead       { color: purple; }\n    p           { color: gray; }\n  </style>\n</head>\n<body>\n  <article>\n    <p id=\"lead\" class=\"highlight\">Lead paragraph (id + class)</p>\n    <p class=\"highlight\">Highlighted paragraph (class)</p>\n    <p>Plain paragraph in the article</p>\n  </article>\n  <p style=\"color: teal;\">Inline style outside the article</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-specificity-cascade-winner"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-cascade-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "specificity-cascade",
+          "difficulty": "intermediate",
+          "question": "Which selector has the highest specificity?",
+          "explanation": "`#main` is 1-0-0. Ids are compared first, so a single id beats three classes (0-3-0) and four types (0-0-4). `:where()` always has 0-0-0.",
+          "options": ["`.a .b .c`", "`#main`", "`div p a span`", "`:where(#main)`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-cascade-qc-2",
+          "type": "true-false",
+          "lessonSlug": "specificity-cascade",
+          "difficulty": "intermediate",
+          "question": "`:where(.card)` has the same specificity as `.card`.",
+          "explanation": "`:where()` contributes zero specificity whatever it contains, which is exactly why it is used for base styles that should be easy to override.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-specificity-cascade-winner"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "selectors"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "syntax"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "adding-css"
+    }
+  ],
+  "seo": {
+    "title": "CSS Specificity, Inheritance and the Cascade Explained",
+    "description": "Learn how CSS resolves conflicts: !important, cascade layers, specificity scores, source order, inheritance and the inherit, initial and unset keywords."
+  },
+  "updatedOn": "2026-11-16"
+}

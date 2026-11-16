@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "typed-params",
+  "title": "Parse an integer input",
+  "summary": "Fiber: Parse an integer input. Try /double/cat.",
+  "introduction": "ParamsInt parses a route value as an integer. Open GET /double/4.",
+  "learningObjectives": ["Parse an integer input with Fiber", "Try /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parse an integer input"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Parse an integer input",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/double/:n\", func(c *fiber.Ctx) error { n, err := c.ParamsInt(\"n\"); if err != nil { return c.Status(400).SendString(\"Use a whole number\") }; return c.JSON(fiber.Map{\"answer\": n * 2}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "ParamsInt parses 4 successfully. The handler doubles the integer and returns JSON."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check the error before using the parsed number."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-typed-params-check"
+    }
+  ],
+  "exerciseIds": ["fiber-typed-params-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Parse an integer input",
+    "description": "Fiber: Parse an integer input. Try /double/cat. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

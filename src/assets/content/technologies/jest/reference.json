@@ -1,0 +1,144 @@
+{
+  "title": "Jest Reference",
+  "description": "A quick reminder of the ideas and examples in the Jest lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Your first Jest test",
+          "summary": "Jest runs a test function and reports whether its checks pass. expect gives the actual value; a matcher states the expected result.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"adds two prices\", () => { expect(2 + 3).toBe(5); });"
+          },
+          "notes": ["Save test code in a test file matched by your local Jest setup."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "compare-object-contents",
+          "name": "Compare object contents",
+          "summary": "toEqual checks values inside objects. This is different from checking whether two names refer to the exact same object.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"book fields\", () => { expect({ title: \"Moon\" }).toEqual({ title: \"Moon\" }); });"
+          },
+          "notes": ["Use toBe for object identity only when identity is the behaviour you need."],
+          "lessonSlug": "compare-object-contents"
+        },
+        {
+          "slug": "check-lists-and-text",
+          "name": "Check lists and text",
+          "summary": "A length check and a containment check answer different questions about a list.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reading list\", () => { const books = [\"Moon\", \"Ocean\"]; expect(books).toHaveLength(2); expect(books).toContain(\"Moon\"); });"
+          },
+          "notes": ["Having the right length does not prove the right values are present."],
+          "lessonSlug": "check-lists-and-text"
+        },
+        {
+          "slug": "check-an-error",
+          "name": "Check an error",
+          "summary": "Pass a function to toThrow so Jest can call it and catch the error.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"rejects bad age\", () => { const reject = () => { throw new Error(\"Bad age\"); }; expect(reject).toThrow(\"Bad age\"); });"
+          },
+          "notes": ["Do not call the throwing function before passing it to expect."],
+          "lessonSlug": "check-an-error"
+        },
+        {
+          "slug": "set-up-fresh-state",
+          "name": "Set up fresh state",
+          "summary": "beforeEach runs before each test in its scope. Use it to prepare fresh mutable data.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\nlet basket;\nbeforeEach(() => { basket = []; });\ntest(\"starts empty\", () => { expect(basket).toHaveLength(0); });"
+          },
+          "notes": ["Do not rely on another test to clean up your state."],
+          "lessonSlug": "set-up-fresh-state"
+        },
+        {
+          "slug": "use-a-mock-function",
+          "name": "Use a mock function",
+          "summary": "jest.fn makes a function that records calls. A mock can stand in for a small dependency.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"saves a score\", () => { const save = jest.fn(); save(8); expect(save).toHaveBeenCalledWith(8); });"
+          },
+          "notes": ["A mock records calls; it does not prove a real database connection works."],
+          "lessonSlug": "use-a-mock-function"
+        },
+        {
+          "slug": "choose-a-mock-return-value",
+          "name": "Choose a mock return value",
+          "summary": "A mock can return a chosen value so the code under test has predictable input.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reads a name\", () => { const getName = jest.fn().mockReturnValue(\"Asha\"); expect(getName()).toBe(\"Asha\"); });"
+          },
+          "notes": ["Keep the fake behaviour consistent with the real dependency's contract."],
+          "lessonSlug": "choose-a-mock-return-value"
+        },
+        {
+          "slug": "wait-for-a-promise",
+          "name": "Wait for a promise",
+          "summary": "An async test can await a promise. resolves checks the value with which it finishes successfully.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"loads a score\", async () => { await expect(Promise.resolve(8)).resolves.toBe(8); });"
+          },
+          "notes": ["Forgetting await or return can let an async test finish too early."],
+          "lessonSlug": "wait-for-a-promise"
+        },
+        {
+          "slug": "check-promise-rejection",
+          "name": "Check promise rejection",
+          "summary": "rejects checks a promise that fails. It is useful for an expected error path.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reports missing data\", async () => { await expect(Promise.reject(new Error(\"Missing\"))).rejects.toThrow(\"Missing\"); });"
+          },
+          "notes": ["An expected rejected promise is different from an unhandled error."],
+          "lessonSlug": "check-promise-rejection"
+        },
+        {
+          "slug": "run-a-table-of-cases",
+          "name": "Run a table of cases",
+          "summary": "test.each runs a test with each row of data. A row contains inputs and expected output.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest.each([[2, 4], [3, 6], [0, 0]])(\"double %i is %i\", (input, expected) => { expect(input * 2).toBe(expected); });"
+          },
+          "notes": ["Keep table rows small enough to understand without a second program."],
+          "lessonSlug": "run-a-table-of-cases"
+        },
+        {
+          "slug": "control-a-timer",
+          "name": "Control a timer",
+          "summary": "Fake timers let a test move time forward without really waiting. Restore real timers when the test ends.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reminder runs later\", () => { jest.useFakeTimers(); try { const remind = jest.fn(); setTimeout(remind, 1000); jest.advanceTimersByTime(1000); expect(remind).toHaveBeenCalledTimes(1); } finally { jest.useRealTimers(); } });"
+          },
+          "notes": ["Leaving fake timers active can affect later tests."],
+          "lessonSlug": "control-a-timer"
+        },
+        {
+          "slug": "review-snapshots-thoughtfully",
+          "name": "Review snapshots thoughtfully",
+          "summary": "A snapshot stores an expected structure. Review changes instead of accepting a new snapshot blindly.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"book summary\", () => { expect({ title: \"Moon\", pages: 24 }).toMatchInlineSnapshot(`\n{\n  \"pages\": 24,\n  \"title\": \"Moon\",\n}\n`); });"
+          },
+          "notes": ["Updating every snapshot without reading it can approve a mistake."],
+          "lessonSlug": "review-snapshots-thoughtfully"
+        }
+      ]
+    }
+  ]
+}

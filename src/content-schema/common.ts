@@ -5,7 +5,9 @@ export const slugSchema = z
   .string()
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'must be a kebab-case slug (a-z, 0-9, hyphens)');
 
-export const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be an ISO date (YYYY-MM-DD)');
+export const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'must be an ISO date (YYYY-MM-DD)');
 
 export const difficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
 export type Difficulty = z.infer<typeof difficultySchema>;

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "listen-for-local-updates",
+  "title": "Listen for local updates",
+  "summary": "onSnapshot sends the current result and later changes.",
+  "introduction": "onSnapshot sends the current result and later changes. Your task: Change the document in the emulator and observe the callback.",
+  "learningObjectives": [
+    "Change the document in the emulator and observe the callback.",
+    "Explain the example for listen for local updates"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "onSnapshot sends the current result and later changes. It returns a cleanup function that stops the listener."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,onSnapshot,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst stop=onSnapshot(doc(db,\"books\",\"moon-trip\"),snapshot=>{console.log(snapshot.exists()?snapshot.data():\"Missing\");},error=>console.log(\"Could not listen:\",error.code));\n// Call stop() when this page part is removed.",
+      "title": "Listen for local updates",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`onSnapshot` supplies current data and later changes. Its returned function stops that listener.",
+        "`connectFirestoreEmulator` sends this SDK instance to the local emulator address before database operations begin."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The callback receives the current document and later allowed updates while listening."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Stop listeners you no longer need. A production listener can use network traffic and billed reads."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the document in the emulator and observe the callback."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-listen-for-local-updates-check"
+    }
+  ],
+  "exerciseIds": ["firestore-listen-for-local-updates-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "sort-and-limit-a-query"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Listen for local updates",
+    "description": "onSnapshot sends the current result and later changes. It returns a cleanup function that stops the listener."
+  },
+  "updatedOn": "2026-11-16"
+}

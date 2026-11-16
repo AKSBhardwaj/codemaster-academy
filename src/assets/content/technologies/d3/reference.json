@@ -1,0 +1,144 @@
+{
+  "title": "D3.js Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the D3.js course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Select and append an SVG shape",
+          "summary": "A D3 selection points to page elements. append creates a child element, and attr sets one of its attributes.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nsvg.append(\"circle\").attr(\"cx\",80).attr(\"cy\",80).attr(\"r\",30).attr(\"fill\",\"navy\");"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "put-data-into-a-join",
+          "name": "Put data into a join",
+          "summary": "A data join matches data values to elements.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nsvg.selectAll(\"circle\").data([10,20,30]).join(\"circle\").attr(\"cx\",(_d,i)=>50+i*90).attr(\"cy\",80).attr(\"r\",d=>d).attr(\"fill\",\"teal\");"
+          },
+          "lessonSlug": "put-data-into-a-join"
+        },
+        {
+          "slug": "map-numbers-to-positions",
+          "name": "Map numbers to positions",
+          "summary": "A linear scale maps one number range to another.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst x=d3.scaleLinear().domain([0,100]).range([20,300]);\nsvg.append(\"circle\").attr(\"cx\",x(50)).attr(\"cy\",80).attr(\"r\",8);"
+          },
+          "lessonSlug": "map-numbers-to-positions"
+        },
+        {
+          "slug": "give-categories-equal-spaces",
+          "name": "Give categories equal spaces",
+          "summary": "A band scale gives named categories separate spaces.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst x=d3.scaleBand().domain([\"Mon\",\"Tue\",\"Wed\"]).range([20,300]).padding(0.2);\nsvg.selectAll(\"rect\").data([\"Mon\",\"Tue\",\"Wed\"]).join(\"rect\").attr(\"x\",d=>x(d)).attr(\"y\",50).attr(\"width\",x.bandwidth()).attr(\"height\",80).attr(\"fill\",\"navy\");"
+          },
+          "lessonSlug": "give-categories-equal-spaces"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "draw-bars-from-values",
+          "name": "Draw bars from values",
+          "summary": "A bar chart uses height to show a number.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst values=[30,60,90];\nconst y=d3.scaleLinear().domain([0,100]).range([180,20]);\nsvg.selectAll(\"rect\").data(values).join(\"rect\").attr(\"x\",(_d,i)=>30+i*90).attr(\"width\",50).attr(\"y\",d=>y(d)).attr(\"height\",d=>180-y(d)).attr(\"fill\",\"teal\");"
+          },
+          "lessonSlug": "draw-bars-from-values"
+        },
+        {
+          "slug": "add-readable-labels",
+          "name": "Add readable labels",
+          "summary": "Text labels tell readers what a chart value means.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nsvg.selectAll(\"text\").data([3,6,9]).join(\"text\").attr(\"x\",(_d,i)=>50+i*90).attr(\"y\",100).attr(\"text-anchor\",\"middle\").text(d=>`${d} books`);"
+          },
+          "lessonSlug": "add-readable-labels"
+        },
+        {
+          "slug": "draw-an-axis",
+          "name": "Draw an axis",
+          "summary": "An axis draws ticks and labels for a scale.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst x=d3.scaleLinear().domain([0,10]).range([30,290]);\nsvg.append(\"g\").attr(\"transform\",\"translate(0,160)\").call(d3.axisBottom(x).ticks(5));"
+          },
+          "lessonSlug": "draw-an-axis"
+        },
+        {
+          "slug": "connect-points-with-a-line",
+          "name": "Connect points with a line",
+          "summary": "A line generator turns a list of points into an SVG path.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst points=[[20,150],[120,80],[220,110],[300,30]];\nconst line=d3.line().x(d=>d[0]).y(d=>d[1]);\nsvg.append(\"path\").datum(points).attr(\"d\",line).attr(\"fill\",\"none\").attr(\"stroke\",\"navy\").attr(\"stroke-width\",3);"
+          },
+          "lessonSlug": "connect-points-with-a-line"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "make-a-small-pie-layout",
+          "name": "Make a small pie layout",
+          "summary": "A pie layout turns values into angles. An arc generator uses those angles to draw slice paths.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst pie=d3.pie()([2,3,5]);const arc=d3.arc().innerRadius(0).outerRadius(70);\nsvg.append(\"g\").attr(\"transform\",\"translate(160,100)\").selectAll(\"path\").data(pie).join(\"path\").attr(\"d\",arc).attr(\"fill\",(_d,i)=>[\"#174a8b\",\"#18794e\",\"#c76b00\"][i]);"
+          },
+          "lessonSlug": "make-a-small-pie-layout"
+        },
+        {
+          "slug": "update-an-existing-join",
+          "name": "Update an existing join",
+          "summary": "Calling a join again with new data updates the matching elements.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nfunction draw(values){svg.selectAll(\"circle\").data(values).join(\"circle\").attr(\"cx\",(_d,i)=>60+i*80).attr(\"cy\",100).attr(\"r\",d=>d).attr(\"fill\",\"teal\");}\ndraw([10,20,30]);\ndraw([15,25]);"
+          },
+          "lessonSlug": "update-an-existing-join"
+        },
+        {
+          "slug": "react-to-a-chart-event",
+          "name": "React to a chart event",
+          "summary": "D3 can attach an event handler to a shape.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nsvg.selectAll(\"circle\").data([3,5]).join(\"circle\").attr(\"cx\",(_d,i)=>80+i*120).attr(\"cy\",100).attr(\"r\",25).attr(\"fill\",\"navy\").on(\"click\",(_event,d)=>console.log(`${d} books`));"
+          },
+          "lessonSlug": "react-to-a-chart-event"
+        },
+        {
+          "slug": "give-the-chart-a-text-explanation",
+          "name": "Give the chart a text explanation",
+          "summary": "A visual chart should have a useful name and a text explanation.",
+          "example": {
+            "language": "javascript",
+            "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nsvg.attr(\"role\",\"img\").attr(\"aria-labelledby\",\"chart-title chart-desc\");\nsvg.append(\"title\").attr(\"id\",\"chart-title\").text(\"Books read this week\");\nsvg.append(\"desc\").attr(\"id\",\"chart-desc\").text(\"Monday: 3 books. Tuesday: 5 books.\");\nsvg.append(\"text\").attr(\"x\",20).attr(\"y\",50).text(\"Monday 3; Tuesday 5\");"
+          },
+          "lessonSlug": "give-the-chart-a-text-explanation"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "slug": "group-by-having",
+  "title": "GROUP BY and HAVING",
+  "summary": "GROUP BY puts rows into groups so you can find one answer for each group.",
+  "introduction": "GROUP BY puts rows into groups so you can find one answer for each group. Imagine counting books on each shelf. First make groups, then use HAVING to keep only the groups that match your rule.",
+  "learningObjectives": [
+    "Compute aggregates per group with GROUP BY",
+    "Filter groups with HAVING and rows with WHERE",
+    "Describe the logical order of SELECT clauses",
+    "Group by expressions such as the month of a date"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "GROUP BY"
+    },
+    {
+      "type": "paragraph",
+      "text": "`GROUP BY category` collects the rows of each category into a group and produces one result row per group. Aggregates in the SELECT list are computed per group; the grouped column is the only plain column you may select."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT category, COUNT(*) AS products, ROUND(AVG(price), 2) AS avg_price\nFROM products\nGROUP BY category\nORDER BY category;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "category    | products | avg_price\n------------+----------+----------\nElectronics | 2        | 50.5\nOffice      | 2        | 24.25\nStationery  | 2        | 3.63"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Grouping joined rows"
+    },
+    {
+      "type": "paragraph",
+      "text": "Grouping is usually combined with a join: orders per customer needs both tables. Grouping by `c.id` (the key) is safer than by `c.name`, because two customers could share a name. SQLite, PostgreSQL and MySQL all allow selecting `c.name` here because it is functionally dependent on the key."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT c.name, COUNT(o.id) AS orders, SUM(o.quantity) AS items\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id\nORDER BY orders DESC, c.name;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | orders | items\n------------------+--------+------\nAda Lovelace      | 2      | 4\nGrace Hopper      | 2      | 3\nLinus Torvalds    | 2      | 3\nGuido van Rossum  | 1      | 1\nMargaret Hamilton | 1      | 10"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "HAVING: filtering groups"
+    },
+    {
+      "type": "paragraph",
+      "text": "To keep only the customers who spent more than 50 you need each group's total, which exists only after aggregation. `HAVING` filters on aggregates; `WHERE` cannot, because it runs on individual rows before any group exists."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT c.name, ROUND(SUM(p.price * o.quantity), 2) AS total_spent\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id\nGROUP BY c.id\nHAVING SUM(p.price * o.quantity) > 50\nORDER BY total_spent DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name             | total_spent\n-----------------+------------\nAda Lovelace     | 102.5\nGuido van Rossum | 89\nLinus Torvalds   | 57.48"
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite and MySQL also accept the alias (`HAVING total_spent > 50`); PostgreSQL and SQL Server require repeating the expression, so the portable form above is the safer habit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "WHERE and HAVING together"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both can appear in one query: WHERE removes rows before grouping (orders before March are excluded here), HAVING would remove groups afterwards."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT p.category, SUM(o.quantity) AS items_sold\nFROM orders o\nJOIN products p ON p.id = o.product_id\nWHERE o.ordered_on >= '2025-03-01'\nGROUP BY p.category\nORDER BY items_sold DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "category    | items_sold\n------------+-----------\nStationery  | 11\nOffice      | 2\nElectronics | 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Grouping by an expression"
+    },
+    {
+      "type": "paragraph",
+      "text": "You can group by a calculated value. Taking the first seven characters of an ISO date yields the month, which gives a monthly order count. The [functions lesson](/tutorials/sql/functions) shows `strftime` for other date formats."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT substr(ordered_on, 1, 7) AS month, COUNT(*) AS orders\nFROM orders\nGROUP BY month\nORDER BY month;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "month   | orders\n--------+-------\n2025-01 | 2\n2025-02 | 2\n2025-03 | 1\n2025-04 | 2\n2025-05 | 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The order of evaluation"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`FROM` and `JOIN` produce the rows",
+        "`WHERE` filters rows",
+        "`GROUP BY` forms groups and the aggregates are computed",
+        "`HAVING` filters groups",
+        "`SELECT` picks and names the output columns",
+        "`ORDER BY` sorts and `LIMIT` cuts the result"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This order explains the rules: WHERE cannot see aggregates (they do not exist yet), HAVING can, and ORDER BY can use aliases from SELECT (which has already run)."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Aggregates in WHERE",
+      "text": "`WHERE COUNT(*) > 1` fails with *misuse of aggregate* in SQLite and with similar errors elsewhere. Move the condition to HAVING. The second classic error is selecting a column that is neither in GROUP BY nor aggregated: `SELECT name, category, COUNT(*) ... GROUP BY category` has no defined `name`. PostgreSQL rejects it; SQLite picks an arbitrary row's name."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "Wrong: an aggregate in WHERE",
+      "runnable": true,
+      "code": "SELECT category, COUNT(*) AS products\nFROM products\nWHERE COUNT(*) > 1\nGROUP BY category;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "misuse of aggregate: COUNT() — in: SELECT category, COUNT(*) AS products"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Report the number of orders and the total quantity per product name, then add a HAVING clause that keeps only products ordered more than once."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 240,
+      "code": "SELECT p.name, COUNT(*) AS orders, SUM(o.quantity) AS items\nFROM orders o\nJOIN products p ON p.id = o.product_id\nGROUP BY p.id\nORDER BY orders DESC;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-group-by-having-orders"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "group-by-having-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "group-by-having",
+          "difficulty": "beginner",
+          "question": "Which clause keeps only the categories with more than two products?",
+          "explanation": "Conditions on aggregates belong in HAVING, which runs after the groups and their counts exist. WHERE cannot use COUNT(*).",
+          "options": [
+            "`WHERE COUNT(*) > 2`",
+            "`HAVING COUNT(*) > 2`",
+            "`GROUP BY COUNT(*) > 2`",
+            "`LIMIT 2`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "group-by-having-qc-2",
+          "type": "true-false",
+          "lessonSlug": "group-by-having",
+          "difficulty": "beginner",
+          "question": "WHERE runs before GROUP BY and HAVING runs after it.",
+          "explanation": "That is the logical evaluation order: rows are filtered, then grouped and aggregated, then the groups are filtered.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-group-by-having-aggregate-where", "sql-group-by-having-orders"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "aggregates"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "subqueries"
+    }
+  ],
+  "seo": {
+    "title": "SQL GROUP BY and HAVING – Per-Group Summaries",
+    "description": "Learn SQL GROUP BY and HAVING: aggregate per category or customer, filter groups with HAVING, combine with WHERE and JOIN, and the order clauses run in."
+  },
+  "updatedOn": "2026-11-16"
+}

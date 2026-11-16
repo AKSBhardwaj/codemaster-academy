@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "slug": "quick-sort",
+  "title": "Quick Sort",
+  "summary": "Place a pivot, then sort the parts around it. Trace a simple quick sort and learn its worst-case tradeoff in six working languages.",
+  "introduction": "Choose one score card as a guide. Put smaller scores on one side and larger scores on the other. Quick sort uses this guide, called a pivot, to divide a sorting job into smaller jobs.",
+  "learningObjectives": [
+    "Partition a list around a chosen pivot",
+    "Explain why uneven parts can make quick sort slow"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Partition means separate into parts. This version chooses the last value as the pivot. It moves values less than or equal to the pivot to the left, then puts the pivot in its final position."
+    },
+    {
+      "type": "paragraph",
+      "text": "The left and right parts may still be mixed. Quick sort calls itself on each part. This is recursion: solving a smaller version of the same problem. Its stop rule is a part with zero or one item."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [4, 2, 3, 1]. The last value, 1, is the pivot. No earlier value is <= 1.",
+        "Swap the pivot into position 0, giving [1, 2, 3, 4]. The 1 is finished. Only positions 1 through 3 remain.",
+        "Choose 4 as the next pivot. Both 2 and 3 are <= 4, so 4 stays at position 3.",
+        "For [2, 3], choose 3 as the pivot. It stays put. All remaining parts have at most one item, so stop."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Quick Sort example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "function partition(a, low, high) {\n    let pivot = a[high];\n    let place = low;\n    for (let i = low; i < high; i++) {\n        if (a[i] <= pivot) {\n            let temp = a[i];\n            a[i] = a[place];\n            a[place] = temp;\n            place++;\n        }\n    }\n    let pivotTemp = a[place];\n    a[place] = a[high];\n    a[high] = pivotTemp;\n    return place;\n}\n\nfunction quickSort(a, low, high) {\n    if (low >= high) return;\n    let pivotPosition = partition(a, low, high);\n    quickSort(a, low, pivotPosition - 1);\n    quickSort(a, pivotPosition + 1, high);\n}\nconst a = [4, 2, 3, 1];\nquickSort(a, 0, a.length - 1);\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint partition(int a[], int low, int high) {\n    int pivot = a[high];\n    int place = low;\n    for (int i = low; i < high; i++) {\n        if (a[i] <= pivot) {\n            int temp = a[i];\n            a[i] = a[place];\n            a[place] = temp;\n            place++;\n        }\n    }\n    int pivotTemp = a[place];\n    a[place] = a[high];\n    a[high] = pivotTemp;\n    return place;\n}\n\nvoid quickSort(int a[], int low, int high) {\n    if (low >= high) return;\n    int pivotPosition = partition(a, low, high);\n    quickSort(a, low, pivotPosition - 1);\n    quickSort(a, pivotPosition + 1, high);\n}\n\nint main(void) {\n    int a[] = {4, 2, 3, 1};\n    int n = sizeof a / sizeof a[0];\n    quickSort(a, 0, n - 1);\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint partition(std::vector<int>& a, int low, int high) {\n    int pivot = a[high];\n    int place = low;\n    for (int i = low; i < high; i++) {\n        if (a[i] <= pivot) {\n            int temp = a[i];\n            a[i] = a[place];\n            a[place] = temp;\n            place++;\n        }\n    }\n    int pivotTemp = a[place];\n    a[place] = a[high];\n    a[high] = pivotTemp;\n    return place;\n}\n\nvoid quickSort(std::vector<int>& a, int low, int high) {\n    if (low >= high) return;\n    int pivotPosition = partition(a, low, high);\n    quickSort(a, low, pivotPosition - 1);\n    quickSort(a, pivotPosition + 1, high);\n}\n\nint main() {\n    std::vector<int> a = {4, 2, 3, 1};\n    int n = static_cast<int>(a.size());\n    quickSort(a, 0, n - 1);\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "def partition(a, low, high):\n    pivot = a[high]\n    place = low\n    for i in range(low, high):\n        if a[i] <= pivot:\n            a[i], a[place] = a[place], a[i]\n            place += 1\n    a[place], a[high] = a[high], a[place]\n    return place\n\ndef quick_sort(a, low, high):\n    if low >= high:\n        return\n    pivot_position = partition(a, low, high)\n    quick_sort(a, low, pivot_position - 1)\n    quick_sort(a, pivot_position + 1, high)\n\na = [4, 2, 3, 1]\nquick_sort(a, 0, len(a) - 1)\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {4, 2, 3, 1};\nQuickSort(a, 0, a.Length - 1);\nConsole.WriteLine(string.Join(\" \", a));\n\nstatic int Partition(int[] a, int low, int high) {\n    int pivot = a[high];\n    int place = low;\n    for (int i = low; i < high; i++) {\n        if (a[i] <= pivot) {\n            int temp = a[i];\n            a[i] = a[place];\n            a[place] = temp;\n            place++;\n        }\n    }\n    int pivotTemp = a[place];\n    a[place] = a[high];\n    a[high] = pivotTemp;\n    return place;\n}\n\nstatic void QuickSort(int[] a, int low, int high) {\n    if (low >= high) return;\n    int pivotPosition = Partition(a, low, high);\n    QuickSort(a, low, pivotPosition - 1);\n    QuickSort(a, pivotPosition + 1, high);\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static int partition(int[] a, int low, int high) {\n        int pivot = a[high];\n        int place = low;\n        for (int i = low; i < high; i++) {\n            if (a[i] <= pivot) {\n                int temp = a[i];\n                a[i] = a[place];\n                a[place] = temp;\n                place++;\n            }\n        }\n        int pivotTemp = a[place];\n        a[place] = a[high];\n        a[high] = pivotTemp;\n        return place;\n    }\n\n    static void quickSort(int[] a, int low, int high) {\n        if (low >= high) return;\n        int pivotPosition = partition(a, low, high);\n        quickSort(a, low, pivotPosition - 1);\n        quickSort(a, pivotPosition + 1, high);\n    }\n\n    public static void main(String[] args) {\n        int[] a = {4, 2, 3, 1};\n        int n = a.length;\n        quickSort(a, 0, n - 1);\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The final output is ascending. place marks the next position for a value that belongs on the pivot's left. After the final swap, the returned pivotPosition is excluded from both later calls because it is finished."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Empty and one-item ranges stop before the pivot is read. Duplicate values are allowed, but this last-pivot, two-part version can be slow when many values are equal."
+    },
+    {
+      "type": "paragraph",
+      "text": "The sort changes the input and is not stable: swaps can move equal-key items past each other. Use small practice lists here. A long chain of recursive calls can exceed a language's call-stack limit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A partition of n items takes O(n) work. When parts are roughly balanced, there are about log n levels, giving O(n log n) time. This is the usual average for varied random input, not a promise for every list."
+    },
+    {
+      "type": "paragraph",
+      "text": "With this last-item pivot, sorted, reverse-sorted, or all-equal input can leave just one item on one side each time. Work grows like n + (n - 1) + ... + 1, or O(n²) worst time."
+    },
+    {
+      "type": "paragraph",
+      "text": "No second list is built, but recursive calls still use room. Stack space is O(log n) for balanced splits and O(n) in the worst case. Merge sort gives predictable O(n log n) time by using an O(n) buffer; this version trades that buffer for input-sensitive behavior."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the list to [1, 2, 3, 4]. Each pivot will be the largest unfinished value. Trace the shrinking left parts and notice that being already sorted does not make this version fast."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not include the finished pivot in the next calls. Use pivotPosition - 1 and pivotPosition + 1. Including it can leave the problem the same size and prevent the recursion from stopping."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-quick-sort"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-quick-sort"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "recursion"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "merge-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "counting-work"
+    }
+  ],
+  "seo": {
+    "title": "Quick Sort in Six Languages | DSA",
+    "description": "Place a pivot, then sort the parts around it. Trace a simple quick sort and learn its worst-case tradeoff in six working languages."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "prototype",
+  "title": "Ask for a fresh instance",
+  "summary": "Spring Framework: Ask for a fresh instance. Remove @Scope and compare.",
+  "introduction": "Prototype scope makes a new bean each time the container is asked for it.",
+  "learningObjectives": [
+    "Ask for a fresh instance with Spring Framework",
+    "Remove @Scope and compare"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask for a fresh instance"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Ask for a fresh instance",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean @Scope(\"prototype\") Object box() { return new Object(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"box\") == context.getBean(\"box\"));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Prototype scope calls the factory for each lookup. The two returned objects have different identities."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "false"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Remove @Scope and compare."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Spring does not manage full destruction of prototype instances for you."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-prototype-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-prototype-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "singleton"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Ask for a fresh instance",
+    "description": "Spring Framework: Ask for a fresh instance. Remove @Scope and compare. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

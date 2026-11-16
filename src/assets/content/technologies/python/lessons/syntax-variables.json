@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax-variables",
+  "title": "Syntax, Indentation and Variables",
+  "summary": "Python syntax is the set of rules for writing its code. Variables are names for values used by that code.",
+  "introduction": "Python syntax is the set of rules for writing its code. Variables are names for values used by that code. Start with a name and a score. Read the code line by line, and notice how spaces at the start of a line group steps together.",
+  "learningObjectives": [
+    "Write statements, comments and indented blocks that Python accepts",
+    "Create, name and reassign variables following Python conventions",
+    "Read an IndentationError message and fix the line it points to",
+    "Print values with print() options and read user input with input()"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Statements and comments"
+    },
+    {
+      "type": "paragraph",
+      "text": "A Python program is a sequence of **statements**, one per line, executed from top to bottom. A `#` starts a comment: Python ignores everything from the `#` to the end of the line, so comments are for the humans who read the code later. There are no semicolons to end a line (Python tolerates them between statements, but idiomatic code never uses them)."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "comments.py",
+      "code": "# This whole line is a comment.\nprint(\"Comments explain why, the code shows how.\")  # a trailing comment\nprint(\"Each line is one statement\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python comments.py",
+      "content": "Comments explain why, the code shows how.\nEach line is one statement"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Indentation defines blocks"
+    },
+    {
+      "type": "paragraph",
+      "text": "In Python, indentation is syntax. A line that ends with a colon (`if`, `for`, `while`, `def`, `class` and a few others) opens a block, and every line indented underneath it belongs to that block. The block ends at the first line that returns to the previous indentation level. The convention, followed by virtually all Python code, is **four spaces** per level; good editors insert them when you press Tab."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "blocks.py",
+      "code": "temperature = 31\n\nif temperature > 30:\n    print(\"It is hot.\")\n    print(\"Drink water.\")\nprint(\"This line always runs.\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python blocks.py",
+      "content": "It is hot.\nDrink water.\nThis line always runs."
+    },
+    {
+      "type": "paragraph",
+      "text": "The two indented `print` calls run only when the condition is true; the last one is outside the block, so it runs regardless. Change `temperature` to `20` and only the final line appears."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "What happens when indentation is wrong"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python refuses to guess. If a block is missing, or lines in the same block are indented differently, the interpreter stops before running anything and reports where it gave up:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "bad_indent.py",
+      "code": "number = 5\nif number > 0:\nprint(\"Positive\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python bad_indent.py",
+      "content": "  File \"/home/ada/projects/bad_indent.py\", line 3\n    print(\"Positive\")\n    ^^^^^\nIndentationError: expected an indented block after 'if' statement on line 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read these messages from the bottom up: the last line names the problem, and the lines above show the file (the path is wherever you saved it), the line number and the exact spot. Here the fix is to indent line 3 by four spaces."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Tabs and spaces do not mix",
+      "text": "Python 3 raises `TabError: inconsistent use of tabs and spaces in indentation` when one line of a block is indented with a tab and another with spaces, even though both look identical on screen. Configure your editor to insert four spaces when you press Tab, and if a file misbehaves, convert all of its tabs to spaces."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable is a name attached to a value. You create one by assigning with `=`; there is no `var`, `let` or type keyword, because Python records the type of the *value*, not of the name. The same name can later point to a value of a different type, although doing that without a good reason makes code confusing."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "variables.py",
+      "code": "score = 10\nplayer = \"Mina\"\nprint(player, \"has\", score, \"points\")\n\nscore = score + 5          # read the old value, store the new one\nprint(player, \"now has\", score, \"points\")\n\nscore += 5                 # shorthand for score = score + 5\nprint(\"After the bonus:\", score)\n\nwidth, height = 16, 9      # assign several variables at once\nprint(\"Ratio:\", width / height)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python variables.py",
+      "content": "Mina has 10 points\nMina now has 15 points\nAfter the bonus: 20\nRatio: 1.7777777777777777"
+    },
+    {
+      "type": "paragraph",
+      "text": "`print` accepts any number of arguments and separates them with a space. `score = score + 5` is not an equation: the right side is evaluated first, then the result is stored under the name on the left. `+=` and its relatives (`-=`, `*=`, `/=`) are shorthand for that pattern."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Naming rules and conventions"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Names may contain letters, digits and underscores, must not start with a digit, and are case-sensitive: `total`, `Total` and `TOTAL` are three different variables.",
+        "Keywords such as `if`, `for`, `class` and `None` cannot be used as names; Python reports a `SyntaxError` if you try.",
+        "The style guide (PEP 8) uses `snake_case` for variables and functions (`user_name`, `max_retries`), `CapWords` for classes and `UPPER_CASE` for constants such as `MAX_PLAYERS = 4`. Python does not enforce constants; the capitals are a promise to other programmers.",
+        "Choose names that say what the value *is*: `price_per_night` beats `p`, and `is_active` reads naturally inside an `if`."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Output and input"
+    },
+    {
+      "type": "paragraph",
+      "text": "`print` has two keyword options worth knowing early. `sep` sets the text placed between arguments (default: one space) and `end` sets what is written after the last argument (default: a new line). `\\t` inside a string is a tab character."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "print_options.py",
+      "code": "print(\"2026\", \"11\", \"15\", sep=\"-\")\nprint(\"Loading\", end=\"...\")\nprint(\"done\")\nprint(\"Name:\", \"Ada\", sep=\"\\t\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python print_options.py",
+      "content": "2026-11-15\nLoading...done\nName:\tAda"
+    },
+    {
+      "type": "paragraph",
+      "text": "`input` does the opposite: it shows a prompt, waits for the user to type a line and press Enter, and returns what was typed as a string. In the output below, `Ada` is what the user typed."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "greet.py",
+      "code": "name = input(\"What is your name? \")\nprint(\"Hello,\", name + \"!\")\nprint(\"Your name has\", len(name), \"letters.\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python greet.py",
+      "content": "What is your name? Ada\nHello, Ada!\nYour name has 3 letters."
+    },
+    {
+      "type": "paragraph",
+      "text": "`input` always returns a string, even when the user types `42`. The next lesson shows how to convert it to a number before doing arithmetic with it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Long lines and blank lines"
+    },
+    {
+      "type": "paragraph",
+      "text": "Blank lines are ignored, so use them to separate steps, as the examples above do. A statement can span several lines as long as it is inside parentheses, brackets or braces; Python knows the statement is unfinished until the closing bracket arrives. That is the idiomatic way to break up a long function call or list, and it is far more readable than the backslash continuation character."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "multiline.py",
+      "code": "cities = [\n    \"Lisbon\",\n    \"Nairobi\",\n    \"Osaka\",\n]\nprint(\n    \"We have offices in\",\n    len(cities),\n    \"cities\",\n)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python multiline.py",
+      "content": "We have offices in 3 cities"
+    },
+    {
+      "type": "paragraph",
+      "text": "The comma after the last item (`\"Osaka\",`) is allowed and encouraged: when you add another line later, the change touches one line instead of two."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Add a fourth city to `multiline.py`, then deliberately remove the indentation from one line of `blocks.py` and read the error Python gives. Getting comfortable with error messages early pays off for years."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-syntax-variables-indentation-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-syntax-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "Which of these is a valid Python variable name?",
+          "explanation": "Names cannot start with a digit, cannot be keywords such as `class`, and cannot contain hyphens (Python would read `user-name` as a subtraction). `user_name` follows the snake_case convention.",
+          "options": ["`2nd_place`", "`class`", "`user_name`", "`user-name`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "py-syntax-qc-2",
+          "type": "true-false",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "Indenting one line of a block with a tab and the next with four spaces is fine as long as they look aligned.",
+          "explanation": "Python 3 compares the actual characters, not the appearance, and raises `TabError` when tabs and spaces are mixed inside one block. Use four spaces everywhere.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-syntax-variables-indentation-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "conditionals"
+    }
+  ],
+  "seo": {
+    "title": "Python Syntax, Indentation and Variables Explained",
+    "description": "Understand Python statements, comments and indentation rules, create and name variables, and use print() and input(), with the exact output of every example."
+  },
+  "updatedOn": "2026-11-16"
+}

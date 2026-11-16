@@ -1,0 +1,156 @@
+{
+  "id": "fiber-quiz",
+  "title": "Fiber Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "fiber-review-1",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/hello\", func(c *fiber.Ctx) error { return c.SendString(\"Hello, Asha!\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "A Fiber handler returns an error value. SendString writes the response text. Open GET /hello. What result does this example give after the setup steps?",
+      "explanation": "The matching handler receives a Fiber v2 context. Returning SendString returns any writing error too. Return the error from response-writing methods.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "fiber-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/book\", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{\"title\": \"Moon Trip\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "JSON writes an object as JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "JSON serialises the map as a response object. Use the Fiber v2 context pointer shown in this course.",
+      "options": ["{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fiber-review-3",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/hello/:name\", func(c *fiber.Ctx) error { return c.SendString(\"Hi, \" + c.Params(\"name\") + \"!\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Params reads a named path part. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "Params reads the name segment Ravi, which is joined into a greeting. Path parameters start as text.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "fiber-review-4",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/page\", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{\"page\": c.Query(\"n\", \"1\")}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Query reads a query value and can take a default. Open GET /page. What result does this example give after the setup steps?",
+      "explanation": "Query has no n input, so it returns the default string 1. A query value remains text until you parse it.",
+      "options": ["[\"1\"]", "{\"page\":\"1\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "fiber-review-5",
+      "lessonSlug": "typed-params",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/double/:n\", func(c *fiber.Ctx) error { n, err := c.ParamsInt(\"n\"); if err != nil { return c.Status(400).SendString(\"Use a whole number\") }; return c.JSON(fiber.Map{\"answer\": n * 2}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "ParamsInt parses a route value as an integer. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "ParamsInt parses 4 successfully. The handler doubles the integer and returns JSON. Check the error before using the parsed number.",
+      "options": ["{\"answer\":8}", "{\"answer\":9}", "[8]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fiber-review-6",
+      "lessonSlug": "json-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\ntype Book struct { Title string `json:\"title\"` }\napp.Post(\"/books\", func(c *fiber.Ctx) error { var book Book; if err := c.BodyParser(&book); err != nil || book.Title == \"\" { return c.Status(400).JSON(fiber.Map{\"error\": \"Title needed\"}) }; return c.Status(201).JSON(book) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "BodyParser fills a struct from the request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "BodyParser fills the struct by pointer. The nonempty Title check succeeds before the 201 reply. Parsing does not replace checks for a useful field value.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fiber-review-7",
+      "lessonSlug": "groups",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napi := app.Group(\"/api\")\napi.Get(\"/books\", func(c *fiber.Ctx) error { return c.JSON([]string{\"Moon Trip\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Group adds a shared path prefix. Open GET /api/books. What result does this example give after the setup steps?",
+      "explanation": "The group combines /api with /books for its final route. Request the group prefix as well as the inner path.",
+      "options": ["[\"Moon Trip\"]", "[\"Sun Trip\"]", "[]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fiber-review-8",
+      "lessonSlug": "locals",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Use(func(c *fiber.Ctx) error { c.Locals(\"school\", \"Oak School\"); return c.Next() })\napp.Get(\"/school\", func(c *fiber.Ctx) error { return c.SendString(c.Locals(\"school\").(string)) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Locals stores a value for the current request. A middleware can set it before a route reads it. What result does this example give after the setup steps?",
+      "explanation": "The middleware stores a per-request local and calls Next. The route reads it as a string. Check a value type if it may come from a different source.",
+      "options": ["Oak School", "Pine School", "oak school"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fiber-review-9",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/note\", func(c *fiber.Ctx) error { c.Set(\"Cache-Control\", \"no-store\"); return c.SendString(\"Practice note\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Set adds a response header. Open GET /note and inspect Cache-Control. What result does this example give after the setup steps?",
+      "explanation": "Set adds Cache-Control before SendString writes the response. Set headers before sending the body.",
+      "options": ["Practice note", "Welcome", "practice note"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fiber-review-10",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/start\", func(c *fiber.Ctx) error { return c.Redirect(\"/hello\", 302) })\napp.Get(\"/hello\", func(c *fiber.Ctx) error { return c.SendString(\"Welcome\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Redirect sends a location and status. A browser following GET /start reaches /hello. What result does this example give after the setup steps?",
+      "explanation": "Redirect writes a 302 response with /hello as its location. A redirect requires another client request.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "fiber-review-11",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/missing\", func(c *fiber.Ctx) error { return c.Status(404).JSON(fiber.Map{\"error\": \"Book not found\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "Status selects a code before a body is sent. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "Status changes the response code before JSON writes the error body. A helpful error body should keep the correct error status.",
+      "options": [
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]",
+        "{\"error\":\"Book not found\"}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "fiber-review-12",
+      "lessonSlug": "fallback",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/\", func(c *fiber.Ctx) error { return c.SendString(\"Home\") })\napp.Use(func(c *fiber.Ctx) error { return c.Status(404).SendString(\"Page not found\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "question": "A final Use handler can reply when no earlier route handled the request. Open GET /unknown. What result does this example give after the setup steps?",
+      "explanation": "No earlier route handles /unknown, so the last middleware returns a 404 text response. Put a catch-all handler after the real routes.",
+      "options": ["page not found", "Page not found", "Home"],
+      "correctIndex": 1
+    }
+  ]
+}

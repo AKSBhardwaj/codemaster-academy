@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "slug": "environment-config",
+  "title": "Environment Variables and Configuration",
+  "summary": "Keep ports, database URLs and secrets out of your code with process.env, load .env files with Node's built-in --env-file flag, and validate configuration at startup.",
+  "introduction": "The same program runs on your laptop, on a teammate's machine, in a test pipeline and on a production server, and in each place it needs a different port, database and set of secrets. Hard-coding those values means editing code for every environment and, sooner or later, committing a password. The fix is to read configuration from the **environment** the process starts in. This lesson shows how Node exposes that environment, how to keep development values in a `.env` file without extra packages, and how to fail fast when something required is missing.",
+  "learningObjectives": [
+    "Read environment variables through process.env and convert them to the right types",
+    "Load a .env file during development with node --env-file",
+    "Validate required configuration at startup and keep secrets out of version control"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why configuration lives outside the code"
+    },
+    {
+      "type": "paragraph",
+      "text": "An environment variable is a named value that the operating system passes to a process when it starts. Shells, container runtimes, CI systems and cloud platforms all have a way to set them, which makes them the one configuration mechanism that works everywhere. Code reads the values and never contains them, so the same build can be deployed anywhere, and secrets stay with the people and systems that run the program rather than in the repository."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "process.env"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node copies the environment into `process.env`, a plain object. Reading a variable that is not set gives `undefined`, and **every value is a string**, including numbers and booleans. That second fact causes real bugs, so look closely at the output:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "demo.js",
+      "code": "console.log(typeof process.env.PORT);\nconsole.log(process.env.PORT + 1);\nconsole.log(Number(process.env.PORT) + 1);\nconsole.log(process.env.MISSING);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "PORT=3000 node demo.js"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "string\n30001\n3001\nundefined"
+    },
+    {
+      "type": "paragraph",
+      "text": "`'3000' + 1` concatenates. Convert at the edge, once, and work with real numbers and booleans everywhere else: `Number(process.env.PORT)` and `process.env.DEBUG === 'true'`. The way you set a variable for a single command depends on the shell:"
+    },
+    {
+      "type": "table",
+      "headers": ["Shell", "One command", "Rest of the session"],
+      "rows": [
+        ["bash, zsh, Git Bash", "`PORT=3000 node demo.js`", "`export PORT=3000`"],
+        [
+          "PowerShell",
+          "`$env:PORT=3000; node demo.js`",
+          "`$env:PORT=3000` (stays set until the window closes)"
+        ],
+        ["Windows cmd", "`set PORT=3000 && node demo.js`", "`set PORT=3000`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": ".env files"
+    },
+    {
+      "type": "paragraph",
+      "text": "Typing variables before every command gets old, so development values go in a `.env` file: one `NAME=value` per line, `#` for comments. Since Node 20.6 the runtime loads such a file itself with the `--env-file` flag, so the `dotenv` package is no longer required. Values already present in the environment win over values in the file, which lets you override a single setting for one run."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": ".env",
+      "code": "# development settings; never commit this file\nPORT=4000\nDATABASE_URL=file:./dev.db\nSESSION_SECRET=change-me-before-deploying"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "config.js",
+      "code": "const required = ['DATABASE_URL', 'SESSION_SECRET'];\n\nfor (const name of required) {\n  if (!process.env[name]) {\n    throw new Error(`Missing required environment variable: ${name}`);\n  }\n}\n\nexport const config = {\n  port: Number(process.env.PORT ?? 3000),\n  databaseUrl: process.env.DATABASE_URL,\n  sessionSecret: process.env.SESSION_SECRET,\n  isProduction: process.env.NODE_ENV === 'production',\n};"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "server.js",
+      "code": "import express from 'express';\nimport { config } from './config.js';\n\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.send(`Running in ${config.isProduction ? 'production' : 'development'} mode`);\n});\n\napp.listen(config.port, () => {\n  console.log(`Listening on port ${config.port}`);\n});"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node --env-file=.env server.js"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Listening on port 4000"
+    },
+    {
+      "type": "paragraph",
+      "text": "Put the flag in the `dev` script (`\"dev\": \"node --watch --env-file=.env server.js\"`) so that nobody has to remember it. `--env-file-if-exists=.env` (Node 22.9 and later) does the same but stays silent when the file is absent, which is what you want on a server where the real values come from the platform. For loading a file from code instead of a flag, `process.loadEnvFile('.env')` exists as well."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fail fast at startup"
+    },
+    {
+      "type": "paragraph",
+      "text": "`config.js` checks for every required variable the moment it is imported. A missing secret then stops the program before it accepts a single request, with a message that names the problem, instead of surfacing hours later as a confusing database error:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node server.js"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal, without the .env flag (stack shortened)",
+      "content": "file:///home/ada/bookshelf/config.js:5\n    throw new Error(`Missing required environment variable: ${name}`);\n          ^\n\nError: Missing required environment variable: DATABASE_URL\n    at file:///home/ada/bookshelf/config.js:5:11\n    ...\n\nNode.js v24.11.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Gathering all configuration into one exported object has a second benefit: the rest of the code imports `config.port`, not `process.env.PORT`, so the conversions and defaults are written once and the environment is read in exactly one file."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Secrets in version control",
+      "text": "Add `.env` to `.gitignore` before the first commit; a secret that was ever pushed must be treated as leaked and rotated, even if you delete it later. Commit a `.env.example` with the variable names and placeholder values instead, so new teammates know what to fill in. For the same reason, never `console.log(process.env)` or `config` in a server: logs end up in many places."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "NODE_ENV"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NODE_ENV` is a convention, not a Node feature: libraries read it to switch between development and production behaviour. Express, for example, includes stack traces in its default error pages unless `NODE_ENV` is `production`, and many packages enable caching or skip debug output. Set it to `production` on every real server and leave it unset while developing. It is not a security boundary: keep secrets out of the code regardless of its value."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where production values come from",
+      "text": "On a server you rarely use a `.env` file. systemd units have an `EnvironmentFile=` directive, Docker takes `-e NAME=value` or `--env-file`, and cloud platforms offer a settings page or a secrets manager. Your code does not change: it still reads `process.env`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-environment-config-strings"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-env-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "environment-config",
+          "difficulty": "beginner",
+          "question": "Node can load variables from a file without any package: `node --___=.env server.js`.",
+          "explanation": "The --env-file flag, available since Node 20.6, reads NAME=value lines into process.env before the program starts.",
+          "answers": ["env-file"],
+          "caseSensitive": false
+        },
+        {
+          "id": "nodejs-env-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "environment-config",
+          "difficulty": "beginner",
+          "question": "With `MAX_ITEMS=10` set, what is `process.env.MAX_ITEMS * 2`?",
+          "explanation": "Environment variables are strings, but the multiplication operator converts '10' to a number, giving 20. Only + concatenates, which is why conversions should be explicit.",
+          "options": ["`'1010'`", "`20`", "`NaN`", "`undefined`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-environment-config-strings"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "json-apis"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "deployment"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "virtual-environments"
+    }
+  ],
+  "seo": {
+    "title": "Node.js Environment Variables – process.env and --env-file",
+    "description": "Configure Node.js apps with process.env: string values, .env files with node --env-file, validating required settings at startup and keeping secrets safe."
+  },
+  "updatedOn": "2026-11-15"
+}

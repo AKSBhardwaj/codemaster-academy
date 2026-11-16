@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "slug": "strings",
+  "title": "Strings",
+  "summary": "A string is a piece of text, such as a name or a sentence. Quote marks show where it starts and ends.",
+  "introduction": "A string is a piece of text, such as a name or a sentence. Quote marks show where it starts and ends. Join a name to a greeting. Then find a letter, make text lowercase and put a value into a longer sentence.",
+  "learningObjectives": [
+    "Create strings with single, double and triple quotes and escape sequences",
+    "Extract characters and substrings with indexing and slicing",
+    "Transform text with methods such as strip(), split(), join() and replace()",
+    "Format values inside f-strings with width, precision and thousands separators"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "A string literal is text between quotes. Single and double quotes are equivalent; pick the one that lets you avoid escaping the other inside the text. Triple quotes (`\"\"\"` or `'''`) create strings that span several lines, which is also how docstrings are written."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "quotes.py",
+      "code": "single = 'Python'\ndouble = \"It's a snake\"\nescaped = \"She said \\\"hi\\\"\\tthen left.\\nNew line.\"\nmulti = \"\"\"Roses are red,\nviolets are blue.\"\"\"\n\nprint(single, double)\nprint(escaped)\nprint(multi)\nprint(len(multi))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python quotes.py",
+      "content": "Python It's a snake\nShe said \"hi\"\tthen left.\nNew line.\nRoses are red,\nviolets are blue.\n32"
+    },
+    {
+      "type": "paragraph",
+      "text": "Backslash escapes stand for characters that are awkward to type: `\\n` is a new line, `\\t` a tab, `\\\"` a literal quote and `\\\\` a single backslash. The line break inside the triple-quoted string counts as one character, which is why `len(multi)` is 32. Prefix a literal with `r` (raw) to switch escapes off, which is handy for Windows paths and regular expressions: `r\"C:\\Users\\ada\"`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Indexing and slicing"
+    },
+    {
+      "type": "paragraph",
+      "text": "A string is a sequence, so every character has a position, counting from `0`. Negative indexes count from the end: `-1` is the last character. A **slice** `text[start:stop]` returns the characters from `start` up to but *not including* `stop`; leaving either side empty means from the beginning or to the end, and a third number sets the step."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "slicing.py",
+      "code": "word = \"Python\"\n\nprint(word[0], word[-1])\nprint(word[0:3])\nprint(word[3:])\nprint(word[:2])\nprint(word[::2])\nprint(word[::-1])\nprint(len(word), \"P\" in word, \"x\" in word)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python slicing.py",
+      "content": "P n\nPyt\nhon\nPy\nPto\nnohtyP\n6 True False"
+    },
+    {
+      "type": "paragraph",
+      "text": "`word[::2]` takes every second character and `word[::-1]` walks backwards, the shortest way to reverse a string. Slices never fail on out-of-range positions (`word[2:100]` is simply `\"thon\"`), but a single index outside the string raises `IndexError`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strings cannot be changed in place"
+    },
+    {
+      "type": "paragraph",
+      "text": "Strings are **immutable**: once created, their characters never change. Trying to assign to a position fails, which is good news for correctness (no function can quietly alter the text you passed in) but means every transformation produces a *new* string."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "immutable.py",
+      "code": "word = \"Hello\"\nword[0] = \"J\""
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python immutable.py",
+      "content": "Traceback (most recent call last):\n  File \"/home/ada/projects/immutable.py\", line 2, in <module>\n    word[0] = \"J\"\n    ~~~~^^^\nTypeError: 'str' object does not support item assignment"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Methods return new strings",
+      "text": "Because strings are immutable, `name.upper()` on its own line does nothing visible: it builds an upper-case copy and throws it away. Assign the result (`name = name.upper()`) or use it directly in an expression. The same applies to `strip()`, `replace()` and every other string method."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Useful methods"
+    },
+    {
+      "type": "paragraph",
+      "text": "Methods are called with a dot on the value, and because each returns a new string you can chain them: `title.strip().title()` strips first, then capitalises each word."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "methods.py",
+      "code": "title = \"  the python tutorial  \"\n\nprint(title.strip())\nprint(title.strip().title())\nprint(title.upper().strip())\nprint(\"python\".capitalize(), \"PYTHON\".lower())\nprint(title.replace(\"python\", \"SQL\").strip())\nprint(title.strip().startswith(\"the\"), \"tutorial\" in title)\nprint(title.find(\"python\"), title.count(\"t\"))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python methods.py",
+      "content": "the python tutorial\nThe Python Tutorial\nTHE PYTHON TUTORIAL\nPython python\nthe SQL tutorial\nTrue True\n6 4"
+    },
+    {
+      "type": "table",
+      "headers": ["Method", "What it does"],
+      "rows": [
+        [
+          "`strip()`, `lstrip()`, `rstrip()`",
+          "Remove whitespace (or the characters you pass) from both ends, the left or the right"
+        ],
+        [
+          "`upper()`, `lower()`, `title()`, `capitalize()`",
+          "Change case; `title()` capitalises every word, `capitalize()` only the first"
+        ],
+        ["`replace(old, new)`", "Return a copy with every occurrence of `old` replaced by `new`"],
+        [
+          "`startswith(x)`, `endswith(x)`",
+          "Test the beginning or the end; the `in` operator tests anywhere"
+        ],
+        [
+          "`find(x)`",
+          "Index of the first match, or `-1` if absent; `index(x)` raises `ValueError` instead"
+        ],
+        ["`count(x)`", "How many non-overlapping times `x` appears"],
+        [
+          "`isdigit()`, `isalpha()`, `isspace()`",
+          "Test what kind of characters the string holds, for example before converting user input"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Splitting and joining"
+    },
+    {
+      "type": "paragraph",
+      "text": "`split()` cuts a string into a list of pieces: with no argument it splits on any run of whitespace, otherwise on the separator you give. `join()` is its mirror image, and it is called on the *separator*, which surprises everyone once: `\", \".join(items)`."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "split_join.py",
+      "code": "sentence = \"learn python one step at a time\"\nwords = sentence.split()\nprint(words)\nprint(len(words))\n\ncsv_line = \"Ada,36,London\"\nname, age, city = csv_line.split(\",\")\nprint(name, age, city)\n\nprint(\" - \".join(words))\nprint(\"\".join(reversed(name)))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python split_join.py",
+      "content": "['learn', 'python', 'one', 'step', 'at', 'a', 'time']\n7\nAda 36 London\nlearn - python - one - step - at - a - time\nadA"
+    },
+    {
+      "type": "paragraph",
+      "text": "`name, age, city = csv_line.split(\",\")` unpacks the three pieces into three variables in one statement; it fails with `ValueError` if the number of pieces does not match, which is usually what you want with structured input."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "f-strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **f-string** is a literal prefixed with `f` in which any expression inside curly braces is evaluated and inserted. After the expression, a colon introduces a *format specification*: how many decimals, how wide, which alignment, whether to add thousands separators. Since Python 3.12 the expression may even contain the same kind of quotes as the string around it."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "fstrings.py",
+      "code": "item = \"notebook\"\nprice = 4.5\nquantity = 3\ntotal = price * quantity\n\nprint(f\"{quantity} x {item} = {total}\")\nprint(f\"Total: {total:.2f} EUR\")\nprint(f\"{item:>12}|{price:<8}|\")\nprint(f\"{1234567.891:,.1f}\")\nprint(f\"{0.256:.1%}\")\nprint(f\"{item!r} has {len(item)} letters\")\nprint(f\"{\"-\" * 20}\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python fstrings.py",
+      "content": "3 x notebook = 13.5\nTotal: 13.50 EUR\n    notebook|4.5     |\n1,234,567.9\n25.6%\n'notebook' has 8 letters\n--------------------"
+    },
+    {
+      "type": "table",
+      "headers": ["Specification", "Meaning", "Example"],
+      "rows": [
+        ["`:.2f`", "Fixed number of decimals", "`f\"{3.14159:.2f}\"` gives `3.14`"],
+        ["`:,`", "Thousands separator", "`f\"{1000000:,}\"` gives `1,000,000`"],
+        [
+          "`:>10`, `:<10`, `:^10`",
+          "Right, left or centre align in a field of 10",
+          "`f\"{'hi':^6}\"` gives `'  hi  '`"
+        ],
+        ["`:05d`", "Integer padded with zeros", "`f\"{42:05d}\"` gives `00042`"],
+        ["`:.1%`", "Percentage with one decimal", "`f\"{0.5:.1%}\"` gives `50.0%`"],
+        ["`!r`", "The repr, with quotes for strings", "`f\"{'a'!r}\"` gives `'a'`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "Older formatting styles",
+      "text": "You will meet `\"{} is {}\".format(name, age)` and `\"%s is %d\" % (name, age)` in older code. Both still work, but f-strings are shorter, faster and easier to read, so use them in new code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-strings-index"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-strings-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "strings",
+          "difficulty": "beginner",
+          "question": "What does `\"Python\"[1:4]` evaluate to?",
+          "explanation": "A slice starts at the first index and stops *before* the second: positions 1, 2 and 3 are `y`, `t` and `h`.",
+          "options": ["`Pyt`", "`yth`", "`ytho`", "`P`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "py-strings-qc-2",
+          "type": "true-false",
+          "lessonSlug": "strings",
+          "difficulty": "beginner",
+          "question": "Calling `text.upper()` converts the variable `text` to upper case in place.",
+          "explanation": "Strings are immutable. `upper()` returns a new string; `text` keeps its old value unless you assign the result back to it.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-strings-index"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    }
+  ],
+  "seo": {
+    "title": "Python Strings – Slicing, Methods and f-strings",
+    "description": "Learn Python strings: quotes and escapes, indexing and slicing, immutability, the essential string methods, split and join, and f-string formatting."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,186 @@
+{
+  "id": "dotnet-oracle-backend-quiz",
+  "title": "C# .NET and Oracle Backend Review Quiz",
+  "description": "Check how the browser, C# API and Oracle work together. These questions cover requests, saved rows, validation, SQL parameters and useful tests. Read each explanation before moving on.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "dotnet-oracle-backend-quiz-01",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is an API in this project?",
+      "explanation": "An API is a set of addresses and rules that another program can use. Here, the browser asks for book data and the C# API sends a reply.",
+      "options": [
+        "A picture of a book",
+        "A set of addresses and rules for asking the program to do work",
+        "The Oracle password"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-02",
+      "lessonSlug": "setup-dotnet",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which tool is needed to create and build the .NET 10 sample?",
+      "explanation": "The .NET SDK includes tools for creating, building and running projects. A runtime by itself runs compatible built apps but is not the complete set of build tools.",
+      "options": ["Only a web browser", "Only an Oracle table", "The .NET 10 SDK"],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-03",
+      "lessonSlug": "oracle-setup",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which database account should the practice API use?",
+      "explanation": "Use a separate practice account with the access needed for its own table. SYS and SYSTEM are administration accounts; the book API does not need their wide powers.",
+      "options": [
+        "A separate practice account with access to its book table",
+        "SYS because every API needs all database powers",
+        "The user's website nickname"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-04",
+      "lessonSlug": "create-books-table",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "An identity id lets you assume that every new book id is exactly one more than the last book you can see.",
+      "explanation": "False. Deletes, rolled-back inserts and other database work can leave gaps. An id is a row's label, not a count of all saved books. Use the id returned by the API.",
+      "correct": false
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-05",
+      "lessonSlug": "csharp-models",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The JSON has \"isRead\": true. Which value belongs in the sample's is_read NUMBER(1) column?",
+      "explanation": "The C# model uses bool. This table uses a small number with a 0-or-1 rule. The data code maps true to 1 and false to 0 when it writes to Oracle.",
+      "options": ["The text 'true'", "1", "120"],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-06",
+      "lessonSlug": "connect-oracle",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why put a short-lived OracleConnection in a using block?",
+      "explanation": "using releases the connection when the block ends. With connection pooling, that usually returns it to the pool so later requests can reuse it. Do not keep one shared open connection for all requests.",
+      "options": [
+        "It makes every SQL statement return the same result",
+        "It saves the password into the browser",
+        "It releases the connection when this work ends"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-07",
+      "lessonSlug": "first-api",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which pair makes controller actions available in a small ASP.NET Core API?",
+      "explanation": "AddControllers registers controller support before Build. MapControllers connects the controller routes after Build. Both parts are needed for this sample's controller-based API.",
+      "options": [
+        "AddControllers and MapControllers",
+        "AddControllers and Console.Clear",
+        "MapControllers and localStorage.setItem"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-08",
+      "lessonSlug": "read-books",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why does the list query use ORDER BY id?",
+      "explanation": "ORDER BY asks Oracle for a chosen order. Without it, the database does not promise the row order you saw in an earlier request.",
+      "options": [
+        "It changes every book id",
+        "It asks for a clear, repeatable order",
+        "It hides invalid titles"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-09",
+      "lessonSlug": "add-books",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A title contains an apostrophe, such as Asha's Book. How should the API send it to SQL?",
+      "explanation": "A parameter carries the whole title as a value. The SQL text keeps its fixed shape. Do not build SQL by joining the title into the command string.",
+      "options": [
+        "Delete the apostrophe from every title",
+        "Put the title into the database password",
+        "Put the title in a named SQL parameter"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-10",
+      "lessonSlug": "update-delete-books",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "PUT /api/books/88 has a valid body, but book 88 does not exist. What does this sample return?",
+      "explanation": "An UPDATE that changes no row tells the API that this id is missing. The sample returns 404. It uses POST when the learner wants to add a new book.",
+      "options": [
+        "201 with a newly invented book 88",
+        "404 Not Found",
+        "200 with the entire table"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-11",
+      "lessonSlug": "safe-queries-transactions",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does command.BindByName = true change?",
+      "explanation": "It tells ODP.NET to match parameter names, such as title and id, to the placeholders in SQL. This avoids relying on the order in which parameters were added.",
+      "options": [
+        "Parameters match their SQL placeholder names",
+        "SQL stops needing any parameters",
+        "Every transaction commits by itself"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-12",
+      "lessonSlug": "test-api",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which extra request checks a mistake instead of only the happy path?",
+      "explanation": "An invalid title checks the input rules. In this sample, a title made only of spaces must produce 400 and must not add a book. Testing mistakes catches bugs that a successful GET cannot show.",
+      "options": [
+        "Open the home page again",
+        "Read the same valid book twice",
+        "POST a whitespace-only title and expect 400"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-13",
+      "lessonSlug": "browser-client",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "CORS is a login system that stops all non-browser programs from calling an API.",
+      "explanation": "False. CORS tells browsers which other origins may read responses. Tools such as curl are not protected by that browser rule. CORS does not replace checking who may use a real shared API.",
+      "correct": false
+    },
+    {
+      "id": "dotnet-oracle-backend-quiz-14",
+      "lessonSlug": "finish-project",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A local database error includes a password in a connection string. What should you share when asking for help?",
+      "explanation": "Share the error code, the action you tried, and the needed settings with passwords removed. Keep real secrets out of screenshots, public files and browser code.",
+      "options": [
+        "The full password so everyone can try it",
+        "The error code and steps, with secrets removed",
+        "Only the color of the page"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

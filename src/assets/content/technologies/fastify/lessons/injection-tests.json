@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "injection-tests",
+  "title": "Test without an open port",
+  "summary": "Fastify: Test without an open port. Change the route score and check the test output.",
+  "introduction": "inject runs a request inside Fastify. This example prints the response body and closes the app without listening.",
+  "learningObjectives": [
+    "Test without an open port with Fastify",
+    "Change the route score and check the test output"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Test without an open port"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Test without an open port",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/score\", async () => ({ score: 8 }));\nconst response = await app.inject({ method: \"GET\", url: \"/score\" });\nconsole.log(response.body);\nawait app.close();",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "inject executes GET /score in memory. response.body is the JSON string from that route."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"score\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the route score and check the test output."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Close the app after tests so resources are released."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-injection-tests-check"
+    }
+  ],
+  "exerciseIds": ["fastify-injection-tests-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "errors"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Test without an open port",
+    "description": "Fastify: Test without an open port. Change the route score and check the test output. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

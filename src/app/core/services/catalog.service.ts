@@ -67,6 +67,13 @@ export class CatalogService {
     () => this.categoriesResource.error() ?? this.technologiesResource.error(),
   );
 
+  reload(): void {
+    this.categoriesResource.reload();
+    this.technologiesResource.reload();
+    this.pathsResource.reload();
+    this.homeResource.reload();
+  }
+
   readonly technologyMap = computed(() => new Map(this.technologies().map((t) => [t.slug, t])));
   readonly categoryMap = computed(() => new Map(this.categories().map((c) => [c.slug, c])));
 

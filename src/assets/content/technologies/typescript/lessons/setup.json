@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup",
+  "title": "Installing TypeScript and tsconfig",
+  "summary": "TypeScript needs a tool that checks types and turns the code into JavaScript.",
+  "introduction": "TypeScript needs a tool that checks types and turns the code into JavaScript. Set up a small practice project with help if needed. Run the checker, read its message and fix one simple mistake.",
+  "learningObjectives": [
+    "Install TypeScript locally with npm and check the installed version",
+    "Write a tsconfig.json and explain what target, module, strict, rootDir and outDir do",
+    "Compile and run a file with tsc, Node.js and tsx, and type-check without emitting"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install Node.js and TypeScript"
+    },
+    {
+      "type": "paragraph",
+      "text": "TypeScript ships as an npm package, so you need [Node.js](/tutorials/nodejs) first. Install the current long-term-support line (24.x) from nodejs.org, open a terminal and confirm it works. The patch number you see will differ."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "v24.11.1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Now create a folder, initialise a package and install TypeScript as a *development* dependency. Installing locally rather than with `-g` records the version in `package.json`, so every teammate and every CI run compiles with the same compiler."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "mkdir ts-basics && cd ts-basics\nnpm init -y\nnpm install --save-dev typescript@5.9\nnpx tsc --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Version 5.9.3"
+    },
+    {
+      "type": "paragraph",
+      "text": "`npx` runs the `tsc` binary that npm placed in `node_modules/.bin`, so you never need a global install and never wonder which version is running."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create tsconfig.json"
+    },
+    {
+      "type": "paragraph",
+      "text": "`tsconfig.json` tells the compiler which files belong to the project and how to check and emit them. `npx tsc --init` can generate one: since TypeScript 5.9 the generated file is short, switches on `strict`, `module: \"nodenext\"` and `target: \"esnext\"`, and lists the other options as comments. For this tutorial, write the file by hand so that every line is something you chose."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "title": "tsconfig.json",
+      "code": "{\n  \"compilerOptions\": {\n    \"target\": \"es2022\",\n    \"module\": \"nodenext\",\n    \"rootDir\": \"src\",\n    \"outDir\": \"dist\",\n    \"strict\": true,\n    \"sourceMap\": true,\n    \"skipLibCheck\": true\n  },\n  \"include\": [\"src\"]\n}"
+    },
+    {
+      "type": "table",
+      "headers": ["Option", "What it does"],
+      "rows": [
+        [
+          "`target`",
+          "Which JavaScript version to emit. `es2022` keeps classes, optional chaining and top-level `await` as written; Node 24 and every current browser understand it."
+        ],
+        [
+          "`module`",
+          "How imports are emitted and resolved. `nodenext` follows Node's own rules: ES modules when `package.json` has `\"type\": \"module\"`, CommonJS otherwise."
+        ],
+        [
+          "`rootDir` and `outDir`",
+          "Read sources from `src`, write JavaScript to `dist`, mirroring the folder structure."
+        ],
+        [
+          "`strict`",
+          "Switches on every strict check at once. The [strict mode lesson](/tutorials/typescript/strict-config) explains each one."
+        ],
+        [
+          "`sourceMap`",
+          "Emits `.js.map` files so stack traces and debuggers point at your `.ts` lines."
+        ],
+        [
+          "`skipLibCheck`",
+          "Skips re-checking the `.d.ts` files inside `node_modules`, which makes builds faster."
+        ],
+        ["`include`", "The files and folders that belong to the project."]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Two more edits to `package.json`: add `\"type\": \"module\"` so Node treats the emitted files as ES modules (the [modules lesson](/tutorials/typescript/modules) explains the consequences for import paths), and add scripts so nobody has to remember the commands."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "title": "package.json",
+      "code": "{\n  \"name\": \"ts-basics\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"check\": \"tsc --noEmit\",\n    \"start\": \"node dist/app.js\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.9.3\"\n  }\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Write, compile, run"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create `src/app.ts`. It contains two annotations: `name: string` and `version: number` on the parameters, plus the `: string` return type."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app.ts",
+      "code": "const language = \"TypeScript\";\nconst release = 5.9;\n\nfunction describe(name: string, version: number): string {\n  return `${name} ${version} is ready.`;\n}\n\nconsole.log(describe(language, release));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc && node dist/app.js",
+      "content": "TypeScript 5.9 is ready."
+    },
+    {
+      "type": "paragraph",
+      "text": "`tsc` with no arguments reads `tsconfig.json`, checks every file under `src` and writes `dist/app.js` plus `dist/app.js.map`. Open `dist/app.js`: it is your code with the three annotations removed. Commit `src`, add `dist` to `.gitignore`, and never edit the files in `dist` by hand because the next build overwrites them."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Errors do not stop the output"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a second file with a deliberate mistake and build again."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/broken.ts",
+      "code": "const port: number = \"8080\";\nconsole.log(`Listening on ${port}`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc",
+      "content": "src/broken.ts:1:7 - error TS2322: Type 'string' is not assignable to type 'number'.\n\n1 const port: number = \"8080\";\n        ~~~~\n\n\nFound 1 error in src/broken.ts:1"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: shipping code that \"still runs\"",
+      "text": "Look in `dist` after that build: `broken.js` was written anyway, and `node dist/broken.js` prints `Listening on 8080`. By default the compiler reports errors but still emits JavaScript, because the output is valid even when the types are wrong. Teams that ignore the red text lose the whole benefit of TypeScript. Set `\"noEmitOnError\": true` in `tsconfig.json`, or make CI run `tsc --noEmit` and fail on a non-zero exit code."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Faster iteration with tsx and watch mode"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compiling before every run gets old quickly. `npx tsc --watch` recompiles on each save, and `tsx` runs a `.ts` file directly with no build step. `tsx` strips the types with esbuild and does *not* type-check, so keep `npm run check` in your routine; `tsx` is for running, `tsc` is for checking."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev tsx\nnpx tsx src/app.ts"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "TypeScript 5.9 is ready."
+    },
+    {
+      "type": "paragraph",
+      "text": "Node.js 24 can also run TypeScript on its own: `node src/app.ts` strips the annotations before executing and prints the same line. This built-in type stripping handles only *erasable* syntax (annotations, interfaces, type aliases, generics). An `enum`, a `namespace` or a constructor parameter property needs a real compile step; the [enums lesson](/tutorials/typescript/enums-literals) shows the error Node reports."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Using Node's own APIs"
+    },
+    {
+      "type": "paragraph",
+      "text": "The compiler knows the JavaScript language and the browser DOM out of the box, but not Node's modules such as `node:fs` or `node:process`. Those types live in the `@types/node` package. Without it, importing a Node module fails even though the module exists at runtime."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/args.ts",
+      "code": "import { argv } from \"node:process\";\n\nconst name = argv[2] ?? \"world\";\nconsole.log(`Hello, ${name}!`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc (before installing @types/node)",
+      "content": "src/args.ts:1:22 - error TS2307: Cannot find module 'node:process' or its corresponding type declarations.\n\n1 import { argv } from \"node:process\";\n                       ~~~~~~~~~~~~~~\n\n\nFound 1 error in src/args.ts:1"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install --save-dev @types/node\nnpx tsc && node dist/args.js Ada"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, Ada!"
+    },
+    {
+      "type": "paragraph",
+      "text": "Packages under `node_modules/@types` are picked up automatically unless `tsconfig.json` restricts them with a `types` array. The [declaration files lesson](/tutorials/typescript/declaration-files) explains where these packages come from and how to write your own."
+    },
+    {
+      "type": "callout",
+      "icon": "terminal",
+      "title": "Your daily commands",
+      "text": "`npm run check` (type-check only, no files written), `npx tsx src/app.ts` (run a file while developing), `npm run build` then `npm start` (produce and run the real output). Every later lesson assumes this project layout."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-setup-noemit"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "With `rootDir: \"src\"` and `outDir: \"dist\"`, where does `src/utils/text.ts` end up after `npx tsc`?",
+          "explanation": "The compiler mirrors the folder structure below rootDir into outDir, so the file becomes dist/utils/text.js (plus a .js.map when sourceMap is on).",
+          "options": [
+            "`dist/text.js`",
+            "`dist/utils/text.js`",
+            "`src/utils/text.js`",
+            "`dist/src/utils/text.js`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "`npx tsx src/app.ts` reports the same type errors as `npx tsc`.",
+          "explanation": "tsx only strips the types and runs the code; it never type-checks. Use tsc (or tsc --noEmit) to find type errors.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-setup-noemit"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "strict-config"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "modules"
+    }
+  ],
+  "seo": {
+    "title": "Install TypeScript 5.9 – tsconfig, tsc, tsx and Node 24",
+    "description": "Set up TypeScript 5.9 with npm, write a tsconfig.json you understand, compile with tsc, run with Node.js or tsx, and type-check without emitting files."
+  },
+  "updatedOn": "2026-11-16"
+}

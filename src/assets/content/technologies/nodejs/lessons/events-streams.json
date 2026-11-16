@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "events-streams",
+  "title": "Events and Streams",
+  "summary": "React to events with EventEmitter, then process data of any size piece by piece with readable, writable and transform streams, readline and pipeline.",
+  "introduction": "Two ideas run through all of Node's core modules. The first is the event: an object announces that something happened (`'data'`, `'close'`, `'error'`) and any number of listeners react. The second is the stream: data arrives in chunks over time instead of all at once, so a 10 GB log file or a slow network upload can be processed with a few kilobytes of memory. HTTP requests, file handles, sockets and compression all use both. This lesson builds the mental model with small, complete examples.",
+  "learningObjectives": [
+    "Emit and listen for events with EventEmitter, including once and error",
+    "Read a large file line by line without loading it into memory",
+    "Connect readable, transform and writable streams safely with pipeline"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "EventEmitter"
+    },
+    {
+      "type": "paragraph",
+      "text": "`EventEmitter` from `node:events` is the base class behind servers, sockets and streams. `on(name, listener)` registers a function, `emit(name, ...args)` calls every listener for that name in registration order, and `once` registers a listener that removes itself after its first call:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "orders.js",
+      "code": "import { EventEmitter } from 'node:events';\n\nconst orders = new EventEmitter();\n\norders.on('placed', (item, quantity) => {\n  console.log(`Kitchen: prepare ${quantity} x ${item}`);\n});\n\norders.once('placed', () => {\n  console.log('Marketing: first order of the day!');\n});\n\norders.emit('placed', 'coffee', 2);\norders.emit('placed', 'tea', 1);\nconsole.log('Listeners left:', orders.listenerCount('placed'));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node orders.js",
+      "content": "Kitchen: prepare 2 x coffee\nMarketing: first order of the day!\nKitchen: prepare 1 x tea\nListeners left: 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Listeners run **synchronously** inside `emit`: by the time `emit` returns, every listener has finished. Emitters are how you decouple code. The checkout module does not need to know that marketing, the kitchen and an analytics logger all care about orders; it just emits. Your own classes can `extends EventEmitter` to get the same API, and `off(name, listener)` removes a listener you no longer need."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "An unhandled error event crashes the process",
+      "text": "`'error'` is special: if an emitter emits it and nobody is listening, Node throws the error and the program exits with `Unhandled 'error' event`. Streams, servers and sockets all emit `'error'`, so every one you create needs an error listener (or must be wrapped in `pipeline`, which adds one for you)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why streams"
+    },
+    {
+      "type": "paragraph",
+      "text": "`readFile` from the previous lesson waits until the whole file is in memory. That is fine for a config file and disastrous for a multi-gigabyte export: the process either runs out of memory or sits idle for seconds before it can start working. A **stream** delivers the data in chunks (64 KiB by default for files) as soon as each chunk is available, so memory stays flat and work starts immediately. Node has four kinds: **Readable** (a file being read, an incoming request), **Writable** (a file being written, an outgoing response), **Duplex** (both, such as a socket) and **Transform** (a Duplex that changes data on the way through, such as gzip)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading a file line by line"
+    },
+    {
+      "type": "paragraph",
+      "text": "Readable streams are async iterables, so `for await` consumes them chunk by chunk. Chunks do not respect line boundaries, though, and the `node:readline` module fixes that by turning any readable stream into an iterable of lines. Save the five-line log below as `access.log`:"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "access.log",
+      "code": "2026-11-15T09:00:01Z GET /api/books 200 12ms\n2026-11-15T09:00:04Z POST /api/books 201 30ms\n2026-11-15T09:00:09Z GET /api/books/7 404 2ms\n2026-11-15T09:00:15Z GET /api/books 500 41ms\n2026-11-15T09:00:20Z DELETE /api/books/2 500 9ms"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "count-errors.js",
+      "code": "import { createReadStream } from 'node:fs';\nimport { createInterface } from 'node:readline';\n\nconst lines = createInterface({\n  input: createReadStream('access.log'),\n  crlfDelay: Infinity,\n});\n\nlet total = 0;\nlet errors = 0;\n\nfor await (const line of lines) {\n  total++;\n  if (line.includes(' 500 ')) errors++;\n}\n\nconsole.log(`${total} requests, ${errors} server errors`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node count-errors.js",
+      "content": "5 requests, 2 server errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same program handles a file with fifty million lines; only one line is in memory at a time. `crlfDelay: Infinity` makes Windows line endings (`\\r\\n`) count as a single line break."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Connecting streams with pipeline"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most stream programs are a chain: read from somewhere, transform, write somewhere else. `pipeline` from `node:stream/promises` connects the pieces, forwards errors from any stage, closes everything properly and returns a promise. It also handles **backpressure**: if the writer is slower than the reader (a slow disk, a slow client), the reader is paused until the writer catches up, so memory never balloons. This example compresses the log with gzip from `node:zlib`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "compress.js",
+      "code": "import { createReadStream, createWriteStream } from 'node:fs';\nimport { createGzip } from 'node:zlib';\nimport { pipeline } from 'node:stream/promises';\n\nawait pipeline(\n  createReadStream('access.log'),\n  createGzip(),\n  createWriteStream('access.log.gz'),\n);\n\nconsole.log('Compressed access.log to access.log.gz');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node compress.js",
+      "content": "Compressed access.log to access.log.gz"
+    },
+    {
+      "type": "paragraph",
+      "text": "You will also see `source.pipe(destination)` in older code. It works, but it does not forward errors or clean up when one stage fails, which is why `pipeline` is the recommended form today."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing a transform stream"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `Transform` receives each chunk, does something with it and pushes the result on. The `transform(chunk, encoding, callback)` method calls `callback(null, output)` when it is done (or `callback(error)` to fail). `process.stdin` and `process.stdout` are streams too, so a transform can become a classic command-line filter:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "shout.js",
+      "code": "import { Transform } from 'node:stream';\nimport { pipeline } from 'node:stream/promises';\n\nconst shout = new Transform({\n  transform(chunk, encoding, callback) {\n    callback(null, chunk.toString().toUpperCase());\n  },\n});\n\nawait pipeline(process.stdin, shout, process.stdout);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "echo \"streams are just chunks\" | node shout.js"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "STREAMS ARE JUST CHUNKS"
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "Use"],
+      "rows": [
+        ["Process a file chunk by chunk", "`createReadStream` and `for await`"],
+        ["Process a file line by line", "`node:readline` `createInterface` over a read stream"],
+        [
+          "Copy, compress or convert from one stream to another",
+          "`pipeline` with any number of stages"
+        ],
+        ["Change data on the way through", "`new Transform({ transform() {} })`"],
+        ["Turn an array or generator into a stream", "`Readable.from(iterable)`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "HTTP is streams all the way down",
+      "text": "In the next lesson the incoming request is a Readable stream (that is why a request body is read with `for await`) and the response is a Writable stream, which is why `res.end()` is needed to finish it. Everything you learned here applies directly."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-events-streams-error-event"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-events-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "events-streams",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "Listeners run in registration order on every emit; the once listener runs on the first emit only and is then removed, so the second emit reaches only the on listener.",
+          "language": "javascript",
+          "code": "import { EventEmitter } from 'node:events';\nconst e = new EventEmitter();\ne.once('tick', () => console.log('once'));\ne.on('tick', () => console.log('on'));\ne.emit('tick');\ne.emit('tick');",
+          "options": ["once, on, on", "once, on, once, on", "on, once, on", "once, once, on"],
+          "correctIndex": 0
+        },
+        {
+          "id": "nodejs-events-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "events-streams",
+          "difficulty": "intermediate",
+          "question": "Why is `pipeline` preferred over chaining `.pipe()` calls?",
+          "explanation": "pipeline forwards an error from any stage, destroys every stream in the chain on failure and returns a promise; plain pipe leaves streams open and errors unhandled when a stage fails.",
+          "options": [
+            "It is faster because it skips backpressure",
+            "It forwards errors, cleans up every stream on failure and returns a promise",
+            "It converts streams to strings automatically",
+            "pipe() was removed in Node 24"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-events-streams-error-event"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "file-system"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "http-server"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "events"
+    }
+  ],
+  "seo": {
+    "title": "Node.js Events and Streams – EventEmitter and pipeline",
+    "description": "Learn Node.js EventEmitter (on, once, emit, error) and streams: read large files line by line, compress with pipeline and gzip, and write a Transform stream."
+  },
+  "updatedOn": "2026-11-15"
+}

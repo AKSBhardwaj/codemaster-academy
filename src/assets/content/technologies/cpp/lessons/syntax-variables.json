@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax-variables",
+  "title": "Syntax, Variables and auto",
+  "summary": "Statements and blocks, the fundamental types, brace initialisation that prevents narrowing, auto type deduction, const and constexpr, and reading input with std::cin.",
+  "introduction": "Every C++ variable has a type that never changes, and how you initialise it decides whether the compiler can protect you from losing data. This lesson covers the small set of rules you use in every line of C++: statements, the built-in types, the modern brace form of initialisation, when to let `auto` deduce a type, and how `const` and `constexpr` document what must not change. It finishes with reading a value from the keyboard.",
+  "learningObjectives": [
+    "Declare variables of the fundamental types and std::string with brace initialisation",
+    "Explain why `int x{3.7}` is an error while `int x = 3.7` silently truncates",
+    "Use auto, const and constexpr appropriately",
+    "Predict the result of integer division and fix it with a cast"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Statements, blocks and comments"
+    },
+    {
+      "type": "paragraph",
+      "text": "A C++ program is a sequence of **statements**, each ending in a semicolon. Curly braces group statements into a **block**, and a variable declared inside a block disappears when the block ends. Comments start with `//` for one line or sit between `/*` and `*/`. Whitespace is free: indentation is for humans, and the compiler ignores it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fundamental types"
+    },
+    {
+      "type": "paragraph",
+      "text": "The built-in types map directly onto what the CPU handles. Their exact sizes depend on the platform, but the values below hold on every mainstream desktop and server compiler today."
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Holds", "Typical size"],
+      "rows": [
+        ["`int`", "Whole numbers from about -2.1 billion to 2.1 billion", "32 bits"],
+        ["`long long`", "Whole numbers up to about 9.2 quintillion", "64 bits"],
+        ["`double`", "Decimal numbers with about 15 significant digits", "64 bits"],
+        [
+          "`float`",
+          "Decimal numbers with about 7 significant digits; use `double` unless memory is tight",
+          "32 bits"
+        ],
+        ["`bool`", "`true` or `false`", "1 byte"],
+        ["`char`", "One character such as `'A'` (actually a small integer)", "1 byte"],
+        [
+          "`std::string`",
+          "Text of any length; a library type from `<string>`, not built in",
+          "varies"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "variables.cpp",
+      "code": "#include <iostream>\n#include <string>\n\nint main() {\n    int count{42};\n    double price{9.99};\n    bool inStock{true};\n    char grade{'A'};\n    std::string name{\"Ada\"};\n\n    std::cout << \"count: \" << count << '\\n';\n    std::cout << \"price: \" << price << '\\n';\n    std::cout << \"inStock: \" << inStock << '\\n';\n    std::cout << \"grade: \" << grade << '\\n';\n    std::cout << \"name: \" << name << \" (\" << name.size() << \" chars)\\n\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra variables.cpp -o variables\n$ ./variables\ncount: 42\nprice: 9.99\ninStock: 1\ngrade: A\nname: Ada (3 chars)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two details to notice: a `bool` prints as `1` or `0` unless you insert `std::boolalpha` into the stream first, and `name.size()` is a *member function* called with a dot, your first taste of objects."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Brace initialisation and narrowing"
+    },
+    {
+      "type": "paragraph",
+      "text": "C++ has several ways to initialise a variable; `int n = 5;`, `int n(5);` and `int n{5};` all work. Modern code prefers the braces because they refuse **narrowing** conversions, the ones that can lose information. `int n = 3.7;` compiles and stores `3`; `int n{3.7};` is a compile error. Empty braces give the *zero* of the type: `int n{};` is `0`, `double d{};` is `0.0`, `std::string s{};` is empty."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "division.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    int total{7};\n    int parts{2};\n\n    std::cout << total / parts << '\\n';                       // integer division\n    std::cout << total % parts << '\\n';                       // remainder\n    std::cout << static_cast<double>(total) / parts << '\\n';  // real division\n    std::cout << 7.0 / 2 << '\\n';                             // a double literal does the same\n\n    int truncated = 3.99;   // allowed with =, silently loses .99\n    std::cout << truncated << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra division.cpp -o division\n$ ./division\n3\n1\n3.5\n3.5\n3"
+    },
+    {
+      "type": "paragraph",
+      "text": "When both operands are integers, `/` throws away the fraction. Converting one side with `static_cast<double>(...)` makes the whole expression floating point. `static_cast` is the C++ way to say \"I know this conversion loses precision and I accept it\"; prefer it to the C-style `(double)total`, which is harder to search for and can do more dangerous conversions."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Letting auto deduce the type"
+    },
+    {
+      "type": "paragraph",
+      "text": "`auto` tells the compiler to use the type of the initialiser. It is not dynamic typing: the type is fixed once, at compile time. `auto` shines when the type is long or obvious from the right-hand side, and it forces you to initialise the variable, which removes a whole class of bugs."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "auto.cpp",
+      "code": "#include <iostream>\n#include <string>\n\nint main() {\n    auto n = 42;                      // int\n    auto ratio = 2.5;                 // double\n    auto flag = false;                // bool\n    auto text = \"hi\";                 // const char*, NOT std::string\n    auto name = std::string{\"Grace\"}; // std::string, say so explicitly\n\n    std::cout << n * 2 << ' ' << ratio * 2 << ' ' << flag << '\\n';\n    std::cout << name.size() << '\\n';\n    std::cout << text << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra auto.cpp -o auto\n$ ./auto\n84 5 0\n5\nhi"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ratio * 2` is `5.0`, which the stream prints as `5`. The trap is `auto text = \"hi\";`: a string literal is an array of characters, so `text` becomes a `const char*` pointer with no `.size()`. When you want a `std::string`, write `std::string{\"hi\"}` or use the `\"hi\"s` literal from `std::string_literals`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "const and constexpr"
+    },
+    {
+      "type": "paragraph",
+      "text": "`const` means the value cannot change after initialisation; the compiler rejects any assignment to it. `constexpr` goes further: the value must be computable at compile time, which lets you use it as an array size or a template argument and guarantees it costs nothing at run time. Reach for `constexpr` for true constants (limits, conversion factors) and `const` for values fixed once at run time (a size read from a file)."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "input.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    constexpr int daysPerWeek{7};\n    const double taxRate{0.2};\n\n    int age{};\n    std::cout << \"Enter your age: \";\n    std::cin >> age;\n\n    std::cout << \"In \" << daysPerWeek * 52 << \" days you will be \" << age + 1 << '\\n';\n    std::cout << \"Tax on 100: \" << 100 * taxRate << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (the user types 29)",
+      "content": "$ g++ -std=c++20 -Wall -Wextra input.cpp -o input\n$ ./input\nEnter your age: 29\nIn 364 days you will be 30\nTax on 100: 20"
+    },
+    {
+      "type": "paragraph",
+      "text": "`std::cin >> age` reads whitespace-separated input and converts it to the variable's type. If the user types something that is not a number, the stream enters a failed state and `age` is set to `0`; the [strings and streams](/tutorials/cpp/strings-streams) lesson shows how to detect that."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: reading an uninitialised variable",
+      "text": "`int total;` followed by `std::cout << total;` is undefined behaviour: the variable holds whatever bytes happened to be in memory, so the program may print `0` on your machine and `-858993460` on the grader's. Unlike Java or Python, C++ does not zero local variables for you. Always initialise, and use empty braces (`int total{};`) when you have no better value; `-Wall` will warn about many, but not all, uninitialised reads."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "C++23 note",
+      "text": "With `#include <print>` the output lines become `std::println(\"name: {} ({} chars)\", name, name.size());`. The `{}` placeholders are type-checked at compile time and `bool` values print as `true`/`false` without `std::boolalpha`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-variables-narrowing"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-variables-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`9 / 2` is integer division and yields `4`; the result is only then converted to `double` for storage, so the fraction is already gone.",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    double result = 9 / 2;\n    std::cout << result << '\\n';\n}",
+          "options": ["4.5", "4", "5", "It does not compile"],
+          "correctIndex": 1
+        },
+        {
+          "id": "cpp-variables-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "Which declaration is rejected by the compiler?",
+          "explanation": "Brace initialisation refuses narrowing conversions, so `int n{2.5};` is an error. The `=` form truncates to `2`, and the other two are ordinary initialisations.",
+          "options": ["`int n = 2.5;`", "`int n{2.5};`", "`double d{2};`", "`auto n = 2.5;`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-variables-narrowing", "cpp-variables-auto-string"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "control-flow"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "strings-streams"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "variables"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    }
+  ],
+  "seo": {
+    "title": "C++ Variables, Types and auto – Brace Initialisation",
+    "description": "Declare C++ variables with the right type, use brace initialisation to stop narrowing conversions, let auto deduce types safely, and read input with std::cin."
+  },
+  "updatedOn": "2026-11-15"
+}

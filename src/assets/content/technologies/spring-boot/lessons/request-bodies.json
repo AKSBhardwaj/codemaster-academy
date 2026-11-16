@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "request-bodies",
+  "title": "Read a JSON body",
+  "summary": "Spring Boot: Read a JSON body. Change the posted title.",
+  "introduction": "@RequestBody reads JSON into a Java record. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a JSON body with Spring Boot", "Change the posted title"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Read a JSON body",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") Book create(@RequestBody Book book) { return book; }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The JSON title is bound to the record field. Returning the record serialises that field again."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the posted title."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A record defines fields but does not automatically make every value valid."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-request-bodies-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-request-bodies-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "typed-paths"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Read a JSON body",
+    "description": "Spring Boot: Read a JSON body. Change the posted title. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Cassandra Small Examples",
+  "description": "Use these small Cassandra examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Create a local practice keyspace",
+      "description": "A keyspace groups Cassandra tables and defines replication.",
+      "language": "sql",
+      "code": "CREATE KEYSPACE IF NOT EXISTS cma_reading WITH replication = {'class':'SimpleStrategy','replication_factor':1};\nUSE cma_reading;",
+      "output": "The local practice keyspace uses one replica.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "design-a-table-for-one-question",
+      "title": "Design a table for one question",
+      "description": "The partition key chooses a group of rows stored together.",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS reading_by_reader(reader_id text,day date,title text,pages int,PRIMARY KEY((reader_id),day)) WITH CLUSTERING ORDER BY(day DESC);",
+      "output": "The table groups a reader's entries by reader_id and orders that reader's days newest first.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "design-a-table-for-one-question"
+    },
+    {
+      "id": "insert-a-reading-entry",
+      "title": "Insert a reading entry",
+      "description": "An INSERT writes values at a primary-key address.",
+      "language": "sql",
+      "code": "INSERT INTO reading_by_reader(reader_id,day,title,pages) VALUES('mia','2026-11-16','Moon Trip',20);",
+      "output": "Mia's entry for that day stores Moon Trip and 20 pages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "insert-a-reading-entry"
+    },
+    {
+      "id": "read-one-partition",
+      "title": "Read one partition",
+      "description": "A Cassandra query is efficient when it names the partition key.",
+      "language": "sql",
+      "code": "SELECT day,title,pages FROM reading_by_reader WHERE reader_id='mia';",
+      "output": "The query returns Mia's stored days in the table's clustering order.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-one-partition"
+    },
+    {
+      "id": "read-a-range-inside-a-partition",
+      "title": "Read a range inside a partition",
+      "description": "After choosing a partition, a query can use a range on its clustering column.",
+      "language": "sql",
+      "code": "SELECT day,title FROM reading_by_reader WHERE reader_id='mia' AND day>='2026-11-01' LIMIT 5;",
+      "output": "At most five of Mia's entries from the chosen date range are returned.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-range-inside-a-partition"
+    },
+    {
+      "id": "keep-partitions-a-manageable-size",
+      "title": "Keep partitions a manageable size",
+      "description": "A partition should not grow without a useful bound.",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS reading_by_month(reader_id text,month text,day date,title text,PRIMARY KEY((reader_id,month),day));",
+      "output": "The partition key now combines a reader and a month, such as mia with 2026-11.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-partitions-a-manageable-size"
+    },
+    {
+      "id": "expire-temporary-fields",
+      "title": "Expire temporary fields",
+      "description": "A TTL gives written values a time to live.",
+      "language": "sql",
+      "code": "INSERT INTO reading_by_reader(reader_id,day,title,pages) VALUES('temporary-reader','2026-11-16','Practice',1) USING TTL 60;\nSELECT TTL(title) FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';",
+      "output": "The TTL value is near 60 seconds when read immediately and decreases with time.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "expire-temporary-fields"
+    },
+    {
+      "id": "update-by-the-full-key",
+      "title": "Update by the full key",
+      "description": "An UPDATE names the row through its key and changes selected values.",
+      "language": "sql",
+      "code": "UPDATE reading_by_reader SET pages=25 WHERE reader_id='mia' AND day='2026-11-16';",
+      "output": "The page count at that exact reader-and-day address becomes 25.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "update-by-the-full-key"
+    },
+    {
+      "id": "delete-one-known-row",
+      "title": "Delete one known row",
+      "description": "A DELETE marks selected data as deleted.",
+      "language": "sql",
+      "code": "DELETE FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';",
+      "output": "The named temporary sample entry is no longer returned by normal reads.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "delete-one-known-row"
+    },
+    {
+      "id": "group-a-small-related-write",
+      "title": "Group a small related write",
+      "description": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once.",
+      "language": "sql",
+      "code": "BEGIN BATCH\nUPDATE reading_by_reader SET pages=21 WHERE reader_id='mia' AND day='2026-11-16';\nUPDATE reading_by_reader SET title='Moon Trip, chapter 2' WHERE reader_id='mia' AND day='2026-11-16';\nAPPLY BATCH;",
+      "output": "Both changes target the same practice row in one partition.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-a-small-related-write"
+    },
+    {
+      "id": "use-a-dedicated-counter-table",
+      "title": "Use a dedicated counter table",
+      "description": "Cassandra counters use a special column type and update rules.",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS books_count(reader_id text PRIMARY KEY,total counter);\nUPDATE books_count SET total=total+1 WHERE reader_id='mia';\nSELECT total FROM books_count WHERE reader_id='mia';",
+      "output": "The stored counter increases by one each time the update is applied.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-dedicated-counter-table"
+    },
+    {
+      "id": "match-consistency-to-the-cluster",
+      "title": "Match consistency to the cluster",
+      "description": "A consistency level tells Cassandra how many replicas must answer an operation.",
+      "language": "text",
+      "code": "Worked example with three replicas:\nONE needs one replica response.\nQUORUM needs a majority: two responses.\nThe local course has only one replica, so it cannot demonstrate surviving multiple replica failures.",
+      "output": "The example shows why a stronger response requirement can trade availability for stronger agreement.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "match-consistency-to-the-cluster"
+    }
+  ]
+}

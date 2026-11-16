@@ -1,0 +1,138 @@
+{
+  "title": "Sass Small Examples",
+  "description": "Use these small Sass examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Set up the Sass tool",
+      "description": "Sass is a tool that turns a style recipe into CSS.",
+      "language": "bash",
+      "code": "npm install --save-dev sass\nnpx sass --version",
+      "output": "The first command adds Sass to a local project. The second prints its version number.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "name-a-colour",
+      "title": "Name a colour",
+      "description": "A Sass variable gives a value a name. The dollar sign starts that name.",
+      "language": "scss",
+      "code": "$ink: #174a8b;\nh1 { color: $ink; }\na { color: $ink; }",
+      "output": "Both h1 and a rules use #174a8b in the CSS output. The $ink name is replaced during the build.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "name-a-colour"
+    },
+    {
+      "id": "nest-a-simple-rule",
+      "title": "Nest a simple rule",
+      "description": "Nesting puts a rule inside another rule.",
+      "language": "scss",
+      "code": ".card {\n  padding: 1rem;\n  h2 { color: navy; }\n}",
+      "output": "The output styles .card and .card h2. Only headings inside a card get the navy colour.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "nest-a-simple-rule"
+    },
+    {
+      "id": "use-the-parent-sign",
+      "title": "Use the parent sign",
+      "description": "The ampersand sign stands for the selector around it.",
+      "language": "scss",
+      "code": ".button {\n  color: navy;\n  &:focus-visible { outline: 3px solid orange; }\n}",
+      "output": "Sass creates .button:focus-visible. A keyboard user can see a clear outline when the button receives focus.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-the-parent-sign"
+    },
+    {
+      "id": "make-a-mixin-recipe",
+      "title": "Make a mixin recipe",
+      "description": "A mixin is a named group of CSS choices.",
+      "language": "scss",
+      "code": "@mixin soft-box {\n  padding: 1rem;\n  border-radius: 0.5rem;\n}\n.card { @include soft-box; }\n.note { @include soft-box; }",
+      "output": "Both classes get padding and round corners. Changing the recipe changes both after the next build.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-mixin-recipe"
+    },
+    {
+      "id": "give-a-mixin-an-input",
+      "title": "Give a mixin an input",
+      "description": "A mixin can take an input value. A default value is used when the caller does not provide one.",
+      "language": "scss",
+      "code": "@mixin frame($colour: navy) { border: 2px solid $colour; }\n.book { @include frame; }\n.game { @include frame(green); }",
+      "output": "The book border is navy. The game border is green because its call supplies a different input.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "give-a-mixin-an-input"
+    },
+    {
+      "id": "share-a-module",
+      "title": "Share a module",
+      "description": "A module is a Sass file that shares values or recipes.",
+      "language": "scss",
+      "code": "// _colours.scss\n$ink: navy;\n\n// lesson.scss, in the same folder\n@use \"colours\";\nh1 { color: colours.$ink; }",
+      "output": "Save the two labelled sections as separate files. Building lesson.scss makes a navy h1 rule.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "share-a-module"
+    },
+    {
+      "id": "do-simple-sass-maths",
+      "title": "Do simple Sass maths",
+      "description": "The Sass math module has tools for calculations.",
+      "language": "scss",
+      "code": "@use \"sass:math\";\n$space: 24px;\n.card { padding: math.div($space, 2); }",
+      "output": "The card gets 12px of padding. Sass does the division before the browser loads the page.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "do-simple-sass-maths"
+    },
+    {
+      "id": "use-a-colour-map",
+      "title": "Use a colour map",
+      "description": "A map pairs names with values, like labels on paint pots.",
+      "language": "scss",
+      "code": "@use \"sass:map\";\n$colours: (\"sea\": teal, \"sun\": gold);\n.note { background: map.get($colours, \"sun\"); }",
+      "output": "The note background is gold. The key sun selects that entry from the map.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-colour-map"
+    },
+    {
+      "id": "repeat-a-small-rule",
+      "title": "Repeat a small rule",
+      "description": "An @each loop makes one rule for each item in a list.",
+      "language": "scss",
+      "code": "@each $size in 1, 2, 3 {\n  .space-#{$size} { margin: $size * 4px; }\n}",
+      "output": "The output has space-1 with 4px, space-2 with 8px and space-3 with 12px margins.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "repeat-a-small-rule"
+    },
+    {
+      "id": "write-a-small-function",
+      "title": "Write a small function",
+      "description": "A Sass function calculates one value and returns it.",
+      "language": "scss",
+      "code": "@function gap($steps) { @return $steps * 4px; }\n.card { padding: gap(3); }",
+      "output": "The card padding becomes 12px. The return value fits where an ordinary CSS value would go.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-a-small-function"
+    },
+    {
+      "id": "build-a-responsive-card",
+      "title": "Build a responsive card",
+      "description": "Sass can group a screen-size rule with the component it styles.",
+      "language": "scss",
+      "code": ".card {\n  padding: 1rem;\n  @media (min-width: 40rem) { padding: 2rem; }\n}",
+      "output": "The card has 1rem padding on narrow screens and 2rem when the viewport is at least 40rem wide.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-responsive-card"
+    }
+  ]
+}

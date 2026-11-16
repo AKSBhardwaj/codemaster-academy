@@ -1,0 +1,150 @@
+{
+  "title": "Design Patterns Reference",
+  "description": "A quick reminder of the ideas and examples in the Design Patterns lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Patterns solve repeated problems",
+          "summary": "A pattern gives a name to a useful design idea. Before choosing one, describe the job the code must do.",
+          "example": {
+            "language": "javascript",
+            "code": "const job = { input: 3, action: n => n * 2 };\nconsole.log(job.action(job.input));"
+          },
+          "notes": ["Adding a pattern without a problem can make simple code harder."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "factory-functions",
+          "name": "Factory functions",
+          "summary": "A factory makes objects. It keeps object creation in one place so callers do not repeat the setup.",
+          "example": {
+            "language": "javascript",
+            "code": "function makeBook(title) { return { title, borrowed: false }; }\nconsole.log(makeBook(\"Moon\").borrowed);"
+          },
+          "notes": ["Return a fresh object when callers need independent objects."],
+          "lessonSlug": "factory-functions"
+        },
+        {
+          "slug": "strategy-functions",
+          "name": "Strategy functions",
+          "summary": "A strategy is a swappable way to do a job. Pass a function when the rule may change.",
+          "example": {
+            "language": "javascript",
+            "code": "function price(total, discount) { return discount(total); }\nconst halfPrice = value => value / 2;\nconsole.log(price(10, halfPrice));"
+          },
+          "notes": ["Do not hide unrelated side effects inside a strategy function."],
+          "lessonSlug": "strategy-functions"
+        },
+        {
+          "slug": "observer-notifications",
+          "name": "Observer notifications",
+          "summary": "An observer listens for a change. The subject tells its listeners when something happens.",
+          "example": {
+            "language": "javascript",
+            "code": "const listeners = [];\nlisteners.push(value => console.log(\"Score \" + value));\nfor (const notify of listeners) notify(8);"
+          },
+          "notes": ["Remove listeners when they are no longer needed to avoid repeated work."],
+          "lessonSlug": "observer-notifications"
+        },
+        {
+          "slug": "adapters-translate-interfaces",
+          "name": "Adapters translate interfaces",
+          "summary": "An adapter changes one form of input or output into another. It lets two parts work together without changing both.",
+          "example": {
+            "language": "javascript",
+            "code": "const oldWeather = { fahrenheit: 68 };\nfunction asCelsius(weather) { return (weather.fahrenheit - 32) * 5 / 9; }\nconsole.log(asCelsius(oldWeather));"
+          },
+          "notes": ["Check units before passing a value to another part of a program."],
+          "lessonSlug": "adapters-translate-interfaces"
+        },
+        {
+          "slug": "decorators-add-behaviour",
+          "name": "Decorators add behaviour",
+          "summary": "A decorator wraps a function with extra behaviour. The original function can stay focused on its job.",
+          "example": {
+            "language": "javascript",
+            "code": "const greet = name => \"Hi \" + name;\nconst excited = fn => name => fn(name) + \"!\";\nconsole.log(excited(greet)(\"Asha\"));"
+          },
+          "notes": ["Too many wrappers can hide the order in which work happens."],
+          "lessonSlug": "decorators-add-behaviour"
+        },
+        {
+          "slug": "facades-offer-a-small-doorway",
+          "name": "Facades offer a small doorway",
+          "summary": "A facade gives callers a simple way to use several parts. It hides the order of small steps behind one clear action.",
+          "example": {
+            "language": "javascript",
+            "code": "const readTitle = () => \"Moon\";\nconst readPages = () => 24;\nfunction bookSummary() { return readTitle() + \": \" + readPages() + \" pages\"; }\nconsole.log(bookSummary());"
+          },
+          "notes": ["A facade should simplify access, not silently change what the helpers mean."],
+          "lessonSlug": "facades-offer-a-small-doorway"
+        },
+        {
+          "slug": "commands-store-actions",
+          "name": "Commands store actions",
+          "summary": "A command packages an action so it can be saved in a queue and run later.",
+          "example": {
+            "language": "javascript",
+            "code": "let score = 0;\nconst addPoint = { execute() { score++; } };\nconst queue = [addPoint, addPoint];\nqueue.forEach(command => command.execute());\nconsole.log(score);"
+          },
+          "notes": ["Saving a command is different from running it."],
+          "lessonSlug": "commands-store-actions"
+        },
+        {
+          "slug": "state-changes-allowed-behaviour",
+          "name": "State changes allowed behaviour",
+          "summary": "State describes the current condition of an object. Different states can allow different actions.",
+          "example": {
+            "language": "javascript",
+            "code": "let state = \"closed\";\nfunction openDoor() { if (state === \"closed\") state = \"open\"; }\nopenDoor();\nconsole.log(state);"
+          },
+          "notes": [
+            "List the allowed state changes instead of accepting every action in every state."
+          ],
+          "lessonSlug": "state-changes-allowed-behaviour"
+        },
+        {
+          "slug": "builders-collect-choices",
+          "name": "Builders collect choices",
+          "summary": "A builder collects choices before producing a result. It helps when creation has several optional parts.",
+          "example": {
+            "language": "javascript",
+            "code": "const choices = { title: \"Moon\", color: \"blue\" };\nfunction buildCard(options) { return options.title + \" / \" + (options.color ?? \"white\"); }\nconsole.log(buildCard(choices));"
+          },
+          "notes": ["Do not use a large builder when one short function is clearer."],
+          "lessonSlug": "builders-collect-choices"
+        },
+        {
+          "slug": "shared-state-needs-care",
+          "name": "Shared state needs care",
+          "summary": "A single shared object can be convenient, but every caller sees its changes. This makes hidden links between features.",
+          "example": {
+            "language": "javascript",
+            "code": "const settings = { sound: true };\nconst first = settings;\nconst second = settings;\nfirst.sound = false;\nconsole.log(second.sound);"
+          },
+          "notes": [
+            "A shared object is not automatically a good design just because there is only one."
+          ],
+          "lessonSlug": "shared-state-needs-care"
+        },
+        {
+          "slug": "choose-the-smallest-useful-design",
+          "name": "Choose the smallest useful design",
+          "summary": "Compare designs by clarity and the changes you expect. A function, a plain object or a pattern can each be the right choice.",
+          "example": {
+            "language": "javascript",
+            "code": "const discounts = { none: n => n, half: n => n / 2 };\nconsole.log(discounts.half(12));"
+          },
+          "notes": [
+            "Do not force all patterns into one project. Use only the ones that solve a clear need."
+          ],
+          "lessonSlug": "choose-the-smallest-useful-design"
+        }
+      ]
+    }
+  ]
+}

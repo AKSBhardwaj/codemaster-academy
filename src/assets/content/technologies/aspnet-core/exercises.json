@@ -1,0 +1,158 @@
+{
+  "title": "ASP.NET Core Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "aspnet-core-first-route-check",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/\", () => \"Hello, Asha!\");\napp.Run();\n\n",
+      "question": "MapGet connects a GET path to a function. Open GET /. What result does this example give after the setup steps?",
+      "explanation": "MapGet matches the root GET request. Its function returns the greeting string. MapGet only handles matching GET requests.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-core-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/book\", () => Results.Json(new { title = \"Moon Trip\", pages = 24 }));\napp.Run();\n\n",
+      "question": "Results.Json sends structured data as JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "Results.Json serialises the anonymous object with the named fields. Use objects for data instead of joining JSON text by hand.",
+      "options": [
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-core-path-values-check",
+      "lessonSlug": "path-values",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/hello/{name}\", (string name) => $\"Hi, {name}!\");\napp.Run();\n\n",
+      "question": "Curly braces name a route value. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "Route binding supplies Ravi to the string input. The interpolated string uses that value. Do not place user text into raw HTML without escaping it.",
+      "options": ["Hi, Asha!", "hi, ravi!", "Hi, Ravi!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-core-typed-paths-check",
+      "lessonSlug": "typed-paths",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/double/{n:int}\", (int n) => Results.Json(new { answer = n * 2 }));\napp.Run();\n\n",
+      "question": "The int route constraint only matches whole numbers. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "The int constraint matches 4. Binding supplies an int and the handler doubles it. A failed route constraint usually means this route does not match.",
+      "options": ["{\"answer\":8}", "{\"answer\":9}", "[8]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-core-query-values-check",
+      "lessonSlug": "query-values",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/page\", (int? n) => Results.Json(new { page = n ?? 1 }));\napp.Run();\n\n",
+      "question": "A simple input outside the path can come from the query string. GET /page with no n uses the fallback. What result does this example give after the setup steps?",
+      "explanation": "The nullable query input is absent. The ?? expression supplies 1. A missing optional number is null, not automatically zero.",
+      "options": ["{\"page\":2}", "[1]", "{\"page\":1}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-core-post-body-check",
+      "lessonSlug": "post-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapPost(\"/books\", (Book book) => Results.Json(book, statusCode: 201));\napp.Run();\nrecord Book(string Title);\n",
+      "question": "A record can describe body data. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The JSON body is bound to a Book record. Results.Json sends its Title in the web JSON naming style. A type describes shape; add checks for values that must not be empty.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-core-validation-check",
+      "lessonSlug": "validation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapPost(\"/books\", (Book book) => {\n if (string.IsNullOrWhiteSpace(book.Title)) return Results.BadRequest(new { error = \"Title needed\" });\n return Results.Created(\"/books/1\", book);\n});\napp.Run();\nrecord Book(string? Title);\n",
+      "question": "The handler checks a title before returning a created response. Send POST /books with {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The title passes the whitespace check. Created returns the book with status 201 and a location. Minimal APIs in this version do not make every custom validation rule for you.",
+      "options": ["[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-core-middleware-check",
+      "lessonSlug": "middleware",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.Use(async (context, next) => { context.Response.Headers[\"Cache-Control\"] = \"no-store\"; await next(); });\napp.MapGet(\"/note\", () => \"Practice note\");\napp.Run();\n\n",
+      "question": "Middleware can run before and after later handlers. GET /note carries the header set here. What result does this example give after the setup steps?",
+      "explanation": "The middleware adds Cache-Control, then awaits the next handler. That handler supplies the note. Call next when the request should continue through the pipeline.",
+      "options": ["Welcome", "practice note", "Practice note"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-core-route-groups-check",
+      "lessonSlug": "route-groups",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\nvar api = app.MapGroup(\"/api\");\napi.MapGet(\"/books\", () => new[] { \"Moon Trip\" });\napp.Run();\n\n",
+      "question": "MapGroup gives several routes one common prefix. Open GET /api/books. What result does this example give after the setup steps?",
+      "explanation": "The group prefix and inner path combine to /api/books. The string array becomes JSON. The group prefix is part of each final route.",
+      "options": ["[\"Moon Trip\"]", "[\"Sun Trip\"]", "[]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-core-services-check",
+      "lessonSlug": "services",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddSingleton(new SchoolName(\"Oak School\"));\nvar app = builder.Build();\napp.MapGet(\"/school\", (SchoolName school) => school.Value);\napp.Run();\nrecord SchoolName(string Value);\n",
+      "question": "A registered service can be an input to a handler. Open GET /school. What result does this example give after the setup steps?",
+      "explanation": "The service is registered before Build. Handler injection supplies its SchoolName instance. Register services before building the app.",
+      "options": ["Oak School", "Pine School", "oak school"],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-core-not-found-check",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/missing\", () => Results.NotFound(new { error = \"Book not found\" }));\napp.Run();\n\n",
+      "question": "Results.NotFound gives a 404 response. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "Results.NotFound includes both the 404 status and a serialised error object. Use the error status as well as a helpful message.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-core-redirects-check",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/start\", () => Results.Redirect(\"/hello\"));\napp.MapGet(\"/hello\", () => \"Welcome\");\napp.Run();\n\n",
+      "question": "Results.Redirect sends a location. A browser following GET /start reaches /hello. What result does this example give after the setup steps?",
+      "explanation": "The redirect response points to /hello. The follow-up GET receives Welcome. A redirect asks the client to make a second request.",
+      "options": ["Welcome", "Hello", "welcome"],
+      "correctIndex": 0
+    }
+  ]
+}

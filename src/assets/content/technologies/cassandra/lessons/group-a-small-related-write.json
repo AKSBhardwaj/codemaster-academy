@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "group-a-small-related-write",
+  "title": "Group a small related write",
+  "summary": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once.",
+  "introduction": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once. Your task: Identify why both updates target the same partition.",
+  "learningObjectives": [
+    "Identify why both updates target the same partition.",
+    "Explain the example for group a small related write"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "BEGIN BATCH\nUPDATE reading_by_reader SET pages=21 WHERE reader_id='mia' AND day='2026-11-16';\nUPDATE reading_by_reader SET title='Moon Trip, chapter 2' WHERE reader_id='mia' AND day='2026-11-16';\nAPPLY BATCH;",
+      "title": "Group a small related write",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A CQL batch groups related writes. It is not automatically a faster bulk load across unrelated partitions.",
+        "`WHERE` keeps only rows that pass its condition. Check the condition with sample data before using it for a change."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both changes target the same practice row in one partition."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Avoid huge cross-partition batches as a bulk-loading shortcut. Their coordination can add work."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Identify why both updates target the same partition."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-group-a-small-related-write-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-group-a-small-related-write-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "delete-one-known-row"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Group a small related write",
+    "description": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once."
+  },
+  "updatedOn": "2026-11-16"
+}

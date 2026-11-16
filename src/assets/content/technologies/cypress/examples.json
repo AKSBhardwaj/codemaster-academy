@@ -1,0 +1,126 @@
+{
+  "title": "Cypress Examples",
+  "description": "Small Cypress examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Meet the Cypress runner",
+      "description": "Cypress runs browser checks as a chain of commands. This example starts with a blank local practice page.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"meet the cypress runner\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = \"<h1>Library</h1>\"; });\n    cy.contains(\"h1\", \"Library\").should(\"be.visible\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "select-a-clear-target",
+      "title": "Select a clear target",
+      "description": "A stable data attribute can identify a control without tying a test to its visual style.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"select a clear target\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = '<button data-cy=\"borrow\">Borrow</button>'; });\n    cy.get('[data-cy=\"borrow\"]').should(\"have.text\", \"Borrow\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-a-clear-target"
+    },
+    {
+      "id": "type-into-a-field",
+      "title": "Type into a field",
+      "description": "type enters text and clear removes existing text. A final value check confirms the input received it.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"type into a field\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML = '<label for=\"title\">Title</label><input id=\"title\">'; });\n    cy.get(\"#title\").type(\"Moon\").should(\"have.value\", \"Moon\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "type-into-a-field"
+    },
+    {
+      "id": "click-and-check-the-effect",
+      "title": "Click and check the effect",
+      "description": "A click test needs an observable result. Here the button changes its own text.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"click and check the effect\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { const b=doc.createElement(\"button\"); b.textContent=\"Save\"; b.onclick=()=>b.textContent=\"Done\"; doc.body.replaceChildren(b); });\n    cy.contains(\"button\", \"Save\").click();\n    cy.contains(\"button\", \"Done\").should(\"be.visible\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "click-and-check-the-effect"
+    },
+    {
+      "id": "retry-an-assertion",
+      "title": "Retry an assertion",
+      "description": "Cypress retries many queries and assertions until they pass or time out. Check a real condition instead of guessing a delay.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"retry an assertion\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<p>Ready</p>\"; });\n    cy.contains(\"p\", \"Ready\").should(\"be.visible\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "retry-an-assertion"
+    },
+    {
+      "id": "read-a-yielded-value",
+      "title": "Read a yielded value",
+      "description": "then receives the value yielded by the previous command. This is how you inspect queued results.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"read a yielded value\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<p>Moon</p>\"; });\n    cy.get(\"p\").then($p => { expect($p.text()).to.equal(\"Moon\"); });\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-yielded-value"
+    },
+    {
+      "id": "work-with-checkboxes",
+      "title": "Work with checkboxes",
+      "description": "check requests the checked state. It states intent more clearly than a toggle click.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"work with checkboxes\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML='<label><input id=\"remember\" type=\"checkbox\">Remember</label>'; });\n    cy.get(\"#remember\").check().should(\"be.checked\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "work-with-checkboxes"
+    },
+    {
+      "id": "select-a-dropdown-value",
+      "title": "Select a dropdown value",
+      "description": "select chooses a native option by value or text. Assert the stored value after the action.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"select a dropdown value\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML='<select id=\"size\"><option value=\"s\">Small</option><option value=\"l\">Large</option></select>'; });\n    cy.get(\"#size\").select(\"l\").should(\"have.value\", \"l\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-a-dropdown-value"
+    },
+    {
+      "id": "count-a-collection",
+      "title": "Count a collection",
+      "description": "A query can find several elements. have.length checks how many the query found.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"count a collection\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<ul><li>Moon</li><li>Ocean</li></ul>\"; });\n    cy.get(\"li\").should(\"have.length\", 2);\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-a-collection"
+    },
+    {
+      "id": "intercept-a-request",
+      "title": "Intercept a request",
+      "description": "intercept can supply a known network response. Set it up before the page sends the request.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"intercept a request\", () => {\n    cy.intercept(\"GET\", \"/books.json\", { body: [{ title: \"Moon\" }] }).as(\"books\");\n    cy.visit(\"/practice.html\");\n    cy.window().then(win => win.fetch(\"/books.json\"));\n    cy.wait(\"@books\").its(\"response.statusCode\").should(\"eq\", 200);\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "intercept-a-request"
+    },
+    {
+      "id": "keep-tests-independent",
+      "title": "Keep tests independent",
+      "description": "A test should set up the state it needs. Cypress test isolation helps avoid state leaking from a previous test.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"keep tests independent\", () => {\n    cy.visit(\"/practice.html\");\n    cy.window().then(win => { win.localStorage.setItem(\"theme\", \"light\"); });\n    cy.window().its(\"localStorage\").invoke(\"getItem\", \"theme\").should(\"eq\", \"light\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-tests-independent"
+    },
+    {
+      "id": "review-failures-and-screenshots",
+      "title": "Review failures and screenshots",
+      "description": "A failed assertion tells you which expected condition was not met. Use the command log and screenshot to understand it.",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"review failures and screenshots\", () => {\n    cy.visit(\"/practice.html\");\n    cy.document().then(doc => { doc.body.innerHTML=\"<h1>Library</h1>\"; });\n    cy.contains(\"h1\", \"Library\").should(\"be.visible\");\n    cy.screenshot(\"library-page\");\n  });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "review-failures-and-screenshots"
+    }
+  ]
+}

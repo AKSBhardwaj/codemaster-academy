@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "post-body",
+  "title": "Read a request body",
+  "summary": "NestJS: Read a request body. Send an empty object.",
+  "introduction": "@Body supplies parsed JSON. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a request body with NestJS", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a request body"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Read a request body",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"books\") create(@Body() body: { title?: unknown }) { if (typeof body?.title !== \"string\") throw new BadRequestException(\"Title needed\"); return { title: body.title }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Body supplies the parsed object. The string check passes and its title is returned."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check body fields instead of trusting the TypeScript shape."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-post-body-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-post-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "integer-pipe"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Read a request body",
+    "description": "NestJS: Read a request body. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

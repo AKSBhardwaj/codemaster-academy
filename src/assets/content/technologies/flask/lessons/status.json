@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "status",
+  "title": "Report a missing item",
+  "summary": "Flask: Report a missing item. Inspect the status with curl -i.",
+  "introduction": "Returning a response with 404 tells the client that this book was not found. Open GET /missing.",
+  "learningObjectives": ["Report a missing item with Flask", "Inspect the status with curl -i"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing item"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Report a missing item",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/missing\")\ndef missing():\n    return jsonify(error=\"Book not found\"), 404\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response tuple contains JSON plus status 404. Both pieces are sent together."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the status with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A failure should not pretend to be a successful 200 response."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-status-check"
+    }
+  ],
+  "exerciseIds": ["flask-status-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "post-json"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Report a missing item",
+    "description": "Flask: Report a missing item. Inspect the status with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

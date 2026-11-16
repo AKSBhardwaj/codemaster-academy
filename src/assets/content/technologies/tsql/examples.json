@@ -1,0 +1,138 @@
+{
+  "title": "T-SQL Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-query",
+      "title": "Ask for a message",
+      "description": "SELECT asks for a result. AS gives its column a name.",
+      "language": "sql",
+      "code": "SELECT 'Hello, Asha!' AS message;",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-query"
+    },
+    {
+      "id": "variables",
+      "title": "Name a local number",
+      "description": "DECLARE makes a local variable. T-SQL variable names start with @.",
+      "language": "sql",
+      "code": "DECLARE @pencils int = 3;\nSELECT @pencils + 2 AS total;",
+      "output": "5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "variables"
+    },
+    {
+      "id": "text",
+      "title": "Join text values",
+      "description": "CONCAT joins values as text. It can also convert simple number inputs to text.",
+      "language": "sql",
+      "code": "SELECT CONCAT('Hi, ', 'Ravi', '!') AS message;",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "text"
+    },
+    {
+      "id": "case",
+      "title": "Choose a result",
+      "description": "CASE returns a value from the first matching branch.",
+      "language": "sql",
+      "code": "DECLARE @score int = 8;\nSELECT CASE WHEN @score >= 5 THEN 'Pass' ELSE 'Try again' END AS message;",
+      "output": "Pass",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "case"
+    },
+    {
+      "id": "if",
+      "title": "Choose which statement runs",
+      "description": "IF controls which SQL statements run. BEGIN and END group statements.",
+      "language": "sql",
+      "code": "DECLARE @score int = 8;\nIF @score >= 5\n BEGIN PRINT 'Pass'; END\nELSE\n BEGIN PRINT 'Try again'; END;",
+      "output": "Pass",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "if"
+    },
+    {
+      "id": "table-values",
+      "title": "Make a small result table",
+      "description": "VALUES can create rows for a query. An alias names the tiny table and its column.",
+      "language": "sql",
+      "code": "SELECT n FROM (VALUES (3), (1), (2)) AS numbers(n) ORDER BY n;",
+      "output": "1\n2\n3",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "table-values"
+    },
+    {
+      "id": "filters",
+      "title": "Keep matching rows",
+      "description": "WHERE keeps rows that pass a condition.",
+      "language": "sql",
+      "code": "SELECT n FROM (VALUES (4), (8), (9)) AS scores(n) WHERE n >= 7 ORDER BY n;",
+      "output": "8\n9",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "filters"
+    },
+    {
+      "id": "totals",
+      "title": "Add values across rows",
+      "description": "SUM adds a column over the selected rows.",
+      "language": "sql",
+      "code": "SELECT SUM(n) AS total FROM (VALUES (2), (3), (4)) AS numbers(n);",
+      "output": "9",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "totals"
+    },
+    {
+      "id": "nulls",
+      "title": "Choose a missing-value fallback",
+      "description": "COALESCE returns the first input that is not NULL.",
+      "language": "sql",
+      "code": "DECLARE @name varchar(20) = NULL;\nSELECT COALESCE(@name, 'Guest') AS name;",
+      "output": "Guest",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "nulls"
+    },
+    {
+      "id": "safe-conversion",
+      "title": "Read a number safely",
+      "description": "TRY_CONVERT returns NULL when this text cannot be converted to int. COALESCE then supplies zero.",
+      "language": "sql",
+      "code": "SELECT COALESCE(TRY_CONVERT(int, 'cat'), 0) AS score;",
+      "output": "0",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "safe-conversion"
+    },
+    {
+      "id": "loops",
+      "title": "Repeat with WHILE",
+      "description": "WHILE repeats its block while a rule stays true.",
+      "language": "sql",
+      "code": "DECLARE @n int = 1;\nWHILE @n <= 3\nBEGIN\n PRINT @n;\n SET @n = @n + 1;\nEND;",
+      "output": "1\n2\n3",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "loops"
+    },
+    {
+      "id": "json",
+      "title": "Read a JSON field",
+      "description": "JSON_VALUE reads one simple value from JSON text using a path.",
+      "language": "sql",
+      "code": "SELECT JSON_VALUE('{\"title\":\"Moon Trip\",\"pages\":24}', '$.title') AS title;",
+      "output": "Moon Trip",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    }
+  ]
+}

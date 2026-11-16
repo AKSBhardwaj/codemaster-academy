@@ -1,0 +1,126 @@
+{
+  "title": "Hugging Face Examples",
+  "description": "Small Hugging Face examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Find the different Hugging Face tools",
+      "description": "Hugging Face includes a Hub for shared resources and libraries used in local programs. These are related tools with different jobs.",
+      "language": "text",
+      "code": "Hub: pages for models, datasets and other resources\nDatasets library: load and transform data tables\nTokenizers library: turn text into token IDs\nTransformers library: work with many model architectures",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "read-a-model-card-before-use",
+      "title": "Read a model card before use",
+      "description": "A model card explains a shared model's intended use, training information, checks and limits. Also read its licence and files before deciding to use it.",
+      "language": "text",
+      "code": "Check the model page for:\nTask and supported languages\nLicence and use conditions\nTraining and evaluation notes\nKnown limits\nFiles and code required to load it",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-model-card-before-use"
+    },
+    {
+      "id": "make-a-dataset-from-a-dictionary",
+      "title": "Make a dataset from a dictionary",
+      "description": "A Dataset holds rows with named columns. from_dict creates a dataset from equally sized lists, one list per column.",
+      "language": "python",
+      "code": "from datasets import Dataset\ndata = Dataset.from_dict({\"text\": [\"moon glows\", \"sun shines\", \"stars twinkle\"], \"length\": [2, 2, 2]})\nprint(data.num_rows, data.column_names)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-dataset-from-a-dictionary"
+    },
+    {
+      "id": "select-rows-by-position",
+      "title": "Select rows by position",
+      "description": "select makes a dataset containing chosen row positions. Positions begin at zero, and the requested order is preserved.",
+      "language": "python",
+      "code": "from datasets import Dataset\ndata = Dataset.from_dict({\"text\": [\"moon\", \"sun\", \"stars\"]})\nsmall = data.select([2, 0])\nprint(list(small[\"text\"]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-rows-by-position"
+    },
+    {
+      "id": "filter-using-a-condition",
+      "title": "Filter using a condition",
+      "description": "filter keeps rows for which a function returns True. The function receives a row and checks the condition you chose.",
+      "language": "python",
+      "code": "from datasets import Dataset\ndata = Dataset.from_dict({\"text\": [\"moon\", \"sun\", \"stars\"]})\nlong_words = data.filter(lambda row: len(row[\"text\"]) > 3)\nprint(list(long_words[\"text\"]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-using-a-condition"
+    },
+    {
+      "id": "add-a-calculated-column",
+      "title": "Add a calculated column",
+      "description": "map applies a function to rows and returns an updated dataset. Returning a dictionary can add named fields.",
+      "language": "python",
+      "code": "from datasets import Dataset\ndata = Dataset.from_dict({\"text\": [\"moon\", \"sun\"]})\nwith_lengths = data.map(lambda row: {\"characters\": len(row[\"text\"])})\nprint(list(with_lengths[\"characters\"]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-calculated-column"
+    },
+    {
+      "id": "split-data-for-later-checks",
+      "title": "Split data for later checks",
+      "description": "train_test_split divides a dataset into training and test parts. A seed makes this split repeatable for the same data and tool behaviour.",
+      "language": "python",
+      "code": "from datasets import Dataset\ndata = Dataset.from_dict({\"text\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"]})\nparts = data.train_test_split(test_size=2, seed=7)\nprint(parts[\"train\"].num_rows, parts[\"test\"].num_rows)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "split-data-for-later-checks"
+    },
+    {
+      "id": "build-a-tiny-word-tokenizer",
+      "title": "Build a tiny word tokenizer",
+      "description": "A tokenizer turns text into pieces and IDs. WordLevel uses whole pieces from a supplied vocabulary. Whitespace splits this simple sentence into words.",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\nencoded = tokenizer.encode(\"moon glows\")\nprint(encoded.tokens, encoded.ids)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-tiny-word-tokenizer"
+    },
+    {
+      "id": "recognise-an-unknown-token",
+      "title": "Recognise an unknown token",
+      "description": "When a piece is missing from this WordLevel vocabulary, the tokenizer uses its unknown marker. It does not invent a new learned word entry.",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\nencoded = tokenizer.encode(\"boat glows\")\nprint(encoded.tokens, encoded.ids)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "recognise-an-unknown-token"
+    },
+    {
+      "id": "decode-ids-into-text",
+      "title": "Decode IDs into text",
+      "description": "Decoding maps known token IDs back to text. Tokenization may not preserve every detail of original spacing, so test exact-text needs carefully.",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\nprint(tokenizer.decode([2, 3]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "decode-ids-into-text"
+    },
+    {
+      "id": "pad-a-sequence-and-inspect-its-mask",
+      "title": "Pad a sequence and inspect its mask",
+      "description": "Padding adds filler tokens to reach a chosen length. An attention mask marks real tokens with 1 and padding with 0 in this encoding.",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\ntokenizer.enable_padding(length=4, pad_id=0, pad_token=\"[PAD]\")\nencoded = tokenizer.encode(\"moon glows\")\nprint(encoded.ids, encoded.attention_mask)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "pad-a-sequence-and-inspect-its-mask"
+    },
+    {
+      "id": "save-and-reload-a-local-tokenizer",
+      "title": "Save and reload a local tokenizer",
+      "description": "A tokenizer can save its settings as a JSON file. Reloading that file restores the local vocabulary and processing rules.",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\ntokenizer.save(\"practice-tokenizer.json\")\nrestored = Tokenizer.from_file(\"practice-tokenizer.json\")\nprint(restored.encode(\"moon glows\").ids)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-and-reload-a-local-tokenizer"
+    }
+  ]
+}

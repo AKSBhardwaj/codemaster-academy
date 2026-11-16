@@ -1,0 +1,144 @@
+{
+  "title": "Cassandra Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Cassandra course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Create a local practice keyspace",
+          "summary": "A keyspace groups Cassandra tables and defines replication.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE KEYSPACE IF NOT EXISTS cma_reading WITH replication = {'class':'SimpleStrategy','replication_factor':1};\nUSE cma_reading;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "design-a-table-for-one-question",
+          "name": "Design a table for one question",
+          "summary": "The partition key chooses a group of rows stored together.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE IF NOT EXISTS reading_by_reader(reader_id text,day date,title text,pages int,PRIMARY KEY((reader_id),day)) WITH CLUSTERING ORDER BY(day DESC);"
+          },
+          "lessonSlug": "design-a-table-for-one-question"
+        },
+        {
+          "slug": "insert-a-reading-entry",
+          "name": "Insert a reading entry",
+          "summary": "An INSERT writes values at a primary-key address.",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO reading_by_reader(reader_id,day,title,pages) VALUES('mia','2026-11-16','Moon Trip',20);"
+          },
+          "lessonSlug": "insert-a-reading-entry"
+        },
+        {
+          "slug": "read-one-partition",
+          "name": "Read one partition",
+          "summary": "A Cassandra query is efficient when it names the partition key.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT day,title,pages FROM reading_by_reader WHERE reader_id='mia';"
+          },
+          "lessonSlug": "read-one-partition"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "read-a-range-inside-a-partition",
+          "name": "Read a range inside a partition",
+          "summary": "After choosing a partition, a query can use a range on its clustering column.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT day,title FROM reading_by_reader WHERE reader_id='mia' AND day>='2026-11-01' LIMIT 5;"
+          },
+          "lessonSlug": "read-a-range-inside-a-partition"
+        },
+        {
+          "slug": "keep-partitions-a-manageable-size",
+          "name": "Keep partitions a manageable size",
+          "summary": "A partition should not grow without a useful bound.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE IF NOT EXISTS reading_by_month(reader_id text,month text,day date,title text,PRIMARY KEY((reader_id,month),day));"
+          },
+          "lessonSlug": "keep-partitions-a-manageable-size"
+        },
+        {
+          "slug": "expire-temporary-fields",
+          "name": "Expire temporary fields",
+          "summary": "A TTL gives written values a time to live.",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO reading_by_reader(reader_id,day,title,pages) VALUES('temporary-reader','2026-11-16','Practice',1) USING TTL 60;\nSELECT TTL(title) FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';"
+          },
+          "lessonSlug": "expire-temporary-fields"
+        },
+        {
+          "slug": "update-by-the-full-key",
+          "name": "Update by the full key",
+          "summary": "An UPDATE names the row through its key and changes selected values.",
+          "example": {
+            "language": "sql",
+            "code": "UPDATE reading_by_reader SET pages=25 WHERE reader_id='mia' AND day='2026-11-16';"
+          },
+          "lessonSlug": "update-by-the-full-key"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "delete-one-known-row",
+          "name": "Delete one known row",
+          "summary": "A DELETE marks selected data as deleted.",
+          "example": {
+            "language": "sql",
+            "code": "DELETE FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';"
+          },
+          "lessonSlug": "delete-one-known-row"
+        },
+        {
+          "slug": "group-a-small-related-write",
+          "name": "Group a small related write",
+          "summary": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once.",
+          "example": {
+            "language": "sql",
+            "code": "BEGIN BATCH\nUPDATE reading_by_reader SET pages=21 WHERE reader_id='mia' AND day='2026-11-16';\nUPDATE reading_by_reader SET title='Moon Trip, chapter 2' WHERE reader_id='mia' AND day='2026-11-16';\nAPPLY BATCH;"
+          },
+          "lessonSlug": "group-a-small-related-write"
+        },
+        {
+          "slug": "use-a-dedicated-counter-table",
+          "name": "Use a dedicated counter table",
+          "summary": "Cassandra counters use a special column type and update rules.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE IF NOT EXISTS books_count(reader_id text PRIMARY KEY,total counter);\nUPDATE books_count SET total=total+1 WHERE reader_id='mia';\nSELECT total FROM books_count WHERE reader_id='mia';"
+          },
+          "lessonSlug": "use-a-dedicated-counter-table"
+        },
+        {
+          "slug": "match-consistency-to-the-cluster",
+          "name": "Match consistency to the cluster",
+          "summary": "A consistency level tells Cassandra how many replicas must answer an operation.",
+          "example": {
+            "language": "text",
+            "code": "Worked example with three replicas:\nONE needs one replica response.\nQUORUM needs a majority: two responses.\nThe local course has only one replica, so it cannot demonstrate surviving multiple replica failures."
+          },
+          "lessonSlug": "match-consistency-to-the-cluster"
+        }
+      ]
+    }
+  ]
+}

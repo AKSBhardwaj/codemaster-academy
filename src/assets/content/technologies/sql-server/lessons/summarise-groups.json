@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "summarise-groups",
+  "title": "Summarise groups",
+  "summary": "GROUP BY collects rows with the same category.",
+  "introduction": "GROUP BY collects rows with the same category. Your task: Add another Green row with two books.",
+  "learningObjectives": [
+    "Add another Green row with two books.",
+    "Explain the example for summarise groups"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "GROUP BY collects rows with the same category. SUM adds a number for each group."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use SQL Server 2019+ in a separate practice database with a SQL editor. T-SQL is different from the SQLite engine on this site, so these examples are for that separate tool."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DECLARE @reading table(team nvarchar(20),books int);\nINSERT INTO @reading VALUES(N'Blue',2),(N'Blue',3),(N'Green',4);\nSELECT team,SUM(books) AS total FROM @reading GROUP BY team ORDER BY team;",
+      "title": "Summarise groups",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ORDER BY` chooses a result order. Include a tie-break field when equal values need a stable order.",
+        "`GROUP BY` makes one summary group for each distinct combination of the named grouping values.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Blue totals 5 books, and Green totals 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "SUM adds values; COUNT counts rows. Choose the function that answers your question."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add another Green row with two books."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-server-summarise-groups-check"
+    }
+  ],
+  "exerciseIds": ["sql-server-summarise-groups-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql-server",
+      "slug": "filter-rows-with-two-rules"
+    }
+  ],
+  "seo": {
+    "title": "Microsoft SQL Server: Summarise groups",
+    "description": "GROUP BY collects rows with the same category. SUM adds a number for each group."
+  },
+  "updatedOn": "2026-11-16"
+}

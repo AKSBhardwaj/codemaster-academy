@@ -1,0 +1,138 @@
+{
+  "title": "NgRx Small Examples",
+  "description": "Use these small NgRx examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Describe an event with an action",
+      "description": "An action is a named message about something that happened.",
+      "language": "typescript",
+      "code": "import {createAction} from \"@ngrx/store\";\nexport const bookRead=createAction(\"[Reading] Book read\");\nconsole.log(bookRead().type);",
+      "output": "The output is [Reading] Book read.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "put-a-value-in-an-action",
+      "title": "Put a value in an action",
+      "description": "props describes values carried by an action.",
+      "language": "typescript",
+      "code": "import {createAction,props} from \"@ngrx/store\";\nexport const addBooks=createAction(\"[Reading] Add books\",props<{amount:number}>());\nconsole.log(addBooks({amount:3}).amount);",
+      "output": "The action carries amount: 3.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "put-a-value-in-an-action"
+    },
+    {
+      "id": "write-a-reducer-rule",
+      "title": "Write a reducer rule",
+      "description": "A reducer takes the old state and an action and returns the next state.",
+      "language": "typescript",
+      "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst add=createAction(\"[Reading] Add\");\nconst reducer=createReducer({count:0},on(add,state=>({...state,count:state.count+1})));\nconsole.log(reducer({count:2},add()).count);",
+      "output": "The next count is 3.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-a-reducer-rule"
+    },
+    {
+      "id": "register-a-root-store",
+      "title": "Register a root store",
+      "description": "provideStore connects reducer functions to root state keys.",
+      "language": "typescript",
+      "code": "// app.config.ts; counterReducer is exported from your state.ts file.\nimport {ApplicationConfig} from \"@angular/core\";\nimport {provideStore} from \"@ngrx/store\";\nimport {counterReducer} from \"./state\";\nexport const appConfig:ApplicationConfig={providers:[provideStore({reading:counterReducer})]};",
+      "output": "The reading key is handled by counterReducer in the application store.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "register-a-root-store"
+    },
+    {
+      "id": "read-state-with-a-selector",
+      "title": "Read state with a selector",
+      "description": "A selector is a function that chooses a useful part of state.",
+      "language": "typescript",
+      "code": "import {createSelector} from \"@ngrx/store\";\ninterface AppState{reading:{count:number}}\nconst selectReading=(state:AppState)=>state.reading;\nexport const selectCount=createSelector(selectReading,reading=>reading.count);\nconsole.log(selectCount({reading:{count:4}}));",
+      "output": "The selector returns 4 from the reading slice.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-state-with-a-selector"
+    },
+    {
+      "id": "use-a-store-value-as-a-signal",
+      "title": "Use a store value as a signal",
+      "description": "Store.selectSignal gives an Angular signal for a selected value.",
+      "language": "typescript",
+      "code": "// Counter component; selectCount comes from your state file.\nimport {Component,inject} from \"@angular/core\";\nimport {Store} from \"@ngrx/store\";\nimport {selectCount} from \"./state\";\n@Component({selector:\"app-count\",template:\"<p>Books: {{ count() }}</p>\"})\nexport class CountComponent{count=inject(Store).selectSignal(selectCount);}",
+      "output": "The paragraph follows the selected count from the registered store.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-store-value-as-a-signal"
+    },
+    {
+      "id": "dispatch-from-a-component",
+      "title": "Dispatch from a component",
+      "description": "A component can dispatch an action in response to a user action.",
+      "language": "typescript",
+      "code": "import {Component,inject} from \"@angular/core\";\nimport {Store} from \"@ngrx/store\";\nimport {bookRead} from \"./state\";\n@Component({selector:\"app-add\",template:`<button (click)=\"add()\">Read one</button>`})\nexport class AddComponent{private store=inject(Store);add(){this.store.dispatch(bookRead());}}",
+      "output": "The click sends bookRead to the store. A matching reducer can increase the count.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "dispatch-from-a-component"
+    },
+    {
+      "id": "group-related-action-names",
+      "title": "Group related action names",
+      "description": "An action group keeps related event creators together.",
+      "language": "typescript",
+      "code": "import {createActionGroup,emptyProps,props} from \"@ngrx/store\";\nconst reading=createActionGroup({source:\"Reading\",events:{\"Add Book\":props<{title:string}>(),\"Clear\":emptyProps()}});\nconsole.log(reading.addBook({title:\"Moon Trip\"}).title);",
+      "output": "The generated addBook creator carries Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-related-action-names"
+    },
+    {
+      "id": "keep-outside-work-in-an-effect",
+      "title": "Keep outside work in an effect",
+      "description": "An effect listens for actions and can return new actions after outside work.",
+      "language": "typescript",
+      "code": "import {Injectable,inject} from \"@angular/core\";\nimport {Actions,createEffect,ofType} from \"@ngrx/effects\";\nimport {map} from \"rxjs\";\nimport {loadBooks,booksLoaded} from \"./state\";\n@Injectable()\nexport class BookEffects{private actions=inject(Actions);load=createEffect(()=>this.actions.pipe(ofType(loadBooks),map(()=>booksLoaded({titles:[\"Moon Trip\"]}))));}\n// Register with provideEffects(BookEffects); define both action creators in state.ts.",
+      "output": "A loadBooks action is followed by booksLoaded with local sample data.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-outside-work-in-an-effect"
+    },
+    {
+      "id": "keep-a-normalised-list",
+      "title": "Keep a normalised list",
+      "description": "A list with ids can be stored as an id array plus a lookup object.",
+      "language": "typescript",
+      "code": "const state={ids:[\"b1\",\"b2\"],entities:{b1:{title:\"Moon Trip\"},b2:{title:\"Garden Days\"}}};\nconsole.log(state.entities.b2.title);",
+      "output": "The lookup returns Garden Days for b2. NgRx Entity can manage this common shape in larger features.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-a-normalised-list"
+    },
+    {
+      "id": "try-a-signalstore",
+      "title": "Try a SignalStore",
+      "description": "SignalStore is another NgRx way to organise state using Angular signals.",
+      "language": "typescript",
+      "code": "import {signalStore,withState,withMethods,patchState} from \"@ngrx/signals\";\nexport const ReadingStore=signalStore({providedIn:\"root\"},withState({count:0}),withMethods(store=>({add(){patchState(store,{count:store.count()+1});}})));\n// In a component, inject ReadingStore; read store.count() and call store.add().",
+      "output": "The store exposes a count signal and an add method.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "try-a-signalstore"
+    },
+    {
+      "id": "test-a-state-rule-directly",
+      "title": "Test a state rule directly",
+      "description": "A reducer can be tested without opening the page.",
+      "language": "typescript",
+      "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst reset=createAction(\"[Reading] Reset\");\nconst reducer=createReducer({count:0},on(reset,()=>({count:0})));\nconst before={count:5};const after=reducer(before,reset());\nconsole.assert(after.count===0);\nconsole.assert(before.count===5);",
+      "output": "Both checks pass: the result resets while the original state stays unchanged.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "test-a-state-rule-directly"
+    }
+  ]
+}

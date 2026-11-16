@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "filtering-operators",
+  "title": "LIKE, IN, BETWEEN and NULL",
+  "summary": "SQL can combine several rules to choose rows. Operators such as AND and OR connect those rules.",
+  "introduction": "SQL can combine several rules to choose rows. Operators such as AND and OR connect those rules. Find books that are short and cheap, or books from either of two groups. Read each rule aloud before running it.",
+  "learningObjectives": [
+    "Match text patterns with LIKE and the % and _ wildcards",
+    "Test membership in a list with IN and NOT IN",
+    "Check inclusive ranges with BETWEEN",
+    "Test for missing values with IS NULL and IS NOT NULL"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "LIKE: pattern matching"
+    },
+    {
+      "type": "paragraph",
+      "text": "`LIKE` compares a text value against a pattern. `%` matches any sequence of characters (including none) and `_` matches exactly one character. Names starting with G:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name FROM customers WHERE name LIKE 'G%';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name\n----------------\nGrace Hopper\nGuido van Rossum"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `%` at both ends finds the text anywhere. SQLite's `LIKE` ignores case for ASCII letters, so `'%note%'` matches both `Notebook` and `Sticky notes`:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name FROM products WHERE name LIKE '%note%';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name\n------------\nNotebook\nSticky notes"
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "LIKE and case by dialect",
+      "text": "PostgreSQL's `LIKE` is case-sensitive (it would return only `Sticky notes`); use `ILIKE` there for a case-insensitive match. MySQL follows the column's collation, which is usually case-insensitive. SQLite is case-insensitive for ASCII letters only. When behaviour must be identical everywhere, compare `LOWER(name) LIKE '%note%'`."
+    },
+    {
+      "type": "paragraph",
+      "text": "`_` is useful for fixed-length codes. Countries written as a `U` plus exactly one more letter:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, country FROM customers WHERE country LIKE 'U_';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | country\n------------------+--------\nAda Lovelace      | UK\nGrace Hopper      | US\nMargaret Hamilton | US"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "IN: one of several values"
+    },
+    {
+      "type": "paragraph",
+      "text": "`IN` tests whether a value appears in a list, replacing a chain of `OR` conditions. `NOT IN` keeps the rows that match none of the values. The list can also come from a subquery, as shown in [Subqueries](/tutorials/sql/subqueries)."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, country FROM customers WHERE country IN ('US', 'UK');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | country\n------------------+--------\nAda Lovelace      | UK\nGrace Hopper      | US\nMargaret Hamilton | US"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "BETWEEN: inclusive ranges"
+    },
+    {
+      "type": "paragraph",
+      "text": "`x BETWEEN a AND b` is shorthand for `x >= a AND x <= b`. Both ends are included, which matters for prices and dates: `BETWEEN '2025-01-01' AND '2025-01-31'` includes the 31st. Because dates in this database are stored as text, `BETWEEN` on dates only works when every value uses the same `YYYY-MM-DD` format."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price FROM products WHERE price BETWEEN 5 AND 40;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name          | price\n--------------+------\nMouse pad     | 8.99\nUSB cable     | 12\nMonitor stand | 39.5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "NULL: the missing value"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NULL` means *no value*: unknown, not applicable or not entered yet. It is not zero and not an empty string. Any comparison with NULL (`= NULL`, `<> NULL`, `> NULL`) yields *unknown* rather than true, and WHERE keeps only rows whose condition is true. So `assignee = NULL` matches nothing, even for rows where the assignee really is NULL. The correct tests are `IS NULL` and `IS NOT NULL`:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE tickets (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  assignee TEXT\n);\nINSERT INTO tickets (title, assignee) VALUES\n  ('Fix login', 'Ada'),\n  ('Write docs', NULL),\n  ('Update logo', NULL);\nSELECT title FROM tickets WHERE assignee = NULL;\nSELECT title FROM tickets WHERE assignee IS NULL;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE tickets (\nOK: INSERT INTO tickets (title, assignee) VALUES\nOK: SELECT title FROM tickets WHERE assignee = NULL\n\ntitle\n-----------\nWrite docs\nUpdate logo"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first SELECT found no rows, so the playground printed only `OK`; the second found both unassigned tickets."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "= NULL never matches",
+      "text": "`WHERE assignee = NULL` is valid syntax in every database and returns no rows in every database, so nothing warns you. Always write `IS NULL` or `IS NOT NULL`. The same logic bites `NOT IN`: if the list contains a NULL, `x NOT IN (...)` is never true and the query returns nothing. Filter NULLs out of the subquery or use `NOT EXISTS` instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Combining operators"
+    },
+    {
+      "type": "paragraph",
+      "text": "All of these operators are ordinary conditions, so they combine with `AND`, `OR` and `NOT` from the previous lesson: `WHERE category IN ('Office', 'Stationery') AND price NOT BETWEEN 5 AND 10 AND name NOT LIKE 'S%'` is a perfectly good filter."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Find the products whose name contains a space, then the customers who joined in 2024 using `BETWEEN` on the `joined` column."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 240,
+      "code": "SELECT name FROM products WHERE name LIKE '% %';\n\nSELECT name, joined\nFROM customers\nWHERE joined BETWEEN '2024-01-01' AND '2024-12-31';"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-filtering-operators-null"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "filtering-operators-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "filtering-operators",
+          "difficulty": "beginner",
+          "question": "Which pattern matches names that end with `son`?",
+          "explanation": "The % wildcard stands for anything before the fixed ending. `'son%'` matches names that start with son, `'_son'` only four-letter names, and `'%son%'` names containing son anywhere.",
+          "options": ["`'son%'`", "`'%son'`", "`'_son'`", "`'%son%'`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "filtering-operators-qc-2",
+          "type": "true-false",
+          "lessonSlug": "filtering-operators",
+          "difficulty": "beginner",
+          "question": "`price BETWEEN 5 AND 10` excludes products that cost exactly 10.",
+          "explanation": "BETWEEN is inclusive at both ends; it is equivalent to price >= 5 AND price <= 10.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-filtering-operators-null"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "where"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "subqueries"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "SQL LIKE, IN, BETWEEN and NULL – Filtering Operators",
+    "description": "Learn SQL pattern matching with LIKE wildcards, list membership with IN, inclusive ranges with BETWEEN, and why NULL needs IS NULL rather than = NULL."
+  },
+  "updatedOn": "2026-11-16"
+}

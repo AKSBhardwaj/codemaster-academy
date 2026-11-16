@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "file-io",
+  "title": "File Input and Output",
+  "summary": "Open, read, write and close files through FILE streams: text output with fprintf, line-by-line reading with fgets, parsing with fscanf, binary records with fwrite and fread, and error reporting.",
+  "introduction": "Programs that cannot read or write files forget everything when they exit. C's standard library exposes files as **streams** of bytes through a `FILE` pointer, and the same functions serve the keyboard, the screen, text files and binary files. This lesson opens files in the right mode, writes and reads text, parses numbers, stores records in binary form and, just as important, checks every call that can fail, because a missing file or a full disk is a normal event in C rather than an exception.",
+  "learningObjectives": [
+    "Open a file in the correct mode, check the result and close it",
+    "Write formatted text with fprintf and read it back line by line with fgets",
+    "Parse numbers from a text file with fscanf",
+    "Store and load binary records with fwrite and fread"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Streams, and the three that are always open"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `FILE *` is a handle to an open stream, created by `fopen` and released by `fclose`. Three streams exist before `main` starts: `stdin` (input, usually the keyboard), `stdout` (normal output) and `stderr` (error messages, which appear immediately). `printf(...)` is simply `fprintf(stdout, ...)`, so everything you learn about files applies to the terminal too. Output to a file is **buffered**: it is collected in memory and written in chunks, so data is only guaranteed to reach the disk after `fclose` or `fflush`."
+    },
+    {
+      "type": "table",
+      "headers": ["Mode", "Meaning"],
+      "rows": [
+        ["`\"r\"`", "Read text; `fopen` fails if the file does not exist"],
+        [
+          "`\"w\"`",
+          "Write text; creates the file, or **truncates** an existing one to zero length"
+        ],
+        ["`\"a\"`", "Append text; creates the file if needed, and every write goes to the end"],
+        ["`\"r+\"`", "Read and write an existing file without truncating it"],
+        [
+          "`\"rb\"`, `\"wb\"`, `\"ab\"`",
+          "The same in binary mode: bytes are passed through unchanged, with no newline translation on Windows"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing a text file"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fprintf` takes a stream as its first argument and otherwise behaves like `printf`. The pattern for every file operation is the same: open, check for `NULL`, use, close."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "write.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    FILE *out = fopen(\"scores.txt\", \"w\");\n    if (out == NULL) {\n        perror(\"scores.txt\");\n        return 1;\n    }\n\n    const char *names[] = {\"ada\", \"grace\", \"linus\"};\n    int scores[] = {91, 78, 85};\n\n    for (int i = 0; i < 3; i++) {\n        fprintf(out, \"%s %d\\n\", names[i], scores[i]);\n    }\n    fclose(out);\n    printf(\"wrote 3 lines\\n\");\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 write.c -o write\n$ ./write\nwrote 3 lines\n$ cat scores.txt\nada 91\ngrace 78\nlinus 85"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading line by line"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fgets(buffer, size, stream)` reads one line, including its newline, into the buffer and returns `NULL` at the end of the file or on error. A `while` loop around it is the standard way to process a text file, and `strcspn` strips the newline exactly as it did for keyboard input in [Arrays and Strings](/tutorials/c/arrays-strings). Lines longer than the buffer are delivered in pieces, so size the buffer generously."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "read.c",
+      "code": "#include <stdio.h>\n#include <string.h>\n\nint main(void)\n{\n    FILE *in = fopen(\"scores.txt\", \"r\");\n    if (in == NULL) {\n        perror(\"scores.txt\");\n        return 1;\n    }\n\n    char line[128];\n    int number = 0;\n    while (fgets(line, sizeof line, in) != NULL) {\n        line[strcspn(line, \"\\n\")] = '\\0';\n        number++;\n        printf(\"%d: %s (%zu chars)\\n\", number, line, strlen(line));\n    }\n    fclose(in);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "1: ada 91 (6 chars)\n2: grace 78 (8 chars)\n3: linus 85 (8 chars)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parsing numbers"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fscanf` reads formatted fields the way `scanf` does from the keyboard and returns the number of fields it filled, so compare that with the number you asked for. Always give `%s` a width one less than the buffer size, here `%31s` for a 32-byte buffer, or a long word overflows it. For stricter parsing, read whole lines with `fgets` and convert the pieces with `sscanf` or `strtol`; that way you can report *which* line was malformed instead of stopping silently."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "parse.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    FILE *in = fopen(\"scores.txt\", \"r\");\n    if (in == NULL) {\n        perror(\"scores.txt\");\n        return 1;\n    }\n\n    char name[32];\n    int score, total = 0, count = 0;\n    while (fscanf(in, \"%31s %d\", name, &score) == 2) {\n        total += score;\n        count++;\n        if (score >= 85) printf(\"%s passed with distinction\\n\", name);\n    }\n    fclose(in);\n\n    if (count > 0) {\n        printf(\"average of %d scores: %.1f\\n\", count, (double)total / count);\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "ada passed with distinction\nlinus passed with distinction\naverage of 3 scores: 84.7"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Binary files"
+    },
+    {
+      "type": "paragraph",
+      "text": "Text files are portable and readable; binary files store the bytes of a value directly, which is compact and fast but tied to the struct layout, integer size and byte order of the machine that wrote them. `fwrite(ptr, size, count, stream)` writes `count` objects of `size` bytes each and returns how many it wrote; `fread` mirrors it and returns how many it read. Open binary files with `\"wb\"` and `\"rb\"`."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "records.c",
+      "code": "#include <stdio.h>\n\ntypedef struct {\n    int id;\n    double balance;\n} Account;\n\nint main(void)\n{\n    Account out[2] = {{1, 250.75}, {2, -12.5}};\n\n    FILE *f = fopen(\"accounts.bin\", \"wb\");\n    if (f == NULL) { perror(\"accounts.bin\"); return 1; }\n    size_t written = fwrite(out, sizeof out[0], 2, f);\n    fclose(f);\n    printf(\"wrote %zu records of %zu bytes\\n\", written, sizeof out[0]);\n\n    Account in[2];\n    f = fopen(\"accounts.bin\", \"rb\");\n    if (f == NULL) { perror(\"accounts.bin\"); return 1; }\n    size_t read = fread(in, sizeof in[0], 2, f);\n    fclose(f);\n\n    for (size_t i = 0; i < read; i++) {\n        printf(\"account %d: %.2f\\n\", in[i].id, in[i].balance);\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (x86-64; the record is 16 bytes because of padding)",
+      "content": "wrote 2 records of 16 bytes\naccount 1: 250.75\naccount 2: -12.50"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When things go wrong"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fopen` returns `NULL` and sets the global `errno` (from `<errno.h>`) to a code describing why. `perror(\"prefix\")` prints the prefix, a colon and the human-readable message for the current `errno`, and `strerror(errno)` from `<string.h>` returns the same text for your own messages. Check the return value of every `fopen`, `fwrite` and even `fclose`: closing flushes the buffer, so it is `fclose` that fails when the disk is full."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "missing.c",
+      "code": "#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint main(void)\n{\n    FILE *in = fopen(\"missing.txt\", \"r\");\n    if (in == NULL) {\n        perror(\"missing.txt\");\n        fprintf(stderr, \"errno %d: %s\\n\", errno, strerror(errno));\n        return 1;\n    }\n    fclose(in);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (Linux)",
+      "content": "$ ./missing\nmissing.txt: No such file or directory\nerrno 2: No such file or directory\n$ echo $?\n1"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: \"w\" when you meant \"a\"",
+      "text": "Opening a log file with `\"w\"` erases everything it contained before a single byte is written; `\"a\"` is the mode that adds to the end. The second classic is forgetting `fclose`: the last chunk of buffered output never reaches the disk, so the file looks truncated even though every `fprintf` call succeeded. Close every file you open, and close it before you report success."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where does the file go?",
+      "text": "A relative name such as `scores.txt` is resolved against the *current working directory* of the process, the folder your shell was in when you ran the program, not the folder that contains the executable. Run `./write` from two different folders and you get two different files. Use an absolute path or pass the name on the command line when that matters."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-fileio-line-count"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-fileio-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "file-io",
+          "difficulty": "beginner",
+          "question": "Which mode string opens a text file so that new output is added after the existing content?",
+          "explanation": "`\"a\"` appends: writes go to the end and existing content is kept. `\"w\"` truncates the file first.",
+          "options": ["`\"r\"`", "`\"w\"`", "`\"a\"`", "`\"r+\"`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "c-fileio-qc-2",
+          "type": "true-false",
+          "lessonSlug": "file-io",
+          "difficulty": "beginner",
+          "question": "Output written with `fprintf` is guaranteed to be on disk as soon as the call returns.",
+          "explanation": "File output is buffered. The data is written out when the buffer fills, when you call `fflush`, or when `fclose` closes the stream.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-fileio-line-count"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "arrays-strings"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "structs"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "common-bugs"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    }
+  ],
+  "seo": {
+    "title": "C File I/O – fopen, fgets, fprintf, fwrite",
+    "description": "Learn C file I/O: fopen modes, fprintf output, reading lines with fgets, parsing with fscanf, binary records with fwrite and fread, and perror."
+  },
+  "updatedOn": "2026-11-15"
+}

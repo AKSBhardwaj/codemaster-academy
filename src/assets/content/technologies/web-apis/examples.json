@@ -1,0 +1,138 @@
+{
+  "title": "Web APIs Small Examples",
+  "description": "Use these small Web APIs examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Read JSON text",
+      "description": "JSON is a text format for data. JSON.parse turns that text into JavaScript values that code can read.",
+      "language": "javascript",
+      "code": "const book = JSON.parse('{\"title\":\"Moon Trip\",\"pages\":60}');\nconsole.log(book.title);",
+      "output": "The console shows Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "fetch-local-data",
+      "title": "Fetch local data",
+      "description": "fetch asks for a resource and returns a promise for a response.",
+      "language": "javascript",
+      "code": "async function readBooks() {\n  const response = await fetch(\"/books.json\");\n  if (!response.ok) throw new Error(\"Could not load books\");\n  return response.json();\n}\nreadBooks().then(console.log).catch(console.error);",
+      "output": "With a real books.json file at that address, the code prints its parsed data. Missing files produce a handled error.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "fetch-local-data"
+    },
+    {
+      "id": "stop-a-request",
+      "title": "Stop a request",
+      "description": "AbortController gives a request a stop signal.",
+      "language": "javascript",
+      "code": "const controller = new AbortController();\nfetch(\"/books.json\", {signal: controller.signal})\n  .then(response => response.text()).then(console.log)\n  .catch(error => console.log(error.name));\ncontroller.abort();",
+      "output": "The request is cancelled if it is still in progress. Its rejection is handled, usually with the name AbortError.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "stop-a-request"
+    },
+    {
+      "id": "use-url-search-values",
+      "title": "Use URL search values",
+      "description": "URLSearchParams reads and writes query values in an address.",
+      "language": "javascript",
+      "code": "const params = new URLSearchParams(\"topic=space&level=1\");\nparams.set(\"topic\", \"garden club\");\nconsole.log(params.get(\"topic\"));\nconsole.log(params.toString());",
+      "output": "The first line is garden club. The query string contains topic=garden+club and level=1.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-url-search-values"
+    },
+    {
+      "id": "remember-a-small-browser-value",
+      "title": "Remember a small browser value",
+      "description": "localStorage stores small text values for one site in one browser.",
+      "language": "javascript",
+      "code": "try {\n  localStorage.setItem(\"club-books\", JSON.stringify([\"Moon Trip\"]));\n  const books = JSON.parse(localStorage.getItem(\"club-books\") || \"[]\");\n  console.log(books.length);\n} catch { console.log(\"Storage is unavailable.\"); }",
+      "output": "The console shows 1 where storage is allowed. Otherwise the page gives a handled message.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "remember-a-small-browser-value"
+    },
+    {
+      "id": "read-a-chosen-file",
+      "title": "Read a chosen file",
+      "description": "A file input lets a person choose a file.",
+      "language": "html",
+      "code": "<label for=\"file\">Choose a text file</label><input id=\"file\" type=\"file\" accept=\"text/plain\"><pre id=\"text\"></pre><script>document.querySelector(\"#file\").onchange=async e=>{const file=e.target.files[0];if(file)document.querySelector(\"#text\").textContent=await file.text();};</script>",
+      "output": "After a text file is chosen, its words appear in the pre element.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-chosen-file"
+    },
+    {
+      "id": "copy-text-after-a-click",
+      "title": "Copy text after a click",
+      "description": "The Clipboard API can write text to the clipboard.",
+      "language": "html",
+      "code": "<button id=\"copy\">Copy club name</button><p id=\"status\"></p><script>document.querySelector(\"#copy\").onclick=async()=>{try{await navigator.clipboard.writeText(\"Garden club\");document.querySelector(\"#status\").textContent=\"Copied\";}catch{document.querySelector(\"#status\").textContent=\"Please copy the name by hand.\";}};</script>",
+      "output": "On an allowed HTTPS or localhost page, the button copies Garden club. A failure shows a manual-copy message.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "copy-text-after-a-click"
+    },
+    {
+      "id": "ask-for-a-location-carefully",
+      "title": "Ask for a location carefully",
+      "description": "Geolocation asks the browser for a location.",
+      "language": "javascript",
+      "code": "if (\"geolocation\" in navigator) {\n  navigator.geolocation.getCurrentPosition(\n    position => console.log(\"Accuracy in metres:\", position.coords.accuracy),\n    () => console.log(\"You can choose a place by hand instead.\"),\n    {timeout: 5000}\n  );\n}",
+      "output": "When used after an appropriate user action on a secure page, it reports accuracy or a handled failure.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "ask-for-a-location-carefully"
+    },
+    {
+      "id": "draw-a-simple-canvas-shape",
+      "title": "Draw a simple canvas shape",
+      "description": "Canvas is a drawing area controlled by JavaScript.",
+      "language": "html",
+      "code": "<canvas id=\"art\" width=\"240\" height=\"120\" aria-label=\"A blue rectangle\">A blue rectangle</canvas><script>const ctx=document.querySelector(\"#art\").getContext(\"2d\");ctx.fillStyle=\"navy\";ctx.fillRect(20,20,100,60);</script>",
+      "output": "A navy rectangle is drawn 20 units from the left and top, with a width of 100 and height of 60.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "draw-a-simple-canvas-shape"
+    },
+    {
+      "id": "watch-when-a-part-comes-into-view",
+      "title": "Watch when a part comes into view",
+      "description": "IntersectionObserver tells your code when an element crosses a visibility boundary.",
+      "language": "html",
+      "code": "<div style=\"height:600px\">Scroll down</div><p id=\"target\">You found the note.</p><script>const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){console.log(\"Note entered view\");observer.unobserve(entry.target);}}});observer.observe(document.querySelector(\"#target\"));</script>",
+      "output": "When the note enters the viewport, the message is logged once and the observer stops watching it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "watch-when-a-part-comes-into-view"
+    },
+    {
+      "id": "watch-a-box-size",
+      "title": "Watch a box size",
+      "description": "ResizeObserver reports changes to an element's size.",
+      "language": "html",
+      "code": "<div id=\"box\" style=\"width:60%;padding:1rem;border:1px solid\">A flexible box</div><script>const observer=new ResizeObserver(entries=>{console.log(Math.round(entries[0].contentRect.width));});observer.observe(document.querySelector(\"#box\"));</script>",
+      "output": "The console logs the content width when the box is first observed and when that size changes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "watch-a-box-size"
+    },
+    {
+      "id": "move-a-calculation-to-a-worker",
+      "title": "Move a calculation to a worker",
+      "description": "A web worker runs JavaScript in another thread.",
+      "language": "javascript",
+      "code": "// worker.js\nself.onmessage = event => { self.postMessage(event.data * 2); };\n\n// main.js, a separate file on the same local site\nconst worker = new Worker(\"./worker.js\");\nworker.onmessage = event => { console.log(event.data); worker.terminate(); };\nworker.postMessage(6);",
+      "output": "With the two real files served locally, the main page logs 12 and then stops the worker.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "move-a-calculation-to-a-worker"
+    }
+  ]
+}

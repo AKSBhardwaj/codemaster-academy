@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-vite",
+  "title": "Creating a React App with Vite",
+  "summary": "A React project needs tools that prepare its code for the browser. Vite is one tool that can do this.",
+  "introduction": "A React project needs tools that prepare its code for the browser. Vite is one tool that can do this. Create a small project with help if you need it. Start the local preview, open the page and change one greeting.",
+  "learningObjectives": [
+    "Create a React project from the Vite template with one command",
+    "Explain the role of index.html, main.jsx and App.jsx",
+    "Run the development server and use hot module replacement",
+    "Produce and preview a production build"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why Vite?"
+    },
+    {
+      "type": "paragraph",
+      "text": "For years the standard starter was Create React App. It was deprecated in early 2025, and the React documentation now points client-side projects to **Vite** (or to a full framework such as Next.js when you need server rendering). Vite serves your source files as native ES modules during development, so the server starts in milliseconds and edits show up almost instantly; for production it bundles everything into a handful of optimized files."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Prerequisites"
+    },
+    {
+      "type": "paragraph",
+      "text": "You need Node.js. Vite 7 requires Node 20.19 or newer (or 22.12 or newer on the 22 line), so install a current LTS release from nodejs.org and check it in a terminal:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node -v\nnpm -v"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Your numbers will differ",
+      "content": "v22.12.0\n10.9.0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scaffold the project"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm create vite@latest my-react-app -- --template react\ncd my-react-app\nnpm install\nnpm run dev"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first command downloads the `create-vite` package and generates a folder. The `--` matters: it separates npm's own options from the ones meant for `create-vite`; without it `--template` is swallowed by npm and you land in the interactive prompt instead. Use `--template react-ts` if you want TypeScript. The last command starts the development server:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npm run dev (version and timing vary)",
+      "content": "  VITE v7.1.5  ready in 312 ms\n\n  ➜  Local:   http://localhost:5173/\n  ➜  Network: use --host to expose\n  ➜  press h + enter to show help"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open `http://localhost:5173` and you see the template's demo page with a counter button. Keep the terminal open; the server keeps running until you press Ctrl+C."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What the template contains"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Project structure",
+      "code": "my-react-app/\n├── index.html          # the only HTML page\n├── package.json\n├── vite.config.js      # Vite configuration with the React plugin\n├── eslint.config.js\n├── public/             # static files copied as-is\n└── src/\n    ├── main.jsx        # entry point: mounts <App /> into #root\n    ├── App.jsx         # the demo component\n    ├── App.css\n    ├── index.css\n    └── assets/"
+    },
+    {
+      "type": "table",
+      "headers": ["File", "Role"],
+      "rows": [
+        [
+          "`index.html`",
+          "The page the browser loads. It contains `<div id=\"root\"></div>` and a `<script type=\"module\" src=\"/src/main.jsx\">` tag that Vite serves and, later, bundles."
+        ],
+        [
+          "`src/main.jsx`",
+          "Creates a React root inside `#root` and renders `<App />`. You rarely touch it except to add providers such as a router."
+        ],
+        ["`src/App.jsx`", "The top-level component. Replace its contents with your own app."],
+        [
+          "`vite.config.js`",
+          "Registers `@vitejs/plugin-react`, which compiles JSX and enables Fast Refresh."
+        ],
+        [
+          "`package.json`",
+          "Lists `react` and `react-dom` as dependencies and defines the `dev`, `build`, `preview` and `lint` scripts."
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "The entry point"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/main.jsx",
+      "code": "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport './index.css';\nimport App from './App.jsx';\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n);"
+    },
+    {
+      "type": "paragraph",
+      "text": "`createRoot` from `react-dom/client` is how React 18 and 19 attach to a DOM element; the older `ReactDOM.render` was removed in React 19. `StrictMode` is a development-only wrapper that renders each component twice and runs effects twice to surface impure code and missing cleanups. It changes nothing in a production build."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Replace the demo app"
+    },
+    {
+      "type": "paragraph",
+      "text": "Delete the generated `App.css` import and the demo markup and start with something small:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/App.jsx",
+      "code": "function App() {\n  const today = 'Saturday';\n\n  return (\n    <main>\n      <h1>Hello, React</h1>\n      <p>Today is {today}.</p>\n    </main>\n  );\n}\n\nexport default App;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Inside #root",
+      "content": "<main><h1>Hello, React</h1><p>Today is Saturday.</p></main>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Save the file and look at the browser: the page updates without a reload. That is **hot module replacement** (HMR), and the React plugin's Fast Refresh keeps component state across edits whenever it can, so you can tweak the markup of a form without retyping what you had entered into it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Building for production"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm run build\nnpm run preview"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npm run build (hashes, sizes and timing vary)",
+      "content": "vite v7.1.5 building for production...\n✓ 32 modules transformed.\ndist/index.html                   0.46 kB │ gzip:  0.30 kB\ndist/assets/index-BxQ3k2Lm.css    1.39 kB │ gzip:  0.72 kB\ndist/assets/index-Dq7sX9cA.js   188.42 kB │ gzip: 59.17 kB\n✓ built in 1.02s"
+    },
+    {
+      "type": "paragraph",
+      "text": "`build` writes a `dist/` folder with minified JavaScript and CSS whose file names contain content hashes for cache busting. That folder is a static site: upload it to any static host. `preview` serves it locally so you can check the real build rather than the dev server."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: opening index.html as a file",
+      "text": "Double-clicking `index.html` or `dist/index.html` opens it with a `file://` URL, and the page stays blank: module scripts and absolute asset paths need an HTTP server. During development use `npm run dev`; to check a build use `npm run preview` or any static file server."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Install React DevTools",
+      "text": "The React Developer Tools extension for Chrome, Edge and Firefox adds a Components tab that shows the component tree with its props and state, and a Profiler tab that the performance lesson uses. Install it now; you will reach for it in every lesson."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-setup-template"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-vite",
+          "difficulty": "beginner",
+          "question": "Which file creates the React root and renders `<App />`?",
+          "explanation": "`src/main.jsx` calls `createRoot(document.getElementById('root')).render(<App />)`. `index.html` only provides the empty `#root` element.",
+          "options": ["`index.html`", "`src/main.jsx`", "`src/App.jsx`", "`vite.config.js`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup-vite",
+          "difficulty": "beginner",
+          "question": "`StrictMode` slows down the production build because it renders every component twice.",
+          "explanation": "Strict Mode's double rendering and double effects happen only in development. In a production build it has no effect at all.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-setup-template"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "jsx"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    }
+  ],
+  "seo": {
+    "title": "Create a React App with Vite – Setup Guide",
+    "description": "Set up a React 19 project with Vite: scaffold the template, understand main.jsx and App.jsx, run the dev server with hot reloading and build for production."
+  },
+  "updatedOn": "2026-11-16"
+}

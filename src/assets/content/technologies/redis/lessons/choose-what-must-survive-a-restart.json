@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "choose-what-must-survive-a-restart",
+  "title": "Choose what must survive a restart",
+  "summary": "Redis persistence settings decide how data is written to disk.",
+  "introduction": "Redis persistence settings decide how data is written to disk. Your task: Classify a temporary reading-tip key as replaceable or essential.",
+  "learningObjectives": [
+    "Classify a temporary reading-tip key as replaceable or essential.",
+    "Explain the example for choose what must survive a restart"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Redis persistence settings decide how data is written to disk. A cache may be rebuildable, while important records need a deliberate durability plan."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Redis server and redis-cli. Commands here use cma: practice keys only. Redis commands do not run in the site's SQLite playground. Do not connect these exercises to a production database."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Example decision:\nCached book summary: can be loaded again if lost.\nOnly copy of a payment record: must not depend on an unreviewed cache setup.\nCheck the server's RDB snapshot and AOF settings, then test a practice restart.",
+      "title": "Choose what must survive a restart",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A cached copy can be rebuilt from another trusted source.",
+        "The only copy of an important record needs a reviewed persistence and restore plan, not an assumed cache guarantee."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The worked decision separates replaceable cache data from records that need stronger guarantees."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not assume in-memory speed means guaranteed persistence. Backups and restore tests are separate jobs."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Classify a temporary reading-tip key as replaceable or essential."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "redis-choose-what-must-survive-a-restart-check"
+    }
+  ],
+  "exerciseIds": ["redis-choose-what-must-survive-a-restart-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "redis",
+      "slug": "publish-a-live-message"
+    }
+  ],
+  "seo": {
+    "title": "Redis: Choose what must survive a restart",
+    "description": "Redis persistence settings decide how data is written to disk. A cache may be rebuildable, while important records need a deliberate durability plan."
+  },
+  "updatedOn": "2026-11-16"
+}

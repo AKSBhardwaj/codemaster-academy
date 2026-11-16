@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "slug": "strings-io",
+  "title": "Strings and Input/Output",
+  "summary": "Work with immutable strings and their methods, build text with StringBuilder, format output and text blocks, read keyboard input with Scanner, and read and write files with Files.",
+  "introduction": "Most programs are, at heart, text in and text out: a name typed at a prompt, a report printed to the screen, a log file read line by line. This lesson covers the String class and its most useful methods, why strings never change and what that means for your code, efficient building with StringBuilder, formatting with printf-style placeholders and multi-line text blocks, reading what the user types with Scanner, and reading and writing files with the java.nio.file API. Every example is complete and shows its exact output.",
+  "learningObjectives": [
+    "Use the common String methods and explain immutability",
+    "Build and format text with StringBuilder, String.format and text blocks",
+    "Read keyboard input with Scanner without the newline trap",
+    "Read and write files with Files and Path"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "String methods"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `String` is an object with dozens of methods, and a handful cover most needs: measure it, change case, cut pieces out by index, search it, replace, split into words and join back. Indexes start at 0, and `substring(from, to)` includes `from` but excludes `to`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String text = \"  Java Programming  \";\nString trimmed = text.strip();\nSystem.out.println(\"[\" + trimmed + \"]\");\nSystem.out.println(trimmed.length());\nSystem.out.println(trimmed.toUpperCase());\nSystem.out.println(trimmed.charAt(0) + \"\" + trimmed.charAt(5));\nSystem.out.println(trimmed.substring(5));\nSystem.out.println(trimmed.indexOf(\"Pro\"));\nSystem.out.println(trimmed.replace(\"Java\", \"Kotlin\"));\nSystem.out.println(trimmed.contains(\"gram\") + \" \" + trimmed.startsWith(\"Java\"));\nString[] words = trimmed.split(\" \");\nSystem.out.println(words.length + \" words, last: \" + words[words.length - 1]);\nSystem.out.println(String.join(\"-\", words));\nSystem.out.println(\"ab\".repeat(3));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[Java Programming]\n16\nJAVA PROGRAMMING\nJP\nProgramming\n5\nKotlin Programming\ntrue true\n2 words, last: Programming\nJava-Programming\nababab"
+    },
+    {
+      "type": "paragraph",
+      "text": "`indexOf` returns `-1` when the text is not found, which is the usual way to test before cutting. The `charAt(0) + \"\" + charAt(5)` trick forces string concatenation; `charAt(0) + charAt(5)` alone would add the two character codes and print `154`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Strings never change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Strings are **immutable**: no method modifies the string it is called on. Methods such as `toUpperCase` return a **new** string, and if you do not keep that result, nothing happened. Immutability is why strings are safe to share and to use as map keys, and it is the first thing to check when a string method appears to do nothing."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String s = \"hello\";\ns.toUpperCase();          // result thrown away\nSystem.out.println(s);\ns = s.toUpperCase();      // keep the result\nSystem.out.println(s);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "hello\nHELLO"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Building and formatting text"
+    },
+    {
+      "type": "paragraph",
+      "text": "Joining strings with `+` in a loop creates a new string on every pass. `StringBuilder` is a mutable buffer: `append` adds to it in place and `toString` produces the final string. `String.format` and the `formatted` method fill placeholders with width and precision, and a **text block** (three double quotes, since Java 15) holds several lines without `\\n` escapes; the indentation shared by all its lines is removed."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "StringBuilder sb = new StringBuilder();\nfor (int i = 1; i <= 3; i++) {\n    sb.append(\"item\").append(i).append(\", \");\n}\nsb.setLength(sb.length() - 2);   // drop the trailing comma and space\nSystem.out.println(sb);\nSystem.out.println(new StringBuilder(\"stressed\").reverse());\n\nString report = String.format(\"%-8s|%6.2f|%03d\", \"total\", 3.14159, 7);\nSystem.out.println(report);\nSystem.out.println(\"%d%% done\".formatted(75));\n\nString html = \"\"\"\n    <ul>\n      <li>%s</li>\n    </ul>\n    \"\"\".formatted(\"one\");\nSystem.out.print(html);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "item1, item2, item3\ndesserts\ntotal   |  3.14|007\n75% done\n<ul>\n  <li>one</li>\n</ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "In the format string, `%-8s` left-aligns in eight characters, `%6.2f` right-aligns a decimal with two digits in six characters, and `%03d` pads a number with zeros. The text block ends with a newline because its closing quotes sit on their own line, which is why `print` rather than `println` is used."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading keyboard input"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Scanner` wraps `System.in` and turns typed text into values. `nextLine()` returns everything up to the Enter key; `nextInt()` and `nextDouble()` parse the next token. The most robust pattern is to read whole lines and parse them yourself, which also avoids the trap described in the warning below."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Greeter.java",
+      "code": "import java.util.Scanner;\n\npublic class Greeter {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        System.out.print(\"Your name: \");\n        String name = in.nextLine();\n        System.out.print(\"Your age: \");\n        int age = Integer.parseInt(in.nextLine().strip());\n        System.out.println(\"Hi \" + name + \", next year you will be \" + (age + 1) + \".\");\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Greeter.java (typed input shown after each prompt)",
+      "content": "Your name: Ada\nYour age: 36\nHi Ada, next year you will be 37."
+    },
+    {
+      "type": "paragraph",
+      "text": "If the user types something that is not a number, `parseInt` throws `NumberFormatException`; the [Exceptions](/tutorials/java/exceptions) lesson shows how to catch it and ask again. Java 25 also offers `IO.readln(\"Your name: \")`, which prints the prompt and returns the typed line in one call, for compact programs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading and writing files"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `java.nio.file` package does file work in a few static calls. `Path.of` names a file, `Files.writeString` writes text, `Files.readString` reads it all back, `Files.readAllLines` gives a list of lines, and an extra `StandardOpenOption.APPEND` adds to the end instead of replacing. Every one of these can throw the checked `IOException`, so the method either catches it or declares it with `throws`. For files too large for memory, `Files.lines` streams them one line at a time inside try-with-resources."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Notes.java",
+      "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.nio.file.StandardOpenOption;\nimport java.util.List;\n\npublic class Notes {\n    public static void main(String[] args) throws IOException {\n        Path file = Path.of(\"notes.txt\");\n        Files.writeString(file, \"buy milk\\ncall Sam\\nwrite Java\\n\");\n        List<String> lines = Files.readAllLines(file);\n        System.out.println(lines.size() + \" lines\");\n        for (String line : lines) {\n            System.out.println(\"* \" + line);\n        }\n        Files.writeString(file, \"pay rent\\n\", StandardOpenOption.APPEND);\n        System.out.println(Files.readString(file).length());\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Notes.java",
+      "content": "3 lines\n* buy milk\n* call Sam\n* write Java\n38"
+    },
+    {
+      "type": "paragraph",
+      "text": "The file is created in the folder you run the program from; a relative path is resolved against that working directory, which is the usual cause of a `NoSuchFileException` when reading. The final number counts every character including the four newlines."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "nextInt followed by nextLine",
+      "text": "`int age = in.nextInt();` reads the digits but leaves the Enter key's newline in the buffer. A following `in.nextLine()` returns that leftover empty string immediately, so the program seems to skip the next question. Either call `in.nextLine()` once more to discard the newline, or read every input with `nextLine()` and parse the numbers with `Integer.parseInt`, as the example does."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Comparing and ordering strings",
+      "text": "Use `equals` for equality, `equalsIgnoreCase` to ignore case, and `compareTo` to sort: it returns a negative number, zero or a positive number depending on dictionary order, so `\"apple\".compareTo(\"banana\")` is negative. Remember that `==` compares references, as the [Operators and Conditionals](/tutorials/java/operators-conditionals) lesson showed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-strings-scanner"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-strings-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "strings-io",
+          "difficulty": "beginner",
+          "question": "What does `\"Java\".substring(1, 3)` return?",
+          "explanation": "The start index is inclusive and the end index exclusive: characters at index 1 and 2, which are `a` and `v`.",
+          "options": ["`Ja`", "`av`", "`ava`", "`Jav`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "java-strings-qc-2",
+          "type": "true-false",
+          "lessonSlug": "strings-io",
+          "difficulty": "beginner",
+          "question": "Calling `name.toUpperCase();` changes the string stored in `name`.",
+          "explanation": "Strings are immutable. The method returns a new string; assign it back (`name = name.toUpperCase();`) to keep it.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-strings-scanner"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "exceptions"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "records-streams"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "strings"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "strings"
+    }
+  ],
+  "seo": {
+    "title": "Java Strings and Input/Output – Scanner and Files",
+    "description": "Work with Java strings and StringBuilder, format output with printf and text blocks, read keyboard input with Scanner, and read and write files with Files."
+  },
+  "updatedOn": "2026-11-15"
+}

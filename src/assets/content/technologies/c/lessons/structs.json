@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "slug": "structs",
+  "title": "Structs and Typedef",
+  "summary": "Group related values into a struct, name the type with typedef, pass structs to functions by value and by pointer with ->, build arrays of structs and combine them with enums.",
+  "introduction": "Arrays hold many values of one type; a `struct` holds several values of different types under one name, such as the x and y of a point or the name, price and stock of a product. Structs are how C programs model the things they work with, and together with pointers they build linked lists, trees and every other data structure. This lesson covers defining and initialising structs, `typedef` for shorter names, the `.` and `->` operators, passing structs to functions, arrays of structs, and enums for the fixed sets of values that often live inside them.",
+  "learningObjectives": [
+    "Define a struct type and initialise it with designated initialisers",
+    "Shorten type names with typedef",
+    "Access members through a value with . and through a pointer with ->",
+    "Decide when to pass a struct by value and when by pointer"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Defining a struct"
+    },
+    {
+      "type": "paragraph",
+      "text": "A struct definition lists its **members**, each with a type and a name, and creates a new type. `struct point` is the full type name, and variables are declared with it. Members are accessed with the dot operator. C99 **designated initialisers** such as `.x = 3.0` name the member being set, which is clearer than relying on order and lets you leave members out, in which case they become zero. Assigning one struct to another copies every member."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "point.c",
+      "code": "#include <stdio.h>\n\nstruct point {\n    double x;\n    double y;\n};\n\nint main(void)\n{\n    struct point a = {1.5, 2.0};            /* in member order */\n    struct point b = {.y = 4.0, .x = 3.0};  /* designated initialisers */\n    struct point c = {.x = 9.0};            /* y becomes 0.0 */\n\n    a.x = a.x + 1.0;                        /* member access with . */\n    struct point d = a;                     /* copies both members */\n    d.y = 100.0;                            /* does not affect a */\n\n    printf(\"a = (%.1f, %.1f)\\n\", a.x, a.y);\n    printf(\"b = (%.1f, %.1f)\\n\", b.x, b.y);\n    printf(\"c = (%.1f, %.1f)\\n\", c.x, c.y);\n    printf(\"d = (%.1f, %.1f)\\n\", d.x, d.y);\n    printf(\"sizeof(struct point) = %zu\\n\", sizeof(struct point));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 point.c -o point\n$ ./point\na = (2.5, 2.0)\nb = (3.0, 4.0)\nc = (9.0, 0.0)\nd = (2.5, 100.0)\nsizeof(struct point) = 16"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "typedef: naming the type once"
+    },
+    {
+      "type": "paragraph",
+      "text": "`typedef` gives an existing type a second name. `typedef struct point Point;` lets you write `Point` instead of `struct point`, and the common idiom below combines the definition and the typedef in one declaration. Both styles are widespread: the Linux kernel avoids typedefs for structs so that the word `struct` stays visible, while many application code bases prefer the shorter names. Pick one and use it consistently."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "product.c",
+      "code": "#include <stdio.h>\n\ntypedef struct {\n    char name[32];\n    double price;\n    int stock;\n} Product;\n\ndouble stock_value(Product p)        /* receives a copy of the struct */\n{\n    return p.price * p.stock;\n}\n\nint main(void)\n{\n    Product pen = {\"Ballpoint pen\", 1.25, 40};\n    printf(\"%s: %.2f each, %d in stock\\n\", pen.name, pen.price, pen.stock);\n    printf(\"stock value: %.2f\\n\", stock_value(pen));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Ballpoint pen: 1.25 each, 40 in stock\nstock value: 50.00"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Structs and functions: by value or by pointer?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Passing a struct by value copies all of it, which is fine for a pair of numbers but wasteful for a struct holding a 32-character name, and the function cannot modify the caller's struct. Passing a pointer avoids the copy and allows modification. Through a pointer, `(*p).stock` is awkward to write, so C provides `p->stock` as shorthand for exactly that. Mark pointer parameters that only read the struct as `const`, and the compiler enforces the promise."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "restock.c",
+      "code": "#include <stdio.h>\n\ntypedef struct {\n    char name[32];\n    double price;\n    int stock;\n} Product;\n\nvoid restock(Product *p, int amount)\n{\n    p->stock += amount;                /* same as (*p).stock += amount */\n}\n\nvoid print_product(const Product *p)   /* read-only access, no copy */\n{\n    printf(\"%-14s %6.2f %4d\\n\", p->name, p->price, p->stock);\n}\n\nint main(void)\n{\n    Product pen = {\"Ballpoint pen\", 1.25, 40};\n    print_product(&pen);\n    restock(&pen, 60);\n    print_product(&pen);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Ballpoint pen    1.25   40\nBallpoint pen    1.25  100"
+    },
+    {
+      "type": "paragraph",
+      "text": "The format `%-14s` pads the name to 14 characters, left-aligned; `%6.2f` and `%4d` right-align the numbers in fixed widths. Width specifiers like these are how C programs print tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arrays of structs and enums"
+    },
+    {
+      "type": "paragraph",
+      "text": "A table of records is an array of structs, and a loop over it processes each record. When a member can only take a few named values, such as a category, declare an `enum`: an integer type whose constants start at 0 and count upwards, which also makes it a natural subject for `switch`. A `const char *` member can point at a string literal when the text never changes; use a `char` array, as `Product` does, when it must be editable."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "inventory.c",
+      "code": "#include <stdio.h>\n\nenum category { TOOL, FOOD, TOY };\n\ntypedef struct {\n    const char *name;\n    enum category kind;\n    double price;\n} Item;\n\nconst char *category_name(enum category c)\n{\n    switch (c) {\n    case TOOL: return \"tool\";\n    case FOOD: return \"food\";\n    case TOY:  return \"toy\";\n    }\n    return \"unknown\";\n}\n\nint main(void)\n{\n    Item items[] = {\n        {\"hammer\", TOOL, 12.5},\n        {\"apple\", FOOD, 0.4},\n        {\"kite\", TOY, 7.0},\n        {\"wrench\", TOOL, 9.5},\n    };\n    size_t count = sizeof items / sizeof items[0];\n    double tools = 0.0;\n\n    for (size_t i = 0; i < count; i++) {\n        printf(\"%-7s %-5s %5.2f\\n\", items[i].name,\n               category_name(items[i].kind), items[i].price);\n        if (items[i].kind == TOOL) tools += items[i].price;\n    }\n    printf(\"tools total: %.2f (TOOL = %d)\\n\", tools, TOOL);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "hammer  tool  12.50\napple   food   0.40\nkite    toy    7.00\nwrench  tool   9.50\ntools total: 22.00 (TOOL = 0)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: treating a struct as just its members",
+      "text": "`a == b` does not compile for structs, and comparing them with `memcmp` is unreliable because the compiler may insert **padding** bytes between members to align them; `sizeof(struct point)` can be larger than the sum of its members. Compare structs member by member, and never assume the layout matches a file format or network packet byte for byte."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Linked structures",
+      "text": "A struct may contain a pointer to its own type: `struct node { int value; struct node *next; };`. That single line is the basis of linked lists, and with two pointers, of binary trees. Combine it with `malloc` from [Dynamic Memory](/tutorials/c/memory-management) to build a list that grows one node at a time."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-structs-arrow"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-structs-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "structs",
+          "difficulty": "beginner",
+          "question": "Given `Product *p`, the expression `p->stock` is shorthand for `___`.",
+          "explanation": "The arrow operator dereferences the pointer and then selects the member, exactly like `(*p).stock`; the parentheses are needed because `.` binds tighter than `*`.",
+          "answers": ["(*p).stock", "(*p) .stock"],
+          "caseSensitive": false
+        },
+        {
+          "id": "c-structs-qc-2",
+          "type": "true-false",
+          "lessonSlug": "structs",
+          "difficulty": "beginner",
+          "question": "Assigning one struct variable to another with `=` copies all of its members.",
+          "explanation": "Struct assignment is a member-wise copy, including any arrays inside the struct. Only pointer members keep pointing at the same target.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-structs-arrow"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "pointers"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "memory-management"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "file-io"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    }
+  ],
+  "seo": {
+    "title": "C Structs and Typedef – Members, Pointers, Enums",
+    "description": "Learn C structs: definition and designated initialisers, typedef, the . and -> operators, passing structs by value or pointer, arrays of structs and enums."
+  },
+  "updatedOn": "2026-11-15"
+}

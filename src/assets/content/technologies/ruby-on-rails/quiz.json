@@ -1,0 +1,164 @@
+{
+  "id": "ruby-on-rails-quiz",
+  "title": "Ruby on Rails Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "ruby-on-rails-review-1",
+      "lessonSlug": "first-action",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hello, Asha!\"\nend\nend\n",
+      "question": "A route names a controller and action. GET /hello runs LessonController#hello. What result does this example give after the setup steps?",
+      "explanation": "The route points to lesson#hello. Rails calls that action and renders plain text. The file lesson_controller.rb must define LessonController.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "ruby-on-rails-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/book\", to: \"lesson#book\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef book\n render json: { title: \"Moon Trip\", pages: 24 }\nend\nend\n",
+      "question": "render json turns a Ruby value into a JSON response. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The action passes a Ruby hash to render json, which serialises its named fields. Do not call render twice in one action.",
+      "options": [
+        "{\"title\":\"Sun Trip\",\"pages\":24}",
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "ruby-on-rails-review-3",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hi, #{params[:name]}!\"\nend\nend\n",
+      "question": "A colon marks a route value. GET /hello/Ravi places Ravi in params[:name]. What result does this example give after the setup steps?",
+      "explanation": "The route segment is stored in params[:name]. String interpolation reads Ravi from it. Use plain text or safe templates when returning user text.",
+      "options": ["Hi, Asha!", "hi, ravi!", "Hi, Ravi!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "ruby-on-rails-review-4",
+      "lessonSlug": "query-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/search\", to: \"lesson#search\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef search\n render json: { term: params[:q] || \"\" }\nend\nend\n",
+      "question": "params also contains query values. Open GET /search?q=cat. What result does this example give after the setup steps?",
+      "explanation": "The query value q is present, so the fallback is not needed. Client parameters need checks before important use.",
+      "options": ["[\"cat\"]", "{\"term\":\"cat\"}", "{\"term\":\"dog\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "ruby-on-rails-review-5",
+      "lessonSlug": "post-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n if !params[:title].is_a?(String)\n  render json: { error: \"Title needed\" }, status: :bad_request\n  return\n end\n render json: { title: params[:title] }, status: :created\nend\nend\n",
+      "question": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. Rails puts body values in params. What result does this example give after the setup steps?",
+      "explanation": "The title parameter is a String. The action sends it with created status instead of taking the error branch. This example returns data but does not save a database record.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "ruby-on-rails-review-6",
+      "lessonSlug": "strong-parameters",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n allowed = params.permit(:title)\n render json: allowed\nend\nend\n",
+      "question": "permit chooses allowed parameter keys. Send POST /books with title and an extra secret key; only title is returned. What result does this example give after the setup steps?",
+      "explanation": "permit selects title and leaves out the unlisted key. Rendering the allowed parameters sends only that field. Permitting a key does not validate its meaning or value.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "ruby-on-rails-review-7",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/missing\", to: \"lesson#missing\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef missing\n render json: { error: \"Book not found\" }, status: :not_found\nend\nend\n",
+      "question": "Rails status symbols name HTTP statuses. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "The :not_found symbol chooses HTTP 404 along with the error hash. An error body should come with an error status.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "ruby-on-rails-review-8",
+      "lessonSlug": "named-routes",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\", as: :hello\nget \"/link\", to: \"lesson#link\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: params[:name]\nend\ndef link\n render plain: hello_path(name: \"Asha\")\nend\nend\n",
+      "question": "The as option names a route helper. Open GET /link to see the helper fill in a name. What result does this example give after the setup steps?",
+      "explanation": "The named route creates hello_path. Supplying Asha fills its required name segment. Path helper inputs must match the route values.",
+      "options": ["/hello/Asha", "/hello/Ravi", "/hello/asha"],
+      "correctIndex": 0
+    },
+    {
+      "id": "ruby-on-rails-review-9",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/start\", to: \"lesson#start\"\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef start\n redirect_to \"/hello\"\nend\ndef hello\n render plain: \"Welcome\"\nend\nend\n",
+      "question": "redirect_to sends a Location header. A browser following GET /start reaches /hello. What result does this example give after the setup steps?",
+      "explanation": "redirect_to sends /hello as the next URL. The client then receives Welcome. Return after a redirect if more code should not run.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "ruby-on-rails-review-10",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/note\", to: \"lesson#note\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef note\n response.headers[\"Cache-Control\"] = \"no-store\"\n render plain: \"Practice note\"\nend\nend\n",
+      "question": "response.headers holds reply headers. Open GET /note. What result does this example give after the setup steps?",
+      "explanation": "The response header is assigned before render sends the plain text. Set headers before the response is completed.",
+      "options": ["Practice note", "Welcome", "practice note"],
+      "correctIndex": 0
+    },
+    {
+      "id": "ruby-on-rails-review-11",
+      "lessonSlug": "callbacks",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/school\", to: \"lesson#school\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\nbefore_action :set_school\ndef school\n render plain: @school\nend\nprivate\ndef set_school\n @school = \"Oak School\"\nend\nend\n",
+      "question": "before_action runs before controller actions. GET /school reads the value set by the callback. What result does this example give after the setup steps?",
+      "explanation": "The callback runs first and sets @school for this controller request. The action reads that value. Callbacks can affect many actions, so keep their purpose clear.",
+      "options": ["Oak School", "Pine School", "oak school"],
+      "correctIndex": 0
+    },
+    {
+      "id": "ruby-on-rails-review-12",
+      "lessonSlug": "no-content",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\ndelete \"/books/:id\", to: \"lesson#destroy\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef destroy\n head :no_content\nend\nend\n",
+      "question": "head sends a status and no body. DELETE /books/1 returns 204 in this practice-only action. What result does this example give after the setup steps?",
+      "explanation": "head :no_content selects status 204 and has no JSON or text body. This sample has no stored records; it demonstrates the response shape only.",
+      "options": [
+        "404 Not Found; empty body",
+        "204 No Content; empty body",
+        "200 OK; body: {\"removed\":true}"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "title": "Elasticsearch Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Elasticsearch course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Meet an index and document",
+          "summary": "An index is a group of searchable documents.",
+          "example": {
+            "language": "text",
+            "code": "PUT cma-books/_doc/1\n{\"title\":\"Moon Trip\",\"kind\":\"story\",\"pages\":60}"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "choose-field-mappings-first",
+          "name": "Choose field mappings first",
+          "summary": "A mapping tells Elasticsearch how a field should be searched.",
+          "example": {
+            "language": "text",
+            "code": "PUT cma-books-mapped\n{\"mappings\":{\"properties\":{\"title\":{\"type\":\"text\"},\"kind\":{\"type\":\"keyword\"},\"pages\":{\"type\":\"integer\"}}}}"
+          },
+          "lessonSlug": "choose-field-mappings-first"
+        },
+        {
+          "slug": "index-a-known-sample",
+          "name": "Index a known sample",
+          "summary": "Indexing stores a document so search can use its fields.",
+          "example": {
+            "language": "text",
+            "code": "PUT cma-books-mapped/_doc/1?refresh=wait_for\n{\"title\":\"Moon Trip\",\"kind\":\"story\",\"pages\":60}"
+          },
+          "lessonSlug": "index-a-known-sample"
+        },
+        {
+          "slug": "read-one-document-by-id",
+          "name": "Read one document by id",
+          "summary": "The document get API reads a specific id.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_doc/1"
+          },
+          "lessonSlug": "read-one-document-by-id"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "search-analysed-words",
+          "name": "Search analysed words",
+          "summary": "A match query searches text using the field's analyser.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"query\":{\"match\":{\"title\":\"moon\"}}}"
+          },
+          "lessonSlug": "search-analysed-words"
+        },
+        {
+          "slug": "filter-an-exact-category",
+          "name": "Filter an exact category",
+          "summary": "A term filter checks an exact indexed value.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"kind\":\"story\"}}]}}}"
+          },
+          "lessonSlug": "filter-an-exact-category"
+        },
+        {
+          "slug": "filter-a-numeric-range",
+          "name": "Filter a numeric range",
+          "summary": "A range query selects numbers between bounds.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"query\":{\"range\":{\"pages\":{\"gte\":30,\"lte\":80}}}}"
+          },
+          "lessonSlug": "filter-a-numeric-range"
+        },
+        {
+          "slug": "combine-search-and-a-filter",
+          "name": "Combine search and a filter",
+          "summary": "A bool query can combine word search with exact conditions.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"query\":{\"bool\":{\"must\":[{\"match\":{\"title\":\"moon\"}}],\"filter\":[{\"term\":{\"kind\":\"story\"}}]}}}"
+          },
+          "lessonSlug": "combine-search-and-a-filter"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "ask-for-a-small-ordered-result",
+          "name": "Ask for a small ordered result",
+          "summary": "A search request can limit its hit count and sort by a field.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"size\":2,\"sort\":[{\"pages\":\"asc\"}],\"_source\":[\"title\",\"pages\"],\"query\":{\"match_all\":{}}}"
+          },
+          "lessonSlug": "ask-for-a-small-ordered-result"
+        },
+        {
+          "slug": "count-categories-with-an-aggregation",
+          "name": "Count categories with an aggregation",
+          "summary": "An aggregation summarises matching documents.",
+          "example": {
+            "language": "text",
+            "code": "GET cma-books-mapped/_search\n{\"size\":0,\"aggs\":{\"by_kind\":{\"terms\":{\"field\":\"kind\"}}}}"
+          },
+          "lessonSlug": "count-categories-with-an-aggregation"
+        },
+        {
+          "slug": "update-one-field",
+          "name": "Update one field",
+          "summary": "The update API can change selected fields of an existing document.",
+          "example": {
+            "language": "text",
+            "code": "POST cma-books-mapped/_update/1\n{\"doc\":{\"pages\":64}}"
+          },
+          "lessonSlug": "update-one-field"
+        },
+        {
+          "slug": "delete-only-the-sample-record",
+          "name": "Delete only the sample record",
+          "summary": "The delete API removes one document by its id.",
+          "example": {
+            "language": "text",
+            "code": "DELETE cma-books-mapped/_doc/1"
+          },
+          "lessonSlug": "delete-only-the-sample-record"
+        }
+      ]
+    }
+  ]
+}

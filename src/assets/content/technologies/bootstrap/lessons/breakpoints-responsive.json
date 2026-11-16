@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "breakpoints-responsive",
+  "title": "Breakpoints and Responsive Classes",
+  "summary": "Bootstrap breakpoints are screen-width steps where a layout can change.",
+  "introduction": "Bootstrap breakpoints are screen-width steps where a layout can change. Make boxes stack on a phone and sit side by side on a wider screen. Start with the small-screen layout, then add one wider-screen choice.",
+  "learningObjectives": [
+    "List the six breakpoints and the viewport width where each starts",
+    "Read a class such as col-md-6 as 'from medium screens upward'",
+    "Stack columns on phones and place them side by side on wider screens",
+    "Show, hide and realign elements per breakpoint with responsive utilities"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Mobile first"
+    },
+    {
+      "type": "paragraph",
+      "text": "Bootstrap's CSS is written for the narrowest screen first and then enhanced for wider ones with `min-width` media queries. A class with no breakpoint in its name applies at every width. A class with a breakpoint infix applies at that width **and every width above it**. So `col-md-6` does not mean \"half width on medium screens\"; it means \"half width from medium screens upward\". There is no infix for the smallest size because it needs none: `col-6` already covers it."
+    },
+    {
+      "type": "table",
+      "caption": "Breakpoints in Bootstrap 5.3",
+      "headers": ["Name", "Infix", "Applies from", "Typical device"],
+      "rows": [
+        ["Extra small", "(none)", "0px", "Phones in portrait"],
+        ["Small", "`sm`", "576px", "Phones in landscape"],
+        ["Medium", "`md`", "768px", "Tablets"],
+        ["Large", "`lg`", "992px", "Small laptops"],
+        ["Extra large", "`xl`", "1200px", "Laptops and desktops"],
+        ["Extra extra large", "`xxl`", "1400px", "Large desktops"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The generated CSS makes the rule concrete. The plain class is unconditional; the infixed one lives inside a media query with a minimum width and nothing switches it off at larger sizes."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "What Bootstrap's stylesheet contains",
+      "code": "/* No infix: applies at every width */\n.col-6 {\n  flex: 0 0 auto;\n  width: 50%;\n}\n\n/* md infix: applies from 768px upward and stays applied above it */\n@media (min-width: 768px) {\n  .col-md-6 {\n    flex: 0 0 auto;\n    width: 50%;\n  }\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Responsive columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "Combining infixes on one element describes the layout at every size. A child of a `.row` with no width class is full width, so you often do not need `col-12` at all: start with the phone layout (stacked, implicit), then add what changes at each larger size."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Stacked, then two, then three columns",
+      "code": "<div class=\"container\">\n  <div class=\"row g-3\">\n    <div class=\"col-md-6 col-lg-4\"><div class=\"border p-3\">Card 1</div></div>\n    <div class=\"col-md-6 col-lg-4\"><div class=\"border p-3\">Card 2</div></div>\n    <div class=\"col-md-6 col-lg-4\"><div class=\"border p-3\">Card 3</div></div>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result at three viewport widths",
+      "content": "500px wide: three boxes stacked, each full width, 16px apart (g-3)\n800px wide: Card 1 and Card 2 side by side at 50% each; Card 3 alone on a second line at 50%\n1100px wide: all three on one line at 33.33% each"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read it from left to right as a timeline of growing screens: nothing (full width), then `md` (two per line), then `lg` (three per line). Because `lg` is larger than `md`, its rule wins from 992px up; below 768px neither applies and the implicit full width remains."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Showing and hiding with display utilities"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `d-*` classes set the CSS `display` property and all of them take an infix. Hiding something on phones and showing it on larger screens takes two classes: one to hide everywhere and one to switch it back on from a breakpoint. The values are `none`, `block`, `inline`, `inline-block`, `flex`, `inline-flex`, `grid` and `table`."
+    },
+    {
+      "type": "table",
+      "headers": ["Goal", "Classes"],
+      "rows": [
+        ["Hidden on phones, visible from md up", "`d-none d-md-block`"],
+        ["Visible only on phones (below md)", "`d-md-none`"],
+        ["Hidden on lg and wider", "`d-lg-none`"],
+        ["Visible only between md and lg", "`d-none d-md-block d-lg-none`"],
+        ["Hidden when printing", "`d-print-none`"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A menu button for phones, links for everyone else",
+      "code": "<button type=\"button\" class=\"btn btn-outline-primary d-md-none\">Menu</button>\n<nav class=\"d-none d-md-flex gap-3\">\n  <a href=\"/\">Home</a>\n  <a href=\"/tutorials\">Tutorials</a>\n  <a href=\"/about\">About</a>\n</nav>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Below 768px: only the outlined \"Menu\" button is visible; the nav is not rendered at all (display: none)\n768px and wider: the button disappears and the three links appear on one line, 16px apart"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: reading a breakpoint as a maximum",
+      "text": "`d-md-none` hides the element from 768px **upward**, not only on medium screens, and `col-md-6` stays at half width on every size above medium. There are no `max-width` utilities in Bootstrap; if something should only apply below a breakpoint, express it the other way round by setting the small-screen value first and overriding it with an infix. The Bootstrap 3 class `col-xs-*` is gone as well: the smallest size has no infix."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Responsive spacing, flex and text"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same infix works on spacing (`mt-md-0`), flex direction and alignment (`flex-md-row`, `justify-content-md-between`), text alignment (`text-md-start`) and many more utilities. A typical page header stacks and centres its parts on a phone, then becomes a single row with the title on the left and details on the right."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A header that rearranges itself",
+      "code": "<header class=\"d-flex flex-column flex-md-row align-items-md-center justify-content-md-between text-center text-md-start border p-3\">\n  <h1 class=\"mb-0\">Garden Club</h1>\n  <p class=\"mb-0 mt-2 mt-md-0\">Est. 2014</p>\n</header>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Below 768px: the heading sits above the paragraph, both centred, with 8px (mt-2) between them\n768px and wider: heading on the left and paragraph on the right of one line, vertically centred, text left-aligned, no gap above the paragraph"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each pair follows the pattern *default, then override at a breakpoint*: `flex-column` then `flex-md-row`, `text-center` then `text-md-start`, `mt-2` then `mt-md-0`. If you find yourself writing three or four infixes on one element, that is normal; if you find yourself writing media queries by hand, check whether a responsive utility already exists."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Testing a responsive page"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Drag the browser window narrower and wider; the layout should change exactly at 576, 768, 992, 1200 and 1400px.",
+        "Press F12 and toggle the **device toolbar** to pick phone and tablet sizes, or type a width.",
+        "Type `window.innerWidth` in the console to see the width Bootstrap's media queries are comparing against. It includes the scrollbar, which is why a layout can switch a few pixels before you expect.",
+        "Check the viewport `<meta>` tag is present; without it every breakpoint test on a real phone is meaningless (see [Adding Bootstrap to a Page](/tutorials/bootstrap/setup))."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Design for the phone first",
+      "text": "Write the markup so it reads well with no responsive classes at all, then add infixes for larger screens. Pages built this way degrade gracefully, and you avoid the trap of hiding content on phones that users still need."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-breakpoints-min-width"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-bp-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "breakpoints-responsive",
+          "difficulty": "beginner",
+          "question": "From which viewport width does `col-lg-3` take effect?",
+          "explanation": "The lg breakpoint starts at 992px. Below that the column keeps whatever smaller rule applies, or full width if none does.",
+          "options": ["576px", "768px", "992px", "1200px"],
+          "correctIndex": 2
+        },
+        {
+          "id": "bs-bp-qc-2",
+          "type": "true-false",
+          "lessonSlug": "breakpoints-responsive",
+          "difficulty": "beginner",
+          "question": "An element with `d-none d-lg-block` is hidden on viewports narrower than 992px and visible from 992px upward.",
+          "explanation": "d-none hides at every width; d-lg-block overrides it from the lg breakpoint (992px) upward because the later, larger breakpoint wins.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-breakpoints-min-width"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "containers-grid"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "utilities-spacing-flex"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "responsive-design"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Breakpoints – Responsive Columns and Utilities",
+    "description": "Learn Bootstrap 5.3's six mobile-first breakpoints, read col-md-6 and d-lg-none correctly, and change columns, display, spacing and alignment per screen size."
+  },
+  "updatedOn": "2026-11-16"
+}

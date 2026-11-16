@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "slug": "colors",
+  "title": "CSS Colors",
+  "summary": "CSS lets you choose colours by name or by a colour code. Good colour choices make words easy to read.",
+  "introduction": "CSS lets you choose colours by name or by a colour code. Good colour choices make words easy to read. Try a text colour and a background colour. Check that the words still stand out clearly against the background.",
+  "learningObjectives": [
+    "Write colours with names, hex, rgb() and hsl() notation",
+    "Add transparency with an alpha channel and tell it apart from opacity",
+    "Check that text and background colours meet the WCAG AA contrast ratio"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Where colours appear"
+    },
+    {
+      "type": "paragraph",
+      "text": "`color` sets the text colour, `background-color` fills the box, and `border-color`, `outline-color`, `text-decoration-color` and `box-shadow` take colours too. The keyword `currentColor` means \"whatever `color` currently is\", which keeps borders and icons in step with the text automatically. Each notation below works in every one of these properties."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  color: rebeccapurple;                 /* a named colour */\n}\n\n.card {\n  color: #3730a3;                       /* hex */\n  background-color: #eef2ff;\n  border: 2px solid currentColor;       /* same as the text colour */\n  padding: 1rem;\n}\n\nbutton {\n  background-color: hsl(243 75% 59%);   /* hsl: hue, saturation, lightness */\n  color: white;\n  border: none;\n  padding: 0.5rem 1rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{color:rebeccapurple;font-size:1.4em}.card{color:#3730a3;background:#eef2ff;border:2px solid currentColor;padding:10px}button{background:hsl(243 75% 59%);color:#fff;border:none;padding:6px 14px}</style><h1>Sample heading</h1><div class=\"card\"><h2 style=\"font-size:1.1em\">Card title</h2><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Named colours"
+    },
+    {
+      "type": "paragraph",
+      "text": "CSS defines about 150 colour keywords, from `red` and `blue` to `tomato`, `rebeccapurple` and `papayawhip`, plus `transparent`. They are great for quick tests (\"is this rule even applying?\") but too coarse for a real design, where you want a specific shade that matches the brand."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hex codes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A hex code is `#` followed by three pairs of hexadecimal digits for red, green and blue, each from `00` (none) to `ff` (full). When every pair repeats its digit you can shorten it: `#ff0000` becomes `#f00`. An optional fourth pair adds an alpha (opacity) channel. Hex is compact and what design tools copy to the clipboard, so you will see it everywhere."
+    },
+    {
+      "type": "table",
+      "headers": ["Code", "Colour", "Note"],
+      "rows": [
+        ["`#000000`", "Black", "Shorthand `#000`"],
+        ["`#ffffff`", "White", "Shorthand `#fff`"],
+        ["`#1d4ed8`", "A strong blue", "Red 29, green 78, blue 216"],
+        ["`#f00`", "Pure red", "Same as `#ff0000`"],
+        ["`#00000080`", "Black at 50% opacity", "`80` hex is 128 of 255"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "rgb() and hsl()"
+    },
+    {
+      "type": "paragraph",
+      "text": "`rgb()` takes the same three channels as decimal numbers from 0 to 255. The modern syntax separates them with spaces and puts an optional alpha after a slash: `rgb(29 78 216 / 50%)`. The older comma form `rgb(29, 78, 216)` and `rgba()` still work; they are kept for compatibility. `hsl()` describes a colour by **hue** (an angle on the colour wheel, 0 to 360), **saturation** and **lightness** (percentages). It is much easier to derive variants with: keep the hue, change the lightness, and you have a lighter or darker version of the same colour."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "One hue, several lightnesses",
+      "runnable": true,
+      "code": "h1 {\n  color: hsl(220 80% 30%);            /* dark */\n}\n\na {\n  color: hsl(220 80% 45%);            /* medium */\n}\n\n.card {\n  background-color: hsl(220 80% 96%); /* very light */\n  border: 1px solid hsl(220 80% 85%);\n  padding: 1rem;\n}\n\nbutton {\n  background-color: rgb(29 78 216);\n  color: rgb(255 255 255);\n  border: none;\n  padding: 0.5rem 1rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{color:hsl(220 80% 30%);font-size:1.4em}a{color:hsl(220 80% 45%)}.card{background:hsl(220 80% 96%);border:1px solid hsl(220 80% 85%);padding:10px}button{background:rgb(29 78 216);color:#fff;border:none;padding:6px 14px}</style><h1>Sample heading</h1><p>It has a <a href=\"#\">link</a>.</p><div class=\"card\"><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Current browsers also support newer colour spaces such as `oklch()`, whose lightness matches human perception better than HSL (two `oklch` colours with the same lightness value really do look equally light). Hex, `rgb()` and `hsl()` remain the everyday notations; keep `oklch()` in mind for when you build a palette."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Alpha channel versus opacity"
+    },
+    {
+      "type": "paragraph",
+      "text": "There are two ways to make something see-through and they behave differently. An **alpha channel** (`rgb(0 0 0 / 50%)`, `#00000080`, `hsl(… / 50%)`) makes *that one colour* translucent: a semi-transparent background still has fully opaque text on top. The `opacity` property fades the *whole element*, including its text, borders and every child."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "body {\n  background-color: #1e3a8a;\n  color: white;\n}\n\n/* Translucent background, solid text */\n.card {\n  background-color: rgb(255 255 255 / 15%);\n  padding: 1rem;\n}\n\n/* Everything inside fades, including the label */\nbutton {\n  opacity: 0.5;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>body{background:#1e3a8a;color:#fff}.card{background:rgb(255 255 255 / 15%);padding:10px}button{opacity:.5}</style><div class=\"card\"><h2 style=\"font-size:1.1em\">Card title</h2><p>Solid text on a translucent card.</p><button type=\"button\">Faded button</button></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not tint containers with opacity",
+      "text": "Using `opacity: 0.6` on a card to soften its background also fades its heading, text and buttons, usually below readable contrast, and the fade stacks on nested elements. Give the background a colour with an alpha channel instead and keep `opacity` for fading an entire element in or out."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Contrast and accessibility"
+    },
+    {
+      "type": "paragraph",
+      "text": "A colour pair is only usable if people can read it. The WCAG AA guideline requires a contrast ratio of at least **4.5:1** between text and its background, and **3:1** for large text (24px and up, or 18.66px bold) and for interface parts such as borders of inputs and icons. The ratio compares the relative luminance of the two colours, from 1:1 (identical) to 21:1 (black on white). Developer tools show the ratio when you click a colour swatch in the Styles panel, and flag pairs that fail."
+    },
+    {
+      "type": "table",
+      "headers": ["Text on background", "Approximate ratio", "AA for body text?"],
+      "rows": [
+        ["`#1d4ed8` on `#ffffff`", "6.7:1", "Yes"],
+        ["`#767676` on `#ffffff`", "4.5:1", "Just passes"],
+        ["`#aaaaaa` on `#ffffff`", "2.3:1", "No"],
+        ["`#ffffff` on `#22c55e` (bright green)", "2.3:1", "No, even for large text"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Two more rules of thumb: never rely on colour alone to convey meaning (keep the underline on links, add an icon or text to error states), and test your palette in both light and dark themes if you offer them. Custom properties, covered in [Custom Properties](/tutorials/css/custom-properties), make it easy to store an accessible palette once and reuse it."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: build a palette",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Palette</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .swatch { padding: 12px; margin-bottom: 6px; }\n    /* Change the hue (first number) and keep the lightness steps. */\n    .dark   { background: hsl(200 70% 25%); color: white; }\n    .medium { background: hsl(200 70% 50%); color: white; }\n    .light  { background: hsl(200 70% 90%); color: hsl(200 70% 20%); }\n  </style>\n</head>\n<body>\n  <div class=\"swatch dark\">Dark: hsl(200 70% 25%)</div>\n  <div class=\"swatch medium\">Medium: hsl(200 70% 50%) - is white readable here?</div>\n  <div class=\"swatch light\">Light: hsl(200 70% 90%)</div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-colors-opacity"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-colors-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "colors",
+          "difficulty": "beginner",
+          "question": "Which declaration makes only the background translucent while the text stays fully opaque?",
+          "explanation": "An alpha channel on the background colour affects just that colour. `opacity` fades the whole element, text included.",
+          "options": [
+            "`opacity: 0.5;`",
+            "`background-color: rgb(0 0 0 / 50%);`",
+            "`color: transparent;`",
+            "`background-color: 50%;`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-colors-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "colors",
+          "difficulty": "beginner",
+          "question": "The keyword `___` makes a border or outline use the element's current text colour.",
+          "explanation": "`currentColor` resolves to the computed value of the `color` property, so borders, outlines and SVG fills can follow the text colour automatically.",
+          "answers": ["currentColor", "currentcolor"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-colors-opacity"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "backgrounds-borders"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "units"
+    }
+  ],
+  "seo": {
+    "title": "CSS Colors – Names, Hex, RGB, HSL and Transparency",
+    "description": "Learn CSS colour notations (named, hex, rgb(), hsl()), alpha channels versus opacity, currentColor, and how to meet WCAG AA contrast for readable text."
+  },
+  "updatedOn": "2026-11-16"
+}

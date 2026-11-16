@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-news-feed",
+  "title": "Design a news feed",
+  "summary": "Build a small feed of recent posts. Compare making the feed when it is read with preparing it when a post is written, and protect private posts.",
+  "introduction": "A school news feed brings updates from chosen clubs into one list. Some readers follow art, others follow sport. The design must find the right posts, put them in order, and keep private updates private.",
+  "learningObjectives": [
+    "Compare building a feed on read and on write",
+    "Plan stable pages of recent posts",
+    "Explain fan-out costs and current privacy checks"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a clear first feed"
+    },
+    {
+      "type": "paragraph",
+      "text": "Assume 500 readers, each following up to 20 club authors. Show recent posts in time order. A clever recommendation system and advertising are outside the first design."
+    },
+    {
+      "type": "paragraph",
+      "text": "The service needs a Post record and a Follow record. A post's **visibility** says who may read it. A timestamp records when it was saved. Use a unique post ID to settle ties when timestamps match."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Small club-news feed: build on read first\nPost: postId, authorId, createdAt, text, visibility, deletedAt\nFollow: readerId, authorId\n\nPOST /posts -> save one checked post\nGET /feed?cursor=... -> up to 20 permitted recent posts\n\nRead flow\n1. Check the reader and current follow list.\n2. Find recent posts from followed authors.\n3. Remove deleted posts and posts the reader may not see.\n4. Sort newest first by createdAt, then postId to break ties.\n5. Return 20 posts and a cursor for the next page.\n\nLater option: precompute lists of post IDs for ordinary accounts.\nPopular authors may still be combined at read time.\nRecheck current permission before returning private post content.",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Compare two ways to assemble the list"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "Work happens when", "Main tradeoff"],
+      "rows": [
+        [
+          "Build on read",
+          "A reader opens the feed",
+          "Writes are simple, but reads must gather and combine posts."
+        ],
+        [
+          "Build on write",
+          "An author saves a post",
+          "Reads can be quick, but one post may create many feed entries."
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Build on read is a sensible start for this small club list. Query recent posts using indexes that fit author and time, then combine the results. Limit the amount of history fetched; do not scan every post ever written."
+    },
+    {
+      "type": "paragraph",
+      "text": "Build on write uses **fan-out**: a new post adds its ID to many readers' feed lists. Storing IDs instead of a full private copy reduces duplication, but the read still needs to fetch allowed post content."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow a post to a reader"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The author submits a post. Check their identity, text length, and allowed visibility, then save it.",
+        "A reader asks for the newest 20 items. Load the current follow list and recent candidate posts.",
+        "Apply current permission and deletion rules. Sort the allowed posts by time and ID.",
+        "Return one page and a cursor, a small marker for where the next page should continue.",
+        "When the next page is requested, continue after the last time-and-ID pair rather than just skipping a number of rows."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Cursor paging reduces duplicates or skipped items when new posts arrive above the current page. It still needs clear rules for deleted posts and changed permissions. A feed is not a frozen snapshot unless the design explicitly provides one."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle a very popular author"
+    },
+    {
+      "type": "paragraph",
+      "text": "If an author has a million followers, one post could create a million queued feed writes. That is a different workload from a club with 30 followers. A mixed approach can prepare ordinary feeds and combine popular authors' posts when readers open them."
+    },
+    {
+      "type": "paragraph",
+      "text": "Prepared feeds may appear a little late while workers catch up. Repeated jobs should not add the same post ID twice. If the queue is delayed, say new updates may be late rather than claiming that no new posts exist."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keep privacy current"
+    },
+    {
+      "type": "paragraph",
+      "text": "Deleting a post, removing a follower, or changing visibility must affect later reads. Cached feed IDs are only candidates. Recheck access before returning private text and invalidate affected cached content. Do not serve private feeds through a public shared cache."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A prepared feed still contains a post ID after the author marks the post private. What should the next read do?",
+        "Check the current permission and leave the post out for a reader who no longer has access. An old feed entry does not grant access."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not assume preparing feeds on write is always faster overall. A popular author can create a huge amount of write work."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-design-a-news-feed"
+    }
+  ],
+  "exerciseIds": ["system-design-design-a-news-feed"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "indexes-help-find-records"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "security-and-privacy"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Design a news feed",
+    "description": "Build a small feed of recent posts. Compare making the feed when it is read with preparing it when a post is written, and protect private posts."
+  },
+  "updatedOn": "2026-11-16"
+}

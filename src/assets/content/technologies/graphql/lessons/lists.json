@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "lists",
+  "title": "Read several objects",
+  "summary": "GraphQL: Read several objects. Add a third book to the resolver result.",
+  "introduction": "Square brackets describe a list type. The query selects title for each book.",
+  "learningObjectives": [
+    "Read several objects with GraphQL",
+    "Add a third book to the resolver result"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read several objects"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Read several objects",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String! } type Query { books: [Book!]! }\");\n\nconst rootValue = { books: () => [{ title: \"Moon Trip\" }, { title: \"Sun Trip\" }] };\nconst result = await graphql({ schema, rootValue, source: \"{ books { title } }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The resolver returns two book objects. GraphQL reads title from each one."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"books\":[{\"title\":\"Moon Trip\"},{\"title\":\"Sun Trip\"}]}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a third book to the resolver result."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The list item shape must match the schema type."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-lists-check"
+    }
+  ],
+  "exerciseIds": ["graphql-lists-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "variables"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Read several objects",
+    "description": "GraphQL: Read several objects. Add a third book to the resolver result. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

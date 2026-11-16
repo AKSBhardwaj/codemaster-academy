@@ -1,0 +1,144 @@
+{
+  "title": "MariaDB Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the MariaDB course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Check your database session",
+          "summary": "A database client sends SQL to the MariaDB server.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT VERSION() AS server_version,DATABASE() AS current_database;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "create-an-innodb-sample-table",
+          "name": "Create an InnoDB sample table",
+          "summary": "InnoDB is a storage engine that supports transactions and foreign keys.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE cma_maria_books(id INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(80) NOT NULL,pages INT) ENGINE=InnoDB;"
+          },
+          "lessonSlug": "create-an-innodb-sample-table"
+        },
+        {
+          "slug": "insert-a-row-and-read-its-id",
+          "name": "Insert a row and read its id",
+          "summary": "After an insert in the same connection, LAST_INSERT_ID can report the automatically generated id.",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO cma_maria_books(title,pages) VALUES('Moon Trip',60);\nSELECT LAST_INSERT_ID() AS new_book_id;"
+          },
+          "lessonSlug": "insert-a-row-and-read-its-id"
+        },
+        {
+          "slug": "search-a-lowercase-form",
+          "name": "Search a lowercase form",
+          "summary": "LOWER makes text lowercase for a comparison.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT title FROM cma_maria_books WHERE LOWER(title) LIKE 'moon%';"
+          },
+          "lessonSlug": "search-a-lowercase-form"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "take-a-sorted-sample",
+          "name": "Take a sorted sample",
+          "summary": "ORDER BY arranges rows before LIMIT chooses a few.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT title,pages FROM cma_maria_books ORDER BY pages,title LIMIT 3;"
+          },
+          "lessonSlug": "take-a-sorted-sample"
+        },
+        {
+          "slug": "join-grouped-text",
+          "name": "Join grouped text",
+          "summary": "GROUP_CONCAT joins text values from a group into one string.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books AS (SELECT 'story' AS kind,'Moon Trip' AS title UNION ALL SELECT 'story','Tiny Seed')\nSELECT kind,GROUP_CONCAT(title ORDER BY title SEPARATOR ', ') AS titles FROM books GROUP BY kind;"
+          },
+          "lessonSlug": "join-grouped-text"
+        },
+        {
+          "slug": "use-a-short-recursive-query",
+          "name": "Use a short recursive query",
+          "summary": "A recursive CTE can use earlier results to make later ones.",
+          "example": {
+            "language": "sql",
+            "code": "WITH RECURSIVE numbers(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM numbers WHERE n<4) SELECT n FROM numbers;"
+          },
+          "lessonSlug": "use-a-short-recursive-query"
+        },
+        {
+          "slug": "check-json-text",
+          "name": "Check JSON text",
+          "summary": "MariaDB can work with JSON text using JSON functions.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT JSON_VALID('{\"title\":\"Moon Trip\"}') AS valid_json,JSON_UNQUOTE(JSON_EXTRACT('{\"title\":\"Moon Trip\"}','$.title')) AS title;"
+          },
+          "lessonSlug": "check-json-text"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "handle-a-duplicate-key-deliberately",
+          "name": "Handle a duplicate key deliberately",
+          "summary": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TEMPORARY TABLE cma_maria_scores(name VARCHAR(40) PRIMARY KEY,points INT);\nINSERT INTO cma_maria_scores VALUES('Mia',2);\nINSERT INTO cma_maria_scores VALUES('Mia',5) ON DUPLICATE KEY UPDATE points=5;\nSELECT points FROM cma_maria_scores WHERE name='Mia';"
+          },
+          "lessonSlug": "handle-a-duplicate-key-deliberately"
+        },
+        {
+          "slug": "undo-row-changes-in-a-transaction",
+          "name": "Undo row changes in a transaction",
+          "summary": "A transaction on InnoDB can undo row changes before they are committed.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TEMPORARY TABLE cma_maria_points(points INT) ENGINE=InnoDB;\nSTART TRANSACTION;\nINSERT INTO cma_maria_points VALUES(5);\nROLLBACK;\nSELECT COUNT(*) AS rows_left FROM cma_maria_points;"
+          },
+          "lessonSlug": "undo-row-changes-in-a-transaction"
+        },
+        {
+          "slug": "inspect-the-actual-table-rules",
+          "name": "Inspect the actual table rules",
+          "summary": "SHOW CREATE TABLE prints the database's stored definition.",
+          "example": {
+            "language": "sql",
+            "code": "SHOW CREATE TABLE cma_maria_books;"
+          },
+          "lessonSlug": "inspect-the-actual-table-rules"
+        },
+        {
+          "slug": "make-a-practice-database-backup",
+          "name": "Make a practice database backup",
+          "summary": "A logical dump writes SQL that can recreate database objects and rows.",
+          "example": {
+            "language": "bash",
+            "code": "mariadb-dump --single-transaction --user=practice_user --password practice_db > practice-backup.sql"
+          },
+          "lessonSlug": "make-a-practice-database-backup"
+        }
+      ]
+    }
+  ]
+}

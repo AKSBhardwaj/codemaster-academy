@@ -1,0 +1,262 @@
+{
+  "title": "MySQL Exercises",
+  "description": "Practise every MySQL lesson with multiple-choice questions, output prediction, find-the-error tasks and small coding tasks that you can check against the solution in your own MySQL client.",
+  "exercises": [
+    {
+      "id": "mysql-intro-what-is",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which statement about MySQL is correct?",
+      "explanation": "MySQL is a client-server database: the mysqld process owns the data files and every tool or application is a client connecting over a socket. InnoDB is the default storage engine and provides transactions and foreign keys. SQLite, not MySQL, is the single-file library.",
+      "options": [
+        "MySQL is a library that stores data in a single file inside your application",
+        "MySQL is a server process that clients connect to over a socket, with InnoDB as its default storage engine",
+        "MySQL is a spreadsheet application with an SQL add-on",
+        "MySQL runs only on Linux"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-intro-concat-pipes",
+      "type": "predict-output",
+      "lessonSlug": "introduction",
+      "difficulty": "intermediate",
+      "question": "With the default sql_mode, what does this query return in MySQL?",
+      "explanation": "Unless PIPES_AS_CONCAT is in sql_mode, || is logical OR. Each string is converted to a number (0, with a warning) and 0 OR 0 OR 0 is 0. Use CONCAT('Mei', ' ', 'Chen') to join strings.",
+      "language": "sql",
+      "code": "SELECT 'Mei' || ' ' || 'Chen' AS full_name;",
+      "options": ["`Mei Chen`", "`0` with warnings", "`MeiChen`", "A syntax error"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-connect-password-flag",
+      "type": "fill-blank",
+      "lessonSlug": "installing-connecting",
+      "difficulty": "beginner",
+      "question": "Complete the command so that the client asks for the password interactively instead of reading it from the command line: `mysql -h 127.0.0.1 -u root ___`",
+      "explanation": "Lower-case -p (or --password with no value) makes the client prompt for the password, which keeps it out of your shell history. Capital -P sets the port.",
+      "answers": ["-p", "--password"],
+      "caseSensitive": true
+    },
+    {
+      "id": "mysql-tables-create-customers",
+      "type": "coding-task",
+      "lessonSlug": "databases-tables",
+      "difficulty": "beginner",
+      "question": "Create a table `suppliers` with an auto-incrementing integer primary key `id`, a required `name` of up to 120 characters, a required and unique `email`, an optional two-character `country` code, and a `created_at` DATETIME that defaults to the current time.",
+      "explanation": "INT AUTO_INCREMENT PRIMARY KEY numbers the rows; NOT NULL makes name and email required and UNIQUE prevents duplicate emails; CHAR(2) suits a fixed-length code and may be NULL; DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP fills created_at automatically.",
+      "language": "sql",
+      "starterCode": "CREATE TABLE suppliers (\n  -- add the columns here\n);",
+      "solutionCode": "CREATE TABLE suppliers (\n  id         INT AUTO_INCREMENT PRIMARY KEY,\n  name       VARCHAR(120) NOT NULL,\n  email      VARCHAR(255) NOT NULL UNIQUE,\n  country    CHAR(2) NULL,\n  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n) ENGINE=InnoDB;",
+      "checklist": [
+        "id is INT AUTO_INCREMENT PRIMARY KEY",
+        "name is VARCHAR(120) NOT NULL",
+        "email is NOT NULL and UNIQUE",
+        "country is CHAR(2) and allows NULL",
+        "created_at is DATETIME with DEFAULT CURRENT_TIMESTAMP",
+        "DESCRIBE suppliers shows PRI on id and UNI on email"
+      ]
+    },
+    {
+      "id": "mysql-types-money-column",
+      "type": "multiple-choice",
+      "lessonSlug": "data-types",
+      "difficulty": "beginner",
+      "question": "Which column type should store a product price such as 12.50 so that totals add up exactly?",
+      "explanation": "DECIMAL stores exact decimal digits, so sums and comparisons behave as in arithmetic. FLOAT and DOUBLE are binary approximations that cannot represent 0.1 exactly, and VARCHAR cannot be added at all without conversion.",
+      "options": ["`FLOAT`", "`DOUBLE`", "`DECIMAL(8,2)`", "`VARCHAR(10)`"],
+      "correctIndex": 2
+    },
+    {
+      "id": "mysql-types-division",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "intermediate",
+      "question": "What does MySQL print for the three columns?",
+      "explanation": "The / operator produces a decimal with four extra decimal places (3.5000), DIV performs integer division (3) and % is the same as MOD and returns the remainder (1).",
+      "language": "sql",
+      "code": "SELECT 7 / 2 AS a, 7 DIV 2 AS b, 7 % 2 AS c;",
+      "options": [
+        "`3.5000`, `3`, `1`",
+        "`3.5`, `3.5`, `1`",
+        "`3`, `3`, `1`",
+        "`3.5000`, `3`, `0.5`"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mysql-crud-column-count",
+      "type": "find-error",
+      "lessonSlug": "crud",
+      "difficulty": "beginner",
+      "question": "MySQL rejects this INSERT with `ERROR 1136 (21S01): Column count doesn't match value count at row 1`. Why?",
+      "explanation": "The column list names three columns but the tuple supplies four values; MySQL cannot guess where 'light' belongs. Add roast to the column list or remove the extra value.",
+      "language": "sql",
+      "code": "INSERT INTO coffees (name, origin, price)\nVALUES ('Kenya AA', 'Kenya', 'light', 17.50);",
+      "options": [
+        "The price must be quoted as a string",
+        "The column list has three columns but the VALUES tuple has four values",
+        "INSERT INTO requires the keyword SET",
+        "The name contains a space"
+      ],
+      "correctIndex": 1,
+      "errorLine": 2
+    },
+    {
+      "id": "mysql-crud-upsert",
+      "type": "coding-task",
+      "lessonSlug": "crud",
+      "difficulty": "intermediate",
+      "question": "Write a single statement that inserts the coffee 'Kenya AA' (origin Kenya, light roast, price 17.50, stock 12) with id 6 into `coffees`, but if id 6 already exists, adds 12 to that row's stock instead. Use the row alias syntax rather than the deprecated VALUES() function.",
+      "explanation": "ON DUPLICATE KEY UPDATE runs when the primary key or a unique index already holds the value. The row alias (AS new) exposes the values you tried to insert, so stock = coffees.stock + new.stock adds the attempted quantity to the existing stock. The client reports 1 row affected for an insert and 2 for an update.",
+      "language": "sql",
+      "starterCode": "INSERT INTO coffees (id, name, origin, roast, price, stock)\nVALUES (6, 'Kenya AA', 'Kenya', 'light', 17.50, 12)\n-- finish the statement",
+      "solutionCode": "INSERT INTO coffees (id, name, origin, roast, price, stock)\nVALUES (6, 'Kenya AA', 'Kenya', 'light', 17.50, 12) AS new\nON DUPLICATE KEY UPDATE stock = coffees.stock + new.stock;",
+      "checklist": [
+        "The VALUES row is given an alias with AS new",
+        "The statement ends with ON DUPLICATE KEY UPDATE",
+        "The update adds new.stock to the existing coffees.stock",
+        "Running it twice leaves one row with id 6 and stock 24",
+        "VALUES() is not used"
+      ]
+    },
+    {
+      "id": "mysql-filter-like-case",
+      "type": "predict-output",
+      "lessonSlug": "select-filtering",
+      "difficulty": "intermediate",
+      "question": "The customers table (default utf8mb4_0900_ai_ci collation) contains 'Mei Chen' among five rows. What does this return?",
+      "explanation": "The default collation is case-insensitive, so the upper-case pattern matches 'Mei Chen' and the count is 1. Only a binary or case-sensitive collation would make it 0.",
+      "language": "sql",
+      "code": "SELECT COUNT(*) FROM customers WHERE name LIKE 'MEI%';",
+      "options": ["0", "1", "An error, because patterns must be lower case", "5"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-filter-offset",
+      "type": "fill-blank",
+      "lessonSlug": "select-filtering",
+      "difficulty": "beginner",
+      "question": "To show the third page of ten rows you must skip twenty: `SELECT id, name FROM coffees ORDER BY id LIMIT 10 ___ 20;`",
+      "explanation": "OFFSET skips rows before LIMIT counts them. The MySQL short form LIMIT 20, 10 means the same but puts the offset first.",
+      "answers": ["OFFSET"],
+      "caseSensitive": false
+    },
+    {
+      "id": "mysql-joins-customers-without-orders",
+      "type": "coding-task",
+      "lessonSlug": "joins",
+      "difficulty": "intermediate",
+      "question": "Write a query that lists the name and city of every customer who has never placed an order, using a LEFT JOIN.",
+      "explanation": "A LEFT JOIN keeps every customer and fills the order columns with NULL when nothing matches; filtering on an order column IS NULL keeps only those customers. On the tutorial data the result is Hannah Weiss in Berlin.",
+      "language": "sql",
+      "starterCode": "SELECT c.name, c.city\nFROM customers c\n-- join orders and keep only customers without one",
+      "solutionCode": "SELECT c.name, c.city\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;",
+      "checklist": [
+        "Uses LEFT JOIN from customers to orders",
+        "The ON clause matches o.customer_id with c.id",
+        "The WHERE clause tests an orders column with IS NULL",
+        "No condition on orders appears in WHERE other than the IS NULL test",
+        "Returns Hannah Weiss, Berlin on the sample data"
+      ]
+    },
+    {
+      "id": "mysql-joins-full-outer",
+      "type": "true-false",
+      "lessonSlug": "joins",
+      "difficulty": "beginner",
+      "question": "MySQL 8.4 supports `FULL OUTER JOIN` directly, exactly like PostgreSQL.",
+      "explanation": "MySQL has INNER, LEFT, RIGHT and CROSS joins but no FULL OUTER JOIN. Emulate it with a LEFT JOIN UNION a RIGHT JOIN.",
+      "correct": false
+    },
+    {
+      "id": "mysql-agg-where-vs-having",
+      "type": "find-error",
+      "lessonSlug": "aggregates",
+      "difficulty": "intermediate",
+      "question": "This query fails with `ERROR 1111 (HY000): Invalid use of group function`. What is wrong?",
+      "explanation": "WHERE runs before rows are grouped, so no COUNT exists yet. Conditions on aggregates go in HAVING after GROUP BY: GROUP BY customer_id HAVING COUNT(*) > 1.",
+      "language": "sql",
+      "code": "SELECT customer_id, COUNT(*) AS orders\nFROM orders\nWHERE COUNT(*) > 1\nGROUP BY customer_id;",
+      "options": [
+        "Aggregate functions cannot be used in WHERE; the condition belongs in HAVING after GROUP BY",
+        "COUNT(*) needs a column name",
+        "GROUP BY must come before WHERE",
+        "The alias orders clashes with the table name"
+      ],
+      "correctIndex": 0,
+      "errorLine": 3
+    },
+    {
+      "id": "mysql-index-explain-type",
+      "type": "multiple-choice",
+      "lessonSlug": "indexes",
+      "difficulty": "intermediate",
+      "question": "In EXPLAIN output, which `type` value tells you that MySQL will read every row of the table?",
+      "explanation": "ALL is a full table scan. const and ref are index lookups and range reads a slice of an index; all three are what you hope to see on large tables.",
+      "options": ["`const`", "`ref`", "`range`", "`ALL`"],
+      "correctIndex": 3
+    },
+    {
+      "id": "mysql-users-grant-readonly",
+      "type": "coding-task",
+      "lessonSlug": "users-privileges",
+      "difficulty": "intermediate",
+      "question": "Create an account `analyst` that may connect only from localhost with the password `An4lyst!Pass`, grant it read-only access to every table in `roastery`, and display its privileges.",
+      "explanation": "The host part of the account restricts where connections may come from. SELECT on roastery.* is the whole of read-only access; no FLUSH PRIVILEGES is needed because GRANT takes effect immediately. SHOW GRANTS lists the USAGE line plus the SELECT grant.",
+      "language": "sql",
+      "starterCode": "-- 1. create the account\n\n-- 2. grant read-only access to roastery\n\n-- 3. show the grants\n",
+      "solutionCode": "CREATE USER 'analyst'@'localhost' IDENTIFIED BY 'An4lyst!Pass';\n\nGRANT SELECT ON roastery.* TO 'analyst'@'localhost';\n\nSHOW GRANTS FOR 'analyst'@'localhost';",
+      "checklist": [
+        "CREATE USER names the account as 'analyst'@'localhost'",
+        "IDENTIFIED BY sets the password",
+        "GRANT gives only SELECT, on roastery.*",
+        "No FLUSH PRIVILEGES statement is used",
+        "SHOW GRANTS lists USAGE on *.* and SELECT on `roastery`.*"
+      ]
+    },
+    {
+      "id": "mysql-tx-rollback-result",
+      "type": "predict-output",
+      "lessonSlug": "transactions",
+      "difficulty": "intermediate",
+      "question": "Before this runs, coffee 2 has price 16.00 and stock 25. What does the final SELECT return?",
+      "explanation": "ROLLBACK TO s1 undoes only the statements after the savepoint, so the price change is discarded while the stock update made before the savepoint survives and is committed. The result is price 16.00 and stock 0.",
+      "language": "sql",
+      "code": "START TRANSACTION;\nUPDATE coffees SET stock = 0 WHERE id = 2;\nSAVEPOINT s1;\nUPDATE coffees SET price = 1.00 WHERE id = 2;\nROLLBACK TO s1;\nCOMMIT;\nSELECT price, stock FROM coffees WHERE id = 2;",
+      "options": ["`16.00`, `25`", "`1.00`, `0`", "`16.00`, `0`", "`1.00`, `25`"],
+      "correctIndex": 2
+    },
+    {
+      "id": "mysql-backup-single-transaction",
+      "type": "multiple-choice",
+      "lessonSlug": "backup-restore",
+      "difficulty": "intermediate",
+      "question": "Why add `--single-transaction` when dumping InnoDB tables with mysqldump?",
+      "explanation": "The option opens a transaction with a consistent snapshot, so every table is dumped as of the same instant and writers are not blocked. Compression, table selection and encryption are separate options or tools.",
+      "options": [
+        "It compresses the dump file",
+        "It takes a consistent snapshot of all tables without locking them against writers",
+        "It dumps only one table",
+        "It encrypts the output"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-compare-returning",
+      "type": "multiple-choice",
+      "lessonSlug": "mysql-vs-others",
+      "difficulty": "beginner",
+      "question": "You port `INSERT INTO customers (...) VALUES (...) RETURNING id;` from PostgreSQL to MySQL 8.4. What happens, and what is the fix?",
+      "explanation": "MySQL has no RETURNING clause, so the statement is a syntax error. Run the INSERT, then SELECT LAST_INSERT_ID(), which returns the id generated on your connection. OUTPUT is SQL Server syntax.",
+      "options": [
+        "It works unchanged",
+        "It is a syntax error; run the INSERT and then SELECT LAST_INSERT_ID()",
+        "Replace RETURNING with OUTPUT",
+        "Use RETURNING * instead of RETURNING id"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

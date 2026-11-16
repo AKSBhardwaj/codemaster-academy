@@ -1,0 +1,138 @@
+{
+  "title": "Oracle Database Small Examples",
+  "description": "Use these small Oracle Database examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Ask DUAL for a calculation",
+      "description": "DUAL is a small built-in table used when a query needs no real table data.",
+      "language": "sql",
+      "code": "SELECT 2 + 3 AS total_books FROM dual;",
+      "output": "The answer is one row with total_books equal to 5.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "choose-number-and-text-types",
+      "title": "Choose number and text types",
+      "description": "Oracle types describe the values a column or expression holds.",
+      "language": "sql",
+      "code": "SELECT CAST(12 AS NUMBER(3)) AS pages, CAST('Moon Trip' AS VARCHAR2(40)) AS title FROM dual;",
+      "output": "The row contains the number 12 and text Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-number-and-text-types"
+    },
+    {
+      "id": "build-a-small-query-only-list",
+      "title": "Build a small query-only list",
+      "description": "A WITH query gives a temporary name to a result used by that statement.",
+      "language": "sql",
+      "code": "WITH books(title,pages) AS (SELECT 'Moon Trip',60 FROM dual UNION ALL SELECT 'Tiny Seed',20 FROM dual)\nSELECT title,pages FROM books ORDER BY pages;",
+      "output": "Tiny Seed appears before Moon Trip in page-count order.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-small-query-only-list"
+    },
+    {
+      "id": "fetch-the-first-sorted-row",
+      "title": "Fetch the first sorted row",
+      "description": "FETCH FIRST limits rows after the chosen order.",
+      "language": "sql",
+      "code": "WITH books(title,pages) AS (SELECT 'Moon Trip',60 FROM dual UNION ALL SELECT 'Tiny Seed',20 FROM dual)\nSELECT title FROM books ORDER BY pages,title FETCH FIRST 1 ROW ONLY;",
+      "output": "The result is Tiny Seed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "fetch-the-first-sorted-row"
+    },
+    {
+      "id": "write-an-unambiguous-date",
+      "title": "Write an unambiguous date",
+      "description": "A DATE literal names a calendar date in a fixed form.",
+      "language": "sql",
+      "code": "SELECT TO_CHAR(DATE '2026-11-16','YYYY-MM-DD') AS club_day FROM dual;",
+      "output": "The displayed club_day is 2026-11-16.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-an-unambiguous-date"
+    },
+    {
+      "id": "handle-a-missing-value",
+      "title": "Handle a missing value",
+      "description": "NULL means a value is missing or unknown.",
+      "language": "sql",
+      "code": "SELECT NVL(CAST(NULL AS VARCHAR2(20)),'Not chosen') AS book_choice FROM dual;",
+      "output": "The result is Not chosen.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-a-missing-value"
+    },
+    {
+      "id": "join-a-book-and-its-author",
+      "title": "Join a book and its author",
+      "description": "A join combines records whose key values match.",
+      "language": "sql",
+      "code": "WITH authors(id,name) AS (SELECT 1,'Mia' FROM dual), books(title,author_id) AS (SELECT 'Moon Trip',1 FROM dual)\nSELECT b.title,a.name FROM books b JOIN authors a ON a.id=b.author_id;",
+      "output": "Moon Trip is paired with Mia.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "join-a-book-and-its-author"
+    },
+    {
+      "id": "count-a-category",
+      "title": "Count a category",
+      "description": "GROUP BY makes one result per category. COUNT counts rows belonging to that category.",
+      "language": "sql",
+      "code": "WITH books(kind) AS (SELECT 'story' FROM dual UNION ALL SELECT 'story' FROM dual UNION ALL SELECT 'science' FROM dual)\nSELECT kind,COUNT(*) AS total FROM books GROUP BY kind ORDER BY kind;",
+      "output": "Science has 1 row and story has 2.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-a-category"
+    },
+    {
+      "id": "create-an-identity-key",
+      "title": "Create an identity key",
+      "description": "An identity column lets Oracle create a numeric id.",
+      "language": "sql",
+      "code": "CREATE TABLE cma_oracle_books (id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,title VARCHAR2(80) NOT NULL);\nINSERT INTO cma_oracle_books(title) VALUES('Moon Trip');\nSELECT id,title FROM cma_oracle_books;",
+      "output": "The new practice table contains a generated id and the title Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "create-an-identity-key"
+    },
+    {
+      "id": "read-a-sequence-value",
+      "title": "Read a sequence value",
+      "description": "A sequence is a separate object that gives out numbers.",
+      "language": "sql",
+      "code": "CREATE SEQUENCE cma_book_numbers START WITH 100 INCREMENT BY 1;\nSELECT cma_book_numbers.NEXTVAL AS number_value FROM dual;",
+      "output": "The first NEXTVAL is 100 in this newly created sequence.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-sequence-value"
+    },
+    {
+      "id": "run-a-small-pl-sql-block",
+      "title": "Run a small PL/SQL block",
+      "description": "PL/SQL adds variables and step-by-step instructions to Oracle SQL.",
+      "language": "sql",
+      "code": "DECLARE\n  books NUMBER := 3;\nBEGIN\n  DBMS_OUTPUT.PUT_LINE('Books: ' || books);\nEND;\n/",
+      "output": "With DBMS Output enabled in the client, the block prints Books: 3.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "run-a-small-pl-sql-block"
+    },
+    {
+      "id": "undo-uncommitted-sample-changes",
+      "title": "Undo uncommitted sample changes",
+      "description": "A savepoint marks a point inside a transaction.",
+      "language": "sql",
+      "code": "-- After creating cma_oracle_books; finish any earlier practice transaction first.\nSAVEPOINT before_extra;\nINSERT INTO cma_oracle_books(title) VALUES('Temporary sample');\nROLLBACK TO before_extra;\nSELECT title FROM cma_oracle_books WHERE title='Temporary sample';",
+      "output": "The extra sample title is not returned after the rollback to the savepoint.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "undo-uncommitted-sample-changes"
+    }
+  ]
+}

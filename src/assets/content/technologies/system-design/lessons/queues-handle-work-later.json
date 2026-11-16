@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "slug": "queues-handle-work-later",
+  "title": "Queues handle work later",
+  "summary": "Put slow jobs in a queue and let workers finish them later. Count a growing backlog, then plan acknowledgments, duplicate jobs, and failure handling.",
+  "introduction": "At a library desk, a learner can leave a request for a printed reading list and collect it later. A queue lets an app keep a similar list of jobs. This helps when work does not need to finish inside the first reply.",
+  "learningObjectives": [
+    "Explain producers, workers, and acknowledgments",
+    "Calculate a backlog from arriving and completed jobs",
+    "Plan for duplicate messages and jobs that keep failing"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **producer** adds jobs to a queue. A **worker**, also called a consumer, takes jobs and does the work. The waiting jobs form a **backlog**."
+    },
+    {
+      "type": "paragraph",
+      "text": "A queue can smooth a short rush and separate slow work from a quick reply. It does not make the work disappear. If jobs arrive faster than workers finish them for a long time, the backlog keeps growing."
+    },
+    {
+      "type": "paragraph",
+      "text": "After successful work, a worker sends an **acknowledgment**, often shortened to ack. In an at-least-once delivery plan, a job that was not acknowledged may be delivered again. The worker must be safe when a job repeats."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with no waiting jobs. In each round, 5 new print jobs arrive.",
+        "Workers can finish 3 jobs per round.",
+        "After the first round, 2 jobs remain. After the second, 4 remain.",
+        "After four rounds, 8 jobs are waiting. The queue delays overload; it does not solve this sustained gap."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/queued-work.svg",
+      "width": 400,
+      "height": 544,
+      "alt": "A book service saves a job in a durable queue. A worker processes the job and acknowledges success.",
+      "caption": "A reply that says “queued” does not mean “finished.” A worker can receive the same job again after a failure."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "let waiting = 0;\nconst arrivals = 5;\nconst workerCapacity = 3;\nfor (let round = 1; round <= 4; round++) {\n  waiting += arrivals;\n  const finished = Math.min(waiting, workerCapacity);\n  waiting -= finished;\n  console.log(`round ${round}: ${waiting} waiting`);\n}",
+      "title": "Queues handle work later model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "round 1: 2 waiting\nround 2: 4 waiting\nround 3: 6 waiting\nround 4: 8 waiting"
+    },
+    {
+      "type": "paragraph",
+      "text": "This model groups work into rounds. A real queue has different job sizes and delivery times. Monitor the age of the oldest job as well as the job count."
+    },
+    {
+      "type": "paragraph",
+      "text": "A response such as accepted means the request was durably accepted for processing under the service's rules. It does not mean the print job is finished. Give callers a job ID and a truthful status."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "More workers",
+          "Can clear jobs faster when work can run in parallel",
+          "Shared printers or databases may remain the bottleneck"
+        ],
+        [
+          "Limit new work",
+          "Protects the service during a long overload",
+          "Callers need a clear retry or rejection response"
+        ],
+        [
+          "Dead-letter queue",
+          "Keeps repeatedly failing jobs for inspection",
+          "Needs alerts and a safe repair or replay process"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Suppose a worker creates the report, then crashes before acknowledging the job. Redelivery can happen. Use a durable job ID and a safe rule that records completion together with the effect where possible."
+    },
+    {
+      "type": "paragraph",
+      "text": "Multiple workers and retries can change completion order. If order matters for one book or user, choose a suitable grouping and ordering rule. Do not assume every queue provides global order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change workerCapacity from 3 to 6. Predict the waiting count after each round.",
+        "It stays 0 because only 5 jobs arrive each round. The spare capacity is unused in this model, but it may help during a short rush."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not acknowledge a job before its required work is safely complete. A crash afterward could lose work the queue believes was finished."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-queues-handle-work-later"
+    }
+  ],
+  "exerciseIds": ["system-design-queues-handle-work-later"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "scaling-up-and-out"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Queues handle work later",
+    "description": "Put slow jobs in a queue and let workers finish them later. Count a growing backlog, then plan acknowledgments, duplicate jobs, and failure handling."
+  },
+  "updatedOn": "2026-11-16"
+}

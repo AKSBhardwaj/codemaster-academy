@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "slug": "variables",
+  "title": "Variables: let, const and var",
+  "summary": "A variable is a name for a value. The name lets you use the value again later in your program.",
+  "introduction": "A variable is a name for a value. The name lets you use the value again later in your program. Keep track of a score or a player name. Learn when to use let for a value that changes and const for a name you will not reassign.",
+  "learningObjectives": [
+    "Declare variables with let and const and choose between them",
+    "Explain why const does not make an object or array unchangeable",
+    "Predict where a variable is visible using block scope",
+    "Describe the hoisting behaviour that makes var risky"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why variables?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable is a named container for a value. Without one you would have to repeat the value everywhere, and changing it would mean editing every copy. With a variable you write the value once, refer to it by name, and update it in one place. Declaring a variable also tells the reader what the value *means*: `taxRate` says more than `0.25`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "let: a value that can change"
+    },
+    {
+      "type": "paragraph",
+      "text": "`let` declares a variable whose value may be replaced later. The first assignment is part of the declaration; after that you assign a new value with `=` and no keyword. The right-hand side can use the current value, which is how counters and running totals work."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let score = 0;\nconsole.log(score);\n\nscore = 10;        // reassign: allowed with let\nscore = score + 5; // use the old value to compute the new one\nconsole.log(score);\n\nlet playerName = \"Ada\";\nconsole.log(`${playerName} has ${score} points`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0\n15\nAda has 15 points"
+    },
+    {
+      "type": "paragraph",
+      "text": "The last line uses a **template literal**: text in backticks where `${...}` inserts a value. It is the easiest way to combine text and variables, and later lessons use it constantly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "const: a name that always points to the same value"
+    },
+    {
+      "type": "paragraph",
+      "text": "`const` declares a variable that cannot be reassigned. Use it by default: most values in a program are set once, and a `const` tells readers (and the browser) that the name will not change. Trying to reassign one stops the script with an error."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const taxRate = 0.25;\nconst price = 80;\nconsole.log(price * taxRate);\n\ntaxRate = 0.3; // not allowed: the script stops here"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console (the error wording is Chrome's; other browsers phrase it differently)",
+      "content": "20\nUncaught TypeError: Assignment to constant variable."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "const does not freeze objects"
+    },
+    {
+      "type": "paragraph",
+      "text": "`const` protects the *binding* (the link between the name and the value), not the value itself. An object or array stored in a `const` can still be modified from the inside; only replacing it with a completely different object is forbidden."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const user = { name: \"Ada\", age: 36 };\nuser.age = 37;            // changing a property is fine\nconsole.log(user.age);\n\nconst colors = [\"red\", \"green\"];\ncolors.push(\"blue\");      // changing the contents is fine\nconsole.log(colors.length);\n\n// user = {};  would throw: the binding itself cannot change"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "37\n3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Block scope"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **block** is anything between curly braces: the body of an `if`, a loop or a function. Variables declared with `let` or `const` exist only inside the block where they are declared. That is called **block scope**, and it means a temporary variable inside a loop cannot leak out and clash with another one of the same name."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const level = \"outer\";\n\nif (true) {\n  const level = \"inner\";   // a different variable that shadows the outer one\n  let temporary = 42;\n  console.log(level);\n}\n\nconsole.log(level);\nconsole.log(typeof temporary);   // temporary does not exist out here"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "inner\nouter\nundefined"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "var and hoisting"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before 2015 the only keyword was `var`. It still works, but it has two behaviours that cause bugs. First, `var` ignores blocks: a variable declared inside an `if` is visible in the whole function. Second, `var` declarations are **hoisted**: the browser moves them to the top of the function, so you can read the variable before the line that declares it and get `undefined` instead of an error. `let` and `const` are also hoisted, but they stay unusable until their declaration runs, which turns the same mistake into a clear `ReferenceError`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "if (true) {\n  var oldStyle = \"visible outside the block\";\n}\nconsole.log(oldStyle);\n\nconsole.log(count); // hoisted var: exists already, but has no value yet\nvar count = 1;\n\ntry {\n  console.log(total); // let: declared below, so not usable yet\n} catch (error) {\n  console.log(error.name);\n}\nlet total = 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "visible outside the block\nundefined\nReferenceError"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `try`/`catch` wrapper lets the script continue after the error so you can see its name; the [Errors and Debugging](/tutorials/javascript/errors-debugging) lesson explains it fully. The lesson to take from this example: use `const` by default, `let` when a value must change, and `var` only when maintaining old code."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Naming rules and conventions"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Names may contain letters, digits, `_` and `$`, but cannot start with a digit: `item2` is fine, `2items` is not.",
+        "Names are case-sensitive: `total`, `Total` and `TOTAL` are three different variables.",
+        "Reserved words such as `let`, `if`, `for` and `class` cannot be used as names.",
+        "By convention, use **camelCase** for variables and functions (`firstName`, `maxRetries`) and start class names with a capital letter (`ShoppingCart`).",
+        "Choose names that say what the value is: `remainingSeconds` beats `rs`."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting the keyword",
+      "text": "Writing `total = 5;` without `let` or `const` does not declare a variable. In old-style scripts it silently creates a global variable that any other script can overwrite; in modules and strict mode it throws `ReferenceError: total is not defined`. Always declare a variable before you use it."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "In the block-scope example, change the outer `const level` to `let level` and the inner `const level = \"inner\"` to `level = \"inner\"` (no keyword). Run it again and explain to yourself why the second line of output changes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-variables-const-reassign"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "variables-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "variables",
+          "difficulty": "beginner",
+          "question": "Which keyword should you reach for first when declaring a variable in modern JavaScript?",
+          "explanation": "Use const by default; switch to let only when the value must be reassigned. var has function scope and hoisting surprises, so it is reserved for old code.",
+          "options": ["`var`", "`let`", "`const`", "`define`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "variables-qc-2",
+          "type": "true-false",
+          "lessonSlug": "variables",
+          "difficulty": "beginner",
+          "question": "After `const list = [1, 2];`, the statement `list.push(3);` throws an error.",
+          "explanation": "const prevents reassigning the name, not changing the array it points to. push modifies the existing array, so it works; `list = []` would be the error.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-variables-const-reassign"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Variables – let, const, var and Scope",
+    "description": "Learn how to declare JavaScript variables with let and const, why var is avoided, and how block scope and hoisting decide where a variable can be used."
+  },
+  "updatedOn": "2026-11-16"
+}

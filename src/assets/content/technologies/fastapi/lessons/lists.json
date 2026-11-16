@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "lists",
+  "title": "Return a typed list",
+  "summary": "FastAPI: Return a typed list. Add another book.",
+  "introduction": "A list response can contain several small data objects. Open GET /books.",
+  "learningObjectives": ["Return a typed list with FastAPI", "Add another book"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a typed list"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Return a typed list",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass Book(BaseModel):\n    title: str\n@app.get(\"/books\", response_model=list[Book])\ndef books():\n    return [{\"title\": \"Moon Trip\"}, {\"title\": \"Sun Trip\"}]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response model checks each Book item and serialises the list."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "[{\"title\":\"Moon Trip\"},{\"title\":\"Sun Trip\"}]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add another book."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Every list item must fit the response model."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-lists-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-lists-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Return a typed list",
+    "description": "FastAPI: Return a typed list. Add another book. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

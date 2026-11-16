@@ -1,0 +1,152 @@
+{
+  "title": "Machine Learning Reference",
+  "description": "A quick reminder of the ideas and examples in the Machine Learning lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Learn from examples",
+          "summary": "Machine learning uses examples to choose a rule or model. A model is a stored way to make predictions. A prediction is an estimate, not a known fact.",
+          "example": {
+            "language": "python",
+            "code": "examples = [(1, 2), (2, 4), (3, 6)]\nfor pages, minutes in examples:\n    print(pages, minutes)"
+          },
+          "notes": ["Do not say that every learner reads at the same speed."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "inputs-and-known-answers",
+          "name": "Inputs and known answers",
+          "summary": "A feature is an input used for a prediction. A label is the known answer in a teaching example. Keep each input paired with the right answer.",
+          "example": {
+            "language": "python",
+            "code": "features = [[1], [2], [3]]\nlabels = [2, 4, 6]\nprint(features[1], labels[1])"
+          },
+          "notes": ["Shuffling inputs without shuffling their matching labels breaks the pairs."],
+          "lessonSlug": "inputs-and-known-answers"
+        },
+        {
+          "slug": "regression-predicts-numbers",
+          "name": "Regression predicts numbers",
+          "summary": "Regression is a task that predicts a number. Here we supply a doubling rule ourselves so the calculation is easy to inspect.",
+          "example": {
+            "language": "python",
+            "code": "def predict_minutes(pages):\n    return 2 * pages\nprint(predict_minutes(4))"
+          },
+          "notes": ["A hand-written rule is not automatically a learned model."],
+          "lessonSlug": "regression-predicts-numbers"
+        },
+        {
+          "slug": "classification-chooses-a-group",
+          "name": "Classification chooses a group",
+          "summary": "Classification predicts a group label. For this toy example, a threshold is the number where our choice changes.",
+          "example": {
+            "language": "python",
+            "code": "def group(size):\n    return \"small\" if size < 5 else \"large\"\nprint(group(3), group(8))"
+          },
+          "notes": [
+            "A class label is a choice of group; it does not show how certain that choice is."
+          ],
+          "lessonSlug": "classification-chooses-a-group"
+        },
+        {
+          "slug": "try-the-nearest-example",
+          "name": "Try the nearest example",
+          "summary": "A nearest-neighbour rule uses the closest stored example. Distance tells us how far two values are apart. Here distance is the size of their difference.",
+          "example": {
+            "language": "python",
+            "code": "examples = [(1, \"small\"), (3, \"small\"), (8, \"large\")]\nquery = 7\nnearest = min(examples, key=lambda row: abs(row[0] - query))\nprint(nearest[1])"
+          },
+          "notes": [
+            "One nearby example may be noisy or wrong; it is not enough evidence for a serious decision."
+          ],
+          "lessonSlug": "try-the-nearest-example"
+        },
+        {
+          "slug": "keep-a-test-set-aside",
+          "name": "Keep a test set aside",
+          "summary": "Training examples help choose a model. Test examples are kept aside to check it later. Keeping them separate helps reveal mistakes on unseen data.",
+          "example": {
+            "language": "python",
+            "code": "rows = [(1, 2), (2, 4), (3, 6), (4, 8)]\ntrain = rows[:3]\ntest = rows[3:]\nprint(len(train), len(test))"
+          },
+          "notes": [
+            "Real splits must account for time and related records; a simple slice is not always fair."
+          ],
+          "lessonSlug": "keep-a-test-set-aside"
+        },
+        {
+          "slug": "compare-with-a-baseline",
+          "name": "Compare with a baseline",
+          "summary": "A baseline is a simple prediction rule used for comparison. Always guessing the training average is one baseline for a number task.",
+          "example": {
+            "language": "python",
+            "code": "training_answers = [2, 4, 6]\nbaseline = sum(training_answers) / len(training_answers)\nprint(baseline)"
+          },
+          "notes": ["A more complex model should earn its complexity by passing useful checks."],
+          "lessonSlug": "compare-with-a-baseline"
+        },
+        {
+          "slug": "measure-a-numeric-mistake",
+          "name": "Measure a numeric mistake",
+          "summary": "Absolute error is the size of the difference between an answer and a prediction. It drops the minus sign so the size is always nonnegative.",
+          "example": {
+            "language": "python",
+            "code": "answers = [4, 8]\npredictions = [5, 6]\nerrors = [abs(a - p) for a, p in zip(answers, predictions)]\nprint(errors, sum(errors) / len(errors))"
+          },
+          "notes": ["Keep the units: an error of 1.5 minutes is different from 1.5 hours."],
+          "lessonSlug": "measure-a-numeric-mistake"
+        },
+        {
+          "slug": "accuracy-needs-context",
+          "name": "Accuracy needs context",
+          "summary": "Accuracy is the share of group guesses that are correct. It can hide poor performance on a rare group.",
+          "example": {
+            "language": "python",
+            "code": "answers = [\"dry\", \"dry\", \"dry\", \"rain\"]\npredictions = [\"dry\"] * 4\ncorrect = sum(a == p for a, p in zip(answers, predictions))\nprint(correct / len(answers))"
+          },
+          "notes": ["A high overall score can hide failure on the group that matters most."],
+          "lessonSlug": "accuracy-needs-context"
+        },
+        {
+          "slug": "memorising-is-not-generalising",
+          "name": "Memorising is not generalising",
+          "summary": "Overfitting happens when a model follows training details too closely and does poorly on new examples. Generalising means working on useful new cases.",
+          "example": {
+            "language": "python",
+            "code": "memorised = {1: 2, 2: 4, 3: 6}\nprint(memorised.get(4, \"unknown\"))"
+          },
+          "notes": ["Do not choose a model only by its training score."],
+          "lessonSlug": "memorising-is-not-generalising"
+        },
+        {
+          "slug": "group-without-answer-labels",
+          "name": "Group without answer labels",
+          "summary": "Clustering groups similar inputs without known class labels. Here we check distance to two fixed centres; a real clustering method can learn its centres.",
+          "example": {
+            "language": "python",
+            "code": "centres = [2, 8]\npoint = 7\ndistances = [abs(point - centre) for centre in centres]\nprint(distances.index(min(distances)))"
+          },
+          "notes": ["A discovered group does not explain why its members are alike."],
+          "lessonSlug": "group-without-answer-labels"
+        },
+        {
+          "slug": "write-an-honest-model-report",
+          "name": "Write an honest model report",
+          "summary": "A useful model report explains the task, data, checks and limits. Readers need enough detail to know where the result may fail.",
+          "example": {
+            "language": "text",
+            "code": "Task: estimate reading minutes\nData: fictional page-and-time pairs\nCheck: compare held-out errors with a simple baseline\nLimit: too little data for real learners\nDecision: keep this as a classroom demonstration"
+          },
+          "notes": [
+            "Keep private information out of practice data and include a human review for important decisions."
+          ],
+          "lessonSlug": "write-an-honest-model-report"
+        }
+      ]
+    }
+  ]
+}

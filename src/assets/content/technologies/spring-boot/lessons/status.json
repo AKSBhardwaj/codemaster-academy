@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "status",
+  "title": "Report a missing resource",
+  "summary": "Spring Boot: Report a missing resource. Inspect the status with curl -i.",
+  "introduction": "ResponseEntity lets code choose a status and body. Open GET /missing.",
+  "learningObjectives": [
+    "Report a missing resource with Spring Boot",
+    "Inspect the status with curl -i"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing resource"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Report a missing resource",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/missing\") ResponseEntity<?> missing() { return ResponseEntity.status(404).body(Map.of(\"error\", \"Book not found\")); }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "ResponseEntity carries both 404 and the error object to the response writer."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the status with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A failure should not use a success status just because it has a body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-status-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-status-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "validation"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Report a missing resource",
+    "description": "Spring Boot: Report a missing resource. Inspect the status with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

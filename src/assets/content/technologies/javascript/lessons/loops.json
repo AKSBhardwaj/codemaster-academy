@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "slug": "loops",
+  "title": "Loops",
+  "summary": "A loop repeats a group of steps. It can count through numbers or visit every item in a list.",
+  "introduction": "A loop repeats a group of steps. It can count through numbers or visit every item in a list. Imagine handing one pencil to each student. Write the hand-out step once, then let a loop repeat it for the whole list.",
+  "learningObjectives": [
+    "Write a counting loop with for and an open-ended loop with while",
+    "Iterate over arrays and strings with for...of and over object keys with for...in",
+    "Skip or stop iterations with continue and break",
+    "Recognise and fix an infinite loop"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The for loop"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `for` loop has three parts in its parentheses, separated by semicolons: an **initialiser** that runs once (`let i = 1`), a **condition** checked before every pass (`i <= 5`), and an **update** that runs after every pass (`i++`). Use it when you know how many times to repeat, or when you need the counter itself."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "for (let i = 1; i <= 5; i++) {\n  console.log(`Round ${i}`);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Round 1\nRound 2\nRound 3\nRound 4\nRound 5"
+    },
+    {
+      "type": "paragraph",
+      "text": "The counter is declared with `let` because it changes, and because `let` is block-scoped each pass gets its own `i`. Counting from `0` is the norm when the counter is used as an array index, since array positions start at zero."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "while and do...while"
+    },
+    {
+      "type": "paragraph",
+      "text": "`while` repeats as long as its condition is true, which suits problems where the number of passes is unknown: keep compounding interest until the balance reaches a target, keep asking until the input is valid. `do...while` is the same, except the block runs once *before* the condition is checked, so it always executes at least one time."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let balance = 100;\nlet years = 0;\n\nwhile (balance < 150) {\n  balance *= 1.1;   // 10% interest per year\n  years++;\n}\nconsole.log(years);\nconsole.log(balance.toFixed(2));\n\nlet attempts = 0;\ndo {\n  attempts++;       // runs once even though the condition is false\n} while (attempts < 1);\nconsole.log(attempts);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "5\n161.05\n1"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The infinite loop",
+      "text": "If the condition never becomes false the loop never ends and the page freezes. The usual cause is forgetting the update: `while (balance < 150) { years++; }` never changes `balance`. Before running a `while` loop, check that something inside the block moves the condition towards false. If a page does freeze, close the tab; on this site the output panel reports a run that has not finished within ten seconds."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "for...of: one pass per element"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most loops in real code visit every element of an array, and `for...of` does exactly that without a counter. It also works on strings (one character at a time) and on other iterable values such as `Map` and `Set`. When you need the index as well, loop over `array.entries()`, which yields `[index, element]` pairs."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const fruits = [\"apple\", \"banana\", \"cherry\"];\nfor (const fruit of fruits) {\n  console.log(fruit.toUpperCase());\n}\n\nfor (const letter of \"hey\") {\n  console.log(letter);\n}\n\nfor (const [index, fruit] of fruits.entries()) {\n  console.log(`${index}: ${fruit}`);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "APPLE\nBANANA\nCHERRY\nh\ne\ny\n0: apple\n1: banana\n2: cherry"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "for...in: the keys of an object"
+    },
+    {
+      "type": "paragraph",
+      "text": "`for...in` visits the property names of an object. Use the key in square brackets to read the matching value. Do not use `for...in` on arrays: it gives you index strings rather than elements and may include extra properties. For arrays, use `for...of`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const scores = { ada: 92, grace: 88, linus: 75 };\n\nfor (const name in scores) {\n  console.log(`${name}: ${scores[name]}`);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ada: 92\ngrace: 88\nlinus: 75"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "break and continue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`continue` skips the rest of the current pass and moves on to the next one; `break` leaves the loop entirely. Both work in every loop type. They are the clean way to express 'ignore these items' and 'stop as soon as we have found it'."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "for (let n = 1; n <= 10; n++) {\n  if (n % 2 === 0) continue;  // skip even numbers\n  if (n > 7) break;           // stop entirely after 7\n  console.log(n);\n}\nconsole.log(\"done\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1\n3\n5\n7\ndone"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "A loop inside a loop runs the inner one completely for every pass of the outer one. That is how you handle grids, tables and combinations. Keep the nesting shallow: two levels are common, three are a sign that part of the work belongs in a function."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "for (let row = 1; row <= 3; row++) {\n  let line = \"\";\n  for (let col = 1; col <= 3; col++) {\n    line += row * col + \" \";\n  }\n  console.log(line.trim());\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1 2 3\n2 4 6\n3 6 9"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which loop should I use?"
+    },
+    {
+      "type": "table",
+      "headers": ["Situation", "Best fit"],
+      "rows": [
+        ["Every element of an array or every character of a string", "`for...of`"],
+        ["A fixed number of repetitions, or you need the counter", "`for`"],
+        ["Repeat until some condition changes, unknown count", "`while`"],
+        ["Same, but the body must run at least once", "`do...while`"],
+        ["Every property of a plain object", "`for...in` or `Object.entries` with `for...of`"],
+        [
+          "Transform or filter an array into a new one",
+          "Array methods such as `map` and `filter` (next lessons)"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Print the numbers from 10 down to 1 with a `for` loop, then print every third letter of `\"abcdefghij\"` using `continue`. Finish by converting the balance example into a `do...while` loop and checking that the output stays the same."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-loops-even-sum"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "loops-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "How many times does the body of `for (let i = 0; i < 3; i++)` run?",
+          "explanation": "i takes the values 0, 1 and 2; when it reaches 3 the condition i < 3 is false and the loop stops. That is three passes.",
+          "options": ["Two", "Three", "Four", "It never stops"],
+          "correctIndex": 1
+        },
+        {
+          "id": "loops-qc-2",
+          "type": "true-false",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "`for...in` is the recommended loop for visiting the elements of an array.",
+          "explanation": "for...in iterates over property names (index strings) and is meant for objects. Use for...of for array elements.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-loops-even-sum"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Loops – for, while, for...of and for...in",
+    "description": "Learn JavaScript loops: for, while and do...while, for...of for arrays and strings, for...in for object keys, break and continue, and avoiding infinite loops."
+  },
+  "updatedOn": "2026-11-16"
+}

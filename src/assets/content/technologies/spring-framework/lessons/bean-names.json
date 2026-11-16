@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "bean-names",
+  "title": "Find a bean by name",
+  "summary": "Spring Framework: Find a bean by name. Rename the method and the lookup together.",
+  "introduction": "The method name becomes the bean name. This example asks for the bean called school.",
+  "learningObjectives": [
+    "Find a bean by name with Spring Framework",
+    "Rename the method and the lookup together"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Find a bean by name"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Find a bean by name",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String school() { return \"Oak School\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"school\", String.class));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The factory method name school becomes the bean name. The lookup asks for that name and String type."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Rename the method and the lookup together."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The requested name must match a registered bean."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-bean-names-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-bean-names-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "first-bean"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Find a bean by name",
+    "description": "Spring Framework: Find a bean by name. Rename the method and the lookup together. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

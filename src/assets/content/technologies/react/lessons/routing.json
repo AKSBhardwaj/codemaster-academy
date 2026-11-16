@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "slug": "routing",
+  "title": "Routing with React Router",
+  "summary": "Routing chooses which page part to show for a web address.",
+  "introduction": "Routing chooses which page part to show for a web address. Think of a school map that points to different rooms. Use React Router to connect an address to a page and add links between pages.",
+  "learningObjectives": [
+    "Install React Router and wrap the app in a BrowserRouter",
+    "Declare routes with Routes and Route and link between them",
+    "Read dynamic URL segments with useParams",
+    "Share a layout between pages with nested routes and Outlet"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why a router?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without a router, every page is the same `App` and the URL never changes. That breaks bookmarks, sharing, the back button and search engines. A router keeps the URL and the rendered component tree in sync: changing one changes the other, using the browser's History API instead of a page load."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install and set up"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install react-router"
+    },
+    {
+      "type": "paragraph",
+      "text": "React Router 7 ships as the single `react-router` package; `react-router-dom` still exists as a re-export for older imports, so both names work, but new code imports from `react-router`. Wrap the application in `BrowserRouter` once, in `main.jsx`:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/main.jsx",
+      "code": "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport { BrowserRouter } from 'react-router';\nimport App from './App.jsx';\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <BrowserRouter>\n      <App />\n    </BrowserRouter>\n  </StrictMode>,\n);"
+    },
+    {
+      "type": "paragraph",
+      "text": "`BrowserRouter` listens to the URL and provides it to every routing component below it. There is also a `HashRouter` for static hosts that cannot be configured, and a `MemoryRouter` for tests."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring routes"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/App.jsx",
+      "code": "import { Routes, Route, Link } from 'react-router';\n\nfunction Home() {\n  return <h1>Home</h1>;\n}\n\nfunction About() {\n  return <h1>About us</h1>;\n}\n\nfunction NotFound() {\n  return <h1>Page not found</h1>;\n}\n\nexport default function App() {\n  return (\n    <>\n      <nav>\n        <Link to=\"/\">Home</Link> <Link to=\"/about\">About</Link>\n      </nav>\n      <Routes>\n        <Route path=\"/\" element={<Home />} />\n        <Route path=\"/about\" element={<About />} />\n        <Route path=\"*\" element={<NotFound />} />\n      </Routes>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered at two URLs",
+      "content": "/about    →  <nav><a href=\"/\">Home</a> <a href=\"/about\">About</a></nav><h1>About us</h1>\n/missing  →  <nav><a href=\"/\">Home</a> <a href=\"/about\">About</a></nav><h1>Page not found</h1>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Routes` looks at the current URL, picks the best matching `Route` and renders its `element`. Matching ranks routes by how specific they are, not by declaration order, so `/about` never accidentally matches `/`. The `*` route catches everything else and is the right place for a not-found page. `Link` renders a real `<a>` tag, so middle-click and \"open in new tab\" work, but a normal click is intercepted and handled without a reload."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: plain anchors for internal links",
+      "text": "`<a href=\"/about\">` causes a full page load: the app restarts, all state is lost and every bundle is downloaded again. Use `Link` or `NavLink` for anything inside the app and reserve `<a>` for external URLs. The other half of this mistake lives on the server: a deployed `BrowserRouter` app must serve `index.html` for every path, otherwise refreshing `/about` returns the host's 404 page."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dynamic segments"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "ProductPage.jsx",
+      "code": "import { useParams } from 'react-router';\n\nconst products = { 1: 'Keyboard', 2: 'Mouse' };\n\nfunction ProductPage() {\n  const { id } = useParams();\n  const name = products[id];\n\n  if (!name) return <p>No product with id {id}.</p>;\n  return <h1>{name}</h1>;\n}\n\n// inside <Routes>:\n// <Route path=\"/products/:id\" element={<ProductPage />} />"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "/products/2  →  <h1>Mouse</h1>\n/products/9  →  <p>No product with id 9.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "A segment starting with a colon matches any value and exposes it through `useParams`, always as a **string**, so convert it with `Number` when you need arithmetic. Several segments can be dynamic (`/users/:userId/posts/:postId`). To read query strings such as `?page=2` use `useSearchParams`, which returns a `URLSearchParams` object and a setter."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layouts with nested routes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most apps share a header, navigation and footer between pages. Declare a parent route whose element is the layout, nest the page routes inside it, and render `<Outlet />` where the matched child should appear."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/App.jsx with a layout",
+      "code": "import { Routes, Route, Outlet, NavLink } from 'react-router';\n\nfunction Layout() {\n  return (\n    <>\n      <header>\n        <NavLink to=\"/\" end>Home</NavLink>\n        <NavLink to=\"/about\">About</NavLink>\n      </header>\n      <main>\n        <Outlet />\n      </main>\n    </>\n  );\n}\n\nexport default function App() {\n  return (\n    <Routes>\n      <Route element={<Layout />}>\n        <Route index element={<Home />} />\n        <Route path=\"about\" element={<About />} />\n        <Route path=\"products/:id\" element={<ProductPage />} />\n      </Route>\n    </Routes>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered at /about",
+      "content": "<header><a href=\"/\">Home</a><a href=\"/about\" class=\"active\" aria-current=\"page\">About</a></header><main><h1>About us</h1></main>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NavLink` is a `Link` that knows whether it is active: it adds the `active` class and `aria-current=\"page\"` automatically, which is all a navigation bar needs for styling and accessibility. The `end` prop stops `/` from counting as active on every page. An `index` route renders at the parent's own path."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Navigating from code"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "LoginForm.jsx",
+      "code": "import { useNavigate } from 'react-router';\n\nfunction LoginForm() {\n  const navigate = useNavigate();\n\n  async function handleSubmit(e) {\n    e.preventDefault();\n    const ok = await login(new FormData(e.currentTarget));\n    if (ok) navigate('/dashboard', { replace: true });\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"email\" type=\"email\" required />\n      <button>Log in</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After a successful login",
+      "content": "URL: /dashboard   (the login entry is replaced in the history, so Back does not return to the form)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useNavigate` returns a function for redirects after actions. `navigate(-1)` goes back, and `{ replace: true }` swaps the current history entry instead of adding one. Use `Link` for anything the user clicks and `navigate` only for programmatic transitions; links are discoverable, navigation calls are not."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The other modes"
+    },
+    {
+      "type": "table",
+      "headers": ["Mode", "What it adds", "When"],
+      "rows": [
+        [
+          "Declarative (this lesson)",
+          "`BrowserRouter`, `Routes`, `Link` and the hooks",
+          "Most client-rendered Vite apps"
+        ],
+        [
+          "Data",
+          "`createBrowserRouter` with loaders, actions and `useLoaderData`; data loads before the page renders",
+          "When routes should own their data fetching"
+        ],
+        [
+          "Framework",
+          "File-based routes, server rendering, code splitting, type-safe params",
+          "Full-stack apps; this is the successor of Remix"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "All three use the components and hooks you learned here, so moving up is incremental. Pair this lesson with [Fetching and Caching Data](/tutorials/react/data-fetching) to load the product behind `/products/:id`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-routing-params"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-routing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "routing",
+          "difficulty": "beginner",
+          "question": "Which component renders the matched child route inside a layout route?",
+          "explanation": "`<Outlet />` is the placeholder in a parent route's element where the matching nested route is rendered.",
+          "options": ["`<Routes>`", "`<Outlet />`", "`<Link>`", "`<Navigate>`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-routing-qc-2",
+          "type": "true-false",
+          "lessonSlug": "routing",
+          "difficulty": "beginner",
+          "question": "`useParams()` returns URL segment values as numbers when they look numeric.",
+          "explanation": "Everything in a URL is text. `useParams` always returns strings; convert with `Number(id)` when you need a number.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-routing-params"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "data-fetching"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "components-props"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "context"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "links"
+    }
+  ],
+  "seo": {
+    "title": "React Router 7 – Routes, Links, Params and Layouts",
+    "description": "Route React 19 apps with React Router 7: BrowserRouter, Routes, Link and NavLink, useParams for dynamic segments, nested layouts with Outlet and useNavigate."
+  },
+  "updatedOn": "2026-11-16"
+}

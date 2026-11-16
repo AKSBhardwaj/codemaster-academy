@@ -7,7 +7,11 @@ import {
   withRouterConfig,
   withViewTransitions,
 } from '@angular/router';
-import { provideClientHydration, withEventReplay, withIncrementalHydration } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  withEventReplay,
+  withIncrementalHydration,
+} from '@angular/platform-browser';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {

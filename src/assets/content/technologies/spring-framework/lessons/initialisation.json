@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "initialisation",
+  "title": "Run a setup method",
+  "summary": "Spring Framework: Run a setup method. Change the setup text.",
+  "introduction": "initMethod names a method Spring calls after making the bean.",
+  "learningObjectives": ["Run a setup method with Spring Framework", "Change the setup text"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a setup method"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Run a setup method",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nstatic class Note { String text; public void prepare() { text = \"Ready\"; } }\n@Configuration\nstatic class Config {\n@Bean(initMethod=\"prepare\") Note note() { return new Note(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(Note.class).text);\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spring calls prepare after construction. That method stores Ready before the program reads text."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Ready"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the setup text."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The named method must exist and be callable with no arguments."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-initialisation-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-initialisation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "default-values"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Run a setup method",
+    "description": "Spring Framework: Run a setup method. Change the setup text. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

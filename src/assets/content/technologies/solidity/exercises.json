@@ -1,0 +1,154 @@
+{
+  "title": "Solidity Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "solidity-first-result-check",
+      "lessonSlug": "first-result",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction message() external pure returns (string memory) { return \"Hello, Asha!\"; }\n}\n",
+      "question": "A contract groups functions and data. Call message() to read a greeting without changing stored data. What result does this example give after the setup steps?",
+      "explanation": "message is pure, so it reads no stored state. Calling it returns the string literal. Use the practice VM; no wallet or real money is needed.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "solidity-numbers-check",
+      "lessonSlug": "numbers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { return 3 + 2; }\n}\n",
+      "question": "uint256 stores a nonnegative whole number. Call answer() to add two small counts. What result does this example give after the setup steps?",
+      "explanation": "The pure function adds two uint256 values and returns 5. Unsigned numbers cannot represent negative values.",
+      "options": ["5", "6", "4"],
+      "correctIndex": 0
+    },
+    {
+      "id": "solidity-state-check",
+      "lessonSlug": "state",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nuint256 public score = 3;\n}\n",
+      "question": "A state variable lives in contract storage. public creates a getter. Call score(). What result does this example give after the setup steps?",
+      "explanation": "The public variable creates an automatic getter. A fresh VM deployment starts it at 3. Changing source code does not change a contract already deployed.",
+      "options": ["4", "2", "3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "solidity-parameters-check",
+      "lessonSlug": "parameters",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction twice(uint256 n) external pure returns (uint256) { return n * 2; }\n}\n",
+      "question": "A parameter is an input value. Call twice(4) in Remix. What result does this example give after the setup steps?",
+      "explanation": "The input n is 4. The function returns its product with 2. Very large products can overflow and revert in Solidity 0.8.",
+      "options": ["7", "8", "9"],
+      "correctIndex": 1
+    },
+    {
+      "id": "solidity-choices-check",
+      "lessonSlug": "choices",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction message(uint256 score) external pure returns (string memory) { if (score >= 5) return \"Pass\"; return \"Try again\"; }\n}\n",
+      "question": "if selects a result based on a rule. Call message(8). What result does this example give after the setup steps?",
+      "explanation": "The input 8 passes the rule, so the first return sends Pass. Specify memory for this returned string.",
+      "options": ["Pass", "Try again", "pass"],
+      "correctIndex": 0
+    },
+    {
+      "id": "solidity-arrays-check",
+      "lessonSlug": "arrays",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { uint256[] memory scores = new uint256[](2); scores[0] = 4; scores[1] = 8; return scores[1]; }\n}\n",
+      "question": "A memory array is temporary data for the call. Call answer() to read its second item. What result does this example give after the setup steps?",
+      "explanation": "The memory array has two positions. Position 1 is filled with 8 and then returned. An index outside the array reverts the call.",
+      "options": ["7", "8", "9"],
+      "correctIndex": 1
+    },
+    {
+      "id": "solidity-loops-check",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { uint256 total; for (uint256 n = 1; n <= 3; n++) { total += n; } return total; }\n}\n",
+      "question": "A for loop repeats steps. Call answer() to add 1, 2 and 3. What result does this example give after the setup steps?",
+      "explanation": "The total begins at zero. The loop adds 1, 2 and 3. Unbounded loops can use too much gas in real transactions.",
+      "options": ["5", "6", "7"],
+      "correctIndex": 1
+    },
+    {
+      "id": "solidity-enums-check",
+      "lessonSlug": "enums",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nenum Light { Red, Green }\nfunction answer() external pure returns (uint256) { return uint256(Light.Green); }\n}\n",
+      "question": "An enum names a small set of choices. Call answer() to read the chosen case number. What result does this example give after the setup steps?",
+      "explanation": "Enum numbers start at zero. Green is the second case and converts to 1. Enum case numbers start at zero.",
+      "options": ["0", "1", "2"],
+      "correctIndex": 1
+    },
+    {
+      "id": "solidity-structs-check",
+      "lessonSlug": "structs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nstruct Book { string title; uint256 pages; }\nfunction answer() external pure returns (uint256) { Book memory book = Book(\"Moon Trip\", 24); return book.pages; }\n}\n",
+      "question": "A struct groups related fields. Call answer() to read a book page count. What result does this example give after the setup steps?",
+      "explanation": "The memory struct stores 24 in pages. The returned field is that number. Choose memory for a temporary struct used only inside a call.",
+      "options": ["24", "25", "23"],
+      "correctIndex": 0
+    },
+    {
+      "id": "solidity-mappings-check",
+      "lessonSlug": "mappings",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nmapping(uint256 => uint256) public scoreOf;\n}\n",
+      "question": "A mapping pairs keys with values. Unset integer keys return zero. Call scoreOf(1). What result does this example give after the setup steps?",
+      "explanation": "No entry was written for key 1. The uint256 default is zero. A zero result does not tell you whether a key was ever written.",
+      "options": ["0", "1", "-1"],
+      "correctIndex": 0
+    },
+    {
+      "id": "solidity-validation-check",
+      "lessonSlug": "validation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction check(uint256 amount) external pure returns (uint256) { require(amount > 0, \"Use a positive amount\"); return amount; }\n}\n",
+      "question": "require stops a call when its rule is false. Call check(0) to see the error. What result does this example give after the setup steps?",
+      "explanation": "The input zero fails amount > 0. require reverts with the given reason. A reverted call does not keep its state changes.",
+      "options": [
+        "revert: Use a positive amount",
+        "REVERT: USE A POSITIVE AMOUNT",
+        "revert: use a positive amount"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "solidity-view-functions-check",
+      "lessonSlug": "view-functions",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "solidity",
+      "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nuint256 private score = 4;\nfunction doubled() external view returns (uint256) { return score * 2; }\n}\n",
+      "question": "view allows reading contract state. Call doubled() to read twice the stored score. What result does this example give after the setup steps?",
+      "explanation": "The view function reads stored score 4 and returns 8 without changing it. pure cannot read state; use view when state is needed.",
+      "options": ["8", "9", "7"],
+      "correctIndex": 0
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "send-a-custom-event",
+  "title": "Send a custom event",
+  "summary": "A custom event lets a component tell its surroundings that something happened.",
+  "introduction": "A custom event lets a component tell its surroundings that something happened. Your task: Change the event detail to another book title.",
+  "learningObjectives": [
+    "Change the event detail to another book title.",
+    "Explain the example for send a custom event"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A custom event lets a component tell its surroundings that something happened. Its detail field carries a small value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run these HTML examples in this site's HTML playground. Each example defines its own custom element in a fresh page. No extra JavaScript library is needed."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<choice-button></choice-button><p id=\"result\"></p>\n<script>\n  class ChoiceButton extends HTMLElement {\n    connectedCallback() {\n      const button = document.createElement(\"button\"); button.textContent = \"Choose book\";\n      button.onclick = () => this.dispatchEvent(new CustomEvent(\"book-chosen\", { detail: \"Moon Trip\", bubbles: true }));\n      this.replaceChildren(button);\n    }\n  }\n  customElements.define(\"choice-button\", ChoiceButton);\n  document.addEventListener(\"book-chosen\", e => { document.querySelector(\"#result\").textContent = e.detail; });\n</script>",
+      "title": "Send a custom event",
+      "runnable": true
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`textContent` reads or replaces plain text inside an element. It does not interpret the supplied words as HTML.",
+        "`addEventListener` waits for the named event before calling the function you pass to it.",
+        "`createElement` makes a new element in memory. Append it to the document when you want it to appear."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Clicking the internal button sends book-chosen. The outer listener shows Moon Trip."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Events from inside a shadow root need composed: true to cross that boundary. This example dispatches on the host itself."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the event detail to another book title."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-components-send-a-custom-event-check"
+    }
+  ],
+  "exerciseIds": ["web-components-send-a-custom-event-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-components",
+      "slug": "share-a-javascript-property"
+    }
+  ],
+  "seo": {
+    "title": "Web Components: Send a custom event",
+    "description": "A custom event lets a component tell its surroundings that something happened. Its detail field carries a small value."
+  },
+  "updatedOn": "2026-11-16"
+}

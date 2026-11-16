@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read a query string",
+  "summary": "Django: Read a query string. Leave out q and compare.",
+  "introduction": "request.GET contains query values. Visit GET /search/?q=cat.",
+  "learningObjectives": ["Read a query string with Django", "Leave out q and compare"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query string"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Read a query string",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef search(request):\n    return JsonResponse({\"term\": request.GET.get(\"q\", \"\")})\nurlpatterns = [\npath(\"search/\", search),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "request.GET.get finds q in the query string. The dictionary response places cat under term."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\": \"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Leave out q and compare."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Despite its name, request.GET describes query data, not the entire request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-query-check"
+    }
+  ],
+  "exerciseIds": ["django-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "text-paths"
+    }
+  ],
+  "seo": {
+    "title": "Django: Read a query string",
+    "description": "Django: Read a query string. Leave out q and compare. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,126 @@
+{
+  "title": "TensorFlow Examples",
+  "description": "Small TensorFlow examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Tensors hold numbers",
+      "description": "A tensor is a number container with a shape. It can be a single number, a list or a table.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([2, 4, 6])\nprint(x.numpy().tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "shape-and-rank",
+      "title": "Shape and rank",
+      "description": "Shape lists dimension sizes. Rank is the number of dimensions, not a score of model quality.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([[1, 2], [3, 4]])\nprint(x.shape, x.ndim)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "shape-and-rank"
+    },
+    {
+      "id": "choose-the-numeric-type",
+      "title": "Choose the numeric type",
+      "description": "A dtype tells TensorFlow how to store tensor values. Many model computations use floating-point numbers.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([1, 2], dtype=tf.float32)\nprint(x.dtype.name)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-the-numeric-type"
+    },
+    {
+      "id": "tensor-arithmetic",
+      "title": "Tensor arithmetic",
+      "description": "Operators can work element by element on matching tensor shapes.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\na = tf.constant([1, 2])\nb = tf.constant([3, 4])\nprint((a + b).numpy().tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "tensor-arithmetic"
+    },
+    {
+      "id": "broadcast-a-scalar",
+      "title": "Broadcast a scalar",
+      "description": "A scalar is a single value. Broadcasting can apply it across all positions of a tensor.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([2, 4, 6])\nprint((x * 2).numpy().tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "broadcast-a-scalar"
+    },
+    {
+      "id": "reduce-to-a-summary",
+      "title": "Reduce to a summary",
+      "description": "A reduction combines values into a summary, such as a sum or mean.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([2.0, 4.0, 6.0])\nprint(float(tf.reduce_mean(x).numpy()))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "reduce-to-a-summary"
+    },
+    {
+      "id": "reshape-the-same-data",
+      "title": "Reshape the same data",
+      "description": "reshape changes the arrangement while preserving the number of values.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.constant([1, 2, 3, 4])\nprint(tf.reshape(x, (2, 2)).numpy().tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "reshape-the-same-data"
+    },
+    {
+      "id": "variables-can-change",
+      "title": "Variables can change",
+      "description": "A TensorFlow Variable holds a value that can be updated. Model weights are usually stored in variables.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\ncount = tf.Variable(2.0)\ncount.assign_add(1.0)\nprint(float(count.numpy()))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "variables-can-change"
+    },
+    {
+      "id": "gradients-describe-a-local-change",
+      "title": "Gradients describe a local change",
+      "description": "A gradient describes how an output changes near the current input. GradientTape records operations so TensorFlow can calculate a derivative.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nx = tf.Variable(3.0)\nwith tf.GradientTape() as tape:\n    y = x * x\nprint(float(tape.gradient(y, x).numpy()))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "gradients-describe-a-local-change"
+    },
+    {
+      "id": "a-dense-layer-combines-inputs",
+      "title": "A dense layer combines inputs",
+      "description": "A dense layer learns weights that combine input features. Here a layer with three units produces three values for each input row.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nlayer = tf.keras.layers.Dense(3)\nx = tf.constant([[1.0, 2.0]])\nprint(tuple(layer(x).shape))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "a-dense-layer-combines-inputs"
+    },
+    {
+      "id": "train-a-tiny-model",
+      "title": "Train a tiny model",
+      "description": "Training adjusts weights to reduce a loss, which measures mistakes. This toy example fits numbers near a simple doubling rule.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nimport numpy as np\nx = np.array([[1.], [2.], [3.], [4.]], dtype=\"float32\")\ny = np.array([[2.], [4.], [6.], [8.]], dtype=\"float32\")\nmodel = tf.keras.Sequential([tf.keras.Input(shape=(1,)), tf.keras.layers.Dense(1)])\nmodel.compile(optimizer=\"sgd\", loss=\"mse\")\nmodel.fit(x, y, epochs=20, verbose=0)\nprint(tuple(model(x).shape))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "train-a-tiny-model"
+    },
+    {
+      "id": "save-an-untrained-model-carefully",
+      "title": "Save an untrained model carefully",
+      "description": "Keras can save a model to a .keras file. Saving preserves a model; it does not improve its accuracy.",
+      "language": "python",
+      "code": "import tensorflow as tf\n\nmodel = tf.keras.Sequential([tf.keras.Input(shape=(1,)), tf.keras.layers.Dense(1)])\nmodel.save(\"practice-model.keras\")",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-an-untrained-model-carefully"
+    }
+  ]
+}

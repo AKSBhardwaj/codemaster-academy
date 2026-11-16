@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "handle-a-duplicate-key-deliberately",
+  "title": "Handle a duplicate key deliberately",
+  "summary": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key.",
+  "introduction": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key. Your task: Explain why only one Mia row remains.",
+  "learningObjectives": [
+    "Explain why only one Mia row remains.",
+    "Explain the example for handle a duplicate key deliberately"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key. The matching key decides which row is affected."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use MariaDB 10.11+ with its mariadb client in an empty practice database. These dialect-specific examples do not run in the site's SQLite playground. Keep the sample database separate from real records."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TEMPORARY TABLE cma_maria_scores(name VARCHAR(40) PRIMARY KEY,points INT);\nINSERT INTO cma_maria_scores VALUES('Mia',2);\nINSERT INTO cma_maria_scores VALUES('Mia',5) ON DUPLICATE KEY UPDATE points=5;\nSELECT points FROM cma_maria_scores WHERE name='Mia';",
+      "title": "Handle a duplicate key deliberately",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key.",
+        "The duplicate-key clause changes the row matched by a unique-key conflict rather than creating a second conflicting row.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mia's points become 5 rather than creating a second row with the same key."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Understand every unique key on a real table. A duplicate match can happen on more than the primary key."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why only one Mia row remains."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mariadb-handle-a-duplicate-key-deliberately-check"
+    }
+  ],
+  "exerciseIds": ["mariadb-handle-a-duplicate-key-deliberately-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mariadb",
+      "slug": "check-json-text"
+    }
+  ],
+  "seo": {
+    "title": "MariaDB: Handle a duplicate key deliberately",
+    "description": "ON DUPLICATE KEY UPDATE changes a row when an insert meets an existing unique key. The matching key decides which row is affected."
+  },
+  "updatedOn": "2026-11-16"
+}

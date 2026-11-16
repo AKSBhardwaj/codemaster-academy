@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "validation",
+  "title": "Use a required field rule",
+  "summary": "ASP.NET Web API: Use a required field rule. Post {} and inspect the automatic 400 response.",
+  "introduction": "ApiController checks validation attributes. A valid POST /books with {\"title\":\"Moon Trip\"} reaches this action.",
+  "learningObjectives": [
+    "Use a required field rule with ASP.NET Web API",
+    "Post {} and inspect the automatic 400 response"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use a required field rule"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Use a required field rule",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic class BookInput { [Required] public string? Title { get; set; } }\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The required attribute is checked before the action. A valid title reaches Ok; an absent title gives 400."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Post {} and inspect the automatic 400 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Required checks presence; add more rules for your actual needs."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-validation-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-validation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "body-binding"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Use a required field rule",
+    "description": "ASP.NET Web API: Use a required field rule. Post {} and inspect the automatic 400 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

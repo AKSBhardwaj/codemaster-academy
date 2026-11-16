@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "slug": "fetch-json",
+  "title": "Fetch and JSON",
+  "summary": "fetch asks for data, and JSON is a common text format for sending that data.",
+  "introduction": "fetch asks for data, and JSON is a common text format for sending that data. Think of asking a library for a book list. Check that the request worked, then read the answer and handle any error.",
+  "learningObjectives": [
+    "Recognise valid JSON and convert it to objects with JSON.parse",
+    "Serialise objects with JSON.stringify, including indented output",
+    "Request data with fetch, check response.ok and read the JSON body",
+    "Send JSON to a server with a POST request and handle errors"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What JSON is"
+    },
+    {
+      "type": "paragraph",
+      "text": "**JSON** (JavaScript Object Notation) is a text format for structured data. It supports objects, arrays, strings, numbers, booleans and `null`, and nothing else: no functions, no comments, no `undefined`, no dates (they are written as strings). The syntax is stricter than JavaScript: keys and strings must use double quotes and trailing commas are forbidden. Because it is plain text, JSON can be stored in files, sent over the network and read by every programming language."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "title": "A JSON document",
+      "code": "{\n  \"name\": \"Ada\",\n  \"languages\": [\"JavaScript\", \"Python\"],\n  \"active\": true,\n  \"age\": 36,\n  \"manager\": null\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "JSON.parse: text to objects"
+    },
+    {
+      "type": "paragraph",
+      "text": "`JSON.parse(text)` turns a JSON string into a live JavaScript value. The result is an ordinary object or array, so everything from the [Objects](/tutorials/javascript/objects) and [Arrays](/tutorials/javascript/arrays) lessons applies. In this example the JSON is written inline as a string; in practice it arrives from a server, a file or `localStorage`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const text = '{\"name\":\"Ada\",\"languages\":[\"JavaScript\",\"Python\"],\"active\":true,\"age\":36}';\nconst user = JSON.parse(text);\n\nconsole.log(typeof text);\nconsole.log(typeof user);\nconsole.log(user.name);\nconsole.log(user.languages.length);\nconsole.log(user.languages[0]);\nconsole.log(user.active);\nconsole.log(JSON.parse(\"[1, 2, 3]\").length);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "string\nobject\nAda\n2\nJavaScript\ntrue\n3"
+    },
+    {
+      "type": "paragraph",
+      "text": "Invalid JSON makes `JSON.parse` throw a `SyntaxError`, so wrap it in `try`/`catch` whenever the text comes from outside your code. Single quotes are the most frequent cause."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const broken = \"{ 'name': 'Ada' }\";   // single quotes are not valid JSON\ntry {\n  JSON.parse(broken);\n} catch (error) {\n  console.log(error.name);\n}\nconsole.log(JSON.parse('\"just a string\"'));\nconsole.log(JSON.parse(\"null\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "SyntaxError\njust a string\nnull"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Not everything survives the round trip",
+      "text": "`JSON.stringify` drops properties whose value is `undefined` or a function, turns `NaN` and `Infinity` into `null`, and writes dates as strings. If you parse the result, `date` properties come back as text, not `Date` objects, and `Map` or `Set` values become empty objects. Convert such values yourself before serialising."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "JSON.stringify: objects to text"
+    },
+    {
+      "type": "paragraph",
+      "text": "`JSON.stringify(value)` does the reverse. Two optional arguments control the output: the second limits which properties are included (an array of keys), and the third adds indentation for readable output. Indented JSON is what you want in files and logs; compact JSON is what you send over the network."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const todo = { id: 7, title: \"Learn fetch\", done: false, tags: [\"js\", \"web\"] };\n\nconsole.log(JSON.stringify(todo));\nconsole.log(JSON.stringify(todo, [\"id\", \"title\"]));       // only these keys\nconsole.log(JSON.stringify({ when: undefined, run() {} })); // dropped: undefined and functions\nconsole.log(JSON.stringify({ a: 1, b: [2, 3] }, null, 2));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\"id\":7,\"title\":\"Learn fetch\",\"done\":false,\"tags\":[\"js\",\"web\"]}\n{\"id\":7,\"title\":\"Learn fetch\"}\n{}\n{\n  \"a\": 1,\n  \"b\": [\n    2,\n    3\n  ]\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Requesting data with fetch"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fetch(url)` sends an HTTP request and returns a **promise** that resolves to a `Response` object once the headers have arrived. Reading the body is a second asynchronous step: `response.json()` parses it as JSON and also returns a promise. The cleanest way to write this is with `async`/`await`, covered fully in the [Promises and async/await](/tutorials/javascript/async) lesson. Always check `response.ok`: `fetch` only rejects when the network fails, not when the server answers with an error such as 404."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Loading a list of users (needs a server, so not runnable here)",
+      "code": "async function loadUsers() {\n  const response = await fetch(\"https://api.example.com/users\");\n  if (!response.ok) {\n    throw new Error(`Request failed with status ${response.status}`);\n  }\n  const users = await response.json();   // parses the JSON body\n  for (const user of users) {\n    console.log(`${user.name} (${user.email})`);\n  }\n}\n\nloadUsers().catch((error) => console.log(error.message));"
+    },
+    {
+      "type": "paragraph",
+      "text": "Suppose the server replies with status 200 and this body: `[{\"name\":\"Ada\",\"email\":\"ada@example.com\"},{\"name\":\"Grace\",\"email\":\"grace@example.com\"}]`. The function then prints:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console, given that response",
+      "content": "Ada (ada@example.com)\nGrace (grace@example.com)"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the URL does not exist the server answers 404, `response.ok` is `false`, and the `catch` prints `Request failed with status 404`. If the device is offline, `fetch` itself rejects with a `TypeError` and the same `catch` prints `Failed to fetch` (the wording depends on the browser)."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "The Response object, without a network"
+    },
+    {
+      "type": "paragraph",
+      "text": "You can build a `Response` yourself, which is exactly the object `fetch` resolves with. That makes it possible to practise the second half of the workflow here, and it is how tests fake a server."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "// A Response like the one fetch() would resolve with, built locally\nconst fake = new Response('[{\"name\":\"Ada\"},{\"name\":\"Grace\"}]', {\n  status: 200,\n  headers: { \"Content-Type\": \"application/json\" },\n});\n\nasync function show(response) {\n  console.log(response.ok);\n  console.log(response.status);\n  console.log(response.headers.get(\"content-type\"));\n  const data = await response.json();\n  console.log(data.map((u) => u.name).join(\", \"));\n}\n\nshow(fake);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\n200\napplication/json\nAda, Grace"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sending data with POST"
+    },
+    {
+      "type": "paragraph",
+      "text": "To send data, pass an options object as the second argument: the HTTP `method`, a `Content-Type` header telling the server what you are sending, and a `body` string produced by `JSON.stringify`. The server usually answers with the created record, including the id it assigned."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Creating a record (needs a server, so not runnable here)",
+      "code": "async function createTodo(title) {\n  const response = await fetch(\"https://api.example.com/todos\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ title, done: false }),\n  });\n  if (!response.ok) throw new Error(`Could not save: ${response.status}`);\n  return response.json();\n}\n\ncreateTodo(\"Learn fetch\").then((created) => console.log(created.id));"
+    },
+    {
+      "type": "paragraph",
+      "text": "A server that stores the todo and replies with `{\"id\":42,\"title\":\"Learn fetch\",\"done\":false}` makes this print `42`. Requests to a different origin than the page are subject to **CORS**: the server must allow your site in its response headers, otherwise the browser blocks the response. That is a server-side setting, not something JavaScript can bypass."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try it: render JSON on a page"
+    },
+    {
+      "type": "paragraph",
+      "text": "This page parses an inline JSON string and builds a list from it, which is exactly what you do after `await response.json()`. Add a product to the JSON, or show the price in a different format."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "From JSON to DOM",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Render JSON</title>\n</head>\n<body>\n  <h1>Products</h1>\n  <ul id=\"products\"></ul>\n  <p id=\"total\"></p>\n  <script>\n    const json = '[{\"name\":\"Pen\",\"price\":2},{\"name\":\"Notebook\",\"price\":5},{\"name\":\"Bag\",\"price\":20}]';\n    const products = JSON.parse(json);\n\n    const list = document.getElementById(\"products\");\n    for (const product of products) {\n      const item = document.createElement(\"li\");\n      item.textContent = `${product.name}: $${product.price}`;\n      list.append(item);\n    }\n\n    const total = products.reduce((sum, p) => sum + p.price, 0);\n    document.getElementById(\"total\").textContent = `Total: $${total}`;\n  </script>\n</body>\n</html>"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where to find real APIs",
+      "text": "Once you are comfortable, point `fetch` at a public API that allows cross-origin requests and prints JSON, then render the result with the DOM techniques above. The [Web APIs](/tutorials/web-apis) and [REST API](/tutorials/rest-api) tutorials go deeper into what servers expect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-fetch-json-parse"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "fetch-json-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "fetch-json",
+          "difficulty": "beginner",
+          "question": "What does `response.json()` return?",
+          "explanation": "Reading the body is asynchronous, so response.json() returns a promise that resolves to the parsed value. You must await it or use then.",
+          "options": [
+            "The parsed object immediately",
+            "A promise that resolves to the parsed value",
+            "A JSON string",
+            "The response status"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "fetch-json-qc-2",
+          "type": "true-false",
+          "lessonSlug": "fetch-json",
+          "difficulty": "beginner",
+          "question": "`fetch` rejects its promise when the server answers with a 404 status.",
+          "explanation": "fetch only rejects on network failure. A 404 is a completed request with an error status, so the promise resolves and you must check response.ok yourself.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-fetch-json-parse"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "dom"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "apis"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Fetch and JSON – Parse, Stringify, Request",
+    "description": "Learn JSON.parse and JSON.stringify, request data with fetch and async/await, check response.ok, read the JSON body, send POST requests and handle errors."
+  },
+  "updatedOn": "2026-11-16"
+}

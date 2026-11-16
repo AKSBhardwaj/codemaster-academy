@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "slug": "databases-tables",
+  "title": "Databases and Tables",
+  "summary": "Create the roastery database with utf8mb4, define InnoDB tables with primary keys, defaults, ENUM and foreign keys, inspect them with DESCRIBE and SHOW CREATE TABLE, and change them with ALTER TABLE.",
+  "introduction": "A MySQL server hosts many databases, and each database holds tables. Getting those definitions right at the start saves painful migrations later: the character set decides which text you can store, the primary key decides how InnoDB lays rows out on disk, and foreign keys stop orders from pointing at customers that do not exist. In this lesson you create the roastery database and its three tables, read their definitions back and alter one of them.",
+  "learningObjectives": [
+    "Create a database with an explicit character set and collation",
+    "Define tables with primary keys, NOT NULL, defaults, ENUM and foreign keys",
+    "Inspect tables with DESCRIBE and SHOW CREATE TABLE and change them with ALTER TABLE"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Databases and schemas"
+    },
+    {
+      "type": "paragraph",
+      "text": "In MySQL, *database* and *schema* mean the same thing; `CREATE SCHEMA` is a synonym for `CREATE DATABASE`. A fresh server has four system databases and you add one per application. On Linux a database is a directory on disk, so its name is case-sensitive there and case-insensitive on Windows and macOS: write names in lower case everywhere and the question never comes up."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE DATABASE roastery\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_0900_ai_ci;\n\nSHOW DATABASES;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 1 row affected (0.01 sec)\n\n+--------------------+\n| Database           |\n+--------------------+\n| information_schema |\n| mysql              |\n| performance_schema |\n| roastery           |\n| sys                |\n+--------------------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`utf8mb4` stores every Unicode character, including emoji, in up to four bytes per character. The collation `utf8mb4_0900_ai_ci` sorts by Unicode 9.0 rules and compares text *accent-insensitively* and *case-insensitively*, so `'Tomás'`, `'tomas'` and `'TOMAS'` are equal. Both have been the defaults since MySQL 8.0, but spelling them out documents the decision and protects you from servers configured differently."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "utf8 is not UTF-8",
+      "text": "In MySQL, `utf8` is an alias for `utf8mb3`, an old three-byte encoding that rejects emoji and many other characters with `Incorrect string value` errors. Always spell out `utf8mb4`. To check an existing database, run `SELECT DEFAULT_CHARACTER_SET_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = 'roastery';`."
+    },
+    {
+      "type": "paragraph",
+      "text": "`USE` makes a database the default for the rest of the session, so you can write `customers` instead of `roastery.customers`. `SELECT DATABASE();` tells you which one is current."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "USE roastery;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Database changed"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating tables"
+    },
+    {
+      "type": "paragraph",
+      "text": "`customers` comes first because `orders` will reference it. Every column gets a type and, wherever the data allows, `NOT NULL`, because optional columns breed NULL-handling bugs. `AUTO_INCREMENT` lets MySQL number the rows; `UNIQUE` on the email stops duplicates in the database rather than in application code. `ENGINE=InnoDB` is the default and is written here only to make the choice visible."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE customers (\n  id        INT AUTO_INCREMENT PRIMARY KEY,\n  name      VARCHAR(100) NOT NULL,\n  email     VARCHAR(255) NOT NULL UNIQUE,\n  city      VARCHAR(60),\n  joined_on DATE NOT NULL\n) ENGINE=InnoDB;\n\nDESCRIBE customers;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)\n\n+-----------+--------------+------+-----+---------+----------------+\n| Field     | Type         | Null | Key | Default | Extra          |\n+-----------+--------------+------+-----+---------+----------------+\n| id        | int          | NO   | PRI | NULL    | auto_increment |\n| name      | varchar(100) | NO   |     | NULL    |                |\n| email     | varchar(255) | NO   | UNI | NULL    |                |\n| city      | varchar(60)  | YES  |     | NULL    |                |\n| joined_on | date         | NO   |     | NULL    |                |\n+-----------+--------------+------+-----+---------+----------------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`DESCRIBE` (or `SHOW COLUMNS FROM`) is the quickest view of a table. `Key` shows `PRI` for the primary key, `UNI` for a unique index and `MUL` for the first column of a non-unique index. Types are printed in lower case and, since 8.0.19, integers no longer carry a display width such as `int(11)`."
+    },
+    {
+      "type": "paragraph",
+      "text": "The other two tables introduce three features: an `ENUM` that limits a column to a fixed list of values, a `DATETIME` that defaults to the moment the row is inserted, and foreign keys that tie every order to an existing customer and coffee. Naming each constraint (`fk_orders_customer`) makes error messages readable; without a name MySQL invents one such as `orders_ibfk_1`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE coffees (\n  id     INT AUTO_INCREMENT PRIMARY KEY,\n  name   VARCHAR(80) NOT NULL,\n  origin VARCHAR(40) NOT NULL,\n  roast  ENUM('light', 'medium', 'dark') NOT NULL DEFAULT 'medium',\n  price  DECIMAL(6,2) NOT NULL,\n  stock  INT UNSIGNED NOT NULL DEFAULT 0\n);\n\nCREATE TABLE orders (\n  id          INT AUTO_INCREMENT PRIMARY KEY,\n  customer_id INT NOT NULL,\n  coffee_id   INT NOT NULL,\n  quantity    INT UNSIGNED NOT NULL DEFAULT 1,\n  status      ENUM('pending', 'paid', 'shipped', 'cancelled') NOT NULL DEFAULT 'pending',\n  ordered_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  shipped_at  DATETIME NULL,\n  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id),\n  CONSTRAINT fk_orders_coffee   FOREIGN KEY (coffee_id)   REFERENCES coffees (id)\n);\n\nDESCRIBE orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.02 sec)\n\nQuery OK, 0 rows affected (0.03 sec)\n\n+-------------+----------------------------------------------+------+-----+-------------------+-------------------+\n| Field       | Type                                         | Null | Key | Default           | Extra             |\n+-------------+----------------------------------------------+------+-----+-------------------+-------------------+\n| id          | int                                          | NO   | PRI | NULL              | auto_increment    |\n| customer_id | int                                          | NO   | MUL | NULL              |                   |\n| coffee_id   | int                                          | NO   | MUL | NULL              |                   |\n| quantity    | int unsigned                                 | NO   |     | 1                 |                   |\n| status      | enum('pending','paid','shipped','cancelled') | NO   |     | pending           |                   |\n| ordered_at  | datetime                                     | NO   |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |\n| shipped_at  | datetime                                     | YES  |     | NULL              |                   |\n+-------------+----------------------------------------------+------+-----+-------------------+-------------------+\n7 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice `MUL` on `customer_id` and `coffee_id`: InnoDB requires an index on every foreign key column and creates one automatically when you do not. The referenced column must already be indexed (a primary key is) and must have the same type, so `INT` here matches `INT` there. `DEFAULT_GENERATED` marks a default computed by an expression rather than a constant."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Reading the definition back"
+    },
+    {
+      "type": "paragraph",
+      "text": "`SHOW CREATE TABLE` prints the statement MySQL would use to recreate the table, which is the definitive record of what was stored: types in lower case, `DEFAULT NULL` added to the optional column, the unique index named after its column, and the engine, character set and collation. End it with `\\G` so the long line prints vertically."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SHOW CREATE TABLE customers\\G"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "*************************** 1. row ***************************\n       Table: customers\nCreate Table: CREATE TABLE `customers` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `name` varchar(100) NOT NULL,\n  `email` varchar(255) NOT NULL,\n  `city` varchar(60) DEFAULT NULL,\n  `joined_on` date NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `email` (`email`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Changing a table"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ALTER TABLE` adds, renames, retypes and drops columns and indexes. `AFTER` places the new column where you want it in the listing; without it the column goes last. The `Records: 0` line shows how many rows had to be copied: most additions on InnoDB are *instant* or *in place*, while a type change rewrites the table, which on a large table means running it off-peak."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "ALTER TABLE customers\n  ADD COLUMN phone VARCHAR(20) NULL AFTER email;\n\nDESCRIBE customers;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.04 sec)\nRecords: 0  Duplicates: 0  Warnings: 0\n\n+-----------+--------------+------+-----+---------+----------------+\n| Field     | Type         | Null | Key | Default | Extra          |\n+-----------+--------------+------+-----+---------+----------------+\n| id        | int          | NO   | PRI | NULL    | auto_increment |\n| name      | varchar(100) | NO   |     | NULL    |                |\n| email     | varchar(255) | NO   | UNI | NULL    |                |\n| phone     | varchar(20)  | YES  |     | NULL    |                |\n| city      | varchar(60)  | YES  |     | NULL    |                |\n| joined_on | date         | NO   |     | NULL    |                |\n+-----------+--------------+------+-----+---------+----------------+\n6 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Other common forms are `RENAME COLUMN phone TO mobile`, `MODIFY COLUMN city VARCHAR(80) NOT NULL`, `ADD INDEX idx_city (city)` and `RENAME TO clients`. The tutorial does not use a phone number, so drop the column again:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "ALTER TABLE customers DROP COLUMN phone;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)\nRecords: 0  Duplicates: 0  Warnings: 0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Listing and dropping"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SHOW TABLES;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------------+\n| Tables_in_roastery |\n+--------------------+\n| coffees            |\n| customers          |\n| orders             |\n+--------------------+\n3 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`DROP TABLE IF EXISTS orders;` removes a table and its data with no undo; `DROP DATABASE roastery;` removes everything. Foreign keys protect you a little: dropping `customers` while `orders` still references it fails with `ERROR 3730 (HY000): Cannot drop table 'customers' referenced by a foreign key constraint 'fk_orders_customer' on table 'orders'.` Drop the child table first, or drop the constraint."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Naming conventions that age well",
+      "text": "Use lower-case `snake_case` for every identifier so you never depend on the file system's case rules; name the primary key `id` and foreign keys `<table>_id`; prefix indexes with `idx_` and foreign keys with `fk_`. Consistency matters more than the particular choice."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-tables-create-customers"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "databases-tables-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "databases-tables",
+          "difficulty": "beginner",
+          "question": "In DESCRIBE output, what does `MUL` in the Key column mean?",
+          "explanation": "MUL marks the first column of a non-unique index, which may hold the same value in multiple rows. Foreign key columns get such an index automatically.",
+          "options": [
+            "The column holds multiple values",
+            "The column is the first column of a non-unique index",
+            "The column is a multi-column primary key",
+            "The column must be unique"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "databases-tables-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "databases-tables",
+          "difficulty": "beginner",
+          "question": "The character set that stores every Unicode character, including emoji, in MySQL is `___`.",
+          "explanation": "utf8mb4 uses up to four bytes per character. Plain utf8 is an alias for the three-byte utf8mb3 and rejects emoji.",
+          "answers": ["utf8mb4"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-tables-create-customers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "crud"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Databases and Tables – CREATE, ALTER, DESCRIBE",
+    "description": "Create a MySQL database with utf8mb4, define InnoDB tables with primary keys, ENUM, defaults and foreign keys, inspect them with DESCRIBE and change them with ALTER."
+  },
+  "updatedOn": "2026-11-15"
+}

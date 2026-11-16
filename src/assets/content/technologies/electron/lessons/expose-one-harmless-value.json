@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "expose-one-harmless-value",
+  "title": "Expose one harmless value",
+  "summary": "contextBridge can expose a chosen value to the renderer without sharing full Node tools.",
+  "introduction": "contextBridge can expose a chosen value to the renderer without sharing full Node tools. Your task: Read window.club.name from renderer.js.",
+  "learningObjectives": [
+    "Read window.club.name from renderer.js.",
+    "Explain the example for expose one harmless value"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "contextBridge can expose a chosen value to the renderer without sharing full Node tools. Keep the exposed surface small."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Electron project with electron installed as a dev dependency and main.cjs as its main file. Run with npx electron . after creating package.json and index.html. These APIs do not run in a web-page playground."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// preload.cjs\nconst {contextBridge}=require(\"electron\");\ncontextBridge.exposeInMainWorld(\"club\",{name:\"Reading club\"});\n// renderer.js can now read window.club.name.",
+      "title": "Expose one harmless value",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`contextBridge` exposes only the named approved value or function to the page. It should not expose all Node or IPC methods."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The renderer can read the club name through window.club."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not expose require, filesystem modules or raw Electron objects to the renderer."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Read window.club.name from renderer.js."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "electron-expose-one-harmless-value-check"
+    }
+  ],
+  "exerciseIds": ["electron-expose-one-harmless-value-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "electron",
+      "slug": "configure-a-preload-file"
+    }
+  ],
+  "seo": {
+    "title": "Electron: Expose one harmless value",
+    "description": "contextBridge can expose a chosen value to the renderer without sharing full Node tools. Keep the exposed surface small."
+  },
+  "updatedOn": "2026-11-16"
+}

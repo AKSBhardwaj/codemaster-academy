@@ -1,0 +1,152 @@
+{
+  "id": "assembly-quiz",
+  "title": "Assembly Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "assembly-review-1",
+      "lessonSlug": "first-result",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    mov rax, 60\n    syscall\n",
+      "question": "rdi is a register: a tiny storage place in the processor. Linux exit reads its status from rdi. What result does this example give after the setup steps?",
+      "explanation": "mov puts 5 in rdi. The exit syscall takes its code from that register. Exit codes are only 0 to 255; use small values in these lessons.",
+      "options": ["exit code: 0", "exit code: 5", "exit code: 6"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-2",
+      "lessonSlug": "copy-register",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rbx, 3\n    mov rdi, rbx\n    mov rax, 60\n    syscall\n",
+      "question": "mov copies a value. It does not erase the source register. What result does this example give after the setup steps?",
+      "explanation": "rbx first receives 3. Copying it into rdi passes 3 to exit. The destination comes first in NASM syntax.",
+      "options": ["exit code: 4", "exit code: 0", "exit code: 3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "assembly-review-3",
+      "lessonSlug": "addition",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    add rdi, 2\n    mov rax, 60\n    syscall\n",
+      "question": "add changes its first register by adding the second value. What result does this example give after the setup steps?",
+      "explanation": "add changes rdi from 3 to 5 before exit reads it. The add instruction changes the destination register.",
+      "options": ["exit code: 0", "exit code: 5", "exit code: 6"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-4",
+      "lessonSlug": "subtraction",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 8\n    sub rdi, 3\n    mov rax, 60\n    syscall\n",
+      "question": "sub subtracts the second value from the first register. What result does this example give after the setup steps?",
+      "explanation": "sub changes rdi from 8 to 5. Keep the result within a small positive range for exit codes.",
+      "options": ["exit code: 5", "exit code: 6", "exit code: 0"],
+      "correctIndex": 0
+    },
+    {
+      "id": "assembly-review-5",
+      "lessonSlug": "multiplication",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    imul rdi, rdi, 2\n    mov rax, 60\n    syscall\n",
+      "question": "imul multiplies signed integers. This form stores the result in its first register. What result does this example give after the setup steps?",
+      "explanation": "imul multiplies the value 3 by 2 and stores 6 in rdi. Large results can overflow a register.",
+      "options": ["exit code: 0", "exit code: 6", "exit code: 7"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-6",
+      "lessonSlug": "division",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rax, 8\n    xor rdx, rdx\n    mov rbx, 3\n    div rbx\n    mov rdi, rax\n    mov rax, 60\n    syscall\n",
+      "question": "div divides rdx:rax by its input. For this small positive example, clear rdx first. What result does this example give after the setup steps?",
+      "explanation": "rdx is cleared so the dividend is 8. Division by 3 leaves quotient 2 in rax. Never divide by zero. The remainder is in rdx, not rax.",
+      "options": ["exit code: 0", "exit code: 2", "exit code: 3"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-7",
+      "lessonSlug": "bit-tests",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    and rdi, 1\n    mov rax, 60\n    syscall\n",
+      "question": "and keeps only bits that are 1 in both inputs. A final bit of 1 marks an odd number. What result does this example give after the setup steps?",
+      "explanation": "The binary form of 5 ends with 1. AND with 1 keeps only that bit. Bitwise and is an operation on bits, not a high-level if statement.",
+      "options": ["exit code: 0", "exit code: 1", "exit code: 2"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-8",
+      "lessonSlug": "branches",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 0\n    mov rbx, 5\n    cmp rbx, 5\n    je .same\n    jmp .done\n.same:\n    mov rdi, 1\n.done:\n    mov rax, 60\n    syscall\n",
+      "question": "cmp compares values and sets flags. je jumps when the compared values are equal. What result does this example give after the setup steps?",
+      "explanation": "cmp finds equality, so je reaches .same and sets rdi to 1. A jump uses flags from the previous comparison; avoid changing them first.",
+      "options": ["exit code: 0", "exit code: 1", "exit code: 2"],
+      "correctIndex": 1
+    },
+    {
+      "id": "assembly-review-9",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rcx, 3\n    mov rdi, 0\n.again:\n    add rdi, 2\n    dec rcx\n    jnz .again\n    mov rax, 60\n    syscall\n",
+      "question": "A label names a place in the code. jnz repeats while the last result was not zero. What result does this example give after the setup steps?",
+      "explanation": "The loop adds 2 three times. The decreasing counter eventually reaches zero. A loop needs a counter or rule that eventually stops.",
+      "options": ["exit code: 6", "exit code: 7", "exit code: 0"],
+      "correctIndex": 0
+    },
+    {
+      "id": "assembly-review-10",
+      "lessonSlug": "stack",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    push 7\n    pop rdi\n    mov rax, 60\n    syscall\n",
+      "question": "push places a value on the stack. pop takes the most recent value back. What result does this example give after the setup steps?",
+      "explanation": "push stores 7 on the stack. pop places that most recent value in rdi. Keep pushes and pops balanced.",
+      "options": ["exit code: 7", "exit code: 8", "exit code: 0"],
+      "correctIndex": 0
+    },
+    {
+      "id": "assembly-review-11",
+      "lessonSlug": "calls",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 4\n    call twice\n    mov rax, 60\n    syscall\ntwice:\n    add rdi, rdi\n    ret\n",
+      "question": "call saves a return address and jumps. ret returns to the instruction after call. What result does this example give after the setup steps?",
+      "explanation": "call enters twice with 4. The routine doubles rdi and ret returns with 8. A routine reached by call should return with ret, not fall into unrelated code.",
+      "options": ["exit code: 9", "exit code: 0", "exit code: 8"],
+      "correctIndex": 2
+    },
+    {
+      "id": "assembly-review-12",
+      "lessonSlug": "write-text",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "asm",
+      "code": "global _start\nsection .data\nmessage: db \"Hi\", 10\nsection .text\n_start:\n    mov rax, 1\n    mov rdi, 1\n    lea rsi, [rel message]\n    mov rdx, 3\n    syscall\n    mov rdi, 0\n    mov rax, 60\n    syscall",
+      "question": "The write system call uses rax=1, rdi=1 for standard output, an address in rsi and a length in rdx. What result does this example give after the setup steps?",
+      "explanation": "The data contains two letters and one newline byte. Linux writes three bytes, then exits with zero. The length counts bytes, including the newline byte.",
+      "options": ["Hi\nexit code: 0", "Hi\nexit code: 1", "exit code: 0\nHi"],
+      "correctIndex": 0
+    }
+  ]
+}

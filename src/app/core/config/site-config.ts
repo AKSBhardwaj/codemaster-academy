@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import type { UiIconName } from '../../shared/icons/ui-icons.generated';
-import { SITE_NAME, SITE_URL } from '../../../content-schema/site-constants';
+import { SITE_NAME, SITE_URL, publicPath } from '../../../content-schema/site-constants';
 
 /** Brand and site identity. Change these values to rebrand without touching application logic. */
 export interface SiteConfig {
@@ -26,14 +26,15 @@ export interface SocialLink {
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   name: SITE_NAME,
   shortName: 'CodeMaster',
-  tagline: 'Learn to code with clear, practical tutorials',
+  tagline: 'Learn to code, one small step at a time',
   description:
-    'Free, structured programming tutorials with runnable examples, exercises and quizzes covering 100+ languages, frameworks, databases and developer tools.',
-  // Placeholder origin until hosting is decided; shared with the sitemap generator via content-schema/site-constants.
+    'Learn to code with simple lessons, small examples and fun practice. Start with HTML, CSS and JavaScript. Free to use, with no account needed.',
+  // Generated from the deployment address; shared with the sitemap and static HTML build.
   siteUrl: SITE_URL,
-  logoPath: '/brand/logo.svg',
+  logoPath: publicPath('/brand/logo.svg'),
   defaultOgImagePath: '/brand/og-default.png',
-  contactEmail: 'hello@codemaster-academy.example',
+  // Set a real address to enable the optional email handoff on the feedback page.
+  contactEmail: '',
   // Add real profiles here; the footer hides the section while this list is empty.
   social: [],
   foundedYear: 2026,

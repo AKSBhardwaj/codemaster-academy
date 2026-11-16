@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, afterNextRender, computed, inject, input, signal } from '@angular/core';
 import type { QuizQuestion } from '../../../core/models/content';
 import { QuizStore } from '../../../core/services/quiz.store';
 import { IconComponent } from '../../../shared/components/icon/icon';
@@ -35,6 +35,7 @@ export class QuizRunnerComponent {
 
   private readonly store = inject(QuizStore);
   protected readonly phase = signal<Phase>('intro');
+  protected readonly interactive = signal(false);
   protected readonly index = signal(0);
   protected readonly answers = signal<Map<string, Answer | null>>(new Map());
   protected readonly current = computed(() => this.questions()[this.index()]);
@@ -55,6 +56,11 @@ export class QuizRunnerComponent {
     this.persist() ? this.store.historyFor(this.quizId()) : undefined,
   );
   protected readonly reviewOpen = signal(false);
+
+  constructor() {
+    // An inline quiz can be visible before its deferred event handlers are attached.
+    afterNextRender(() => this.interactive.set(true));
+  }
 
   protected start(): void {
     this.answers.set(new Map());

@@ -1,0 +1,439 @@
+{
+  "title": "Node.js Reference",
+  "description": "A compact reference for Node.js 24: CLI flags and npm commands, modules, the file system, events and streams, HTTP and Express 5, async helpers, node:test and node:sqlite, each linked to the lesson that explains it.",
+  "groups": [
+    {
+      "id": "runtime-cli",
+      "title": "Runtime, CLI and npm",
+      "entries": [
+        {
+          "slug": "node-file",
+          "name": "node file.js",
+          "summary": "Runs a JavaScript file. Extra words after the file name become command-line arguments. node -p evaluates and prints an expression; node alone opens the REPL.",
+          "syntax": "node <file> [arguments...]",
+          "example": {
+            "language": "bash",
+            "code": "node hello.js Ada 42\nnode -p \"process.version\""
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "node-watch",
+          "name": "node --watch",
+          "summary": "Restarts the program whenever a file it loaded changes. Stable since Node 22; use it in a dev script.",
+          "syntax": "node --watch server.js",
+          "lessonSlug": "setup-npm"
+        },
+        {
+          "slug": "node-env-file",
+          "name": "node --env-file",
+          "summary": "Loads NAME=value lines from a file into process.env before the program starts. --env-file-if-exists ignores a missing file.",
+          "syntax": "node --env-file=.env server.js",
+          "notes": [
+            "Variables already set in the environment take precedence over the file.",
+            "Available since Node 20.6; --env-file-if-exists since 22.9."
+          ],
+          "lessonSlug": "environment-config"
+        },
+        {
+          "slug": "process-argv",
+          "name": "process.argv",
+          "summary": "Array of command-line arguments: the node binary, the script path, then user arguments as strings.",
+          "syntax": "const args = process.argv.slice(2);",
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "process-env",
+          "name": "process.env",
+          "summary": "Object holding the environment variables of the process. Every value is a string; unset names read as undefined.",
+          "syntax": "const port = Number(process.env.PORT ?? 3000);",
+          "lessonSlug": "environment-config"
+        },
+        {
+          "slug": "process-signals",
+          "name": "process.on('SIGTERM')",
+          "summary": "Registers a handler for an operating-system signal. SIGTERM is sent by supervisors before stopping a process; SIGINT is Ctrl+C. process.exit(code) ends the process.",
+          "syntax": "process.on('SIGTERM', () => { /* close server, then process.exit(0) */ });",
+          "lessonSlug": "deployment"
+        },
+        {
+          "slug": "npm-install",
+          "name": "npm install",
+          "summary": "Installs a package into node_modules and records it in package.json and package-lock.json. Without a name, installs everything the project lists. npm init -y creates the package.json first.",
+          "syntax": "npm install <package> [--save-dev]",
+          "example": {
+            "language": "bash",
+            "code": "npm init -y\nnpm install express\nnpm install --save-dev prettier"
+          },
+          "lessonSlug": "setup-npm"
+        },
+        {
+          "slug": "npm-ci",
+          "name": "npm ci",
+          "summary": "Clean install of the exact versions in package-lock.json; fails if the lockfile and package.json disagree. Use on servers and in CI.",
+          "syntax": "npm ci [--omit=dev]",
+          "lessonSlug": "deployment"
+        },
+        {
+          "slug": "npm-run",
+          "name": "npm run <script>",
+          "summary": "Runs a script from package.json with node_modules/.bin on the path. start and test can be run without the word run; npx runs a package's command directly.",
+          "syntax": "npm run dev | npm start | npm test | npx prettier --write .",
+          "lessonSlug": "setup-npm"
+        }
+      ]
+    },
+    {
+      "id": "modules",
+      "title": "Modules",
+      "entries": [
+        {
+          "slug": "import-export",
+          "name": "import / export",
+          "summary": "ES module syntax. Named exports are imported in braces by their exact name; the single default export can take any name.",
+          "syntax": "import name, { a, b as c } from './file.js';",
+          "example": {
+            "language": "javascript",
+            "code": "export function add(a, b) { return a + b; }\nexport default function describe() { return 'helpers'; }\n\nimport describe, { add } from './math.js';"
+          },
+          "notes": ["Relative paths must start with ./ or ../ and include the file extension."],
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "node-prefix",
+          "name": "node: prefix",
+          "summary": "Marks a built-in module so it can never be shadowed by an npm package of the same name.",
+          "syntax": "import { readFile } from 'node:fs/promises';",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "package-type",
+          "name": "\"type\": \"module\"",
+          "summary": "package.json field that makes .js files ES modules. Without it they are CommonJS; .mjs and .cjs extensions override the field.",
+          "syntax": "{ \"type\": \"module\" }",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "require-module-exports",
+          "name": "require / module.exports",
+          "summary": "CommonJS: module.exports defines what a file exposes and require() loads it synchronously. createRequire(import.meta.url) builds a require for use inside an ES module.",
+          "syntax": "const { log } = require('./logger.cjs');",
+          "example": {
+            "language": "javascript",
+            "code": "// logger.cjs\nmodule.exports = { log: (m) => console.log(m) };"
+          },
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "import-meta",
+          "name": "import.meta.dirname / filename / url",
+          "summary": "Location of the current ES module: folder path, file path (Node 20.11+) and file:// URL. Replaces __dirname and __filename.",
+          "syntax": "join(import.meta.dirname, 'data', 'books.json')",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "import-json",
+          "name": "import ... with { type: 'json' }",
+          "summary": "Imports a JSON file as a parsed object; the import attribute is required. For loading a module on demand, import() returns a promise.",
+          "syntax": "import config from './config.json' with { type: 'json' };",
+          "lessonSlug": "modules"
+        }
+      ]
+    },
+    {
+      "id": "files",
+      "title": "Files and paths",
+      "entries": [
+        {
+          "slug": "read-file",
+          "name": "readFile()",
+          "summary": "Reads a whole file. Pass 'utf8' to get a string; without an encoding it resolves with a Buffer.",
+          "syntax": "const text = await readFile(path, 'utf8');",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "write-append-file",
+          "name": "writeFile() / appendFile()",
+          "summary": "writeFile creates or replaces a file with the given content; appendFile adds to the end.",
+          "syntax": "await writeFile('todo.txt', 'Buy milk\\n');\nawait appendFile('todo.txt', 'Call Ada\\n');",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "mkdir",
+          "name": "mkdir()",
+          "summary": "Creates a folder. With recursive: true it creates missing parents and ignores folders that already exist. rm(path, { recursive: true, force: true }) deletes a tree.",
+          "syntax": "await mkdir('reports/2026', { recursive: true });",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "readdir",
+          "name": "readdir()",
+          "summary": "Lists the entries of a folder. With withFileTypes: true each entry has isFile() and isDirectory().",
+          "syntax": "const entries = await readdir(dir, { withFileTypes: true });",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "stat",
+          "name": "stat()",
+          "summary": "Returns size, timestamps and type checks for a path; rejects with code ENOENT when it does not exist.",
+          "syntax": "const info = await stat(path); info.size; info.mtime;",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "fs-sync",
+          "name": "readFileSync() and friends",
+          "summary": "Blocking versions in node:fs (readFileSync, writeFileSync, existsSync, mkdirSync). Fine at startup or in scripts, never inside request handlers.",
+          "syntax": "const config = JSON.parse(readFileSync('config.json', 'utf8'));",
+          "lessonSlug": "file-system"
+        },
+        {
+          "slug": "path-join-resolve",
+          "name": "path.join() / path.resolve()",
+          "summary": "join concatenates segments with the platform separator; resolve turns a path into an absolute one using the working directory. basename and extname extract the file name and extension.",
+          "syntax": "join(import.meta.dirname, 'data', 'books.json'); resolve('todo.txt');",
+          "lessonSlug": "file-system"
+        }
+      ]
+    },
+    {
+      "id": "events-streams",
+      "title": "Events and streams",
+      "entries": [
+        {
+          "slug": "event-emitter",
+          "name": "EventEmitter",
+          "summary": "Base class for anything that emits events. on adds a listener, once adds a one-shot listener, off removes one and emit calls them synchronously in order.",
+          "syntax": "emitter.on(name, fn); emitter.once(name, fn); emitter.emit(name, ...args);",
+          "example": {
+            "language": "javascript",
+            "code": "import { EventEmitter } from 'node:events';\nconst orders = new EventEmitter();\norders.on('placed', (item) => console.log('placed', item));\norders.emit('placed', 'coffee');"
+          },
+          "notes": [
+            "An 'error' event with no listener throws.",
+            "events.once(emitter, name) returns a promise for the next emission."
+          ],
+          "lessonSlug": "events-streams"
+        },
+        {
+          "slug": "create-read-stream",
+          "name": "createReadStream() / createWriteStream()",
+          "summary": "Readable and writable streams over files. The reader delivers chunks (64 KiB by default) that can be consumed with for await; the writer is typically the last stage of a pipeline.",
+          "syntax": "for await (const chunk of createReadStream(path, { encoding: 'utf8' })) { ... }",
+          "lessonSlug": "events-streams"
+        },
+        {
+          "slug": "readline-interface",
+          "name": "readline.createInterface()",
+          "summary": "Turns any readable stream into an async iterable of lines; crlfDelay: Infinity treats CRLF as one line break.",
+          "syntax": "for await (const line of createInterface({ input, crlfDelay: Infinity })) { ... }",
+          "lessonSlug": "events-streams"
+        },
+        {
+          "slug": "pipeline",
+          "name": "pipeline()",
+          "summary": "Connects streams, handles backpressure, forwards errors, destroys every stream on failure and returns a promise (from node:stream/promises).",
+          "syntax": "await pipeline(source, ...transforms, destination);",
+          "example": {
+            "language": "javascript",
+            "code": "await pipeline(createReadStream('a.log'), createGzip(), createWriteStream('a.log.gz'));"
+          },
+          "lessonSlug": "events-streams"
+        },
+        {
+          "slug": "transform",
+          "name": "Transform",
+          "summary": "A stream that changes data on the way through; implement transform(chunk, encoding, callback) and call callback(null, output). Readable.from(iterable) turns an array or generator into a stream.",
+          "syntax": "new Transform({ transform(chunk, enc, cb) { cb(null, modified); } })",
+          "lessonSlug": "events-streams"
+        }
+      ]
+    },
+    {
+      "id": "http-express",
+      "title": "HTTP and Express",
+      "entries": [
+        {
+          "slug": "http-create-server",
+          "name": "http.createServer()",
+          "summary": "Creates a server that calls your handler with (req, res) for every request; listen(port) starts accepting connections.",
+          "syntax": "createServer((req, res) => { ... }).listen(3000);",
+          "lessonSlug": "http-server"
+        },
+        {
+          "slug": "http-request",
+          "name": "req.method / req.url / req.headers",
+          "summary": "The incoming request: upper-case method, path plus query string, and an object of lower-cased headers. The body is read as a stream.",
+          "syntax": "const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host}`);",
+          "lessonSlug": "http-server"
+        },
+        {
+          "slug": "http-response",
+          "name": "res.writeHead() / res.end()",
+          "summary": "writeHead sets the status and headers; end sends the final chunk and finishes the response. Every request must be ended exactly once.",
+          "syntax": "res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(data));",
+          "lessonSlug": "http-server"
+        },
+        {
+          "slug": "fetch",
+          "name": "fetch()",
+          "summary": "Built-in HTTP client with the browser API. Resolves for any status; check response.ok. Accepts a signal for timeouts.",
+          "syntax": "const response = await fetch(url, { method, headers, body, signal });",
+          "example": {
+            "language": "javascript",
+            "code": "const response = await fetch('http://localhost:3000/api/books', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'Dune' }),\n});\nconst book = await response.json();"
+          },
+          "lessonSlug": "json-apis"
+        },
+        {
+          "slug": "express-app",
+          "name": "express() / app.listen()",
+          "summary": "Creates an Express application and starts an HTTP server for it.",
+          "syntax": "const app = express(); app.listen(3000, () => { ... });",
+          "lessonSlug": "express-basics"
+        },
+        {
+          "slug": "express-routes",
+          "name": "app.get() / post() / put() / patch() / delete()",
+          "summary": "Register a handler for one HTTP method and path. Path segments starting with a colon become req.params; the query string becomes req.query.",
+          "syntax": "app.get('/api/books/:id', (req, res) => { ... });",
+          "lessonSlug": "express-basics"
+        },
+        {
+          "slug": "express-response",
+          "name": "res.status() / res.json() / res.send()",
+          "summary": "status sets the code and chains; json sends JSON; send sends a string as HTML, a Buffer as binary or an object as JSON. All end the response.",
+          "syntax": "res.status(201).json(book);",
+          "lessonSlug": "express-basics"
+        },
+        {
+          "slug": "express-middleware",
+          "name": "app.use() and middleware",
+          "summary": "Registers a (req, res, next) function that runs for every request (or every request under a prefix). Each middleware responds or calls next(). express.static(folder) is the built-in file server.",
+          "syntax": "app.use((req, res, next) => { ...; next(); });",
+          "lessonSlug": "routing-middleware"
+        },
+        {
+          "slug": "express-json",
+          "name": "express.json()",
+          "summary": "Middleware that parses JSON request bodies into req.body when Content-Type is application/json; limit 100 kB by default.",
+          "syntax": "app.use(express.json());",
+          "lessonSlug": "json-apis"
+        },
+        {
+          "slug": "express-router",
+          "name": "express.Router()",
+          "summary": "A mini application with its own routes and middleware, mounted under a prefix with app.use.",
+          "syntax": "const router = Router(); router.get('/', handler); app.use('/api/books', router);",
+          "lessonSlug": "routing-middleware"
+        },
+        {
+          "slug": "express-error-handler",
+          "name": "Error-handling middleware",
+          "summary": "A middleware with four parameters (err, req, res, next), registered last. Express 5 also routes rejected promises from async handlers to it.",
+          "syntax": "app.use((err, req, res, next) => { res.status(err.status ?? 500).json({ error: '...' }); });",
+          "lessonSlug": "routing-middleware"
+        }
+      ]
+    },
+    {
+      "id": "async",
+      "title": "Async helpers",
+      "entries": [
+        {
+          "slug": "promisify",
+          "name": "util.promisify()",
+          "summary": "Wraps an error-first callback function so that it returns a promise.",
+          "syntax": "const run = promisify(exec); const { stdout } = await run('node --version');",
+          "lessonSlug": "async-patterns"
+        },
+        {
+          "slug": "timers-promises",
+          "name": "timers/promises setTimeout()",
+          "summary": "Promise-based timer: await it to pause an async function. Accepts a signal for cancellation.",
+          "syntax": "import { setTimeout as sleep } from 'node:timers/promises'; await sleep(500);",
+          "lessonSlug": "async-patterns"
+        },
+        {
+          "slug": "promise-all",
+          "name": "Promise.all() / allSettled()",
+          "summary": "Run independent promises in parallel. all rejects on the first failure; allSettled waits for every result and reports each outcome.",
+          "syntax": "const [a, b] = await Promise.all([taskA(), taskB()]);",
+          "lessonSlug": "async-patterns"
+        },
+        {
+          "slug": "abort-signal-timeout",
+          "name": "AbortSignal.timeout()",
+          "summary": "Creates a signal that aborts after a delay; pass it to fetch, timers or fs functions to enforce a deadline (rejects with TimeoutError).",
+          "syntax": "await fetch(url, { signal: AbortSignal.timeout(2000) });",
+          "lessonSlug": "async-patterns"
+        }
+      ]
+    },
+    {
+      "id": "testing-sqlite",
+      "title": "Testing and SQLite",
+      "entries": [
+        {
+          "slug": "test-describe-it",
+          "name": "test() / describe() / it()",
+          "summary": "Define tests with node:test. describe groups tests, it (alias of test) defines one; async callbacks are awaited. Run them with node --test.",
+          "syntax": "describe('cart', () => { it('starts empty', () => { ... }); });",
+          "lessonSlug": "testing"
+        },
+        {
+          "slug": "test-hooks",
+          "name": "beforeEach() / afterEach() / before() / after()",
+          "summary": "Hooks that run around each test or once per suite, for fresh fixtures and cleanup such as closing a server.",
+          "syntax": "beforeEach(() => { cart = createCart(); }); after(() => server.close());",
+          "lessonSlug": "testing"
+        },
+        {
+          "slug": "assert-strict",
+          "name": "node:assert/strict",
+          "summary": "Assertions with strict equality: equal, deepEqual, ok, throws, rejects, match.",
+          "syntax": "assert.equal(actual, expected); assert.deepEqual(obj, { id: 1 }); assert.throws(fn, TypeError);",
+          "lessonSlug": "testing"
+        },
+        {
+          "slug": "mock-fn",
+          "name": "mock.fn() / mock.method()",
+          "summary": "Create a function that records its calls, or replace a method for the duration of a test; inspect callCount() and calls[i].arguments.",
+          "syntax": "const notify = mock.fn(); notify.mock.callCount(); notify.mock.calls[0].arguments;",
+          "lessonSlug": "testing"
+        },
+        {
+          "slug": "database-sync",
+          "name": "new DatabaseSync(path)",
+          "summary": "Opens or creates an SQLite database file from node:sqlite; ':memory:' creates a temporary in-memory database. close() releases it.",
+          "syntax": "const db = new DatabaseSync('bookshelf.db');",
+          "lessonSlug": "databases"
+        },
+        {
+          "slug": "db-exec",
+          "name": "db.exec(sql)",
+          "summary": "Runs one or more SQL statements without parameters and returns nothing; used for schema setup and BEGIN/COMMIT/ROLLBACK.",
+          "syntax": "db.exec('CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY, title TEXT NOT NULL)');",
+          "lessonSlug": "databases"
+        },
+        {
+          "slug": "db-prepare",
+          "name": "db.prepare(sql)",
+          "summary": "Compiles a statement with ? or $name placeholders and returns a StatementSync to execute with values.",
+          "syntax": "const insert = db.prepare('INSERT INTO books (title) VALUES (?)');",
+          "lessonSlug": "databases"
+        },
+        {
+          "slug": "statement-run-get-all",
+          "name": "statement.run() / get() / all()",
+          "summary": "run executes a write and returns { changes, lastInsertRowid }; get returns the first row or undefined; all returns every row as an array of objects.",
+          "syntax": "insert.run('Dune'); select.get(1); select.all({ $year: 1990 });",
+          "example": {
+            "language": "javascript",
+            "code": "const { lastInsertRowid } = insert.run('Dune', 'Frank Herbert', 1965);\nconst book = db.prepare('SELECT * FROM books WHERE id = ?').get(lastInsertRowid);"
+          },
+          "lessonSlug": "databases"
+        }
+      ]
+    }
+  ]
+}

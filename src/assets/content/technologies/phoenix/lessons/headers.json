@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set response metadata",
+  "summary": "Phoenix: Set response metadata. Inspect the cache header.",
+  "introduction": "put_resp_header adds a header to the connection. Open GET /note.",
+  "learningObjectives": ["Set response metadata with Phoenix", "Inspect the cache header"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set response metadata"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Set response metadata",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/note\", LessonController, :note\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef note(conn, _params), do: conn |> put_resp_header(\"cache-control\", \"no-store\") |> text(\"Practice note\")\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The header call returns a changed connection that text uses for the final reply."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the cache header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use lower-case header names with Plug."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-headers-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "status"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Set response metadata",
+    "description": "Phoenix: Set response metadata. Inspect the cache header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

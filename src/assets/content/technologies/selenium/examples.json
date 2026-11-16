@@ -1,0 +1,126 @@
+{
+  "title": "Selenium Examples",
+  "description": "Small Selenium examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Open a small page",
+      "description": "Selenium controls a browser through WebDriver. A data URL can hold a tiny HTML page for a local practice test.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<h1>Library</h1>'))\n    assert driver.find_element(By.TAG_NAME, \"h1\").text == \"Library\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "find-by-id",
+      "title": "Find by ID",
+      "description": "An ID should identify one page element. Selenium can use it to find a control.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<button id=\"save\">Save</button>'))\n    assert driver.find_element(By.ID, \"save\").text == \"Save\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-by-id"
+    },
+    {
+      "id": "find-several-elements",
+      "title": "Find several elements",
+      "description": "find_elements returns a list of all matches. It is different from find_element, which returns one match.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<ul><li>Moon</li><li>Ocean</li></ul>'))\n    assert len(driver.find_elements(By.TAG_NAME, \"li\")) == 2\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-several-elements"
+    },
+    {
+      "id": "type-into-an-input",
+      "title": "Type into an input",
+      "description": "send_keys types into an element. Read the value property to see what the field now contains.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<label for=\"title\">Title</label><input id=\"title\">'))\n    field = driver.find_element(By.ID, \"title\")\n    field.send_keys(\"Moon\")\n    assert field.get_property(\"value\") == \"Moon\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "type-into-an-input"
+    },
+    {
+      "id": "click-and-observe",
+      "title": "Click and observe",
+      "description": "A click asks the browser to activate a control. Check the resulting page state.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<button id=\"save\" onclick=\"this.textContent=\\'Done\\'\">Save</button>'))\n    driver.find_element(By.ID, \"save\").click()\n    assert driver.find_element(By.ID, \"save\").text == \"Done\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "click-and-observe"
+    },
+    {
+      "id": "use-a-css-selector",
+      "title": "Use a CSS selector",
+      "description": "A CSS selector describes elements by tags, classes or attributes. Keep it short and tied to a clear target.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<p class=\"notice\">Ready</p>'))\n    assert driver.find_element(By.CSS_SELECTOR, \"p.notice\").text == \"Ready\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-css-selector"
+    },
+    {
+      "id": "check-selected-state",
+      "title": "Check selected state",
+      "description": "A checkbox has a selected state that can be inspected. Clicking toggles that state.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<label><input id=\"remember\" type=\"checkbox\">Remember</label>'))\n    box = driver.find_element(By.ID, \"remember\")\n    box.click()\n    assert box.is_selected()\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-selected-state"
+    },
+    {
+      "id": "choose-a-select-option",
+      "title": "Choose a select option",
+      "description": "Selenium's Select helper handles a native select element. Choose an option by its stored value.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<select id=\"size\"><option value=\"s\">Small</option><option value=\"l\">Large</option></select>'))\n    from selenium.webdriver.support.ui import Select\n    menu = Select(driver.find_element(By.ID, \"size\"))\n    menu.select_by_value(\"l\")\n    assert menu.first_selected_option.text == \"Large\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-a-select-option"
+    },
+    {
+      "id": "wait-for-a-condition",
+      "title": "Wait for a condition",
+      "description": "An explicit wait checks for a condition until a time limit. It is more useful than always sleeping a fixed length.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<p id=\"ready\">Ready</p>'))\n    from selenium.webdriver.support.ui import WebDriverWait\n    from selenium.webdriver.support import expected_conditions as EC\n    item = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, \"ready\")))\n    assert item.text == \"Ready\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "wait-for-a-condition"
+    },
+    {
+      "id": "press-a-keyboard-key",
+      "title": "Press a keyboard key",
+      "description": "Keyboard actions help check access beyond mouse clicks. Tab normally moves focus to the next control.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<input id=\"first\"><input id=\"second\">'))\n    from selenium.webdriver.common.keys import Keys\n    first = driver.find_element(By.ID, \"first\")\n    first.click()\n    first.send_keys(Keys.TAB)\n    assert driver.switch_to.active_element.get_attribute(\"id\") == \"second\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "press-a-keyboard-key"
+    },
+    {
+      "id": "find-an-element-again-after-change",
+      "title": "Find an element again after change",
+      "description": "A page can replace a DOM element. A saved old element reference may then be stale, so locate the current element again.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<button id=\"replace\" onclick=\"document.getElementById(\\'message\\').outerHTML=\\'<p id=message>New</p>\\'\">Replace</button><p id=\"message\">Old</p>'))\n    driver.find_element(By.ID, \"replace\").click()\n    assert driver.find_element(By.ID, \"message\").text == \"New\"\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-an-element-again-after-change"
+    },
+    {
+      "id": "save-evidence-and-close",
+      "title": "Save evidence and close",
+      "description": "A screenshot helps show what the browser displayed. Always release browser resources when a test ends.",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<h1>Library</h1>'))\n    assert driver.find_element(By.TAG_NAME, \"h1\").is_displayed()\n    driver.save_screenshot(\"library.png\")\nfinally:\n    driver.quit()",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-evidence-and-close"
+    }
+  ]
+}

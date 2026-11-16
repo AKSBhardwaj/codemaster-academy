@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-api",
+  "title": "Start the book API",
+  "summary": "Run the Reading List API on localhost and check its health address. Follow how Program.cs registers services and maps the book controller.",
+  "introduction": "We have a project, a table and a connection setting. Now we can start the API. First we check that the web program is alive. Then the next lesson will check whether it can read Oracle rows.",
+  "learningObjectives": [
+    "Start and stop the API using its launch profile",
+    "Read a health response without mistaking it for a database test",
+    "Find the services and controller route mapping"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run the supplied project"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "cd ReadingListApi\ndotnet run --launch-profile ReadingListApi",
+      "title": "Run from the extracted sample root",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep this terminal open. The launch profile uses http://localhost:5080 and the Development environment. Open a second terminal for requests. Press Ctrl+C in the first terminal when you want to stop the API."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "Invoke-RestMethod http://localhost:5080/health",
+      "title": "Send the first request",
+      "runnable": false
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "status         database\n------         --------\nAPI is running Not checked",
+      "title": "Expected result"
+    },
+    {
+      "type": "paragraph",
+      "text": "This reply says the API is running. It deliberately says that the database was not checked. A good health reply tells you exactly what was tested. Reading /api/books will test the real Oracle connection."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read Program.cs in small pieces"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using ReadingListApi.Data;\n\nvar builder = WebApplication.CreateBuilder(args);\n\nbuilder.Services.AddControllers();\nbuilder.Services.AddProblemDetails();\nbuilder.Services.AddScoped<BookRepository>();\nbuilder.Services.AddOptions<OracleOptions>()\n    .Configure(options =>\n        options.ConnectionString = builder.Configuration.GetConnectionString(\"Oracle\") ?? \"\")\n    .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionString),\n        \"Set ConnectionStrings:Oracle with .NET user-secrets or ConnectionStrings__Oracle.\")\n    .ValidateOnStart();\n\n// The browser demo is optional. CORS allows a browser origin; it is not a login system.\nvar allowLocalBrowser = builder.Environment.IsDevelopment()\n    && builder.Configuration.GetValue<bool>(\"Development:CorsEnabled\");\nif (allowLocalBrowser)\n{\n  builder.Services.AddCors(options => options.AddPolicy(\"LocalBrowser\", policy => policy\n      .WithOrigins(\"http://localhost:5500\")\n      .WithMethods(\"GET\", \"POST\", \"PUT\", \"DELETE\")\n      .WithHeaders(\"Content-Type\")));\n}\n\nvar app = builder.Build();\n\n// Send a general error to clients. Keep database details out of HTTP responses.\napp.UseExceptionHandler();\nif (allowLocalBrowser)\n{\n  app.UseCors(\"LocalBrowser\");\n}\n\n// This is an API liveness check. It deliberately does not claim that Oracle is connected.\napp.MapGet(\"/health\", () => Results.Ok(new\n{\n  status = \"API is running\",\n  database = \"Not checked\"\n}));\napp.MapControllers();\napp.Run();",
+      "title": "ReadingListApi/Program.cs",
+      "runnable": false
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "CreateBuilder reads settings and prepares the web app.",
+        "AddControllers enables classes that handle web requests.",
+        "AddScoped gives each request its own BookRepository helper.",
+        "AddOptions reads and checks the Oracle connection setting.",
+        "UseExceptionHandler sends a general error reply if a request fails.",
+        "MapGet adds the health address. MapControllers adds the book addresses. Run starts listening."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A **controller** groups related web actions. BooksController handles addresses that start with /api/books. The app asks the repository to do database work so the controller can stay focused on requests and replies."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Use local HTTP only for local practice",
+      "text": "This sample listens on your own computer. A real public API needs HTTPS and an access plan before it handles other people's data. Publishing the lesson on GitHub Pages does not publish this API."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read the two properties in the health reply. Stop the API with Ctrl+C and repeat the request. Start it again and check that the health request works once more."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-first-api-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-first-api-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "read-books"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "connect-oracle"
+    }
+  ],
+  "seo": {
+    "title": "Start the book API | C# .NET and Oracle",
+    "description": "Run the Reading List API on localhost and check its health address. Follow how Program.cs registers services and maps the book controller."
+  },
+  "updatedOn": "2026-11-16"
+}

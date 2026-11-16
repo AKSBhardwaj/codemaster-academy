@@ -1,0 +1,319 @@
+{
+  "title": "SQL Exercises",
+  "description": "Practice every SQL lesson with multiple-choice questions, output prediction, find-the-error tasks and coding tasks that the SQLite playground checks against the sample database.",
+  "exercises": [
+    {
+      "id": "sql-introduction-purpose",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which job is SQL made for?",
+      "explanation": "SQL reads and changes information in database tables. A table has rows and columns. CSS changes page colours, and HTML labels page parts.",
+      "options": [
+        "Choose a page layout",
+        "Read and change information in database tables",
+        "Make page text blue",
+        "Draw a picture with a mouse"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-select-products",
+      "type": "coding-task",
+      "lessonSlug": "select",
+      "difficulty": "beginner",
+      "question": "Write a query that returns the `name` and `price` of every product, in that column order, in the table's natural (id) order.",
+      "explanation": "List the two columns after SELECT separated by a comma and name the table after FROM. The result columns follow the order of the SELECT list, and without ORDER BY SQLite returns the rows in rowid order.",
+      "language": "sql",
+      "starterCode": "-- Replace * with the two columns you need\nSELECT *\nFROM products;",
+      "solutionCode": "SELECT name, price\nFROM products;",
+      "checklist": [
+        "Only the name and price columns appear in the result",
+        "name comes before price",
+        "All six products are returned",
+        "The statement ends with a semicolon"
+      ],
+      "check": {
+        "kind": "sql-result",
+        "expectedColumns": ["name", "price"],
+        "expectedRows": [
+          ["Notebook", 4.5],
+          ["Mouse pad", 8.99],
+          ["USB cable", 12],
+          ["Mechanical keyboard", 89],
+          ["Monitor stand", 39.5],
+          ["Sticky notes", 2.75]
+        ]
+      }
+    },
+    {
+      "id": "sql-where-precedence",
+      "type": "predict-output",
+      "lessonSlug": "where",
+      "difficulty": "intermediate",
+      "question": "How many rows does this query return?",
+      "explanation": "AND binds tighter than OR, so the condition reads `category = 'Office' OR (category = 'Stationery' AND price < 3)`: both office products (Mouse pad, Monitor stand) plus the one stationery item under 3 (Sticky notes), three rows. With parentheses around the OR only Sticky notes would match.",
+      "language": "sql",
+      "code": "SELECT name\nFROM products\nWHERE category = 'Office'\n   OR category = 'Stationery' AND price < 3;",
+      "options": ["1", "2", "3", "4"],
+      "correctIndex": 2
+    },
+    {
+      "id": "sql-sorting-limiting-clause-order",
+      "type": "find-error",
+      "lessonSlug": "sorting-limiting",
+      "difficulty": "beginner",
+      "question": "This query fails with a syntax error. Why?",
+      "explanation": "The clauses of a SELECT have a fixed order: SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY and finally LIMIT. SQLite reports *near \"ORDER\": syntax error* because nothing may follow LIMIT. Swap the last two lines.",
+      "language": "sql",
+      "code": "SELECT name, price\nFROM products\nLIMIT 3\nORDER BY price DESC;",
+      "options": [
+        "`DESC` must come before the column name",
+        "`LIMIT` must come after `ORDER BY`",
+        "`price` cannot be used in ORDER BY because it is selected",
+        "A query cannot have both ORDER BY and LIMIT"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "sql-sorting-limiting-top-two",
+      "type": "coding-task",
+      "lessonSlug": "sorting-limiting",
+      "difficulty": "beginner",
+      "question": "Return the `name` and `price` of the two most expensive products, most expensive first.",
+      "explanation": "Sort by price descending with ORDER BY price DESC and keep the first two rows with LIMIT 2. Without ORDER BY, LIMIT would return two arbitrary rows.",
+      "language": "sql",
+      "starterCode": "SELECT name, price\nFROM products\n-- add the sort and the limit here\n;",
+      "solutionCode": "SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 2;",
+      "checklist": [
+        "Uses ORDER BY price DESC",
+        "Uses LIMIT 2",
+        "Mechanical keyboard is the first row",
+        "Monitor stand is the second row"
+      ],
+      "check": {
+        "kind": "sql-result",
+        "expectedColumns": ["name", "price"],
+        "expectedRows": [
+          ["Mechanical keyboard", 89],
+          ["Monitor stand", 39.5]
+        ]
+      }
+    },
+    {
+      "id": "sql-filtering-operators-null",
+      "type": "multiple-choice",
+      "lessonSlug": "filtering-operators",
+      "difficulty": "beginner",
+      "question": "Which condition finds the tickets that have no assignee?",
+      "explanation": "Comparisons with NULL are never true, so `= NULL` matches nothing, and an empty string is a value, not a missing one. `IS NULL` is the only test for a missing value; `IS NOT NULL` is its opposite.",
+      "options": [
+        "`WHERE assignee = NULL`",
+        "`WHERE assignee = ''`",
+        "`WHERE assignee IS NULL`",
+        "`WHERE NOT assignee`"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "sql-insert-values-mismatch",
+      "type": "find-error",
+      "lessonSlug": "insert",
+      "difficulty": "beginner",
+      "question": "This INSERT fails. What is wrong?",
+      "explanation": "Every listed column needs exactly one value, in the same order. SQLite reports *2 values for 3 columns*. Add the price (for example 24.9), or remove `price` from the column list if it had a default, which it does not because it is NOT NULL.",
+      "language": "sql",
+      "code": "INSERT INTO products (name, category, price)\nVALUES ('Desk lamp', 'Office');",
+      "options": [
+        "Text values must use double quotes",
+        "Three columns are listed but only two values are supplied",
+        "`price` must be listed first",
+        "INSERT requires a WHERE clause"
+      ],
+      "correctIndex": 1,
+      "errorLine": 2
+    },
+    {
+      "id": "sql-update-delete-predict",
+      "type": "predict-output",
+      "lessonSlug": "update-delete",
+      "difficulty": "intermediate",
+      "question": "What does the SELECT return after the UPDATE?",
+      "explanation": "Two products cost less than 5: Notebook (4.5) and Sticky notes (2.75). The UPDATE doubles both, so the SELECT shows Notebook at 9 and Sticky notes at 5.5. The WHERE of the UPDATE is evaluated against the old prices, so nothing is doubled twice.",
+      "language": "sql",
+      "code": "UPDATE products SET price = price * 2 WHERE price < 5;\nSELECT name, price FROM products WHERE id IN (1, 6);",
+      "options": [
+        "Notebook 9 and Sticky notes 5.5",
+        "Notebook 4.5 and Sticky notes 2.75",
+        "Only Sticky notes 5.5",
+        "Notebook 9 and Sticky notes 2.75"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "sql-create-table-autoincrement",
+      "type": "multiple-choice",
+      "lessonSlug": "create-table",
+      "difficulty": "beginner",
+      "question": "Which SQLite column definition gives each new row an automatically assigned id?",
+      "explanation": "In SQLite `INTEGER PRIMARY KEY` makes the column an alias of the row id, which is assigned automatically; add AUTOINCREMENT to prevent reuse of deleted ids. `SERIAL` is PostgreSQL syntax (modern PostgreSQL prefers GENERATED ALWAYS AS IDENTITY) and MySQL uses AUTO_INCREMENT.",
+      "options": ["`id INT`", "`id INTEGER PRIMARY KEY`", "`id SERIAL`", "`id TEXT UNIQUE`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-constraints-foreign-keys",
+      "type": "true-false",
+      "lessonSlug": "constraints",
+      "difficulty": "intermediate",
+      "question": "SQLite enforces `REFERENCES` foreign key constraints on every connection by default, exactly like PostgreSQL.",
+      "explanation": "SQLite parses foreign key clauses but ignores them unless the connection runs `PRAGMA foreign_keys = ON`. PostgreSQL always enforces them and MySQL does with the InnoDB engine. In the playground, put the pragma at the top of the script.",
+      "correct": false
+    },
+    {
+      "id": "sql-joins-inner",
+      "type": "coding-task",
+      "lessonSlug": "joins",
+      "difficulty": "intermediate",
+      "question": "List every order with three columns: the order `id`, the customer's name as `customer` and the product's name as `product`, ordered by order id.",
+      "explanation": "Join orders to customers on customer_id and to products on product_id, alias the two name columns so they can be told apart, and sort by o.id. Because both customers and products have a column called name, each must be qualified with its table alias.",
+      "language": "sql",
+      "starterCode": "SELECT o.id, c.name AS customer, p.name AS product\nFROM orders o\n-- join customers and products here\nORDER BY o.id;",
+      "solutionCode": "SELECT o.id, c.name AS customer, p.name AS product\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id\nORDER BY o.id;",
+      "checklist": [
+        "Joins customers on customer_id",
+        "Joins products on product_id",
+        "Aliases the two name columns as customer and product",
+        "Returns eight rows sorted by order id"
+      ],
+      "check": {
+        "kind": "sql-result",
+        "expectedColumns": ["id", "customer", "product"],
+        "expectedRows": [
+          [1, "Ada Lovelace", "Mechanical keyboard"],
+          [2, "Ada Lovelace", "Notebook"],
+          [3, "Grace Hopper", "USB cable"],
+          [4, "Linus Torvalds", "Monitor stand"],
+          [5, "Linus Torvalds", "Mouse pad"],
+          [6, "Margaret Hamilton", "Sticky notes"],
+          [7, "Guido van Rossum", "Mechanical keyboard"],
+          [8, "Grace Hopper", "Notebook"]
+        ]
+      }
+    },
+    {
+      "id": "sql-aggregates-count-null",
+      "type": "predict-output",
+      "lessonSlug": "aggregates",
+      "difficulty": "intermediate",
+      "question": "What does the final SELECT return?",
+      "explanation": "COUNT(*) counts rows, including those with NULLs, so it returns 3. COUNT(assignee) counts only the rows where assignee is not NULL, so it returns 1. Every aggregate except COUNT(*) skips NULL values.",
+      "language": "sql",
+      "code": "CREATE TABLE tickets (id INTEGER PRIMARY KEY, title TEXT NOT NULL, assignee TEXT);\nINSERT INTO tickets (title, assignee) VALUES\n  ('Fix login', 'Ada'), ('Write docs', NULL), ('Update logo', NULL);\nSELECT COUNT(*) AS total, COUNT(assignee) AS assigned FROM tickets;",
+      "options": [
+        "total 3, assigned 3",
+        "total 3, assigned 1",
+        "total 1, assigned 1",
+        "total 3, assigned NULL"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-group-by-having-aggregate-where",
+      "type": "find-error",
+      "lessonSlug": "group-by-having",
+      "difficulty": "intermediate",
+      "question": "This query fails with *misuse of aggregate*. What is wrong?",
+      "explanation": "WHERE runs before the rows are grouped, so no count exists yet. Conditions on aggregates go in HAVING, which runs after GROUP BY: `GROUP BY category HAVING COUNT(*) > 1`.",
+      "language": "sql",
+      "code": "SELECT category, COUNT(*) AS products\nFROM products\nWHERE COUNT(*) > 1\nGROUP BY category;",
+      "options": [
+        "`COUNT(*)` cannot be given an alias",
+        "Aggregate conditions belong in HAVING, not WHERE",
+        "GROUP BY must come before WHERE",
+        "`category` must be aggregated too"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "sql-group-by-having-orders",
+      "type": "coding-task",
+      "lessonSlug": "group-by-having",
+      "difficulty": "intermediate",
+      "question": "Return each customer's `name` and their number of orders as `orders`, keeping only customers with more than one order, sorted by name.",
+      "explanation": "Join orders to customers, group by the customer key, count the rows per group with COUNT(*), filter the groups with HAVING COUNT(*) > 1 and sort by name. Ada, Grace and Linus each have two orders; Margaret and Guido have one and are filtered out.",
+      "language": "sql",
+      "starterCode": "SELECT c.name, COUNT(*) AS orders\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\n-- group, filter and sort here\n;",
+      "solutionCode": "SELECT c.name, COUNT(*) AS orders\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nGROUP BY c.id\nHAVING COUNT(*) > 1\nORDER BY c.name;",
+      "checklist": [
+        "Groups by the customer",
+        "Uses HAVING, not WHERE, for the count condition",
+        "Returns Ada Lovelace, Grace Hopper and Linus Torvalds with 2 orders each",
+        "Sorted alphabetically by name"
+      ],
+      "check": {
+        "kind": "sql-result",
+        "expectedColumns": ["name", "orders"],
+        "expectedRows": [
+          ["Ada Lovelace", 2],
+          ["Grace Hopper", 2],
+          ["Linus Torvalds", 2]
+        ]
+      }
+    },
+    {
+      "id": "sql-subqueries-stationery",
+      "type": "coding-task",
+      "lessonSlug": "subqueries",
+      "difficulty": "intermediate",
+      "question": "Using a subquery with IN, return the `name` of every customer who has ordered at least one product from the 'Stationery' category, sorted by name.",
+      "explanation": "The inner query joins orders to products and returns the customer ids of stationery orders; the outer query keeps the customers whose id is in that list. Notebook and Sticky notes are stationery, bought by Ada, Margaret and Grace. EXISTS or a JOIN with DISTINCT would work as well.",
+      "language": "sql",
+      "starterCode": "SELECT name\nFROM customers\nWHERE id IN (\n  -- subquery: customer ids of stationery orders\n)\nORDER BY name;",
+      "solutionCode": "SELECT name\nFROM customers\nWHERE id IN (\n  SELECT o.customer_id\n  FROM orders o\n  JOIN products p ON p.id = o.product_id\n  WHERE p.category = 'Stationery'\n)\nORDER BY name;",
+      "checklist": [
+        "Uses a subquery inside IN",
+        "The subquery joins orders and products and filters on the category",
+        "Returns Ada Lovelace, Grace Hopper and Margaret Hamilton",
+        "Each customer appears once"
+      ],
+      "check": {
+        "kind": "sql-result",
+        "expectedColumns": ["name"],
+        "expectedRows": [["Ada Lovelace"], ["Grace Hopper"], ["Margaret Hamilton"]]
+      }
+    },
+    {
+      "id": "sql-functions-upper",
+      "type": "fill-blank",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "question": "`SELECT ___(name) FROM customers` returns every name in capital letters.",
+      "explanation": "UPPER converts text to upper case and LOWER to lower case; both exist in every SQL database. In SQLite they only affect ASCII letters unless the ICU extension is loaded.",
+      "answers": ["UPPER"],
+      "caseSensitive": false
+    },
+    {
+      "id": "sql-views-indexes-stored-data",
+      "type": "true-false",
+      "lessonSlug": "views-indexes",
+      "difficulty": "beginner",
+      "question": "A regular (non-materialized) view stores a copy of its result rows when it is created.",
+      "explanation": "A view stores only the query text. Each SELECT from the view runs that query against the current data, so results are always up to date and the view takes no extra storage. Materialized views (PostgreSQL, Oracle) are the exception and must be refreshed explicitly.",
+      "correct": false
+    },
+    {
+      "id": "sql-transactions-rollback",
+      "type": "predict-output",
+      "lessonSlug": "transactions",
+      "difficulty": "beginner",
+      "question": "What balance does the final SELECT show?",
+      "explanation": "ROLLBACK discards every change made since BEGIN, so the UPDATE that subtracted 40 is undone and the balance is back to 100. The CREATE and INSERT ran before BEGIN in autocommit mode, so they stay.",
+      "language": "sql",
+      "code": "CREATE TABLE accounts (id INTEGER PRIMARY KEY, owner TEXT NOT NULL, balance REAL NOT NULL);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100);\nBEGIN;\nUPDATE accounts SET balance = balance - 40 WHERE owner = 'Ada';\nROLLBACK;\nSELECT balance FROM accounts WHERE owner = 'Ada';",
+      "options": ["60", "100", "40", "NULL"],
+      "correctIndex": 1
+    }
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "slug": "indexes",
+  "title": "Indexes",
+  "summary": "Make queries fast with single-field, compound, unique and TTL indexes, prove the effect with explain, and understand the prefix rule and the cost of every index.",
+  "introduction": "Without an index, every query reads every document in the collection, which is fine for six products and disastrous for a million customers. An index is a sorted copy of one or more fields that lets the server jump straight to the matching documents. This lesson creates a collection large enough to measure, shows the before-and-after with explain, and then covers the index types you will actually use, the prefix rule that trips up most compound indexes, and how to manage indexes without slowing down writes.",
+  "learningObjectives": [
+    "Explain how an index turns a collection scan into an index scan",
+    "Read explain output to see which index a query used and how many documents it examined",
+    "Create single-field, compound, unique and TTL indexes and apply the prefix rule",
+    "List, drop and weigh the cost of indexes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why indexes exist"
+    },
+    {
+      "type": "paragraph",
+      "text": "MongoDB answers a query in one of two ways. A **collection scan** (`COLLSCAN`) reads every document and tests the filter against each; its cost grows with the collection. An **index scan** (`IXSCAN`) walks a B-tree that stores the indexed values in sorted order next to a pointer to each document, so an equality or range lookup touches only the matching entries. Every collection has an index on `_id`; every other index you create yourself, based on the queries you run."
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexes are not free. Each one takes disk space and memory, and every insert, update or delete that touches an indexed field must update the index too. The goal is a small set of indexes that serve the queries that matter, which is why you measure before and after."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Measuring with explain"
+    },
+    {
+      "type": "paragraph",
+      "text": "Six documents cannot show the difference, so generate ten thousand customers from a loop. `insertMany` prints every inserted id, which is why only its `acknowledged` field is displayed here:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.customers.drop()\nconst docs = []\nfor (let i = 1; i <= 10000; i++) {\n  docs.push({\n    name: `Customer ${i}`,\n    email: `user${i}@example.com`,\n    city: ['Lisbon', 'Porto', 'Faro'][i % 3],\n    loyaltyPoints: i % 500\n  })\n}\ndb.customers.insertMany(docs).acknowledged\ndb.customers.countDocuments()"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\ntrue\ntrue\n10000"
+    },
+    {
+      "type": "paragraph",
+      "text": "`explain('executionStats')` runs the query and reports the plan the optimiser chose plus counters for the work it did. Look up one customer by email and keep the two most useful parts of the report:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const before = db.customers.find({ email: 'user5000@example.com' }).explain('executionStats')\nbefore.queryPlanner.winningPlan\nbefore.executionStats.totalDocsExamined"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  isCached: false,\n  stage: 'COLLSCAN',\n  filter: { email: { '$eq': 'user5000@example.com' } },\n  direction: 'forward'\n}\n10000"
+    },
+    {
+      "type": "paragraph",
+      "text": "A collection scan examined all 10,000 documents to return one. Now create an index on `email`, marked `unique` because two customers must never share an address, and run the same explain again:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.createIndex({ email: 1 }, { unique: true })\nconst after = db.customers.find({ email: 'user5000@example.com' }).explain('executionStats')\nafter.queryPlanner.winningPlan.inputStage.stage\nafter.executionStats.totalKeysExamined\nafter.executionStats.totalDocsExamined"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "email_1\nIXSCAN\n1\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "`createIndex` returns the index name, built from the field and its direction. The winning plan is now a `FETCH` stage fed by an `IXSCAN`: one index key examined, one document fetched. On a real server the time drops from tens of milliseconds to well under one. The `1` in `{ email: 1 }` is the sort direction of the index; for a single-field index it makes no difference to lookups, because an index can be walked in either direction."
+    },
+    {
+      "type": "paragraph",
+      "text": "When a query needs only indexed fields, the index alone can answer it and no document is read at all. Such a **covered query** shows `totalDocsExamined: 0`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.find({ email: 'user5000@example.com' }, { _id: 0, email: 1 })\n  .explain('executionStats').executionStats.totalDocsExamined"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Index types you will use"
+    },
+    {
+      "type": "table",
+      "headers": ["Index", "Created with", "Use it for"],
+      "rows": [
+        ["Single field", "`{ email: 1 }`", "Equality and range queries, and sorting, on one field"],
+        [
+          "Compound",
+          "`{ city: 1, loyaltyPoints: -1 }`",
+          "Queries that filter or sort on several fields together"
+        ],
+        [
+          "Unique",
+          "`{ email: 1 }, { unique: true }`",
+          "Enforcing that no two documents share a value"
+        ],
+        [
+          "Multikey",
+          "`{ tags: 1 }` on an array field",
+          "Created automatically when the field holds arrays; one entry per element"
+        ],
+        [
+          "TTL",
+          "`{ createdAt: 1 }, { expireAfterSeconds: 3600 }`",
+          "Deleting sessions, tokens or logs automatically after a time"
+        ],
+        [
+          "Partial",
+          "`{ customerId: 1 }, { partialFilterExpression: { status: 'open' } }`",
+          "Indexing only the documents a query cares about, at a fraction of the size"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Text indexes exist for word search inside strings, but on Atlas the much more capable **Atlas Search** is the usual choice for that. Geospatial indexes (`2dsphere`) support queries such as \"within 5 km of this point\"."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Compound indexes and the prefix rule"
+    },
+    {
+      "type": "paragraph",
+      "text": "A compound index sorts by the first field, then by the second within equal values of the first, and so on. It can serve any query that uses a **prefix** of its fields: `{ city: 1, loyaltyPoints: -1 }` supports filtering on `city`, filtering on `city` and `loyaltyPoints`, and filtering on `city` while sorting by `loyaltyPoints`. It cannot help a query on `loyaltyPoints` alone, because those values are only sorted *within* each city."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.createIndex({ city: 1, loyaltyPoints: -1 })\ndb.customers.find({ city: 'Porto' }).sort({ loyaltyPoints: -1 }).limit(3)\n  .explain('executionStats').executionStats.totalDocsExamined\ndb.customers.find({ loyaltyPoints: 499 }).explain().queryPlanner.winningPlan.stage"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "city_1_loyaltyPoints_-1\n3\nCOLLSCAN"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first query walks the index in order, so the three top customers of Porto cost three documents instead of a scan and an in-memory sort of thousands. The second query, on the non-prefix field, falls back to a collection scan. A reliable way to order the fields of a compound index is the **ESR rule**: fields tested for Equality first, then fields used for Sorting, then fields with Range conditions."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Creating one index per field and assuming the server will combine them. MongoDB usually picks a single index per query, so `{ city: 1 }` plus `{ loyaltyPoints: 1 }` does not serve a query on both fields well, while an index on every field slows every write. Design indexes from the queries you actually run, confirm each with `explain`, and drop the ones nothing uses."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Managing indexes"
+    },
+    {
+      "type": "paragraph",
+      "text": "`getIndexes()` lists what a collection has, and `dropIndex` removes one by name. Building an index on a large collection takes time and resources; on Atlas you can create indexes from the cluster's UI, and on a replica set builds run on all members without blocking reads and writes."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.getIndexes()\ndb.customers.dropIndex('city_1_loyaltyPoints_-1')"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { v: 2, key: { _id: 1 }, name: '_id_' },\n  { v: 2, key: { email: 1 }, name: 'email_1', unique: true },\n  {\n    v: 2,\n    key: { city: 1, loyaltyPoints: -1 },\n    name: 'city_1_loyaltyPoints_-1'\n  }\n]\n{ nIndexesWas: 3, ok: 1 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two more habits pay off. Keep the working set of indexes small enough to fit in memory; the `totalIndexSize` figure from `db.customers.stats()` tells you how large they are. And before dropping an index in production, set it to `hidden: true` with `db.customers.hideIndex(name)`: the index is still maintained but no query uses it, so you can watch for slow queries and unhide it instantly if you were wrong."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Create `{ city: 1 }` alone and compare `totalDocsExamined` for `find({ city: 'Faro', loyaltyPoints: { $gt: 490 } })` with and without the compound index. Then create a TTL index on a `sessions` collection with `expireAfterSeconds: 60`, insert a document with `createdAt: new Date()` and watch it disappear within about a minute."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-indexes-prefix-rule"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-indexes-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "indexes",
+          "difficulty": "intermediate",
+          "question": "Which query can use the index `{ status: 1, placedAt: -1 }`?",
+          "explanation": "The index serves queries on its prefix: `status` alone or `status` with `placedAt`. A filter on `placedAt` alone is not a prefix, and the index does not contain `customerId`.",
+          "options": [
+            "`find({ placedAt: { $gt: someDate } })`",
+            "`find({ status: 'paid' }).sort({ placedAt: -1 })`",
+            "`find({ customerId: 7 })`",
+            "`find({ placedAt: someDate, customerId: 7 })`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-indexes-qc-2",
+          "type": "true-false",
+          "lessonSlug": "indexes",
+          "difficulty": "beginner",
+          "question": "Adding an index makes writes to the collection slightly slower.",
+          "explanation": "Every write that touches an indexed field must also update the index, so each index adds a small cost to inserts, updates and deletes.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-indexes-prefix-rule"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "query-operators"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "schema-design"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "views-indexes"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Indexes – createIndex, explain and Compound Indexes",
+    "description": "Speed up MongoDB queries with single-field, compound, unique and TTL indexes, read explain output, apply the prefix and ESR rules and manage indexes safely."
+  },
+  "updatedOn": "2026-11-15"
+}

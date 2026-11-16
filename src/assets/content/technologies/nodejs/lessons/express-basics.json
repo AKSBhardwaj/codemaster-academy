@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "slug": "express-basics",
+  "title": "Express Basics",
+  "summary": "Install Express 5, create an app, define routes with parameters and query strings, use the response helpers and serve static files, all in a few lines of code.",
+  "introduction": "Express is the most widely used web framework for Node. It does not replace `node:http`; it wraps it, so the server you built by hand in the previous lesson becomes a handful of readable method calls: `app.get` for a route, `res.json` for a JSON reply, `req.params` for the pieces of a URL. This lesson covers Express 5, the version `npm install express` gives you today, and builds the first routes of the bookshelf API you will extend over the next three lessons.",
+  "learningObjectives": [
+    "Create an Express app and define GET routes that return text and JSON",
+    "Read route parameters and query strings from the request",
+    "Choose the right response helper and serve static files"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What Express adds"
+    },
+    {
+      "type": "paragraph",
+      "text": "The hand-written server needed a URL parser, an `if` chain for routing, a JSON helper and a body reader. Express provides all four, plus a **middleware** pipeline (next lesson) that lets you add logging, authentication and error handling without touching every route. It is deliberately small: no database layer, no template engine by default, no opinion about how you organise files. That is why it pairs well with learning Node itself; nothing is hidden."
+    },
+    {
+      "type": "paragraph",
+      "text": "If you followed the [npm lesson](/tutorials/nodejs/setup-npm), Express is already installed. Otherwise run `npm install express` inside your project; `npm ls express` confirms the version:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npm ls express (your minor version may be newer)",
+      "content": "bookshelf@1.0.0 /home/ada/bookshelf\n└── express@5.1.0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hello, Express"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "app.js",
+      "code": "import express from 'express';\n\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.send('Hello from Express');\n});\n\napp.get('/api/status', (req, res) => {\n  res.json({ status: 'ok', version: '1.0.0' });\n});\n\napp.listen(3000, () => {\n  console.log('Express listening on http://localhost:3000');\n});"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s http://localhost:3000/\ncurl -s http://localhost:3000/api/status"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Hello from Express\n{\"status\":\"ok\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`express()` creates the application. `app` is also a request handler, so `app.listen(port)` is `createServer(app).listen(port)` from `node:http` under the hood.",
+        "`app.get(path, handler)` registers a handler for GET requests to that path. `app.post`, `app.put`, `app.patch` and `app.delete` work the same way.",
+        "`res.send` sets `Content-Type` from the value (`text/html` for strings, JSON for objects) and ends the response; `res.json` always sends JSON. Neither needs `res.end`.",
+        "Express responds to unknown paths on its own with a `404` page containing `Cannot GET /missing`, so there is no hanging request for a typo in the URL."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Route parameters and query strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "A segment that starts with a colon is a **route parameter**: `/greet/:name` matches `/greet/Ada` and puts `'Ada'` in `req.params.name`. Anything after `?` in the URL is parsed into `req.query`. Both always contain strings."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "greet.js",
+      "code": "import express from 'express';\n\nconst app = express();\n\napp.get('/greet/:name', (req, res) => {\n  const greeting = `Hello, ${req.params.name}!`;\n  res.send(req.query.shout === 'true' ? greeting.toUpperCase() : greeting);\n});\n\napp.listen(3000);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s http://localhost:3000/greet/Ada\ncurl -s \"http://localhost:3000/greet/Ada?shout=true\""
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Hello, Ada!\nHELLO, ADA!"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Parameters are strings",
+      "text": "`req.params.id` for `/books/2` is the string `'2'`, so `books.find((b) => b.id === req.params.id)` never matches a numeric id and your route returns 404 for every book. Convert with `Number(req.params.id)` first, and check for `NaN` when the input comes from users. The same applies to `req.query.page`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Response helpers"
+    },
+    {
+      "type": "table",
+      "headers": ["Helper", "What it sends"],
+      "rows": [
+        [
+          "`res.send(value)`",
+          "A string as HTML, a Buffer as binary, an object or array as JSON; sets `Content-Length` and ends the response"
+        ],
+        [
+          "`res.json(value)`",
+          "JSON with `Content-Type: application/json; charset=utf-8`, even for strings and numbers"
+        ],
+        [
+          "`res.status(code)`",
+          "Sets the status code and returns `res`, so it chains: `res.status(404).json({ error: 'Not found' })`"
+        ],
+        [
+          "`res.sendStatus(code)`",
+          "Sets the status and sends its standard text as the body: `res.sendStatus(404)` sends `Not Found`"
+        ],
+        ["`res.redirect(url)`", "A `302` redirect (pass a code first for `301` or `303`)"],
+        [
+          "`res.sendFile(absolutePath)`",
+          "Streams a file with the right `Content-Type`; the path must be absolute"
+        ],
+        ["`res.set(name, value)`", "Adds a header before sending"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "A route that uses several helpers",
+      "code": "app.get('/api/books/:id', (req, res) => {\n  const id = Number(req.params.id);\n  const book = books.find((b) => b.id === id);\n  if (!book) {\n    return res.status(404).json({ error: `No book with id ${req.params.id}` });\n  }\n  res.set('Cache-Control', 'max-age=60').json(book);\n});"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `return` before `res.status(404)` is the same discipline as in the raw server: one response per request. Express does not stop your function after `res.json`, so without the `return` the code would try to send a second response and log `ERR_HTTP_HEADERS_SENT`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Serving static files"
+    },
+    {
+      "type": "paragraph",
+      "text": "`express.static(folder)` serves every file under a folder as-is: `public/index.html` becomes `/`, `public/css/site.css` becomes `/css/site.css`, with correct content types and caching headers. Because a relative folder is resolved against the working directory (the [file system lesson](/tutorials/nodejs/file-system) explains why), anchor it to the module:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Serving the public folder",
+      "code": "import express from 'express';\nimport { join } from 'node:path';\n\nconst app = express();\napp.use(express.static(join(import.meta.dirname, 'public')));\n\napp.listen(3000, () => console.log('Static site on http://localhost:3000'));"
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "Express 5 versus Express 4",
+      "text": "Most Express 4 tutorials still work, with three differences worth knowing. Express 5 forwards errors from `async` handlers to your error middleware automatically; route patterns use `/files/*name` for wildcards and `/users{/:id}` for optional segments instead of the old `*` and `?` syntax; and `req.body` may be `undefined` until a body-parsing middleware runs. Express 5 needs Node 18 or newer, so Node 24 is fully supported."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-express-basics-helpers"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-express-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "express-basics",
+          "difficulty": "beginner",
+          "question": "The route is `app.get('/books/:id', ...)` and the request is `/books/42?format=short`. Which expression evaluates to `'42'`?",
+          "explanation": "Named route segments land in req.params; the query string lands in req.query. Both hold strings.",
+          "options": ["`req.query.id`", "`req.params.id`", "`req.body.id`", "`req.url.id`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-express-qc-2",
+          "type": "true-false",
+          "lessonSlug": "express-basics",
+          "difficulty": "beginner",
+          "question": "After `res.json(book)` you must call `res.end()` to finish the response.",
+          "explanation": "res.json, res.send, res.redirect and res.sendFile all end the response themselves; res.end is only needed when you write the body manually.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-express-basics-helpers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "http-server"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "routing-middleware"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "json-apis"
+    }
+  ],
+  "seo": {
+    "title": "Express Basics in Node.js – Routes, Params and Responses",
+    "description": "Get started with Express 5 on Node.js: create an app, define routes, read route parameters and query strings, use res.json and res.status, serve static files."
+  },
+  "updatedOn": "2026-11-15"
+}

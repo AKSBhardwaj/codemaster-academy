@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-chat-app",
+  "title": "Design a small chat app",
+  "summary": "Plan saved messages and live delivery for a small chat. Handle repeated sends, missing connections, message order, and private group access.",
+  "introduction": "A spoken message can be lost when someone walks out of the room. A chat app should keep messages so a person can catch up after reconnecting. Fast live delivery is useful, but saved history is the foundation.",
+  "learningObjectives": [
+    "Separate saving a message from delivering or reading it",
+    "Use stable message IDs and per-conversation order",
+    "Plan reconnecting and membership checks"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set a small, clear goal"
+    },
+    {
+      "type": "paragraph",
+      "text": "Plan text chat for 100 school club members in small groups. Members send messages, view group history, and catch up after a short disconnection. Video calls, huge public rooms, and typing indicators are outside the first version."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **WebSocket** is a connection that lets a browser and service send updates to each other without opening a new request for every update. It helps with live delivery, but does not save history by itself."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/chat-delivery.svg",
+      "width": 400,
+      "height": 544,
+      "alt": "A sender uses a message ID. The chat service checks access and saves the message. It delivers now or after reconnecting, then records confirmation.",
+      "caption": "A saved message is not the same as a delivered or read message. IDs help the receiver hide duplicates after a retry."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Small group-chat design\nConversation: conversationId, name\nMember: conversationId, readerId\nMessage: messageId, conversationId, senderId, clientMessageId, sequence, text\n\nSend {conversationId, clientMessageId, text}\n1. Check the sender's identity and current membership.\n2. Save the message once for this sender/clientMessageId in the conversation.\n3. Assign its next sequence number within the conversation.\n4. Save a delivery-event record with the message, then commit.\n5. Tell the sender the message is saved.\n6. Send live updates to connected permitted members.\n\nReconnect {conversationId, afterSequence}\nCheck membership, then return saved messages after that sequence in order.\nReceivers ignore repeated messageIds.",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give each saved message a stable place"
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser creates a client message ID before sending. It reuses that ID when retrying the same message. The service saves a uniqueness rule for the sender, conversation, and client ID, and rejects reuse with different message text."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **sequence number** gives each saved message a position in one conversation: 1, 2, 3, and so on. Assign it safely with the save. This plan promises order within a conversation, not one global order for every chat."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow a message and a reconnection"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A member sends message m7. The service checks group membership and text length, then saves the message and a delivery-event record together.",
+        "The service replies \"saved\". This does not mean every recipient received or read the message.",
+        "A worker sends updates over active connections. It may send an update again after a retry, so receivers remove repeats by message ID.",
+        "A disconnected member returns with their last seen sequence, such as 12. The service checks membership again and returns later saved messages in order.",
+        "The browser merges history and live updates by message ID and sequence. If there is a gap, it asks for missing history rather than guessing."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Saving a delivery-event record with the message prevents a crash between saving and announcing it from silently losing the announcement. A worker can retry later. History is still available while live delivery is delayed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Plan the boundaries and the load"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a normal history request for catch-up and a WebSocket for live updates. Both must check access. When someone leaves a private group, stop future live delivery and apply the current history-access rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "Start with one chat service, a database, and a worker. Index history by conversation and sequence. If traffic grows, active connections may be spread across servers with a shared message-routing layer. That extra layer should follow measured need."
+    },
+    {
+      "type": "paragraph",
+      "text": "A very large room makes each message fan out to many recipients. **Fan-out** means one event creating many deliveries. Bound each connection's waiting queue; a slow connection can reconnect and fetch saved history instead of using endless memory."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A sender sees no reply after sending m7 and sends it again with the same client message ID. What should history contain?",
+        "One saved message. The service returns the saved outcome for that ID. If the sender used a fresh ID, the service might correctly treat it as a new message."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not label a saved message as \"read\" just because it was stored or sent over a connection. Saved, delivered, and read are different events."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-design-a-chat-app"
+    }
+  ],
+  "exerciseIds": ["system-design-design-a-chat-app"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "security-and-privacy"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Design a small chat app",
+    "description": "Plan saved messages and live delivery for a small chat. Handle repeated sends, missing connections, message order, and private group access."
+  },
+  "updatedOn": "2026-11-16"
+}

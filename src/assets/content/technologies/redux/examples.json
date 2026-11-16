@@ -1,0 +1,138 @@
+{
+  "title": "Redux Small Examples",
+  "description": "Use these small Redux examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Meet a store and an action",
+      "description": "A store keeps state. An action is a small message saying what happened, such as one more book being read.",
+      "language": "javascript",
+      "code": "import {configureStore,createSlice} from \"@reduxjs/toolkit\";\nconst slice=createSlice({name:\"reading\",initialState:{count:0},reducers:{add(state){state.count++;}}});\nconst store=configureStore({reducer:slice.reducer});\nstore.dispatch(slice.actions.add());\nconsole.log(store.getState().count);",
+      "output": "The console shows 1 after the action is dispatched.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "name-a-slice-of-state",
+      "title": "Name a slice of state",
+      "description": "A slice groups one part of state with the reducers that change it.",
+      "language": "javascript",
+      "code": "import {createSlice} from \"@reduxjs/toolkit\";\nconst reading=createSlice({name:\"reading\",initialState:0,reducers:{add:state=>state+1}});\nconsole.log(reading.actions.add().type);",
+      "output": "The action type is reading/add.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "name-a-slice-of-state"
+    },
+    {
+      "id": "carry-a-value-in-an-action",
+      "title": "Carry a value in an action",
+      "description": "An action payload carries the information needed for a change.",
+      "language": "javascript",
+      "code": "import {configureStore,createSlice} from \"@reduxjs/toolkit\";\nconst slice=createSlice({name:\"reading\",initialState:0,reducers:{add:(state,action)=>state+action.payload}});\nconst store=configureStore({reducer:slice.reducer});\nstore.dispatch(slice.actions.add(3));\nconsole.log(store.getState());",
+      "output": "The store becomes 3 because the action payload is 3.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "carry-a-value-in-an-action"
+    },
+    {
+      "id": "return-a-new-primitive-value",
+      "title": "Return a new primitive value",
+      "description": "When a slice state is a number or string, its reducer returns the next value.",
+      "language": "javascript",
+      "code": "import {createSlice} from \"@reduxjs/toolkit\";\nconst slice=createSlice({name:\"score\",initialState:0,reducers:{reset:()=>0,add:state=>state+1}});\nconsole.log(slice.reducer(7,slice.actions.reset()));",
+      "output": "The reset reducer returns 0 from a previous state of 7.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "return-a-new-primitive-value"
+    },
+    {
+      "id": "update-draft-object-fields",
+      "title": "Update draft object fields",
+      "description": "Redux Toolkit uses Immer inside createSlice reducers.",
+      "language": "javascript",
+      "code": "import {createSlice} from \"@reduxjs/toolkit\";\nconst slice=createSlice({name:\"book\",initialState:{title:\"Moon Trip\",read:false},reducers:{markRead(state){state.read=true;}}});\nconst before={title:\"Moon Trip\",read:false};\nconst after=slice.reducer(before,slice.actions.markRead());\nconsole.log(before.read,after.read);",
+      "output": "The output is false true. The original object remains unchanged.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "update-draft-object-fields"
+    },
+    {
+      "id": "add-a-list-item",
+      "title": "Add a list item",
+      "description": "A list reducer can add a record with a stable id.",
+      "language": "javascript",
+      "code": "import {createSlice} from \"@reduxjs/toolkit\";\nconst slice=createSlice({name:\"books\",initialState:[],reducers:{add(state,action){state.push(action.payload);}}});\nconst next=slice.reducer([],slice.actions.add({id:1,title:\"Moon Trip\"}));\nconsole.log(next[0].title);",
+      "output": "The new list contains a book titled Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-list-item"
+    },
+    {
+      "id": "select-a-useful-piece-of-state",
+      "title": "Select a useful piece of state",
+      "description": "A selector is a function that reads state and returns the part a caller needs.",
+      "language": "javascript",
+      "code": "const selectUnread=state=>state.books.filter(book=>!book.read);\nconst state={books:[{id:1,read:true},{id:2,read:false}]};\nconsole.log(selectUnread(state).length);",
+      "output": "The selector finds one unread book.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-a-useful-piece-of-state"
+    },
+    {
+      "id": "combine-related-slices",
+      "title": "Combine related slices",
+      "description": "A store can hold several slices under different keys.",
+      "language": "javascript",
+      "code": "import {configureStore,createSlice} from \"@reduxjs/toolkit\";\nconst books=createSlice({name:\"books\",initialState:[],reducers:{}});\nconst theme=createSlice({name:\"theme\",initialState:\"light\",reducers:{}});\nconst store=configureStore({reducer:{books:books.reducer,theme:theme.reducer}});\nconsole.log(store.getState().theme);",
+      "output": "The root state has books and theme keys. The theme value is light.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "combine-related-slices"
+    },
+    {
+      "id": "provide-the-store-to-react",
+      "title": "Provide the store to React",
+      "description": "React Redux Provider makes one store available to components under it.",
+      "language": "jsx",
+      "code": "// main.jsx; create and export store from your own store.js first.\nimport {createRoot} from \"react-dom/client\";\nimport {Provider} from \"react-redux\";\nimport {store} from \"./store.js\";\nimport App from \"./App.jsx\";\ncreateRoot(document.getElementById(\"root\")).render(<Provider store={store}><App/></Provider>);",
+      "output": "Components inside App can use React Redux hooks with the supplied store.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "provide-the-store-to-react"
+    },
+    {
+      "id": "read-and-dispatch-from-react",
+      "title": "Read and dispatch from React",
+      "description": "useSelector reads a store value for a component.",
+      "language": "jsx",
+      "code": "import {useSelector,useDispatch} from \"react-redux\";\nexport default function Counter(){const count=useSelector(state=>state.reading.count);const dispatch=useDispatch();return <button onClick={()=>dispatch({type:\"reading/add\"})}>Books: {count}</button>;}\n// Use a Provider store with a reading slice and an add reducer.",
+      "output": "The button reads the count and asks the store to add one. Its display follows the updated value.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-and-dispatch-from-react"
+    },
+    {
+      "id": "handle-an-async-task-state",
+      "title": "Handle an async task state",
+      "description": "An async thunk creates pending, fulfilled and rejected actions for a promise.",
+      "language": "javascript",
+      "code": "import {createAsyncThunk,configureStore,createSlice} from \"@reduxjs/toolkit\";\nconst load=createAsyncThunk(\"books/load\",async()=>[\"Moon Trip\"]);\nconst slice=createSlice({name:\"books\",initialState:[],reducers:{},extraReducers:builder=>{builder.addCase(load.fulfilled,(_state,action)=>action.payload);}});\nconst store=configureStore({reducer:slice.reducer});\nstore.dispatch(load()).then(()=>console.log(store.getState()[0]));",
+      "output": "The fulfilled action stores the returned list and the console shows Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-an-async-task-state"
+    },
+    {
+      "id": "keep-state-changes-predictable",
+      "title": "Keep state changes predictable",
+      "description": "Reducers should be predictable: the same state and action should produce the same result.",
+      "language": "javascript",
+      "code": "const action={type:\"books/added\",payload:{id:\"book-1\",title:\"Moon Trip\"}};\nfunction reducer(state=[],action){if(action.type===\"books/added\")return [...state,action.payload];return state;}\nconsole.log(reducer([],action).length);",
+      "output": "The same empty state and action always give a one-item list.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-state-changes-predictable"
+    }
+  ]
+}

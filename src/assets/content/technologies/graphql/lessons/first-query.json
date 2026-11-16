@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-query",
+  "title": "Ask for one field",
+  "summary": "GraphQL: Ask for one field. Change the resolver greeting.",
+  "introduction": "A schema names allowed fields. The resolver supplies a value for greeting.",
+  "learningObjectives": ["Ask for one field with GraphQL", "Change the resolver greeting"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask for one field"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Ask for one field",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { greeting: String! }\");\n\nconst rootValue = { greeting: () => \"Hello, Asha!\" };\nconst result = await graphql({ schema, rootValue, source: \"{ greeting }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Query type declares greeting. The root resolver supplies its string when that field is selected."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"greeting\":\"Hello, Asha!\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the resolver greeting."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A query can only ask for fields declared in the schema."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-first-query-check"
+    }
+  ],
+  "exerciseIds": ["graphql-first-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "selected-fields"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Ask for one field",
+    "description": "GraphQL: Ask for one field. Change the resolver greeting. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

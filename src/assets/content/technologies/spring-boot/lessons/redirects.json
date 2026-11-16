@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Return a location",
+  "summary": "Spring Boot: Return a location. Inspect the first reply without following redirects.",
+  "introduction": "A 302 reply with Location asks a browser to make another request. GET /start ends at /hello.",
+  "learningObjectives": [
+    "Return a location with Spring Boot",
+    "Inspect the first reply without following redirects"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a location"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Return a location",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/start\") ResponseEntity<Void> start() { return ResponseEntity.status(302).header(\"Location\", \"/hello\").build(); }\n@GetMapping(\"/hello\") String hello() { return \"Welcome\"; }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first response has status 302 and a Location header. The browser follows it to the greeting."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first reply without following redirects."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Redirects are client actions, not calls to another Java method."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-redirects-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Return a location",
+    "description": "Spring Boot: Return a location. Inspect the first reply without following redirects. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors-debugging",
+  "title": "Errors and Debugging",
+  "summary": "Debugging means finding and fixing mistakes in a program. Error messages give clues about what went wrong.",
+  "introduction": "Debugging means finding and fixing mistakes in a program. Error messages give clues about what went wrong. Work like a detective. Read the message, check one line at a time and use console messages to see your values.",
+  "learningObjectives": [
+    "Identify the common error types from their names and messages",
+    "Recover from failures with try, catch and finally",
+    "Throw descriptive errors, including custom classes and a cause",
+    "Debug with console methods, breakpoints and the debugger statement"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading an error message"
+    },
+    {
+      "type": "paragraph",
+      "text": "When something goes wrong at runtime, JavaScript creates an **error object** and stops the current function. Unhandled, it stops the whole script and the console shows three things: the error **name** (its type), the **message** (what went wrong) and the **stack trace** (which function called which, with file names and line numbers). Read the first line, then the first stack frame that points at your own file; that is almost always where the bug is."
+    },
+    {
+      "type": "table",
+      "headers": ["Error name", "Typical message", "Usual cause"],
+      "rows": [
+        [
+          "`SyntaxError`",
+          "Unexpected token `}`",
+          "A typo in the code itself; nothing runs until it is fixed"
+        ],
+        [
+          "`ReferenceError`",
+          "`total` is not defined",
+          "Using a variable that was never declared, or before its `let`/`const` line"
+        ],
+        [
+          "`TypeError`",
+          "Cannot read properties of null (reading `textContent`)",
+          "A value is not what you assumed: `null` instead of an element, a string instead of a function"
+        ],
+        [
+          "`RangeError`",
+          "Invalid array length",
+          "A number outside the allowed range, or a function calling itself forever"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The helper below runs a few deliberately broken snippets and prints the name and message of each error. The wording is Chrome's; Firefox and Safari phrase the same errors slightly differently, which is why code should check `error.name` or `instanceof`, never the message text."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function attempt(label, action) {\n  try {\n    action();\n  } catch (error) {\n    console.log(`${label}: ${error.name} - ${error.message}`);\n  }\n}\n\nattempt(\"undeclared\", () => console.log(missingVariable));\nattempt(\"not a function\", () => {\n  const user = { name: \"Ada\" };\n  user.greet();\n});\nattempt(\"null property\", () => {\n  const element = null;\n  console.log(element.textContent);\n});\nattempt(\"range\", () => new Array(-1));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console in Chrome (other browsers word the messages differently)",
+      "content": "undeclared: ReferenceError - missingVariable is not defined\nnot a function: TypeError - user.greet is not a function\nnull property: TypeError - Cannot read properties of null (reading 'textContent')\nrange: RangeError - Invalid array length"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "try, catch and finally"
+    },
+    {
+      "type": "paragraph",
+      "text": "`try` wraps code that might fail. If an error is thrown anywhere inside it, execution jumps straight to `catch`, which receives the error object, and the rest of the `try` block is skipped. `finally` runs afterwards in every case, even when `try` or `catch` ends with `return`, which makes it the right place for cleanup such as hiding a loading spinner. Catch only what you can handle: a parsing failure you can report to the user, yes; a typo in your own code, no, because that needs fixing, not hiding."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function parseAge(input) {\n  try {\n    const age = Number(input);\n    if (Number.isNaN(age)) {\n      throw new TypeError(`\"${input}\" is not a number`);\n    }\n    if (age < 0 || age > 150) {\n      throw new RangeError(`${age} is out of range`);\n    }\n    return age;\n  } catch (error) {\n    console.log(`Problem: ${error.message}`);\n    return null;\n  } finally {\n    console.log(`Checked \"${input}\"`);   // runs before the function returns\n  }\n}\n\nconsole.log(parseAge(\"42\"));\nconsole.log(parseAge(\"abc\"));\nconsole.log(parseAge(\"200\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Checked \"42\"\n42\nProblem: \"abc\" is not a number\nChecked \"abc\"\nnull\nProblem: 200 is out of range\nChecked \"200\"\nnull"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The empty catch block",
+      "text": "`try { ... } catch {}` with nothing inside makes failures invisible: the script carries on with missing data and the real bug surfaces somewhere else, much later. At minimum log the error; better, show the user a message or rethrow it. If you really intend to ignore a specific failure, write a comment saying why."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let settings;\ntry {\n  settings = JSON.parse(\"{bad json\");\n} catch {\n  // nothing here: the failure is invisible\n}\nconsole.log(settings);              // undefined, and nobody knows why\n\ntry {\n  settings = JSON.parse(\"{bad json\");\n} catch (error) {\n  console.log(`Using defaults because: ${error.name}`);\n  settings = { theme: \"light\" };\n}\nconsole.log(settings.theme);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "undefined\nUsing defaults because: SyntaxError\nlight"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Throwing your own errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "`throw` raises an error from your own code when input or state is invalid. Throw `Error` objects (or subclasses), never plain strings, so the stack trace and `name` are available. A **custom error class** lets callers distinguish your errors with `instanceof`, and the `cause` option attaches the original low-level error to a higher-level one so neither explanation is lost. The class syntax is explained in the [Modules and Classes](/tutorials/javascript/modules-classes) lesson."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "class ValidationError extends Error {\n  constructor(message, field) {\n    super(message);\n    this.name = \"ValidationError\";\n    this.field = field;\n  }\n}\n\nfunction register(user) {\n  if (!user.email.includes(\"@\")) {\n    throw new ValidationError(\"Email must contain @\", \"email\");\n  }\n  return \"registered\";\n}\n\ntry {\n  register({ email: \"ada.example.com\" });\n} catch (error) {\n  console.log(error instanceof ValidationError);\n  console.log(`${error.name} on ${error.field}: ${error.message}`);\n}\n\ntry {\n  try {\n    JSON.parse(\"{bad json\");\n  } catch (inner) {\n    throw new Error(\"Could not load settings\", { cause: inner });\n  }\n} catch (error) {\n  console.log(error.message);\n  console.log(error.cause.name);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\nValidationError on email: Email must contain @\nCould not load settings\nSyntaxError"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Debugging tools"
+    },
+    {
+      "type": "paragraph",
+      "text": "The quickest debugging tool is a temporary `console.log` that prints a value where you suspect the problem; `console.warn` and `console.error` print the same way with a colour and a stack trace, and `console.table(array)` shows an array of objects as a grid in the developer tools. For anything beyond a quick look, use a **breakpoint**: open the Sources tab (Debugger in Firefox), click a line number, and the browser pauses there so you can inspect every variable and step through the code line by line. Writing `debugger;` in your code sets the same breakpoint from the inside."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const cart = [\n  { item: \"pen\", qty: 2, price: 1.5 },\n  { item: \"book\", qty: 1, price: 12 },\n];\n\nlet total = 0;\nfor (const line of cart) {\n  const lineTotal = line.qty * line.price;\n  console.log(`debug: ${line.item} -> ${lineTotal}`);   // temporary trace\n  total += lineTotal;\n}\nconsole.log(`total = ${total}`);\n\nconsole.warn(\"Cart has fewer than 3 items\");\nconsole.error(\"This is what an error log looks like\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "debug: pen -> 3\ndebug: book -> 12\ntotal = 15\nCart has fewer than 3 items\nThis is what an error log looks like"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A debugging routine"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the whole error: name, message, and the first stack frame in your own file.",
+        "Reproduce it reliably. A bug you can trigger on demand is half fixed.",
+        "Form a hypothesis (*the element is null because the script runs too early*) and test it with one log or breakpoint.",
+        "Fix the cause, not the symptom: a `?.` that hides a `null` is rarely the real fix.",
+        "Remove the temporary logs, then keep a regression check, for example a unit test with [Jest](/tutorials/jest) or [Vitest](/tutorials/vitest)."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Take the `parseAge` function and add a third rule: the input must not be empty. Decide which error type fits, throw it with a helpful message, and confirm that `finally` still runs for the new case."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-errors-debugging-finally"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "errors-debugging-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "errors-debugging",
+          "difficulty": "beginner",
+          "question": "Which error does `console.log(undeclaredName + 1)` throw?",
+          "explanation": "Reading a name that was never declared throws a ReferenceError. A TypeError would appear if the value existed but was used in an impossible way.",
+          "options": ["`TypeError`", "`ReferenceError`", "`SyntaxError`", "`RangeError`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "errors-debugging-qc-2",
+          "type": "true-false",
+          "lessonSlug": "errors-debugging",
+          "difficulty": "intermediate",
+          "question": "A missing closing bracket in your script file can be caught with try...catch inside the same file.",
+          "explanation": "A SyntaxError in the file itself happens while parsing, before any code runs, so no try block has a chance to catch it. Only runtime errors (including a SyntaxError thrown by JSON.parse) can be caught.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-errors-debugging-finally"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "modules-classes"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Errors and Debugging – try/catch, throw, Tools",
+    "description": "Learn to read JavaScript error messages, handle failures with try, catch and finally, throw custom errors, and debug with console methods and breakpoints."
+  },
+  "updatedOn": "2026-11-16"
+}

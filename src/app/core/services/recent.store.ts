@@ -35,10 +35,12 @@ export class RecentStore {
 
   record(lesson: Omit<RecentLesson, 'viewedAt'>): void {
     if (!this.hydrated()) return;
-    this.recent.update((list) => [
-      { ...lesson, viewedAt: new Date().toISOString() },
-      ...list.filter((l) => !(l.tech === lesson.tech && l.slug === lesson.slug)),
-    ].slice(0, MAX));
+    this.recent.update((list) =>
+      [
+        { ...lesson, viewedAt: new Date().toISOString() },
+        ...list.filter((l) => !(l.tech === lesson.tech && l.slug === lesson.slug)),
+      ].slice(0, MAX),
+    );
     this.persistence.write(KEY, this.recent());
   }
 

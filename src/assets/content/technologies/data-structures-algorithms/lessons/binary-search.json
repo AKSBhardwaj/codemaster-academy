@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "slug": "binary-search",
+  "title": "Binary Search",
+  "summary": "Search a sorted list by keeping half at each step. Follow the middle checks, handle missing numbers, and compare code in six languages.",
+  "introduction": "Think of a number guessing game. After each guess, someone says higher or lower. You can throw away many choices at once. Binary search does this with a sorted list, meaning its values already go from small to large.",
+  "learningObjectives": [
+    "Use low, middle, and high positions in a sorted list",
+    "Explain why removing half the choices saves work"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Binary search checks the middle item of the remaining area. If the target is larger, keep the right half. If it is smaller, keep the left half. Sorted order makes that choice safe."
+    },
+    {
+      "type": "paragraph",
+      "text": "The low and high positions include both ends of the search area. When low becomes larger than high, the area is empty and the value is missing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Look for 8 in [2, 4, 6, 8, 10]. Start with low = 0 and high = 4.",
+        "The middle position is 2, holding 6. Since 8 is larger, move low to 3.",
+        "The middle of positions 3 through 4 is 3, holding 8. Return 3.",
+        "For target 7, check 6, then 8. The bounds cross after rejecting 8, so return -1."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Binary Search example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "function binarySearch(a, target) {\n  let low = 0;\n  let high = a.length - 1;\n  while (low <= high) {\n    const mid = low + Math.floor((high - low) / 2);\n    if (a[mid] === target) return mid;\n    if (a[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}\nconst a = [2, 4, 6, 8, 10];\nconsole.log(binarySearch(a, 8));\nconsole.log(binarySearch(a, 7));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint binarySearch(const int a[], int n, int target) {\n    int low = 0;\n    int high = n - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (a[mid] == target) return mid;\n        if (a[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    return -1;\n}\n\nint main(void) {\n    int a[] = {2, 4, 6, 8, 10};\n    int n = sizeof a / sizeof a[0];\n    printf(\"%d\\n\", binarySearch(a, n, 8));\n    printf(\"%d\\n\", binarySearch(a, n, 7));\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint binarySearch(const std::vector<int>& a, int target) {\n    int n = static_cast<int>(a.size());\n    int low = 0;\n    int high = n - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (a[mid] == target) return mid;\n        if (a[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    return -1;\n}\n\nint main() {\n    std::vector<int> a = {2, 4, 6, 8, 10};\n    std::cout << binarySearch(a, 8) << \"\\n\";\n    std::cout << binarySearch(a, 7) << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "def binary_search(a, target):\n    low = 0\n    high = len(a) - 1\n    while low <= high:\n        mid = low + (high - low) // 2\n        if a[mid] == target:\n            return mid\n        if a[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n\na = [2, 4, 6, 8, 10]\nprint(binary_search(a, 8))\nprint(binary_search(a, 7))",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {2, 4, 6, 8, 10};\nConsole.WriteLine(BinarySearch(a, 8));\nConsole.WriteLine(BinarySearch(a, 7));\n\nstatic int BinarySearch(int[] a, int target) {\n    int n = a.Length;\n    int low = 0;\n    int high = n - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (a[mid] == target) return mid;\n        if (a[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    return -1;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static int binarySearch(int[] a, int target) {\n        int n = a.length;\n        int low = 0;\n        int high = n - 1;\n        while (low <= high) {\n            int mid = low + (high - low) / 2;\n            if (a[mid] == target) return mid;\n            if (a[mid] < target) low = mid + 1;\n            else high = mid - 1;\n        }\n        return -1;\n    }\n\n    public static void main(String[] args) {\n        int[] a = {2, 4, 6, 8, 10};\n        System.out.println(binarySearch(a, 8));\n        System.out.println(binarySearch(a, 7));\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "3\n-1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first line is the index of 8, which is 3. The second line is -1 because 7 is absent. Each failed comparison removes the middle item and an unhelpful half."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "The list must be sorted from small to large before the search starts. Sorting just to answer one small search may cost more work than a linear search."
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty list returns -1. One item also works. With duplicate values, this version returns a matching position but does not promise the first or last match. Finding the first match needs a changed rule that keeps checking to the left."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "With n items, repeated halving gives O(log n) worst time. Here log means the number of halvings: about 10 checks can narrow 1,024 choices. One lucky middle match takes O(1) best time."
+    },
+    {
+      "type": "paragraph",
+      "text": "This loop uses O(1) extra space because it stores only a few positions. This count assumes array positions can be read directly and excludes any work done to sort the input."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change target 8 to 2. Trace middle positions 2 and 0 on paper, then run. Keep the input sorted and check that the result is 0."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not keep mid itself after it has failed. Set low to mid + 1 or high to mid - 1. Otherwise the same middle item can be checked forever. Never apply this rule to an unsorted list."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-binary-search"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-binary-search"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "linear-search"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "sorting-numbers"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "counting-work"
+    }
+  ],
+  "seo": {
+    "title": "Binary Search in Six Languages | DSA",
+    "description": "Search a sorted list by keeping half at each step. Follow the middle checks, handle missing numbers, and compare code in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

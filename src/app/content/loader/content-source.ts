@@ -1,13 +1,14 @@
 import { InjectionToken, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { publicPath } from '../../../content-schema/site-constants';
 
 /** Base URL (no trailing slash) of the compiled content files. */
-export const CONTENT_BASE_URL = '/assets/content';
+export const CONTENT_BASE_URL = publicPath('/assets/content');
 
 /**
  * Where compiled content JSON comes from. The browser uses HTTP; the prerender/server build reads the files
- * from disk (see NodeContentSource). A future REST API or CMS becomes another implementation of this interface.
+ * from disk during the static build (see NodeContentSource). No content API is needed at runtime.
  */
 export interface ContentSource {
   load<T>(relativePath: string): Promise<T>;

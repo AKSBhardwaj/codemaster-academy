@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "slug": "selection-sort",
+  "title": "Selection Sort",
+  "summary": "Build a sorted list by choosing the smallest remaining item. Trace selection sort swaps and compare complete programs in six languages.",
+  "introduction": "Suppose you arrange four books by height. Find the shortest book and place it first. Then find the shortest book left and place it second. Selection sort follows this choose-and-place plan for numbers.",
+  "learningObjectives": [
+    "Find the smallest item in the unfinished part",
+    "Explain why selection sort still scans an ordered list"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Selection sort splits the list into a finished left part and an unfinished right part. It searches the unfinished part for the smallest value, then swaps that value into the next finished position."
+    },
+    {
+      "type": "paragraph",
+      "text": "The smallest variable stores a position, not the smallest number itself. We need the position so we know which two items to swap."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [4, 2, 3, 1]. The smallest value in the whole list is 1 at position 3.",
+        "Swap positions 0 and 3 to get [1, 2, 3, 4]. Position 0 is now finished.",
+        "Scan positions 1 through 3. The smallest value is 2, already at position 1, so the swap leaves it there.",
+        "Scan positions 2 through 3. Keep 3 at position 2. The last remaining value, 4, is already in place."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Selection Sort example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const a = [4, 2, 3, 1];\nconst n = a.length;\nfor (let start = 0; start < n - 1; start++) {\n    let smallest = start;\n    for (let i = start + 1; i < n; i++) {\n        if (a[i] < a[smallest]) smallest = i;\n    }\n    let temp = a[start];\n    a[start] = a[smallest];\n    a[smallest] = temp;\n}\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int a[] = {4, 2, 3, 1};\n    int n = sizeof a / sizeof a[0];\n    for (int start = 0; start < n - 1; start++) {\n        int smallest = start;\n        for (int i = start + 1; i < n; i++) {\n            if (a[i] < a[smallest]) smallest = i;\n        }\n        int temp = a[start];\n        a[start] = a[smallest];\n        a[smallest] = temp;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> a = {4, 2, 3, 1};\n    int n = static_cast<int>(a.size());\n    for (int start = 0; start < n - 1; start++) {\n        int smallest = start;\n        for (int i = start + 1; i < n; i++) {\n            if (a[i] < a[smallest]) smallest = i;\n        }\n        int temp = a[start];\n        a[start] = a[smallest];\n        a[smallest] = temp;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "a = [4, 2, 3, 1]\nn = len(a)\nfor start in range(n - 1):\n    smallest = start\n    for i in range(start + 1, n):\n        if a[i] < a[smallest]:\n            smallest = i\n    a[start], a[smallest] = a[smallest], a[start]\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {4, 2, 3, 1};\nint n = a.Length;\nfor (int start = 0; start < n - 1; start++) {\n    int smallest = start;\n    for (int i = start + 1; i < n; i++) {\n        if (a[i] < a[smallest]) smallest = i;\n    }\n    int temp = a[start];\n    a[start] = a[smallest];\n    a[smallest] = temp;\n}\nConsole.WriteLine(string.Join(\" \", a));",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[] a = {4, 2, 3, 1};\n        int n = a.length;\n        for (int start = 0; start < n - 1; start++) {\n            int smallest = start;\n            for (int i = start + 1; i < n; i++) {\n                if (a[i] < a[smallest]) smallest = i;\n            }\n            int temp = a[start];\n            a[start] = a[smallest];\n            a[smallest] = temp;\n        }\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The output is the sorted list. Although the first swap happens to order this example completely, the remaining scans still run. Selection sort does not have a no-change stop rule."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty or one-item list is already sorted. Duplicate and negative values work. This version changes the original list."
+    },
+    {
+      "type": "paragraph",
+      "text": "Selection sort is not generally stable. A long swap can move one tied item past another. For example, swapping 1 with 2A in [2A, 2B, 1] leaves [1, 2B, 2A]. The letters label equal values."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "With n items, the scans make (n - 1) + (n - 2) + ... + 1 comparisons. Both already sorted and badly mixed input take O(n²) time because every scan still happens."
+    },
+    {
+      "type": "paragraph",
+      "text": "There are at most n - 1 swap steps. A few positions and one temporary value use O(1) extra space. Few swaps do not mean few comparisons."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the list to [3, 1, 2]. First select 1 and swap it with 3, giving [1, 3, 2]. Then select 2. Check that the output is 1 2 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Set smallest = start at the beginning of each pass. Reusing the previous smallest position can pull an item out of the part you already finished."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-selection-sort"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-selection-sort"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "bubble-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "insertion-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "counting-work"
+    }
+  ],
+  "seo": {
+    "title": "Selection Sort in Six Languages | DSA",
+    "description": "Build a sorted list by choosing the smallest remaining item. Trace selection sort swaps and compare complete programs in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

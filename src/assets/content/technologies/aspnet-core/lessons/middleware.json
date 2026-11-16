@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "middleware",
+  "title": "Add a shared response rule",
+  "summary": "ASP.NET Core: Add a shared response rule. Inspect Cache-Control with curl -i.",
+  "introduction": "Middleware can run before and after later handlers. GET /note carries the header set here.",
+  "learningObjectives": [
+    "Add a shared response rule with ASP.NET Core",
+    "Inspect Cache-Control with curl -i"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n School, enter School, and replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. Stop the app before changing examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Add a shared response rule"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Add a shared response rule",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.Use(async (context, next) => { context.Response.Headers[\"Cache-Control\"] = \"no-store\"; await next(); });\napp.MapGet(\"/note\", () => \"Practice note\");\napp.Run();\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The middleware adds Cache-Control, then awaits the next handler. That handler supplies the note."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect Cache-Control with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Call next when the request should continue through the pipeline."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-core-middleware-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-core-middleware-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-core",
+      "slug": "validation"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Core: Add a shared response rule",
+    "description": "ASP.NET Core: Add a shared response rule. Inspect Cache-Control with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "slug": "comprehensions",
+  "title": "Comprehensions",
+  "summary": "A comprehension is a short way to build a new list from a sequence of values.",
+  "introduction": "A comprehension is a short way to build a new list from a sequence of values. First read the longer loop version. Then see how the short version does the same job, such as doubling each score in a list.",
+  "learningObjectives": [
+    "Rewrite an append-in-a-loop as a list comprehension",
+    "Filter items with an if clause and transform them with a conditional expression",
+    "Build dictionaries and sets with comprehension syntax",
+    "Use generator expressions to feed sum(), max() and any() without a temporary list"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "From loop to comprehension"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "squares.py",
+      "code": "numbers = [1, 2, 3, 4, 5]\n\nsquares = []\nfor n in numbers:\n    squares.append(n * n)\nprint(squares)\n\nsquares = [n * n for n in numbers]\nprint(squares)\n\nnames = [\"ada\", \"grace\", \"linus\"]\nprint([name.title() for name in names])\nprint([len(name) for name in names])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python squares.py",
+      "content": "[1, 4, 9, 16, 25]\n[1, 4, 9, 16, 25]\n['Ada', 'Grace', 'Linus']\n[3, 5, 5]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read `[n * n for n in numbers]` starting at the `for`: for each `n` in `numbers`, produce `n * n`, and collect the results in a new list. The expression before the `for` is what goes into the list; it can be anything, including a method call or an f-string. The loop version and the comprehension produce identical results; the comprehension simply says it in one line and avoids the empty-list-then-append ceremony."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Filtering with if"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "filtering.py",
+      "code": "numbers = range(1, 11)\n\nevens = [n for n in numbers if n % 2 == 0]\nprint(evens)\n\nbig_squares = [n * n for n in numbers if n * n > 50]\nprint(big_squares)\n\nlabels = [\"even\" if n % 2 == 0 else \"odd\" for n in range(1, 5)]\nprint(labels)\n\nwords = [\"apple\", \"Bob\", \"cat\", \"Dune\"]\nprint([w.lower() for w in words if w[0].isupper()])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python filtering.py",
+      "content": "[2, 4, 6, 8, 10]\n[64, 81, 100]\n['odd', 'even', 'odd', 'even']\n['bob', 'dune']"
+    },
+    {
+      "type": "paragraph",
+      "text": "An `if` *after* the `for` filters: items that fail the test are skipped and nothing is produced for them. A conditional expression *before* the `for` chooses what to produce for every item, and nothing is skipped. The two can be combined, but if a comprehension needs both plus a long expression, a plain loop is clearer."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dict and set comprehensions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Curly braces with a `key: value` expression build a dictionary; curly braces with a single expression build a set. Both accept the same `for` and `if` clauses, and both are the quickest way to reshape data: index a list by some field, convert units, invert a mapping."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "dict_set.py",
+      "code": "fruits = [\"apple\", \"banana\", \"cherry\"]\n\nlengths = {fruit: len(fruit) for fruit in fruits}\nprint(lengths)\n\nprices = {\"coffee\": 2.5, \"tea\": 1.8, \"cake\": 3.2}\nin_cents = {item: round(price * 100) for item, price in prices.items()}\nprint(in_cents)\n\ncheap = {item for item, price in prices.items() if price < 3}\nprint(sorted(cheap))\n\ninverted = {length: fruit for fruit, length in lengths.items()}\nprint(inverted)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python dict_set.py",
+      "content": "{'apple': 5, 'banana': 6, 'cherry': 6}\n{'coffee': 250, 'tea': 180, 'cake': 320}\n['coffee', 'tea']\n{5: 'apple', 6: 'cherry'}"
+    },
+    {
+      "type": "paragraph",
+      "text": "When two items produce the same key, the later one wins, which is why `inverted` maps `6` to `cherry` and `banana` has disappeared. That is a feature when you want the last value and a bug when you do not; check for duplicate keys before inverting a mapping."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested comprehensions"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "nested.py",
+      "code": "pairs = [(x, y) for x in range(1, 4) for y in range(1, 3)]\nprint(pairs)\n\nmatrix = [[1, 2, 3], [4, 5, 6]]\nflat = [value for row in matrix for value in row]\nprint(flat)\n\ntransposed = [[row[i] for row in matrix] for i in range(3)]\nprint(transposed)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python nested.py",
+      "content": "[(1, 1), (1, 2), (2, 1), (2, 2), (3, 1), (3, 2)]\n[1, 2, 3, 4, 5, 6]\n[[1, 4], [2, 5], [3, 6]]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two `for` clauses behave like nested loops, written in the same order as the loops would be: the first `for` is the outer loop, so `x` changes slowly and `y` quickly. A comprehension *inside* a comprehension builds a list of lists, as `transposed` does. These are the limit of readable nesting; beyond that, write a function with ordinary loops."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Readable beats clever",
+      "text": "A comprehension that needs scrolling, three conditions or a side effect such as calling `print` inside it has stopped being a comprehension and become a puzzle. If you cannot say what it does in one sentence, write the loop. A `for` loop also states honestly that you want the side effects rather than the list, which a comprehension used for its side effects hides."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Generator expressions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parentheses instead of brackets create a **generator expression**: it produces items one at a time as the consumer asks for them, so `sum()` can add a million squares without ever holding a million-item list in memory. When the generator is the only argument to a function, its own parentheses can be dropped."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "generators.py",
+      "code": "numbers = range(1, 1_000_001)\n\ntotal = sum(n * n for n in numbers)\nprint(total)\n\nprint(max(len(word) for word in [\"kiwi\", \"banana\", \"fig\"]))\nprint(any(n > 999_000 for n in numbers))\nprint(all(n > 0 for n in numbers))\n\nsquares = (n * n for n in range(5))\nprint(type(squares).__name__)\nprint(list(squares))\nprint(list(squares))      # exhausted: a generator can be consumed once"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python generators.py",
+      "content": "333333833333500000\n6\nTrue\nTrue\ngenerator\n[0, 1, 4, 9, 16]\n[]"
+    },
+    {
+      "type": "paragraph",
+      "text": "`any()` stops at the first true value and `all()` at the first false one, so combined with a generator they do the minimum work. A generator can be consumed only once: the second `list(squares)` is empty because the first call used everything up. If you need the items twice, build a list."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Given `words = [\"Python\", \"is\", \"fun\"]`, write one comprehension that returns the words longer than two letters in upper case, and a dict comprehension that maps each word to its first letter."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-comprehensions-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-comp-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "comprehensions",
+          "difficulty": "beginner",
+          "question": "Which comprehension produces `[0, 2, 4, 6]`?",
+          "explanation": "`range(4)` yields 0, 1, 2, 3 and doubling each gives 0, 2, 4, 6. The `if n % 2` version keeps the odd numbers, and `range(1, 4)` skips 0.",
+          "options": [
+            "`[n * 2 for n in range(4)]`",
+            "`[n for n in range(8) if n % 2]`",
+            "`[n * 2 for n in range(1, 4)]`",
+            "`[n for n in range(0, 8)]`"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "id": "py-comp-qc-2",
+          "type": "true-false",
+          "lessonSlug": "comprehensions",
+          "difficulty": "intermediate",
+          "question": "A generator expression such as `(n * n for n in range(5))` creates the whole list of results in memory immediately.",
+          "explanation": "A generator produces values lazily, one at a time, as they are requested. Only a list comprehension with square brackets builds the full list up front.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-comprehensions-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "dictionaries"
+    }
+  ],
+  "seo": {
+    "title": "Python Comprehensions – List, Dict, Set and Generators",
+    "description": "Learn Python list, dict and set comprehensions with conditions and nesting, and generator expressions that feed sum(), max() and any() without a temporary list."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "save-and-reload-a-local-tokenizer",
+  "title": "Save and reload a local tokenizer",
+  "summary": "A tokenizer can save its settings as a JSON file. Reloading that file restores the local vocabulary and processing rules.",
+  "introduction": "A tokenizer can save its settings as a JSON file. Reloading that file restores the local vocabulary and processing rules. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain save and reload a local tokenizer",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A tokenizer can save its settings as a JSON file. Reloading that file restores the local vocabulary and processing rules."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\ntokenizer.save(\"practice-tokenizer.json\")\nrestored = Tokenizer.from_file(\"practice-tokenizer.json\")\nprint(restored.encode(\"moon glows\").ids)",
+      "title": "Save and reload a local tokenizer",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The output is [2, 3]. The local file stores the tokenizer setup. No model weights are trained, and nothing is uploaded to the Hub."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Choose a fresh filename in a practice folder and inspect the JSON as text.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Use a practice path to avoid replacing a file you need, and inspect unfamiliar files before loading them."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "hugging-face-save-and-reload-a-local-tokenizer"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Hugging Face further reading](https://huggingface.co/docs)."
+    }
+  ],
+  "exerciseIds": ["hugging-face-save-and-reload-a-local-tokenizer"],
+  "relatedLessons": [
+    {
+      "technologySlug": "hugging-face",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "Hugging Face: Save and reload a local tokenizer",
+    "description": "Learn about save and reload a local tokenizer in Hugging Face. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

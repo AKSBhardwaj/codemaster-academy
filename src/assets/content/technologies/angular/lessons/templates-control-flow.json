@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "templates-control-flow",
+  "title": "Templates and Control Flow",
+  "summary": "Interpolation, template expressions and Angular's built-in control flow: @if, @for with track, @switch, @empty and @let, plus the context variables inside loops.",
+  "introduction": "A template is HTML that Angular reads once and keeps alive: every expression in it is re-evaluated when the signals it depends on change. To show something conditionally or repeat it for each item in a list you use the built-in control flow blocks, which look like TypeScript and compile to efficient DOM updates. This lesson covers interpolation, the rules for expressions, and each block with a working example and its rendered result.",
+  "learningObjectives": [
+    "Write interpolations and know which expressions a template allows",
+    "Render content conditionally with @if, @else if, @else and @switch",
+    "Repeat elements with @for, choose a correct track expression and handle empty lists"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Interpolation and expressions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Double curly braces evaluate an expression and insert the result as text: `{{ user().name }}`, `{{ price * quantity }}`, `{{ title | uppercase }}`. Template expressions are a deliberately small subset of TypeScript. You can read properties, call methods and signals, use arithmetic, comparison, the ternary operator, `??` and `?.`, and apply pipes. You cannot assign (`=`), increment (`++`), use `new` or arrow functions, or chain statements with `;`. If an expression needs any of those, compute the value in the class, preferably as a `computed()` signal."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "text": "Angular escapes interpolated text, so `{{ '<b>hi</b>' }}` renders the literal characters `<b>hi</b>` rather than bold text. That is what makes templates safe against script injection."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "@if, @else if and @else"
+    },
+    {
+      "type": "paragraph",
+      "text": "`@if` renders its block only while the condition is true. When it becomes false, the elements are removed from the DOM entirely, not hidden, and any child components inside are destroyed."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/order-status/order-status.ts",
+      "code": "import { Component, signal } from '@angular/core';\n\ntype Status = 'pending' | 'shipped' | 'cancelled';\n\n@Component({\n  selector: 'app-order-status',\n  template: `\n    @if (status() === 'shipped') {\n      <p>Your order is on its way.</p>\n    } @else if (status() === 'cancelled') {\n      <p>This order was cancelled.</p>\n    } @else {\n      <p>We are preparing your order.</p>\n    }\n    <button (click)=\"ship()\">Mark as shipped</button>\n  `,\n})\nexport class OrderStatus {\n  readonly status = signal<Status>('pending');\n\n  ship(): void {\n    this.status.set('shipped');\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "We are preparing your order.\n[ Mark as shipped ]\n\nAfter clicking the button:\nYour order is on its way.\n[ Mark as shipped ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the condition produces a value you want to reuse, give it a name with `as`. This is the idiomatic way to unwrap a value that may be `null`:"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "@if (currentUser(); as user) {\n  <h2>{{ user.name }}</h2>\n  <p>{{ user.email }}</p>\n} @else {\n  <p>Not signed in.</p>\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "With currentUser() = { name: 'Ada', email: 'ada@example.com' }",
+      "content": "Ada\nada@example.com"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "@for and track"
+    },
+    {
+      "type": "paragraph",
+      "text": "`@for` repeats its block once per item. The `track` expression is mandatory: it tells Angular how to identify each item, so that when the array changes it can move, keep or remove the existing DOM nodes instead of rebuilding the whole list. Use a stable unique value such as an `id`. The `@empty` block renders when the collection has no items."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/task-list/task-list.ts",
+      "code": "import { Component, signal } from '@angular/core';\n\ninterface Task {\n  id: number;\n  title: string;\n  done: boolean;\n}\n\n@Component({\n  selector: 'app-task-list',\n  template: `\n    <ul>\n      @for (task of tasks(); track task.id; let i = $index, last = $last) {\n        <li>\n          {{ i + 1 }}. {{ task.title }}\n          @if (task.done) { (done) }\n          @if (last) { - last one }\n        </li>\n      } @empty {\n        <li>Nothing to do.</li>\n      }\n    </ul>\n    <p>{{ tasks().length }} tasks</p>\n  `,\n})\nexport class TaskList {\n  readonly tasks = signal<Task[]>([\n    { id: 1, title: 'Write the lesson', done: true },\n    { id: 2, title: 'Review the examples', done: false },\n    { id: 3, title: 'Publish', done: false },\n  ]);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "1. Write the lesson (done)\n2. Review the examples\n3. Publish - last one\n\n3 tasks"
+    },
+    {
+      "type": "table",
+      "caption": "Context variables available inside @for",
+      "headers": ["Variable", "Meaning"],
+      "rows": [
+        ["`$index`", "Position of the item, starting at 0"],
+        ["`$count`", "Total number of items"],
+        ["`$first` / `$last`", "`true` for the first or last item"],
+        ["`$even` / `$odd`", "`true` on alternating rows, handy for striping"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "You can read the variables directly (`{{ $index }}`) or alias them with `let`, as the example does, which is clearer in nested loops."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: tracking by index or forgetting track",
+      "text": "Leaving `track` out is a compile error: `NG5002: @for loop must have a \"track\" expression`. Writing `track $index` compiles, but when an item is removed from the middle of the list every following item is re-rendered and any state inside those rows (a focused input, an expanded panel) jumps to the wrong row. Track by an id whenever items can be added, removed or reordered; use `track item` only for lists of primitives that never change order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "@switch"
+    },
+    {
+      "type": "paragraph",
+      "text": "When one value selects between several blocks, `@switch` reads better than a chain of `@else if`. Cases are compared with `===` and there is no fall-through, so no `break` is needed."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "@switch (role()) {\n  @case ('admin') { <p>You can edit everything.</p> }\n  @case ('editor') { <p>You can edit your own posts.</p> }\n  @default { <p>You can read posts.</p> }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "With role() = 'editor'",
+      "content": "You can edit your own posts."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "@let for local variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "`@let` declares a variable inside the template. It is useful when an expression is needed several times, or when a value should be computed once per render rather than in three separate interpolations. The variable is available from the line it is declared until the end of the enclosing block."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "@let total = subtotal() + shipping();\n<p>Subtotal: {{ subtotal() }}</p>\n<p>Shipping: {{ shipping() }}</p>\n<p>Total: {{ total }}</p>\n@if (total > 100) {\n  <p>You qualify for free returns.</p>\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "With subtotal() = 95 and shipping() = 10",
+      "content": "Subtotal: 95\nShipping: 10\nTotal: 105\nYou qualify for free returns."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The older directive syntax"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before Angular 17, conditionals and loops were written with structural directives: `*ngIf=\"ready\"`, `*ngFor=\"let task of tasks\"` and `[ngSwitch]`, all imported from `@angular/common`. They still work, so you will meet them in older code and answers online, but the block syntax is faster, needs no imports and is type-checked more precisely. Existing projects can convert automatically with `ng generate @angular/core:control-flow`."
+    },
+    {
+      "type": "table",
+      "headers": ["Old directive", "Built-in block"],
+      "rows": [
+        [
+          "`*ngIf=\"ready; else loading\"` with `<ng-template #loading>`",
+          "`@if (ready) { ... } @else { ... }`"
+        ],
+        ["`*ngFor=\"let t of tasks; trackBy: byId\"`", "`@for (t of tasks; track t.id) { ... }`"],
+        ["`[ngSwitch]` with `*ngSwitchCase`", "`@switch (value) { @case (...) { ... } }`"]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-templates-track"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-templates-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "templates-control-flow",
+          "difficulty": "beginner",
+          "question": "Which `track` expression is the best choice for a list of users that can be deleted and re-sorted?",
+          "explanation": "An id identifies each user no matter where it sits in the list, so Angular can keep the right DOM nodes. `$index` changes when the order changes.",
+          "options": [
+            "`track $index`",
+            "`track user.id`",
+            "`track user.name.length`",
+            "No track is needed for small lists"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-templates-qc-2",
+          "type": "true-false",
+          "lessonSlug": "templates-control-flow",
+          "difficulty": "beginner",
+          "question": "When an `@if` condition becomes false, Angular hides the elements with `display: none` but keeps them in the DOM.",
+          "explanation": "The block's elements are removed from the DOM and any components inside are destroyed. Use a class binding if you only want to hide something.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-templates-track", "angular-templates-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "bindings-events"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "signals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    }
+  ],
+  "seo": {
+    "title": "Angular Templates and Control Flow – @if, @for, @switch",
+    "description": "Learn Angular 22 template syntax: interpolation, allowed expressions, @if and @else, @for with track and @empty, @switch and @let, each with the rendered output."
+  },
+  "updatedOn": "2026-11-15"
+}

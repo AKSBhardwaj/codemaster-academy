@@ -1,0 +1,259 @@
+{
+  "title": "CSS Exercises",
+  "description": "One exercise per CSS lesson: multiple-choice and true-false checks, fill-in-the-blank, output prediction, find-the-error tasks and coding tasks you can run against the playground's sample page.",
+  "exercises": [
+    {
+      "id": "css-introduction-purpose",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which job can CSS do on a web page?",
+      "explanation": "CSS changes how a page looks. It can make headings blue and put them in the centre. HTML labels the page parts. Other code handles saving data.",
+      "options": [
+        "Label some words as a heading",
+        "Make headings blue and centred",
+        "Save a message to a server",
+        "Set the browser tab title"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-syntax-rule-parts",
+      "type": "fill-blank",
+      "lessonSlug": "syntax",
+      "difficulty": "beginner",
+      "question": "In the declaration `color: #1d4ed8;`, the part before the colon (`color`) is called the ___.",
+      "explanation": "A declaration is a property followed by a colon and a value. `color` is the property, `#1d4ed8` is the value, and the semicolon ends the declaration.",
+      "answers": ["property", "property name"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-adding-css-link",
+      "type": "find-error",
+      "lessonSlug": "adding-css",
+      "difficulty": "beginner",
+      "question": "The stylesheet never loads and the page stays unstyled. Why?",
+      "explanation": "A link element names its target with `href`, not `src` (`src` is for images and scripts). With `src` the browser has no URL to fetch, so no stylesheet is applied. `rel=\"stylesheet\"` is correct and no `type` attribute is needed.",
+      "language": "html",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>My page</title>\n  <link rel=\"stylesheet\" src=\"css/styles.css\">\n</head>\n<body>\n  <h1>Unstyled</h1>\n</body>\n</html>",
+      "options": [
+        "The link element must be inside the body",
+        "The link uses src instead of href",
+        "The rel attribute should be \"css\"",
+        "External stylesheets need a type attribute"
+      ],
+      "correctIndex": 1,
+      "errorLine": 6
+    },
+    {
+      "id": "css-selectors-combinators",
+      "type": "predict-output",
+      "lessonSlug": "selectors",
+      "difficulty": "beginner",
+      "question": "Which statement about the two links is correct?",
+      "explanation": "`.nav a` uses the descendant combinator and matches both links, so both are red. `.nav > a` uses the child combinator and matches only Home: the Help link's parent is the span, not `.nav`, and `font-weight` is not inherited from anything bold.",
+      "language": "html",
+      "code": "<style>\n  .nav a { color: red; }\n  .nav > a { font-weight: bold; }\n</style>\n<div class=\"nav\">\n  <a href=\"#\">Home</a>\n  <span><a href=\"#\">Help</a></span>\n</div>",
+      "options": [
+        "Both links are red and both are bold",
+        "Both links are red; only Home is bold",
+        "Only Home is red and bold; Help is unstyled",
+        "Both links are bold; only Home is red"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-colors-opacity",
+      "type": "coding-task",
+      "lessonSlug": "colors",
+      "difficulty": "beginner",
+      "question": "Style the playground's sample page: make the heading `#1d4ed8`, give the card a translucent blue background using `rgb()` with a 20% alpha channel (the card's text must stay fully opaque), and make the link `hotpink`.",
+      "explanation": "An alpha channel on the background colour (`rgb(29 78 216 / 20%)`) makes only the background see-through. The `opacity` property would fade the card's heading, text and button as well, so it is the wrong tool here.",
+      "language": "css",
+      "starterCode": "/* 1. Heading colour: #1d4ed8 */\nh1 {\n\n}\n\n/* 2. Card background: rgb(29 78 216) at 20% alpha, plus some padding */\n.card {\n\n}\n\n/* 3. Link colour: hotpink */\na {\n\n}",
+      "solutionCode": "h1 {\n  color: #1d4ed8;\n}\n\n.card {\n  background-color: rgb(29 78 216 / 20%);\n  padding: 1rem;\n}\n\na {\n  color: hotpink;\n}",
+      "checklist": [
+        "The h1 has color: #1d4ed8",
+        "The card background uses rgb() with a / 20% alpha, not the opacity property",
+        "The link colour is hotpink",
+        "The card's heading, text and button are still fully opaque"
+      ]
+    },
+    {
+      "id": "css-units-rem-em",
+      "type": "true-false",
+      "lessonSlug": "units",
+      "difficulty": "beginner",
+      "question": "`1rem` is always relative to the font size of the root element, while `1em` is relative to the font size of the current element (or, for `font-size` itself, of its parent).",
+      "explanation": "That is exactly the difference: rem values are the same everywhere on the page, em values compound through nested elements because each level is relative to the previous one.",
+      "correct": true
+    },
+    {
+      "id": "css-box-model-padding",
+      "type": "coding-task",
+      "lessonSlug": "box-model",
+      "difficulty": "beginner",
+      "question": "Style the sample page's `.card`: a 2px solid `#1d4ed8` border, 1.5rem of padding, a 2rem top margin, 8px rounded corners, and a width of 20rem that already includes the padding and border.",
+      "explanation": "With the default `content-box` model the padding and border would be added to the 20rem, making the card 23rem plus 4px wide. `box-sizing: border-box` makes `width` describe the whole visible box, which is what the task asks for.",
+      "language": "css",
+      "starterCode": ".card {\n  /* border, border-radius, padding, margin-top, width and box-sizing */\n\n}",
+      "solutionCode": ".card {\n  box-sizing: border-box;\n  width: 20rem;\n  border: 2px solid #1d4ed8;\n  border-radius: 8px;\n  padding: 1.5rem;\n  margin-top: 2rem;\n}",
+      "checklist": [
+        "The card has a 2px solid #1d4ed8 border with 8px rounded corners",
+        "The card has 1.5rem of padding on every side",
+        "The card has a 2rem top margin",
+        "box-sizing: border-box keeps the rendered width at exactly 20rem"
+      ]
+    },
+    {
+      "id": "css-backgrounds-borders-radius",
+      "type": "multiple-choice",
+      "lessonSlug": "backgrounds-borders",
+      "difficulty": "beginner",
+      "question": "A `div` is 120px wide and 120px tall. Which declaration turns it into a circle?",
+      "explanation": "`border-radius: 50%` rounds every corner by half the box's width and height, which on a square produces a circle. `border-radius: 60px 0` rounds only two opposite corners, and the other two options are not valid CSS for this purpose.",
+      "options": [
+        "`border-radius: 50%`",
+        "`border: 1px circle`",
+        "`border-radius: 60px 0`",
+        "`clip: circle`"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "css-typography-font-stack",
+      "type": "fill-blank",
+      "lessonSlug": "typography",
+      "difficulty": "beginner",
+      "question": "To make text bold without using a `b` or `strong` element, set `font-___: 700;`.",
+      "explanation": "`font-weight` runs from 100 to 900; 700 is the value the keyword `bold` maps to. Remember that the element's font must provide that weight, or the browser will synthesise a fake bold.",
+      "answers": ["weight"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-display-inline-width",
+      "type": "predict-output",
+      "lessonSlug": "display",
+      "difficulty": "beginner",
+      "question": "Which of the two highlighted elements is rendered 200px wide?",
+      "explanation": "A `span` is inline by default and inline boxes ignore `width` and `height`. The `strong` element was switched to `inline-block`, which sits in the line but accepts a width, so only it becomes 200px wide.",
+      "language": "html",
+      "code": "<style>\n  span   { width: 200px; background: #fde68a; }\n  strong { display: inline-block; width: 200px; background: #bfdbfe; }\n</style>\n<p>A <span>span</span> and a <strong>strong</strong>.</p>",
+      "options": ["Both of them", "Only the span", "Only the strong", "Neither of them"],
+      "correctIndex": 2
+    },
+    {
+      "id": "css-positioning-sticky",
+      "type": "multiple-choice",
+      "lessonSlug": "positioning",
+      "difficulty": "intermediate",
+      "question": "A table of contents should scroll with the page until it reaches the top of the viewport, then stay there, but never leave the section it belongs to. Which declaration does that?",
+      "explanation": "`sticky` keeps the element in normal flow until the scroll position reaches its threshold (`top: 0`), then pins it, and releases it again when its parent scrolls away. `fixed` would pin it immediately and forever, `absolute` and `relative` do not react to scrolling.",
+      "options": [
+        "`position: fixed; top: 0;`",
+        "`position: sticky; top: 0;`",
+        "`position: absolute; top: 0;`",
+        "`position: relative; top: 0;`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-flexbox-center",
+      "type": "coding-task",
+      "lessonSlug": "flexbox",
+      "difficulty": "beginner",
+      "question": "Complete the page so that the `.box` is centred horizontally and vertically inside the 200px-tall `.hero` using flexbox, and the three buttons inside `.actions` sit in a row with 8px between them.",
+      "explanation": "Making `.hero` a flex container and setting `justify-content: center` (main axis) and `align-items: center` (cross axis) centres its only child. For `.actions`, `display: flex` puts the buttons in a row and `gap: 8px` spaces them without margins.",
+      "language": "html",
+      "starterCode": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Flexbox task</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .hero {\n      height: 200px;\n      background: #eff6ff;\n      /* make this a flex container and centre its child on both axes */\n    }\n    .box { padding: 16px; background: #1d4ed8; color: white; }\n    .actions {\n      margin-top: 16px;\n      /* lay the buttons out in a row with an 8px gap */\n    }\n  </style>\n</head>\n<body>\n  <div class=\"hero\">\n    <div class=\"box\">Centred</div>\n  </div>\n  <div class=\"actions\">\n    <button type=\"button\">Save</button>\n    <button type=\"button\">Cancel</button>\n    <button type=\"button\">Help</button>\n  </div>\n</body>\n</html>",
+      "solutionCode": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Flexbox task</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .hero {\n      height: 200px;\n      background: #eff6ff;\n      display: flex;\n      justify-content: center;\n      align-items: center;\n    }\n    .box { padding: 16px; background: #1d4ed8; color: white; }\n    .actions {\n      margin-top: 16px;\n      display: flex;\n      gap: 8px;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"hero\">\n    <div class=\"box\">Centred</div>\n  </div>\n  <div class=\"actions\">\n    <button type=\"button\">Save</button>\n    <button type=\"button\">Cancel</button>\n    <button type=\"button\">Help</button>\n  </div>\n</body>\n</html>",
+      "checklist": [
+        ".hero has display: flex",
+        "justify-content: center centres the box horizontally",
+        "align-items: center centres the box vertically",
+        ".actions is a flex container with gap: 8px between the buttons"
+      ]
+    },
+    {
+      "id": "css-grid-columns",
+      "type": "find-error",
+      "lessonSlug": "grid",
+      "difficulty": "beginner",
+      "question": "The images inside `.gallery` still stack in a single column. What is missing?",
+      "explanation": "`grid-template-columns` and `gap` only have an effect on a grid container. Without `display: grid` the element is an ordinary block and its children stack as usual. Add `display: grid;` to the `.gallery` rule.",
+      "language": "css",
+      "code": ".gallery {\n  grid-template-columns: repeat(3, 1fr);\n  gap: 1rem;\n}\n\n.gallery img {\n  width: 100%;\n}",
+      "options": [
+        "gap only works when written as grid-gap",
+        "The container has no display: grid, so the grid properties do nothing",
+        "repeat() requires a unit on 1fr",
+        "The images need grid-column: 1"
+      ],
+      "correctIndex": 1,
+      "errorLine": 1
+    },
+    {
+      "id": "css-responsive-design-media-query",
+      "type": "fill-blank",
+      "lessonSlug": "responsive-design",
+      "difficulty": "beginner",
+      "question": "`@media (___: 600px) { … }` applies its rules only when the viewport is 600px wide or wider.",
+      "explanation": "`min-width` means \"at least this wide\", which is the mobile-first way to add styles as space grows. The modern range syntax `(width >= 600px)` means the same thing.",
+      "answers": ["min-width"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-pseudo-classes-hover-order",
+      "type": "multiple-choice",
+      "lessonSlug": "pseudo-classes-elements",
+      "difficulty": "intermediate",
+      "question": "A stylesheet contains `a:hover { color: red; }` followed by `a:link { color: blue; }`. What happens when the pointer is over an unvisited link?",
+      "explanation": "Both selectors have the same specificity (one pseudo-class each), so the later rule wins and the link stays blue even while hovered. That is why link states are written in the order link, visited, hover, active.",
+      "options": [
+        "It turns red, because :hover always wins",
+        "It stays blue, because both rules have the same specificity and :link comes later",
+        "It turns purple, a mix of both",
+        "The browser ignores :hover on unvisited links"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-transitions-animations-transition",
+      "type": "true-false",
+      "lessonSlug": "transitions-animations",
+      "difficulty": "beginner",
+      "question": "A `transition` runs automatically when the page loads, even if no property value changes.",
+      "explanation": "A transition only animates a change between two values; it needs a trigger such as hover, focus, or a class toggled by JavaScript. Motion that should run by itself is what `@keyframes` animations are for.",
+      "correct": false
+    },
+    {
+      "id": "css-custom-properties-fallback",
+      "type": "predict-output",
+      "lessonSlug": "custom-properties",
+      "difficulty": "intermediate",
+      "question": "What colour is a paragraph inside `.card`, and what colour is a paragraph inside `.footer`?",
+      "explanation": "Custom properties inherit, and `.card` redefines `--accent` as tomato, so paragraphs inside the card read tomato. `--highlight` is never declared anywhere, so `var(--highlight, navy)` uses its fallback, navy.",
+      "language": "css",
+      "code": ":root {\n  --accent: teal;\n}\n\n.card {\n  --accent: tomato;\n}\n\n.card p {\n  color: var(--accent, navy);\n}\n\n.footer p {\n  color: var(--highlight, navy);\n}",
+      "options": [
+        "Card: teal, footer: navy",
+        "Card: tomato, footer: navy",
+        "Card: tomato, footer: teal",
+        "Card: navy, footer: navy"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-specificity-cascade-winner",
+      "type": "predict-output",
+      "lessonSlug": "specificity-cascade",
+      "difficulty": "intermediate",
+      "question": "All four rules match the paragraph. What colour is its text?",
+      "explanation": "Specificity is compared ids first. `#main p` scores 1-0-1 and is the only rule with an id, so it beats `.intro .text` (0-2-0), `.intro p` (0-1-1) and `p` (0-0-1) regardless of order. The text is red.",
+      "language": "html",
+      "code": "<style>\n  p { color: green; }\n  .intro p { color: blue; }\n  #main p { color: red; }\n  .intro .text { color: purple; }\n</style>\n<div id=\"main\" class=\"intro\">\n  <p class=\"text\">Which colour?</p>\n</div>",
+      "options": ["green", "blue", "red", "purple"],
+      "correctIndex": 2
+    }
+  ]
+}

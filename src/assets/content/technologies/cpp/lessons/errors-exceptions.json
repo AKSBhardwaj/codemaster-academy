@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors-exceptions",
+  "title": "Handle Missing Values and Errors",
+  "summary": "A program can meet a problem, such as a missing number. You can check for the problem and give a clear reply instead of using a bad value.",
+  "introduction": "A program can meet a problem, such as a missing number. You can check for the problem and give a clear reply instead of using a bad value. Read one example at a time. Save it in a .cpp file and use the compiler from the setup lesson to run it.",
+  "learningObjectives": [
+    "Catch an error and show a clear message",
+    "Check whether an optional has a value",
+    "Choose a fallback when a value is missing"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Catch an error"
+    },
+    {
+      "type": "paragraph",
+      "text": "throw reports an error. try starts work that may report one. catch handles a matching error. Here, dividing by zero is stopped before it happens."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "errors-exceptions.cpp",
+      "code": "#include <iostream>\n#include <stdexcept>\n\nint share(int apples, int people) {\n    if (people == 0) throw std::invalid_argument(\"Need at least one person\");\n    return apples / people;\n}\n\nint main() {\n    try { std::cout << share(6, 0) << \"\\n\"; }\n    catch (const std::invalid_argument& error) { std::cout << error.what() << \"\\n\"; }\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Need at least one person"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Show that a value may be missing"
+    },
+    {
+      "type": "paragraph",
+      "text": "optional<int> holds a whole number or nothing. Check it first. The star reads the number only after we know it is there."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "errors-exceptions.cpp",
+      "code": "#include <iostream>\n#include <optional>\n\nint main() {\n    std::optional<int> score = 8;\n    if (score) {\n        std::cout << *score << \"\\n\";\n    }\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a fallback"
+    },
+    {
+      "type": "paragraph",
+      "text": "value_or supplies a value when the optional is empty. Here we show 0 when no score was entered."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "errors-exceptions.cpp",
+      "code": "#include <iostream>\n#include <optional>\n\nint main() {\n    std::optional<int> score;\n    std::cout << score.value_or(0) << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Never read an empty optional with *. Check it or use value_or. C++23 also has expected for a value or an error; the examples here use C++20."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Give score a value of 9 in the last example. Check the new output."
+    }
+  ],
+  "exerciseIds": ["cpp-errors-exceptions-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C++ Handle Missing Values and Errors",
+    "description": "A program can meet a problem, such as a missing number. You can check for the problem and give a clear reply instead of using a bad value."
+  },
+  "updatedOn": "2026-11-16"
+}

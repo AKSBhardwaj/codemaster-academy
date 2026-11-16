@@ -1,0 +1,150 @@
+{
+  "title": "T-SQL Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "tsql-first-query-check",
+      "lessonSlug": "first-query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT 'Hello, Asha!' AS message;",
+      "question": "SELECT asks for a result. AS gives its column a name. What result does this example give after the setup steps?",
+      "explanation": "SELECT returns the string as a one-cell result. AS names that result column. Text literals use single quotes.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "tsql-variables-check",
+      "lessonSlug": "variables",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "DECLARE @pencils int = 3;\nSELECT @pencils + 2 AS total;",
+      "question": "DECLARE makes a local variable. T-SQL variable names start with @. What result does this example give after the setup steps?",
+      "explanation": "DECLARE creates @pencils as int 3. The SELECT expression adds 2. The variable exists only in its batch or procedure scope.",
+      "options": ["5", "6", "4"],
+      "correctIndex": 0
+    },
+    {
+      "id": "tsql-text-check",
+      "lessonSlug": "text",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT CONCAT('Hi, ', 'Ravi', '!') AS message;",
+      "question": "CONCAT joins values as text. It can also convert simple number inputs to text. What result does this example give after the setup steps?",
+      "explanation": "CONCAT joins the three text values without adding extra characters. Do not assume + behaves the same way with NULL and mixed types.",
+      "options": ["Hi, Ravi!", "Hi, Asha!", "hi, ravi!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "tsql-case-check",
+      "lessonSlug": "case",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "DECLARE @score int = 8;\nSELECT CASE WHEN @score >= 5 THEN 'Pass' ELSE 'Try again' END AS message;",
+      "question": "CASE returns a value from the first matching branch. What result does this example give after the setup steps?",
+      "explanation": "The first CASE condition is true for 8. It returns Pass. CASE ends with END; it is an expression, not an IF block.",
+      "options": ["pass", "Pass", "Try again"],
+      "correctIndex": 1
+    },
+    {
+      "id": "tsql-if-check",
+      "lessonSlug": "if",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "DECLARE @score int = 8;\nIF @score >= 5\n BEGIN PRINT 'Pass'; END\nELSE\n BEGIN PRINT 'Try again'; END;",
+      "question": "IF controls which SQL statements run. BEGIN and END group statements. What result does this example give after the setup steps?",
+      "explanation": "The IF test succeeds, so the first PRINT runs. Use BEGIN and END when a branch has several statements.",
+      "options": ["pass", "Pass", "Try again"],
+      "correctIndex": 1
+    },
+    {
+      "id": "tsql-table-values-check",
+      "lessonSlug": "table-values",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT n FROM (VALUES (3), (1), (2)) AS numbers(n) ORDER BY n;",
+      "question": "VALUES can create rows for a query. An alias names the tiny table and its column. What result does this example give after the setup steps?",
+      "explanation": "VALUES creates rows 3, 1 and 2. ORDER BY sorts them into 1, 2 and 3. Use ORDER BY when the row order matters.",
+      "options": ["2\n2\n3", "3\n2\n1", "1\n2\n3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "tsql-filters-check",
+      "lessonSlug": "filters",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT n FROM (VALUES (4), (8), (9)) AS scores(n) WHERE n >= 7 ORDER BY n;",
+      "question": "WHERE keeps rows that pass a condition. What result does this example give after the setup steps?",
+      "explanation": "WHERE removes 4 because it is below 7. ORDER BY keeps the remaining result in order. WHERE filters rows before they are grouped.",
+      "options": ["9\n9", "9\n8", "8\n9"],
+      "correctIndex": 2
+    },
+    {
+      "id": "tsql-totals-check",
+      "lessonSlug": "totals",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT SUM(n) AS total FROM (VALUES (2), (3), (4)) AS numbers(n);",
+      "question": "SUM adds a column over the selected rows. What result does this example give after the setup steps?",
+      "explanation": "SUM adds the three selected numbers to make 9. SUM ignores NULL inputs; it does not treat them as a known zero.",
+      "options": ["9", "10", "8"],
+      "correctIndex": 0
+    },
+    {
+      "id": "tsql-nulls-check",
+      "lessonSlug": "nulls",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "DECLARE @name varchar(20) = NULL;\nSELECT COALESCE(@name, 'Guest') AS name;",
+      "question": "COALESCE returns the first input that is not NULL. What result does this example give after the setup steps?",
+      "explanation": "The first value is NULL, so COALESCE picks Guest. Use IS NULL for a null test, not = NULL.",
+      "options": ["guest", "Guest", "Asha"],
+      "correctIndex": 1
+    },
+    {
+      "id": "tsql-safe-conversion-check",
+      "lessonSlug": "safe-conversion",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT COALESCE(TRY_CONVERT(int, 'cat'), 0) AS score;",
+      "question": "TRY_CONVERT returns NULL when this text cannot be converted to int. COALESCE then supplies zero. What result does this example give after the setup steps?",
+      "explanation": "TRY_CONVERT cannot read cat as an int. Its NULL result is replaced by zero. A failed conversion is not automatically a real score of zero; choose a suitable fallback for your app.",
+      "options": ["0", "1", "-1"],
+      "correctIndex": 0
+    },
+    {
+      "id": "tsql-loops-check",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "DECLARE @n int = 1;\nWHILE @n <= 3\nBEGIN\n PRINT @n;\n SET @n = @n + 1;\nEND;",
+      "question": "WHILE repeats its block while a rule stays true. What result does this example give after the setup steps?",
+      "explanation": "PRINT runs for 1, 2 and 3. SET advances the counter to stop the loop. Change the loop value so the loop eventually stops.",
+      "options": ["2\n2\n3", "3\n2\n1", "1\n2\n3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "tsql-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SELECT JSON_VALUE('{\"title\":\"Moon Trip\",\"pages\":24}', '$.title') AS title;",
+      "question": "JSON_VALUE reads one simple value from JSON text using a path. What result does this example give after the setup steps?",
+      "explanation": "The path $.title selects the scalar title field from the JSON object. Use valid JSON with double-quoted field names.",
+      "options": ["Moon Trip", "Sun Trip", "moon trip"],
+      "correctIndex": 0
+    }
+  ]
+}

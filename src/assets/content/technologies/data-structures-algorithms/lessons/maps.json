@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "slug": "maps",
+  "title": "Maps: keys and values",
+  "summary": "Match each key with one value using a map. Update a locker count, look it up safely, and see why updating a key does not add another key.",
+  "introduction": "A classroom chart can match each locker number with the number of books inside. A map stores pairs like these so a program can ask for the value that belongs to a chosen key.",
+  "learningObjectives": [
+    "Explain keys, values, and updates",
+    "Look up a key while handling a missing key",
+    "Distinguish a map from a particular map implementation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **map** holds pairs. The **key** is the label you look up. The **value** is the information stored for that label. Here locker 2 is a key and its book count is a value."
+    },
+    {
+      "type": "paragraph",
+      "text": "Each key has one value. Giving an existing key a new value replaces the old value. Different keys may have equal values. A **dictionary** is another common name for a map."
+    },
+    {
+      "type": "paragraph",
+      "text": "Map is a rule, not a promise to use hashing. C++ std::map stores a tree. Several other library maps use hashing. Our C version is a short array of pairs searched from front to back."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Store locker 2 with 3 books, and locker 5 with 1 book.",
+        "Update locker 2 to 6 books. Keep the same key.",
+        "Check that locker 2 exists, then print its value, 6.",
+        "Print the number of keys, 2. Updating a value did not make a third key."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Maps: keys and values example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const books = new Map([[2, 3], [5, 1]]);\nbooks.set(2, 6);\nif (books.has(2)) console.log(books.get(2));\nconsole.log(books.size);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\nstruct Pair { int key; int value; };\n\nint main(void) {\n    struct Pair books[] = {{2, 3}, {5, 1}};\n    int size = 2;\n    for (int i = 0; i < size; i++) {\n        if (books[i].key == 2) books[i].value = 6;\n    }\n    for (int i = 0; i < size; i++) {\n        if (books[i].key == 2) {\n            printf(\"%d\\n\", books[i].value);\n            break;\n        }\n    }\n    printf(\"%d\\n\", size);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <map>\n\nint main() {\n    std::map<int, int> books = {{2, 3}, {5, 1}};\n    books[2] = 6;\n    auto found = books.find(2);\n    if (found != books.end()) std::cout << found->second << '\\n';\n    std::cout << books.size() << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "books = {2: 3, 5: 1}\nbooks[2] = 6\nif 2 in books:\n    print(books[2])\nprint(len(books))",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "var books = new System.Collections.Generic.Dictionary<int, int>\n{\n    [2] = 3,\n    [5] = 1\n};\nbooks[2] = 6;\nif (books.TryGetValue(2, out int count)) System.Console.WriteLine(count);\nSystem.Console.WriteLine(books.Count);",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.HashMap;\n\npublic class Main {\n    public static void main(String[] args) {\n        HashMap<Integer, Integer> books = new HashMap<>();\n        books.put(2, 3);\n        books.put(5, 1);\n        books.put(2, 6);\n        if (books.containsKey(2)) System.out.println(books.get(2));\n        System.out.println(books.size());\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "6\n2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The value for key 2 changes from 3 to 6. Key 5 still holds 1. The C++ search returns a position-like result; found->second reads the value stored at that result. Only the requested value and size print, so map order does not matter."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "A missing key is different from a stored value of 0. Ask whether the key exists instead of assuming that zero means missing. C# TryGetValue checks and reads in one step."
+    },
+    {
+      "type": "paragraph",
+      "text": "The C example updates and finds existing keys only. A reusable version would also need a way to add new pairs and grow its storage safely. Its lookup is O(n), because it scans the pairs. It is not a hash table."
+    },
+    {
+      "type": "paragraph",
+      "text": "C++ std::map uses O(log n) lookup in its tree. Hash-based maps aim for O(1) average lookup but can be slower when many keys collide. Learn the behavior first, then check the chosen tool's cost."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the new book count for locker 2 from 6 to 8.",
+        "The output becomes 8 then 2. The value changed again, but there are still only two keys."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use a key as though it were an array position. Key 500 can label one entry in a map with only two entries. It does not mean there are 501 entries."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-maps"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-maps"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "sets"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "hash-tables"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Maps: keys and values in six languages",
+    "description": "Match each key with one value using a map. Update a locker count, look it up safely, and see why updating a key does not add another key."
+  },
+  "updatedOn": "2026-11-16"
+}

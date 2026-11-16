@@ -1,0 +1,138 @@
+{
+  "title": "Three.js Small Examples",
+  "description": "Use these small Three.js examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Draw your first cube",
+      "description": "A mesh joins a shape with a material. The scene holds the mesh, and the renderer draws it from the camera's view.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncube.rotation.y=0.4;\nrenderer.render(scene,camera);",
+      "output": "A blue cube appears on the new canvas, turned slightly so its shape is visible.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "move-the-camera",
+      "title": "Move the camera",
+      "description": "The camera is the viewpoint into a scene.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncamera.position.set(2,2,4);camera.lookAt(0,0,0);\nrenderer.render(scene,camera);",
+      "output": "The camera looks down at the cube from the side and above.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "move-the-camera"
+    },
+    {
+      "id": "choose-a-different-geometry",
+      "title": "Choose a different geometry",
+      "description": "Geometry describes an object's shape. A sphere geometry uses small triangles to approximate a round surface.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nscene.remove(cube);\nconst ball=new THREE.Mesh(new THREE.SphereGeometry(0.7,24,16),material);scene.add(ball);\nrenderer.render(scene,camera);",
+      "output": "A blue ball is drawn instead of the cube.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-a-different-geometry"
+    },
+    {
+      "id": "show-the-shape-as-lines",
+      "title": "Show the shape as lines",
+      "description": "A material tells the renderer how a shape should look.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b,wireframe:true});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncube.rotation.set(0.3,0.5,0);\nrenderer.render(scene,camera);",
+      "output": "The cube appears as blue lines rather than filled faces.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-the-shape-as-lines"
+    },
+    {
+      "id": "place-an-object",
+      "title": "Place an object",
+      "description": "An object's position moves it along three scene axes: x, y and z.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncube.position.set(1,0.5,0);\nrenderer.render(scene,camera);",
+      "output": "The cube moves right and upward relative to this camera view.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "place-an-object"
+    },
+    {
+      "id": "turn-an-object",
+      "title": "Turn an object",
+      "description": "Rotation turns an object around an axis.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncube.rotation.y=Math.PI/4;cube.rotation.x=Math.PI/8;\nrenderer.render(scene,camera);",
+      "output": "The cube is turned 45 degrees around y and 22.5 degrees around x.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "turn-an-object"
+    },
+    {
+      "id": "resize-an-object-with-scale",
+      "title": "Resize an object with scale",
+      "description": "Scale multiplies an object's size on each axis.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\ncube.scale.set(2,0.5,1);\nrenderer.render(scene,camera);",
+      "output": "The cube becomes twice as wide and half as tall, while its depth stays unchanged.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "resize-an-object-with-scale"
+    },
+    {
+      "id": "move-a-group-together",
+      "title": "Move a group together",
+      "description": "A Group can hold several objects. Moving the group moves all its children together.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nscene.remove(cube);\nconst group=new THREE.Group();group.add(cube);\nconst second=new THREE.Mesh(geometry,material);second.position.x=1.5;group.add(second);scene.add(group);group.position.x=-0.7;\nrenderer.render(scene,camera);",
+      "output": "Two cubes appear together, positioned as one group.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "move-a-group-together"
+    },
+    {
+      "id": "light-a-shaded-material",
+      "title": "Light a shaded material",
+      "description": "Some materials respond to light. MeshStandardMaterial needs lighting so its surfaces can show shape and shading.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshStandardMaterial({color:0x174a8b,roughness:0.6});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nscene.add(new THREE.AmbientLight(0xffffff,1));\nconst light=new THREE.DirectionalLight(0xffffff,2);light.position.set(3,4,5);scene.add(light);cube.rotation.y=0.5;\nrenderer.render(scene,camera);",
+      "output": "The cube faces have different brightness because of the light direction.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "light-a-shaded-material"
+    },
+    {
+      "id": "animate-using-time",
+      "title": "Animate using time",
+      "description": "An animation loop draws new frames. Using elapsed time makes motion less dependent on how many frames the device can draw.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nrenderer.setAnimationLoop(time=>{cube.rotation.y=time*0.001;renderer.render(scene,camera);});",
+      "output": "The cube turns continuously around its y axis.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "animate-using-time"
+    },
+    {
+      "id": "resize-the-camera-view",
+      "title": "Resize the camera view",
+      "description": "A perspective camera needs the canvas aspect ratio.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nconst width=480,height=240;\nrenderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();\nrenderer.render(scene,camera);",
+      "output": "The canvas becomes wider while the camera uses the matching shape.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "resize-the-camera-view"
+    },
+    {
+      "id": "clean-up-a-scene",
+      "title": "Clean up a scene",
+      "description": "GPU resources need explicit cleanup when a scene is no longer used.",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nrenderer.render(scene,camera);\n// Call this when this scene is removed:\nfunction disposeScene(){renderer.setAnimationLoop(null);geometry.dispose();material.dispose();renderer.dispose();renderer.domElement.remove();}\n// disposeScene();",
+      "output": "Calling disposeScene removes this example's canvas and releases its owned resources.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "clean-up-a-scene"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "error-handlers",
+  "title": "Give a friendly error page",
+  "summary": "Flask: Give a friendly error page. Try a different unknown URL.",
+  "introduction": "An error handler formats a known error. GET /missing uses abort to raise a 404.",
+  "learningObjectives": ["Give a friendly error page with Flask", "Try a different unknown URL"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give a friendly error page"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Give a friendly error page",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.errorhandler(404)\ndef not_found(error):\n    return \"Page not found\", 404\n@app.get(\"/missing\")\ndef missing():\n    abort(404)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "abort raises a 404 HTTP error. The registered handler replaces its body while keeping 404."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Page not found"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try a different unknown URL."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Keep the error status when returning a friendly error body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-error-handlers-check"
+    }
+  ],
+  "exerciseIds": ["flask-error-handlers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "before-request"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Give a friendly error page",
+    "description": "Flask: Give a friendly error page. Try a different unknown URL. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,160 @@
+{
+  "id": "flask-quiz",
+  "title": "Flask Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "flask-review-1",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/\")\ndef hello():\n    return \"Hello, Asha!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "A route decorator connects GET / to a function. Its return value becomes the reply. What result does this example give after the setup steps?",
+      "explanation": "The decorator registers the function under /. Returning text lets Flask build the response. Keep the decorator directly above the function it belongs to.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "flask-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/book\")\ndef book():\n    return jsonify(title=\"Moon Trip\", pages=24)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "jsonify turns data into a JSON response. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "jsonify serialises both fields. Flask commonly sorts JSON object keys, which does not change their meaning. JSON field order is not meaningful; Flask may sort keys.",
+      "options": [
+        "{\"pages\":24,\"title\":\"Moon Trip\"}",
+        "{\"pages\":25,\"title\":\"Moon Trip\"}",
+        "[24,\"Moon Trip\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "flask-review-3",
+      "lessonSlug": "path-values",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/hello/<name>\")\ndef hello(name):\n    return f\"Hi, {name}!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "Angle brackets mark a path input. GET /hello/Ravi passes Ravi to the function. What result does this example give after the setup steps?",
+      "explanation": "The path placeholder becomes the Python name input. Ravi is inserted into the greeting. A path value is untrusted input; do not paste it into raw HTML.",
+      "options": ["Hi, Ravi!", "Hi, Asha!", "hi, ravi!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "flask-review-4",
+      "lessonSlug": "integer-routes",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/double/<int:n>\")\ndef twice(n):\n    return jsonify(answer=n * 2)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "The int converter accepts a whole-number path value. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "The int converter accepts 4 and gives the view an integer. The result is 8. A route converter decides whether the route matches before the function runs.",
+      "options": ["[8]", "{\"answer\":8}", "{\"answer\":9}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "flask-review-5",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/search\")\ndef search():\n    return jsonify(term=request.args.get(\"q\", \"\"))\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "request.args reads query-string values. Open GET /search?q=cat. What result does this example give after the setup steps?",
+      "explanation": "request.args.get reads q and finds cat. The returned dictionary names it term. Query values are text unless you convert them.",
+      "options": ["{\"term\":\"dog\"}", "[\"cat\"]", "{\"term\":\"cat\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "flask-review-6",
+      "lessonSlug": "post-json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.post(\"/books\")\ndef create():\n    data = request.get_json(silent=True)\n    if not isinstance(data, dict) or not isinstance(data.get(\"title\"), str):\n        return jsonify(error=\"Title needed\"), 400\n    return jsonify(title=data[\"title\"]), 201\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The code checks that the body is an object with text title. What result does this example give after the setup steps?",
+      "explanation": "get_json reads the object. Its title is a string, so the created response branch is selected. Check parsed data before indexing into it.",
+      "options": ["[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "flask-review-7",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/missing\")\ndef missing():\n    return jsonify(error=\"Book not found\"), 404\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "Returning a response with 404 tells the client that this book was not found. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "The response tuple contains JSON plus status 404. Both pieces are sent together. A failure should not pretend to be a successful 200 response.",
+      "options": [
+        "[\"Book not found\"]",
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "flask-review-8",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/start\")\ndef start():\n    return redirect(url_for(\"hello\"))\n@app.get(\"/hello\")\ndef hello():\n    return \"Welcome\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "url_for builds a URL from a function endpoint name. GET /start redirects a browser to /hello. What result does this example give after the setup steps?",
+      "explanation": "url_for finds the hello endpoint. The redirect tells the browser to request that URL. The endpoint name here is the Python function name, not the URL text.",
+      "options": ["Hello", "welcome", "Welcome"],
+      "correctIndex": 2
+    },
+    {
+      "id": "flask-review-9",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/note\")\ndef note():\n    response = make_response(\"Practice note\")\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return response\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "make_response lets you add metadata before sending a reply. GET /note has Cache-Control: no-store. What result does this example give after the setup steps?",
+      "explanation": "make_response builds a response first, allowing the cache header to be added before return. Headers describe the response; changing one does not change its body.",
+      "options": ["Welcome", "practice note", "Practice note"],
+      "correctIndex": 2
+    },
+    {
+      "id": "flask-review-10",
+      "lessonSlug": "before-request",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.before_request\ndef check_path():\n    if request.path.startswith(\"/closed/\"):\n        return \"Closed for practice\", 403\n@app.get(\"/closed/books\")\ndef books():\n    return \"Books\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "before_request runs before route handlers. This practice check rejects paths under /closed. Visit GET /closed/books. What result does this example give after the setup steps?",
+      "explanation": "The hook sees the /closed/ prefix and returns a response. The later view is not called. Returning a response stops the request from reaching its view.",
+      "options": ["Closed for practice", "Open for practice", "closed for practice"],
+      "correctIndex": 0
+    },
+    {
+      "id": "flask-review-11",
+      "lessonSlug": "error-handlers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.errorhandler(404)\ndef not_found(error):\n    return \"Page not found\", 404\n@app.get(\"/missing\")\ndef missing():\n    abort(404)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "question": "An error handler formats a known error. GET /missing uses abort to raise a 404. What result does this example give after the setup steps?",
+      "explanation": "abort raises a 404 HTTP error. The registered handler replaces its body while keeping 404. Keep the error status when returning a friendly error body.",
+      "options": ["page not found", "Page not found", "Home"],
+      "correctIndex": 1
+    },
+    {
+      "id": "flask-review-12",
+      "lessonSlug": "test-client",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from flask import Flask, jsonify\napp = Flask(__name__)\n@app.get(\"/score\")\ndef score():\n    return jsonify(score=8)\nwith app.test_client() as client:\n    response = client.get(\"/score\")\n    print(response.get_json()[\"score\"])",
+      "question": "The test client calls the app without an open port. This example prints the returned JSON score. What result does this example give after the setup steps?",
+      "explanation": "The test client executes the view in memory. get_json reads score 8 from its response. Use the test client only for tests; it is not a public server.",
+      "options": ["8", "9", "7"],
+      "correctIndex": 0
+    }
+  ]
+}

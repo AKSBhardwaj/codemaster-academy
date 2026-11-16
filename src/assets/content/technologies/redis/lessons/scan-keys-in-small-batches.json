@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "scan-keys-in-small-batches",
+  "title": "Scan keys in small batches",
+  "summary": "SCAN walks through key names using a cursor.",
+  "introduction": "SCAN walks through key names using a cursor. Your task: Identify the cursor in a sample SCAN response.",
+  "learningObjectives": [
+    "Identify the cursor in a sample SCAN response.",
+    "Explain the example for scan keys in small batches"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "SCAN walks through key names using a cursor. It is safer for large keyspaces than asking for every matching key in one blocking command."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Redis server and redis-cli. Commands here use cma: practice keys only. Redis commands do not run in the site's SQLite playground. Do not connect these exercises to a production database."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "SCAN 0 MATCH cma:* COUNT 10",
+      "title": "Scan keys in small batches",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`SCAN` returns a continuation cursor. Keep iterating until the returned cursor is zero.",
+        "`MATCH` finds the described graph pattern. Labels and arrow direction narrow the connections being followed."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response includes a next cursor and some matching keys. Continue with that cursor until it returns 0."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "COUNT is a hint, not an exact batch size. A changing keyspace can produce duplicates, so callers must account for that."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Identify the cursor in a sample SCAN response."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "redis-scan-keys-in-small-batches-check"
+    }
+  ],
+  "exerciseIds": ["redis-scan-keys-in-small-batches-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "redis",
+      "slug": "rank-values-with-a-sorted-set"
+    }
+  ],
+  "seo": {
+    "title": "Redis: Scan keys in small batches",
+    "description": "SCAN walks through key names using a cursor. It is safer for large keyspaces than asking for every matching key in one blocking command."
+  },
+  "updatedOn": "2026-11-16"
+}

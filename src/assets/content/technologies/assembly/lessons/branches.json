@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "branches",
+  "title": "Choose a path",
+  "summary": "Assembly: Choose a path. Compare rbx with 4.",
+  "introduction": "cmp compares values and sets flags. je jumps when the compared values are equal.",
+  "learningObjectives": ["Choose a path with Assembly", "Compare rbx with 4"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a path"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Choose a path",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 0\n    mov rbx, 5\n    cmp rbx, 5\n    je .same\n    jmp .done\n.same:\n    mov rdi, 1\n.done:\n    mov rax, 60\n    syscall\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "cmp finds equality, so je reaches .same and sets rdi to 1."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "exit code: 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compare rbx with 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A jump uses flags from the previous comparison; avoid changing them first."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-branches-check"
+    }
+  ],
+  "exerciseIds": ["assembly-branches-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "bit-tests"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Choose a path",
+    "description": "Assembly: Choose a path. Compare rbx with 4. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

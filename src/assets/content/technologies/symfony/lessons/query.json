@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read query data",
+  "summary": "Symfony: Read query data. Leave out q. Try a small example and check what happens.",
+  "introduction": "A Request object gives access to query values. Open GET /search?q=cat.",
+  "learningObjectives": ["Read query data with Symfony", "Leave out q"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read query data"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Read query data",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/search\", methods: [\"GET\"])]\npublic function search(Request $request): JsonResponse { return new JsonResponse([\"term\" => $request->query->get(\"q\", \"\")]); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The query bag reads q from the Request. The JsonResponse puts cat under term."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\":\"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Leave out q."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check client values before using them in a database query or file path."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-query-check"
+    }
+  ],
+  "exerciseIds": ["symfony-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "route-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Read query data",
+    "description": "Symfony: Read query data. Leave out q. Try a small example and check what happens. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

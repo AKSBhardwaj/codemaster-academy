@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "division",
+  "title": "Divide a whole number",
+  "summary": "Assembly: Divide a whole number. Try 9 divided by 3.",
+  "introduction": "div divides rdx:rax by its input. For this small positive example, clear rdx first.",
+  "learningObjectives": ["Divide a whole number with Assembly", "Try 9 divided by 3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Divide a whole number"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Divide a whole number",
+      "code": "global _start\nsection .text\n_start:\n    mov rax, 8\n    xor rdx, rdx\n    mov rbx, 3\n    div rbx\n    mov rdi, rax\n    mov rax, 60\n    syscall\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "rdx is cleared so the dividend is 8. Division by 3 leaves quotient 2 in rax."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "exit code: 2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try 9 divided by 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Never divide by zero. The remainder is in rdx, not rax."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-division-check"
+    }
+  ],
+  "exerciseIds": ["assembly-division-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "multiplication"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Divide a whole number",
+    "description": "Assembly: Divide a whole number. Try 9 divided by 3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

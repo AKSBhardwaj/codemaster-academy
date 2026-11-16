@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "number-a-sorted-result",
+  "title": "Number a sorted result",
+  "summary": "ROW_NUMBER assigns a sequence based on its window order.",
+  "introduction": "ROW_NUMBER assigns a sequence based on its window order. Your task: Reverse the page order and predict the numbers.",
+  "learningObjectives": [
+    "Reverse the page order and predict the numbers.",
+    "Explain the example for number a sorted result"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "ROW_NUMBER assigns a sequence based on its window order. The original rows remain separate."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use SQL Server 2019+ in a separate practice database with a SQL editor. T-SQL is different from the SQLite engine on this site, so these examples are for that separate tool."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DECLARE @books table(title nvarchar(80),pages int);\nINSERT INTO @books VALUES(N'Moon Trip',60),(N'Tiny Seed',20);\nSELECT title,ROW_NUMBER() OVER(ORDER BY pages,title) AS place FROM @books ORDER BY place;",
+      "title": "Number a sorted result",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ORDER BY` chooses a result order. Include a tie-break field when equal values need a stable order.",
+        "`ROW_NUMBER` numbers rows according to its window order while keeping those rows separate.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tiny Seed is numbered 1, and Moon Trip is numbered 2."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Use enough ordering fields to break ties if a stable numbering is needed."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Reverse the page order and predict the numbers."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-server-number-a-sorted-result-check"
+    }
+  ],
+  "exerciseIds": ["sql-server-number-a-sorted-result-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql-server",
+      "slug": "handle-a-conversion-that-may-fail"
+    }
+  ],
+  "seo": {
+    "title": "Microsoft SQL Server: Number a sorted result",
+    "description": "ROW_NUMBER assigns a sequence based on its window order. The original rows remain separate."
+  },
+  "updatedOn": "2026-11-16"
+}

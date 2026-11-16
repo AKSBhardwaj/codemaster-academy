@@ -1,0 +1,152 @@
+{
+  "title": "Language Models Reference",
+  "description": "A quick reminder of the ideas and examples in the Large Language Models lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "A model that works with text",
+          "summary": "A large language model, or LLM, uses learned numbers to predict pieces of text. It can help draft and transform text, but its output can still be mistaken.",
+          "example": {
+            "language": "text",
+            "code": "Input: explain what a seed needs\nOutput to review: a short draft about water, air and suitable warmth\nChecks: accuracy, clear words and missing detail"
+          },
+          "notes": ["Fluent wording does not prove understanding or factual truth."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "tokens-are-pieces-of-text",
+          "name": "Tokens are pieces of text",
+          "summary": "A token is a piece of text used by a model. Tokens can be words, word parts or other pieces. Splitting on spaces is only a teaching shortcut.",
+          "example": {
+            "language": "python",
+            "code": "text = \"The red kite flies\"\ntoy_tokens = text.split()\nprint(toy_tokens)"
+          },
+          "notes": ["Do not use word counts as exact token counts for a real model."],
+          "lessonSlug": "tokens-are-pieces-of-text"
+        },
+        {
+          "slug": "a-vocabulary-gives-pieces-ids",
+          "name": "A vocabulary gives pieces IDs",
+          "summary": "A tokenizer can map text pieces to numeric IDs. These numbers are labels for pieces, not scores of how important a word is.",
+          "example": {
+            "language": "python",
+            "code": "vocabulary = {\"[UNK]\": 0, \"kite\": 1, \"flies\": 2}\nids = [vocabulary.get(word, 0) for word in \"kite flies\".split()]\nprint(ids)"
+          },
+          "notes": ["A larger token ID does not mean a more important token."],
+          "lessonSlug": "a-vocabulary-gives-pieces-ids"
+        },
+        {
+          "slug": "embeddings-turn-ids-into-vectors",
+          "name": "Embeddings turn IDs into vectors",
+          "summary": "An embedding is a list of numbers used to represent a token. Models learn useful representations during training. Here we choose tiny lists by hand.",
+          "example": {
+            "language": "python",
+            "code": "embeddings = {1: [0.2, 0.8], 2: [0.7, 0.1]}\nprint(embeddings[1])"
+          },
+          "notes": ["An embedding coordinate is not usually a simple dictionary definition."],
+          "lessonSlug": "embeddings-turn-ids-into-vectors"
+        },
+        {
+          "slug": "predict-the-next-token",
+          "name": "Predict the next token",
+          "summary": "A language model gives scores to possible next tokens using the current context. A selection rule then chooses one of them.",
+          "example": {
+            "language": "python",
+            "code": "scores = {\"flies\": 0.6, \"falls\": 0.3, \"waits\": 0.1}\nnext_word = max(scores, key=scores.get)\nprint(next_word)"
+          },
+          "notes": ["The most likely next word is not necessarily a fact about the world."],
+          "lessonSlug": "predict-the-next-token"
+        },
+        {
+          "slug": "context-is-the-text-available-now",
+          "name": "Context is the text available now",
+          "summary": "The context is the information supplied for the current response. A context window limits how many tokens a model can handle in a request and its response.",
+          "example": {
+            "language": "text",
+            "code": "Available context: The club meets on Friday.\nQuestion: Which day is the meeting?\nSupported answer: Friday\nMissing detail: the meeting time"
+          },
+          "notes": [
+            "A model does not automatically see every file on a computer or every earlier conversation."
+          ],
+          "lessonSlug": "context-is-the-text-available-now"
+        },
+        {
+          "slug": "attention-connects-text-pieces",
+          "name": "Attention connects text pieces",
+          "summary": "Attention is a calculation that lets one token use information from other tokens in its allowed context. Transformers use attention alongside other layers.",
+          "example": {
+            "language": "text",
+            "code": "Sentence: The kite fell because its string broke.\nQuestion: What does its refer to?\nUseful earlier text: the kite\nTask: connect related pieces while reading"
+          },
+          "notes": [
+            "Attention weights alone are not a complete explanation of why a model answered a certain way."
+          ],
+          "lessonSlug": "attention-connects-text-pieces"
+        },
+        {
+          "slug": "pretraining-and-fine-tuning",
+          "name": "Pretraining and fine-tuning",
+          "summary": "Pretraining teaches broad patterns from a large training collection. Fine-tuning further adjusts a model using a more specific collection or training task.",
+          "example": {
+            "language": "text",
+            "code": "Pretraining goal: learn broad text patterns\nFine-tuning goal: adapt behaviour using selected examples\nEvaluation goal: check useful results and new failures"
+          },
+          "notes": [
+            "Fine-tuning does not guarantee that every fact in the examples will be recalled correctly."
+          ],
+          "lessonSlug": "pretraining-and-fine-tuning"
+        },
+        {
+          "slug": "sampling-changes-the-choice",
+          "name": "Sampling changes the choice",
+          "summary": "Sampling chooses among possible next tokens instead of always picking the highest score. Temperature is one setting that changes how spread out those choices are.",
+          "example": {
+            "language": "text",
+            "code": "Low temperature: often favours the highest-scoring choices more strongly\nHigher temperature: allows more variety\nStill required: check facts and task rules"
+          },
+          "notes": ["Temperature is not an accuracy slider."],
+          "lessonSlug": "sampling-changes-the-choice"
+        },
+        {
+          "slug": "retrieve-evidence-before-answering",
+          "name": "Retrieve evidence before answering",
+          "summary": "Retrieval finds useful source passages for a question. A model can then use those passages as context. This approach is often called retrieval-augmented generation, or RAG.",
+          "example": {
+            "language": "text",
+            "code": "Question: Where does the art club meet?\nRetrieved passage: Art club meets in Room 6 on Tuesday.\nAnswer: Room 6.\nSource check: is this the current club notice?"
+          },
+          "notes": [
+            "Text inside a retrieved source is evidence to inspect, not permission to follow unrelated instructions."
+          ],
+          "lessonSlug": "retrieve-evidence-before-answering"
+        },
+        {
+          "slug": "check-a-structured-answer",
+          "name": "Check a structured answer",
+          "summary": "A structured answer follows a chosen shape, such as JSON with named fields. Parsing checks the shape; separate checks must verify the meaning and facts.",
+          "example": {
+            "language": "python",
+            "code": "import json\nreply = '{\"day\": \"Friday\", \"room\": 4}'\ndata = json.loads(reply)\nprint(isinstance(data[\"room\"], int))"
+          },
+          "notes": ["Valid JSON can contain false or unsupported values."],
+          "lessonSlug": "check-a-structured-answer"
+        },
+        {
+          "slug": "measure-usefulness-on-real-tasks",
+          "name": "Measure usefulness on real tasks",
+          "summary": "LLM evaluation should use examples of the intended job. Check correctness, missing information, format and difficult cases with the same rules each time.",
+          "example": {
+            "language": "text",
+            "code": "Task: answer from club notices\nCase A: room is clearly given\nCase B: room is missing\nCase C: two notices conflict\nCheck: supported answer or a clear statement of uncertainty"
+          },
+          "notes": ["Do not judge a model only by one impressive response."],
+          "lessonSlug": "measure-usefulness-on-real-tasks"
+        }
+      ]
+    }
+  ]
+}

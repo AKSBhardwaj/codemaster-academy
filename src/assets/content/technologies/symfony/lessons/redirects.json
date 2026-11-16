@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Return a redirect",
+  "summary": "Symfony: Return a redirect. Inspect the first Location header.",
+  "introduction": "RedirectResponse tells a client where to request next. GET /start ends at /hello in a browser.",
+  "learningObjectives": ["Return a redirect with Symfony", "Inspect the first Location header"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a redirect"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Return a redirect",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/start\", methods: [\"GET\"])]\npublic function start(): RedirectResponse { return new RedirectResponse(\"/hello\"); }\n#[Route(\"/hello\", methods: [\"GET\"])]\npublic function hello(): Response { return new Response(\"Welcome\"); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "RedirectResponse sends a location. The second request calls hello and receives Welcome."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first Location header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect starts a new client request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-redirects-check"
+    }
+  ],
+  "exerciseIds": ["symfony-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "named-routes"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Return a redirect",
+    "description": "Symfony: Return a redirect. Inspect the first Location header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

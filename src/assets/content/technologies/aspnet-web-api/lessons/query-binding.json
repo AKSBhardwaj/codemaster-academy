@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-binding",
+  "title": "Read a query input",
+  "summary": "ASP.NET Web API: Read a query input. Visit /page?n=3.",
+  "introduction": "FromQuery makes the source of an input clear. GET /page with no n uses 1.",
+  "learningObjectives": ["Read a query input with ASP.NET Web API", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query input"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Read a query input",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"page\")] public IActionResult Page([FromQuery] int n = 1) => Ok(new { page = n });\n}\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "FromQuery uses the URL input when present; otherwise the default parameter is 1."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":1}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Inputs from clients still need suitable limits."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-query-binding-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-query-binding-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "route-binding"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Read a query input",
+    "description": "ASP.NET Web API: Read a query input. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

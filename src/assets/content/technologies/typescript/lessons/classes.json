@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "classes",
+  "title": "Classes",
+  "summary": "A class describes how to make objects with the same kinds of values and actions.",
+  "introduction": "A class describes how to make objects with the same kinds of values and actions. Make a simple class, then label its properties and methods. A property stores a value; a method is an action the object can do.",
+  "learningObjectives": [
+    "Declare typed fields, constructors and methods and fix strict property initialisation errors",
+    "Apply public, private, protected and readonly, including the parameter-property shorthand",
+    "Use abstract classes, implements and override to build small hierarchies safely"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fields, constructors and methods"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fields are declared with a type above the constructor, assigned inside it, and used by methods through `this`. Method parameters and return types are annotated exactly like standalone functions, and calls on an instance are checked the same way."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "account.ts",
+      "code": "class Account {\n  owner: string;\n  balance: number;\n\n  constructor(owner: string, openingBalance: number) {\n    this.owner = owner;\n    this.balance = openingBalance;\n  }\n\n  deposit(amount: number): void {\n    this.balance += amount;\n  }\n}\n\nconst account = new Account(\"Ada\", 100);\naccount.deposit(50);\nconsole.log(`${account.owner}: ${account.balance}`);\n\naccount.deposit(\"50\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc account.ts",
+      "content": "account.ts:19:17 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\n\n19 account.deposit(\"50\");\n                   ~~~~\n\n\nFound 1 error in account.ts:19"
+    },
+    {
+      "type": "paragraph",
+      "text": "Up to the last line the program prints `Ada: 150`. In JavaScript, `deposit(\"50\")` would turn the balance into the string `\"15050\"` through concatenation; a bug that the type on `amount` makes impossible."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Every field must be initialised"
+    },
+    {
+      "type": "paragraph",
+      "text": "Under `strict`, the `strictPropertyInitialization` check requires every field to receive a value in its declaration or in the constructor. A field that is assigned later in a method is reported, because until that method runs the field is `undefined` while its type says `number`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "timer.ts",
+      "code": "class Timer {\n  startedAt: number;\n\n  start(): void {\n    this.startedAt = Date.now();\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc timer.ts",
+      "content": "timer.ts:2:3 - error TS2564: Property 'startedAt' has no initializer and is not definitely assigned in the constructor.\n\n2   startedAt: number;\n    ~~~~~~~~~\n\n\nFound 1 error in timer.ts:2"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three honest fixes: give the field a default (`startedAt = 0`), make the type admit the missing state (`startedAt: number | undefined`, or `startedAt?: number`), or assign it in the constructor. The dishonest fix is `startedAt!: number`, the *definite assignment assertion*, which tells the compiler to trust you; use it only when a framework guarantees the assignment before any method runs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Visibility and parameter properties"
+    },
+    {
+      "type": "paragraph",
+      "text": "`public` (the default), `private` and `protected` control who may access a member: anyone, only the class itself, or the class and its subclasses. `readonly` allows assignment only in the declaration or constructor. Putting a modifier on a constructor parameter, a *parameter property*, declares the field and assigns it in one step. JavaScript's own `#name` syntax declares a field that is private at runtime as well."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "counter.ts",
+      "code": "class Counter {\n  #ticks = 0;\n\n  constructor(private readonly step: number, public label = \"counter\") {}\n\n  tick(): number {\n    this.#ticks += this.step;\n    return this.#ticks;\n  }\n}\n\nconst counter = new Counter(2);\nconsole.log(counter.tick(), counter.tick(), counter.label);\n\nconsole.log(counter.step);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc counter.ts",
+      "content": "counter.ts:15:21 - error TS2341: Property 'step' is private and only accessible within class 'Counter'.\n\n15 console.log(counter.step);\n                       ~~~~\n\n\nFound 1 error in counter.ts:15"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first `console.log` prints `2 4 counter`. The constructor body is empty because the two parameter properties do all the work. Parameter properties are convenient but, like enums, they are not erasable syntax: Node's type stripping and `erasableSyntaxOnly` reject them, so projects that depend on type stripping write the fields out by hand."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: thinking private hides data",
+      "text": "TypeScript's `private` is checked at compile time only. The emitted JavaScript has an ordinary property: `(counter as any).step` reads it, `Object.keys(counter)` lists it and `JSON.stringify` serialises it. If a value must be unreachable from outside, use a `#private` field, which the JavaScript engine enforces and which never shows up in `Object.keys`. Use TypeScript's `private` for API design, not for security."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inheritance, abstract classes and implements"
+    },
+    {
+      "type": "paragraph",
+      "text": "`implements` checks that a class satisfies an interface. An `abstract` class cannot be instantiated and may declare `abstract` methods that subclasses must provide. `override` marks a method that replaces a base-class method; the compiler then reports a typo in the method name instead of silently creating a second, unrelated method. With `noImplicitOverride` on, the keyword becomes mandatory."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "shapes.ts",
+      "code": "interface Shape {\n  area(): number;\n}\n\nabstract class BaseShape implements Shape {\n  constructor(readonly name: string) {}\n\n  abstract area(): number;\n\n  describe(): string {\n    return `${this.name}: ${this.area().toFixed(2)}`;\n  }\n}\n\nclass Circle extends BaseShape {\n  constructor(private radius: number) {\n    super(\"circle\");\n  }\n\n  override area(): number {\n    return Math.PI * this.radius ** 2;\n  }\n}\n\nclass Square extends BaseShape {\n  constructor(private side: number) {\n    super(\"square\");\n  }\n\n  override area(): number {\n    return this.side ** 2;\n  }\n}\n\nconst shapes: Shape[] = [new Circle(1), new Square(3)];\nfor (const shape of shapes) {\n  console.log(shape.area().toFixed(2));\n}\nconsole.log(new Circle(2).describe());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx shapes.ts",
+      "content": "3.14\n9.00\ncircle: 12.57"
+    },
+    {
+      "type": "paragraph",
+      "text": "`shapes` is typed as `Shape[]`, an array of the interface, so the loop can only call `area()`; `describe()` belongs to `BaseShape`, not to the interface. Structural typing applies to classes too: any object with an `area(): number` method would satisfy `Shape`, whether or not it came from this hierarchy."
+    },
+    {
+      "type": "table",
+      "headers": ["Keyword", "Effect"],
+      "rows": [
+        [
+          "`public` / `private` / `protected`",
+          "Compile-time access control: everyone, the class only, the class and subclasses"
+        ],
+        [
+          "`#name`",
+          "Runtime-private field enforced by JavaScript; not visible to `Object.keys` or `JSON.stringify`"
+        ],
+        ["`readonly`", "Assignable only in the declaration or the constructor"],
+        ["`static`", "Belongs to the class, not to instances (`Temperature.fromFahrenheit(98.6)`)"],
+        [
+          "`abstract`",
+          "Class cannot be instantiated; abstract members must be implemented by subclasses"
+        ],
+        [
+          "`override`",
+          "Declares that a method replaces an inherited one; a misspelled name becomes an error"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Classes are optional",
+      "text": "Much TypeScript code uses plain objects, interfaces and functions instead of classes. Reach for a class when you need encapsulated state with behaviour, when a framework such as [Angular](/tutorials/angular) expects one, or when `instanceof` checks are useful. The [narrowing lesson](/tutorials/typescript/narrowing) shows `instanceof` as a type guard."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-classes-private"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-classes-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "classes",
+          "difficulty": "beginner",
+          "question": "What does `constructor(private readonly id: number) {}` do?",
+          "explanation": "A modifier on a constructor parameter turns it into a parameter property: the field is declared with that type and visibility and assigned from the argument automatically.",
+          "options": [
+            "Declares a local variable `id` that only the constructor can use",
+            "Declares a private, read-only field `id` and assigns the argument to it",
+            "Makes the constructor private so the class cannot be instantiated",
+            "Creates a static property shared by all instances"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-classes-qc-2",
+          "type": "true-false",
+          "lessonSlug": "classes",
+          "difficulty": "intermediate",
+          "question": "A class marked `abstract` can still be instantiated with `new` as long as it has no abstract methods.",
+          "explanation": "The abstract keyword on the class itself forbids new, regardless of its members. Only concrete subclasses can be instantiated.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-classes-private"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "objects-interfaces"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "generics"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Classes – Fields, private, readonly, abstract",
+    "description": "TypeScript classes explained: typed fields, strict property initialisation, private and readonly members, parameter properties, abstract classes and override."
+  },
+  "updatedOn": "2026-11-16"
+}

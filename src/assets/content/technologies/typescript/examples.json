@@ -1,0 +1,137 @@
+{
+  "title": "TypeScript Examples",
+  "description": "Copy-ready TypeScript snippets for everyday patterns: typed functions, interfaces, discriminated unions, generics, classes, utility types, async code, tuples, as const and declaration files. Run them locally with npx tsx.",
+  "examples": [
+    {
+      "id": "typed-function-defaults",
+      "title": "Typed function with default parameters",
+      "description": "Two small functions with annotated parameters, default values and a guarded range check; the pattern for most utility code.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["functions", "defaults"],
+      "lessonSlug": "functions",
+      "code": "function formatPrice(amount: number, currency = \"EUR\", decimals = 2): string {\n  return `${amount.toFixed(decimals)} ${currency}`;\n}\n\nfunction applyDiscount(price: number, percent: number): number {\n  if (percent < 0 || percent > 100) {\n    throw new RangeError(`Invalid discount: ${percent}%`);\n  }\n  return price - (price * percent) / 100;\n}\n\nconsole.log(formatPrice(19.999));\nconsole.log(formatPrice(applyDiscount(80, 25), \"USD\"));\nconsole.log(formatPrice(5, \"JPY\", 0));",
+      "output": "20.00 EUR\n60.00 USD\n5 JPY"
+    },
+    {
+      "id": "interface-book-summary",
+      "title": "Interface with optional and readonly properties",
+      "description": "An interface describing a book, with a readonly identifier and an optional year handled through the nullish coalescing operator.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["interface", "optional", "readonly"],
+      "lessonSlug": "objects-interfaces",
+      "code": "interface Book {\n  readonly isbn: string;\n  title: string;\n  authors: string[];\n  pages: number;\n  publishedYear?: number;\n}\n\nfunction summarize(book: Book): string {\n  const year = book.publishedYear ?? \"unknown year\";\n  return `${book.title} by ${book.authors.join(\" & \")} (${year}, ${book.pages} pages)`;\n}\n\nconst sicp: Book = {\n  isbn: \"978-0262510875\",\n  title: \"Structure and Interpretation of Computer Programs\",\n  authors: [\"Abelson\", \"Sussman\"],\n  pages: 657,\n  publishedYear: 1996,\n};\n\nconst draft: Book = { isbn: \"n/a\", title: \"Untitled\", authors: [\"Anonymous\"], pages: 12 };\n\nconsole.log(summarize(sicp));\nconsole.log(summarize(draft));",
+      "output": "Structure and Interpretation of Computer Programs by Abelson & Sussman (1996, 657 pages)\nUntitled by Anonymous (unknown year, 12 pages)"
+    },
+    {
+      "id": "discriminated-union-receipt",
+      "title": "Discriminated union with an exhaustive switch",
+      "description": "Three payment shapes share a method discriminant; the switch narrows each case and the never check guarantees no shape is forgotten.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["union", "narrowing", "never"],
+      "lessonSlug": "narrowing",
+      "code": "type Payment =\n  | { method: \"card\"; last4: string; amount: number }\n  | { method: \"paypal\"; email: string; amount: number }\n  | { method: \"cash\"; amount: number };\n\nfunction receipt(payment: Payment): string {\n  switch (payment.method) {\n    case \"card\":\n      return `Card ending ${payment.last4}: ${payment.amount}`;\n    case \"paypal\":\n      return `PayPal (${payment.email}): ${payment.amount}`;\n    case \"cash\":\n      return `Cash: ${payment.amount}`;\n    default: {\n      const unreachable: never = payment;\n      return unreachable;\n    }\n  }\n}\n\nconst payments: Payment[] = [\n  { method: \"card\", last4: \"4242\", amount: 30 },\n  { method: \"paypal\", email: \"ada@example.com\", amount: 12.5 },\n  { method: \"cash\", amount: 5 },\n];\n\nfor (const payment of payments) {\n  console.log(receipt(payment));\n}",
+      "output": "Card ending 4242: 30\nPayPal (ada@example.com): 12.5\nCash: 5"
+    },
+    {
+      "id": "generic-group-by",
+      "title": "Generic groupBy",
+      "description": "A generic function that groups any array by a key callback and returns a Partial Record, so every lookup is typed as possibly missing.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["generics", "record", "arrays"],
+      "lessonSlug": "generics",
+      "code": "function groupBy<T, K extends string>(\n  items: readonly T[],\n  keyOf: (item: T) => K,\n): Partial<Record<K, T[]>> {\n  const groups: Partial<Record<K, T[]>> = {};\n  for (const item of items) {\n    const key = keyOf(item);\n    (groups[key] ??= []).push(item);\n  }\n  return groups;\n}\n\ninterface Task {\n  title: string;\n  status: \"todo\" | \"doing\" | \"done\";\n}\n\nconst tasks: Task[] = [\n  { title: \"Write lesson\", status: \"doing\" },\n  { title: \"Review quiz\", status: \"todo\" },\n  { title: \"Publish\", status: \"todo\" },\n];\n\nconst byStatus = groupBy(tasks, (task) => task.status);\n\nconsole.log(byStatus.todo?.map((task) => task.title));\nconsole.log(byStatus.done?.length ?? 0);",
+      "output": "[ 'Review quiz', 'Publish' ]\n0"
+    },
+    {
+      "id": "temperature-class",
+      "title": "Class with a private field, accessors and a static factory",
+      "description": "A value class that validates its state in the constructor, exposes getters and a setter, and offers a static alternative constructor.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["classes", "getters", "static"],
+      "lessonSlug": "classes",
+      "code": "class Temperature {\n  static fromFahrenheit(value: number): Temperature {\n    return new Temperature(((value - 32) * 5) / 9);\n  }\n\n  #celsius: number;\n\n  constructor(celsius: number) {\n    if (celsius < -273.15) {\n      throw new RangeError(\"Below absolute zero\");\n    }\n    this.#celsius = celsius;\n  }\n\n  get celsius(): number {\n    return this.#celsius;\n  }\n\n  set celsius(value: number) {\n    this.#celsius = Math.max(value, -273.15);\n  }\n\n  get fahrenheit(): number {\n    return (this.#celsius * 9) / 5 + 32;\n  }\n\n  toString(): string {\n    return `${this.#celsius.toFixed(1)} °C`;\n  }\n}\n\nconst boiling = new Temperature(100);\nconst body = Temperature.fromFahrenheit(98.6);\nbody.celsius = 36.6;\n\nconsole.log(String(boiling), boiling.fahrenheit);\nconsole.log(String(body));",
+      "output": "100.0 °C 212\n36.6 °C"
+    },
+    {
+      "id": "user-dto-utility-types",
+      "title": "API DTOs derived with Omit, Pick and Partial",
+      "description": "One User interface, three derived types for creating, updating and exposing users, and functions that keep the password hash out of the public shape.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["utility-types", "omit", "partial"],
+      "lessonSlug": "utility-types",
+      "code": "interface User {\n  id: number;\n  email: string;\n  displayName: string;\n  passwordHash: string;\n  createdAt: string;\n}\n\ntype CreateUserDto = Omit<User, \"id\" | \"createdAt\">;\ntype UpdateUserDto = Partial<Pick<User, \"email\" | \"displayName\">>;\ntype PublicUser = Omit<User, \"passwordHash\">;\n\nfunction createUser(input: CreateUserDto, nextId: number): User {\n  return { ...input, id: nextId, createdAt: \"2026-11-15\" };\n}\n\nfunction toPublic(user: User): PublicUser {\n  const { passwordHash: _hidden, ...safe } = user;\n  return safe;\n}\n\nfunction updateUser(user: User, changes: UpdateUserDto): User {\n  return { ...user, ...changes };\n}\n\nconst user = createUser(\n  { email: \"ada@example.com\", displayName: \"Ada\", passwordHash: \"$argon2$...\" },\n  1,\n);\n\nconsole.log(toPublic(updateUser(user, { displayName: \"Ada L.\" })));",
+      "output": "{\n  email: 'ada@example.com',\n  displayName: 'Ada L.',\n  id: 1,\n  createdAt: '2026-11-15'\n}"
+    },
+    {
+      "id": "typed-event-emitter",
+      "title": "Type-safe event emitter",
+      "description": "A generic emitter whose event names and listener arguments come from a single event map, so a wrong event name or argument type is a compile error.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["generics", "mapped-types", "events"],
+      "lessonSlug": "generics",
+      "code": "type Listener<Args extends unknown[]> = (...args: Args) => void;\n\nclass TypedEmitter<Events extends Record<string, unknown[]>> {\n  private listeners: { [K in keyof Events]?: Listener<Events[K]>[] } = {};\n\n  on<K extends keyof Events>(event: K, listener: Listener<Events[K]>): void {\n    (this.listeners[event] ??= []).push(listener);\n  }\n\n  emit<K extends keyof Events>(event: K, ...args: Events[K]): void {\n    for (const listener of this.listeners[event] ?? []) {\n      listener(...args);\n    }\n  }\n}\n\ntype AppEvents = {\n  login: [userId: number, at: string];\n  logout: [];\n};\n\nconst bus = new TypedEmitter<AppEvents>();\n\nbus.on(\"login\", (userId, at) => console.log(`user ${userId} logged in at ${at}`));\nbus.on(\"logout\", () => console.log(\"logged out\"));\n\nbus.emit(\"login\", 7, \"09:30\");\nbus.emit(\"logout\");\n// bus.emit(\"signup\");          -> TS2345: '\"signup\"' is not assignable to 'keyof AppEvents'\n// bus.emit(\"login\", \"seven\");  -> TS2345: 'string' is not assignable to 'number'",
+      "output": "user 7 logged in at 09:30\nlogged out"
+    },
+    {
+      "id": "fetch-json-result",
+      "title": "Typed fetch with a Result union and runtime validation",
+      "description": "A generic fetchJson that never throws: it returns an ok or error object, validates the body with a type predicate and narrows caught errors.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["async", "fetch", "unknown", "result"],
+      "lessonSlug": "async-types",
+      "code": "type Result<T> = { ok: true; value: T } | { ok: false; error: string };\n\nasync function fetchJson<T>(\n  url: string,\n  isValid: (value: unknown) => value is T,\n): Promise<Result<T>> {\n  try {\n    const response = await fetch(url);\n    if (!response.ok) {\n      return { ok: false, error: `HTTP ${response.status}` };\n    }\n    const body: unknown = await response.json();\n    return isValid(body) ? { ok: true, value: body } : { ok: false, error: \"Unexpected shape\" };\n  } catch (error) {\n    return { ok: false, error: error instanceof Error ? error.message : String(error) };\n  }\n}\n\ninterface Repo {\n  name: string;\n  stars: number;\n}\n\nfunction isRepo(value: unknown): value is Repo {\n  if (typeof value !== \"object\" || value === null) return false;\n  const candidate = value as Record<string, unknown>;\n  return typeof candidate.name === \"string\" && typeof candidate.stars === \"number\";\n}\n\nconst result = await fetchJson(\"https://api.example.com/repos/typescript\", isRepo);\n\nif (result.ok) {\n  console.log(`${result.value.name} has ${result.value.stars} stars`);\n} else {\n  console.log(`Request failed: ${result.error}`);\n}"
+    },
+    {
+      "id": "tuple-return-values",
+      "title": "Returning several values with labelled tuples",
+      "description": "Functions that return labelled tuples, destructured by the caller with full type information, including a tuple-or-undefined result for empty input.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["tuples", "destructuring"],
+      "lessonSlug": "arrays-tuples",
+      "code": "function splitName(full: string): [first: string, last: string] {\n  const [first = \"\", ...rest] = full.trim().split(/\\s+/);\n  return [first, rest.join(\" \")];\n}\n\nfunction minMax(values: readonly number[]): [min: number, max: number] | undefined {\n  if (values.length === 0) return undefined;\n  return [Math.min(...values), Math.max(...values)];\n}\n\nconst [first, last] = splitName(\"Grace Brewster Hopper\");\nconsole.log(first, \"|\", last);\n\nconst range = minMax([7, 2, 9]);\nif (range) {\n  const [min, max] = range;\n  console.log(`from ${min} to ${max}`);\n}\nconsole.log(minMax([]));",
+      "output": "Grace | Brewster Hopper\nfrom 2 to 9\nundefined"
+    },
+    {
+      "id": "as-const-routes",
+      "title": "as const route map and satisfies",
+      "description": "A route table declared once with as const, with the route names and paths derived as literal unions, plus satisfies for a validated theme object.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["as-const", "literal-types", "satisfies"],
+      "lessonSlug": "enums-literals",
+      "code": "const ROUTES = {\n  home: \"/\",\n  tutorials: \"/tutorials\",\n  lesson: \"/tutorials/typescript/introduction\",\n} as const;\n\ntype RouteName = keyof typeof ROUTES;\ntype RoutePath = (typeof ROUTES)[RouteName];\n\nfunction navigate(name: RouteName): RoutePath {\n  return ROUTES[name];\n}\n\nconst theme = {\n  primary: \"#0f766e\",\n  surface: \"#f8fafc\",\n} satisfies Record<string, `#${string}`>;\n\nconsole.log(navigate(\"lesson\"));\nconsole.log(theme.primary.toUpperCase());",
+      "output": "/tutorials/typescript/introduction\n#0F766E"
+    },
+    {
+      "id": "is-defined-predicate",
+      "title": "Reusable isDefined type predicate",
+      "description": "A generic predicate that removes null and undefined from a list, giving filter a precise element type without a cast.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["narrowing", "type-predicate", "arrays"],
+      "lessonSlug": "narrowing",
+      "code": "function isDefined<T>(value: T | null | undefined): value is T {\n  return value !== null && value !== undefined;\n}\n\ninterface Member {\n  name: string;\n  email?: string;\n}\n\nconst members: Member[] = [\n  { name: \"Ada\", email: \"ada@example.com\" },\n  { name: \"Grace\" },\n  { name: \"Linus\", email: \"linus@example.com\" },\n];\n\nconst emails = members.map((member) => member.email).filter(isDefined);\nconst lengths = emails.map((email) => email.length);\n\nconsole.log(emails);\nconsole.log(lengths);",
+      "output": "[ 'ada@example.com', 'linus@example.com' ]\n[ 15, 17 ]"
+    },
+    {
+      "id": "declare-module-tiny-slug",
+      "title": "Declaration file for an untyped package",
+      "description": "A types/tiny-slug.d.ts file that describes an imaginary JavaScript-only package, followed by the code that uses it with full type checking.",
+      "language": "typescript",
+      "runnable": false,
+      "tags": ["declaration-files", "declare-module"],
+      "lessonSlug": "declaration-files",
+      "code": "// types/tiny-slug.d.ts (add \"types\" to \"include\" in tsconfig.json)\ndeclare module \"tiny-slug\" {\n  export interface SlugOptions {\n    separator?: string;\n    lowercase?: boolean;\n  }\n  export default function slug(input: string, options?: SlugOptions): string;\n}\n\n// src/use.ts\nimport slug from \"tiny-slug\";\n\nconsole.log(slug(\"Hello World\", { separator: \"_\" }));\n// slug(42)  -> TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.",
+      "output": "hello_world"
+    }
+  ]
+}

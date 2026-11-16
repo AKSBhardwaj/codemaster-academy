@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "Functions",
+  "summary": "A function is a named group of steps you can call again. It may take inputs and return an answer.",
+  "introduction": "A function is a named group of steps you can call again. It may take inputs and return an answer. Make a small helper for a repeated job. Pass in different values, and follow how its answer returns to the code that called it.",
+  "learningObjectives": [
+    "Define functions with def, call them and use their return values",
+    "Use default, keyword, *args and **kwargs parameters appropriately",
+    "Explain local scope and why a function should return rather than print",
+    "Document a function with a docstring and type hints"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Defining and calling"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "greet.py",
+      "code": "def greet(name):\n    message = f\"Hello, {name}!\"\n    return message\n\nprint(greet(\"Ada\"))\ntext = greet(\"Linus\")\nprint(text.upper())\nprint(len(greet(\"Grace\")))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python greet.py",
+      "content": "Hello, Ada!\nHELLO, LINUS!\n13"
+    },
+    {
+      "type": "paragraph",
+      "text": "`def` names the function and lists its **parameters**; the indented body runs each time the function is **called** with **arguments** in parentheses. `return` hands a value back to the caller and ends the function immediately. Because `greet` returns the string rather than printing it, the caller can print it, upper-case it or measure it; a function that only prints can only print."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "return versus print"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "returns.py",
+      "code": "def area(width, height):\n    return width * height\n\ndef show_area(width, height):\n    print(width * height)\n\ntotal = area(3, 4) + area(2, 5)\nprint(total)\n\nresult = show_area(3, 4)\nprint(result)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python returns.py",
+      "content": "22\n12\nNone"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function without a `return` (or with a bare `return`) gives back `None`. `show_area` prints 12, but its value is `None`, so it cannot take part in a calculation. Make functions *return* results and leave printing to the caller; that is also what makes them testable."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Default and keyword arguments"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "defaults.py",
+      "code": "def power(base, exponent=2):\n    return base ** exponent\n\nprint(power(5))\nprint(power(5, 3))\nprint(power(exponent=3, base=2))\n\ndef book_room(guests, nights=1, breakfast=False):\n    cost = 80 * nights * guests\n    if breakfast:\n        cost += 12 * nights * guests\n    return cost\n\nprint(book_room(2))\nprint(book_room(2, 3))\nprint(book_room(2, breakfast=True))\nprint(book_room(nights=2, guests=1, breakfast=True))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python defaults.py",
+      "content": "25\n125\n8\n160\n480\n184\n184"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parameters with defaults are optional; those without must be supplied. Arguments are matched by position first, then by keyword, so `book_room(2, breakfast=True)` skips `nights` and keeps its default. Keyword arguments make calls self-documenting: `book_room(2, 3, True)` is legal, but nobody can tell what `True` means without opening the function."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Any number of arguments"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "varargs.py",
+      "code": "def average(*values):\n    return sum(values) / len(values)\n\nprint(average(4, 8))\nprint(average(1, 2, 3, 4))\n\ndef describe(**attributes):\n    for key, value in attributes.items():\n        print(f\"{key}: {value}\")\n\ndescribe(name=\"Rex\", species=\"dog\", age=4)\n\nnumbers = [3, 9, 6]\nprint(max(*numbers), average(*numbers))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python varargs.py",
+      "content": "6.0\n2.5\nname: Rex\nspecies: dog\nage: 4\n9 6.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "A parameter written as `*values` collects any number of positional arguments into a tuple, and `**attributes` collects keyword arguments into a dictionary; the names `args` and `kwargs` are conventional but not required. The star also works in the other direction: `average(*numbers)` unpacks a list into separate arguments."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scope"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "scope.py",
+      "code": "counter = 0\n\ndef increment():\n    counter = 1       # creates a new local variable\n    return counter\n\nprint(increment(), counter)\n\ndef show():\n    print(\"Inside, I can read\", counter)\n\nshow()\n\ndef bump():\n    global counter\n    counter += 1\n\nbump()\nprint(counter)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python scope.py",
+      "content": "1 0\nInside, I can read 0\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Variables assigned inside a function are **local**: they exist only while the call runs and shadow outer names rather than changing them, which is why the module-level `counter` is still 0 after `increment()`. Functions can *read* outer variables freely. Writing to one requires the `global` statement, and needing it is a warning sign: prefer passing values in as arguments and returning results."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Docstrings and type hints"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "documented.py",
+      "code": "def celsius_to_fahrenheit(celsius: float) -> float:\n    \"\"\"Convert a temperature from Celsius to Fahrenheit.\"\"\"\n    return celsius * 9 / 5 + 32\n\nprint(celsius_to_fahrenheit(100))\nprint(celsius_to_fahrenheit.__doc__)\nhelp(celsius_to_fahrenheit)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python documented.py",
+      "content": "212.0\nConvert a temperature from Celsius to Fahrenheit.\nHelp on function celsius_to_fahrenheit in module __main__:\n\ncelsius_to_fahrenheit(celsius: float) -> float\n    Convert a temperature from Celsius to Fahrenheit."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **docstring** is a string on the first line of the body; editors show it when you hover over a call and `help()` prints it. **Type hints** such as `celsius: float` and `-> float` describe the intended types for readers and for tools like mypy and VS Code. Python does not check them while running, so `celsius_to_fahrenheit(\"hot\")` fails only when the arithmetic in the body runs, with a `TypeError` from `/ 5` (`\"hot\" * 9` even succeeds, because `*` repeats a string)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The mutable default trap"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "mutable_default.py",
+      "code": "def add_item(item, basket=[]):\n    basket.append(item)\n    return basket\n\nprint(add_item(\"apple\"))\nprint(add_item(\"pear\"))      # surprise: the same list again\n\ndef add_item_fixed(item, basket=None):\n    if basket is None:\n        basket = []\n    basket.append(item)\n    return basket\n\nprint(add_item_fixed(\"apple\"))\nprint(add_item_fixed(\"pear\"))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python mutable_default.py",
+      "content": "['apple']\n['apple', 'pear']\n['apple']\n['pear']"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Default values are created once",
+      "text": "Defaults are evaluated when `def` runs, not on every call. A default list or dictionary is therefore shared by every call that omits the argument, which is why the second `add_item(\"pear\")` returns a basket that still contains the apple. Use `None` as the default and create the empty list inside the function, as `add_item_fixed` does."
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "lambda",
+      "text": "A `lambda` is a tiny anonymous function for a single expression, mostly used as a `key`: `sorted(people, key=lambda p: p[\"age\"])`. If it needs a name, a docstring or a second line, use `def`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-functions-reset-total"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-func-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "What does a function return when it has no `return` statement?",
+          "explanation": "Every function returns something; without an explicit `return` the value is `None`. Printing inside the function does not change that.",
+          "options": ["`0`", "An empty string", "`None`", "The last value it printed"],
+          "correctIndex": 2
+        },
+        {
+          "id": "py-func-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`add(5)` uses the default `b=10` and gives 15; `add(5, 1)` overrides the default and gives 6.",
+          "language": "python",
+          "code": "def add(a, b=10):\n    return a + b\n\nprint(add(5), add(5, 1))",
+          "options": ["`15 6`", "`15 15`", "`5 6`", "An error"],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-functions-reset-total"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "modules-packages"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "errors-exceptions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "comprehensions"
+    }
+  ],
+  "seo": {
+    "title": "Python Functions – def, Arguments, Return and Scope",
+    "description": "Define Python functions with parameters, defaults, keyword arguments, *args and **kwargs, scope, docstrings and type hints, and avoid mutable defaults."
+  },
+  "updatedOn": "2026-11-16"
+}

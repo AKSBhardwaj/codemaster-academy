@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "slug": "apis-and-contracts",
+  "title": "APIs and contracts",
+  "summary": "Design a small book-search API with clear inputs, replies, limits, and errors. Learn why both sides need the same contract.",
+  "introduction": "A library request slip has boxes for the details the librarian needs. An API is a similar doorway between programs. A clear doorway helps both sides know what to send and what to expect.",
+  "learningObjectives": [
+    "Describe an API contract in plain language",
+    "Bound a search reply with a page size",
+    "Choose clear replies for empty results and invalid input"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **API**, short for application programming interface, is a way for programs to work together. A **contract** describes the allowed request, the reply, and the meaning of errors."
+    },
+    {
+      "type": "paragraph",
+      "text": "Our search uses HTTP, the web's request-and-response rules. GET asks to read data. The path names the resource, and query fields after the question mark help choose the results. For this contract, a title match ignores upper- and lower-case letters, so Moon and moon mean the same search text."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **page** is a small group of results. Returning a page of 20 books is easier to handle than sending a huge catalog at once. A cursor is a marker for where the next page should begin."
+    },
+    {
+      "type": "paragraph",
+      "text": "Treat a cursor as an opaque value: the client copies it into the next request without taking it apart. The service still checks that it is valid. The sample below is a paper contract, not a live endpoint."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Ask for books whose title matches moon, with a limit of 2 records.",
+        "Require title to contain 1 to 80 characters after trimming outside spaces.",
+        "Allow an integer limit from 1 to 20. If it is omitted, use 10.",
+        "Return a list named items and a nextCursor field. Use null when there is no next page.",
+        "Use stable IDs so a client does not depend on a book title staying unchanged."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This tiny example uses one shelf location per book. If a title has copies on several shelves, return those locations separately. The full model keeps the shelf on each physical copy, as shown in [Choose the data](/tutorials/system-design/choose-the-data)."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "GET /v1/books?title=moon&limit=2\n\n200 OK\n{\n  \"items\": [\n    { \"id\": 17, \"title\": \"Moon\", \"shelf\": \"B2\" },\n    { \"id\": 42, \"title\": \"Moon Maps\", \"shelf\": \"C1\" }\n  ],\n  \"nextCursor\": null\n}\n\nNo matches: 200 OK, items: [], nextCursor: null\nInvalid limit: 400 Bad Request with a clear message\nTemporary service failure: 503 Service Unavailable",
+      "title": "APIs and contracts example",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Both sides can now be built against the same rules. The page knows where to read the books, how to ask for more, and how to explain an empty result."
+    },
+    {
+      "type": "paragraph",
+      "text": "Reading a missing individual book, such as GET /v1/books/999, can return 404 Not Found. Searching a collection with no matches is different: the search worked and returned an empty list."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Check input in the service even if the page already checks it. A different client can send a request without using your page. Keep query limits bounded and avoid sending private fields in the reply."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a stable order with a tie breaker, such as title followed by book ID, when paging through results. Data may change between pages, so decide whether live changes or a fixed snapshot better fits the task."
+    },
+    {
+      "type": "paragraph",
+      "text": "Changing a field from number to text can break clients that expect a number. Document changes and keep compatibility rules clear. A version in the path helps name a contract; it does not remove the need to manage changes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A learner sends limit=0. Write the response and explain whether the service should return the whole catalog.",
+        "Return 400 with a message such as limit must be from 1 to 20. Do not turn an invalid small limit into an unlimited reply."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not define only the happy reply. Include input limits, empty results, error meanings, and rules for changes to the contract."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-apis-and-contracts"
+    }
+  ],
+  "exerciseIds": ["system-design-apis-and-contracts"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "follow-one-request"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    }
+  ],
+  "seo": {
+    "title": "System Design: APIs and contracts",
+    "description": "Design a small book-search API with clear inputs, replies, limits, and errors. Learn why both sides need the same contract."
+  },
+  "updatedOn": "2026-11-16"
+}

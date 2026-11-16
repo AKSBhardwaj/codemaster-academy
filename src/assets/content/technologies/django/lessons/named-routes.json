@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "named-routes",
+  "title": "Build a URL from its name",
+  "summary": "Django: Build a URL from its name. Change the name passed to reverse.",
+  "introduction": "reverse finds a route by name and fills its inputs. Open GET /link/.",
+  "learningObjectives": [
+    "Build a URL from its name with Django",
+    "Change the name passed to reverse"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Build a URL from its name"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Build a URL from its name",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef hello(request, name):\n    return HttpResponse(name)\ndef link(request):\n    return HttpResponse(reverse(\"hello\", kwargs={\"name\": \"Asha\"}))\nurlpatterns = [\npath(\"hello/<str:name>/\", hello, name=\"hello\"),\npath(\"link/\", link),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "reverse looks up the named pattern and substitutes Asha for its name input."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "/hello/Asha/"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the name passed to reverse."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The keyword name must match the path input name."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-named-routes-check"
+    }
+  ],
+  "exerciseIds": ["django-named-routes-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "methods"
+    }
+  ],
+  "seo": {
+    "title": "Django: Build a URL from its name",
+    "description": "Django: Build a URL from its name. Change the name passed to reverse. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

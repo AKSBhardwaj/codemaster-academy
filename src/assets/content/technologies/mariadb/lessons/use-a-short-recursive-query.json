@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "use-a-short-recursive-query",
+  "title": "Use a short recursive query",
+  "summary": "A recursive CTE can use earlier results to make later ones.",
+  "introduction": "A recursive CTE can use earlier results to make later ones. Your task: Change the stop value to 5.",
+  "learningObjectives": [
+    "Change the stop value to 5.",
+    "Explain the example for use a short recursive query"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A recursive CTE can use earlier results to make later ones. It needs a stopping rule so it does not repeat forever."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use MariaDB 10.11+ with its mariadb client in an empty practice database. These dialect-specific examples do not run in the site's SQLite playground. Keep the sample database separate from real records."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "WITH RECURSIVE numbers(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM numbers WHERE n<4) SELECT n FROM numbers;",
+      "title": "Use a short recursive query",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`WITH RECURSIVE` repeats a query from an initial result. Its stopping rule must prevent endless growth.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name.",
+        "`WHERE` keeps only rows that pass its condition. Check the condition with sample data before using it for a change."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The query returns 1, 2, 3 and 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Always understand the stop condition. Recursion limits are a guard, not a replacement for a correct rule."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the stop value to 5."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mariadb-use-a-short-recursive-query-check"
+    }
+  ],
+  "exerciseIds": ["mariadb-use-a-short-recursive-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mariadb",
+      "slug": "join-grouped-text"
+    }
+  ],
+  "seo": {
+    "title": "MariaDB: Use a short recursive query",
+    "description": "A recursive CTE can use earlier results to make later ones. It needs a stopping rule so it does not repeat forever."
+  },
+  "updatedOn": "2026-11-16"
+}

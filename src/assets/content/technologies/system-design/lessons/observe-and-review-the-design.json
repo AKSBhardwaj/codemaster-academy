@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "slug": "observe-and-review-the-design",
+  "title": "Observe and review the design",
+  "summary": "Use metrics, logs, and traces to understand a service. Check a small error-rate calculation, then review a design with clear evidence.",
+  "introduction": "A library manager cannot fix a long queue by guessing. They count visitors, watch waiting time, and ask where work gets stuck. A computer service needs useful signals in the same way.",
+  "learningObjectives": [
+    "Tell a metric, a log, and a trace apart",
+    "Calculate an error rate and describe its limits",
+    "Use evidence to review a slow or failing design"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three kinds of clues"
+    },
+    {
+      "type": "table",
+      "headers": ["Signal", "What it tells us", "Library service example"],
+      "rows": [
+        [
+          "Metric",
+          "A number measured over time",
+          "5 failed searches out of 100 requests in one minute"
+        ],
+        ["Log", "A record of one event", "Request r52 could not reach the catalog database"],
+        [
+          "Trace",
+          "The timed steps of one request",
+          "r52 spent 10 ms in the API and 400 ms waiting for the database"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "**Observability** means being able to understand what a system is doing from its signals. We need more than a green light saying the server process is running. People may still be unable to search."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a tiny measurement"
+    },
+    {
+      "type": "paragraph",
+      "text": "Our sample has five made-up requests. Four succeed and one fails. A request takes some number of milliseconds, written ms. One second is 1,000 milliseconds."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const requests = [\n  { ok: true, ms: 80 },\n  { ok: true, ms: 90 },\n  { ok: false, ms: 500 },\n  { ok: true, ms: 110 },\n  { ok: true, ms: 120 }\n];\nconst failures = requests.filter(item => !item.ok).length;\nconst successful = requests.filter(item => item.ok);\nconst totalMs = successful.reduce((sum, item) => sum + item.ms, 0);\nconsole.log(\"requests: \" + requests.length);\nconsole.log(\"failures: \" + failures);\nconsole.log(\"error percent: \" + failures / requests.length * 100);\nconsole.log(\"successful average ms: \" + totalMs / successful.length);",
+      "runnable": true,
+      "title": "Small JavaScript model",
+      "caption": "This model uses made-up values in your browser. It does not contact a service."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "requests: 5\nfailures: 1\nerror percent: 20\nsuccessful average ms: 100",
+      "title": "Expected output"
+    },
+    {
+      "type": "paragraph",
+      "text": "The error rate is 1 divided by 5, then multiplied by 100: 20 percent. The successful requests take 400 ms in total, so their average is 400 divided by 4: 100 ms."
+    },
+    {
+      "type": "paragraph",
+      "text": "This sample is tiny. It does not prove what a busy service will do. We labelled the average as successful requests only. Failures still matter and must stay visible in a separate measure."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose measures that answer a question"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Traffic: how many requests arrive in a chosen time window?",
+        "Errors: what share of requests fail? Keep the total beside the rate.",
+        "Latency: how long do people wait? Check slow requests as well as the average.",
+        "Capacity: how full are worker queues, memory, and connections?"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A **percentile** helps show slow requests. The 95th percentile is a time at or below which about 95 out of 100 measured requests finish. It can reveal slow waits hidden by an average."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Review one problem step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with the user problem: searching is slow, or borrowing fails. Pick the matching measure and time window.",
+        "Compare with a normal period. Check how much traffic changed, not just how many errors happened.",
+        "Follow a request ID through safe logs and traces. A request ID is a label that joins the clues for one trip.",
+        "Check recent changes and the slow part. Try one small fix, measure again, and keep a way to undo the change."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "An **alert** asks a person to act. Base it on a useful problem, such as a sustained rise in failed loans. Too many alerts about tiny, harmless changes teach people to ignore them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle missing data and private facts"
+    },
+    {
+      "type": "paragraph",
+      "text": "If no requests arrive, the error percentage is not known from that window; dividing by zero is not useful. Our sample code assumes at least one request and one success. A real report must handle empty groups and show \"no data\"."
+    },
+    {
+      "type": "paragraph",
+      "text": "Do not put passwords, access tokens, or unnecessary names into logs. Logs need access limits and a deletion schedule too. Keep enough detail to investigate without copying every private request."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the 110 ms request to ok: false. Keep the other values.",
+        "There are now two failures out of five: 40 percent. The three successful times add to 290 ms, so their average is about 96.67 ms. A lower successful average did not mean the service improved."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not report one average as proof that every user had a fast response. Show errors, slow waits, and the number of samples too."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-observe-and-review-the-design"
+    }
+  ],
+  "exerciseIds": ["system-design-observe-and-review-the-design"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "latency-and-throughput"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "backups-and-recovery"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Observe and review the design",
+    "description": "Use metrics, logs, and traces to understand a service. Check a small error-rate calculation, then review a design with clear evidence."
+  },
+  "updatedOn": "2026-11-16"
+}

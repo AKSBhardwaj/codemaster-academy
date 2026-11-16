@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "slug": "hash-tables",
+  "title": "Hash tables and collisions",
+  "summary": "Place keys into a small hash table, handle two keys that choose the same slot, and find the right value by checking the stored key.",
+  "introduction": "Imagine four trays for number cards. A quick rule chooses a tray for each card. Sometimes two cards choose the same tray, so we need a fair backup plan instead of throwing one away.",
+  "learningObjectives": [
+    "Explain hashing, slots, and collisions",
+    "Follow linear probing when two keys clash",
+    "Bound a search so a full table cannot loop forever"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **hash table** keeps keys in an array of slots. A **hash function** turns a key into a starting slot. Our tiny rule uses key % 4: the remainder after division by 4."
+    },
+    {
+      "type": "paragraph",
+      "text": "Both 5 % 4 and 9 % 4 are 1. Different keys choosing the same starting slot cause a **collision**. Equal hash results do not mean equal keys."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Linear probing** solves this by trying the next slot, then the next. After slot 3, we wrap back to slot 0. We store the key along with its value, so a lookup can tell keys apart."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with four empty slots, numbered 0 to 3. A used flag says whether a slot holds a pair.",
+        "Insert key 5 with value 20. Its starting slot is 1, which is empty.",
+        "Insert key 9 with value 40. Slot 1 holds key 5, so put key 9 in slot 2.",
+        "Look up 9 from slot 1. Skip key 5, match key 9 in slot 2, and print 40."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Hash tables and collisions example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const keys = Array(4).fill(0);\nconst values = Array(4).fill(0);\nconst used = Array(4).fill(false);\nconst inputs = [5, 9];\nconst amounts = [20, 40];\nfor (let i = 0; i < inputs.length; i++) {\n  for (let step = 0; step < 4; step++) {\n    const slot = (inputs[i] % 4 + step) % 4;\n    if (!used[slot] || keys[slot] === inputs[i]) {\n      used[slot] = true;\n      keys[slot] = inputs[i];\n      values[slot] = amounts[i];\n      break;\n    }\n  }\n}\nconst target = 9;\nfor (let step = 0; step < 4; step++) {\n  const slot = (target % 4 + step) % 4;\n  if (!used[slot]) break;\n  if (keys[slot] === target) {\n    console.log(values[slot]);\n    break;\n  }\n}",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int keys[4] = {0};\n    int values[4] = {0};\n    int used[4] = {0};\n    int inputs[] = {5, 9};\n    int amounts[] = {20, 40};\n    for (int i = 0; i < 2; i++) {\n        for (int step = 0; step < 4; step++) {\n            int slot = (inputs[i] % 4 + step) % 4;\n            if (!used[slot] || keys[slot] == inputs[i]) {\n                used[slot] = 1;\n                keys[slot] = inputs[i];\n                values[slot] = amounts[i];\n                break;\n            }\n        }\n    }\n    int target = 9;\n    for (int step = 0; step < 4; step++) {\n        int slot = (target % 4 + step) % 4;\n        if (!used[slot]) break;\n        if (keys[slot] == target) {\n            printf(\"%d\\n\", values[slot]);\n            break;\n        }\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int keys[4] = {0};\n    int values[4] = {0};\n    int used[4] = {0};\n    int inputs[] = {5, 9};\n    int amounts[] = {20, 40};\n    for (int i = 0; i < 2; i++) {\n        for (int step = 0; step < 4; step++) {\n            int slot = (inputs[i] % 4 + step) % 4;\n            if (!used[slot] || keys[slot] == inputs[i]) {\n                used[slot] = 1;\n                keys[slot] = inputs[i];\n                values[slot] = amounts[i];\n                break;\n            }\n        }\n    }\n    int target = 9;\n    for (int step = 0; step < 4; step++) {\n        int slot = (target % 4 + step) % 4;\n        if (!used[slot]) break;\n        if (keys[slot] == target) {\n            std::cout << values[slot] << '\\n';\n            break;\n        }\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "keys = [0] * 4\nvalues = [0] * 4\nused = [False] * 4\ninputs = [5, 9]\namounts = [20, 40]\nfor i in range(len(inputs)):\n    for step in range(4):\n        slot = (inputs[i] % 4 + step) % 4\n        if not used[slot] or keys[slot] == inputs[i]:\n            used[slot] = True\n            keys[slot] = inputs[i]\n            values[slot] = amounts[i]\n            break\ntarget = 9\nfor step in range(4):\n    slot = (target % 4 + step) % 4\n    if not used[slot]:\n        break\n    if keys[slot] == target:\n        print(values[slot])\n        break",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "int[] keys = new int[4];\nint[] values = new int[4];\nbool[] used = new bool[4];\nint[] inputs = {5, 9};\nint[] amounts = {20, 40};\nfor (int i = 0; i < 2; i++) {\n    for (int step = 0; step < 4; step++) {\n        int slot = (inputs[i] % 4 + step) % 4;\n        if (!used[slot] || keys[slot] == inputs[i]) {\n            used[slot] = true;\n            keys[slot] = inputs[i];\n            values[slot] = amounts[i];\n            break;\n        }\n    }\n}\nint target = 9;\nfor (int step = 0; step < 4; step++) {\n    int slot = (target % 4 + step) % 4;\n    if (!used[slot]) break;\n    if (keys[slot] == target) {\n        System.Console.WriteLine(values[slot]);\n        break;\n    }\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        int[] keys = new int[4];\n        int[] values = new int[4];\n        boolean[] used = new boolean[4];\n        int[] inputs = {5, 9};\n        int[] amounts = {20, 40};\n        for (int i = 0; i < 2; i++) {\n            for (int step = 0; step < 4; step++) {\n                int slot = (inputs[i] % 4 + step) % 4;\n                if (!used[slot] || keys[slot] == inputs[i]) {\n                    used[slot] = true;\n                    keys[slot] = inputs[i];\n                    values[slot] = amounts[i];\n                    break;\n                }\n            }\n        }\n        int target = 9;\n        for (int step = 0; step < 4; step++) {\n            int slot = (target % 4 + step) % 4;\n            if (!used[slot]) break;\n            if (keys[slot] == target) {\n                System.out.println(values[slot]);\n                break;\n            }\n        }\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "40"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lookup repeats the same probing rule used for insertion. It compares actual keys before returning a value. The used flags let key 0 be a valid key; zero in an unused array cell is not treated as stored data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "This tiny example accepts non-negative integer keys and inserts only two pairs into four slots. A full table needs an explicit failure result or a larger table. Our loops stop after four tries, so they cannot keep circling forever."
+    },
+    {
+      "type": "paragraph",
+      "text": "With no deletions, an unused slot tells lookup that the key is absent. Deletion needs special care: clearing an earlier slot could hide a later collided key. Real implementations use a special deleted marker or rebuild the cluster."
+    },
+    {
+      "type": "paragraph",
+      "text": "Hash tables can give O(1) average lookup with a suitable hash function and enough empty space. Many collisions can cause O(n) worst-case work. This tiny remainder rule is for learning, not a general-purpose hash function."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change target from 9 to 5. Leave the stored pairs unchanged.",
+        "The output becomes 20. The lookup finds key 5 in its first slot, so it does not need the next slot."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not overwrite slot 1 just because key 9 hashes there. That would lose key 5. Compare keys and handle collisions."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-hash-tables"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-hash-tables"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "maps"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "sets"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "array-positions"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Hash tables and collisions in six languages",
+    "description": "Place keys into a small hash table, handle two keys that choose the same slot, and find the right value by checking the stored key."
+  },
+  "updatedOn": "2026-11-16"
+}

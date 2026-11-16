@@ -1,0 +1,150 @@
+{
+  "title": "Data Science Reference",
+  "description": "A quick reminder of the ideas and examples in the Data Science lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Begin with a clear question",
+          "summary": "Data is recorded information. Data science uses careful questions and checks to learn from it. A clear question tells us what we need to count.",
+          "example": {
+            "language": "text",
+            "code": "Question: which book type was borrowed most this week?\nNeeded: one row per borrowing and the book type\nNot needed: learner names or home addresses\nResult: a count for each type"
+          },
+          "notes": ["Collecting extra personal details does not make an answer better."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "organise-rows-and-columns",
+          "name": "Organise rows and columns",
+          "summary": "A row holds one record. A column holds one kind of information. A list of dictionaries can represent a small table in Python.",
+          "example": {
+            "language": "python",
+            "code": "rows = [{\"type\": \"story\", \"count\": 4}, {\"type\": \"science\", \"count\": 2}]\nprint(rows[0][\"count\"])"
+          },
+          "notes": ["Use the same meaning and unit for a column in every row."],
+          "lessonSlug": "organise-rows-and-columns"
+        },
+        {
+          "slug": "read-a-tiny-csv-table",
+          "name": "Read a tiny CSV table",
+          "summary": "CSV stores table rows as text, often with commas between fields. A CSV reader handles fields more carefully than splitting every line yourself.",
+          "example": {
+            "language": "python",
+            "code": "import csv\nfrom io import StringIO\ntext = \"type,count\\nstory,4\\nscience,2\\n\"\nrows = list(csv.DictReader(StringIO(text)))\nprint(rows[0][\"count\"])"
+          },
+          "notes": ["A value read from CSV is not automatically a number."],
+          "lessonSlug": "read-a-tiny-csv-table"
+        },
+        {
+          "slug": "use-consistent-units",
+          "name": "Use consistent units",
+          "summary": "Before comparing measurements, put them in the same units. Metres and centimetres describe length on different scales.",
+          "example": {
+            "language": "python",
+            "code": "lengths_cm = [100, 150, 200]\nlengths_m = [value / 100 for value in lengths_cm]\nprint(lengths_m)"
+          },
+          "notes": [
+            "Adding 1 metre and 50 centimetres as if they were both the same unit gives a wrong result."
+          ],
+          "lessonSlug": "use-consistent-units"
+        },
+        {
+          "slug": "handle-missing-values-honestly",
+          "name": "Handle missing values honestly",
+          "summary": "A missing value means a measurement is absent. It does not mean zero. Keep track of what you leave out of a calculation.",
+          "example": {
+            "language": "python",
+            "code": "minutes = [10, None, 20]\nknown = [value for value in minutes if value is not None]\nprint(sum(known) / len(known), len(known))"
+          },
+          "notes": ["If no values are known, check before dividing by the list length."],
+          "lessonSlug": "handle-missing-values-honestly"
+        },
+        {
+          "slug": "check-duplicate-records",
+          "name": "Check duplicate records",
+          "summary": "A duplicate is a repeated record. Some repeats are mistakes, but repeated events can also be real. Use a suitable identifier before removing anything.",
+          "example": {
+            "language": "python",
+            "code": "events = [{\"id\": \"a\", \"type\": \"story\"}, {\"id\": \"a\", \"type\": \"story\"}, {\"id\": \"b\", \"type\": \"story\"}]\nids = [row[\"id\"] for row in events]\nprint(len(ids), len(set(ids)))"
+          },
+          "notes": ["Do not remove all repeated values when separate events can share them."],
+          "lessonSlug": "check-duplicate-records"
+        },
+        {
+          "slug": "count-categories",
+          "name": "Count categories",
+          "summary": "A category is a named group. Counter counts how often each value occurs in a list.",
+          "example": {
+            "language": "python",
+            "code": "from collections import Counter\nborrowings = [\"story\", \"science\", \"story\", \"poetry\"]\ncounts = Counter(borrowings)\nprint(counts[\"story\"], counts[\"science\"])"
+          },
+          "notes": [
+            "Always say what a count refers to: books, events and people are different things."
+          ],
+          "lessonSlug": "count-categories"
+        },
+        {
+          "slug": "mean-and-median-show-different-centres",
+          "name": "Mean and median show different centres",
+          "summary": "The mean adds values and divides by their count. The median is the middle value after sorting. A very large value can pull the mean upward.",
+          "example": {
+            "language": "python",
+            "code": "from statistics import mean, median\nminutes = [2, 3, 4, 5, 36]\nprint(mean(minutes), median(minutes))"
+          },
+          "notes": ["Do not report an average without checking how spread out the values are."],
+          "lessonSlug": "mean-and-median-show-different-centres"
+        },
+        {
+          "slug": "look-at-spread",
+          "name": "Look at spread",
+          "summary": "Spread describes how far apart values are. The range subtracts the smallest value from the largest. It is a simple start, not a full description.",
+          "example": {
+            "language": "python",
+            "code": "scores = [6, 7, 7, 10]\nprint(max(scores) - min(scores))"
+          },
+          "notes": ["Two lists can have the same range and very different middle values."],
+          "lessonSlug": "look-at-spread"
+        },
+        {
+          "slug": "choose-a-clear-chart",
+          "name": "Choose a clear chart",
+          "summary": "A chart should fit the question. Bars compare category counts. A line can show ordered measurements over time. Labels must name the values and units.",
+          "example": {
+            "language": "text",
+            "code": "Question: compare borrowings by book type\nChart: bars\nHorizontal labels: story, science, poetry\nVertical label: number of borrowings\nBar baseline: zero"
+          },
+          "notes": [
+            "A chart with missing units or a misleading scale can suggest the wrong story."
+          ],
+          "lessonSlug": "choose-a-clear-chart"
+        },
+        {
+          "slug": "a-pattern-does-not-prove-a-cause",
+          "name": "A pattern does not prove a cause",
+          "summary": "Two things can change together without one causing the other. A third factor or the way data was collected may explain the pattern.",
+          "example": {
+            "language": "text",
+            "code": "Observed: more ice cream sales and more swimming on hot days\nPossible shared cause: warm weather\nUnsupported claim: buying ice cream makes people swim"
+          },
+          "notes": ["Do not turn a shared pattern into a cause claim without evidence."],
+          "lessonSlug": "a-pattern-does-not-prove-a-cause"
+        },
+        {
+          "slug": "report-the-answer-and-its-limits",
+          "name": "Report the answer and its limits",
+          "summary": "A useful report states the question, result, method and limits. Readers should be able to check where the answer came from.",
+          "example": {
+            "language": "text",
+            "code": "Question: which type was borrowed most this week?\nSample: 4 fictional borrowing events\nResult: story had 2 events; science and poetry had 1 each\nLimit: one tiny week does not describe the whole year"
+          },
+          "notes": ["Do not hide missing data or small samples behind a confident title."],
+          "lessonSlug": "report-the-answer-and-its-limits"
+        }
+      ]
+    }
+  ]
+}

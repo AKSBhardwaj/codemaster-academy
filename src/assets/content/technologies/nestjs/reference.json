@@ -1,0 +1,158 @@
+{
+  "title": "NestJS Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "controllers",
+          "name": "Make a controller route",
+          "summary": "A controller holds request handlers. @Get maps GET /hello to its method.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"hello\") hello() { return \"Hello, Asha!\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["A controller must be listed in a module to be used."],
+          "lessonSlug": "controllers"
+        },
+        {
+          "slug": "json",
+          "name": "Return named data",
+          "summary": "Nest sends returned objects as JSON. Open GET /book.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"book\") book() { return { title: \"Moon Trip\", pages: 24 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["Let Nest write the returned object instead of writing a second response."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-inputs",
+          "name": "Read a route parameter",
+          "summary": "@Param reads a named part of the route. Open GET /hello/Ravi.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"hello/:name\") hello(@Param(\"name\") name: string) { return `Hi, ${name}!`; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["A TypeScript type does not validate a value sent over HTTP."],
+          "lessonSlug": "path-inputs"
+        },
+        {
+          "slug": "query-inputs",
+          "name": "Read a query value",
+          "summary": "@Query reads the query string. Visit GET /search?q=cat.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"search\") search(@Query(\"q\") q: string = \"\") { return { term: q }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["Validate query input before using it for important work."],
+          "lessonSlug": "query-inputs"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "integer-pipe",
+          "name": "Check and parse a number",
+          "summary": "ParseIntPipe reads an integer or rejects bad input. GET /double/4 uses the checked number.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"double/:n\") twice(@Param(\"n\", ParseIntPipe) n: number) { return { answer: n * 2 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["The pipe does the runtime check; the number annotation alone does not."],
+          "lessonSlug": "integer-pipe"
+        },
+        {
+          "slug": "post-body",
+          "name": "Read a request body",
+          "summary": "@Body supplies parsed JSON. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"books\") create(@Body() body: { title?: unknown }) { if (typeof body?.title !== \"string\") throw new BadRequestException(\"Title needed\"); return { title: body.title }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["Check body fields instead of trusting the TypeScript shape."],
+          "lessonSlug": "post-body"
+        },
+        {
+          "slug": "services",
+          "name": "Share a service",
+          "summary": "A provider is a shared helper supplied by Nest. The controller asks for Books in its constructor. Open GET /book.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n@Injectable()\nclass Books { title() { return \"Moon Trip\"; } }\n@Controller()\nclass LessonController {\nconstructor(private readonly books: Books) {}\n@Get(\"book\") book() { return this.books.title(); }\n}\n@Module({ controllers: [LessonController], providers: [Books] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["List Books in module providers so Nest can create it."],
+          "lessonSlug": "services"
+        },
+        {
+          "slug": "defaults",
+          "name": "Supply a default query",
+          "summary": "DefaultValuePipe supplies a value before ParseIntPipe checks it. Open GET /page with no query.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"page\") page(@Query(\"n\", new DefaultValuePipe(1), ParseIntPipe) n: number) { return { page: n }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["Pipe order matters: the default should happen before parsing."],
+          "lessonSlug": "defaults"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "status",
+          "name": "Choose a reply status",
+          "summary": "@HttpCode changes a handler status. POST /check returns 200 instead of the usual Nest POST status.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"check\") @HttpCode(200) check() { return { ready: true }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["A status describes the reply; it does not change the returned data."],
+          "lessonSlug": "status"
+        },
+        {
+          "slug": "headers",
+          "name": "Add a response header",
+          "summary": "@Header adds metadata to a response. Open GET /note and inspect its Cache-Control header.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"note\") @Header(\"Cache-Control\", \"no-store\") note() { return \"Private practice note\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["Headers must be set before a response is sent."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "redirects",
+          "name": "Send a client to another route",
+          "summary": "@Redirect sends a location to the client. A browser following GET /start ends at /hello.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"start\") @Redirect(\"/hello\", 302) start() {}\n@Get(\"hello\") hello() { return \"Welcome\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": ["A redirect makes the client send a new request."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "errors",
+          "name": "Report a missing item",
+          "summary": "A built-in exception creates an HTTP error response. GET /missing reports a missing book.",
+          "example": {
+            "language": "typescript",
+            "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"missing\") missing() { throw new NotFoundException(\"Book not found\"); }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n"
+          },
+          "notes": [
+            "Use a suitable HTTP error instead of returning a success status for a failure."
+          ],
+          "lessonSlug": "errors"
+        }
+      ]
+    }
+  ]
+}

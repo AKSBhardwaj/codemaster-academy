@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "slug": "sets",
+  "title": "Sets and unique items",
+  "summary": "Keep only one copy of each item with a set. Count distinct card numbers, check membership, and learn why set order is not the main idea.",
+  "introduction": "Suppose you collect cards numbered 4, 4, and 7. You own three cards but only two different numbers. A set helps a program remember which different items it has seen.",
+  "learningObjectives": [
+    "Explain why duplicate items do not increase a set",
+    "Count unique items and check membership",
+    "Separate a set rule from the way it is stored"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **set** keeps at most one copy of each distinct item. **Distinct** means different. A **duplicate** is another copy of an item already present."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Membership** asks whether an item is in the set. That answer matters more than an item's position. Do not depend on every language printing a set in the same order."
+    },
+    {
+      "type": "paragraph",
+      "text": "A set is a behavior, not one required storage plan. JavaScript Set, Python set, Java HashSet, and C# HashSet provide set operations. C++ std::set uses a tree. Our tiny C version checks an array by hand."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with no card numbers.",
+        "Add 4. Try to add 4 again; the set still has one item.",
+        "Add 7. The set now has two distinct items.",
+        "Print the size, 2. Check whether 7 is present and print 1 for yes."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Sets and unique items example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const cards = new Set([4, 4, 7]);\nconsole.log(cards.size);\nconsole.log(cards.has(7) ? 1 : 0);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int input[] = {4, 4, 7};\n    int unique[3];\n    int size = 0;\n    for (int i = 0; i < 3; i++) {\n        int found = 0;\n        for (int j = 0; j < size; j++) {\n            if (unique[j] == input[i]) found = 1;\n        }\n        if (!found && size < 3) unique[size++] = input[i];\n    }\n    int hasSeven = 0;\n    for (int j = 0; j < size; j++) {\n        if (unique[j] == 7) hasSeven = 1;\n    }\n    printf(\"%d\\n%d\\n\", size, hasSeven);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <set>\n\nint main() {\n    std::set<int> cards = {4, 4, 7};\n    std::cout << cards.size() << '\\n';\n    std::cout << (cards.count(7) > 0 ? 1 : 0) << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "cards = {4, 4, 7}\nprint(len(cards))\nprint(1 if 7 in cards else 0)",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "var cards = new System.Collections.Generic.HashSet<int> { 4, 4, 7 };\nSystem.Console.WriteLine(cards.Count);\nSystem.Console.WriteLine(cards.Contains(7) ? 1 : 0);",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.HashSet;\n\npublic class Main {\n    public static void main(String[] args) {\n        HashSet<Integer> cards = new HashSet<>();\n        cards.add(4);\n        cards.add(4);\n        cards.add(7);\n        System.out.println(cards.size());\n        System.out.println(cards.contains(7) ? 1 : 0);\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "2\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The two 4s count as one distinct value. The second line is a number so every language prints the same form: 1 means present and 0 means absent. No program depends on the order of set items."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty set has size 0 and contains no item. Adding an existing number does not change its size. This lesson uses whole numbers so equality is easy to see."
+    },
+    {
+      "type": "paragraph",
+      "text": "The hand-made C membership check scans up to n stored items, so it is O(n). Tree-based C++ std::set lookups take O(log n), meaning the work grows slowly as the tree grows. Hash-based sets aim for O(1) average lookup, but collisions can make a lookup slower. The shared set rule does not promise one speed for all implementations."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the last input number from 7 to 4, but keep the membership question about 7.",
+        "The lines become 1 and 0. Only the distinct number 4 remains, and 7 is absent."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use a set when you need to count every copy. A set of 4, 4, 7 cannot tell you that 4 appeared twice. Use a map of counts for that task."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-sets"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-sets"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "maps"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "hash-tables"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search-trees"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Sets and unique items in six languages",
+    "description": "Keep only one copy of each item with a set. Count distinct card numbers, check membership, and learn why set order is not the main idea."
+  },
+  "updatedOn": "2026-11-16"
+}

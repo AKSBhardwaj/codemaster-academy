@@ -1,4 +1,14 @@
-import { Component, computed, inject, input, linkedSignal, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import type { Exercise } from '../../../core/models/content';
 import { CodeBlockComponent } from '../../../shared/components/code-block/code-block';
 import { CodeEditorComponent } from '../../../shared/components/code-editor/code-editor';
@@ -18,7 +28,13 @@ type CodingTask = Extract<Exercise, { type: 'coding-task' }>;
  */
 @Component({
   selector: 'cma-coding-task',
-  imports: [CodeEditorComponent, CodeBlockComponent, OutputPanelComponent, IconComponent, InlineMarkupComponent],
+  imports: [
+    CodeEditorComponent,
+    CodeBlockComponent,
+    OutputPanelComponent,
+    IconComponent,
+    InlineMarkupComponent,
+  ],
   templateUrl: './coding-task.html',
   styleUrl: './coding-task.scss',
 })
@@ -29,8 +45,11 @@ export class CodingTaskComponent {
 
   protected readonly session = new RunSession();
   protected readonly code = linkedSignal(() => this.task().starterCode);
-  protected readonly checklist = linkedSignal<boolean[]>(() => this.task().checklist.map(() => false));
+  protected readonly checklist = linkedSignal<boolean[]>(() =>
+    this.task().checklist.map(() => false),
+  );
   protected readonly solutionShown = signal(false);
+  protected readonly interactive = signal(false);
   private readonly execution = inject(ExecutionService);
   private readonly output = viewChild(OutputPanelComponent);
 
@@ -41,10 +60,20 @@ export class CodingTaskComponent {
     const state = this.session.state();
     if (!check || (state !== 'done' && state !== 'error')) return null;
     const events = this.session.events();
-    const passed = check.kind === 'console-output' ? matchesConsoleOutput(events, check.expectedLines) : matchesSqlResult(events, check.expectedColumns, check.expectedRows);
+    const passed =
+      check.kind === 'console-output'
+        ? matchesConsoleOutput(events, check.expectedLines)
+        : matchesSqlResult(events, check.expectedColumns, check.expectedRows);
     return passed ? 'passed' : 'failed';
   });
-  protected readonly canComplete = computed(() => this.allChecked() || this.autoCheck() === 'passed');
+  protected readonly canComplete = computed(
+    () => this.allChecked() || this.autoCheck() === 'passed',
+  );
+
+  constructor() {
+    // A native checkbox must wait until Angular can remember its changes.
+    afterNextRender(() => this.interactive.set(true));
+  }
 
   protected run(): void {
     this.session.run(this.task().language, this.code(), this.output()?.host);

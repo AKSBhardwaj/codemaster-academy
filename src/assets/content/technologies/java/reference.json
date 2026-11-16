@@ -1,0 +1,532 @@
+{
+  "title": "Java Reference",
+  "description": "A compact reference of the Java language features and standard library classes covered in the tutorial, grouped by topic, with syntax, a short example and the lesson that explains each one.",
+  "groups": [
+    {
+      "id": "basics",
+      "title": "Language basics",
+      "entries": [
+        {
+          "slug": "primitive-types",
+          "name": "Primitive types",
+          "summary": "The eight built-in value types: byte, short, int, long, float, double, char and boolean. Everything else is a reference type.",
+          "syntax": "int count = 42; long big = 9_000_000_000L; double ratio = 2.5; float f = 2.5f; char c = 'A'; boolean ok = true;",
+          "notes": [
+            "A whole-number literal is an int unless it has the L suffix; a decimal literal is a double unless it has the f suffix.",
+            "Integer division truncates: 7 / 2 is 3. int overflow wraps silently."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "var",
+          "name": "var",
+          "summary": "Declares a local variable whose type the compiler infers from the initialiser. The variable is still statically typed.",
+          "syntax": "var name = \"Ada\"; var items = new ArrayList<String>();",
+          "notes": [
+            "Only for local variables with an initialiser; not for fields, parameters or uninitialised declarations."
+          ],
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "final",
+          "name": "final",
+          "summary": "Marks a variable that may be assigned exactly once, a method that cannot be overridden, or a class that cannot be extended.",
+          "syntax": "final int MAX_RETRIES = 3;",
+          "notes": [
+            "A final reference cannot be re-pointed, but the object it refers to may still change."
+          ],
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "main-method",
+          "name": "public static void main",
+          "summary": "The entry point the JVM calls when a class is run. args holds the command-line arguments.",
+          "syntax": "public static void main(String[] args) { ... }",
+          "example": {
+            "language": "java",
+            "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, world!\");\n    }\n}"
+          },
+          "notes": [
+            "Java 25 also accepts a compact form, void main() { IO.println(\"Hi\"); }, in a source file run with java File.java."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "println-printf",
+          "name": "System.out.println / printf",
+          "summary": "println prints a value and a line break, print prints without one, and printf fills placeholders such as %s, %d, %.2f and %n.",
+          "syntax": "System.out.printf(\"%s is %d years (%.1f%%)%n\", name, age, pct);",
+          "example": {
+            "language": "java",
+            "code": "System.out.printf(\"%-8s|%6.2f|%03d%n\", \"total\", 3.14159, 7);\n// total   |  3.14|007"
+          },
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "casting",
+          "name": "Type casting",
+          "summary": "Widening conversions (int to long to double) happen automatically; narrowing ones need an explicit cast and may lose data.",
+          "syntax": "int whole = (int) 9.99;   // 9",
+          "notes": [
+            "A cast from double to int truncates toward zero; use Math.round for rounding.",
+            "Casting a large int to byte keeps only the low 8 bits: (byte) 130 is -126."
+          ],
+          "lessonSlug": "data-types"
+        }
+      ]
+    },
+    {
+      "id": "control-flow",
+      "title": "Control flow",
+      "entries": [
+        {
+          "slug": "if-else",
+          "name": "if / else if / else",
+          "summary": "Runs the first block whose boolean condition is true; the else block runs when none matched.",
+          "syntax": "if (a > b) { ... } else if (a == b) { ... } else { ... }",
+          "notes": [
+            "The condition must be a boolean; if (count) does not compile. The ternary form cond ? a : b picks one of two values."
+          ],
+          "lessonSlug": "operators-conditionals"
+        },
+        {
+          "slug": "switch-expression",
+          "name": "switch expression",
+          "summary": "Chooses a value from several cases using arrows; no fall-through, several labels per case, and yield for block bodies.",
+          "syntax": "String kind = switch (day) { case \"SAT\", \"SUN\" -> \"weekend\"; default -> \"weekday\"; };",
+          "example": {
+            "language": "java",
+            "code": "int days = switch (month) {\n    case 2 -> 28;\n    case 4, 6, 9, 11 -> 30;\n    default -> 31;\n};"
+          },
+          "notes": [
+            "Must be exhaustive: add default unless switching over an enum or sealed type with every case listed."
+          ],
+          "lessonSlug": "operators-conditionals"
+        },
+        {
+          "slug": "switch-statement",
+          "name": "switch statement (classic)",
+          "summary": "The older colon form: execution continues from the matching label until a break, so a missing break falls through.",
+          "syntax": "switch (x) { case 1: ...; break; case 2: ...; break; default: ...; }",
+          "lessonSlug": "operators-conditionals"
+        },
+        {
+          "slug": "for-loop",
+          "name": "for loop",
+          "summary": "Repeats with an initialiser, a condition checked before each iteration and an update run after each iteration.",
+          "syntax": "for (int i = 0; i < n; i++) { ... }",
+          "example": {
+            "language": "java",
+            "code": "for (int i = 10; i > 0; i -= 3) {\n    System.out.println(i);   // 10 7 4 1\n}"
+          },
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "enhanced-for",
+          "name": "Enhanced for loop",
+          "summary": "Visits every element of an array or collection without an index.",
+          "syntax": "for (String name : names) { ... }",
+          "notes": [
+            "Do not remove from a collection inside this loop; use removeIf or an Iterator."
+          ],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "while-do-while",
+          "name": "while / do-while",
+          "summary": "while repeats as long as a condition is true, checking first; do-while checks after the body, so it runs at least once.",
+          "syntax": "while (cond) { ... }   do { ... } while (cond);",
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "break-continue",
+          "name": "break / continue",
+          "summary": "break leaves the innermost loop or switch; continue skips to the next iteration.",
+          "syntax": "if (done) break;   if (skip) continue;",
+          "notes": ["A label (outer:) lets break outer; leave a nested loop in one step."],
+          "lessonSlug": "loops"
+        }
+      ]
+    },
+    {
+      "id": "classes",
+      "title": "Classes and objects",
+      "entries": [
+        {
+          "slug": "class-declaration",
+          "name": "class",
+          "summary": "Declares a type with fields (state) and methods (behaviour). Objects are created from it with new.",
+          "syntax": "public class BankAccount { private double balance; public void deposit(double amount) { ... } }",
+          "notes": ["One public class per file, and the file name must match it."],
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "constructor",
+          "name": "Constructor",
+          "summary": "A method with the class name and no return type that initialises a new object; runs when new is used.",
+          "syntax": "public BankAccount(String owner, double opening) { this.owner = owner; this.balance = opening; }",
+          "notes": [
+            "If you declare no constructor, Java provides an empty no-argument one; declare any and that default disappears."
+          ],
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "this-keyword",
+          "name": "this",
+          "summary": "A reference to the current object; needed when a parameter shadows a field and to call another constructor with this(...).",
+          "syntax": "this.name = name;",
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "static",
+          "name": "static",
+          "summary": "A static field is shared by all instances; a static method belongs to the class and is called without an object.",
+          "syntax": "private static int count = 0;   public static int issued() { return count; }",
+          "notes": ["Static methods cannot use this or instance fields."],
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "access-modifiers",
+          "name": "Access modifiers",
+          "summary": "private: this class only; no modifier: the same package; protected: package plus subclasses; public: everywhere.",
+          "syntax": "private double balance;   protected String name;   public void deposit(double amount)",
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "extends-super",
+          "name": "extends / super",
+          "summary": "extends makes a subclass that inherits the parent's members; super(...) calls the parent constructor and super.method() the parent version.",
+          "syntax": "class Dog extends Animal { Dog(String name) { super(name); } }",
+          "notes": ["A class can extend only one class."],
+          "lessonSlug": "inheritance-interfaces"
+        },
+        {
+          "slug": "override",
+          "name": "@Override",
+          "summary": "Marks a method that replaces an inherited one and makes the compiler verify that such a method exists in a supertype.",
+          "syntax": "@Override public String toString() { ... }",
+          "notes": ["Without the annotation a typo silently creates a new, unrelated method."],
+          "lessonSlug": "inheritance-interfaces"
+        },
+        {
+          "slug": "abstract-class",
+          "name": "abstract",
+          "summary": "An abstract class cannot be instantiated and may declare abstract methods without a body that subclasses must implement.",
+          "syntax": "abstract class Employee { abstract double monthlyPay(); }",
+          "lessonSlug": "inheritance-interfaces"
+        },
+        {
+          "slug": "interface",
+          "name": "interface / implements",
+          "summary": "A contract of methods a class promises to provide; a class may implement several. default methods carry a body.",
+          "syntax": "interface Shape { double area(); default String describe() { ... } }   class Circle implements Shape { ... }",
+          "example": {
+            "language": "java",
+            "code": "interface Shape {\n    double area();\n}\n\nclass Square implements Shape {\n    private final double side;\n    Square(double side) { this.side = side; }\n    public double area() { return side * side; }\n}"
+          },
+          "notes": ["Interface methods are public, so implementations must be public too."],
+          "lessonSlug": "inheritance-interfaces"
+        },
+        {
+          "slug": "sealed",
+          "name": "sealed / permits",
+          "summary": "Restricts which classes or records may implement an interface or extend a class, so a switch over it can be checked for completeness.",
+          "syntax": "sealed interface Shape permits Circle, Square {}",
+          "notes": ["Available since Java 17; pairs naturally with records and switch patterns."],
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "enum",
+          "name": "enum",
+          "summary": "A type with a fixed set of named constants that may have fields, constructors and methods.",
+          "syntax": "enum Size { SMALL(250), MEDIUM(350); private final int ml; Size(int ml) { this.ml = ml; } }",
+          "example": {
+            "language": "java",
+            "code": "for (Size size : Size.values()) {\n    System.out.println(size.name() + \" \" + size.ordinal());\n}\nSize s = Size.valueOf(\"SMALL\");"
+          },
+          "notes": [
+            "Compare enum values with ==; a switch over an enum needs no default when every constant is listed."
+          ],
+          "lessonSlug": "records-streams"
+        }
+      ]
+    },
+    {
+      "id": "collections-generics",
+      "title": "Collections and generics",
+      "entries": [
+        {
+          "slug": "arraylist",
+          "name": "ArrayList",
+          "summary": "A resizable list with index access that keeps insertion order and allows duplicates.",
+          "syntax": "List<String> tasks = new ArrayList<>(); tasks.add(\"x\"); tasks.get(0); tasks.size();",
+          "example": {
+            "language": "java",
+            "code": "List<Integer> nums = new ArrayList<>(List.of(5, 1, 8));\nCollections.sort(nums);\nSystem.out.println(nums);            // [1, 5, 8]\nSystem.out.println(nums.getFirst()); // 1"
+          },
+          "notes": [
+            "remove(int) removes by index, remove(Object) by value: use remove(Integer.valueOf(1)) for a List<Integer>.",
+            "getFirst, getLast and reversed exist since Java 21."
+          ],
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "list-of",
+          "name": "List.of / Set.of / Map.of",
+          "summary": "Create unmodifiable collections in one expression. Adding or removing throws UnsupportedOperationException.",
+          "syntax": "List<Integer> fixed = List.of(3, 1, 2); Map<String, Integer> m = Map.of(\"a\", 1);",
+          "notes": ["Wrap in new ArrayList<>(...) or new HashMap<>(...) to get a modifiable copy."],
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "hashmap",
+          "name": "HashMap / LinkedHashMap / TreeMap",
+          "summary": "Key-value maps: HashMap is unordered and fastest, LinkedHashMap keeps insertion order, TreeMap sorts by key.",
+          "syntax": "Map<String, Integer> stock = new HashMap<>(); stock.put(\"apple\", 5); stock.get(\"apple\"); stock.getOrDefault(\"kiwi\", 0);",
+          "example": {
+            "language": "java",
+            "code": "for (Map.Entry<String, Integer> e : stock.entrySet()) {\n    System.out.println(e.getKey() + \" -> \" + e.getValue());\n}"
+          },
+          "notes": ["get returns null for a missing key; getOrDefault avoids the null."],
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "hashset",
+          "name": "HashSet / TreeSet",
+          "summary": "Sets hold each value once; add returns false for a duplicate. HashSet is unordered, TreeSet sorted, LinkedHashSet in insertion order.",
+          "syntax": "Set<String> seen = new HashSet<>(); boolean isNew = seen.add(\"ada\");",
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "map-merge",
+          "name": "Map.merge",
+          "summary": "Stores a value for an absent key or combines it with the existing one, which makes counting a one-liner.",
+          "syntax": "counts.merge(word, 1, Integer::sum);",
+          "lessonSlug": "collections"
+        },
+        {
+          "slug": "generic-class-method",
+          "name": "Generic class and method",
+          "summary": "A type parameter in angle brackets lets a class or method work for any element type while staying type-safe.",
+          "syntax": "class Box<T> { private T content; }   static <T> T firstOrDefault(List<T> items, T fallback) { ... }",
+          "example": {
+            "language": "java",
+            "code": "Box<String> words = new Box<>();\nwords.put(\"hello\");\nString w = words.take();   // no cast"
+          },
+          "notes": ["Type arguments must be reference types: List<Integer>, never List<int>."],
+          "lessonSlug": "generics"
+        },
+        {
+          "slug": "bounded-wildcards",
+          "name": "Bounds and wildcards",
+          "summary": "T extends Comparable<T> restricts a type parameter; ? extends X reads from a list of any subtype, ? super X writes into a list of any supertype.",
+          "syntax": "static <T extends Comparable<T>> T max(List<T> items)   static double total(List<? extends Number> nums)",
+          "notes": [
+            "Generics are invariant: a List<Integer> is not a List<Number>; wildcards express the safe relationships (PECS: producer extends, consumer super)."
+          ],
+          "lessonSlug": "generics"
+        }
+      ]
+    },
+    {
+      "id": "strings",
+      "title": "Strings",
+      "entries": [
+        {
+          "slug": "string-methods",
+          "name": "Common String methods",
+          "summary": "length, charAt, substring, indexOf, contains, startsWith, toUpperCase, strip, replace, split, join and repeat cover most text work.",
+          "syntax": "s.length(); s.charAt(0); s.substring(1, 3); s.indexOf(\"x\"); s.split(\" \"); String.join(\"-\", parts);",
+          "example": {
+            "language": "java",
+            "code": "String t = \"Java Programming\";\nSystem.out.println(t.substring(5));          // Programming\nSystem.out.println(t.indexOf(\"Pro\"));         // 5\nSystem.out.println(t.replace(\"Java\", \"Kotlin\"));"
+          },
+          "notes": [
+            "Strings are immutable: every method returns a new string and leaves the original unchanged."
+          ],
+          "lessonSlug": "strings-io"
+        },
+        {
+          "slug": "string-equals",
+          "name": "equals / equalsIgnoreCase / compareTo",
+          "summary": "Compare string contents with equals; == compares references and is wrong for strings built at run time. compareTo orders strings.",
+          "syntax": "if (answer.equals(\"yes\"))   \"apple\".compareTo(\"banana\") < 0",
+          "notes": ["Write \"yes\".equals(answer) when answer might be null."],
+          "lessonSlug": "operators-conditionals"
+        },
+        {
+          "slug": "stringbuilder",
+          "name": "StringBuilder",
+          "summary": "A mutable text buffer for building strings efficiently in loops; append, insert, reverse, setLength and toString.",
+          "syntax": "StringBuilder sb = new StringBuilder(); sb.append(\"a\").append(1); String s = sb.toString();",
+          "example": {
+            "language": "java",
+            "code": "System.out.println(new StringBuilder(\"stressed\").reverse()); // desserts"
+          },
+          "lessonSlug": "strings-io"
+        },
+        {
+          "slug": "text-block",
+          "name": "Text block",
+          "summary": "A multi-line string literal between triple quotes; the indentation common to all lines is removed.",
+          "syntax": "String json = \"\"\"\n    { \"name\": \"Ada\" }\n    \"\"\";",
+          "notes": [
+            "Available since Java 15. The closing quotes on their own line add a final newline; place them after the last text to omit it."
+          ],
+          "lessonSlug": "strings-io"
+        },
+        {
+          "slug": "string-format",
+          "name": "String.format / formatted",
+          "summary": "Builds a string from a format template with the same placeholders as printf.",
+          "syntax": "String.format(\"%.2f\", 3.14159)   \"%d%% done\".formatted(75)",
+          "lessonSlug": "strings-io"
+        }
+      ]
+    },
+    {
+      "id": "exceptions",
+      "title": "Exceptions",
+      "entries": [
+        {
+          "slug": "try-catch-finally",
+          "name": "try / catch / finally",
+          "summary": "Runs the try block, handles a thrown exception in the first matching catch, and always runs finally for cleanup.",
+          "syntax": "try { ... } catch (NumberFormatException e) { ... } finally { ... }",
+          "example": {
+            "language": "java",
+            "code": "try {\n    int value = Integer.parseInt(input);\n} catch (NumberFormatException e) {\n    System.out.println(\"Not a number: \" + e.getMessage());\n}"
+          },
+          "notes": [
+            "List specific exceptions before general ones; combine unrelated types with catch (A | B e)."
+          ],
+          "lessonSlug": "exceptions"
+        },
+        {
+          "slug": "throw",
+          "name": "throw",
+          "summary": "Raises an exception object; execution leaves the current statement and unwinds until a handler catches it.",
+          "syntax": "throw new IllegalArgumentException(\"price must not be negative\");",
+          "lessonSlug": "exceptions"
+        },
+        {
+          "slug": "throws",
+          "name": "throws",
+          "summary": "Declares that a method may throw a checked exception, passing the obligation to handle it to the caller.",
+          "syntax": "void withdraw(double amount) throws InsufficientFundsException { ... }",
+          "notes": [
+            "Unchecked exceptions (RuntimeException and subclasses) need no declaration; checked ones must be caught or declared."
+          ],
+          "lessonSlug": "exceptions"
+        },
+        {
+          "slug": "try-with-resources",
+          "name": "try-with-resources",
+          "summary": "Declares AutoCloseable resources in the try header so they are closed automatically, even when an exception occurs.",
+          "syntax": "try (BufferedReader reader = Files.newBufferedReader(path)) { ... }",
+          "lessonSlug": "exceptions"
+        },
+        {
+          "slug": "custom-exception",
+          "name": "Custom exception class",
+          "summary": "Extend Exception for a checked exception or RuntimeException for an unchecked one, and pass the message to super.",
+          "syntax": "class InsufficientFundsException extends Exception { InsufficientFundsException(String msg) { super(msg); } }",
+          "lessonSlug": "exceptions"
+        }
+      ]
+    },
+    {
+      "id": "io",
+      "title": "Input and output",
+      "entries": [
+        {
+          "slug": "scanner",
+          "name": "Scanner",
+          "summary": "Reads typed input from System.in: nextLine for a whole line, nextInt and nextDouble for the next token.",
+          "syntax": "Scanner in = new Scanner(System.in); String name = in.nextLine(); int age = Integer.parseInt(in.nextLine().strip());",
+          "notes": [
+            "nextInt leaves the newline in the buffer, so a following nextLine returns an empty string; read lines and parse them instead."
+          ],
+          "lessonSlug": "strings-io"
+        },
+        {
+          "slug": "files-read-write",
+          "name": "Files and Path",
+          "summary": "Static methods for whole-file I/O: writeString, readString, readAllLines and lines, with StandardOpenOption.APPEND to add to a file.",
+          "syntax": "Path p = Path.of(\"notes.txt\"); Files.writeString(p, text); String all = Files.readString(p); List<String> lines = Files.readAllLines(p);",
+          "example": {
+            "language": "java",
+            "code": "try (Stream<String> lines = Files.lines(Path.of(\"big.log\"))) {\n    long errors = lines.filter(l -> l.contains(\"ERROR\")).count();\n}"
+          },
+          "notes": [
+            "All of these throw the checked IOException. A relative path is resolved against the folder the program was started from."
+          ],
+          "lessonSlug": "strings-io"
+        }
+      ]
+    },
+    {
+      "id": "records-streams",
+      "title": "Records, lambdas and streams",
+      "entries": [
+        {
+          "slug": "record",
+          "name": "record",
+          "summary": "An immutable data class declared from its components; constructor, accessors, equals, hashCode and toString are generated.",
+          "syntax": "record Point(int x, int y) {}   Point p = new Point(1, 2); p.x();",
+          "example": {
+            "language": "java",
+            "code": "record Product(String name, double price) {\n    Product {\n        if (price < 0) throw new IllegalArgumentException(\"negative price\");\n    }\n}\nSystem.out.println(new Product(\"Pen\", 2.5)); // Product[name=Pen, price=2.5]"
+          },
+          "notes": [
+            "Components are final; create a new record instead of modifying one. A record may implement interfaces but cannot extend a class."
+          ],
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "lambda",
+          "name": "Lambda expression",
+          "summary": "A short anonymous function passed where a functional interface (Function, Predicate, Comparator, Runnable) is expected.",
+          "syntax": "n -> n * n   (a, b) -> a + b   s -> s.length() > 5",
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "method-reference",
+          "name": "Method reference",
+          "summary": "A lambda that only calls one existing method, written with :: for brevity.",
+          "syntax": "Product::name   Integer::sum   String::toUpperCase   TreeMap::new",
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "stream-pipeline",
+          "name": "Stream pipeline",
+          "summary": "Intermediate operations (filter, map, sorted, distinct, limit) describe a transformation; one terminal operation (toList, count, sum, max, forEach) runs it.",
+          "syntax": "list.stream().filter(p -> p.price() < 10).map(Product::name).toList()",
+          "example": {
+            "language": "java",
+            "code": "List<String> cheap = products.stream()\n    .filter(p -> p.price() < 10)\n    .sorted(Comparator.comparingDouble(Product::price))\n    .map(Product::name)\n    .toList();"
+          },
+          "notes": [
+            "A stream can be consumed once; create a new one from the source for each pipeline.",
+            "IntStream.rangeClosed(1, 5) and mapToInt give primitive streams with sum, average, min and max."
+          ],
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "collectors",
+          "name": "Collectors",
+          "summary": "Terminal reductions for collect: toList, toSet, joining, groupingBy, counting and more.",
+          "syntax": "collect(Collectors.joining(\", \"))   collect(Collectors.groupingBy(Product::category, Collectors.counting()))",
+          "lessonSlug": "records-streams"
+        },
+        {
+          "slug": "optional",
+          "name": "Optional",
+          "summary": "A container that either holds a value or is empty, returned by findFirst, max and min; use orElse, map or ifPresent instead of null checks.",
+          "syntax": "Optional<Product> top = stream.max(cmp); String name = top.map(Product::name).orElse(\"none\");",
+          "lessonSlug": "records-streams"
+        }
+      ]
+    }
+  ]
+}

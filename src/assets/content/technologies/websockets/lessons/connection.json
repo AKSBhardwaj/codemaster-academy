@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "connection",
+  "title": "Receive a welcome message",
+  "summary": "WebSockets: Receive a welcome message. Change the welcome text.",
+  "introduction": "The server sends text when a client connects. The client reads one message and closes.",
+  "learningObjectives": ["Receive a welcome message with WebSockets", "Change the welcome text"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Receive a welcome message"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Receive a welcome message",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.send(\"Hello, Asha!\"));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The connection event supplies a server socket. Its send reaches the client message handler, which prints and closes."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hello, Asha!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the welcome text."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A WebSocket server must be listening before a client can connect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-connection-check"
+    }
+  ],
+  "exerciseIds": ["websockets-connection-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "send"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Receive a welcome message",
+    "description": "WebSockets: Receive a welcome message. Change the welcome text. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

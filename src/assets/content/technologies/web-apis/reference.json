@@ -1,0 +1,144 @@
+{
+  "title": "Web APIs Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Web APIs course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Read JSON text",
+          "summary": "JSON is a text format for data. JSON.parse turns that text into JavaScript values that code can read.",
+          "example": {
+            "language": "javascript",
+            "code": "const book = JSON.parse('{\"title\":\"Moon Trip\",\"pages\":60}');\nconsole.log(book.title);"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "fetch-local-data",
+          "name": "Fetch local data",
+          "summary": "fetch asks for a resource and returns a promise for a response.",
+          "example": {
+            "language": "javascript",
+            "code": "async function readBooks() {\n  const response = await fetch(\"/books.json\");\n  if (!response.ok) throw new Error(\"Could not load books\");\n  return response.json();\n}\nreadBooks().then(console.log).catch(console.error);"
+          },
+          "lessonSlug": "fetch-local-data"
+        },
+        {
+          "slug": "stop-a-request",
+          "name": "Stop a request",
+          "summary": "AbortController gives a request a stop signal.",
+          "example": {
+            "language": "javascript",
+            "code": "const controller = new AbortController();\nfetch(\"/books.json\", {signal: controller.signal})\n  .then(response => response.text()).then(console.log)\n  .catch(error => console.log(error.name));\ncontroller.abort();"
+          },
+          "lessonSlug": "stop-a-request"
+        },
+        {
+          "slug": "use-url-search-values",
+          "name": "Use URL search values",
+          "summary": "URLSearchParams reads and writes query values in an address.",
+          "example": {
+            "language": "javascript",
+            "code": "const params = new URLSearchParams(\"topic=space&level=1\");\nparams.set(\"topic\", \"garden club\");\nconsole.log(params.get(\"topic\"));\nconsole.log(params.toString());"
+          },
+          "lessonSlug": "use-url-search-values"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "remember-a-small-browser-value",
+          "name": "Remember a small browser value",
+          "summary": "localStorage stores small text values for one site in one browser.",
+          "example": {
+            "language": "javascript",
+            "code": "try {\n  localStorage.setItem(\"club-books\", JSON.stringify([\"Moon Trip\"]));\n  const books = JSON.parse(localStorage.getItem(\"club-books\") || \"[]\");\n  console.log(books.length);\n} catch { console.log(\"Storage is unavailable.\"); }"
+          },
+          "lessonSlug": "remember-a-small-browser-value"
+        },
+        {
+          "slug": "read-a-chosen-file",
+          "name": "Read a chosen file",
+          "summary": "A file input lets a person choose a file.",
+          "example": {
+            "language": "html",
+            "code": "<label for=\"file\">Choose a text file</label><input id=\"file\" type=\"file\" accept=\"text/plain\"><pre id=\"text\"></pre><script>document.querySelector(\"#file\").onchange=async e=>{const file=e.target.files[0];if(file)document.querySelector(\"#text\").textContent=await file.text();};</script>"
+          },
+          "lessonSlug": "read-a-chosen-file"
+        },
+        {
+          "slug": "copy-text-after-a-click",
+          "name": "Copy text after a click",
+          "summary": "The Clipboard API can write text to the clipboard.",
+          "example": {
+            "language": "html",
+            "code": "<button id=\"copy\">Copy club name</button><p id=\"status\"></p><script>document.querySelector(\"#copy\").onclick=async()=>{try{await navigator.clipboard.writeText(\"Garden club\");document.querySelector(\"#status\").textContent=\"Copied\";}catch{document.querySelector(\"#status\").textContent=\"Please copy the name by hand.\";}};</script>"
+          },
+          "lessonSlug": "copy-text-after-a-click"
+        },
+        {
+          "slug": "ask-for-a-location-carefully",
+          "name": "Ask for a location carefully",
+          "summary": "Geolocation asks the browser for a location.",
+          "example": {
+            "language": "javascript",
+            "code": "if (\"geolocation\" in navigator) {\n  navigator.geolocation.getCurrentPosition(\n    position => console.log(\"Accuracy in metres:\", position.coords.accuracy),\n    () => console.log(\"You can choose a place by hand instead.\"),\n    {timeout: 5000}\n  );\n}"
+          },
+          "lessonSlug": "ask-for-a-location-carefully"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "draw-a-simple-canvas-shape",
+          "name": "Draw a simple canvas shape",
+          "summary": "Canvas is a drawing area controlled by JavaScript.",
+          "example": {
+            "language": "html",
+            "code": "<canvas id=\"art\" width=\"240\" height=\"120\" aria-label=\"A blue rectangle\">A blue rectangle</canvas><script>const ctx=document.querySelector(\"#art\").getContext(\"2d\");ctx.fillStyle=\"navy\";ctx.fillRect(20,20,100,60);</script>"
+          },
+          "lessonSlug": "draw-a-simple-canvas-shape"
+        },
+        {
+          "slug": "watch-when-a-part-comes-into-view",
+          "name": "Watch when a part comes into view",
+          "summary": "IntersectionObserver tells your code when an element crosses a visibility boundary.",
+          "example": {
+            "language": "html",
+            "code": "<div style=\"height:600px\">Scroll down</div><p id=\"target\">You found the note.</p><script>const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){console.log(\"Note entered view\");observer.unobserve(entry.target);}}});observer.observe(document.querySelector(\"#target\"));</script>"
+          },
+          "lessonSlug": "watch-when-a-part-comes-into-view"
+        },
+        {
+          "slug": "watch-a-box-size",
+          "name": "Watch a box size",
+          "summary": "ResizeObserver reports changes to an element's size.",
+          "example": {
+            "language": "html",
+            "code": "<div id=\"box\" style=\"width:60%;padding:1rem;border:1px solid\">A flexible box</div><script>const observer=new ResizeObserver(entries=>{console.log(Math.round(entries[0].contentRect.width));});observer.observe(document.querySelector(\"#box\"));</script>"
+          },
+          "lessonSlug": "watch-a-box-size"
+        },
+        {
+          "slug": "move-a-calculation-to-a-worker",
+          "name": "Move a calculation to a worker",
+          "summary": "A web worker runs JavaScript in another thread.",
+          "example": {
+            "language": "javascript",
+            "code": "// worker.js\nself.onmessage = event => { self.postMessage(event.data * 2); };\n\n// main.js, a separate file on the same local site\nconst worker = new Worker(\"./worker.js\");\nworker.onmessage = event => { console.log(event.data); worker.terminate(); };\nworker.postMessage(6);"
+          },
+          "lessonSlug": "move-a-calculation-to-a-worker"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "slug": "caches-keep-useful-copies",
+  "title": "Caches keep useful copies",
+  "summary": "Save a copy of a repeated answer in a cache. Trace a hit, a miss, and expiry, then decide which data can safely be a little old.",
+  "introduction": "A librarian keeps a note of a popular book's description beside the desk. Reading the note is quicker than looking up the record again. A cache is a similar shortcut, but its note can become out of date.",
+  "learningObjectives": [
+    "Explain cache hits, misses, and expiry",
+    "Trace a cache-aside read with a tiny time model",
+    "Choose which facts need a fresh authoritative check"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **cache** keeps a copy that is quick to reach. The main database remains the **source of truth**: the place where the official record is kept."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **hit** finds a usable cached answer. A **miss** does not, so the app reads the main record and saves a copy. This pattern is called **cache aside** because the app manages the extra copy."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **time to live**, or **TTL**, says how long a cached item may be reused before it expires. Expiry limits one kind of staleness; it does not make the copy update as soon as the original changes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "At time 0, the cache is empty. Read the current title and keep it until time 10.",
+        "At time 5, reuse that cached title. This is a hit.",
+        "Change the source title. At time 6, the saved copy is still old.",
+        "At time 10, the saved copy expires. Read and cache the new title."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/cache-read.svg",
+      "width": 400,
+      "height": 596,
+      "alt": "A fresh cache copy can answer a read. A missing or old copy sends the service to the database, then the cache is refreshed.",
+      "caption": "The diagram shows a read. Changing or borrowing a book needs separate rules to keep saved copies from being treated as current truth."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "let sourceTitle = \"Moon Book\";\nlet cache = null;\nfunction readTitle(now) {\n  if (cache !== null && now < cache.expiresAt) {\n    return `hit: ${cache.value}`;\n  }\n  cache = { value: sourceTitle, expiresAt: now + 10 };\n  return `miss: ${cache.value}`;\n}\nconsole.log(readTitle(0));\nconsole.log(readTitle(5));\nsourceTitle = \"Moon and Stars\";\nconsole.log(readTitle(6));\nconsole.log(readTitle(10));",
+      "title": "Caches keep useful copies model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "miss: Moon Book\nhit: Moon Book\nhit: Moon Book\nmiss: Moon and Stars"
+    },
+    {
+      "type": "paragraph",
+      "text": "The value at time 6 is old even though the cache is working as designed. Decide whether that delay is acceptable for the fact you are showing."
+    },
+    {
+      "type": "paragraph",
+      "text": "When a book changes, the app can remove or refresh its cached entry. This is **invalidation**. Real systems must also handle two readers and writers racing; a simple remove-after-write rule alone can still leave an old copy in some races."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Longer TTL",
+          "More reuse and fewer database reads",
+          "People may see an old answer for longer"
+        ],
+        ["Shorter TTL", "Old copies expire sooner", "More misses send work to the database"],
+        [
+          "Fresh check at checkout",
+          "Helps prevent lending an unavailable copy",
+          "The safe update needs the main record and transaction rules"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the cache goes down, the app may read the main database, but it must avoid flooding that database. Limits and graceful errors may be safer than unlimited fallback requests."
+    },
+    {
+      "type": "paragraph",
+      "text": "When a popular key expires, many readers may fetch it together. This is a cache stampede. Combining those fetches, refreshing early, or spreading expiry times can help. Never put private user results under a shared public key."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the TTL from 10 to 4. Predict the output at time 5.",
+        "It becomes a miss, because the first item expired at time 4. It still reads Moon Book because the source changes after that call."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use an old cached availability count as permission to lend a book. Recheck and update the official record safely."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-caches-keep-useful-copies"
+    }
+  ],
+  "exerciseIds": ["system-design-caches-keep-useful-copies"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "consistency-describes-agreement"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "indexes-help-find-records"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Caches keep useful copies",
+    "description": "Save a copy of a repeated answer in a cache. Trace a hit, a miss, and expiry, then decide which data can safely be a little old."
+  },
+  "updatedOn": "2026-11-16"
+}

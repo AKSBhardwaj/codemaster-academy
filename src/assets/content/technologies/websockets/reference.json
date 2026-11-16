@@ -1,0 +1,158 @@
+{
+  "title": "WebSockets Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "connection",
+          "name": "Receive a welcome message",
+          "summary": "The server sends text when a client connects. The client reads one message and closes.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.send(\"Hello, Asha!\"));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["A WebSocket server must be listening before a client can connect."],
+          "lessonSlug": "connection"
+        },
+        {
+          "slug": "send",
+          "name": "Send from the client",
+          "summary": "The open event means the connection is ready. Sending before it is ready can fail.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => socket.send(\"Received: \" + data.toString())));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"Hi\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["Wait for open before calling send."],
+          "lessonSlug": "send"
+        },
+        {
+          "slug": "echo",
+          "name": "Return the same message",
+          "summary": "An echo server sends received text back unchanged.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => socket.send(data.toString())));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"Moon Trip\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["Node ws receives Buffer data by default; turn text into a string."],
+          "lessonSlug": "echo"
+        },
+        {
+          "slug": "json",
+          "name": "Send structured message data",
+          "summary": "JSON can give a message named fields. The server reads score and doubles it.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { const message = JSON.parse(data.toString()); socket.send(JSON.stringify({ answer: message.score * 2 })); }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(JSON.stringify({ score: 4 })));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["Real message handlers need checks for invalid JSON and invalid fields."],
+          "lessonSlug": "json"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "field-checks",
+          "name": "Check a message shape",
+          "summary": "A parsed object may still be missing a field. This example sends an empty object and gets a clear reply.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { const message = JSON.parse(data.toString()); socket.send(typeof message.text === \"string\" ? message.text : \"Message needed\"); }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"{}\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["Parsing JSON and checking its field types are separate jobs."],
+          "lessonSlug": "field-checks"
+        },
+        {
+          "slug": "broadcast",
+          "name": "Send to connected clients",
+          "summary": "A broadcast visits each connected client. Only open sockets are ready to send.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { for (const peer of server.clients) { if (peer.readyState === WebSocket.OPEN) peer.send(\"News: \" + data.toString()); } }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"Hello\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["A disconnected socket is not ready for a send."],
+          "lessonSlug": "broadcast"
+        },
+        {
+          "slug": "ready-state",
+          "name": "Check connection state",
+          "summary": "readyState reports the current state. Inside open, it equals WebSocket.OPEN.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", () => {});\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => { console.log(client.readyState === WebSocket.OPEN); client.close(); server.close(); });\n"
+          },
+          "notes": ["The connection can close later, so readiness is not a permanent promise."],
+          "lessonSlug": "ready-state"
+        },
+        {
+          "slug": "binary",
+          "name": "Receive bytes",
+          "summary": "A binary message carries bytes rather than text. This server sends three small byte values.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.send(Buffer.from([1, 2, 3])));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", (data, isBinary) => { console.log([...data].join(\", \")); client.close(); server.close(); });\n"
+          },
+          "notes": ["Do not decode arbitrary binary bytes as if they were normal text."],
+          "lessonSlug": "binary"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "ping-pong",
+          "name": "Check that a peer responds",
+          "summary": "Ping and pong are control messages. The ws client automatically answers a ping with pong.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => { socket.once(\"pong\", () => socket.send(\"Still here\")); socket.ping(); });\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["A real heartbeat needs a timeout for peers that never answer."],
+          "lessonSlug": "ping-pong"
+        },
+        {
+          "slug": "closing",
+          "name": "Close with a reason",
+          "summary": "A close frame can carry a code and short reason. Code 1000 means a normal close.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.close(1000, \"Done\"));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"close\", (code, reason) => { console.log(code + \" \" + reason.toString()); server.close(); });\n"
+          },
+          "notes": ["A close event means messages can no longer be sent on that connection."],
+          "lessonSlug": "closing"
+        },
+        {
+          "slug": "bad-json",
+          "name": "Handle unreadable JSON",
+          "summary": "JSON.parse can fail. A catch block sends a friendly reply instead of crashing this handler.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { try { JSON.parse(data.toString()); socket.send(\"Valid JSON\"); } catch { socket.send(\"Use valid JSON\"); } }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"not json\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n"
+          },
+          "notes": ["Catch the parse failure and then check the parsed data shape separately."],
+          "lessonSlug": "bad-json"
+        },
+        {
+          "slug": "size-limit",
+          "name": "Limit message size",
+          "summary": "maxPayload limits incoming message bytes. The client sends five bytes to a server limited to four.",
+          "example": {
+            "language": "javascript",
+            "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 4 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => { socket.on(\"error\", () => {}); });\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"ABCDE\"));\nclient.on(\"close\", code => { console.log(code); server.close(); });\n"
+          },
+          "notes": [
+            "Keep limits clear; a message that is too large is closed with a protocol size error."
+          ],
+          "lessonSlug": "size-limit"
+        }
+      ]
+    }
+  ]
+}

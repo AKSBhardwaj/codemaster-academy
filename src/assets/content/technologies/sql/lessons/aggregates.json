@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "slug": "aggregates",
+  "title": "Aggregate Functions",
+  "summary": "An aggregate function turns several rows into one answer, such as a count, total or average.",
+  "introduction": "An aggregate function turns several rows into one answer, such as a count, total or average. Count the books in a table or add their prices. Read how missing values affect the answer before choosing a function.",
+  "learningObjectives": [
+    "Count rows and distinct values with COUNT",
+    "Compute totals, averages and extremes with SUM, AVG, MIN and MAX",
+    "Explain how aggregates treat NULL",
+    "Avoid integer division and non-portable bare columns"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "From many rows to one value"
+    },
+    {
+      "type": "paragraph",
+      "text": "An aggregate function takes a column (or expression) across all the rows that survive the WHERE clause and returns one value. Without GROUP BY (next lesson) the whole table is a single group, so the result has exactly one row."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT COUNT(*) AS orders, SUM(quantity) AS items FROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "orders | items\n-------+------\n8      | 21"
+    },
+    {
+      "type": "table",
+      "headers": ["Function", "Returns"],
+      "rows": [
+        ["`COUNT(*)`", "Number of rows"],
+        ["`COUNT(col)`", "Number of rows where col is not NULL"],
+        ["`COUNT(DISTINCT col)`", "Number of different non-NULL values"],
+        ["`SUM(col)`", "Total of the values"],
+        ["`AVG(col)`", "Arithmetic mean of the values"],
+        ["`MIN(col)`, `MAX(col)`", "Smallest and largest value (numbers, text or dates)"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT MIN(price) AS cheapest,\n       MAX(price) AS priciest,\n       ROUND(AVG(price), 2) AS average\nFROM products;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "cheapest | priciest | average\n---------+----------+--------\n2.75     | 89       | 26.12"
+    },
+    {
+      "type": "paragraph",
+      "text": "`AVG` returns a floating-point number with many decimals (26.123333...), so wrapping it in `ROUND(..., 2)` keeps the output tidy."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Aggregates and NULL"
+    },
+    {
+      "type": "paragraph",
+      "text": "All aggregates except `COUNT(*)` skip NULL values. That is usually what you want (an average over unknown values would be meaningless), but it means `COUNT(column)` can be smaller than `COUNT(*)`, and `AVG` of a column with NULLs divides by the number of known values only."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE tickets (id INTEGER PRIMARY KEY, title TEXT NOT NULL, assignee TEXT);\nINSERT INTO tickets (title, assignee) VALUES\n  ('Fix login', 'Ada'),\n  ('Write docs', NULL),\n  ('Update logo', NULL);\nSELECT COUNT(*) AS all_rows,\n       COUNT(assignee) AS assigned,\n       COUNT(DISTINCT assignee) AS people\nFROM tickets;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE tickets (id INTEGER PRIMARY KEY, title TEXT NOT NULL, assignee TEXT\nOK: INSERT INTO tickets (title, assignee) VALUES\n\nall_rows | assigned | people\n---------+----------+-------\n3        | 1        | 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Aggregates with WHERE and JOIN"
+    },
+    {
+      "type": "paragraph",
+      "text": "WHERE filters the rows *before* they are aggregated, so counting US customers is just an aggregate over a filtered table:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT COUNT(*) AS us_customers FROM customers WHERE country = 'US';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "us_customers\n------------\n2"
+    },
+    {
+      "type": "paragraph",
+      "text": "Aggregates work on joined rows too. Total revenue multiplies each order's quantity by the product's price and sums the results:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT ROUND(SUM(p.price * o.quantity), 2) AS revenue\nFROM orders o\nJOIN products p ON p.id = o.product_id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "revenue\n-------\n304.98"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Integer division"
+    },
+    {
+      "type": "paragraph",
+      "text": "Dividing two integers gives an integer in SQLite, PostgreSQL and SQL Server: `7 / 2` is `3`, not `3.5`. MySQL and Oracle are the exceptions and return 3.5. Make one operand a decimal (`7 / 2.0`) or cast it (`CAST(7 AS REAL) / 2`) when you need the fraction. `AVG` is safe: it always returns a floating-point result."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT 7 / 2 AS integer_division,\n       7 / 2.0 AS real_division,\n       AVG(quantity) AS avg_quantity\nFROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "integer_division | real_division | avg_quantity\n-----------------+---------------+-------------\n3                | 3.5           | 2.625"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Mixing a plain column with an aggregate",
+      "text": "`SELECT name, MAX(price) FROM products` is accepted by SQLite, which helpfully returns the name of the most expensive product, and by MySQL in some configurations, but PostgreSQL and SQL Server reject it: a column that is neither aggregated nor grouped has no defined value. Do not rely on the SQLite shortcut; use `ORDER BY price DESC LIMIT 1` or a subquery, which work everywhere."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "Works in SQLite only",
+      "runnable": true,
+      "code": "SELECT name, MAX(price) AS top_price FROM products;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | top_price\n--------------------+----------\nMechanical keyboard | 89"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Compute the number of orders, the largest quantity and the earliest `ordered_on` in one query, then restrict it to orders placed in February 2025 or later."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT COUNT(*) AS orders,\n       MAX(quantity) AS largest,\n       MIN(ordered_on) AS first_order\nFROM orders;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-aggregates-count-null"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "aggregates-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "aggregates",
+          "difficulty": "intermediate",
+          "question": "A column holds the values 10, NULL and 20. What does `AVG(col)` return?",
+          "explanation": "AVG skips NULL, so it averages 10 and 20 over two values: 15. Treating NULL as zero would give 10, which is why COALESCE(col, 0) is needed when that is what you want.",
+          "options": ["10", "15", "NULL", "30"],
+          "correctIndex": 1
+        },
+        {
+          "id": "aggregates-qc-2",
+          "type": "true-false",
+          "lessonSlug": "aggregates",
+          "difficulty": "beginner",
+          "question": "`COUNT(*)` and `COUNT(assignee)` always return the same number.",
+          "explanation": "COUNT(*) counts every row, COUNT(assignee) only rows where assignee is not NULL. They differ as soon as the column has NULLs.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-aggregates-count-null"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "group-by-having"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "SQL Aggregate Functions – COUNT, SUM, AVG, MIN, MAX",
+    "description": "Learn SQL aggregate functions: COUNT, SUM, AVG, MIN and MAX, how NULLs are skipped, COUNT(*) versus COUNT(column) and integer division."
+  },
+  "updatedOn": "2026-11-16"
+}

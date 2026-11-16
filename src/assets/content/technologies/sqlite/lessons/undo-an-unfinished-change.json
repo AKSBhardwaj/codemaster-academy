@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "undo-an-unfinished-change",
+  "title": "Undo an unfinished change",
+  "summary": "A transaction can group row changes. ROLLBACK cancels uncommitted work inside that transaction.",
+  "introduction": "A transaction can group row changes. ROLLBACK cancels uncommitted work inside that transaction. Your task: Replace ROLLBACK with COMMIT in this disposable sample and compare.",
+  "learningObjectives": [
+    "Replace ROLLBACK with COMMIT in this disposable sample and compare.",
+    "Explain the example for undo an unfinished change"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction can group row changes. ROLLBACK cancels uncommitted work inside that transaction."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the SQL Run button for examples marked runnable. They use this site's in-browser SQLite database and sample-only table names. A Python example needs Python on your own computer instead."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DROP TABLE IF EXISTS cma_sqlite_points;\nCREATE TABLE cma_sqlite_points(points INTEGER);\nBEGIN;\nINSERT INTO cma_sqlite_points VALUES(7);\nROLLBACK;\nSELECT count(*) AS rows_left FROM cma_sqlite_points;",
+      "title": "Undo an unfinished change",
+      "runnable": true
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ROLLBACK` cancels the applicable uncommitted changes. It cannot undo an earlier committed transaction.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The final rows_left value is 0."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A rollback cannot undo a change that was already committed in an earlier transaction."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Replace ROLLBACK with COMMIT in this disposable sample and compare."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sqlite-undo-an-unfinished-change-check"
+    }
+  ],
+  "exerciseIds": ["sqlite-undo-an-unfinished-change-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sqlite",
+      "slug": "turn-on-foreign-key-checks"
+    }
+  ],
+  "seo": {
+    "title": "SQLite: Undo an unfinished change",
+    "description": "A transaction can group row changes. ROLLBACK cancels uncommitted work inside that transaction."
+  },
+  "updatedOn": "2026-11-16"
+}

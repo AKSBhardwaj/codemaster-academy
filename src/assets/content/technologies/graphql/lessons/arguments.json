@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "arguments",
+  "title": "Give a field an input",
+  "summary": "GraphQL: Give a field an input. Ask for twice(n: 7).",
+  "introduction": "An argument supplies a value to a field. The resolver receives it in an object.",
+  "learningObjectives": ["Give a field an input with GraphQL", "Ask for twice(n: 7)"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give a field an input"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Give a field an input",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"{ twice(n: 4) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The argument object gives n value 4. The resolver returns the product 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"twice\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ask for twice(n: 7)."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The input must match the argument type."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-arguments-check"
+    }
+  ],
+  "exerciseIds": ["graphql-arguments-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "selected-fields"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Give a field an input",
+    "description": "GraphQL: Give a field an input. Ask for twice(n: 7). Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

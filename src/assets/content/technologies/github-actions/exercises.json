@@ -1,0 +1,126 @@
+{
+  "title": "GitHub Actions Exercises",
+  "description": "Practise the ideas from this GitHub Actions course. Each answer has an explanation to help you learn.",
+  "exercises": [
+    {
+      "id": "github-actions-introduction",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Where does the workflow file belong?",
+      "options": [".github/workflows", "Inside a password vault"],
+      "correctIndex": 0,
+      "explanation": "A workflow describes jobs GitHub Actions can run for a repository. The YAML file lives under .github/workflows. This workflow has a manual trigger, one job and one shell step. Reading the file does not run it."
+    },
+    {
+      "id": "github-actions-events-start-workflows",
+      "lessonSlug": "events-start-workflows",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which branch is selected here?",
+      "options": ["Every branch", "main"],
+      "correctIndex": 1,
+      "explanation": "An event tells GitHub when to consider running a workflow. workflow_dispatch is manual; push reacts to selected pushed changes. The fragment allows pushes to main and manual starts. It belongs inside a complete workflow file."
+    },
+    {
+      "id": "github-actions-jobs-and-steps",
+      "lessonSlug": "jobs-and-steps",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What runs in order inside one job?",
+      "options": ["Its steps", "Every job in the repository"],
+      "correctIndex": 0,
+      "explanation": "A job runs a list of steps on a runner. Steps in one job run in order and share that job's working environment. The job prints Read before Check. Separate jobs do not automatically share the same filesystem."
+    },
+    {
+      "id": "github-actions-runners-execute-jobs",
+      "lessonSlug": "runners-execute-jobs",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does runs-on choose?",
+      "options": ["A Git branch", "A runner environment"],
+      "correctIndex": 1,
+      "explanation": "A runner is the machine environment that executes a job. runs-on chooses a matching runner label. The job asks for GitHub's current Ubuntu runner image. That image changes over time."
+    },
+    {
+      "id": "github-actions-name-steps-clearly",
+      "lessonSlug": "name-steps-clearly",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why name steps?",
+      "options": ["To make run logs understandable", "To store secret values"],
+      "correctIndex": 0,
+      "explanation": "Step names appear in the run log. Clear names help someone find the part that failed. The log groups each command under a useful name."
+    },
+    {
+      "id": "github-actions-environment-values",
+      "lessonSlug": "environment-values",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does CLUB_NAME hold?",
+      "options": ["A secure account automatically", "An ordinary message value"],
+      "correctIndex": 1,
+      "explanation": "env gives a job or step named environment values. A shell can read them without repeating the literal text in each command. In a Linux shell step, the variable expands to Reading club. This fragment belongs inside a job."
+    },
+    {
+      "id": "github-actions-job-dependencies",
+      "lessonSlug": "job-dependencies",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does needs: check do?",
+      "options": ["Wait for the check job", "Rename the current job"],
+      "correctIndex": 0,
+      "explanation": "needs makes a job wait for another job to succeed. This states the order between jobs. The report job depends on check. By default it does not run successfully past a failed needed job."
+    },
+    {
+      "id": "github-actions-matrices-repeat-a-job",
+      "lessonSlug": "matrices-repeat-a-job",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "How many variations are listed?",
+      "options": ["1", "2"],
+      "correctIndex": 1,
+      "explanation": "A matrix runs variations of a job. Each combination gets its own job run. The fragment creates one variation for apple and one for pear. Use it within a job with a runner."
+    },
+    {
+      "id": "github-actions-limit-token-permissions",
+      "lessonSlug": "limit-token-permissions",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which contents permission is requested?",
+      "options": ["read", "write"],
+      "correctIndex": 0,
+      "explanation": "The workflow token can be given small permissions. Give only the access a job actually needs. The token gets read access to repository contents in this simple example. It does not need write access for a read-only check."
+    },
+    {
+      "id": "github-actions-handle-untrusted-text-as-data",
+      "lessonSlug": "handle-untrusted-text-as-data",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "How should untrusted text be treated?",
+      "options": ["As a shell program", "As data"],
+      "correctIndex": 1,
+      "explanation": "A workflow may receive text from a pull request. Do not paste untrusted text directly into a shell script; pass it as data and quote it. The shell prints the value as an argument. This fixed example teaches quoting without using attacker-controlled input."
+    },
+    {
+      "id": "github-actions-avoid-duplicate-obsolete-runs",
+      "lessonSlug": "avoid-duplicate-obsolete-runs",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What can cancel-in-progress stop?",
+      "options": ["An older run in the same group", "Every repository on GitHub"],
+      "correctIndex": 0,
+      "explanation": "Concurrency can group related runs. cancel-in-progress can stop an older run when a newer run in the same group starts. Runs for the same ref share the group. This can save work for checks whose old result is no longer needed."
+    },
+    {
+      "id": "github-actions-read-the-run-result",
+      "lessonSlug": "read-the-run-result",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does a passing workflow prove?",
+      "options": ["The whole app can never fail", "Its configured checks passed"],
+      "correctIndex": 1,
+      "explanation": "A run log shows which jobs and steps completed. A green result means the configured commands passed, not that every product requirement was checked. The result has a clear scope. Add useful checks intentionally rather than trusting a badge alone."
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "clean-up-a-timer",
+  "title": "Clean up a timer",
+  "summary": "A mounted hook can start work after a component joins the page.",
+  "introduction": "A mounted hook can start work after a component joins the page. Your task: Explain which hook stops the timer.",
+  "learningObjectives": [
+    "Explain which hook stops the timer.",
+    "Explain the example for clean up a timer"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A mounted hook can start work after a component joins the page. An unmounted hook can stop that work when the component leaves."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a Vue 3 project made with the official create-vue tool. Put single-file examples in App.vue unless file names say otherwise. These need the Vue build tool and do not run in the plain playground."
+    },
+    {
+      "type": "code",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref, onMounted, onUnmounted } from \"vue\";\nconst seconds=ref(0); let timer;\nonMounted(()=>{timer=setInterval(()=>seconds.value++,1000);});\nonUnmounted(()=>clearInterval(timer));\n</script>\n<template><p>{{ seconds }} seconds</p></template>",
+      "title": "Clean up a timer",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`onUnmounted` runs cleanup when a Vue component leaves the page. Clear work such as repeating timers there.",
+        "`ref` wraps a reactive Vue value. Script code uses `.value`; the template unwraps it for you."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The number increases once per second while the component is mounted."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Stop repeating jobs when they are no longer needed. Otherwise old timers can keep running."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain which hook stops the timer."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "vue-clean-up-a-timer-check"
+    }
+  ],
+  "exerciseIds": ["vue-clean-up-a-timer-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "vue",
+      "slug": "leave-a-slot-for-content"
+    }
+  ],
+  "seo": {
+    "title": "Vue.js: Clean up a timer",
+    "description": "A mounted hook can start work after a component joins the page. An unmounted hook can stop that work when the component leaves."
+  },
+  "updatedOn": "2026-11-16"
+}

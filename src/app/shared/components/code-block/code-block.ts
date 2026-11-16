@@ -1,45 +1,10 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { codeLanguageLabel } from '../../../../content-schema/code-language';
 import type { CodeToken } from '../../../core/models/content';
 import { PlatformService } from '../../../core/services/platform.service';
 import { PlaygroundHandoffService } from '../../../features/playground/playground-handoff.service';
 import { IconComponent } from '../icon/icon';
 import { InlineMarkupComponent } from '../inline-markup/inline-markup';
-
-const LANGUAGE_LABEL: Record<string, string> = {
-  html: 'HTML',
-  css: 'CSS',
-  scss: 'SCSS',
-  javascript: 'JavaScript',
-  js: 'JavaScript',
-  typescript: 'TypeScript',
-  ts: 'TypeScript',
-  json: 'JSON',
-  sql: 'SQL',
-  python: 'Python',
-  py: 'Python',
-  java: 'Java',
-  csharp: 'C#',
-  cs: 'C#',
-  cpp: 'C++',
-  c: 'C',
-  php: 'PHP',
-  bash: 'Bash',
-  sh: 'Shell',
-  shell: 'Shell',
-  text: 'Text',
-  yaml: 'YAML',
-  dockerfile: 'Dockerfile',
-  go: 'Go',
-  rust: 'Rust',
-  kotlin: 'Kotlin',
-  swift: 'Swift',
-  'angular-html': 'Angular template',
-  'angular-ts': 'Angular',
-  jsx: 'JSX',
-  tsx: 'TSX',
-  markdown: 'Markdown',
-  xml: 'XML',
-};
 
 const RUNNABLE_LANGUAGES = new Set(['html', 'css', 'javascript', 'js', 'sql']);
 
@@ -77,10 +42,14 @@ export class CodeBlockComponent {
       .split('\n')
       .map((line) => (line ? [[line]] : []));
   });
-  protected readonly languageLabel = computed(() => LANGUAGE_LABEL[this.language().toLowerCase()] ?? this.language().toUpperCase());
+  protected readonly languageLabel = computed(() => codeLanguageLabel(this.language()));
   protected readonly highlighted = computed(() => new Set(this.highlightLines() ?? []));
-  protected readonly ariaLabel = computed(() => this.label() ?? `${this.title() ?? this.languageLabel()} code example`);
-  protected readonly canOpenInPlayground = computed(() => this.runnable() && RUNNABLE_LANGUAGES.has(this.language().toLowerCase()));
+  protected readonly ariaLabel = computed(
+    () => this.label() ?? `${this.title() ?? this.languageLabel()} code example`,
+  );
+  protected readonly canOpenInPlayground = computed(
+    () => this.runnable() && RUNNABLE_LANGUAGES.has(this.language().toLowerCase()),
+  );
 
   protected async copy(): Promise<void> {
     if (!this.platform.isBrowser) return;

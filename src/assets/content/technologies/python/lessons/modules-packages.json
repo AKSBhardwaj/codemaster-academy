@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "slug": "modules-packages",
+  "title": "Modules and Packages",
+  "summary": "A module is a Python file you can reuse. A package groups related modules together.",
+  "introduction": "A module is a Python file you can reuse. A package groups related modules together. Think of borrowing a useful page from a recipe book. Use import to bring in a tool, then learn how to keep extra tools organised.",
+  "learningObjectives": [
+    "Import modules and individual names with import, from and as",
+    "Create your own module and import it from another file",
+    "Explain what the __name__ check does and when to use it",
+    "Organise modules into a package and find useful standard-library modules"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Importing"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "imports.py",
+      "code": "import math\nfrom datetime import date\nfrom statistics import mean, median\nimport random as rnd\n\nprint(math.sqrt(2))\nprint(date(2026, 11, 15).strftime(\"%A %d %B %Y\"))\nprint(mean([2, 4, 9]), median([2, 4, 9]))\nrnd.seed(7)\nprint(rnd.randint(1, 100))\nprint(date(2026, 12, 25) - date(2026, 11, 15))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python imports.py",
+      "content": "1.4142135623730951\nSunday 15 November 2026\n5 4\n42\n40 days, 0:00:00"
+    },
+    {
+      "type": "paragraph",
+      "text": "`import math` loads the module once and gives you a namespace: every name inside it is reached as `math.something`. `from ... import ...` copies specific names into your file so you call them bare. `as` renames, either to shorten (`import numpy as np` is universal) or to avoid a clash with one of your own names. Avoid `from module import *`: it dumps unknown names into your file and makes it impossible to see where a function came from."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your own module"
+    },
+    {
+      "type": "paragraph",
+      "text": "Any `.py` file is a module. Put reusable functions in `shapes.py`, then import it from a script in the same folder; the module's name is the file name without the extension."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "shapes.py",
+      "code": "\"\"\"Area helpers for simple shapes.\"\"\"\n\nimport math\n\ndef circle_area(radius):\n    return math.pi * radius ** 2\n\ndef rectangle_area(width, height):\n    return width * height\n\nprint(\"shapes module loaded\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python shapes.py",
+      "content": "shapes module loaded"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "main.py",
+      "code": "import shapes\nfrom shapes import rectangle_area\n\nprint(shapes.circle_area(2))\nprint(rectangle_area(3, 4))\nprint(shapes.__doc__)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python main.py",
+      "content": "shapes module loaded\n12.566370614359172\n12\nArea helpers for simple shapes."
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice `shapes module loaded` at the top of the second output: importing runs the whole module file once, top to bottom, including that stray `print`. Function definitions are statements too, and running them is what creates the functions. A module is cached after its first import, so a second `import shapes` elsewhere in the program does not run it again. The docstring at the top of the file becomes the module's `__doc__`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The __name__ check"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every module has a `__name__` variable. When a file is run directly, Python sets it to `\"__main__\"`; when the file is imported, it holds the module's name, here `\"shapes\"`. Testing it separates what a file does when executed from what it provides when imported, which lets a module double as a script without side effects for importers:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "shapes.py",
+      "code": "\"\"\"Area helpers for simple shapes.\"\"\"\n\nimport math\n\ndef circle_area(radius):\n    return math.pi * radius ** 2\n\ndef rectangle_area(width, height):\n    return width * height\n\nif __name__ == \"__main__\":\n    # runs only when this file is executed directly, not when imported\n    print(\"Testing shapes:\", circle_area(1), rectangle_area(2, 3))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python shapes.py",
+      "content": "Testing shapes: 3.141592653589793 6"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run `python main.py` again and the test line no longer appears: inside an import, `__name__` is `\"shapes\"`, so the block is skipped. Put a script's top-level code in a `main()` function and call it from this block; it keeps the module importable from tests."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Packages"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **package** is a folder of modules. Create a folder `geometry/` with an `__init__.py` file (it may be empty or hold a docstring; since Python 3.3 the file is optional, but keeping it is the convention) plus one module per topic, and the modules become importable as `geometry.units`, `geometry.shapes` and so on. Folders inside folders make sub-packages, which is how large libraries such as `django.db.models` are organised."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Project layout",
+      "code": "project/\n├── app.py\n└── geometry/\n    ├── __init__.py\n    └── units.py"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "geometry/__init__.py",
+      "code": "\"\"\"Geometry helpers: shapes and units.\"\"\""
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "geometry/units.py",
+      "code": "def cm_to_inches(cm):\n    return round(cm / 2.54, 2)\n\ndef inches_to_cm(inches):\n    return inches * 2.54"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "app.py",
+      "code": "import geometry\nfrom geometry import units\nfrom geometry.units import inches_to_cm\n\nprint(geometry.__doc__)\nprint(units.cm_to_inches(100))\nprint(inches_to_cm(10))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python app.py",
+      "content": "Geometry helpers: shapes and units.\n39.37\n25.4"
+    },
+    {
+      "type": "paragraph",
+      "text": "Dotted names follow the folder structure. `from geometry import units` gives you the module, `from geometry.units import inches_to_cm` a single function; both are common, and which one you pick is about readability at the call site."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not name your file after a module",
+      "text": "A file called `random.py` or `json.py` in your project folder shadows the real module: `import random` loads *your* file, and `random.randint` fails with `AttributeError: module 'random' has no attribute 'randint'`. Python 3.13 adds a hint to that message (`consider renaming ... since it has the same name as the standard library module`). Pick specific names such as `dice.py`; the same applies to folders."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The standard library"
+    },
+    {
+      "type": "table",
+      "headers": ["Module", "What it gives you"],
+      "rows": [
+        [
+          "`math`, `statistics`, `random`, `decimal`",
+          "Maths functions, averages, random numbers, exact decimal arithmetic"
+        ],
+        ["`datetime`, `time`, `zoneinfo`", "Dates, times, durations and time zones"],
+        ["`pathlib`, `os`, `shutil`", "Paths, files and folders, copying and moving"],
+        ["`json`, `csv`, `sqlite3`", "Data formats and an embedded SQL database"],
+        ["`re`", "Regular expressions for pattern matching in text"],
+        [
+          "`collections`, `itertools`, `functools`",
+          "`Counter`, `defaultdict`, `deque`, combinatorics, caching"
+        ],
+        ["`urllib.request`, `http.server`", "Fetch URLs, serve a folder over HTTP locally"],
+        ["`unittest`, `logging`, `argparse`", "Tests, log output, command-line options"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Python 3.13 removed 19 old modules that nobody maintained (`cgi`, `telnetlib`, `crypt` and others), so a very old tutorial may import something that no longer exists; the replacement is usually a third-party package. Those come from PyPI via `pip`, covered in [Virtual Environments and pip](/tutorials/python/virtual-environments). Whatever you need, check the standard library first: a solution that needs no installation is easier to share."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-modules-packages-import-style"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-modules-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "modules-packages",
+          "difficulty": "beginner",
+          "question": "You run `python tools.py` directly. What is the value of `__name__` inside tools.py?",
+          "explanation": "The file being executed is always `\"__main__\"`. It would be `\"tools\"` only if another file imported it.",
+          "options": ["`\"tools\"`", "`\"__main__\"`", "`\"tools.py\"`", "`None`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "py-modules-qc-2",
+          "type": "true-false",
+          "lessonSlug": "modules-packages",
+          "difficulty": "beginner",
+          "question": "`from math import *` is the recommended way to import because it saves typing.",
+          "explanation": "Star imports hide where names come from and can silently overwrite your own variables. Import the module, or the specific names you use.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-modules-packages-import-style"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "virtual-environments"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "Python Modules and Packages – import and __main__",
+    "description": "Learn Python imports, write your own modules and packages, understand the __name__ == \"__main__\" check, tour the standard library and avoid shadowing modules."
+  },
+  "updatedOn": "2026-11-16"
+}

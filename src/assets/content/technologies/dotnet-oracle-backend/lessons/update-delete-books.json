@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "slug": "update-delete-books",
+  "title": "Update and delete a book",
+  "summary": "Use PUT to replace a book's editable values and DELETE to remove one practice row. Check IDs, affected rows and HTTP 204 or 404 replies.",
+  "introduction": "After reading a book, we want to mark it as read. Sometimes we also want to remove a practice book. We will use its ID so we change exactly the intended row, even if two books have the same title.",
+  "learningObjectives": [
+    "Send all editable fields in a PUT request",
+    "Delete the practice book by its returned ID",
+    "Explain 204, 404 and positive-ID validation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Mark the book as read"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the same terminal and the $created value from the last lesson. If you opened a new terminal, read the list and set $bookId to the ID of your own practice book instead."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "$bookId = $created.id\n$body = @{ title = \"My Space Adventure\"; isRead = $true } | ConvertTo-Json\nInvoke-RestMethod \"http://localhost:5080/api/books/$bookId\" `\n  -Method Put -ContentType \"application/json\" -Body $body\nInvoke-RestMethod \"http://localhost:5080/api/books/$bookId\"",
+      "title": "Update and read it again",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "PUT replaces the editable values. Send both title and isRead. A missing isRead becomes false because that is the request model's default. This is not a PATCH endpoint for changing only one field."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "UPDATE reading_list_books\nSET title = :title, is_read = :is_read\nWHERE id = :id",
+      "title": "The update query",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The WHERE clause chooses one ID. ExecuteNonQueryAsync reports how many rows changed. The primary key means at most one row can match. One changed row produces HTTP 204. Zero changed rows means the book was not found, so the API returns 404."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Delete only your practice row"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "Invoke-RestMethod \"http://localhost:5080/api/books/$bookId\" -Method Delete\nInvoke-RestMethod http://localhost:5080/api/books",
+      "title": "Delete the created practice book",
+      "runnable": false
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DELETE FROM reading_list_books WHERE id = :id",
+      "title": "The delete query",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "HTTP 204 means the action succeeded and the reply has no body. PowerShell may print nothing for it. Ask for the list to check the result. A second DELETE for the same ID returns 404 in this API because the row is already gone."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Never leave out WHERE",
+      "text": "An UPDATE or DELETE without a WHERE clause can affect every row. Our API always sends the ID as a parameter. Practise only with the separate sample table."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What about a bad ID?"
+    },
+    {
+      "type": "paragraph",
+      "text": "The controller checks that numeric IDs are positive. A value such as 0 receives HTTP 400 before database work. The route {id:long} also requires a whole number that fits in long. Text such as abc does not match that route and receives 404."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a new made-up book, change its read flag, read it again, then delete it. Use the ID from the POST response for every later request. Leave the other sample rows alone."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-update-delete-books-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-update-delete-books-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "safe-queries-transactions"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "add-books"
+    }
+  ],
+  "seo": {
+    "title": "Update and delete a book | C# .NET and Oracle",
+    "description": "Use PUT to replace a book's editable values and DELETE to remove one practice row. Check IDs, affected rows and HTTP 204 or 404 replies."
+  },
+  "updatedOn": "2026-11-16"
+}

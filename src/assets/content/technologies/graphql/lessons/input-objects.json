@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "input-objects",
+  "title": "Group several inputs",
+  "summary": "GraphQL: Group several inputs. Change the input title.",
+  "introduction": "An input type groups values sent into a mutation. It is separate from an output object type.",
+  "learningObjectives": ["Group several inputs with GraphQL", "Change the input title"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Group several inputs"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Group several inputs",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"input BookInput { title: String! } type Query { ready: Boolean! } type Mutation { createBook(book: BookInput!): String! }\");\n\nconst rootValue = { ready: () => true, createBook: ({ book }) => book.title };\nconst result = await graphql({ schema, rootValue, source: \"mutation { createBook(book: { title: \\\"Moon Trip\\\" }) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The mutation receives a BookInput object. Reading book.title gives Moon Trip."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"createBook\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the input title."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "This example returns the title only; a real resolver needs storage to save a book."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-input-objects-check"
+    }
+  ],
+  "exerciseIds": ["graphql-input-objects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "directives"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Group several inputs",
+    "description": "GraphQL: Group several inputs. Change the input title. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

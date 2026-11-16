@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "slug": "lists-keys",
+  "title": "Rendering Lists and Keys",
+  "summary": "React can turn a list of values into a list of page parts. A key helps it remember which item is which.",
+  "introduction": "React can turn a list of values into a list of page parts. A key helps it remember which item is which. Show a short reading list. Give each book a stable id so React can follow the right book when items move or are removed.",
+  "learningObjectives": [
+    "Render an array of data as a list of elements with map",
+    "Explain what keys do during reconciliation and choose stable ones",
+    "Recognize when an index key causes bugs",
+    "Filter and sort lists as derived values instead of state"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "From array to elements"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "FruitList.jsx",
+      "code": "const fruits = ['Apple', 'Banana', 'Cherry'];\n\nfunction FruitList() {\n  return (\n    <ul>\n      {fruits.map((fruit) => (\n        <li key={fruit}>{fruit}</li>\n      ))}\n    </ul>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<ul><li>Apple</li><li>Banana</li><li>Cherry</li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`map` returns an array of `<li>` elements, and JSX renders an array by placing each element in order. No special directive is needed; this is the same `map` you use anywhere in JavaScript. Any loop that builds an array of elements works, but `map` keeps the data and the markup together."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What keys are for"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the array changes, React compares the new list of elements with the previous one. Without extra information it can only match by position: the first new element against the first old element, and so on. A **key** gives each element an identity, so React can see that the item with key `102` moved from third to first place and keep its DOM node and state instead of rewriting it. Keys must be unique among siblings and **stable** across renders; a database id or a slug is ideal."
+    },
+    {
+      "type": "paragraph",
+      "text": "Leaving keys out does not stop rendering, but React logs a warning in development:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "{fruits.map((fruit) => <li>{fruit}</li>)}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "Each child in a list should have a unique \"key\" prop.\n\nCheck the render method of `FruitList`. See https://react.dev/link/warning-keys for more information."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects with ids"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "TaskList.jsx",
+      "code": "const tasks = [\n  { id: 101, title: 'Write lesson', done: true },\n  { id: 102, title: 'Review quiz', done: false },\n  { id: 103, title: 'Publish', done: false },\n];\n\nfunction TaskList({ showDone }) {\n  const visible = showDone ? tasks : tasks.filter((task) => !task.done);\n\n  return (\n    <ol>\n      {visible.map((task) => (\n        <li key={task.id} className={task.done ? 'done' : undefined}>\n          {task.title}\n        </li>\n      ))}\n    </ol>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered with and without showDone",
+      "content": "<TaskList showDone={false} />  →  <ol><li>Review quiz</li><li>Publish</li></ol>\n<TaskList showDone />          →  <ol><li class=\"done\">Write lesson</li><li>Review quiz</li><li>Publish</li></ol>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`visible` is computed during render from props and data; it is not stored in state. When `showDone` changes, the component re-renders and recomputes it. Filtering, sorting, grouping and searching are all **derived values**, and keeping them out of state avoids the bug where the filtered copy and the original disagree."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why the index is a risky key"
+    },
+    {
+      "type": "paragraph",
+      "text": "`map` passes the index as its second argument, and `key={index}` silences the warning, so it is tempting. It is only safe when the list never reorders, never gets items inserted in the middle and never filters. Otherwise the index of an item changes, React matches the wrong old element to it, and any state attached to the element (a checkbox, an input's text, an open accordion) stays with the **position** instead of the item."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Guests.jsx",
+      "code": "import { useState } from 'react';\n\nfunction Guest({ name }) {\n  const [confirmed, setConfirmed] = useState(false);\n  return (\n    <li>\n      {name}\n      <button onClick={() => setConfirmed(true)}>{confirmed ? 'Confirmed' : 'Confirm'}</button>\n    </li>\n  );\n}\n\nfunction Guests({ guests }) {\n  return (\n    <ul>\n      {guests.map((guest, index) => (\n        <Guest key={index} name={guest} />\n      ))}\n    </ul>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Guests: confirm Ada, then remove Ada from the list",
+      "content": "key={index}:  <ul><li>Grace<button>Confirmed</button></li><li>Linus<button>Confirm</button></li></ul>\nkey={guest}:  <ul><li>Grace<button>Confirm</button></li><li>Linus<button>Confirm</button></li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "With index keys, the `Guest` instance with key `0` survives and keeps its `confirmed` state; it simply receives the new name `Grace`, so Grace appears confirmed although nobody confirmed her. With `key={guest}`, Ada's instance is unmounted together with her state, and the other two keep theirs. Use the name here only because it is unique; a real app would use an id."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sorting without mutating"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Leaderboard.jsx",
+      "code": "function Leaderboard({ players }) {\n  const ranked = [...players].sort((a, b) => b.score - a.score);\n\n  return (\n    <ol>\n      {ranked.map((player) => (\n        <li key={player.id}>{player.name} – {player.score}</li>\n      ))}\n    </ol>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "players: Ada 70, Grace 95, Linus 80 (ids 1, 2, 3)",
+      "content": "<ol><li>Grace – 95</li><li>Linus – 80</li><li>Ada – 70</li></ol>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`sort` mutates the array it is called on. Spreading into a new array first keeps the `players` prop untouched, which matters because props are read-only and because the parent may still rely on that array in its original order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fragments with keys and empty states"
+    },
+    {
+      "type": "paragraph",
+      "text": "When each item renders several siblings, wrap them in a fragment. The short `<>` syntax cannot take a key, so import `Fragment`. And always decide what an empty list looks like; an empty `<ul>` tells the user nothing."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Glossary.jsx",
+      "code": "import { Fragment } from 'react';\n\nfunction Glossary({ terms }) {\n  if (terms.length === 0) return <p>No terms yet.</p>;\n\n  return (\n    <dl>\n      {terms.map((term) => (\n        <Fragment key={term.word}>\n          <dt>{term.word}</dt>\n          <dd>{term.meaning}</dd>\n        </Fragment>\n      ))}\n    </dl>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "terms = [{ word: 'prop', meaning: 'An input to a component' }]  →  <dl><dt>prop</dt><dd>An input to a component</dd></dl>\nterms = []                                                       →  <p>No terms yet.</p>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: generating keys during render",
+      "text": "`key={Math.random()}` or `key={crypto.randomUUID()}` inside `map` produces a different key on every render, so React destroys and recreates every item each time: state is lost, focus jumps and performance drops. Keys must come from the data. If your items truly have no id, assign one when the data is created, not when it is rendered."
+    },
+    {
+      "type": "paragraph",
+      "text": "One last detail: `key` is not a prop. The child cannot read `props.key`; if it needs the id, pass it separately, for example `<Task key={task.id} id={task.id} />`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-lists-filter"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-lists-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "lists-keys",
+          "difficulty": "beginner",
+          "question": "Which is the best key for a list of users loaded from an API?",
+          "explanation": "A key must be unique among siblings and stable across renders. The API's id satisfies both; indexes shift, random values change every render and first names may repeat.",
+          "options": [
+            "The array index",
+            "The user's unique id from the API",
+            "`Math.random()`",
+            "The user's first name"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-lists-qc-2",
+          "type": "true-false",
+          "lessonSlug": "lists-keys",
+          "difficulty": "beginner",
+          "question": "A filtered version of a list that comes from props should be stored in state so that it stays in sync.",
+          "explanation": "Storing it in state creates a second copy that must be kept in sync by hand. Compute the filtered list during render instead; it is recalculated automatically whenever the props change.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-lists-filter"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "jsx"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "performance-memo"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    }
+  ],
+  "seo": {
+    "title": "React Lists and Keys – map, Keys and Filtering",
+    "description": "Render lists in React with map, choose stable keys, see why index keys break component state, and filter and sort lists as derived values without extra state."
+  },
+  "updatedOn": "2026-11-16"
+}

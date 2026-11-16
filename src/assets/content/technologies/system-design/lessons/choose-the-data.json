@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "slug": "choose-the-data",
+  "title": "Choose the data",
+  "summary": "Separate a book title from its physical copies. Use stable IDs and links to keep the library facts clear without repeating every detail.",
+  "introduction": "A library may own three copies of the same book. The title tells us what the book is, but each copy can sit on a different shelf. A good data plan keeps these two ideas separate.",
+  "learningObjectives": [
+    "Choose the facts a library needs to store",
+    "Use stable IDs to connect records",
+    "Explain why a title is not enough to identify a copy"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **data model** describes the facts we store and how they connect. A record is a group of facts about one thing. A field is one named fact inside a record."
+    },
+    {
+      "type": "paragraph",
+      "text": "A book record describes a title and author. A copy record describes one physical copy. The copy has its own ID and a bookId that points to the matching book record."
+    },
+    {
+      "type": "paragraph",
+      "text": "An **ID** is a label used to identify a record. Keep it stable when a title or shelf changes. Two books can share a title, so the title alone is not a safe unique ID."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep a fact in one clear place when possible. Storing the same author name on every copy means fixing the same spelling in many places. A link lets several copies share one book description."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Create book 17 with title Moon and author Asha. Create book 18 with the same title but author Ben.",
+        "Create copies 203 and 204 with bookId 17. Their shelves are B2 and B3.",
+        "Create copy 205 with bookId 18. It belongs to the other book, even though the title matches.",
+        "Find copies by the stable book ID, then show their copy IDs and shelves."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const books = [\n  { id: 17, title: \"Moon\", author: \"Asha\" },\n  { id: 18, title: \"Moon\", author: \"Ben\" }\n];\nconst copies = [\n  { id: 203, bookId: 17, shelf: \"B2\" },\n  { id: 204, bookId: 17, shelf: \"B3\" },\n  { id: 205, bookId: 18, shelf: \"C1\" }\n];\nconst book = books.find(item => item.id === 17);\nconst matchingCopies = copies.filter(copy => copy.bookId === 17);\nconsole.log(book.title + \" by \" + book.author);\nconsole.log(\"copies: \" + matchingCopies.length);\nconsole.log(matchingCopies.map(copy => copy.id + \" on \" + copy.shelf).join(\", \"));",
+      "title": "Choose the data example",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Moon by Asha\ncopies: 2\n203 on B2, 204 on B3"
+    },
+    {
+      "type": "paragraph",
+      "text": "This is a tiny model stored in browser memory. It helps us see the links; it is not a database. A database design can add rules that reject duplicate IDs and links to missing records."
+    },
+    {
+      "type": "paragraph",
+      "text": "Borrowing adds another kind of record: a loan. A loan can link a copy to a learner and its due date. Keep only the learner information the task really needs, and use fictional values for practice."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A lookup may find no book. A real service must handle that case before reading book.title. This example deliberately uses a book ID that is present."
+    },
+    {
+      "type": "paragraph",
+      "text": "Decide what a delete means. If a book still has copies or loan history, deleting its record may leave broken links. You could reject the delete or mark the book as retired, depending on the library's rules."
+    },
+    {
+      "type": "paragraph",
+      "text": "Repeating a fact can make some reads easier, but then updates need a rule to keep the copies correct. That choice should be deliberate, not an accident."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Add copy 206 with bookId 17 and shelf D1. Predict the result.",
+        "The book still prints Moon by Asha. The copy count becomes 3, and the last line also includes 206 on D1. Book 18 stays separate."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use a title or shelf as the only ID. Titles can match other titles, and a copy can move to another shelf."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-choose-the-data"
+    }
+  ],
+  "exerciseIds": ["system-design-choose-the-data"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "indexes-help-find-records"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "transactions-and-safe-updates"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Choose the data",
+    "description": "Separate a book title from its physical copies. Use stable IDs and links to keep the library facts clear without repeating every detail."
+  },
+  "updatedOn": "2026-11-16"
+}

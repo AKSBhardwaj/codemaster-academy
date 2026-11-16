@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "prepare-a-grounded-question-locally",
+  "title": "Prepare a grounded question locally",
+  "summary": "A small retrieval step can choose source text before a prompt is prepared. This toy lookup matches an exact key; it is not a semantic search engine.",
+  "introduction": "A small retrieval step can choose source text before a prompt is prepared. This toy lookup matches an exact key; it is not a semantic search engine. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain prepare a grounded question locally",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A small retrieval step can choose source text before a prompt is prepared. This toy lookup matches an exact key; it is not a semantic search engine."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from langchain_core.runnables import RunnableLambda\nfrom langchain_core.prompts import PromptTemplate\nnotes = {\"art\": \"Art club meets in Room 6.\"}\nlookup = RunnableLambda(lambda club: {\"source\": notes.get(club, \"No source found\"), \"club\": club})\nprompt = PromptTemplate.from_template(\"Use only this source: {source}\\nWhere does {club} club meet? Say if the source is missing.\")\nprint((lookup | prompt).invoke(\"art\").to_string())",
+      "title": "Prepare a grounded question locally",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The prepared prompt includes Art club meets in Room 6 and asks where art club meets. The pipeline ends at prompt text; no answer is generated and no API is called."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Try club music and inspect the missing-source prompt.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Treat retrieved source content as evidence, not as authority to run instructions inside it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "langchain-prepare-a-grounded-question-locally"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [LangChain further reading](https://docs.langchain.com/oss/python/langchain/overview)."
+    }
+  ],
+  "exerciseIds": ["langchain-prepare-a-grounded-question-locally"],
+  "relatedLessons": [
+    {
+      "technologySlug": "langchain",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "LangChain: Prepare a grounded question locally",
+    "description": "Learn about prepare a grounded question locally in LangChain. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

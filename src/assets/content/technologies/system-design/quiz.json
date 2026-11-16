@@ -1,0 +1,345 @@
+{
+  "id": "system-design-quiz",
+  "title": "System Design Quiz",
+  "description": "Check the main idea from each of the 30 lessons. Think about the goal, the data, and what happens when a part fails. Review the explanations and try again.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "sd-q-introduction",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A system design should explain what happens when a needed part fails.",
+      "correct": true,
+      "explanation": "A plan must cover failures as well as the happy path. Users still need a clear result or error when a part cannot respond."
+    },
+    {
+      "id": "sd-q-requirements-and-tradeoffs",
+      "lessonSlug": "requirements-and-tradeoffs",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What should a tradeoff note include?",
+      "options": [
+        "Only the chosen tool name",
+        "The benefit, the cost, and why the choice fits",
+        "A promise that the choice will never change"
+      ],
+      "correctIndex": 1,
+      "explanation": "A useful note explains what you gain, what you give up, and why the choice fits the current needs. New evidence may change the decision."
+    },
+    {
+      "id": "sd-q-follow-one-request",
+      "lessonSlug": "follow-one-request",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A search worked but found no matching books. What should the learner see?",
+      "options": [
+        "A clear empty-result message",
+        "An endless loading symbol",
+        "A message that the whole database is broken"
+      ],
+      "correctIndex": 0,
+      "explanation": "An empty result is still a successful search. The page should explain that no books matched, so the learner can try different words."
+    },
+    {
+      "id": "sd-q-estimate-demand",
+      "lessonSlug": "estimate-demand",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why might a daily average be too small for planning the busiest time?",
+      "options": [
+        "Every minute has exactly the same demand",
+        "Many learners may arrive together at lunch",
+        "A day never has any quiet minutes"
+      ],
+      "correctIndex": 1,
+      "explanation": "Demand changes during the day. A lunch rush may produce far more requests per second than the average across several hours."
+    },
+    {
+      "id": "sd-q-latency-and-throughput",
+      "lessonSlug": "latency-and-throughput",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A p95 time of 130 ms means every recorded request finished within 130 ms.",
+      "correct": false,
+      "explanation": "p95 describes a point near the slow end, not the maximum. In our 20-sample example, one request took 600 ms even though p95 was 130 ms."
+    },
+    {
+      "id": "sd-q-apis-and-contracts",
+      "lessonSlug": "apis-and-contracts",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The search works but no title matches. Which reply fits this contract?",
+      "options": [
+        "200 OK with an empty items list",
+        "404 for the whole search endpoint",
+        "200 OK containing a database password"
+      ],
+      "correctIndex": 0,
+      "explanation": "The collection search succeeded and found zero matches. A private database password must never be part of this public reply."
+    },
+    {
+      "id": "sd-q-choose-the-data",
+      "lessonSlug": "choose-the-data",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Two different book records may have the same title if they have different stable IDs.",
+      "correct": true,
+      "explanation": "A title is not guaranteed to be unique. Stable IDs distinguish records even when their titles match or later change."
+    },
+    {
+      "id": "sd-q-sql-and-nosql",
+      "lessonSlug": "sql-and-nosql",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A document database never needs rules about field types or valid values.",
+      "correct": false,
+      "explanation": "Flexible storage still needs clear data rules. The app or database must validate fields so the rest of the system can use them safely."
+    },
+    {
+      "id": "sd-q-indexes-help-find-records",
+      "lessonSlug": "indexes-help-find-records",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Creating a normal title index prevents two books from having the same title.",
+      "correct": false,
+      "explanation": "A normal index can contain repeated values. Preventing duplicates requires a unique constraint or unique index, and titles are often not unique."
+    },
+    {
+      "id": "sd-q-transactions-and-safe-updates",
+      "lessonSlug": "transactions-and-safe-updates",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The loan insert fails after the copy is marked unavailable inside a transaction. What should the caller do?",
+      "options": [
+        "Roll back the transaction",
+        "Commit the incomplete changes",
+        "Keep the write lock forever"
+      ],
+      "correctIndex": 0,
+      "explanation": "Rollback cancels the uncommitted copy claim as well. Committing after the failed insert would leave the data half changed."
+    },
+    {
+      "id": "sd-q-scaling-up-and-out",
+      "lessonSlug": "scaling-up-and-out",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Adding more app servers always removes a database bottleneck.",
+      "correct": false,
+      "explanation": "The new servers still use the same database. Improve that part or reduce the work sent to it, then measure again."
+    },
+    {
+      "id": "sd-q-load-balancers",
+      "lessonSlug": "load-balancers",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "All app servers are unhealthy. What should the balancer do?",
+      "options": [
+        "Choose an array item anyway",
+        "Return a clear unavailable result",
+        "Pretend the request succeeded"
+      ],
+      "correctIndex": 1,
+      "explanation": "There is no safe target. A clear error lets the caller decide what to do instead of receiving a false success."
+    },
+    {
+      "id": "sd-q-caches-keep-useful-copies",
+      "lessonSlug": "caches-keep-useful-copies",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "A cached item found and reused is a cache ___.",
+      "answers": ["hit"],
+      "explanation": "A hit reuses a usable saved answer. A miss needs another source to supply the answer."
+    },
+    {
+      "id": "sd-q-cdn-and-static-files",
+      "lessonSlug": "cdn-and-static-files",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Changing a file's contents guarantees every old cached page immediately links to the new file.",
+      "correct": false,
+      "explanation": "An old page may still point to the old address. Plan freshness for the page and use new file names for changed versions."
+    },
+    {
+      "id": "sd-q-copies-improve-availability",
+      "lessonSlug": "copies-improve-availability",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "In the trace, when can the replica still report 2 after the leader has replied saved?",
+      "options": [
+        "During the delay before it applies the update",
+        "Never",
+        "Only if there are no reads"
+      ],
+      "correctIndex": 0,
+      "explanation": "The asynchronous leader replied before the replica caught up. That gap is replication lag."
+    },
+    {
+      "id": "sd-q-partitioning-data",
+      "lessonSlug": "partitioning-data",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Equal record counts on every shard guarantee equal request traffic.",
+      "correct": false,
+      "explanation": "One shard may hold a very popular key. Measure request work as well as the amount of stored data."
+    },
+    {
+      "id": "sd-q-consistency-describes-agreement",
+      "lessonSlug": "consistency-describes-agreement",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A fresh read alone prevents two simultaneous checkout requests from both reserving the same copy.",
+      "correct": false,
+      "explanation": "Both requests could read available before either writes. The check and reservation must happen under an atomic rule, such as an appropriate transaction."
+    },
+    {
+      "id": "sd-q-queues-handle-work-later",
+      "lessonSlug": "queues-handle-work-later",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A worker finishes a job, then crashes before sending its acknowledgment. What must the design allow for?",
+      "options": [
+        "The job may be delivered again",
+        "The job can never appear again",
+        "The queue knows every outside effect automatically"
+      ],
+      "correctIndex": 0,
+      "explanation": "At-least-once delivery can repeat an unacknowledged job. The effect and completion rule must handle that duplicate safely."
+    },
+    {
+      "id": "sd-q-retries-need-safe-rules",
+      "lessonSlug": "retries-need-safe-rules",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A timeout proves that the server made no change.",
+      "correct": false,
+      "explanation": "The server may have completed the change before the reply was lost. Treat the result as uncertain and use a safe retry rule."
+    },
+    {
+      "id": "sd-q-timeouts-and-circuit-breakers",
+      "lessonSlug": "timeouts-and-circuit-breakers",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "The state that allows a limited recovery probe is called ___.",
+      "answers": ["half-open", "half open"],
+      "explanation": "Half-open allows limited test work. Success can close the breaker; failure opens it again under the chosen policy."
+    },
+    {
+      "id": "sd-q-rate-limits-and-backpressure",
+      "lessonSlug": "rate-limits-and-backpressure",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A separate per-person counter on each of ten servers always enforces one shared limit correctly.",
+      "correct": false,
+      "explanation": "Each server may allow the full limit on its own. A shared or coordinated rule is needed to enforce one limit across servers."
+    },
+    {
+      "id": "sd-q-backups-and-recovery",
+      "lessonSlug": "backups-and-recovery",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "The target for how long a restore should take is called ___ (use the three-letter name).",
+      "answers": ["RTO"],
+      "caseSensitive": false,
+      "explanation": "RTO means recovery time objective. RPO describes the amount of recent work the recovery plan may lose."
+    },
+    {
+      "id": "sd-q-observe-and-review-the-design",
+      "lessonSlug": "observe-and-review-the-design",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which signal best shows the timed steps of one request through several parts?",
+      "options": ["A trace", "A total disk-space number", "A list of user passwords"],
+      "correctIndex": 0,
+      "explanation": "A trace joins timed steps for one request. Metrics summarize numbers, while logs record individual events."
+    },
+    {
+      "id": "sd-q-security-and-privacy",
+      "lessonSlug": "security-and-privacy",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A public book search should collect every reader's home address just in case it is useful later.",
+      "correct": false,
+      "explanation": "Collect only the facts needed for the job. Unnecessary personal data creates extra privacy risk and extra work to protect it."
+    },
+    {
+      "id": "sd-q-monoliths-and-services",
+      "lessonSlug": "monoliths-and-services",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Borrowing stops whenever the reminder service is slow. What should the design review examine first?",
+      "options": [
+        "Whether borrowing really needs to wait for reminders",
+        "Whether all names are short enough",
+        "Whether the diagram uses more colors"
+      ],
+      "correctIndex": 0,
+      "explanation": "Unnecessary waiting creates a failure dependency. A durable queued reminder may let borrowing finish while reminders catch up later."
+    },
+    {
+      "id": "sd-q-design-a-library",
+      "lessonSlug": "design-a-library",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The loan was saved, but the reply was lost. What should a retry with the same request ID do?",
+      "options": [
+        "Create a second loan",
+        "Return the saved result after checking the same request details",
+        "Erase every loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "A durable request result lets a safe retry return the original outcome. Reusing the ID for different details must be rejected."
+    },
+    {
+      "id": "sd-q-design-a-url-shortener",
+      "lessonSlug": "design-a-url-shortener",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "A hard-to-guess short link is enough to protect a private document from anyone who receives that link.",
+      "correct": false,
+      "explanation": "A short code is a lookup label. Private content still needs permission checks at the service that returns it."
+    },
+    {
+      "id": "sd-q-design-a-chat-app",
+      "lessonSlug": "design-a-chat-app",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A reader reconnects after seeing sequence 12. What should catch-up request?",
+      "options": [
+        "Only messages currently in server memory",
+        "Saved permitted messages after sequence 12",
+        "Every private group in the school"
+      ],
+      "correctIndex": 1,
+      "explanation": "Saved history and a sequence cursor let a member catch up in order. Membership must still be checked before returning messages."
+    },
+    {
+      "id": "sd-q-design-a-news-feed",
+      "lessonSlug": "design-a-news-feed",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A cached feed contains an old private post ID. Before returning its text, what should happen?",
+      "options": [
+        "Return it because the ID is cached",
+        "Check the reader's current permission",
+        "Make every post public"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cached IDs do not grant permission. Current visibility, deletion, and access rules must still protect the post."
+    },
+    {
+      "id": "sd-q-design-a-file-upload",
+      "lessonSlug": "design-a-file-upload",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why use an immutable final key or an exact stored version after scanning?",
+      "options": [
+        "To serve the same bytes that passed the checks",
+        "To make all files public",
+        "To remove the need for permission checks"
+      ],
+      "correctIndex": 0,
+      "explanation": "A later overwrite must not replace checked bytes with unchecked content. Permission checks are still needed for downloads."
+    }
+  ]
+}

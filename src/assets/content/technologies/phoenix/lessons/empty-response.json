@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "empty-response",
+  "title": "Return no content",
+  "summary": "Phoenix: Return no content. Inspect the reply in an HTTP client.",
+  "introduction": "send_resp can send an empty body with status 204. Send DELETE /books/1.",
+  "learningObjectives": ["Return no content with Phoenix", "Inspect the reply in an HTTP client"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return no content"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Return no content",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\ndelete \"/books/:id\", LessonController, :remove\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef remove(conn, _params), do: send_resp(conn, 204, \"\")\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The action sends status 204 with an empty string body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "204 No Content; empty body"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the reply in an HTTP client."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "This practice action has no database record to remove."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-empty-response-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-empty-response-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "halt"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Return no content",
+    "description": "Phoenix: Return no content. Inspect the reply in an HTTP client. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

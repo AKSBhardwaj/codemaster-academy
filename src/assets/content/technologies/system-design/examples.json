@@ -1,0 +1,320 @@
+{
+  "title": "System Design Examples and Plans",
+  "description": "Read 30 small design plans and browser models. Each example links to its lesson. JavaScript and SQLite models teach one idea; text plans describe systems to discuss or draw.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Begin with the goal",
+      "description": "Plan a small school library service. Name the users, their main task, the data, and a clear goal before choosing any tools.",
+      "language": "text",
+      "code": "First version: school book search\nUsers: learners and one librarian\nInput: part of a book title\nWork: find matching books and their copies\nReply: titles and shelf labels\nGoal: 95 of 100 searches finish within 2 seconds\nNot included: payments or video lessons",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "requirements-and-tradeoffs",
+      "title": "Requirements and tradeoffs",
+      "description": "Separate actions from quality goals. Compare two library plans, keep the rules that must hold, and write down a useful tradeoff.",
+      "language": "text",
+      "code": "Budget limit: 20 planning units per month\nPlan A: one app, one database, cost 10 units\nPlan B: two apps, database copies, cost 35 units\nFirst choice: Plan A, if testing meets the speed goal\nAccepted limit: app maintenance may pause the service\nRevisit when: measured demand or uptime needs grow",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "requirements-and-tradeoffs"
+    },
+    {
+      "id": "follow-one-request",
+      "title": "Follow one request",
+      "description": "Trace a book search from a browser to a service and database, then follow the reply back. Find where a slow step adds waiting time.",
+      "language": "text",
+      "code": "Browser -> Service: GET /v1/books?title=moon&limit=2\nService: check the title and limit\nService -> Database: find matching book records\nDatabase -> Service: book 17, title Moon, shelf B2\nService -> Browser: 200 OK with the result list\nBrowser: show Moon on shelf B2",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "follow-one-request"
+    },
+    {
+      "id": "estimate-demand",
+      "title": "Estimate demand",
+      "description": "Estimate searches per day and per second using simple numbers. Compare an average with a busy period and leave room for uncertainty.",
+      "language": "javascript",
+      "code": "const learners = 600;\nconst searchesEach = 5;\nconst dailySearches = learners * searchesEach;\nconst openSeconds = 6 * 60 * 60;\nconst averageRate = dailySearches / openSeconds;\nconst busySearches = 1200;\nconst busySeconds = 10 * 60;\nconsole.log(\"daily searches: \" + dailySearches);\nconsole.log(\"average per second: \" + averageRate.toFixed(2));\nconsole.log(\"busy per second: \" + busySearches / busySeconds);",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "estimate-demand",
+      "output": "daily searches: 3000\naverage per second: 0.14\nbusy per second: 2"
+    },
+    {
+      "id": "latency-and-throughput",
+      "title": "Latency and throughput",
+      "description": "Measure how long one request takes and how much work finishes. Use a small p95 example to notice slow replies that an average can hide.",
+      "language": "javascript",
+      "code": "const times = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85,\n  90, 95, 100, 105, 110, 115, 120, 125, 130, 600];\nconst sorted = [...times].sort((a, b) => a - b);\nconst rank = Math.ceil(0.95 * sorted.length);\nconst p95 = sorted[rank - 1];\nconsole.log(\"p95: \" + p95 + \" ms\");\nconsole.log(\"slowest: \" + sorted[sorted.length - 1] + \" ms\");\nconst completed = 200;\nconst seconds = 10;\nconsole.log(\"throughput: \" + completed / seconds + \" requests/s\");",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "latency-and-throughput",
+      "output": "p95: 130 ms\nslowest: 600 ms\nthroughput: 20 requests/s"
+    },
+    {
+      "id": "apis-and-contracts",
+      "title": "APIs and contracts",
+      "description": "Design a small book-search API with clear inputs, replies, limits, and errors. Learn why both sides need the same contract.",
+      "language": "text",
+      "code": "GET /v1/books?title=moon&limit=2\n\n200 OK\n{\n  \"items\": [\n    { \"id\": 17, \"title\": \"Moon\", \"shelf\": \"B2\" },\n    { \"id\": 42, \"title\": \"Moon Maps\", \"shelf\": \"C1\" }\n  ],\n  \"nextCursor\": null\n}\n\nNo matches: 200 OK, items: [], nextCursor: null\nInvalid limit: 400 Bad Request with a clear message\nTemporary service failure: 503 Service Unavailable",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "apis-and-contracts"
+    },
+    {
+      "id": "choose-the-data",
+      "title": "Choose the data",
+      "description": "Separate a book title from its physical copies. Use stable IDs and links to keep the library facts clear without repeating every detail.",
+      "language": "javascript",
+      "code": "const books = [\n  { id: 17, title: \"Moon\", author: \"Asha\" },\n  { id: 18, title: \"Moon\", author: \"Ben\" }\n];\nconst copies = [\n  { id: 203, bookId: 17, shelf: \"B2\" },\n  { id: 204, bookId: 17, shelf: \"B3\" },\n  { id: 205, bookId: 18, shelf: \"C1\" }\n];\nconst book = books.find(item => item.id === 17);\nconst matchingCopies = copies.filter(copy => copy.bookId === 17);\nconsole.log(book.title + \" by \" + book.author);\nconsole.log(\"copies: \" + matchingCopies.length);\nconsole.log(matchingCopies.map(copy => copy.id + \" on \" + copy.shelf).join(\", \"));",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "choose-the-data",
+      "output": "Moon by Asha\ncopies: 2\n203 on B2, 204 on B3"
+    },
+    {
+      "id": "sql-and-nosql",
+      "title": "SQL and NoSQL choices",
+      "description": "Compare tables, documents, and key-value storage using library tasks. Choose by needed reads, writes, and rules instead of a label.",
+      "language": "json",
+      "code": "{\n  \"bookId\": 17,\n  \"title\": \"Moon\",\n  \"tags\": [\"space\", \"beginner\"],\n  \"reviewSummary\": {\n    \"count\": 12,\n    \"averageStars\": 4.5\n  }\n}",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "sql-and-nosql"
+    },
+    {
+      "id": "indexes-help-find-records",
+      "title": "Indexes help find records",
+      "description": "Use a book index to understand database indexes. Create a small SQLite title index and learn why faster reads can cost space and write work.",
+      "language": "sql",
+      "code": "CREATE TABLE sd_index_books (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  shelf TEXT NOT NULL\n);\nINSERT INTO sd_index_books VALUES\n  (17, 'Moon', 'B2'),\n  (18, 'Moon', 'C1'),\n  (42, 'Rivers', 'A3');\nCREATE INDEX sd_books_title_idx ON sd_index_books(title);\nSELECT id, title, shelf\nFROM sd_index_books\nWHERE title = 'Moon'\nORDER BY id;",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "indexes-help-find-records",
+      "output": "id | title | shelf\n17 | Moon | B2\n18 | Moon | C1"
+    },
+    {
+      "id": "transactions-and-safe-updates",
+      "title": "Transactions and safe updates",
+      "description": "Keep a book-copy claim and its loan record together. Use a small SQLite transaction and conditional update to prevent a second claim.",
+      "language": "sql",
+      "code": "PRAGMA foreign_keys = ON;\nCREATE TABLE sd_tx_copy (\n  id INTEGER PRIMARY KEY,\n  available INTEGER NOT NULL CHECK (available IN (0, 1))\n);\nCREATE TABLE sd_tx_loan (\n  copy_id INTEGER PRIMARY KEY REFERENCES sd_tx_copy(id),\n  borrower TEXT NOT NULL\n);\nINSERT INTO sd_tx_copy VALUES (203, 1);\n\nBEGIN IMMEDIATE;\nUPDATE sd_tx_copy SET available = 0\nWHERE id = 203 AND available = 1;\nINSERT INTO sd_tx_loan(copy_id, borrower)\nSELECT 203, 'Learner A' WHERE changes() = 1;\nCOMMIT;\n\nBEGIN IMMEDIATE;\nUPDATE sd_tx_copy SET available = 0\nWHERE id = 203 AND available = 1;\nINSERT INTO sd_tx_loan(copy_id, borrower)\nSELECT 203, 'Learner B' WHERE changes() = 1;\nCOMMIT;\n\nSELECT c.id, c.available, l.borrower\nFROM sd_tx_copy AS c\nJOIN sd_tx_loan AS l ON l.copy_id = c.id;",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "transactions-and-safe-updates",
+      "output": "id | available | borrower\n203 | 0 | Learner A"
+    },
+    {
+      "id": "scaling-up-and-out",
+      "title": "Scaling up and out",
+      "description": "Compare one bigger server with several smaller servers. Use a tiny capacity model, then check the shared parts that may still slow the service.",
+      "language": "javascript",
+      "code": "const perServer = 40;\nconst databaseLimit = 90;\nfor (const servers of [1, 2, 3]) {\n  const capacity = Math.min(servers * perServer, databaseLimit);\n  console.log(`${servers} server(s): ${capacity} searches/s`);\n}",
+      "output": "1 server(s): 40 searches/s\n2 server(s): 80 searches/s\n3 server(s): 90 searches/s",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "scaling-up-and-out"
+    },
+    {
+      "id": "load-balancers",
+      "title": "Load balancers",
+      "description": "Send requests across healthy servers with a load balancer. Trace round-robin routing and see why shared state and useful health checks matter.",
+      "language": "javascript",
+      "code": "const servers = [\n  { name: \"A\", healthy: true },\n  { name: \"B\", healthy: false },\n  { name: \"C\", healthy: true }\n];\nconst ready = servers.filter(server => server.healthy);\nfor (let request = 0; request < 4; request++) {\n  const target = ready.length ? ready[request % ready.length].name : \"unavailable\";\n  console.log(`request ${request + 1}: ${target}`);\n}",
+      "output": "request 1: A\nrequest 2: C\nrequest 3: A\nrequest 4: C",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "load-balancers"
+    },
+    {
+      "id": "caches-keep-useful-copies",
+      "title": "Caches keep useful copies",
+      "description": "Save a copy of a repeated answer in a cache. Trace a hit, a miss, and expiry, then decide which data can safely be a little old.",
+      "language": "javascript",
+      "code": "let sourceTitle = \"Moon Book\";\nlet cache = null;\nfunction readTitle(now) {\n  if (cache !== null && now < cache.expiresAt) {\n    return `hit: ${cache.value}`;\n  }\n  cache = { value: sourceTitle, expiresAt: now + 10 };\n  return `miss: ${cache.value}`;\n}\nconsole.log(readTitle(0));\nconsole.log(readTitle(5));\nsourceTitle = \"Moon and Stars\";\nconsole.log(readTitle(6));\nconsole.log(readTitle(10));",
+      "output": "miss: Moon Book\nhit: Moon Book\nhit: Moon Book\nmiss: Moon and Stars",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "caches-keep-useful-copies"
+    },
+    {
+      "id": "cdn-and-static-files",
+      "title": "CDNs and static files",
+      "description": "Use a content delivery network to bring public files closer to readers. Plan cache headers, versioned names, and safe rules for private responses.",
+      "language": "text",
+      "code": "PUBLIC COVER\nPath: /covers/moon-cover-v1.webp\nCache-Control: public, max-age=86400\nFirst request: edge miss -> origin -> edge -> reader\nLater fresh request: edge hit -> reader\n\nUPDATED COVER\nPath: /covers/moon-cover-v2.webp\nUpdate the page to use the new path.\n\nPRIVATE BORROWING HISTORY\nCache-Control: private, no-store\nNever place the response in a shared public cache.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "cdn-and-static-files"
+    },
+    {
+      "id": "copies-improve-availability",
+      "title": "Copies improve availability",
+      "description": "Use replicas to keep extra data copies, then trace a delayed update and a failed leader. Learn why replicas still need backups and safe failover.",
+      "language": "text",
+      "code": "ASYNCHRONOUS COPY TRACE\nTime 0: leader = 2; replica = 2\nTime 1: leader records checkout; leader = 1\nTime 2: leader replies \"saved\"; replica is still 2\nTime 3: replica applies update; replica = 1\n\nFAILOVER QUESTIONS\nWhich copy is up to date enough to become leader?\nWho decides, and how is the old leader stopped from writing?\nWhat data loss and recovery delay can the library accept?",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "copies-improve-availability"
+    },
+    {
+      "id": "partitioning-data",
+      "title": "Partitioning data",
+      "description": "Split records across shards using a clear key. Trace a simple remainder rule, then check hot keys, cross-shard work, and the cost of moving data.",
+      "language": "javascript",
+      "code": "const shardCount = 3;\nconst bookIds = [10, 11, 12, 13];\nfor (const id of bookIds) {\n  console.log(`book ${id}: shard ${id % shardCount}`);\n}",
+      "output": "book 10: shard 1\nbook 11: shard 2\nbook 12: shard 0\nbook 13: shard 1",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "partitioning-data"
+    },
+    {
+      "id": "consistency-describes-agreement",
+      "title": "Consistency describes agreement",
+      "description": "Compare fresh and delayed reads across copies. Use a book checkout to explain consistency promises and the choices made during a network break.",
+      "language": "text",
+      "code": "ONE BOOK COPY, TWO DESKS\nStart: A and B both show \"available\".\nA saves checkout and confirms success.\nB has not received that change yet.\n\nEventual read at B: may still show \"available\".\nStrong read after success: must show the checkout or a newer state.\n\nDURING A BROKEN LINK\nOption 1: delay or refuse work that cannot keep the strong promise.\nOption 2: let separated parts answer, allowing old/conflicting states.\nChoose a rule for each action, and plan how conflicts are resolved.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "consistency-describes-agreement"
+    },
+    {
+      "id": "queues-handle-work-later",
+      "title": "Queues handle work later",
+      "description": "Put slow jobs in a queue and let workers finish them later. Count a growing backlog, then plan acknowledgments, duplicate jobs, and failure handling.",
+      "language": "javascript",
+      "code": "let waiting = 0;\nconst arrivals = 5;\nconst workerCapacity = 3;\nfor (let round = 1; round <= 4; round++) {\n  waiting += arrivals;\n  const finished = Math.min(waiting, workerCapacity);\n  waiting -= finished;\n  console.log(`round ${round}: ${waiting} waiting`);\n}",
+      "output": "round 1: 2 waiting\nround 2: 4 waiting\nround 3: 6 waiting\nround 4: 8 waiting",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "queues-handle-work-later"
+    },
+    {
+      "id": "retries-need-safe-rules",
+      "title": "Retries need safe rules",
+      "description": "Retry a temporary failure with limits and increasing delays. Use stable request IDs so a lost reply does not repeat an important action.",
+      "language": "javascript",
+      "code": "const base = 100;\nconst cap = 1000;\nconst sampleJitter = [20, 5, 30];\nfor (let retry = 0; retry < sampleJitter.length; retry++) {\n  const delay = Math.min(cap, base * 2 ** retry + sampleJitter[retry]);\n  console.log(`retry ${retry + 1}: wait ${delay} ms`);\n}",
+      "output": "retry 1: wait 120 ms\nretry 2: wait 205 ms\nretry 3: wait 430 ms",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "retries-need-safe-rules"
+    },
+    {
+      "id": "timeouts-and-circuit-breakers",
+      "title": "Timeouts and circuit breakers",
+      "description": "Limit waiting with timeouts and pause calls to a failing service with a circuit breaker. Trace closed, open, and half-open states using a small model.",
+      "language": "javascript",
+      "code": "let state = \"closed\";\nlet failures = 0;\nfunction result(ok) {\n  if (state === \"open\") return \"blocked\";\n  if (ok) {\n    failures = 0;\n    state = \"closed\";\n  } else {\n    failures++;\n    if (state === \"half-open\" || failures >= 2) state = \"open\";\n  }\n  return state;\n}\nconsole.log(result(false));\nconsole.log(result(false));\nconsole.log(result(true));\nstate = \"half-open\"; // pretend the cooldown has passed\nconsole.log(state);\nconsole.log(result(true));",
+      "output": "closed\nopen\nblocked\nhalf-open\nclosed",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "timeouts-and-circuit-breakers"
+    },
+    {
+      "id": "rate-limits-and-backpressure",
+      "title": "Rate limits and backpressure",
+      "description": "Keep a busy service from taking too much work. Compare a request limit with a signal to slow down, then trace a small JavaScript model.",
+      "language": "javascript",
+      "code": "const requests = [0, 10, 20, 30, 60];\nconst limit = 3;\nconst windowSeconds = 60;\nlet accepted = [];\nfor (const now of requests) {\n  accepted = accepted.filter(time => now - time < windowSeconds);\n  if (accepted.length < limit) {\n    accepted.push(now);\n    console.log(now + \"s allow\");\n  } else {\n    console.log(now + \"s wait\");\n  }\n}",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "rate-limits-and-backpressure",
+      "output": "0s allow\n10s allow\n20s allow\n30s wait\n60s allow"
+    },
+    {
+      "id": "backups-and-recovery",
+      "title": "Backups and recovery",
+      "description": "Plan how to recover lost data. Tell backups from replicas, set simple recovery targets, and practise restoring a safe copy.",
+      "language": "text",
+      "code": "Practice recovery plan\nImportant facts: book copies and current loans\nBackup schedule: one backup each hour\nSeparate copy: stored away from the live database\nAllowed lost changes (RPO): at most 60 minutes\nTarget time to restore (RTO): at most 30 minutes\n\nExample drill\n12:00 - data point saved by the last good backup\n12:40 - the practice database is damaged\n12:55 - restore and checks finish\nGap since backup: 40 minutes\nTime to restore: 15 minutes\nResult: both targets met in this drill",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "backups-and-recovery"
+    },
+    {
+      "id": "observe-and-review-the-design",
+      "title": "Observe and review the design",
+      "description": "Use metrics, logs, and traces to understand a service. Check a small error-rate calculation, then review a design with clear evidence.",
+      "language": "javascript",
+      "code": "const requests = [\n  { ok: true, ms: 80 },\n  { ok: true, ms: 90 },\n  { ok: false, ms: 500 },\n  { ok: true, ms: 110 },\n  { ok: true, ms: 120 }\n];\nconst failures = requests.filter(item => !item.ok).length;\nconst successful = requests.filter(item => item.ok);\nconst totalMs = successful.reduce((sum, item) => sum + item.ms, 0);\nconsole.log(\"requests: \" + requests.length);\nconsole.log(\"failures: \" + failures);\nconsole.log(\"error percent: \" + failures / requests.length * 100);\nconsole.log(\"successful average ms: \" + totalMs / successful.length);",
+      "runnable": true,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "observe-and-review-the-design",
+      "output": "requests: 5\nfailures: 1\nerror percent: 20\nsuccessful average ms: 100"
+    },
+    {
+      "id": "security-and-privacy",
+      "title": "Security and privacy in a design",
+      "description": "Protect private facts at each boundary. Learn identity checks, permissions, safe inputs, and why a design should collect only the data it needs.",
+      "language": "text",
+      "code": "Loan-history design boundary\nPublic: book titles and shelf locations\nPrivate: which reader borrowed which copy\n\nRequest: GET /readers/me/loans\n1. Use HTTPS for the connection.\n2. The service checks the caller's identity.\n3. The service checks permission to read these loans.\n4. Read only this reader's permitted loan records.\n5. Return only fields needed by the screen.\n\nLog: request r52, action=list-loans, result=allowed\nDo not log: password, access token, full loan history\nStorage rule: keep records only as long as the policy needs",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "security-and-privacy"
+    },
+    {
+      "id": "monoliths-and-services",
+      "title": "One app or several services?",
+      "description": "Compare one application with several services. Keep clear module boundaries, then decide when a separate service is worth its extra work.",
+      "language": "text",
+      "code": "One app, clear internal jobs\nLibrary application\n  Catalog module: book titles and copies\n  Loan module: borrow and return rules\n  Reminder module: overdue reminder jobs\n\nFirst version\nOne application deployment\nOne database with clear table ownership\nOne queue for reminders\n\nPossible later split\nReminder service owns reminder jobs\nLoan module publishes LoanCreated events\nReminder service can be unavailable while borrowing still works\nEvents may repeat: the reminder service must handle duplicates",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "monoliths-and-services"
+    },
+    {
+      "id": "design-a-library",
+      "title": "Design a school library service",
+      "description": "Plan book search, borrowing, and returns for a small library. Follow one safe loan and explain what happens when two readers want the same copy.",
+      "language": "text",
+      "code": "School library: one small service and one database\nGET /books?title=moon -> matching public book details\nPOST /loans {copyId, requestId} -> saved loan or clear refusal\nPOST /loans/{loanId}/return -> returned loan or already returned\n\nBorrow one copy\n1. Check the reader and their permission to borrow.\n2. Begin a transaction and claim the unique reader/requestId.\n3. For an already saved request, check the details and return its result.\n4. For a new request, change Copy.state to on-loan only if still available.\n5. If a copy changed, add the Loan; otherwise prepare a refusal.\n6. Save that outcome for this requestId and commit together, then reply.\n7. Concurrent requests with the same ID wait or retry; do not execute twice.\n\nRule: a physical copy has at most one current loan.\nReminder failure must not undo a saved loan.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "design-a-library"
+    },
+    {
+      "id": "design-a-url-shortener",
+      "title": "Design a URL shortener",
+      "description": "Plan a service that turns a long web address into a short link. Handle code collisions, redirects, expired links, and unsafe destinations.",
+      "language": "text",
+      "code": "Short-link design\nPOST /links {destination} -> {code, shortUrl}\nGET /s/{code} -> temporary redirect or not-found reply\n\nLink record\ncode: unique short label\ndestination: checked HTTP or HTTPS web address\ncreatedAt, expiresAt, disabledAt\n\nCreate\nCheck address and creation limits.\nGenerate an unpredictable candidate code.\nInsert only if the code is unused; retry a bounded number of collisions.\n\nOpen\nLook up the code.\nCheck disabled/expired state.\nReply with HTTP 302 and the checked destination.\nUnknown, expired, or disabled code -> clear unavailable page.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "design-a-url-shortener"
+    },
+    {
+      "id": "design-a-chat-app",
+      "title": "Design a small chat app",
+      "description": "Plan saved messages and live delivery for a small chat. Handle repeated sends, missing connections, message order, and private group access.",
+      "language": "text",
+      "code": "Small group-chat design\nConversation: conversationId, name\nMember: conversationId, readerId\nMessage: messageId, conversationId, senderId, clientMessageId, sequence, text\n\nSend {conversationId, clientMessageId, text}\n1. Check the sender's identity and current membership.\n2. Save the message once for this sender/clientMessageId in the conversation.\n3. Assign its next sequence number within the conversation.\n4. Save a delivery-event record with the message, then commit.\n5. Tell the sender the message is saved.\n6. Send live updates to connected permitted members.\n\nReconnect {conversationId, afterSequence}\nCheck membership, then return saved messages after that sequence in order.\nReceivers ignore repeated messageIds.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "design-a-chat-app"
+    },
+    {
+      "id": "design-a-news-feed",
+      "title": "Design a news feed",
+      "description": "Build a small feed of recent posts. Compare making the feed when it is read with preparing it when a post is written, and protect private posts.",
+      "language": "text",
+      "code": "Small club-news feed: build on read first\nPost: postId, authorId, createdAt, text, visibility, deletedAt\nFollow: readerId, authorId\n\nPOST /posts -> save one checked post\nGET /feed?cursor=... -> up to 20 permitted recent posts\n\nRead flow\n1. Check the reader and current follow list.\n2. Find recent posts from followed authors.\n3. Remove deleted posts and posts the reader may not see.\n4. Sort newest first by createdAt, then postId to break ties.\n5. Return 20 posts and a cursor for the next page.\n\nLater option: precompute lists of post IDs for ordinary accounts.\nPopular authors may still be combined at read time.\nRecheck current permission before returning private post content.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "design-a-news-feed"
+    },
+    {
+      "id": "design-a-file-upload",
+      "title": "Design a file-upload service",
+      "description": "Plan a private file upload without sending large files through every app server. Track upload states, check the stored bytes, and clean up failed work.",
+      "language": "text",
+      "code": "Private file-upload design\nFile: fileId, ownerId, storageKey, storedVersion, size, status\nStates: waiting -> uploaded -> checking -> ready (or rejected)\n\nPOST /uploads {name, expectedSize, type}\n  Check caller and allowed size; reserve quota with the waiting record.\n  Create a new private temporary key and a short-lived upload grant.\n\nBrowser -> object storage: upload bytes to that allowed key\nPOST /uploads/{fileId}/complete\n  Verify that bytes arrived; mark checking, not ready.\n\nWorker\n  Check actual size and type; scan the uploaded version.\n  Copy approved bytes to an immutable private final key/version.\n  Mark that exact checked version ready.\n\nGET /files/{fileId}\n  Check permission and ready state.\n  Issue a short-lived download for the checked version only.",
+      "runnable": false,
+      "tags": ["system design", "beginner"],
+      "lessonSlug": "design-a-file-upload"
+    }
+  ]
+}

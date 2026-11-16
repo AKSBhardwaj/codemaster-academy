@@ -1,0 +1,126 @@
+{
+  "title": "Vitest Examples",
+  "description": "Small Vitest examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Your first Vitest check",
+      "description": "Vitest runs named tests and reports mismatched expectations. It works with JavaScript and TypeScript projects.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"counts apples\", () => { expect(3 + 2).toBe(5); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "object-equality",
+      "title": "Object equality",
+      "description": "toEqual compares the values inside an object. It is useful when a function returns a new object.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"returns a point\", () => { const point = { x: 2, y: 4 }; expect(point).toEqual({ x: 2, y: 4 }); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "object-equality"
+    },
+    {
+      "id": "partial-object-checks",
+      "title": "Partial object checks",
+      "description": "objectContaining checks selected fields when other fields are not part of the current test.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"has a title\", () => { expect({ title: \"Moon\", pages: 24 }).toEqual(expect.objectContaining({ title: \"Moon\" })); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "partial-object-checks"
+    },
+    {
+      "id": "parameterized-tests",
+      "title": "Parameterized tests",
+      "description": "test.each repeats one rule for a table of examples. This reduces repeated test code while keeping cases visible.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest.each([[1, 1], [2, 4], [3, 9]])(\"square %i\", (input, expected) => { expect(input * input).toBe(expected); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "parameterized-tests"
+    },
+    {
+      "id": "fresh-fixtures",
+      "title": "Fresh fixtures",
+      "description": "A fixture is prepared data used by a test. beforeEach can give each test a new fixture.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\nlet names;\nbeforeEach(() => { names = [\"Asha\"]; });\ntest(\"one learner\", () => { expect(names).toHaveLength(1); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "fresh-fixtures"
+    },
+    {
+      "id": "function-spies",
+      "title": "Function spies",
+      "description": "vi.fn creates a spy that records its calls. You can check the arguments as well as the count.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"notifies with score\", () => { const notify = vi.fn(); notify(7); expect(notify).toHaveBeenCalledWith(7); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "function-spies"
+    },
+    {
+      "id": "restore-a-spied-method",
+      "title": "Restore a spied method",
+      "description": "vi.spyOn watches an existing method. Restore it after the test so later code sees the normal method again.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\nafterEach(() => { vi.restoreAllMocks(); });\ntest(\"reads the total\", () => { const basket = { total: () => 4 }; vi.spyOn(basket, \"total\").mockReturnValue(9); expect(basket.total()).toBe(9); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "restore-a-spied-method"
+    },
+    {
+      "id": "async-assertions",
+      "title": "Async assertions",
+      "description": "Use await when checking a promise. The test must stay active until the check is finished.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"reads a label\", async () => { const load = async () => \"ready\"; await expect(load()).resolves.toBe(\"ready\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "async-assertions"
+    },
+    {
+      "id": "expected-rejected-work",
+      "title": "Expected rejected work",
+      "description": "A failing promise can be the correct result for invalid input. rejects tests that case explicitly.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"missing book\", async () => { await expect(Promise.reject(new Error(\"No book\"))).rejects.toThrow(\"No book\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "expected-rejected-work"
+    },
+    {
+      "id": "fake-time",
+      "title": "Fake time",
+      "description": "Vitest can replace timers with a controlled clock. This makes a timer test quick and repeatable.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"waits for reminder\", () => { vi.useFakeTimers(); try { const remind = vi.fn(); setTimeout(remind, 500); vi.advanceTimersByTime(500); expect(remind).toHaveBeenCalledTimes(1); } finally { vi.useRealTimers(); } });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "fake-time"
+    },
+    {
+      "id": "dom-tests-need-an-environment",
+      "title": "DOM tests need an environment",
+      "description": "A Node test has no real browser page. Choose a DOM test environment or browser mode when the behaviour needs page elements.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\n// Run in a Vitest DOM environment, such as jsdom.\ntest(\"button text\", () => { const button = document.createElement(\"button\"); button.textContent = \"Save\"; expect(button.textContent).toBe(\"Save\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "dom-tests-need-an-environment"
+    },
+    {
+      "id": "use-coverage-as-a-clue",
+      "title": "Use coverage as a clue",
+      "description": "Coverage reports which code was reached by tests. Reaching a line does not prove its result was checked well.",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"both signs\", () => { const positive = n => n > 0; expect(positive(2)).toBe(true); expect(positive(-1)).toBe(false); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-coverage-as-a-clue"
+    }
+  ]
+}

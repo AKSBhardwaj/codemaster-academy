@@ -1,0 +1,138 @@
+{
+  "title": "Svelte Small Examples",
+  "description": "Use these small Svelte examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Show a value",
+      "description": "A Svelte component can contain a script and page markup.",
+      "language": "svelte",
+      "code": "<script>const club=\"Reading club\";</script>\n<h1>{club}</h1>",
+      "output": "The component shows Reading club as its heading.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "use-state-that-changes",
+      "title": "Use state that changes",
+      "description": "The $state rune creates a value Svelte tracks.",
+      "language": "svelte",
+      "code": "<script>let count=$state(0);</script>\n<button onclick={()=>count++}>Books: {count}</button>",
+      "output": "Each click adds one to the visible book count.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-state-that-changes"
+    },
+    {
+      "id": "derive-a-new-value",
+      "title": "Derive a new value",
+      "description": "The $derived rune describes a value calculated from other state.",
+      "language": "svelte",
+      "code": "<script>let books=$state(2);let pages=$derived(books*10);</script>\n<button onclick={()=>books++}>Add book</button><p>{pages} pages</p>",
+      "output": "The page starts at 20 pages and increases by ten with each click.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "derive-a-new-value"
+    },
+    {
+      "id": "show-one-of-two-messages",
+      "title": "Show one of two messages",
+      "description": "An if block includes content only when its condition is true.",
+      "language": "svelte",
+      "code": "<script>let ready=$state(false);</script>\n<button onclick={()=>ready=!ready}>Change</button>\n{#if ready}<p>Ready to read</p>{:else}<p>Choose a book</p>{/if}",
+      "output": "The button switches between the two messages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-one-of-two-messages"
+    },
+    {
+      "id": "make-a-keyed-list",
+      "title": "Make a keyed list",
+      "description": "An each block repeats markup for a list.",
+      "language": "svelte",
+      "code": "<script>const books=[{id:1,title:\"Moon Trip\"},{id:2,title:\"Garden Days\"}];</script>\n<ul>{#each books as book (book.id)}<li>{book.title}</li>{/each}</ul>",
+      "output": "The two titles appear as list items with stable book ids.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-keyed-list"
+    },
+    {
+      "id": "bind-typed-text",
+      "title": "Bind typed text",
+      "description": "bind:value links an input to a state value.",
+      "language": "svelte",
+      "code": "<script>let name=$state(\"\");</script>\n<label>Name <input bind:value={name}></label><p>Hello, {name}</p>",
+      "output": "The greeting changes as the person types.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "bind-typed-text"
+    },
+    {
+      "id": "read-a-prop",
+      "title": "Read a prop",
+      "description": "A prop is a value given to a component by its parent.",
+      "language": "svelte",
+      "code": "<!-- BookCard.svelte -->\n<script>let {title=\"Untitled\"}=$props();</script><h2>{title}</h2>\n\n<!-- App.svelte, separate file -->\n<script>import BookCard from \"./BookCard.svelte\";</script><BookCard title=\"Moon Trip\" />",
+      "output": "The BookCard child shows Moon Trip. The default title is used if the parent omits it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-prop"
+    },
+    {
+      "id": "call-a-parent-callback",
+      "title": "Call a parent callback",
+      "description": "A callback prop lets a child ask its parent to react.",
+      "language": "svelte",
+      "code": "<!-- Choose.svelte -->\n<script>let {onchoose}=$props();</script><button onclick={()=>onchoose(\"Moon Trip\")}>Choose</button>\n\n<!-- App.svelte, separate file -->\n<script>import Choose from \"./Choose.svelte\";let title=$state(\"\");</script><Choose onchoose={value=>title=value}/><p>{title}</p>",
+      "output": "The child button calls the parent callback, and the parent displays the title.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "call-a-parent-callback"
+    },
+    {
+      "id": "share-a-snippet-of-content",
+      "title": "Share a snippet of content",
+      "description": "A snippet is a reusable piece of Svelte markup.",
+      "language": "svelte",
+      "code": "<!-- Note.svelte -->\n<script>let {children}=$props();</script><aside><h2>Note</h2>{@render children?.()}</aside>\n\n<!-- App.svelte, separate file -->\n<script>import Note from \"./Note.svelte\";</script><Note><p>Bring a notebook.</p></Note>",
+      "output": "The supplied paragraph appears inside the note wrapper.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "share-a-snippet-of-content"
+    },
+    {
+      "id": "run-and-clean-up-an-effect",
+      "title": "Run and clean up an effect",
+      "description": "An effect runs after Svelte updates the page and tracks reactive values it reads.",
+      "language": "svelte",
+      "code": "<script>\nlet count=$state(0);\n$effect(()=>{const timer=setInterval(()=>count++,1000);return ()=>clearInterval(timer);});\n</script><p>{count} seconds</p>",
+      "output": "The timer increments the state. Cleanup stops that timer when the component is removed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "run-and-clean-up-an-effect"
+    },
+    {
+      "id": "style-one-component",
+      "title": "Style one component",
+      "description": "Svelte scopes ordinary component styles so they mainly affect markup from that component.",
+      "language": "svelte",
+      "code": "<h2>Garden club</h2><p>Plant a seed today.</p>\n<style>h2{color:navy;}p{line-height:1.6;}</style>",
+      "output": "The component heading is navy and its paragraph has roomy line spacing.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "style-one-component"
+    },
+    {
+      "id": "add-items-with-a-form",
+      "title": "Add items with a form",
+      "description": "A form can add trimmed text to a reactive list.",
+      "language": "svelte",
+      "code": "<script>let title=$state(\"\");let books=$state([]);let next=1;function add(event){event.preventDefault();if(title.trim()){books.push({id:next++,title:title.trim()});title=\"\";}}</script>\n<form onsubmit={add}><label>Book <input bind:value={title}></label><button>Add</button></form><ul>{#each books as book (book.id)}<li>{book.title}</li>{/each}</ul>",
+      "output": "Each non-empty submitted title becomes a list item. The form clears after adding it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-items-with-a-form"
+    }
+  ]
+}

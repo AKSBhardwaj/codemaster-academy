@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set a controller response header",
+  "summary": "ASP.NET Web API: Set a controller response header. Inspect the Cache-Control header.",
+  "introduction": "A controller can set response metadata before returning a result. Open GET /note.",
+  "learningObjectives": [
+    "Set a controller response header with ASP.NET Web API",
+    "Inspect the Cache-Control header"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set a controller response header"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Set a controller response header",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"note\")] public IActionResult Note() { Response.Headers[\"Cache-Control\"] = \"no-store\"; return Ok(new { note = \"Practice\" }); }\n}\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The action sets its header before calling Ok. The body still contains only the note field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"note\":\"Practice\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the Cache-Control header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Headers must be set before the response starts."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-headers-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Set a controller response header",
+    "description": "ASP.NET Web API: Set a controller response header. Inspect the Cache-Control header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

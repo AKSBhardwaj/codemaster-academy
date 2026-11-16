@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "spawn",
+  "title": "Start a small process",
+  "summary": "Erlang: Start a small process. Send 7 * 2 instead.",
+  "introduction": "spawn starts a new process. It can send a result back to the parent process.",
+  "learningObjectives": ["Start a small process with Erlang", "Send 7 * 2 instead"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Save each example as lesson.erl. Run erlc lesson.erl, then erl -noshell -s lesson main -s init stop. The file name must match the module name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start a small process"
+    },
+    {
+      "type": "code",
+      "language": "erlang",
+      "title": "Start a small process",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Parent = self(),\n    spawn(fun() -> Parent ! {answer, 4 * 2} end),\n    receive {answer, N} -> io:format(\"~p~n\", [N]) end.\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The spawned process calculates 8 and sends it to Parent. The parent waits for that answer."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send 7 * 2 instead."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Processes have their own data; share results with messages."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "erlang-spawn-check"
+    }
+  ],
+  "exerciseIds": ["erlang-spawn-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "erlang",
+      "slug": "send-receive"
+    }
+  ],
+  "seo": {
+    "title": "Erlang: Start a small process",
+    "description": "Erlang: Start a small process. Send 7 * 2 instead. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -10,19 +10,25 @@ test.describe('discovery', () => {
     await expect(page.getByRole('link', { name: /^Python/ }).first()).toBeVisible();
   });
 
-  test('catalog lists every technology and filters by text and status', async ({ page }) => {
+  test('every catalog topic is complete and search and difficulty filters work', async ({
+    page,
+  }) => {
     await page.goto('/tutorials');
-    await expect(page.getByText(/Showing 148 of 148 technologies/)).toBeVisible();
+    await expect(page.getByText(/Showing 149 of 149 tutorials/)).toBeVisible();
+    await expect(page.locator('cma-technology-card .cma-status-badge--complete')).toHaveCount(149);
+    await expect(page.locator('cma-technology-card .cma-status-badge--planned')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'HTML', exact: true })).toBeVisible();
     await page.locator('#catalog-search').fill('cobol');
-    await expect(page.getByText(/Showing 1 of 148 technologies/)).toBeVisible();
+    await expect(page.getByText(/Showing 1 of 149 tutorials/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'COBOL', exact: true })).toBeVisible();
     await page.locator('#catalog-search').fill('');
-    await page.getByLabel('Planned').uncheck();
-    await expect(page.getByText(/Showing 1 of 148 technologies/)).toBeVisible();
-    await page.getByLabel('Complete').uncheck();
-    await expect(page.getByText('No technologies match these filters')).toBeVisible();
+    for (const level of ['Beginner', 'Intermediate', 'Advanced'])
+      await page.getByLabel(level, { exact: true }).uncheck();
+    await expect(page.getByText('No tutorials match these filters')).toBeVisible();
     await page.getByRole('button', { name: 'Reset filters' }).first().click();
-    await expect(page.getByText(/Showing 148 of 148 technologies/)).toBeVisible();
+    await expect(page.getByText(/Showing 149 of 149 tutorials/)).toBeVisible();
+    await expect(page.getByRole('link', { name: 'HTML', exact: true })).toBeVisible();
+    await expect(page.locator('cma-technology-card .cma-status-badge--planned')).toHaveCount(0);
   });
 
   test('category page lists its technologies and links to others', async ({ page }) => {

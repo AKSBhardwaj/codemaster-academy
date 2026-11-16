@@ -1,0 +1,156 @@
+{
+  "title": "Haskell Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "main is the starting action. putStrLn writes a line of text.",
+          "example": {
+            "language": "haskell",
+            "code": "main = putStrLn \"Hello, Asha!\""
+          },
+          "notes": ["Text uses double quotes; single quotes hold one character."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "values",
+          "name": "Name a value",
+          "summary": "A name can stand for a value. Haskell names do not work like boxes that are updated later.",
+          "example": {
+            "language": "haskell",
+            "code": "pencils = 3\nmain = print (pencils + 2)"
+          },
+          "notes": ["Give the name one definition in this scope."],
+          "lessonSlug": "values"
+        },
+        {
+          "slug": "functions",
+          "name": "Name a calculation",
+          "summary": "Functions take inputs written after their name. This function doubles a number.",
+          "example": {
+            "language": "haskell",
+            "code": "twice n = n * 2\nmain = print (twice 4)"
+          },
+          "notes": ["Function calls use spaces, not a required pair of call parentheses."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "types",
+          "name": "Write a type guide",
+          "summary": "A type signature describes inputs and results. Int -> Int means a whole number in and out.",
+          "example": {
+            "language": "haskell",
+            "code": "twice :: Int -> Int\ntwice n = n * 2\nmain = print (twice 4)"
+          },
+          "notes": ["The definition must agree with its type signature."],
+          "lessonSlug": "types"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "choices",
+          "name": "Choose with if",
+          "summary": "An if expression always has then and else parts because it must produce a value.",
+          "example": {
+            "language": "haskell",
+            "code": "message score = if score >= 5 then \"Pass\" else \"Try again\"\nmain = putStrLn (message 8)"
+          },
+          "notes": ["Both branches must produce the same kind of value."],
+          "lessonSlug": "choices"
+        },
+        {
+          "slug": "lists",
+          "name": "Read a short list",
+          "summary": "A list keeps values of one type in order. head reads the first item.",
+          "example": {
+            "language": "haskell",
+            "code": "main = putStrLn (head [\"cat\", \"dog\"])"
+          },
+          "notes": ["head fails on an empty list; pattern matching can handle that case."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "map",
+          "name": "Change every item",
+          "summary": "map applies a function to each list item and returns a new list.",
+          "example": {
+            "language": "haskell",
+            "code": "main = print (map (* 2) [2, 3])"
+          },
+          "notes": ["The original list is a value and is not changed in place."],
+          "lessonSlug": "map"
+        },
+        {
+          "slug": "filter",
+          "name": "Keep matching items",
+          "summary": "filter keeps items that pass a true-or-false test.",
+          "example": {
+            "language": "haskell",
+            "code": "main = print (filter (>= 7) [4, 8, 9])"
+          },
+          "notes": ["The test must return Bool, not a number."],
+          "lessonSlug": "filter"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "patterns",
+          "name": "Handle list shapes",
+          "summary": "Pattern matching selects steps based on a value shape. [] is an empty list; x:_ has a first item.",
+          "example": {
+            "language": "haskell",
+            "code": "firstOrZero [] = 0\nfirstOrZero (x:_) = x\nmain = print (firstOrZero [8, 9])"
+          },
+          "notes": ["Cover the empty-list case before assuming an item exists."],
+          "lessonSlug": "patterns"
+        },
+        {
+          "slug": "recursion",
+          "name": "Repeat with a smaller job",
+          "summary": "A recursive function calls itself. This one stops at zero, then adds numbers on the way back.",
+          "example": {
+            "language": "haskell",
+            "code": "sumTo n\n  | n <= 0 = 0\n  | otherwise = n + sumTo (n - 1)\nmain = print (sumTo 3)"
+          },
+          "notes": ["A recursive function needs a case that stops."],
+          "lessonSlug": "recursion"
+        },
+        {
+          "slug": "maybe",
+          "name": "Show that a value may be absent",
+          "summary": "Maybe holds Nothing or Just a value. Pattern matching handles both safely.",
+          "example": {
+            "language": "haskell",
+            "code": "showScore Nothing = \"No score\"\nshowScore (Just n) = show n\nmain = putStrLn (showScore (Just 8))"
+          },
+          "notes": ["Handle both Nothing and Just cases."],
+          "lessonSlug": "maybe"
+        },
+        {
+          "slug": "comprehensions",
+          "name": "Build a list from a rule",
+          "summary": "A list comprehension chooses inputs, filters them and builds new results.",
+          "example": {
+            "language": "haskell",
+            "code": "main = print [n * 2 | n <- [1..4], n > 2]"
+          },
+          "notes": ["Read the input and filter before working out the result."],
+          "lessonSlug": "comprehensions"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "id": "javascript-quiz",
+  "title": "JavaScript Quiz",
+  "description": "Fourteen questions covering the whole JavaScript tutorial: variables and types, operators and control flow, functions, arrays and objects, modern syntax, the DOM and events, asynchronous code and modules.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "js-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which of these tasks is JavaScript's job rather than HTML's or CSS's?",
+      "explanation": "HTML marks up structure and CSS controls appearance. Reacting to a click requires logic, which only JavaScript provides.",
+      "options": [
+        "Marking a line of text as a heading",
+        "Setting the heading's colour",
+        "Showing a message when a button is clicked",
+        "Declaring the page's character encoding"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "js-q-02",
+      "type": "true-false",
+      "lessonSlug": "variables",
+      "difficulty": "beginner",
+      "question": "Declaring an array with `const` makes it impossible to add or remove elements.",
+      "explanation": "const prevents reassigning the variable, not modifying the value it holds. push, pop and index assignment all work on a const array; only `list = somethingElse` is an error.",
+      "correct": false
+    },
+    {
+      "id": "js-q-03",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "beginner",
+      "question": "What does this script print, one value per line?",
+      "explanation": "Arrays are objects, so typeof [] is \"object\". \"5\" in quotes is a string. typeof null is \"object\" because of a historical bug that was never fixed.",
+      "language": "javascript",
+      "code": "console.log(typeof []);\nconsole.log(typeof \"5\");\nconsole.log(typeof null);",
+      "options": [
+        "object, string, object",
+        "array, string, null",
+        "object, number, object",
+        "array, string, object"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-q-04",
+      "type": "fill-blank",
+      "lessonSlug": "operators",
+      "difficulty": "beginner",
+      "question": "The expression `10 ___ 3` evaluates to `1`, the remainder of dividing 10 by 3.",
+      "explanation": "The remainder operator % gives what is left after whole-number division: `10 = 3 * 3 + 1`. It is the usual way to test for even numbers (`n % 2 === 0`).",
+      "answers": ["%"],
+      "caseSensitive": false
+    },
+    {
+      "id": "js-q-05",
+      "type": "multiple-choice",
+      "lessonSlug": "conditionals",
+      "difficulty": "beginner",
+      "question": "Given `const items = [];`, which condition correctly detects that the array is empty?",
+      "explanation": "An empty array is an object and therefore truthy, so `if (items)` and `!items` do not work. Check the length instead.",
+      "options": [
+        "`if (!items)`",
+        "`if (items.length === 0)`",
+        "`if (items === false)`",
+        "`if (items == null)`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "js-q-06",
+      "type": "predict-output",
+      "lessonSlug": "loops",
+      "difficulty": "intermediate",
+      "question": "What does this loop print?",
+      "explanation": "1 and 2 are appended, 3 is skipped by continue, 4 is appended, and 5 is greater than 4 so break ends the loop before 5 and 6 are reached. The result is \"124\".",
+      "language": "javascript",
+      "code": "let out = \"\";\nfor (let i = 1; i <= 6; i++) {\n  if (i % 3 === 0) continue;\n  if (i > 4) break;\n  out += i;\n}\nconsole.log(out);",
+      "options": ["124", "1245", "12456", "12"],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-q-07",
+      "type": "multiple-choice",
+      "lessonSlug": "functions",
+      "difficulty": "intermediate",
+      "question": "What is a closure?",
+      "explanation": "A closure is a function bundled with the variables of the scope in which it was created. The function keeps access to those variables even after the outer function has returned.",
+      "options": [
+        "A function that takes no parameters",
+        "A function together with the variables from the scope where it was created",
+        "A function that returns undefined",
+        "A function that can only be called once"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "js-q-08",
+      "type": "predict-output",
+      "lessonSlug": "arrays",
+      "difficulty": "intermediate",
+      "question": "What does this script print?",
+      "explanation": "map doubles every element to [2, 4, 6]; filter keeps those greater than 2, leaving [4, 6]; join with a comma produces \"4,6\".",
+      "language": "javascript",
+      "code": "console.log([1, 2, 3].map((n) => n * 2).filter((n) => n > 2).join(\",\"));",
+      "options": ["4,6", "2,4,6", "6", "4, 6"],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-q-09",
+      "type": "find-error",
+      "lessonSlug": "objects",
+      "difficulty": "beginner",
+      "question": "This script prints `undefined` instead of the email address. Why?",
+      "explanation": "Dot notation uses the literal name after the dot, so user.field looks for a property called field. When the property name is stored in a variable, use bracket notation: user[field].",
+      "language": "javascript",
+      "code": "const user = { name: \"Ada\", email: \"ada@example.com\" };\nconst field = \"email\";\nconsole.log(user.field);",
+      "options": [
+        "Objects cannot store email addresses",
+        "`user.field` looks for a property named `field`; it should be `user[field]`",
+        "The property names must be quoted in the literal",
+        "`console.log` cannot print object properties"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "js-q-10",
+      "type": "multiple-choice",
+      "lessonSlug": "events",
+      "difficulty": "intermediate",
+      "question": "A click listener is attached to a `<ul>`. Which property of the event tells you which element inside the list was actually clicked?",
+      "explanation": "event.target is the element where the event originated, for example the clicked li. event.currentTarget is the element the listener is attached to, the ul.",
+      "options": ["`event.currentTarget`", "`event.target`", "`event.type`", "`event.source`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "js-q-11",
+      "type": "multiple-choice",
+      "lessonSlug": "es6-features",
+      "difficulty": "beginner",
+      "question": "What does `const copy = [...items];` do?",
+      "explanation": "Spread expands the elements of items into a new array literal, producing a shallow copy. The two arrays can then be modified independently, although nested objects are still shared.",
+      "options": [
+        "Creates a new array with the same elements (a shallow copy)",
+        "Creates a second reference to the same array",
+        "Sorts the array in place",
+        "Removes duplicate elements"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-q-12",
+      "type": "find-error",
+      "lessonSlug": "dom",
+      "difficulty": "intermediate",
+      "question": "The heading never changes and the console shows a TypeError. What is wrong?",
+      "explanation": "The script runs while the browser is still in the head, before the h1 exists, so querySelector returns null. Load the script with defer, move it to the end of the body, or run the code in a DOMContentLoaded listener.",
+      "language": "html",
+      "code": "<head>\n  <script>\n    document.querySelector(\"h1\").textContent = \"Welcome\";\n  </script>\n</head>\n<body>\n  <h1>Hello</h1>\n</body>",
+      "options": [
+        "`querySelector` needs a `#` before `h1`",
+        "The script runs before the body is parsed; use `defer`, move it to the end of the body or wait for `DOMContentLoaded`",
+        "`textContent` is read-only",
+        "`h1` elements cannot be selected"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "js-q-13",
+      "type": "predict-output",
+      "lessonSlug": "async",
+      "difficulty": "intermediate",
+      "question": "In which order are the numbers printed?",
+      "explanation": "An async function runs synchronously until its first await, so \"1\" is printed, then control returns to the caller and \"2\" is printed. The code after await resumes as a microtask once the script has finished, printing \"3\".",
+      "language": "javascript",
+      "code": "async function run() {\n  console.log(\"1\");\n  await null;\n  console.log(\"3\");\n}\n\nrun();\nconsole.log(\"2\");",
+      "options": ["1, 2, 3", "1, 3, 2", "2, 1, 3", "3, 1, 2"],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-q-14",
+      "type": "multiple-choice",
+      "lessonSlug": "modules-classes",
+      "difficulty": "beginner",
+      "question": "A module exports `export default class Cart {}`. Which line imports it?",
+      "explanation": "A default export is imported without braces, under any local name. Braces are for named exports, and the file extension is required in the browser.",
+      "options": [
+        "`import { Cart } from \"./cart.js\";`",
+        "`import Cart from \"./cart.js\";`",
+        "`import default Cart from \"./cart.js\";`",
+        "`require(\"./cart.js\");`"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "clean-up-a-scene",
+  "title": "Clean up a scene",
+  "summary": "GPU resources need explicit cleanup when a scene is no longer used.",
+  "introduction": "GPU resources need explicit cleanup when a scene is no longer used. Your task: List the resources this cleanup owns.",
+  "learningObjectives": [
+    "List the resources this cleanup owns.",
+    "Explain the example for clean up a scene"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "GPU resources need explicit cleanup when a scene is no longer used. Stop its animation and dispose of geometry, materials and renderer resources."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a browser project with the three package installed and a module build tool. Each example creates its own canvas. Run one at a time. These library imports are not supported by this site's plain runner."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nrenderer.render(scene,camera);\n// Call this when this scene is removed:\nfunction disposeScene(){renderer.setAnimationLoop(null);geometry.dispose();material.dispose();renderer.dispose();renderer.domElement.remove();}\n// disposeScene();",
+      "title": "Clean up a scene",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`setAnimationLoop` repeats rendering through the renderer's animation system. Pass null when the scene should stop.",
+        "`dispose` releases owned graphics resources. Call it only when no remaining scene part needs those resources.",
+        "A perspective camera needs a field of view, aspect ratio, near distance and far distance to describe its view."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Calling disposeScene removes this example's canvas and releases its owned resources."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Only dispose resources when no remaining object uses them. Shared materials may belong to more than one mesh."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "List the resources this cleanup owns."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "threejs-clean-up-a-scene-check"
+    }
+  ],
+  "exerciseIds": ["threejs-clean-up-a-scene-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "threejs",
+      "slug": "resize-the-camera-view"
+    }
+  ],
+  "seo": {
+    "title": "Three.js: Clean up a scene",
+    "description": "GPU resources need explicit cleanup when a scene is no longer used. Stop its animation and dispose of geometry, materials and renderer resources."
+  },
+  "updatedOn": "2026-11-16"
+}

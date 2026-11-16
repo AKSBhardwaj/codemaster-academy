@@ -1,0 +1,156 @@
+{
+  "title": "Objective-C Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "printf is a C printing function. This Objective-C file can still use ordinary C code.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nprintf(\"Hello, Asha!\\n\");\n }\n return 0;\n}\n"
+          },
+          "notes": ["Use a .m file so the compiler reads Objective-C."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "numbers",
+          "name": "Keep a whole number",
+          "summary": "An int stores a whole number. %d tells printf where to place it.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nint pencils = 3;\nprintf(\"%d\\n\", pencils + 2);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Match the print format to the number type."],
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "strings",
+          "name": "Use an NSString",
+          "summary": "NSString is an object holding text. The @ before the quotes makes an Objective-C string object.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSString *name = @\"Asha\";\nprintf(\"%s\\n\", [name UTF8String]);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Plain \"Asha\" is C text, not an NSString object."],
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "messages",
+          "name": "Send a message to an object",
+          "summary": "Square brackets send a message. length asks a string for its length in UTF-16 units.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSString *word = @\"cat\";\nprintf(\"%lu\\n\", (unsigned long)[word length]);\n }\n return 0;\n}\n"
+          },
+          "notes": ["String length is not always the number of visible symbols."],
+          "lessonSlug": "messages"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "formatting",
+          "name": "Build a string with a value",
+          "summary": "stringWithFormat makes text with inserted values. %@ inserts an object description.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSString *name = @\"Ravi\";\nNSString *message = [NSString stringWithFormat:@\"Hi, %@!\", name];\nprintf(\"%s\\n\", message.UTF8String);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Use %@ for Objective-C objects, not %s."],
+          "lessonSlug": "formatting"
+        },
+        {
+          "slug": "arrays",
+          "name": "Read an array item",
+          "summary": "NSArray stores object values in order. The first index is zero.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSArray<NSString *> *pets = @[@\"cat\", @\"dog\"];\nprintf(\"%s\\n\", pets[1].UTF8String);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Reading beyond the array count raises an exception."],
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "dictionaries",
+          "name": "Find a value by key",
+          "summary": "NSDictionary connects keys to values. A text key can describe the data.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSDictionary *book = @{@\"title\": @\"Moon Trip\", @\"pages\": @24};\nprintf(\"%s\\n\", [book[@\"title\"] UTF8String]);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Numbers in object collections need boxing such as @24."],
+          "lessonSlug": "dictionaries"
+        },
+        {
+          "slug": "choices",
+          "name": "Choose a message",
+          "summary": "Objective-C keeps C if statements. The comparison produces a true-or-false result.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nint score = 8;\nif (score >= 5) printf(\"Pass\\n\"); else printf(\"Try again\\n\");\n }\n return 0;\n}\n"
+          },
+          "notes": ["Use == for a numeric equality test, not assignment =."],
+          "lessonSlug": "choices"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "loops",
+          "name": "Visit each object",
+          "summary": "Fast enumeration visits each object in a collection using for-in.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nfor (NSString *pet in @[@\"cat\", @\"dog\"]) { printf(\"%s\\n\", pet.UTF8String); }\n }\n return 0;\n}\n"
+          },
+          "notes": ["Do not change the collection while enumerating it."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "mutable-arrays",
+          "name": "Add an object",
+          "summary": "NSMutableArray allows changes such as adding an object.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSMutableArray *scores = [NSMutableArray arrayWithArray:@[@4, @5]];\n[scores addObject:@8];\nprintf(\"%lu\\n\", (unsigned long)scores.count);\n }\n return 0;\n}\n"
+          },
+          "notes": ["NSArray is read-only; use a mutable collection for changes."],
+          "lessonSlug": "mutable-arrays"
+        },
+        {
+          "slug": "nil",
+          "name": "Recognise no object",
+          "summary": "nil means no object. Checking it can select a fallback message.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSString *name = nil;\nprintf(\"%s\\n\", name == nil ? \"Guest\" : name.UTF8String);\n }\n return 0;\n}\n"
+          },
+          "notes": ["Do not add nil to an NSArray; it expects an object."],
+          "lessonSlug": "nil"
+        },
+        {
+          "slug": "string-equality",
+          "name": "Compare the text itself",
+          "summary": "isEqualToString compares string contents. Pointer equality asks whether two references point to one object.",
+          "example": {
+            "language": "objective-c",
+            "code": "#import <Foundation/Foundation.h>\n#include <stdio.h>\nint main(void) {\n @autoreleasepool {\nNSString *a = @\"cat\";\nNSString *b = [@\"c\" stringByAppendingString:@\"at\"];\nprintf(\"%s\\n\", [a isEqualToString:b] ? \"Same text\" : \"Different\");\n }\n return 0;\n}\n"
+          },
+          "notes": ["Use text equality when you care about the letters, not object identity."],
+          "lessonSlug": "string-equality"
+        }
+      ]
+    }
+  ]
+}

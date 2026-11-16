@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "exceptions",
+  "title": "Exceptions",
+  "summary": "Catch and handle runtime errors with try, catch and finally, filter with when, throw built-in and custom exceptions, and recognise the exceptions .NET throws for common mistakes.",
+  "introduction": "Things go wrong at runtime: a file is missing, a user types letters where a number belongs, a network call times out. C# reports such problems with exceptions, objects that carry what happened and where, and that unwind the call stack until some code catches them. Used well, exceptions keep error handling out of the main logic and make failures impossible to ignore. This lesson shows how to catch specific exceptions, run clean-up code with finally, throw and define your own exceptions, and avoid the handling mistakes that hide bugs.",
+  "learningObjectives": [
+    "Catch specific exception types with try, catch and finally",
+    "Throw built-in and custom exceptions with useful messages",
+    "Recognise the common exceptions .NET throws and decide when to catch them"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens when an exception is thrown"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the runtime hits a problem it cannot continue from, it creates an exception object and **throws** it. Execution stops at that point and the runtime walks back up the call stack looking for a matching `catch`. If none is found, the program ends and prints the exception with a stack trace. The program below shows that default behaviour."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int[] numbers = [1, 2, 3];\nConsole.WriteLine(numbers[5]);\nConsole.WriteLine(\"This line never runs.\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (the path depends on your machine)",
+      "content": "Unhandled exception. System.IndexOutOfRangeException: Index was outside the bounds of the array.\n   at Program.<Main>$(String[] args) in C:\\dev\\Demo\\Program.cs:line 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first line names the exception type and its **message**; the lines starting with `at` are the **stack trace**, listing the method, file and line where it happened. With top-level statements the compiler-generated method is called `<Main>$`. Read traces from the top: the first `at` line is where the exception was thrown."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "try, catch and finally"
+    },
+    {
+      "type": "paragraph",
+      "text": "Wrap code that may fail in `try` and handle the failure in a `catch` that names the exception type. Catch the most specific type you can handle; a `catch (Exception)` at the end catches everything else. `finally` runs whether or not an exception occurred, which makes it the place for clean-up such as closing a file. A `when` clause filters a catch on any condition."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string[] inputs = [\"42\", \"abc\", \"\"];\n\nforeach (string input in inputs)\n{\n    try\n    {\n        int value = int.Parse(input);\n        Console.WriteLine($\"Parsed {value}\");\n    }\n    catch (FormatException) when (input.Length == 0)\n    {\n        Console.WriteLine(\"Empty input\");\n    }\n    catch (FormatException ex)\n    {\n        Console.WriteLine($\"Not a number: {ex.Message}\");\n    }\n    finally\n    {\n        Console.WriteLine(\"Finished one input\");\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Parsed 42\nFinished one input\nNot a number: The input string 'abc' was not in a correct format.\nFinished one input\nEmpty input\nFinished one input"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only the first matching `catch` runs, so order them from specific to general. `ex` gives access to the exception object: `Message` for people, `StackTrace` for developers, `InnerException` when one exception wraps another. If a `try` has no matching catch, the exception keeps travelling up to the caller after `finally` has run."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Throwing exceptions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Your own code should throw when it receives something it cannot work with. .NET supplies exception types for the usual cases: `ArgumentException`, `ArgumentNullException` and `ArgumentOutOfRangeException` for bad parameters, `InvalidOperationException` for calls at the wrong time, `NotSupportedException` and `NotImplementedException`. The static `ThrowIf...` helpers validate an argument in one line and record the parameter name for you. Define a **custom exception** by deriving from `Exception` when callers need to catch your specific case or read extra data."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "try\n{\n    Transfer(500m, balance: 100m);\n}\ncatch (InsufficientFundsException ex)\n{\n    Console.WriteLine($\"{ex.Message} (short by {ex.Shortfall})\");\n}\n\ntry\n{\n    Transfer(-5m, balance: 100m);\n}\ncatch (ArgumentOutOfRangeException ex)\n{\n    Console.WriteLine($\"Bad argument: {ex.ParamName}\");\n}\n\nTransfer(80m, balance: 100m);\n\nvoid Transfer(decimal amount, decimal balance)\n{\n    ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount);\n    if (amount > balance)\n    {\n        throw new InsufficientFundsException(amount - balance);\n    }\n    Console.WriteLine($\"Transferred {amount}\");\n}\n\nclass InsufficientFundsException(decimal shortfall)\n    : Exception($\"Insufficient funds: {shortfall} more needed\")\n{\n    public decimal Shortfall { get; } = shortfall;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Insufficient funds: 400 more needed (short by 400)\nBad argument: amount\nTransferred 80"
+    },
+    {
+      "type": "paragraph",
+      "text": "The custom exception uses a primary constructor and passes its message to the `Exception` base constructor. Custom exception names end in `Exception` by convention, and they should carry the data a handler needs, here the `Shortfall`, as properties rather than only in the message text."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Rethrowing and wrapping"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sometimes a `catch` only wants to log and let the exception continue. Use a bare `throw;` for that: it preserves the original stack trace. Writing `throw ex;` restarts the trace at the current line and hides where the problem really happened. To add context, wrap the original in a new exception and pass it as the inner exception, as `LoadConfig` does below."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "try\n{\n    LoadConfig(\"settings.json\");\n}\ncatch (Exception ex)\n{\n    Console.WriteLine(ex.Message);\n    Console.WriteLine($\"Caused by: {ex.InnerException?.GetType().Name}\");\n}\n\nvoid LoadConfig(string path)\n{\n    try\n    {\n        File.ReadAllText(path);\n    }\n    catch (FileNotFoundException ex)\n    {\n        throw new InvalidOperationException($\"Configuration file '{path}' is missing.\", ex);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output when settings.json does not exist",
+      "content": "Configuration file 'settings.json' is missing.\nCaused by: FileNotFoundException"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Common exceptions"
+    },
+    {
+      "type": "table",
+      "headers": ["Exception", "Typical cause"],
+      "rows": [
+        [
+          "`NullReferenceException`",
+          "Calling a member on a `null` reference; fix the code, do not catch it"
+        ],
+        ["`IndexOutOfRangeException`", "Array index below 0 or at or past `Length`"],
+        [
+          "`ArgumentOutOfRangeException`",
+          "Index into a `List<T>` or string out of range, or a rejected argument"
+        ],
+        ["`KeyNotFoundException`", "Reading a missing dictionary key with `[]`"],
+        ["`FormatException`", "`int.Parse` on text that is not a number"],
+        ["`InvalidCastException`", "A cast such as `(string)obj` to the wrong type"],
+        [
+          "`DivideByZeroException`",
+          "Integer division by zero (floating point gives Infinity instead)"
+        ],
+        ["`IOException`, `FileNotFoundException`", "A file is missing, locked or unreadable"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The first rows describe **bugs**: the fix is to correct the code, not to catch the exception. The last rows describe conditions outside your control, which are the ones worth catching, reporting and recovering from, for example by retrying or asking the user again."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Empty catch blocks hide bugs",
+      "text": "`catch (Exception) { }` makes a failure disappear: the program carries on with wrong data and the real cause surfaces far away, if at all. Catch only what you can handle, keep the `catch` as specific as possible, and at the very least log the exception. Do not use exceptions for normal control flow either: prefer `TryParse` to catching `FormatException`, because throwing is slow and the Try methods say what you mean."
+    },
+    {
+      "type": "callout",
+      "icon": "bug",
+      "title": "Let the debugger stop on throw",
+      "text": "Visual Studio, VS Code and Rider can break the moment an exception is thrown, before any catch runs, which shows you the exact state that caused it. Look for the exception settings or the \"All Exceptions\" breakpoint in the debugger."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-exceptions-finally-order"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-exceptions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "exceptions",
+          "difficulty": "intermediate",
+          "question": "Which statement inside a catch block rethrows the exception without losing the original stack trace?",
+          "explanation": "A bare `throw;` rethrows the current exception as it is. `throw ex;` resets the stack trace to the current line, which hides the real origin.",
+          "options": ["`throw ex;`", "`throw;`", "`return ex;`", "`throw new Exception(ex);`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-exceptions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "exceptions",
+          "difficulty": "beginner",
+          "question": "A finally block runs only when no exception was thrown.",
+          "explanation": "`finally` runs in every case: after normal completion, after a handled exception, and before an unhandled exception continues up the stack.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-exceptions-finally-order"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "files-json"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "testing-xunit"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "errors-exceptions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "errors-debugging"
+    }
+  ],
+  "seo": {
+    "title": "C# Exceptions – try, catch, finally, throw, when",
+    "description": "Learn C# exception handling: try, catch, finally and when filters, throwing built-in and custom exceptions, rethrowing without losing the stack trace."
+  },
+  "updatedOn": "2026-11-15"
+}

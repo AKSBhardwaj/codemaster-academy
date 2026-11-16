@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers-multifile",
+  "title": "Headers and Multi-file Programs",
+  "summary": "Split a program into source files and headers, protect headers with include guards, control visibility with static and extern, and automate the build with a Makefile.",
+  "introduction": "Every real C program is more than one file. Each `.c` file is compiled separately into an object file and the linker joins them; headers are how one file learns the names that another defines. Done right, this gives fast incremental builds and clean module boundaries. Done wrong, it gives duplicate-definition errors and headers that break when included twice. This lesson builds a small two-module program, explains declarations versus definitions, shows include guards, `static` and `extern`, and ends with a Makefile that rebuilds only what changed.",
+  "learningObjectives": [
+    "Explain translation units and why a prototype must be visible in every file that calls a function",
+    "Write a header with an include guard and a matching source file",
+    "Use static and extern to control which names are shared between files",
+    "Write a minimal Makefile for a multi-file program"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declarations, definitions and translation units"
+    },
+    {
+      "type": "paragraph",
+      "text": "The compiler processes one **translation unit** at a time: a `.c` file plus everything its `#include` lines paste in. It never looks at other `.c` files, so to call a function defined elsewhere it needs a **declaration**, a prototype, in the current unit. A **definition** is the function body or the variable itself, and the *one definition rule* says each must exist exactly once across the whole program. Headers therefore hold declarations and are included wherever they are needed; definitions stay in `.c` files."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A header and its source file"
+    },
+    {
+      "type": "paragraph",
+      "text": "The module below computes simple statistics. `stats.h` declares what the module offers; `stats.c` implements it; `main.c` uses it. `#include \"stats.h\"` with quotes searches the directory of the including file before the system directories, which `<...>` searches alone. Including the header in `stats.c` as well lets the compiler check that the definitions match their declarations."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "stats.h",
+      "code": "#ifndef STATS_H\n#define STATS_H\n\n#include <stddef.h>\n\ndouble mean(const double *values, size_t n);\ndouble maximum(const double *values, size_t n);\n\n#endif /* STATS_H */"
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "stats.c",
+      "code": "#include \"stats.h\"\n\ndouble mean(const double *values, size_t n)\n{\n    double total = 0.0;\n    for (size_t i = 0; i < n; i++) {\n        total += values[i];\n    }\n    return n > 0 ? total / n : 0.0;\n}\n\ndouble maximum(const double *values, size_t n)\n{\n    double best = values[0];\n    for (size_t i = 1; i < n; i++) {\n        if (values[i] > best) best = values[i];\n    }\n    return best;\n}"
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "main.c",
+      "code": "#include <stdio.h>\n#include \"stats.h\"\n\nint main(void)\n{\n    double temps[] = {21.5, 19.0, 24.5, 22.0};\n    size_t n = sizeof temps / sizeof temps[0];\n\n    printf(\"mean = %.2f\\n\", mean(temps, n));\n    printf(\"max  = %.1f\\n\", maximum(temps, n));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 -c stats.c\n$ gcc -Wall -Wextra -std=c17 -c main.c\n$ gcc stats.o main.o -o stats\n$ ./stats\nmean = 21.75\nmax  = 24.5"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each `-c` command produces one object file, and the final command links them. If you edit only `main.c`, only `main.o` needs rebuilding, which is what makes large projects compile in seconds. The shortcut `gcc stats.c main.c -o stats` does all three steps at once and is fine for small programs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Include guards"
+    },
+    {
+      "type": "paragraph",
+      "text": "A header can be included more than once in a translation unit, directly or through another header. Declaring a function twice is harmless, but defining a struct or a typedef twice is an error. The **include guard** (`#ifndef NAME`, `#define NAME`, `#endif`) makes the preprocessor skip the body the second time. `#pragma once` does the same in every modern compiler and is shorter, but it is not part of the standard; guards work everywhere. Here is what the error looks like without a guard:"
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "shape.h (no guard) and main.c",
+      "code": "/* shape.h */\nstruct shape { double w, h; };\n\n/* main.c */\n#include \"shape.h\"\n#include \"shape.h\"   /* a second copy, perhaps via another header */\n\nint main(void) { return 0; }"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (trimmed)",
+      "content": "$ gcc -Wall -Wextra -std=c17 main.c -o main\nIn file included from main.c:3:\nshape.h:2:8: error: redefinition of 'struct shape'\n    2 | struct shape { double w, h; };\n      |        ^~~~~"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "static and extern"
+    },
+    {
+      "type": "paragraph",
+      "text": "By default every function and file-scope variable has **external linkage**: the linker can see its name, so other files may use it. Prefixing it with `static` gives it **internal linkage**: private to its file, and free to reuse the name elsewhere. A global variable shared between files is *defined* once in a `.c` file and *declared* in the header with `extern`, which says \"this exists somewhere else\". Shared globals make programs hard to reason about, so prefer passing values to functions and keep the few you need well named."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "counter.h and counter.c",
+      "code": "/* counter.h */\n#ifndef COUNTER_H\n#define COUNTER_H\nextern int total_calls;      /* declaration: defined in counter.c */\nvoid record_call(void);\n#endif\n\n/* counter.c */\n#include <stdio.h>\n#include \"counter.h\"\n\nint total_calls = 0;         /* the one definition */\n\nstatic void log_call(void)   /* private to this file */\n{\n    printf(\"call %d\\n\", total_calls);\n}\n\nvoid record_call(void)\n{\n    total_calls++;\n    log_call();\n}"
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "main.c",
+      "code": "#include <stdio.h>\n#include \"counter.h\"\n\nint main(void)\n{\n    record_call();\n    record_call();\n    printf(\"total: %d\\n\", total_calls);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 counter.c main.c -o calls\n$ ./calls\ncall 1\ncall 2\ntotal: 2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Automating the build with make"
+    },
+    {
+      "type": "paragraph",
+      "text": "Typing three compiler commands after every edit does not scale. `make` reads a `Makefile` of rules in the form `target: prerequisites` followed by a recipe line that **must start with a tab**, and rebuilds a target only when a prerequisite is newer than it. Listing `stats.h` as a prerequisite ensures that editing the header recompiles every file that includes it."
+    },
+    {
+      "type": "code",
+      "language": "makefile",
+      "title": "Makefile",
+      "code": "CC = gcc\nCFLAGS = -Wall -Wextra -std=c17 -g\n\nstats: main.o stats.o\n\t$(CC) $(CFLAGS) main.o stats.o -o stats\n\nmain.o: main.c stats.h\n\t$(CC) $(CFLAGS) -c main.c\n\nstats.o: stats.c stats.h\n\t$(CC) $(CFLAGS) -c stats.c\n\nclean:\n\trm -f stats main.o stats.o"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ make\ngcc -Wall -Wextra -std=c17 -g -c main.c\ngcc -Wall -Wextra -std=c17 -g -c stats.c\ngcc -Wall -Wextra -std=c17 -g main.o stats.o -o stats\n$ make\nmake: 'stats' is up to date."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: defining things in a header",
+      "text": "A header that *defines* a variable (`int total_calls = 0;`) or contains a function body is pasted into every file that includes it, and the linker stops with `multiple definition of 'total_calls'`. Headers declare: prototypes, `extern` variables, struct and typedef definitions, macros. Definitions belong in exactly one `.c` file. The one exception is a small `static inline` function, which each file is allowed to have its own private copy of."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Add a `minimum` function to the stats module: declare it in `stats.h`, define it in `stats.c`, call it from `main.c`, then run `make` and watch which files are recompiled. Then touch only `main.c` and run `make` again."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-headers-include-guard"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-headers-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "headers-multifile",
+          "difficulty": "beginner",
+          "question": "What is the difference between `#include <stats.h>` and `#include \"stats.h\"`?",
+          "explanation": "The quoted form searches the directory of the including file first and then falls back to the system directories; angle brackets search only the system directories. Use quotes for your own headers.",
+          "options": [
+            "There is none; they are interchangeable",
+            "Quotes search the including file's directory first, then the system directories",
+            "Angle brackets are for C headers and quotes for C++ headers",
+            "Quotes include the file twice"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "c-headers-qc-2",
+          "type": "true-false",
+          "lessonSlug": "headers-multifile",
+          "difficulty": "intermediate",
+          "question": "A function defined as `static` in one `.c` file can be called from another `.c` file as long as it is declared in a header.",
+          "explanation": "`static` gives the function internal linkage: its name is invisible to the linker outside its own file. A declaration elsewhere produces an undefined reference at link time.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-headers-include-guard"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "setup-compiler"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "common-bugs"
+    }
+  ],
+  "seo": {
+    "title": "C Headers and Multi-file Programs – Guards, make",
+    "description": "Split a C program into headers and source files: declarations versus definitions, include guards, static and extern, separate compilation and a Makefile."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,156 @@
+{
+  "title": "PowerShell Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "Write-Output sends a value to the output stream. Here it appears in the terminal.",
+          "example": {
+            "language": "powershell",
+            "code": "Write-Output \"Hello, Asha!\""
+          },
+          "notes": ["Write-Output sends data; Write-Host is mainly for host display."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "variables",
+          "name": "Keep a named value",
+          "summary": "PowerShell variable names start with a dollar sign.",
+          "example": {
+            "language": "powershell",
+            "code": "$pencils = 3\nWrite-Output ($pencils + 2)"
+          },
+          "notes": ["Use parentheses when passing a calculation as one argument."],
+          "lessonSlug": "variables"
+        },
+        {
+          "slug": "strings",
+          "name": "Build a message",
+          "summary": "Double-quoted strings expand variables inside the text.",
+          "example": {
+            "language": "powershell",
+            "code": "$name = \"Ravi\"\nWrite-Output \"Hi, $name!\""
+          },
+          "notes": ["Single quotes keep the dollar text literal."],
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "choices",
+          "name": "Choose an action",
+          "summary": "-ge compares numbers using greater-than-or-equal. if chooses a block.",
+          "example": {
+            "language": "powershell",
+            "code": "$score = 8\nif ($score -ge 5) { \"Pass\" } else { \"Try again\" }"
+          },
+          "notes": ["PowerShell comparisons use names such as -eq and -ge."],
+          "lessonSlug": "choices"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "arrays",
+          "name": "Read an array item",
+          "summary": "An array holds several values. Its first index is zero.",
+          "example": {
+            "language": "powershell",
+            "code": "$pets = @(\"cat\", \"dog\")\nWrite-Output $pets[1]"
+          },
+          "notes": ["Use @() when you need an array shape even with one item."],
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "foreach",
+          "name": "Visit every item",
+          "summary": "foreach runs its block for each value in a group.",
+          "example": {
+            "language": "powershell",
+            "code": "foreach ($n in 1..3) { Write-Output $n }"
+          },
+          "notes": ["The loop variable holds one item, not the whole group."],
+          "lessonSlug": "foreach"
+        },
+        {
+          "slug": "hashtables",
+          "name": "Read a named key",
+          "summary": "A hashtable pairs keys with values. Brackets select a value by key.",
+          "example": {
+            "language": "powershell",
+            "code": "$book = @{ Title = \"Moon Trip\"; Pages = 24 }\nWrite-Output $book[\"Title\"]"
+          },
+          "notes": ["Separate hashtable entries with a semicolon or a new line."],
+          "lessonSlug": "hashtables"
+        },
+        {
+          "slug": "objects",
+          "name": "Make named properties",
+          "summary": "A custom object groups properties. Dot notation reads a property.",
+          "example": {
+            "language": "powershell",
+            "code": "$book = [pscustomobject]@{ Title = \"Moon Trip\"; Pages = 24 }\nWrite-Output $book.Pages"
+          },
+          "notes": ["Object properties and a formatted display are not the same thing."],
+          "lessonSlug": "objects"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "filtering",
+          "name": "Filter pipeline values",
+          "summary": "Where-Object keeps values that pass a rule. $_ means the current pipeline item.",
+          "example": {
+            "language": "powershell",
+            "code": "4, 8, 9 | Where-Object { $_ -ge 7 }"
+          },
+          "notes": ["Write the rule inside a script block with braces."],
+          "lessonSlug": "filtering"
+        },
+        {
+          "slug": "mapping",
+          "name": "Transform pipeline values",
+          "summary": "ForEach-Object runs a block for each incoming value.",
+          "example": {
+            "language": "powershell",
+            "code": "2, 3 | ForEach-Object { $_ * 2 }"
+          },
+          "notes": ["Use $_ for the current item inside the pipeline block."],
+          "lessonSlug": "mapping"
+        },
+        {
+          "slug": "functions",
+          "name": "Name reusable steps",
+          "summary": "A function can declare inputs with param. An unassigned expression becomes output.",
+          "example": {
+            "language": "powershell",
+            "code": "function Get-Twice { param([int]$Number) $Number * 2 }\nGet-Twice -Number 4"
+          },
+          "notes": ["Extra expressions in a function can also become output."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "errors",
+          "name": "Handle a terminating error",
+          "summary": "try and catch handle a terminating error. throw creates one here.",
+          "example": {
+            "language": "powershell",
+            "code": "try { throw \"Missing score\" } catch { Write-Output \"Try again\" }"
+          },
+          "notes": ["Many command errors need -ErrorAction Stop to be caught by try/catch."],
+          "lessonSlug": "errors"
+        }
+      ]
+    }
+  ]
+}

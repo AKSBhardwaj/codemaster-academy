@@ -1,0 +1,158 @@
+{
+  "title": "T-SQL Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-query",
+          "name": "Ask for a message",
+          "summary": "SELECT asks for a result. AS gives its column a name.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT 'Hello, Asha!' AS message;"
+          },
+          "notes": ["Text literals use single quotes."],
+          "lessonSlug": "first-query"
+        },
+        {
+          "slug": "variables",
+          "name": "Name a local number",
+          "summary": "DECLARE makes a local variable. T-SQL variable names start with @.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @pencils int = 3;\nSELECT @pencils + 2 AS total;"
+          },
+          "notes": ["The variable exists only in its batch or procedure scope."],
+          "lessonSlug": "variables"
+        },
+        {
+          "slug": "text",
+          "name": "Join text values",
+          "summary": "CONCAT joins values as text. It can also convert simple number inputs to text.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT CONCAT('Hi, ', 'Ravi', '!') AS message;"
+          },
+          "notes": ["Do not assume + behaves the same way with NULL and mixed types."],
+          "lessonSlug": "text"
+        },
+        {
+          "slug": "case",
+          "name": "Choose a result",
+          "summary": "CASE returns a value from the first matching branch.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @score int = 8;\nSELECT CASE WHEN @score >= 5 THEN 'Pass' ELSE 'Try again' END AS message;"
+          },
+          "notes": ["CASE ends with END; it is an expression, not an IF block."],
+          "lessonSlug": "case"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "if",
+          "name": "Choose which statement runs",
+          "summary": "IF controls which SQL statements run. BEGIN and END group statements.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @score int = 8;\nIF @score >= 5\n BEGIN PRINT 'Pass'; END\nELSE\n BEGIN PRINT 'Try again'; END;"
+          },
+          "notes": ["Use BEGIN and END when a branch has several statements."],
+          "lessonSlug": "if"
+        },
+        {
+          "slug": "table-values",
+          "name": "Make a small result table",
+          "summary": "VALUES can create rows for a query. An alias names the tiny table and its column.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT n FROM (VALUES (3), (1), (2)) AS numbers(n) ORDER BY n;"
+          },
+          "notes": ["Use ORDER BY when the row order matters."],
+          "lessonSlug": "table-values"
+        },
+        {
+          "slug": "filters",
+          "name": "Keep matching rows",
+          "summary": "WHERE keeps rows that pass a condition.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT n FROM (VALUES (4), (8), (9)) AS scores(n) WHERE n >= 7 ORDER BY n;"
+          },
+          "notes": ["WHERE filters rows before they are grouped."],
+          "lessonSlug": "filters"
+        },
+        {
+          "slug": "totals",
+          "name": "Add values across rows",
+          "summary": "SUM adds a column over the selected rows.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT SUM(n) AS total FROM (VALUES (2), (3), (4)) AS numbers(n);"
+          },
+          "notes": ["SUM ignores NULL inputs; it does not treat them as a known zero."],
+          "lessonSlug": "totals"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "nulls",
+          "name": "Choose a missing-value fallback",
+          "summary": "COALESCE returns the first input that is not NULL.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @name varchar(20) = NULL;\nSELECT COALESCE(@name, 'Guest') AS name;"
+          },
+          "notes": ["Use IS NULL for a null test, not = NULL."],
+          "lessonSlug": "nulls"
+        },
+        {
+          "slug": "safe-conversion",
+          "name": "Read a number safely",
+          "summary": "TRY_CONVERT returns NULL when this text cannot be converted to int. COALESCE then supplies zero.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT COALESCE(TRY_CONVERT(int, 'cat'), 0) AS score;"
+          },
+          "notes": [
+            "A failed conversion is not automatically a real score of zero; choose a suitable fallback for your app."
+          ],
+          "lessonSlug": "safe-conversion"
+        },
+        {
+          "slug": "loops",
+          "name": "Repeat with WHILE",
+          "summary": "WHILE repeats its block while a rule stays true.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @n int = 1;\nWHILE @n <= 3\nBEGIN\n PRINT @n;\n SET @n = @n + 1;\nEND;"
+          },
+          "notes": ["Change the loop value so the loop eventually stops."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "json",
+          "name": "Read a JSON field",
+          "summary": "JSON_VALUE reads one simple value from JSON text using a path.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT JSON_VALUE('{\"title\":\"Moon Trip\",\"pages\":24}', '$.title') AS title;"
+          },
+          "notes": ["Use valid JSON with double-quoted field names."],
+          "lessonSlug": "json"
+        }
+      ]
+    }
+  ]
+}

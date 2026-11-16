@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "write-a-reducer-rule",
+  "title": "Write a reducer rule",
+  "summary": "A reducer takes the old state and an action and returns the next state.",
+  "introduction": "A reducer takes the old state and an action and returns the next state. Your task: Add a reset reducer case that returns count zero.",
+  "learningObjectives": [
+    "Add a reset reducer case that returns count zero.",
+    "Explain the example for write a reducer rule"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A reducer takes the old state and an action and returns the next state. It should not change the old object directly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use an Angular project with the matching major version of @ngrx/store. Effects and SignalStore examples also need @ngrx/effects or @ngrx/signals. Save linked snippets in the files named by their imports."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst add=createAction(\"[Reading] Add\");\nconst reducer=createReducer({count:0},on(add,state=>({...state,count:state.count+1})));\nconsole.log(reducer({count:2},add()).count);",
+      "title": "Write a reducer rule",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`createAction` defines an NgRx event creator. Calling the creator makes an action object to dispatch.",
+        "`createReducer` matches actions to state update rules. In NgRx, return new state instead of mutating the old object."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The next count is 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Plain NgRx reducers do not use Redux Toolkit's Immer draft rules. Return a new state object."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add a reset reducer case that returns count zero."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ngrx-write-a-reducer-rule-check"
+    }
+  ],
+  "exerciseIds": ["ngrx-write-a-reducer-rule-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ngrx",
+      "slug": "put-a-value-in-an-action"
+    }
+  ],
+  "seo": {
+    "title": "NgRx: Write a reducer rule",
+    "description": "A reducer takes the old state and an action and returns the next state. It should not change the old object directly."
+  },
+  "updatedOn": "2026-11-16"
+}

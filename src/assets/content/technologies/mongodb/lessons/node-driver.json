@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "slug": "node-driver",
+  "title": "Using the Node.js Driver",
+  "summary": "Connect a Node.js application to MongoDB with the official driver: one shared MongoClient, async CRUD calls, cursors, ObjectId handling and error handling.",
+  "introduction": "Everything you have done in mongosh, your application does through a driver. The official Node.js driver exposes the same collections, filters, operators and pipelines as the shell, with two differences: every call returns a promise, and options such as projections travel in an options object. This lesson sets up a small project, connects with a single shared client, runs the full set of CRUD operations, iterates a cursor, converts ids from strings, and handles the errors the server sends back.",
+  "learningObjectives": [
+    "Install the driver and connect with a single MongoClient shared by the application",
+    "Run insert, find, update and delete operations with async/await",
+    "Iterate cursors and convert string ids to ObjectId",
+    "Catch MongoServerError and react to specific error codes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install and connect"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a project folder, initialise it and install the 6.x driver. Pinning the major version keeps `npm install` from pulling in a newer major release with different defaults; the 6.x line supports MongoDB 8 and runs on Node.js 16.20 or later, so any current LTS release of Node works."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "mkdir shop-app && cd shop-app\nnpm init -y\nnpm install mongodb@6"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (package counts and timing vary)",
+      "content": "added 12 packages in 2s"
+    },
+    {
+      "type": "paragraph",
+      "text": "The driver's entry point is `MongoClient`. Create **one** instance for the whole application: it manages a pool of connections and is safe to share between requests, whereas creating a client per request exhausts the server's connection limit within minutes. Keep it in its own module and read the connection string from an environment variable so that credentials never live in code:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "db.mjs",
+      "code": "import { MongoClient } from 'mongodb';\n\nconst uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017';\nconst client = new MongoClient(uri);\n\nexport const db = client.db('shop');\n\nexport async function closeDb() {\n  await client.close();\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "The driver connects on the first operation, so an explicit `client.connect()` is optional; calling it at start-up is still a good way to fail fast when the database is unreachable. `client.db('shop')` and `db.collection('products')` are cheap handles, not connections, so you can create them wherever they are convenient."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "CRUD with async/await"
+    },
+    {
+      "type": "paragraph",
+      "text": "The method names match mongosh exactly. Note where the driver differs: `find` takes its projection inside an options object, every method must be awaited, and the client should be closed when a script finishes so that Node can exit. Run this against the `shop` database from the earlier lessons:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "app.mjs",
+      "code": "import { ObjectId } from 'mongodb';\nimport { db, closeDb } from './db.mjs';\n\nconst products = db.collection('products');\n\ntry {\n  const inserted = await products.insertOne({\n    name: 'Monitor arm', price: 45, category: 'office', stock: 10, tags: ['desk']\n  });\n  console.log('inserted', inserted.insertedId instanceof ObjectId);\n\n  const cheap = await products\n    .find({ price: { $lt: 50 } }, { projection: { _id: 0, name: 1, price: 1 } })\n    .sort({ price: 1 })\n    .toArray();\n  console.log(cheap);\n\n  const updated = await products.updateOne({ _id: inserted.insertedId }, { $inc: { stock: -1 } });\n  console.log('modified', updated.modifiedCount);\n\n  const deleted = await products.deleteOne({ _id: inserted.insertedId });\n  console.log('deleted', deleted.deletedCount);\n} finally {\n  await closeDb();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node app.mjs",
+      "content": "inserted true\n[\n  { name: 'Wireless mouse', price: 22.99 },\n  { name: 'Desk lamp', price: 24.5 },\n  { name: 'USB-C hub', price: 39 },\n  { name: 'Monitor arm', price: 45 }\n]\nmodified 1\ndeleted 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Top-level `await` works because the file is an ES module (`.mjs`, or `\"type\": \"module\"` in `package.json`). The result objects are the same ones mongosh printed: `insertedId`, `matchedCount`, `modifiedCount`, `deletedCount`. The `finally` block guarantees the client closes even when an operation throws."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Forgetting `await`. `products.insertOne(doc)` without it returns a pending promise, the code carries on, and if the script then closes the client the insert fails or never happens. The symptom is a document that is \"sometimes there\" or an error about using a closed client. Every driver method that talks to the server returns a promise; await all of them, including `toArray()`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Cursors and ObjectId"
+    },
+    {
+      "type": "paragraph",
+      "text": "`find` returns a cursor, as in the shell. `toArray()` loads everything into memory; for large results iterate with `for await`, which fetches batches as you go. Ids arrive from URLs and forms as 24-character strings, and a string never matches an `ObjectId` field, so convert it with `new ObjectId(id)` after checking it with `ObjectId.isValid`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "ids.mjs",
+      "code": "import { ObjectId } from 'mongodb';\nimport { db, closeDb } from './db.mjs';\n\nconst products = db.collection('products');\n\nfor await (const product of products.find({}, { projection: { name: 1 } }).sort({ name: 1 })) {\n  console.log(product.name);\n}\n\nconst id = '69a3a800f1e2d3c4b5a69701';\nconsole.log(ObjectId.isValid(id));\nconsole.log(await products.findOne({ _id: new ObjectId(id) }));\n\nawait closeDb();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node ids.mjs",
+      "content": "27-inch monitor\nDesk lamp\nMechanical keyboard\nUSB-C hub\nWireless mouse\ntrue\nnull"
+    },
+    {
+      "type": "paragraph",
+      "text": "The string is a well-formed id, so `isValid` is `true`, but no product has it, so `findOne` returns `null`; an application turns that into a 404. The names come out in binary string order, which is why `27-inch monitor` sorts before `Desk lamp`; pass a `collation` option such as `{ locale: 'en' }` for language-aware sorting."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling server errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "Errors the server rejects arrive as `MongoServerError`, with a numeric `code`. The one you handle most often is `11000`, the duplicate key error from a unique index or an existing `_id`; everything else is usually a bug worth rethrowing. The `customers` collection from the previous lesson already has a customer with `_id: 1`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "errors.mjs",
+      "code": "import { MongoServerError } from 'mongodb';\nimport { db, closeDb } from './db.mjs';\n\ntry {\n  await db.collection('customers').insertOne({ _id: 1, name: 'Duplicate' });\n} catch (error) {\n  if (error instanceof MongoServerError && error.code === 11000) {\n    console.log('duplicate key:', error.keyValue);\n  } else {\n    throw error;\n  }\n} finally {\n  await closeDb();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node errors.mjs",
+      "content": "duplicate key: { _id: 1 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Connection problems surface differently: a wrong host or a blocked IP produces a `MongoServerSelectionError` after the server selection timeout (30 seconds by default, adjustable with the `serverSelectionTimeoutMS` option). In a web application, map duplicate keys to a 409 response, validation failures (code `121`) to a 400, and let unexpected errors reach your error handler and logs."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "TypeScript",
+      "text": "The driver ships its own types. `db.collection<Product>('products')` makes `find`, `insertOne` and the results type-safe for a `Product` interface, and `WithId<Product>` describes a document that has come back from the database. See the [TypeScript tutorial](/tutorials/typescript) for the language side."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-node-driver-task"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-node-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "node-driver",
+          "difficulty": "beginner",
+          "question": "How many `MongoClient` instances should a typical web application create?",
+          "explanation": "One client per process holds a connection pool and is safe to share across requests. A client per request leaks connections and exhausts the server.",
+          "options": [
+            "One per request",
+            "One per collection",
+            "One for the whole application",
+            "One per database user"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "mongodb-node-qc-2",
+          "type": "find-error",
+          "lessonSlug": "node-driver",
+          "difficulty": "beginner",
+          "question": "This driver call returns every field instead of only the name. Why?",
+          "explanation": "In the driver, the second argument of `find` is an options object. The projection must be passed as `{ projection: { _id: 0, name: 1 } }`; a bare `{ _id: 0, name: 1 }` is read as unknown options and ignored.",
+          "language": "javascript",
+          "code": "const names = await products.find({ category: 'office' }, { _id: 0, name: 1 }).toArray();",
+          "options": [
+            "`toArray()` always returns full documents",
+            "The projection must be wrapped as `{ projection: { ... } }` in the options object",
+            "`_id: 0` is not allowed in the driver",
+            "The filter must come after the projection"
+          ],
+          "correctIndex": 1,
+          "errorLine": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-node-driver-task"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "transactions"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "crud-insert-find"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Node.js Driver – Connect, CRUD and Error Handling",
+    "description": "Use the MongoDB Node.js driver 6: install it, share one MongoClient, run async CRUD operations, iterate cursors, convert ObjectIds and handle server errors."
+  },
+  "updatedOn": "2026-11-15"
+}

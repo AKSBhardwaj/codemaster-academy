@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "slug": "depth-first-search",
+  "title": "Depth-First Search",
+  "summary": "Follow one graph path before returning to try another. Trace depth-first search safely around a cycle in six complete language examples.",
+  "introduction": "Imagine exploring a maze with a pencil. Follow one passage as far as you can. When there is no new room to enter, return to the last choice and try another passage. Depth-first search, or DFS, uses this deep-first plan.",
+  "learningObjectives": [
+    "Trace recursive visits and returns through a graph",
+    "Use seen marks to stop repeated visits around cycles"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "DFS explores one unvisited neighbour immediately before trying the next neighbour. Recursion lets the function call itself for that next node. Waiting calls remember where to return when a path ends."
+    },
+    {
+      "type": "paragraph",
+      "text": "A seen mark records that a node has been visited. Mark before exploring neighbours so a link back to an earlier node is skipped. This makes the algorithm safe on cycles, routes that return to a previous node."
+    },
+    {
+      "type": "paragraph",
+      "text": "The graph has the same links as the BFS lesson: 0-1, 0-2, 1-3, and 2-3, all in both directions. Neighbours are stored in the same order in every language."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Visit and mark 0. Its first neighbour is 1, so visit 1 next.",
+        "At 1, skip the already seen 0. Follow the other neighbour, 3.",
+        "At 3, skip seen node 1 and follow node 2. At 2, both neighbours 0 and 3 are seen, so return.",
+        "Return from 3 and then 1 to 0. Node 0's remaining neighbour, 2, is already seen. Stop with order 0, 1, 3, 2."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Depth-First Search example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const graph = [[1, 2], [0, 3], [0, 3], [1, 2]];\nconst seen = new Array(graph.length).fill(false);\nconst order = [];\nfunction visit(current) {\n  seen[current] = true;\n  order.push(current);\n  for (const next of graph[current]) {\n    if (!seen[next]) visit(next);\n  }\n}\nvisit(0);\nconsole.log(order.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid visit(int graph[][2], int current, int seen[], int order[], int *count) {\n    seen[current] = 1;\n    order[*count] = current;\n    (*count)++;\n    for (int i = 0; i < 2; i++) {\n        int next = graph[current][i];\n        if (!seen[next]) visit(graph, next, seen, order, count);\n    }\n}\n\nint main(void) {\n    int graph[4][2] = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n    int seen[4] = {0};\n    int order[4];\n    int count = 0;\n    visit(graph, 0, seen, order, &count);\n    for (int i = 0; i < count; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", order[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nvoid visit(const std::vector<std::vector<int>>& graph, int current,\n           std::vector<bool>& seen, std::vector<int>& order) {\n    seen[current] = true;\n    order.push_back(current);\n    for (int next : graph[current]) {\n        if (!seen[next]) visit(graph, next, seen, order);\n    }\n}\n\nint main() {\n    std::vector<std::vector<int>> graph = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n    std::vector<bool> seen(graph.size(), false);\n    std::vector<int> order;\n    visit(graph, 0, seen, order);\n    for (int i = 0; i < static_cast<int>(order.size()); i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << order[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "graph = [[1, 2], [0, 3], [0, 3], [1, 2]]\nseen = [False] * len(graph)\norder = []\n\ndef visit(current):\n    seen[current] = True\n    order.append(current)\n    for next_node in graph[current]:\n        if not seen[next_node]:\n            visit(next_node)\n\nvisit(0)\nprint(*order)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[][] graph = {\n    new int[] {1, 2}, new int[] {0, 3},\n    new int[] {0, 3}, new int[] {1, 2}\n};\nbool[] seen = new bool[graph.Length];\nList<int> order = new List<int>();\nVisit(graph, 0, seen, order);\nConsole.WriteLine(string.Join(\" \", order));\n\nstatic void Visit(int[][] graph, int current, bool[] seen, List<int> order) {\n    seen[current] = true;\n    order.Add(current);\n    foreach (int next in graph[current]) {\n        if (!seen[next]) Visit(graph, next, seen, order);\n    }\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static void visit(int[][] graph, int current, boolean[] seen, List<Integer> order) {\n        seen[current] = true;\n        order.add(current);\n        for (int next : graph[current]) {\n            if (!seen[next]) visit(graph, next, seen, order);\n        }\n    }\n\n    public static void main(String[] args) {\n        int[][] graph = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n        boolean[] seen = new boolean[graph.length];\n        List<Integer> order = new ArrayList<>();\n        visit(graph, 0, seen, order);\n        for (int i = 0; i < order.size(); i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(order.get(i));\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "0 1 3 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "DFS reaches 3 through 1 before visiting 2, even though 2 is next to the start. Returning from a call does not print the node again; each node is recorded only on its first visit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node 0 must exist, and each neighbour number must refer to a real node. In C, each row holds exactly two neighbours for this particular graph, and the output array holds four nodes. A general graph needs separate neighbour counts and enough storage."
+    },
+    {
+      "type": "paragraph",
+      "text": "A disconnected graph may contain nodes unreachable from 0. To cover them all, start another visit from every still-unseen node without clearing the marks. The exact visit order depends on the neighbour order."
+    },
+    {
+      "type": "paragraph",
+      "text": "DFS does not generally find a shortest route. A long graph path can also make too many recursive calls. An explicit stack, where you store pending nodes yourself, can avoid a language's recursion limit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Let V count nodes and E count links. With adjacency lists, each reachable node is entered once, and each of its neighbour entries is checked once. With setup included, a whole connected graph takes O(V + E) time."
+    },
+    {
+      "type": "paragraph",
+      "text": "The seen marks, saved output, and deepest chain of waiting calls each use at most O(V) space. The total extra space is O(V). A cycle adds no extra visits because seen blocks repeated entries."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Swap node 0's neighbours from [1, 2] to [2, 1]. Keep other rows the same. Trace 0 to 2 to 3 to 1, then check for output 0 2 3 1."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not wait until after visiting neighbours to mark the current node. On a cycle, a neighbour can call back into a still-unmarked node, creating repeated calls. Mark first, then explore."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-depth-first-search"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-depth-first-search"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "graphs-and-neighbours"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "recursion"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "breadth-first-search"
+    }
+  ],
+  "seo": {
+    "title": "Depth-First Search in Six Languages | DSA",
+    "description": "Follow one graph path before returning to try another. Trace depth-first search safely around a cycle in six complete language examples."
+  },
+  "updatedOn": "2026-11-16"
+}

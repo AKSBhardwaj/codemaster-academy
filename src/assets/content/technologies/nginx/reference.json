@@ -1,0 +1,150 @@
+{
+  "title": "Nginx Reference",
+  "description": "A quick reminder of the ideas and examples in the Nginx lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Serving a static file",
+          "summary": "Nginx is a web server. It can answer a request by sending a file, such as index.html, without running a custom application backend.",
+          "example": {
+            "language": "text",
+            "code": "Request: GET /index.html\nNginx reads: the configured index.html file\nResponse: HTML for the browser"
+          },
+          "notes": ["Serving files is different from executing browser JavaScript on the server."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "read-the-configuration-structure",
+          "name": "Read the configuration structure",
+          "summary": "Nginx configuration uses directives and blocks. Some directives are valid only in specific contexts.",
+          "example": {
+            "language": "text",
+            "code": "events {}\nhttp {\n  server {\n    listen 127.0.0.1:8080;\n  }\n}"
+          },
+          "notes": ["A directive in the wrong context can make configuration validation fail."],
+          "lessonSlug": "read-the-configuration-structure"
+        },
+        {
+          "slug": "document-roots",
+          "name": "Document roots",
+          "summary": "root chooses the base directory used to find a requested file. The request path is normally added to that base.",
+          "example": {
+            "language": "text",
+            "code": "server {\n  listen 127.0.0.1:8080;\n  root /absolute/path/to/club-site;\n}"
+          },
+          "notes": ["Do not serve a directory containing passwords or private project files."],
+          "lessonSlug": "document-roots"
+        },
+        {
+          "slug": "index-documents",
+          "name": "Index documents",
+          "summary": "index names files to try when a request refers to a directory. index.html is a common first page.",
+          "example": {
+            "language": "text",
+            "code": "location / {\n  index index.html;\n}"
+          },
+          "notes": ["An index directive does not create the file."],
+          "lessonSlug": "index-documents"
+        },
+        {
+          "slug": "locations-match-request-paths",
+          "name": "Locations match request paths",
+          "summary": "A location block chooses handling for matching request paths. Simple prefix locations are useful for organising a static site.",
+          "example": {
+            "language": "text",
+            "code": "location /assets/ {\n  root /absolute/path/to/club-site;\n}"
+          },
+          "notes": [
+            "root and alias combine paths differently; do not interchange them without checking."
+          ],
+          "lessonSlug": "locations-match-request-paths"
+        },
+        {
+          "slug": "check-files-with-try-files",
+          "name": "Check files with try_files",
+          "summary": "try_files checks candidate paths and uses a final fallback when none exists. Static generated pages often need directory index handling.",
+          "example": {
+            "language": "text",
+            "code": "location / {\n  try_files $uri $uri/ =404;\n}"
+          },
+          "notes": [
+            "Do not rewrite every missing asset to HTML; a script request needs a script, not the home page."
+          ],
+          "lessonSlug": "check-files-with-try-files"
+        },
+        {
+          "slug": "use-a-helpful-error-page",
+          "name": "Use a helpful error page",
+          "summary": "A custom error page explains a missing route while retaining a useful HTTP status.",
+          "example": {
+            "language": "text",
+            "code": "error_page 404 /404.html;\nlocation = /404.html {\n  internal;\n}"
+          },
+          "notes": ["Do not return a success status for every missing URL."],
+          "lessonSlug": "use-a-helpful-error-page"
+        },
+        {
+          "slug": "content-types-matter",
+          "name": "Content types matter",
+          "summary": "A MIME type tells the browser what kind of file it received. Standard Nginx MIME mappings cover common web assets.",
+          "example": {
+            "language": "text",
+            "code": "http {\n  include mime.types;\n  default_type application/octet-stream;\n}"
+          },
+          "notes": ["A wrong content type can stop scripts, styles or WebAssembly from loading."],
+          "lessonSlug": "content-types-matter"
+        },
+        {
+          "slug": "cache-deliberate-file-versions",
+          "name": "Cache deliberate file versions",
+          "summary": "Caching lets browsers reuse files. Long caching works best for files whose names change when their contents change.",
+          "example": {
+            "language": "text",
+            "code": "location /assets/ {\n  expires 1h;\n}"
+          },
+          "notes": [
+            "Do not cache a frequently updated HTML page for a year without a plan to refresh it."
+          ],
+          "lessonSlug": "cache-deliberate-file-versions"
+        },
+        {
+          "slug": "read-access-and-error-logs",
+          "name": "Read access and error logs",
+          "summary": "An access log records requests. An error log records problems such as missing permissions or invalid configuration.",
+          "example": {
+            "language": "text",
+            "code": "access_log /absolute/practice/logs/access.log;\nerror_log /absolute/practice/logs/error.log warn;"
+          },
+          "notes": ["Avoid exposing logs publicly or recording unnecessary sensitive data."],
+          "lessonSlug": "read-access-and-error-logs"
+        },
+        {
+          "slug": "https-protects-the-connection",
+          "name": "HTTPS protects the connection",
+          "summary": "HTTPS uses TLS to encrypt traffic between the browser and server. A certificate identifies the hostname for that connection.",
+          "example": {
+            "language": "text",
+            "code": "Browser -> encrypted HTTPS connection -> server\nCertificate: must match the intended hostname\nKeys: kept private on the server side"
+          },
+          "notes": ["Do not copy a real private key into a tutorial or public repository."],
+          "lessonSlug": "https-protects-the-connection"
+        },
+        {
+          "slug": "validate-before-reload",
+          "name": "Validate before reload",
+          "summary": "A configuration test can catch syntax problems before the server tries to use a new configuration. Reloading is a separate action.",
+          "example": {
+            "language": "text",
+            "code": "nginx -t"
+          },
+          "notes": ["Do not restart or reload someone else's server while practising."],
+          "lessonSlug": "validate-before-reload"
+        }
+      ]
+    }
+  ]
+}

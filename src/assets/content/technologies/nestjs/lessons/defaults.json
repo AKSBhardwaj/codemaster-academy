@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "defaults",
+  "title": "Supply a default query",
+  "summary": "NestJS: Supply a default query. Visit /page?n=3.",
+  "introduction": "DefaultValuePipe supplies a value before ParseIntPipe checks it. Open GET /page with no query.",
+  "learningObjectives": ["Supply a default query with NestJS", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Supply a default query"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Supply a default query",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"page\") page(@Query(\"n\", new DefaultValuePipe(1), ParseIntPipe) n: number) { return { page: n }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The default pipe supplies 1 for the missing query input. The integer pipe then checks it."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":1}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Pipe order matters: the default should happen before parsing."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-defaults-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-defaults-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "services"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Supply a default query",
+    "description": "NestJS: Supply a default query. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

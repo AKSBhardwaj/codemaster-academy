@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Return a redirect",
+  "summary": "Phoenix: Return a redirect. Inspect the initial 302 response.",
+  "introduction": "redirect sends a location. A browser following GET /start reaches /hello.",
+  "learningObjectives": ["Return a redirect with Phoenix", "Inspect the initial 302 response"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a redirect"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Return a redirect",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/start\", LessonController, :start\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef start(conn, _params), do: redirect(conn, to: \"/hello\")\ndef hello(conn, _params), do: text(conn, \"Welcome\")\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "redirect sets an internal location. The browser follows it to the hello action."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the initial 302 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use an internal path for this example, not an unchecked outside destination."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-redirects-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Return a redirect",
+    "description": "Phoenix: Return a redirect. Inspect the initial 302 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

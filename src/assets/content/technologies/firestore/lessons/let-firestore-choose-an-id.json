@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "let-firestore-choose-an-id",
+  "title": "Let Firestore choose an id",
+  "summary": "addDoc adds a document to a collection with an automatically made id.",
+  "introduction": "addDoc adds a document to a collection with an automatically made id. Your task: Compare ids from two separate sample additions.",
+  "learningObjectives": [
+    "Compare ids from two separate sample additions.",
+    "Explain the example for let firestore choose an id"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "addDoc adds a document to a collection with an automatically made id. The returned reference tells you that new path."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,addDoc,collection} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst reference=await addDoc(collection(db,\"books\"),{title:\"Garden Days\",pages:40});\nconsole.log(reference.id);",
+      "title": "Let Firestore choose an id",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`addDoc` creates a new document with a generated id each time it is called.",
+        "`connectFirestoreEmulator` sends this SDK instance to the local emulator address before database operations begin."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "A new local sample document is created, and its generated id is logged."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Calling addDoc again makes another document. Use a chosen stable id when repeating a write should update the same record."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Compare ids from two separate sample additions."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-let-firestore-choose-an-id-check"
+    }
+  ],
+  "exerciseIds": ["firestore-let-firestore-choose-an-id-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "read-one-document"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Let Firestore choose an id",
+    "description": "addDoc adds a document to a collection with an automatically made id. The returned reference tells you that new path."
+  },
+  "updatedOn": "2026-11-16"
+}

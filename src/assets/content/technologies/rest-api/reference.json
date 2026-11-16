@@ -1,0 +1,164 @@
+{
+  "title": "REST API Development Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "resources",
+          "name": "Name a resource",
+          "summary": "A resource is a thing an API exposes. /books/1 names one book, while /books names a collection.",
+          "example": {
+            "language": "http",
+            "code": "GET /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\"}"
+          },
+          "notes": ["Use resource names clearly; a URL should identify what is being addressed."],
+          "lessonSlug": "resources"
+        },
+        {
+          "slug": "get",
+          "name": "Read without changing data",
+          "summary": "GET asks to read a resource. Reading this collection does not add or remove books.",
+          "example": {
+            "language": "http",
+            "code": "GET /books HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"title\":\"Moon Trip\"}]"
+          },
+          "notes": ["Do not design a GET route that deletes a record."],
+          "lessonSlug": "get"
+        },
+        {
+          "slug": "post",
+          "name": "Create a resource",
+          "summary": "POST sends data for the collection to handle. A successful creation often returns 201 and a Location header.",
+          "example": {
+            "language": "http",
+            "code": "POST /books HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Sun Trip\"}\n\nHTTP/1.1 201 Created\nLocation: /books/2\nContent-Type: application/json\n\n{\"id\":2,\"title\":\"Sun Trip\"}"
+          },
+          "notes": [
+            "A repeated POST can create another item unless the API provides a duplicate-prevention rule."
+          ],
+          "lessonSlug": "post"
+        },
+        {
+          "slug": "put",
+          "name": "Replace a known resource",
+          "summary": "PUT supplies the desired representation at a known URL. This example replaces the book title and page count.",
+          "example": {
+            "language": "http",
+            "code": "PUT /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}"
+          },
+          "notes": ["Know whether the API treats omitted fields as removed when using PUT."],
+          "lessonSlug": "put"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "patch",
+          "name": "Change part of a resource",
+          "summary": "PATCH can send only changes. This example uses JSON Merge Patch to change the page count.",
+          "example": {
+            "language": "http",
+            "code": "PATCH /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/merge-patch+json\n\n{\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}"
+          },
+          "notes": ["PATCH formats have different rules; name the media type you support."],
+          "lessonSlug": "patch"
+        },
+        {
+          "slug": "delete",
+          "name": "Remove a resource",
+          "summary": "DELETE asks to remove the target resource. A 204 success response has no body.",
+          "example": {
+            "language": "http",
+            "code": "DELETE /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 204 No Content"
+          },
+          "notes": ["Do not attach a JSON body to a 204 response."],
+          "lessonSlug": "delete"
+        },
+        {
+          "slug": "not-found",
+          "name": "Report an unknown item",
+          "summary": "404 means the requested resource was not found. A short error body can help a client explain the problem.",
+          "example": {
+            "language": "http",
+            "code": "GET /books/99 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 404 Not Found\nContent-Type: application/json\n\n{\"error\":\"Book not found\"}"
+          },
+          "notes": ["Do not return 200 for every outcome; clients use status codes."],
+          "lessonSlug": "not-found"
+        },
+        {
+          "slug": "filters",
+          "name": "Choose matching results",
+          "summary": "A query string can describe a filter. The exact parameter names belong to the API design.",
+          "example": {
+            "language": "http",
+            "code": "GET /books?colour=blue HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"colour\":\"blue\"}]"
+          },
+          "notes": ["Document filter rules rather than making clients guess them."],
+          "lessonSlug": "filters"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "pagination",
+          "name": "Read a small page of results",
+          "summary": "Pagination divides a large collection into smaller pieces. This example returns a next link.",
+          "example": {
+            "language": "http",
+            "code": "GET /books?limit=1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"items\":[{\"id\":1}],\"next\":\"/books?after=1&limit=1\"}"
+          },
+          "notes": ["Use a stable ordering so items do not jump between pages."],
+          "lessonSlug": "pagination"
+        },
+        {
+          "slug": "content-types",
+          "name": "Describe the body format",
+          "summary": "Content-Type says what format a body uses. Accept says which response formats the client can understand.",
+          "example": {
+            "language": "http",
+            "code": "GET /books/1 HTTP/1.1\nHost: example.test\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1}"
+          },
+          "notes": [
+            "JSON text needs valid quoting; a header alone does not make invalid text valid JSON."
+          ],
+          "lessonSlug": "content-types"
+        },
+        {
+          "slug": "idempotence",
+          "name": "Repeat a request safely",
+          "summary": "An idempotent operation has the same intended final effect when repeated. Setting pages to 30 twice leaves it at 30.",
+          "example": {
+            "language": "http",
+            "code": "PUT /books/1 HTTP/1.1\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\n# Send the same PUT a second time.\n# Final stored representation:\n{\"title\":\"Moon Trip\",\"pages\":30}"
+          },
+          "notes": [
+            "Same final effect does not require every repeated response to have the same status."
+          ],
+          "lessonSlug": "idempotence"
+        },
+        {
+          "slug": "conditional-get",
+          "name": "Reuse an unchanged response",
+          "summary": "An ETag labels a version. If-None-Match asks whether that version is still current. A 304 has no new body.",
+          "example": {
+            "language": "http",
+            "code": "GET /books/1 HTTP/1.1\nHost: example.test\nIf-None-Match: \"book-v1\"\n\nHTTP/1.1 304 Not Modified\nETag: \"book-v1\""
+          },
+          "notes": [
+            "A client needs a cached body to reuse; 304 does not contain the resource data."
+          ],
+          "lessonSlug": "conditional-get"
+        }
+      ]
+    }
+  ]
+}

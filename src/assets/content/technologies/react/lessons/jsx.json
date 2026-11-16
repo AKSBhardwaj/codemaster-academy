@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "slug": "jsx",
+  "title": "JSX",
+  "summary": "JSX lets you describe page parts inside JavaScript code with HTML-like tags.",
+  "introduction": "JSX lets you describe page parts inside JavaScript code with HTML-like tags. Write a small heading and list. Learn why JSX uses className and why neighbouring parts need one shared outer part.",
+  "learningObjectives": [
+    "Explain what JSX compiles to and why it needs a build step",
+    "Embed expressions, attributes and style objects in JSX",
+    "Apply the JSX rules that differ from HTML",
+    "Render content conditionally with ternaries and the && operator"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "JSX is JavaScript"
+    },
+    {
+      "type": "paragraph",
+      "text": "A browser cannot run `<h1>` inside a `.js` file. Vite's React plugin compiles every JSX expression into a function call before the browser sees it. With React's automatic runtime (React 17 and later) the output looks like this:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "What you write",
+      "code": "const element = <h1 className=\"title\">Hello</h1>;"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "What the compiler produces",
+      "code": "import { jsx as _jsx } from 'react/jsx-runtime';\n\nconst element = _jsx('h1', { className: 'title', children: 'Hello' });"
+    },
+    {
+      "type": "paragraph",
+      "text": "The result is a plain object, a **React element**, that describes a tag, its props and its children. Logging it proves that no DOM is involved yet:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "console.log(element.type, element.props);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "h1 { className: 'title', children: 'Hello' }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because JSX is just an expression, you can store it in variables, return it from functions, pass it as an argument and put it in arrays, exactly like any other value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Embedding expressions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Curly braces switch from markup back to JavaScript. Anything that is an **expression** works: variables, property access, arithmetic, function calls, ternaries. Statements such as `if` or `for` do not, because they produce no value."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Greeting.jsx",
+      "code": "const user = { name: 'Ada', items: 3 };\n\nfunction Greeting() {\n  return (\n    <p>\n      {user.name} has {user.items} {user.items === 1 ? 'item' : 'items'} in the cart.\n      Total: {(19.99 * user.items).toFixed(2)}\n    </p>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<p>Ada has 3 items in the cart. Total: 59.97</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Strings, numbers and elements render; `null`, `undefined`, `true` and `false` render **nothing**, which is what makes conditional rendering possible. Objects do not render and throw an error, so `{user}` would fail while `{user.name}` works."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Attributes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Attributes take a string in quotes or any expression in braces. Because JSX becomes JavaScript, attribute names that clash with JavaScript keywords were renamed, and multi-word names use camelCase."
+    },
+    {
+      "type": "table",
+      "headers": ["HTML", "JSX", "Why"],
+      "rows": [
+        ["`class=\"card\"`", "`className=\"card\"`", "`class` is a reserved word in JavaScript"],
+        ["`for=\"email\"`", "`htmlFor=\"email\"`", "`for` is a reserved word"],
+        [
+          "`onclick=\"...\"`",
+          "`onClick={fn}`",
+          "Events are camelCase and receive a function, not a string"
+        ],
+        ["`tabindex=\"0\"`", "`tabIndex={0}`", "Multi-word attributes are camelCase"],
+        [
+          "`style=\"color: red\"`",
+          "`style={{ color: 'red' }}`",
+          "`style` takes an object with camelCase property names"
+        ],
+        [
+          "`<input disabled>`",
+          "`<input disabled />`",
+          "Every tag must be closed; void elements self-close"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Badge.jsx",
+      "code": "function Badge({ count }) {\n  return (\n    <>\n      <span className=\"badge\" style={{ backgroundColor: 'navy', color: 'white' }}>\n        {count} new\n      </span>\n      <label htmlFor=\"email\">Email</label>\n      <input id=\"email\" type=\"email\" disabled={count === 0} />\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "<Badge count={2} /> rendered",
+      "content": "<span class=\"badge\" style=\"background-color: navy; color: white;\">2 new</span><label for=\"email\">Email</label><input id=\"email\" type=\"email\">"
+    },
+    {
+      "type": "paragraph",
+      "text": "The empty tags `<>` and `</>` are a **fragment**: a component must return a single element, and a fragment groups siblings without adding a wrapper `<div>` to the DOM. The `style` object becomes inline CSS; note that React writes `backgroundColor` as `background-color`, and that `disabled={false}` omits the attribute entirely."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Conditional rendering"
+    },
+    {
+      "type": "paragraph",
+      "text": "There is no `if` attribute. Use JavaScript: a ternary chooses between two branches, `&&` renders something or nothing, and an early `return null` skips the component entirely."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Status.jsx",
+      "code": "function Status({ user }) {\n  if (!user) return null;\n\n  return (\n    <div>\n      {user.online ? <span>Online</span> : <span>Offline</span>}\n      {user.unread > 0 && <strong>{user.unread} unread</strong>}\n    </div>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Two different props objects",
+      "content": "{ online: true, unread: 0 }   →  <div><span>Online</span></div>\n{ online: false, unread: 4 }  →  <div><span>Offline</span><strong>4 unread</strong></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: the 0 that appears on screen",
+      "text": "`{items.length && <List />}` renders the number `0` when the array is empty, because `0 && anything` evaluates to `0`, and `0` is a number, which React prints. `false`, `null` and `undefined` disappear; `0` and `NaN` do not. Compare explicitly, `{items.length > 0 && <List />}`, or use a ternary with `null`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comments and whitespace"
+    },
+    {
+      "type": "paragraph",
+      "text": "Comments inside JSX go in braces: `{/* like this */}`. Whitespace collapses much as in HTML, with one difference worth knowing: line breaks between elements are removed entirely, so to keep a space between two inline elements written on separate lines you add `{' '}`."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "<p>\n  {/* The literal space keeps the words apart */}\n  <strong>Hello</strong>{' '}\n  <em>world</em>\n</p>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<p><strong>Hello</strong> <em>world</em></p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lists"
+    },
+    {
+      "type": "paragraph",
+      "text": "Rendering a list is just `array.map` returning elements, and each element needs a `key`. That rule has enough consequences to deserve its own lesson, [Rendering Lists and Keys](/tutorials/react/lists-keys). First, the next lesson turns these JSX snippets into reusable [components with props](/tutorials/react/components-props)."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-jsx-zero"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-jsx-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "jsx",
+          "difficulty": "beginner",
+          "question": "Which of these can you NOT put inside `{}` in JSX?",
+          "explanation": "Braces accept expressions only. An `if` statement produces no value; use a ternary, `&&`, or compute the value before the `return`.",
+          "options": [
+            "A ternary expression",
+            "A function call",
+            "An `if` statement",
+            "A template literal"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "react-jsx-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "jsx",
+          "difficulty": "beginner",
+          "question": "To connect a `<label>` to an input in JSX you write `___=\"email\"` instead of HTML's `for` attribute.",
+          "explanation": "`for` is a JavaScript keyword, so JSX uses `htmlFor`. The rendered DOM still gets a normal `for` attribute.",
+          "answers": ["htmlFor"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-jsx-classname", "react-jsx-zero"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "components-props"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "lists-keys"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "es6-features"
+    }
+  ],
+  "seo": {
+    "title": "JSX in React – Syntax, Expressions and Rules",
+    "description": "Learn JSX: what it compiles to, embedding expressions, className and htmlFor, style objects, fragments, conditional rendering and the 0 && pitfall explained."
+  },
+  "updatedOn": "2026-11-16"
+}

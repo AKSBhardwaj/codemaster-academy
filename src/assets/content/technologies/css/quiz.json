@@ -1,0 +1,178 @@
+{
+  "id": "css-quiz",
+  "title": "CSS Quiz",
+  "description": "Fourteen questions covering the whole CSS tutorial: syntax and linking, selectors, colours and units, the box model, typography, display, positioning, flexbox, grid, responsive design and the cascade.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "css-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What is the main job of CSS in a web page?",
+      "explanation": "CSS controls presentation: colours, fonts, spacing, layout and motion. Structure is HTML's job and behaviour is JavaScript's.",
+      "options": [
+        "Describing the structure and meaning of the content",
+        "Describing how the content looks and is laid out",
+        "Reacting to user actions such as clicks",
+        "Storing data in a database"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-q-02",
+      "type": "fill-blank",
+      "lessonSlug": "syntax",
+      "difficulty": "beginner",
+      "question": "A property and its value together, such as `color: red;`, form a ___.",
+      "explanation": "A declaration is one property-value pair. Several declarations between curly braces form a declaration block, and a selector plus a block form a rule.",
+      "answers": ["declaration"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-q-03",
+      "type": "multiple-choice",
+      "lessonSlug": "adding-css",
+      "difficulty": "beginner",
+      "question": "Which method lets many pages share a single CSS file that the browser downloads once and caches?",
+      "explanation": "An external stylesheet referenced with `<link rel=\"stylesheet\" href=\"…\">` is fetched once and reused by every page that links to it. Inline styles and style elements are part of each page.",
+      "options": [
+        "The style attribute on each element",
+        "A style element in each page",
+        "A link element pointing to an external stylesheet",
+        "An @import inside a style attribute"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "css-q-04",
+      "type": "predict-output",
+      "lessonSlug": "selectors",
+      "difficulty": "intermediate",
+      "question": "What colours are the Home and Docs links?",
+      "explanation": "Home matches both rules; they have the same specificity (0-1-1), so the later one, green, wins. Docs sits inside a div, so only the descendant rule `.menu a` matches it: blue.",
+      "language": "html",
+      "code": "<style>\n  .menu a { color: blue; }\n  .menu > a { color: green; }\n</style>\n<nav class=\"menu\">\n  <a href=\"#\">Home</a>\n  <div><a href=\"#\">Docs</a></div>\n</nav>",
+      "options": [
+        "Home blue, Docs blue",
+        "Home green, Docs blue",
+        "Home green, Docs green",
+        "Home blue, Docs green"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-q-05",
+      "type": "true-false",
+      "lessonSlug": "colors",
+      "difficulty": "beginner",
+      "question": "`#ff0000`, `rgb(255 0 0)` and `hsl(0 100% 50%)` all describe the same pure red.",
+      "explanation": "They are three notations for one colour: full red with no green or blue, which in HSL is hue 0 at full saturation and medium lightness.",
+      "correct": true
+    },
+    {
+      "id": "css-q-06",
+      "type": "multiple-choice",
+      "lessonSlug": "units",
+      "difficulty": "beginner",
+      "question": "Which unit is always relative to the root element's font size?",
+      "explanation": "`rem` stands for root em. `em` is relative to the current (or parent) font size, `%` to the containing block and `vw` to the viewport width.",
+      "options": ["em", "rem", "%", "vw"],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-q-07",
+      "type": "predict-output",
+      "lessonSlug": "box-model",
+      "difficulty": "intermediate",
+      "question": "How wide is the visible box, from the outer edge of its left border to the outer edge of its right border?",
+      "explanation": "Under `content-box` the width covers the content only: 200 + 20 + 20 (padding) + 5 + 5 (border) = 250px. The margin is outside the border and does not count.",
+      "language": "css",
+      "code": ".box {\n  box-sizing: content-box;\n  width: 200px;\n  padding: 20px;\n  border: 5px solid black;\n  margin: 10px;\n}",
+      "options": ["200px", "240px", "250px", "270px"],
+      "correctIndex": 2
+    },
+    {
+      "id": "css-q-08",
+      "type": "fill-blank",
+      "lessonSlug": "typography",
+      "difficulty": "beginner",
+      "question": "The `line-___` property sets the vertical distance between lines of text and is best written as a unitless number such as 1.5.",
+      "explanation": "`line-height: 1.5` means one and a half times the element's own font size, and because the factor is inherited, headings and paragraphs each get a proportional value.",
+      "answers": ["height"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-q-09",
+      "type": "multiple-choice",
+      "lessonSlug": "display",
+      "difficulty": "beginner",
+      "question": "What is the difference between `display: none` and `visibility: hidden`?",
+      "explanation": "`display: none` removes the box from the layout entirely, so nothing is reserved for it. `visibility: hidden` keeps the box's space but does not paint it. Both hide the element from screen readers.",
+      "options": [
+        "There is no difference",
+        "display: none removes the element from the layout; visibility: hidden keeps its space",
+        "visibility: hidden removes the element from the layout; display: none keeps its space",
+        "display: none only works on block elements"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-q-10",
+      "type": "find-error",
+      "lessonSlug": "positioning",
+      "difficulty": "beginner",
+      "question": "The badge should sit in the top-right corner of its card, but it does not move at all. What is wrong?",
+      "explanation": "Offsets such as `top` and `right` only apply to positioned elements. The badge still has the default `position: static`, so they are ignored. Add `position: absolute;` to the badge and `position: relative;` to the card.",
+      "language": "css",
+      "code": ".badge {\n  top: 0;\n  right: 0;\n  background: crimson;\n  color: white;\n}",
+      "options": [
+        "top and right need percentage units",
+        "The badge is still position: static, so the offsets are ignored",
+        "The colour must be declared before the offsets",
+        "right: 0 cancels out top: 0"
+      ],
+      "correctIndex": 1,
+      "errorLine": 1
+    },
+    {
+      "id": "css-q-11",
+      "type": "multiple-choice",
+      "lessonSlug": "flexbox",
+      "difficulty": "beginner",
+      "question": "In a flex container with `flex-direction: row`, which property aligns the items along the vertical (cross) axis?",
+      "explanation": "`align-items` controls the cross axis; in a row container that is the vertical direction. `justify-content` distributes items along the main axis.",
+      "options": ["justify-content", "align-items", "flex-wrap", "order"],
+      "correctIndex": 1
+    },
+    {
+      "id": "css-q-12",
+      "type": "fill-blank",
+      "lessonSlug": "grid",
+      "difficulty": "beginner",
+      "question": "`grid-template-columns: ___(3, 1fr);` creates three equal-width columns.",
+      "explanation": "`repeat(count, tracks)` repeats a track definition; `repeat(3, 1fr)` is the same as `1fr 1fr 1fr`.",
+      "answers": ["repeat"],
+      "caseSensitive": false
+    },
+    {
+      "id": "css-q-13",
+      "type": "true-false",
+      "lessonSlug": "responsive-design",
+      "difficulty": "intermediate",
+      "question": "Without the viewport meta tag, mobile browsers lay the page out at a desktop-like width and zoom out, so width-based media queries do not behave as expected.",
+      "explanation": "That is why `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` belongs in the head of every page: it makes the CSS viewport match the device's real width.",
+      "correct": true
+    },
+    {
+      "id": "css-q-14",
+      "type": "multiple-choice",
+      "lessonSlug": "specificity-cascade",
+      "difficulty": "intermediate",
+      "question": "All four selectors match the same element and set the same property. Which one wins?",
+      "explanation": "Specificity compares ids first. `#main` scores 1-0-0, and a single id beats any number of classes (`.a.b.c` is 0-3-0, `div.a.b.c` is 0-3-1) and any number of type selectors (`div p a span` is 0-0-4).",
+      "options": [".a.b.c", "#main", "div p a span", "div.a.b.c"],
+      "correctIndex": 1
+    }
+  ]
+}

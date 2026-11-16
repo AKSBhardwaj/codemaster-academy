@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "locals",
+  "title": "Share request data",
+  "summary": "Fiber: Share request data. Change the school name.",
+  "introduction": "Locals stores a value for the current request. A middleware can set it before a route reads it.",
+  "learningObjectives": ["Share request data with Fiber", "Change the school name"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Share request data"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Share request data",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Use(func(c *fiber.Ctx) error { c.Locals(\"school\", \"Oak School\"); return c.Next() })\napp.Get(\"/school\", func(c *fiber.Ctx) error { return c.SendString(c.Locals(\"school\").(string)) })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The middleware stores a per-request local and calls Next. The route reads it as a string."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the school name."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check a value type if it may come from a different source."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-locals-check"
+    }
+  ],
+  "exerciseIds": ["fiber-locals-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "groups"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Share request data",
+    "description": "Fiber: Share request data. Change the school name. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

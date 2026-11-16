@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "slug": "testing",
+  "title": "Testing with node:test",
+  "summary": "Write and run tests with Node's built-in test runner and assert module: describe and it, hooks, strict assertions, mock functions and HTTP tests against the Express API.",
+  "introduction": "Tests are the fastest way to find out whether a change broke something, and in Node they need no extra packages: the `node:test` runner and the `node:assert` module have been stable since Node 20. This lesson starts with a pure function, reads the runner's output carefully (including what a failure looks like), then moves to the two cases that matter most in a server: replacing a dependency with a mock, and sending real HTTP requests to the Express app from a test.",
+  "learningObjectives": [
+    "Write tests with test, describe, it and hooks and run them with node --test",
+    "Use strict assertions and read the spec reporter's output for passes and failures",
+    "Replace dependencies with mock functions and test an Express app over HTTP"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A first test"
+    },
+    {
+      "type": "paragraph",
+      "text": "The code under test is a small shopping-cart module. It is deliberately free of I/O, which is what makes it easy to test: give it inputs, check outputs."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "cart.js",
+      "code": "export function createCart() {\n  const items = [];\n  return {\n    add(name, price, quantity = 1) {\n      if (price < 0) throw new RangeError('price must not be negative');\n      items.push({ name, price, quantity });\n    },\n    total() {\n      return items.reduce((sum, item) => sum + item.price * item.quantity, 0);\n    },\n    count() {\n      return items.length;\n    },\n  };\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Test files live next to the code or in a `test` folder and end in `.test.js`; `node --test` finds them by those conventions. `describe` groups related tests, `it` (an alias of `test`) defines one, and `beforeEach` gives every test a fresh cart so they cannot influence each other. The `node:assert/strict` import makes every comparison use `===` semantics:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "cart.test.js",
+      "code": "import { describe, it, beforeEach } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { createCart } from './cart.js';\n\ndescribe('cart', () => {\n  let cart;\n\n  beforeEach(() => {\n    cart = createCart();\n  });\n\n  it('starts empty', () => {\n    assert.equal(cart.count(), 0);\n    assert.equal(cart.total(), 0);\n  });\n\n  it('adds up prices times quantities', () => {\n    cart.add('Dune', 9.5, 2);\n    cart.add('Neuromancer', 7);\n    assert.equal(cart.total(), 26);\n  });\n\n  it('rejects negative prices', () => {\n    assert.throws(() => cart.add('Free lunch', -1), RangeError);\n  });\n});"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node --test"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (durations vary)",
+      "content": "▶ cart\n  ✔ starts empty (0.7042ms)\n  ✔ adds up prices times quantities (0.2316ms)\n  ✔ rejects negative prices (0.3528ms)\n▶ cart (2.1134ms)\nℹ tests 3\nℹ suites 1\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 61.4723"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `\"test\": \"node --test\"` in `package.json`, `npm test` runs the same thing. Add `--watch` while developing to rerun on every save, and pass a file path (`node --test cart.test.js`) to run one file."
+    },
+    {
+      "type": "table",
+      "headers": ["Assertion", "Passes when"],
+      "rows": [
+        ["`assert.equal(actual, expected)`", "`actual === expected` (strict mode)"],
+        [
+          "`assert.deepEqual(actual, expected)`",
+          "Objects and arrays have the same structure and values"
+        ],
+        ["`assert.ok(value)`", "`value` is truthy"],
+        ["`assert.throws(fn, ErrorType)`", "Calling `fn` throws an error of that type"],
+        ["`await assert.rejects(promise, ErrorType)`", "The promise rejects with that error type"],
+        ["`assert.match(string, /regex/)`", "The string matches the regular expression"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading a failure"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the expected total to `25` and run again. The runner marks the test with a cross, prints what was compared, points at the failing line and exits with code 1, which is what makes `npm test` fail a CI pipeline:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (stack and summary shortened)",
+      "content": "▶ cart\n  ✔ starts empty (0.6901ms)\n  ✖ adds up prices times quantities (1.8420ms)\n    AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n    26 !== 25\n\n        at TestContext.<anonymous> (file:///home/ada/bookshelf/cart.test.js:20:12)\n        ...\n  ✔ rejects negative prices (0.2210ms)\n▶ cart (4.0150ms)\nℹ tests 3\nℹ suites 1\nℹ pass 2\nℹ fail 1\n..."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The test that cannot fail",
+      "text": "An async test must `await` every promise it starts. `it('rejects', () => { assert.rejects(save()) })` without `await` ends before the assertion has settled: the runner can report the test as passed, and a failing assertion then surfaces later as a confusing unhandled rejection instead of a clear failure. The same happens when a `fetch` inside a test is not awaited. Make the callback `async`, `await` every assertion that returns a promise, and distrust any test that passed the first time you wrote it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Mock functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Code that sends email or writes to a payment API should not do so during a test. `mock.fn()` creates a function that records how it was called, so you can pass it in place of the real dependency and assert on the calls afterwards:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "notify.test.js",
+      "code": "import { test, mock } from 'node:test';\nimport assert from 'node:assert/strict';\n\nfunction notifyOnLargeOrder(cart, notify) {\n  if (cart.total() > 100) notify(`Large order: ${cart.total()}`);\n}\n\ntest('notifies once for a large order', () => {\n  const notify = mock.fn();\n  const cart = { total: () => 250 };\n\n  notifyOnLargeOrder(cart, notify);\n\n  assert.equal(notify.mock.callCount(), 1);\n  assert.deepEqual(notify.mock.calls[0].arguments, ['Large order: 250']);\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node --test notify.test.js (summary shortened)",
+      "content": "✔ notifies once for a large order (1.0231ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\n..."
+    },
+    {
+      "type": "paragraph",
+      "text": "`mock.method(object, 'name')` replaces an existing method the same way and restores it when the test ends, and `mock.timers` lets a test fast-forward `setTimeout` instead of really waiting."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Testing the API over HTTP"
+    },
+    {
+      "type": "paragraph",
+      "text": "To test Express routes, export the app from one module and keep `listen` in another (`server.js`), so a test can start the app on a random free port, send real requests with `fetch` and stop it afterwards. Port `0` asks the operating system for any free port, which keeps parallel test runs from colliding:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "api.test.js",
+      "code": "import { test, after } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { once } from 'node:events';\nimport { app } from './app.js';\n\nconst server = app.listen(0);\nawait once(server, 'listening');\nconst base = `http://localhost:${server.address().port}`;\n\nafter(() => server.close());\n\ntest('GET /api/books returns the list', async () => {\n  const response = await fetch(`${base}/api/books`);\n  assert.equal(response.status, 200);\n  const books = await response.json();\n  assert.ok(Array.isArray(books));\n  assert.equal(books[0].title, 'Dune');\n});\n\ntest('GET /api/books/999 returns 404 with an error message', async () => {\n  const response = await fetch(`${base}/api/books/999`);\n  assert.equal(response.status, 404);\n  assert.deepEqual(await response.json(), { error: 'Book not found' });\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node --test api.test.js (summary shortened)",
+      "content": "✔ GET /api/books returns the list (24.1180ms)\n✔ GET /api/books/999 returns 404 with an error message (3.4052ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\n..."
+    },
+    {
+      "type": "paragraph",
+      "text": "`once(server, 'listening')` from `node:events` turns the event into a promise, so the test file waits until the port is bound before building `base`. The `after` hook closes the server when the file's tests are done; without it the process would stay alive and `node --test` would hang."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "What to test first",
+      "text": "Start with the pure logic (prices, validation, parsing), where tests are fast and failures are precise. Add a handful of HTTP tests for the routes that matter most, and let the database tests use `new DatabaseSync(':memory:')` so each run starts clean. `node --test --experimental-test-coverage` prints which lines no test reached."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-testing-cart"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-testing-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "testing",
+          "difficulty": "beginner",
+          "question": "Importing `assert` from `node:assert/___` makes `assert.equal` compare with `===` instead of `==`.",
+          "explanation": "The strict variant of the module makes equal and deepEqual behave like strictEqual and deepStrictEqual, avoiding surprises from loose equality.",
+          "answers": ["strict"],
+          "caseSensitive": false
+        },
+        {
+          "id": "nodejs-testing-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "testing",
+          "difficulty": "intermediate",
+          "question": "Why does the HTTP test call `app.listen(0)` instead of `app.listen(3000)`?",
+          "explanation": "Port 0 tells the operating system to pick any free port, so the tests never fail because a development server or another test run already occupies 3000.",
+          "options": [
+            "Port 0 disables networking so the test runs faster",
+            "The operating system assigns a free port, avoiding clashes with other processes",
+            "Express requires port 0 in test mode",
+            "Port 0 makes fetch use IPv6"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-testing-cart"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "json-apis"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "deployment"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "errors-debugging"
+    }
+  ],
+  "seo": {
+    "title": "Testing in Node.js with node:test – assert, mocks, HTTP",
+    "description": "Learn the built-in Node.js test runner: describe, it and hooks, strict assertions, reading failures, mock functions and HTTP tests against an Express app."
+  },
+  "updatedOn": "2026-11-15"
+}

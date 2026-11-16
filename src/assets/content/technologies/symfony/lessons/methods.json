@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "methods",
+  "title": "Restrict an HTTP method",
+  "summary": "Symfony: Restrict an HTTP method. Send POST and inspect 405.",
+  "introduction": "The methods option limits which requests match. GET /ready gives this reply; POST is not allowed.",
+  "learningObjectives": ["Restrict an HTTP method with Symfony", "Send POST and inspect 405"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Restrict an HTTP method"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Restrict an HTTP method",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/ready\", methods: [\"GET\"])]\npublic function ready(): Response { return new Response(\"Ready\"); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The attribute admits GET requests. A different HTTP method does not enter this handler."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Ready"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send POST and inspect 405."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use the correct HTTP method for the operation."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-methods-check"
+    }
+  ],
+  "exerciseIds": ["symfony-methods-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Restrict an HTTP method",
+    "description": "Symfony: Restrict an HTTP method. Send POST and inspect 405. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

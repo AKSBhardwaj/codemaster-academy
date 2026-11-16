@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json-body",
+  "title": "Read a JSON body",
+  "summary": "Symfony: Read a JSON body. Send an empty object.",
+  "introduction": "Request::toArray reads JSON into an array. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a JSON body with Symfony", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Read a JSON body",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/books\", methods: [\"POST\"])]\npublic function create(Request $request): JsonResponse {\n $data = $request->toArray();\n if (!is_string($data[\"title\"] ?? null)) return new JsonResponse([\"error\" => \"Title needed\"], 400);\n return new JsonResponse([\"title\" => $data[\"title\"]], 201);\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "toArray parses the JSON body. The title type check passes and a 201 reply is built."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Malformed JSON can fail before your own field checks run."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-json-body-check"
+    }
+  ],
+  "exerciseIds": ["symfony-json-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "constraints"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Read a JSON body",
+    "description": "Symfony: Read a JSON body. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

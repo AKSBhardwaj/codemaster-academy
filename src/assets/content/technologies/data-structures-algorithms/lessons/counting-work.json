@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "slug": "counting-work",
+  "title": "Counting work and Big O",
+  "summary": "Count how many items an algorithm checks. Meet Big O with a tiny search and learn why input size matters more than a stopwatch reading.",
+  "introduction": "Looking for a pencil in three boxes is quick. Looking in three thousand boxes may take much longer. We can compare plans by counting how the work grows as we add more boxes.",
+  "learningObjectives": [
+    "Count checks in a simple search",
+    "Explain constant and linear growth",
+    "Separate an exact count from a Big O label"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The **input size**, often called n, is how many items we give an algorithm. Here n is the number of scores in an array."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Big O** is a label for an upper bound on how work grows. We usually ask about the worst case: the input that makes the plan do the most work for that size. It is not an exact number of seconds."
+    },
+    {
+      "type": "paragraph",
+      "text": "**O(1)** means the work stays bounded as n grows. Reading one known array position is an example. **O(n)** means a bound grows in line with n. Checking every item once is an example."
+    },
+    {
+      "type": "paragraph",
+      "text": "The program counts equality checks, not every tiny computer instruction. That gives us a simple measure we can follow. Real running time also depends on the language, device, and input."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Look for 9 in the scores 3, 6, and 9. Start checks at 0.",
+        "Check 3: it is not 9. The count becomes 1.",
+        "Check 6: it is not 9. The count becomes 2.",
+        "Check 9: it matches. The count becomes 3, so stop and print 3."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Counting work and Big O example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const scores = [3, 6, 9];\nconst target = 9;\nlet checks = 0;\nfor (const score of scores) {\n  checks++;\n  if (score === target) break;\n}\nconsole.log(checks);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int scores[] = {3, 6, 9};\n    int target = 9;\n    int checks = 0;\n    for (int i = 0; i < 3; i++) {\n        checks++;\n        if (scores[i] == target) break;\n    }\n    printf(\"%d\\n\", checks);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int scores[] = {3, 6, 9};\n    int target = 9;\n    int checks = 0;\n    for (int score : scores) {\n        checks++;\n        if (score == target) break;\n    }\n    std::cout << checks << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "scores = [3, 6, 9]\ntarget = 9\nchecks = 0\nfor score in scores:\n    checks += 1\n    if score == target:\n        break\nprint(checks)",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "int[] scores = { 3, 6, 9 };\nint target = 9;\nint checks = 0;\nforeach (int score in scores)\n{\n    checks++;\n    if (score == target) break;\n}\nSystem.Console.WriteLine(checks);",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        int[] scores = {3, 6, 9};\n        int target = 9;\n        int checks = 0;\n        for (int score : scores) {\n            checks++;\n            if (score == target) break;\n        }\n        System.out.println(checks);\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "3"
+    },
+    {
+      "type": "paragraph",
+      "text": "There are exactly 3 checks for this input. With n scores, an absent target or a target at the end needs n checks. This search has O(n) worst-case work. Finding the first item takes only one check."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "If there are no items, there are no checks. If the target appears twice, this program stops at the first match. The count alone does not tell us whether a match was found."
+    },
+    {
+      "type": "paragraph",
+      "text": "**O(n²)**, read O of n squared, often appears when we check every pair. With 3 items there are 3 × 3 ordered pairs if self-pairs are included. Do not label every two-loop program O(n²): two separate scans still have O(n) growth."
+    },
+    {
+      "type": "paragraph",
+      "text": "An algorithm also uses space, which means extra storage. This search uses a counter and a target: O(1) extra space, apart from the input array."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change target from 9 to 3. Predict how many checks happen.",
+        "The output becomes 1. This faster input does not change the O(n) worst-case label for the search."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not read O(n) as exactly n seconds. Big O describes growth. A tiny example can be fast even when its plan grows poorly."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-counting-work"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-counting-work"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "array-positions"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Counting work and Big O in six languages",
+    "description": "Count how many items an algorithm checks. Meet Big O with a tiny search and learn why input size matters more than a stopwatch reading."
+  },
+  "updatedOn": "2026-11-16"
+}

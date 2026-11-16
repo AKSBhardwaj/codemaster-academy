@@ -1,0 +1,138 @@
+{
+  "title": "Neo4j Small Examples",
+  "description": "Use these small Neo4j examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Create a node with a label",
+      "description": "A node represents one thing. A label says what kind of thing it is, and properties hold its named facts.",
+      "language": "cypher",
+      "code": "CREATE (b:Book {id:'cma-b1',title:'Moon Trip',pages:60}) RETURN b.title;",
+      "output": "A Book node is created and Moon Trip is returned.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "find-a-node-by-a-property",
+      "title": "Find a node by a property",
+      "description": "MATCH finds graph patterns. A property condition can choose the node with a known id.",
+      "language": "cypher",
+      "code": "MATCH (b:Book {id:'cma-b1'}) RETURN b.title,b.pages;",
+      "output": "The previously created book returns its title and 60 pages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-a-node-by-a-property"
+    },
+    {
+      "id": "add-a-uniqueness-rule",
+      "title": "Add a uniqueness rule",
+      "description": "A uniqueness constraint prevents two nodes with a label from sharing the same chosen property value.",
+      "language": "cypher",
+      "code": "CREATE CONSTRAINT cma_book_id IF NOT EXISTS FOR (b:Book) REQUIRE b.id IS UNIQUE;",
+      "output": "Neo4j creates the constraint if the existing Book ids satisfy it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-uniqueness-rule"
+    },
+    {
+      "id": "match-or-create-with-merge",
+      "title": "Match or create with MERGE",
+      "description": "MERGE finds a pattern or creates it if missing.",
+      "language": "cypher",
+      "code": "MERGE (b:Book {id:'cma-b2'}) SET b.title='Garden Days',b.pages=40 RETURN b.title;",
+      "output": "The book with id cma-b2 is created or updated with the title Garden Days.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "match-or-create-with-merge"
+    },
+    {
+      "id": "connect-a-reader-to-a-book",
+      "title": "Connect a reader to a book",
+      "description": "A relationship gives two nodes a named connection and direction.",
+      "language": "cypher",
+      "code": "MERGE (r:Reader {id:'cma-r1'}) SET r.name='Mia'\nWITH r MATCH (b:Book {id:'cma-b1'}) MERGE (r)-[:READ]->(b) RETURN r.name,b.title;",
+      "output": "Mia is connected to Moon Trip by an outgoing READ relationship.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "connect-a-reader-to-a-book"
+    },
+    {
+      "id": "follow-a-relationship",
+      "title": "Follow a relationship",
+      "description": "A pattern can follow a known relationship to related nodes.",
+      "language": "cypher",
+      "code": "MATCH (r:Reader {id:'cma-r1'})-[:READ]->(b:Book) RETURN r.name,b.title;",
+      "output": "The result lists the books connected to Mia through READ.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "follow-a-relationship"
+    },
+    {
+      "id": "filter-nodes-with-where",
+      "title": "Filter nodes with WHERE",
+      "description": "WHERE adds a condition to a matched pattern.",
+      "language": "cypher",
+      "code": "MATCH (b:Book) WHERE b.id STARTS WITH \"cma-\" AND b.pages>=50 RETURN b.title,b.pages;",
+      "output": "The sample 60-page Moon Trip matches, while the 40-page Garden Days does not.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-nodes-with-where"
+    },
+    {
+      "id": "sort-and-limit-graph-results",
+      "title": "Sort and limit graph results",
+      "description": "ORDER BY sorts returned rows from a graph query.",
+      "language": "cypher",
+      "code": "MATCH (b:Book) WHERE b.id STARTS WITH 'cma-' RETURN b.title,b.pages ORDER BY b.pages,b.title LIMIT 1;",
+      "output": "With the two sample books, Garden Days is the shortest result.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "sort-and-limit-graph-results"
+    },
+    {
+      "id": "count-connected-books",
+      "title": "Count connected books",
+      "description": "An aggregate can summarise matched relationships.",
+      "language": "cypher",
+      "code": "MATCH (r:Reader {id:'cma-r1'})-[:READ]->(b:Book) RETURN r.name,count(b) AS books_read;",
+      "output": "Mia has one matched book in the seeded graph.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-connected-books"
+    },
+    {
+      "id": "keep-a-reader-with-no-match",
+      "title": "Keep a reader with no match",
+      "description": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing.",
+      "language": "cypher",
+      "code": "MERGE (r:Reader {id:'cma-r2'}) SET r.name='Sam'\nWITH r OPTIONAL MATCH (r)-[:READ]->(b:Book) RETURN r.name,b.title;",
+      "output": "Sam is returned with a null book title if no READ relationship exists.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-a-reader-with-no-match"
+    },
+    {
+      "id": "change-a-relationship-fact",
+      "title": "Change a relationship fact",
+      "description": "Relationships can hold properties too. A property can describe the connection itself, such as when a reader finished a book.",
+      "language": "cypher",
+      "code": "MATCH (:Reader {id:'cma-r1'})-[read:READ]->(:Book {id:'cma-b1'})\nSET read.finishedOn=date('2026-11-16') RETURN read.finishedOn;",
+      "output": "The READ relationship receives the finish date.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "change-a-relationship-fact"
+    },
+    {
+      "id": "remove-one-practice-node-carefully",
+      "title": "Remove one practice node carefully",
+      "description": "A connected node cannot be deleted normally while its relationships remain.",
+      "language": "cypher",
+      "code": "MATCH (r:Reader {id:'cma-r2'}) DETACH DELETE r;",
+      "output": "Only the sample reader cma-r2 and its own connections are removed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "remove-one-practice-node-carefully"
+    }
+  ]
+}

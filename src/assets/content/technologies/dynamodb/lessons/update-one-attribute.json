@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "update-one-attribute",
+  "title": "Update one attribute",
+  "summary": "UpdateItem can change selected attributes at a key.",
+  "introduction": "UpdateItem can change selected attributes at a key. Your task: Add a condition requiring the reader attribute to exist.",
+  "learningObjectives": [
+    "Add a condition requiring the reader attribute to exist.",
+    "Explain the example for update one attribute"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "UpdateItem can change selected attributes at a key. Expression names and values keep field names and data separate from the expression."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"Key\":{\"reader\":{\"S\":\"mia\"},\"book\":{\"S\":\"moon-trip\"}},\"UpdateExpression\":\"SET #pages=:pages\",\"ExpressionAttributeNames\":{\"#pages\":\"pages\"},\"ExpressionAttributeValues\":{\":pages\":{\"N\":\"64\"}},\"ReturnValues\":\"ALL_NEW\"}",
+      "title": "Update one attribute",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`UpdateExpression` states the attribute changes. It is separate from the key that selects the item.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression.",
+        "`ExpressionAttributeValues` passes typed data separately from the expression text."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The local update returns the item with pages changed to 64."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "UpdateItem can create an item if it is missing. Add an existence condition when an update must require an old item."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add a condition requiring the reader attribute to exist."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-update-one-attribute-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-update-one-attribute-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "read-all-result-pages"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Update one attribute",
+    "description": "UpdateItem can change selected attributes at a key. Expression names and values keep field names and data separate from the expression."
+  },
+  "updatedOn": "2026-11-16"
+}

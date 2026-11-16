@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "slug": "follow-one-request",
+  "title": "Follow one request",
+  "summary": "Trace a book search from a browser to a service and database, then follow the reply back. Find where a slow step adds waiting time.",
+  "introduction": "Imagine asking the librarian where a book is. Your question travels to the desk, the librarian checks the catalog, and an answer comes back. A web request makes a similar round trip.",
+  "learningObjectives": [
+    "Follow a request and its response",
+    "Describe the client, service, and database roles",
+    "Distinguish a failed request from an empty search result"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **request** asks another part to do work. A **response** is its reply. The browser is the client in this example. The library service checks the question and uses the database to find the answer."
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser first needs the service address. **DNS** is a name lookup that helps find a network address for a name. With **HTTPS**, the connection uses encryption to protect data while it travels."
+    },
+    {
+      "type": "paragraph",
+      "text": "Some work may already be ready. The browser may remember a DNS answer for a time or reuse an open connection. Our trace starts after the connection is ready, so it can focus on the search."
+    },
+    {
+      "type": "paragraph",
+      "text": "The public browser should not receive database passwords. It sends a request to a carefully designed service instead of connecting directly to a private database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The learner types Moon. The browser sends a search request.",
+        "The service checks that the search text and page size are allowed.",
+        "The service asks the database for a small page of matching records.",
+        "The database returns records. The service prepares a reply with only the needed fields.",
+        "The browser receives the reply and shows the titles and shelf labels."
+      ]
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/request-flow.svg",
+      "width": 400,
+      "height": 674,
+      "alt": "A book search goes from the browser to the book service and database. The result returns through the service to the browser.",
+      "caption": "Read from top to bottom. The service and browser appear twice because this shows their actions during one round trip."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Browser -> Service: GET /v1/books?title=moon&limit=2\nService: check the title and limit\nService -> Database: find matching book records\nDatabase -> Service: book 17, title Moon, shelf B2\nService -> Browser: 200 OK with the result list\nBrowser: show Moon on shelf B2",
+      "title": "Follow one request example",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The arrows going back are as important as the arrows going out. A successful database lookup is not enough if the final reply never reaches the learner."
+    },
+    {
+      "type": "paragraph",
+      "text": "Each step adds some time. A slow database query, a busy service, or a slow network can delay the whole trip. Measure the steps before choosing where to improve the design."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "No matching books is a valid answer: return a successful search with an empty list. A database that cannot answer is a different problem and needs a clear temporary-failure response."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **timeout** is a waiting limit. If a needed part does not respond in time, stop waiting and show a useful message. An endless spinning symbol does not help the learner decide what to do."
+    },
+    {
+      "type": "paragraph",
+      "text": "A message can be lost on its way back. For a read, trying again is usually safe. Changing stored data needs extra care because the first attempt may already have worked."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Imagine the database has no book with the requested title. Change the trace after the database lookup.",
+        "The database returns an empty list. The service replies with success and an empty list; the page says No matching books. This is not the same as a broken connection."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not draw only the forward path. Follow the answer all the way back, including what the learner sees when a step fails."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-follow-one-request"
+    }
+  ],
+  "exerciseIds": ["system-design-follow-one-request"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "apis-and-contracts"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "latency-and-throughput"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Follow one request",
+    "description": "Trace a book search from a browser to a service and database, then follow the reply back. Find where a slow step adds waiting time."
+  },
+  "updatedOn": "2026-11-16"
+}

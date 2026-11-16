@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "slug": "consistency-describes-agreement",
+  "title": "Consistency describes agreement",
+  "summary": "Compare fresh and delayed reads across copies. Use a book checkout to explain consistency promises and the choices made during a network break.",
+  "introduction": "Two desks may hold different copies of the same book list. If one desk updates its list first, the other desk may briefly show an old answer. A consistency rule tells us what readers are allowed to see.",
+  "learningObjectives": [
+    "Describe a strong-read promise and eventual consistency",
+    "Match a consistency choice to a library action",
+    "Explain the tradeoff during a network partition"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A consistency rule describes how reads relate to writes. For this lesson, a **strong** rule means that after a write succeeds, a later read of that item sees that write or a newer one. Readers should not go back to an older saved value."
+    },
+    {
+      "type": "paragraph",
+      "text": "With **eventual consistency**, copies should agree after updates stop and communication and repair can finish. The term alone does not promise a fixed number of seconds before agreement."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **network partition** is a communication break between parts of a system. Two desks can both be running while their link is broken. Neither can safely assume that the other desk has made no changes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "There is one physical copy of a book. Desk A records a successful checkout.",
+        "Desk B's replica still says available because it has not received the change.",
+        "An eventual read may show available. A later successful strong read must respect the completed checkout.",
+        "The checkout action itself also needs an atomic rule that checks and reserves the copy together. Fresh reads alone do not stop two simultaneous writers."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "ONE BOOK COPY, TWO DESKS\nStart: A and B both show \"available\".\nA saves checkout and confirms success.\nB has not received that change yet.\n\nEventual read at B: may still show \"available\".\nStrong read after success: must show the checkout or a newer state.\n\nDURING A BROKEN LINK\nOption 1: delay or refuse work that cannot keep the strong promise.\nOption 2: let separated parts answer, allowing old/conflicting states.\nChoose a rule for each action, and plan how conflicts are resolved.",
+      "title": "Consistency describes agreement plan",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "For a book description, a slightly old sentence may be acceptable. For lending the last physical copy, the design needs a safe check-and-update rule and may need to refuse a request when it cannot be certain."
+    },
+    {
+      "type": "paragraph",
+      "text": "One rule is called the **CAP theorem**. It applies when parts of a system cannot talk. The system cannot promise both one agreed order for reads and writes and a successful answer to every request at every working part. To keep the first promise, some requests may have to wait or fail."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Allow delayed description reads",
+          "Readers can use nearby copies",
+          "A recent edit may take time to appear"
+        ],
+        [
+          "Strong checkout decision",
+          "Can keep the rule about one active loan per copy",
+          "Some requests may wait or fail during communication trouble"
+        ],
+        [
+          "Read-your-writes support",
+          "Helps a user see their own recent change",
+          "This is a narrower promise than making every reader immediately agree"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Even when the network works, stronger coordination can add travel and waiting. Measure that cost against the actual correctness need instead of choosing one policy for every fact."
+    },
+    {
+      "type": "paragraph",
+      "text": "If two disconnected sides both accept edits, a later merge needs clear rules. Last-write-wins may discard an edit and depends on ordering rules; it is not automatically correct for payments, bookings, or loans."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Choose a consistency policy for a public book description and for lending the last copy. Explain one cost for each.",
+        "A description may allow delayed reads. Lending needs an atomic authoritative decision, which may reject work during a partition rather than promise the same copy twice."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not say eventual means immediate, or that CAP simply means pick any two. Name the exact read/write promise and what happens when communication breaks."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-consistency-describes-agreement"
+    }
+  ],
+  "exerciseIds": ["system-design-consistency-describes-agreement"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "copies-improve-availability"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Consistency describes agreement",
+    "description": "Compare fresh and delayed reads across copies. Use a book checkout to explain consistency promises and the choices made during a network break."
+  },
+  "updatedOn": "2026-11-16"
+}

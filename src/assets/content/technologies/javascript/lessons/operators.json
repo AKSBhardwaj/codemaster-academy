@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "slug": "operators",
+  "title": "Operators",
+  "summary": "An operator tells JavaScript to do a small job, such as add values or compare them.",
+  "introduction": "An operator tells JavaScript to do a small job, such as add values or compare them. Try maths signs first. Then compare two scores and join simple true-or-false rules to make a decision.",
+  "learningObjectives": [
+    "Use arithmetic and shorthand assignment operators",
+    "Compare values with === and explain why == is avoided",
+    "Combine conditions with &&, || and ! and use ?? for defaults",
+    "Write a conditional expression with the ternary operator"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arithmetic"
+    },
+    {
+      "type": "paragraph",
+      "text": "The arithmetic operators are `+`, `-`, `*`, `/`, `%` (remainder after division) and `**` (exponent). Multiplication and division happen before addition and subtraction, exactly as in maths, and parentheses override the order. The remainder operator is more useful than it looks: `n % 2` is `0` for even numbers, and `minutes % 60` gives the minutes left over after whole hours."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(7 + 3);\nconsole.log(7 - 3);\nconsole.log(7 * 3);\nconsole.log(7 / 2);\nconsole.log(7 % 3);   // remainder\nconsole.log(2 ** 10); // exponent\nconsole.log((7 + 3) * 2);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "10\n4\n21\n3.5\n1\n1024\n20"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Assignment shorthands"
+    },
+    {
+      "type": "paragraph",
+      "text": "`=` stores a value. Because 'take the current value, change it, store it back' is so common, every arithmetic operator has a combined form: `x += 5` means `x = x + 5`. The increment and decrement operators `++` and `--` add or subtract one."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let stock = 10;\nstock += 5;   // stock = stock + 5\nstock -= 3;\nstock *= 2;\nconsole.log(stock);\n\nlet visits = 0;\nvisits++;\nvisits++;\nconsole.log(visits);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "24\n2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparison: == versus ==="
+    },
+    {
+      "type": "paragraph",
+      "text": "Comparison operators produce a boolean. `>`, `<`, `>=` and `<=` work on numbers and compare strings alphabetically. For equality JavaScript has two operators. **Strict equality** `===` is true only when both the type and the value match. **Loose equality** `==` first converts the operands to a common type and then compares, following rules that few people remember. Always use `===` and `!==`; the examples below show why."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(5 > 3);\nconsole.log(5 >= 5);\nconsole.log(\"apple\" < \"banana\");   // strings compare letter by letter\nconsole.log(5 == \"5\");             // loose: converts, then compares\nconsole.log(5 === \"5\");            // strict: the types differ\nconsole.log(0 == false);\nconsole.log(0 === false);\nconsole.log(\"\" == 0);\nconsole.log(null == undefined);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\ntrue\ntrue\ntrue\nfalse\ntrue\nfalse\ntrue\ntrue"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Loose equality hides bugs",
+      "text": "`\"\" == 0` and `0 == false` are both true, so a check such as `if (input == 0)` passes for an empty form field as well as for a real zero. With `===` the types must match, and the mistake shows up immediately instead of in production."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Logical operators and defaults"
+    },
+    {
+      "type": "paragraph",
+      "text": "`&&` (and) is true when both sides are true, `||` (or) when at least one is, and `!` (not) flips a boolean. They **short-circuit**: `&&` stops at the first false value and `||` at the first true one, and the operator returns that value rather than a plain `true` or `false`. That is why `||` works as a fallback: `name || \"Guest\"` gives the name when it is non-empty. The catch is that `||` falls back on *every* falsy value, including `0` and `\"\"`. The **nullish coalescing** operator `??` only falls back when the left side is `null` or `undefined`, which is usually what you mean."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const age = 20;\nconst hasTicket = true;\nconsole.log(age >= 18 && hasTicket);\nconsole.log(age < 18 || hasTicket);\nconsole.log(!hasTicket);\n\n// || falls back on any falsy value; ?? only on null or undefined\nconst count = 0;\nconsole.log(count || 10);\nconsole.log(count ?? 10);\nlet missing;\nconsole.log(missing ?? \"not set\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\ntrue\nfalse\n10\n0\nnot set"
+    },
+    {
+      "type": "paragraph",
+      "text": "The falsy values are `false`, `0` (including `-0` and the BigInt `0n`), `\"\"`, `null`, `undefined` and `NaN`; everything else, including `\"0\"` and empty arrays, is truthy. The [Conditionals](/tutorials/javascript/conditionals) lesson returns to this list."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The + operator and strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "`+` is the one arithmetic operator with a second job: when either side is a string it **concatenates** (joins) instead of adding. The other arithmetic operators convert strings to numbers. Because expressions are evaluated left to right, `1 + 2 + \"3\"` adds first and then joins, while `\"1\" + 2 + 3` joins from the start."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(\"5\" + 3);\nconsole.log(\"5\" - 3);\nconsole.log(\"5\" * \"2\");\nconsole.log(1 + 2 + \"3\");\nconsole.log(\"1\" + 2 + 3);\nconsole.log(Number(\"5\") + 3);   // convert first when you want maths"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "53\n2\n10\n33\n123\n8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The conditional (ternary) operator"
+    },
+    {
+      "type": "paragraph",
+      "text": "`condition ? valueIfTrue : valueIfFalse` is an expression that picks one of two values. It replaces a four-line `if`/`else` when all you need is a value, for example a label or a CSS class. Keep it to one level; nested ternaries are hard to read."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const temperature = 31;\nconst advice = temperature > 30 ? \"Stay hydrated\" : \"Enjoy the day\";\nconsole.log(advice);\n\nconst items = 1;\nconsole.log(`${items} item${items === 1 ? \"\" : \"s\"} in your cart`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Stay hydrated\n1 item in your cart"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Precedence at a glance"
+    },
+    {
+      "type": "table",
+      "headers": ["Evaluated first", "Operators"],
+      "rows": [
+        ["1", "`()` grouping, then `**`"],
+        ["2", "`*` `/` `%`"],
+        ["3", "`+` `-`"],
+        ["4", "`<` `>` `<=` `>=`"],
+        ["5", "`===` `!==` (and the loose `==` `!=`)"],
+        ["6", "`&&`"],
+        ["7", "`||` and `??` (mixing them without parentheses is a syntax error)"],
+        ["8", "`? :` ternary, then assignment `=` `+=`"]
+      ],
+      "caption": "When in doubt, add parentheses: they cost nothing and make the intent obvious."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Predict the result of `10 % 3 ** 2` and of `\"3\" * \"4\" + 1`, then run them. Both answers follow from the precedence table and the conversion rules above."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-operators-strict-equality"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "operators-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "operators",
+          "difficulty": "beginner",
+          "question": "What does `console.log(\"3\" + 4 * 2)` print?",
+          "explanation": "Multiplication runs first (`4 * 2` is 8), then + sees a string on the left and concatenates: \"3\" + 8 is \"38\".",
+          "options": ["`14`", "`38`", "`11`", "`\"3\"8`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "operators-qc-2",
+          "type": "true-false",
+          "lessonSlug": "operators",
+          "difficulty": "beginner",
+          "question": "`0 ?? 5` evaluates to `5`.",
+          "explanation": "?? only falls back when the left side is null or undefined. 0 is neither, so the result is 0. With || the result would be 5 because 0 is falsy.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-operators-strict-equality"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "numbers-math"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Operators – Arithmetic, Comparison and Logic",
+    "description": "Learn JavaScript operators: arithmetic and assignment shorthands, strict versus loose equality, logical operators, nullish coalescing and the ternary operator."
+  },
+  "updatedOn": "2026-11-16"
+}

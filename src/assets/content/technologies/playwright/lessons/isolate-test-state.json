@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "isolate-test-state",
+  "title": "Isolate test state",
+  "summary": "Each Playwright test normally gets a fresh browser context. A context separates saved state such as cookies between tests.",
+  "introduction": "Each Playwright test normally gets a fresh browser context. A context separates saved state such as cookies between tests. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain isolate test state",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each Playwright test normally gets a fresh browser context. A context separates saved state such as cookies between tests."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"isolate test state\", async ({ page }) => {\n  await page.setContent(\"<p>Fresh test</p>\");\n  await expect(page.getByText(\"Fresh test\", { exact: true })).toBeVisible();\n});",
+      "title": "Isolate test state",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "This test starts from its own page fixture. Another test should arrange its own required data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Explain why test B should not depend on test A having clicked Save.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not rely on test order to create the state a test needs."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "playwright-isolate-test-state"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Playwright further reading](https://playwright.dev/docs/intro)."
+    }
+  ],
+  "exerciseIds": ["playwright-isolate-test-state"],
+  "relatedLessons": [
+    {
+      "technologySlug": "playwright",
+      "slug": "capture-useful-evidence"
+    }
+  ],
+  "seo": {
+    "title": "Playwright: Isolate test state",
+    "description": "Learn about isolate test state in Playwright. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

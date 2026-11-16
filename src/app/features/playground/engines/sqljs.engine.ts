@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ContentService } from '../../../core/services/content.service';
+import { publicPath } from '../../../../content-schema/site-constants';
 import type { ExecutionEngine, RunEvent, RunRequest } from './execution-engine';
 
-const WORKER_URL = '/assets/sql.js/worker.sql-wasm.js';
+const WORKER_URL = publicPath('/assets/sql.js/worker.sql-wasm.js');
 const RUN_TIMEOUT_MS = 5000;
 
 interface WorkerResult {
@@ -59,17 +61,35 @@ export class SqlJsEngine implements ExecutionEngine {
   readonly id = 'sqljs';
   readonly languages = ['sql'] as const;
   readonly capability = 'wasm' as const;
-  /** SQL executed before the learner's statements (set by the playground from content). */
+  /** SQL executed before the learner's statements; the playground sets it, lesson runners load it on demand. */
   setupSql = '';
+  private readonly content = inject(ContentService);
+  private setupLoad: Promise<string> | undefined;
+
+  /** The sample schema from site/playground.json, so inline runners and coding tasks see the same tables as the playground. */
+  private loadSetup(): Promise<string> {
+    if (this.setupSql) return Promise.resolve(this.setupSql);
+    this.setupLoad ??= this.content
+      .load<{ sqlSetup?: string }>('site/playground.json')
+      .then((config) => (this.setupSql = config.sqlSetup ?? ''))
+      .catch(() => '');
+    return this.setupLoad;
+  }
 
   run(request: RunRequest): Observable<RunEvent> {
     return new Observable<RunEvent>((subscriber) => {
       const started = performance.now();
       let worker: Worker | undefined;
       let nextId = 1;
-      const pending = new Map<number, { resolve: (r: WorkerResult) => void; reject: (e: Error) => void }>();
+      const pending = new Map<
+        number,
+        { resolve: (r: WorkerResult) => void; reject: (e: Error) => void }
+      >();
       const timer = setTimeout(() => {
-        subscriber.next({ type: 'error', message: 'The query did not finish within 5 seconds and was stopped.' });
+        subscriber.next({
+          type: 'error',
+          message: 'The query did not finish within 5 seconds and was stopped.',
+        });
         subscriber.complete();
       }, RUN_TIMEOUT_MS);
 
@@ -91,24 +111,42 @@ export class SqlJsEngine implements ExecutionEngine {
             else entry.resolve(event.data);
           };
           worker.onerror = (event) => {
-            subscriber.next({ type: 'error', message: `SQLite engine failed to load: ${event.message || 'unknown error'}` });
+            subscriber.next({
+              type: 'error',
+              message: `SQLite engine failed to load: ${event.message || 'unknown error'}`,
+            });
             subscriber.complete();
           };
           subscriber.next({ type: 'status', message: 'Starting SQLite (WebAssembly)' });
           await send({ action: 'open' });
-          if (this.setupSql) await send({ action: 'exec', sql: this.setupSql });
+          const setup = await this.loadSetup();
+          if (setup) await send({ action: 'exec', sql: setup });
           const statements = splitSqlStatements(request.code);
-          if (statements.length === 0) subscriber.next({ type: 'status', message: 'No SQL statements to run.' });
+          if (statements.length === 0)
+            subscriber.next({ type: 'status', message: 'No SQL statements to run.' });
           for (const statement of statements) {
             try {
               const result = await send({ action: 'exec', sql: statement });
               const sets = result.results ?? [];
               if (sets.length === 0) {
-                subscriber.next({ type: 'console', level: 'info', text: `OK: ${statement.split('\n')[0].slice(0, 80)}` });
+                subscriber.next({
+                  type: 'console',
+                  level: 'info',
+                  text: `OK: ${statement.split('\n')[0].slice(0, 80)}`,
+                });
               }
-              for (const set of sets) subscriber.next({ type: 'result', columns: set.columns, rows: set.values, statement });
+              for (const set of sets)
+                subscriber.next({
+                  type: 'result',
+                  columns: set.columns,
+                  rows: set.values,
+                  statement,
+                });
             } catch (error) {
-              subscriber.next({ type: 'error', message: `${(error as Error).message} — in: ${statement.split('\n')[0].slice(0, 80)}` });
+              subscriber.next({
+                type: 'error',
+                message: `${(error as Error).message} — in: ${statement.split('\n')[0].slice(0, 80)}`,
+              });
               break;
             }
           }

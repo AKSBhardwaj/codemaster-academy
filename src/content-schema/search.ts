@@ -5,14 +5,7 @@ import type { TechnologyStatus } from './common';
  * and the application (which queries it). No runtime dependencies on purpose.
  */
 export type SearchDocumentKind =
-  | 'technology'
-  | 'category'
-  | 'path'
-  | 'lesson'
-  | 'example'
-  | 'exercises'
-  | 'quiz'
-  | 'reference';
+  'technology' | 'category' | 'path' | 'lesson' | 'example' | 'exercises' | 'quiz' | 'reference';
 
 export interface SearchDocument {
   id: string;

@@ -4,7 +4,13 @@ import { CodeBlockComponent } from './code-block';
 
 @Component({
   imports: [CodeBlockComponent],
-  template: `<cma-code-block code="let a = 1;\nlet b = 2;" language="javascript" [highlightLines]="[2]" [showLineNumbers]="true" />`,
+  template: `<cma-code-block
+    code="let a = 1;
+let b = 2;"
+    language="javascript"
+    [highlightLines]="[2]"
+    [showLineNumbers]="true"
+  />`,
 })
 class HostComponent {}
 

@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "slug": "loops",
+  "title": "Loops",
+  "summary": "Repeat work with for, while and do-while loops, iterate arrays with the enhanced for loop, control loops with break and continue, nest loops, and avoid off-by-one errors.",
+  "introduction": "Almost every program repeats something: summing a list, retrying a request, drawing a grid. Java gives you four loop forms, and choosing the right one makes code shorter and bugs rarer. In this lesson you use the counting for loop, the condition-driven while and do-while loops, and the enhanced for loop over arrays; you steer loops with break and continue, nest them to build a table, and learn to spot the two classic loop bugs, the off-by-one error and the accidental infinite loop.",
+  "learningObjectives": [
+    "Choose between for, while, do-while and the enhanced for loop",
+    "Iterate over arrays by index and by element",
+    "Use break and continue to skip or end iterations",
+    "Find and fix off-by-one errors and infinite loops"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The for loop"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `for` loop packs three things into its header: an **initialiser** that runs once, a **condition** that is checked before every iteration, and an **update** that runs after every iteration. It is the natural choice when you know how many times to repeat or need a counter. The loop variable exists only inside the loop."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int sum = 0;\nfor (int i = 1; i <= 100; i++) {\n    sum += i;\n}\nSystem.out.println(\"Sum 1..100 = \" + sum);\n\nfor (int i = 10; i > 0; i -= 3) {\n    System.out.println(\"Countdown: \" + i);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Sum 1..100 = 5050\nCountdown: 10\nCountdown: 7\nCountdown: 4\nCountdown: 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second loop shows that the update can be any statement: here `i` goes down by three until the condition `i > 0` fails at `i = -2`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "while and do-while"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use `while` when you do not know the number of iterations in advance and simply repeat *as long as* a condition holds. `do-while` is the same, except the condition is tested **after** the body, so the body always runs at least once; it suits menus and input prompts where you must ask before you can check."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int n = 1;\nwhile (n < 100) {\n    n *= 2;\n}\nSystem.out.println(\"First power of two >= 100: \" + n);\n\nint attempts = 0;\ndo {\n    attempts++;\n    System.out.println(\"Attempt \" + attempts);\n} while (attempts < 3);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "First power of two >= 100: 128\nAttempt 1\nAttempt 2\nAttempt 3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Looping over arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **array** is a fixed-size sequence of values of one type: `int[] scores = {90, 72, 85, 64};` creates four slots numbered 0 to 3, and `scores.length` is 4. The **enhanced for loop** (`for (int score : scores)`) visits every element without an index and is the right choice whenever you only need the values. Use the classic index loop when you need the position too, or want to change elements in place."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int[] scores = {90, 72, 85, 64};\nint total = 0;\nfor (int score : scores) {\n    total += score;\n}\nSystem.out.println(\"Average: \" + (double) total / scores.length);\n\nString[] names = {\"Ada\", \"Linus\", \"Grace\"};\nfor (int i = 0; i < names.length; i++) {\n    System.out.println((i + 1) + \". \" + names[i]);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Average: 77.75\n1. Ada\n2. Linus\n3. Grace"
+    },
+    {
+      "type": "paragraph",
+      "text": "Note the cast `(double) total` before the division: without it, `311 / 4` would be integer division and print `77.0`. The parentheses around `(i + 1)` matter as well, because `+` with a string on the left would otherwise concatenate `i` and `1` as text."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "break and continue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`continue` skips the rest of the current iteration and jumps to the next one; `break` leaves the loop entirely. Both apply to the innermost loop they appear in. Here even numbers are skipped and the loop stops once `i` passes 7."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "for (int i = 1; i <= 10; i++) {\n    if (i % 2 == 0) {\n        continue;\n    }\n    if (i > 7) {\n        break;\n    }\n    System.out.println(i);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1\n3\n5\n7"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "A loop inside a loop runs the inner loop completely for every single iteration of the outer loop: for a 3 by 3 table that is nine inner iterations. `printf(\"%4d\", ...)` right-aligns each number in four characters, which keeps the columns straight, and `println()` ends each row."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "for (int row = 1; row <= 3; row++) {\n    for (int col = 1; col <= 3; col++) {\n        System.out.printf(\"%4d\", row * col);\n    }\n    System.out.println();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "   1   2   3\n   2   4   6\n   3   6   9"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Off-by-one errors and infinite loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "Array indexes run from `0` to `length - 1`, so the correct condition is `i < scores.length`. Writing `<=` asks for one element too many, and Java stops the program with an exception that names the bad index and the array length."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Main.java",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        int[] scores = {90, 72, 85};\n        for (int i = 0; i <= scores.length; i++) {\n            System.out.println(scores[i]);\n        }\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Main.java",
+      "content": "90\n72\n85\nException in thread \"main\" java.lang.ArrayIndexOutOfBoundsException: Index 3 out of bounds for length 3\n\tat Main.main(Main.java:5)"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **infinite loop** happens when the condition can never become false: a `while` whose variable is never updated, or a `for` whose update moves the wrong way (`i--` with `i < 10`). The program appears to hang; press Ctrl+C in the terminal to stop it, then check that something inside the body moves the condition toward false."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A semicolon after the loop header",
+      "text": "`for (int i = 0; i < 3; i++);` followed by a block is legal Java and a classic bug: the semicolon is an empty body, so the loop runs three times doing nothing, and the block runs once afterwards. The same applies to `while (...);`, which usually becomes an infinite loop. The compiler does not complain, so look for a stray `;` whenever a loop body runs only once."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Which loop?",
+      "text": "Counting or need an index: `for`. Repeat while something is true: `while`. Must run at least once: `do-while`. Visit every element of an array or collection: enhanced `for`. When a loop needs more than one `break`, it is often a sign that a method with an early `return` would read better."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-loops-fizzbuzz"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-loops-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "How many times does the body of `for (int i = 0; i < 5; i++)` run?",
+          "explanation": "`i` takes the values 0, 1, 2, 3 and 4; when it reaches 5 the condition `i < 5` is false and the loop ends. Five iterations.",
+          "options": ["4", "5", "6", "It never ends"],
+          "correctIndex": 1
+        },
+        {
+          "id": "java-loops-qc-2",
+          "type": "true-false",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "A do-while loop always executes its body at least once.",
+          "explanation": "The condition of a do-while loop is evaluated after the body, so the body runs before the first check.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-loops-fizzbuzz"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "operators-conditionals"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "collections"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "loops"
+    }
+  ],
+  "seo": {
+    "title": "Java Loops – for, while, do-while and for-each",
+    "description": "Learn Java for, while and do-while loops, the enhanced for loop over arrays, break and continue, nested loops, and how to avoid off-by-one and infinite loops."
+  },
+  "updatedOn": "2026-11-15"
+}

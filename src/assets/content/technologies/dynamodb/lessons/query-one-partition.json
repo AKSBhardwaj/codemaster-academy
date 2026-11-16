@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-one-partition",
+  "title": "Query one partition",
+  "summary": "Query selects one partition key and can return its related items.",
+  "introduction": "Query selects one partition key and can return its related items. Your task: Explain why this query does not read every reader partition.",
+  "learningObjectives": [
+    "Explain why this query does not read every reader partition.",
+    "Explain the example for query one partition"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Query selects one partition key and can return its related items. It is different from scanning the entire table."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"KeyConditionExpression\":\"#reader = :reader\",\"ExpressionAttributeNames\":{\"#reader\":\"reader\"},\"ExpressionAttributeValues\":{\":reader\":{\"S\":\"mia\"}}}",
+      "title": "Query one partition",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`KeyConditionExpression` uses the table or index keys to select a partition and, optionally, a sort-key range.",
+        "`ConditionExpression` checks the current item as part of the write, so a failed condition prevents the change.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The local query returns items in Mia's partition, ordered by their sort keys."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A key condition must fit the table or index key. An arbitrary non-key field needs a different design or a filter after reading."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why this query does not read every reader partition."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-query-one-partition-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-query-one-partition-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "read-an-exact-key"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Query one partition",
+    "description": "Query selects one partition key and can return its related items. It is different from scanning the entire table."
+  },
+  "updatedOn": "2026-11-16"
+}

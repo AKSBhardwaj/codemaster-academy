@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "parse-number",
+  "title": "Check a path number",
+  "summary": "Phoenix: Check a path number. Visit /double/4cats.",
+  "introduction": "Integer.parse reads a number and the unused text. Open GET /double/4.",
+  "learningObjectives": ["Check a path number with Phoenix", "Visit /double/4cats"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check a path number"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Check a path number",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/double/:n\", LessonController, :twice\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef twice(conn, %{\"n\" => raw}) do\n case Integer.parse(raw) do\n  {n, \"\"} -> json(conn, %{answer: n * 2})\n  _ -> conn |> put_status(400) |> json(%{error: \"Use a whole number\"})\n end\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Integer.parse returns both 4 and an empty remainder. That exact pattern accepts the input."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /double/4cats."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check that no trailing text remains after the parsed number."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-parse-number-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-parse-number-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Check a path number",
+    "description": "Phoenix: Check a path number. Visit /double/4cats. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

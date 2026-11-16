@@ -8,13 +8,18 @@ import type { UiIconName } from '../../icons/ui-icons.generated';
   selector: 'cma-category-card',
   imports: [RouterLink, IconComponent],
   template: `
-    <a class="cma-category-card cma-card cma-card--link" [routerLink]="['/tutorials/category', category().slug]">
+    <a
+      class="cma-category-card cma-card cma-card--link"
+      [routerLink]="['/tutorials/category', category().slug]"
+    >
       <span class="cma-category-card__icon" [style.--accent]="category().accent">
         <cma-icon [name]="icon()" [size]="22" />
       </span>
       <span class="min-w-0">
         <span class="cma-category-card__name">{{ category().name }}</span>
-        <span class="cma-category-card__count">{{ count() }} {{ count() === 1 ? 'technology' : 'technologies' }}</span>
+        <span class="cma-category-card__count"
+          >{{ count() }} {{ count() === 1 ? 'technology' : 'technologies' }}</span
+        >
       </span>
     </a>
   `,

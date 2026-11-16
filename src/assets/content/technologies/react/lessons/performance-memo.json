@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "performance-memo",
+  "title": "Performance: memo, useMemo and useCallback",
+  "summary": "React can reuse some work when values have not changed. This can help when a page has a slow task.",
+  "introduction": "React can reuse some work when values have not changed. This can help when a page has a slow task. Measure the problem first. Then learn memo, useMemo and useCallback one at a time, instead of adding them to every small part.",
+  "learningObjectives": [
+    "Explain when a component re-renders and why a re-render is not a DOM update",
+    "Skip re-renders of a child with memo and explain why inline objects defeat it",
+    "Cache expensive calculations with useMemo and function identity with useCallback",
+    "Describe what the React Compiler automates and check whether a project uses it"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When does a component re-render?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A component re-renders when its state changes, when its parent re-renders, or when a context it reads changes. The middle one surprises people: by default React re-runs **every child** of a re-rendering parent, whether or not the child's props changed. Re-rendering means calling the function and diffing the result; it does not mean touching the DOM, which only happens where the output actually differs. That is why re-renders are usually cheap, and why optimizing them blindly is a waste."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Parent.jsx",
+      "code": "import { useState } from 'react';\n\nfunction Child({ label }) {\n  console.log('render Child', label);\n  return <p>{label}</p>;\n}\n\nfunction Parent() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <>\n      <button onClick={() => setCount(count + 1)}>Clicked {count}</button>\n      <Child label=\"static\" />\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "mount:    render Child static\nclick 1:  render Child static\nclick 2:  render Child static"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "memo: skip when props are equal"
+    },
+    {
+      "type": "paragraph",
+      "text": "`memo` wraps a component and tells React to reuse the last result if every prop is the same as before (compared with `Object.is`, one level deep). It helps when a component is expensive and its props rarely change."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Child with memo",
+      "code": "import { memo } from 'react';\n\nconst Child = memo(function Child({ label }) {\n  console.log('render Child', label);\n  return <p>{label}</p>;\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console with the memoized Child",
+      "content": "mount:    render Child static\nclick 1:  (nothing)\nclick 2:  (nothing)"
+    },
+    {
+      "type": "paragraph",
+      "text": "A memoized child still re-renders when its own state or a context it reads changes, and, crucially, when it receives a prop that is a new object, array or function on every render, because those are never `Object.is`-equal to the previous ones."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: memo defeated by inline values",
+      "text": "`<Child options={{ compact: true }} onSelect={() => select(id)} />` passes a brand-new object and a brand-new function on every render of the parent, so a `memo` child re-renders every time and the memo buys nothing. Either move static values outside the component, or keep them stable with `useMemo` and `useCallback` as shown below."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "useMemo: cache a calculation"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "ProductList.jsx",
+      "code": "import { useMemo, useState } from 'react';\n\nfunction ProductList({ products, query }) {\n  const [sortAsc, setSortAsc] = useState(true);\n  const [compact, setCompact] = useState(false);\n\n  const visible = useMemo(() => {\n    console.log('filtering');\n    const filtered = products.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));\n    return filtered.sort((a, b) => (sortAsc ? a.price - b.price : b.price - a.price));\n  }, [products, query, sortAsc]);\n\n  return (\n    <>\n      <button onClick={() => setSortAsc(!sortAsc)}>Sort {sortAsc ? 'ascending' : 'descending'}</button>\n      <label>\n        <input type=\"checkbox\" checked={compact} onChange={(e) => setCompact(e.target.checked)} />\n        Compact\n      </label>\n      <ul className={compact ? 'compact' : undefined}>\n        {visible.map((p) => (\n          <li key={p.id}>{p.name} – {p.price}</li>\n        ))}\n      </ul>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "the parent passes a new query:   filtering\nclick the Sort button:           filtering\ntick the Compact checkbox:       (nothing – the cached list is reused)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useMemo(fn, deps)` calls `fn` during render and returns its result; on later renders it returns the cached result as long as every dependency is unchanged. Use it for genuinely expensive work (filtering or sorting thousands of items, building a chart dataset) and to keep an object or array referentially stable for a `memo` child or an effect dependency. Do not wrap every variable in it; the bookkeeping costs more than a cheap calculation."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "useCallback: stable function identity"
+    },
+    {
+      "type": "paragraph",
+      "text": "Functions defined inside a component are recreated on every render. That is fine until you pass one to a `memo` child or list it as an effect dependency. `useCallback(fn, deps)` returns the same function instance until a dependency changes; it is `useMemo` for functions."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Toolbar.jsx",
+      "code": "import { memo, useCallback, useState } from 'react';\n\nconst Button = memo(function Button({ onClick, children }) {\n  console.log('render Button', children);\n  return <button onClick={onClick}>{children}</button>;\n});\n\nfunction Toolbar() {\n  const [count, setCount] = useState(0);\n  const [theme, setTheme] = useState('light');\n\n  const increment = useCallback(() => setCount((c) => c + 1), []);\n\n  return (\n    <div className={theme}>\n      <p>Count: {count}</p>\n      <Button onClick={increment}>Increment</Button>\n      <button onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}>\n        Toggle theme\n      </button>\n    </div>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console when clicking Toggle theme",
+      "content": "with useCallback:     (nothing – Button keeps its last render)\nwithout useCallback:  render Button Increment"
+    },
+    {
+      "type": "paragraph",
+      "text": "The updater form `(c) => c + 1` is what allows an empty dependency array: the callback never reads `count`, so it never goes stale. If a callback must read state, list that state in the dependencies and accept that the function changes when the state does."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The React Compiler"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything above is manual memoization, and getting it right everywhere is tedious. The **React Compiler** is a build-time tool from the React team that analyses components and inserts the equivalent of `memo`, `useMemo` and `useCallback` automatically, as long as the code follows the rules of React (pure rendering, no mutation of props or state). It reached a stable 1.0 release in 2025 and targets React 19; older versions need a small runtime package."
+    },
+    {
+      "type": "paragraph",
+      "text": "It is **opt-in**. The default Vite React template does not enable it, so check `vite.config.js`; enabling it means installing the Babel plugin and registering it with the React plugin:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install -D babel-plugin-react-compiler"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "vite.config.js",
+      "code": "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({\n  plugins: [\n    react({\n      babel: {\n        plugins: [['babel-plugin-react-compiler', {}]],\n      },\n    }),\n  ],\n});"
+    },
+    {
+      "type": "paragraph",
+      "text": "With the compiler on, most hand-written `memo`, `useMemo` and `useCallback` become redundant and can be removed gradually. Keep them where you integrate with code the compiler cannot see, and keep using them in projects that have not adopted it. Recent versions of `eslint-plugin-react-hooks` include the compiler's lint rules, which flag code the compiler has to skip."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Measure before you optimize"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Open the **Profiler** tab in React DevTools, record an interaction and look at which components rendered and how long they took. The \"highlight updates\" setting shows re-renders live.",
+        "Fix structure first: keep state as close as possible to where it is used, so that typing in a search box does not re-render the whole page.",
+        "Use `memo` only around components the Profiler shows as expensive and frequently re-rendered with unchanged props.",
+        "For large lists, render only the visible rows with a virtualization library such as TanStack Virtual; no memoization beats not rendering 10,000 rows.",
+        "For input-heavy screens, `useDeferredValue` and `useTransition` let React keep typing responsive by rendering the expensive part at lower priority."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where to go next",
+      "text": "You now have the full set of tools this tutorial set out to teach. Good next steps are TypeScript with React (`--template react-ts`; see the [TypeScript tutorial](/tutorials/typescript)), testing components with Vitest and Testing Library, and a framework such as Next.js when you need server rendering or Server Components."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-memo-guarantee"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-perf-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "performance-memo",
+          "difficulty": "intermediate",
+          "question": "A `memo` child receives `style={{ margin: 8 }}` from its parent. What happens when the parent re-renders?",
+          "explanation": "`memo` compares props with `Object.is`. An object literal in JSX is a new object every render, so the comparison fails and the child re-renders.",
+          "options": [
+            "The child is skipped because the style has the same values",
+            "The child re-renders because the object is a new reference each time",
+            "React throws an error",
+            "The style prop is ignored"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-perf-qc-2",
+          "type": "true-false",
+          "lessonSlug": "performance-memo",
+          "difficulty": "beginner",
+          "question": "Re-rendering a component always updates the DOM.",
+          "explanation": "A re-render produces a new element tree that React diffs against the previous one. Only the parts that differ become DOM operations; often there are none.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-memo-guarantee"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "components-props"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "lists-keys"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "custom-hooks"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "context"
+    }
+  ],
+  "seo": {
+    "title": "React Performance – memo, useMemo, useCallback",
+    "description": "When React re-renders, skipping wasted renders with memo, caching with useMemo and useCallback, profiling with DevTools, and what the React Compiler automates."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -18,7 +18,10 @@ import { IconComponent } from '../icon/icon';
         }
       </div>
       @if (linkPath()) {
-        <a class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1" [routerLink]="linkPath()">
+        <a
+          class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+          [routerLink]="linkPath()"
+        >
           {{ linkLabel() }} <cma-icon name="arrow-right" [size]="14" />
         </a>
       }

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "prevent-unexpected-navigation",
+  "title": "Prevent unexpected navigation",
+  "summary": "A local app window should not become an unrestricted browser for unknown content.",
+  "introduction": "A local app window should not become an unrestricted browser for unknown content. Your task: Try a link in your local page and observe the policy.",
+  "learningObjectives": [
+    "Try a link in your local page and observe the policy.",
+    "Explain the example for prevent unexpected navigation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A local app window should not become an unrestricted browser for unknown content. Navigation can be blocked when the app only needs its bundled page."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Electron project with electron installed as a dev dependency and main.cjs as its main file. Run with npx electron . after creating package.json and index.html. These APIs do not run in a web-page playground."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// main.cjs, after creating win.\nwin.webContents.on(\"will-navigate\",event=>event.preventDefault());\nwin.webContents.setWindowOpenHandler(()=>({action:\"deny\"}));",
+      "title": "Prevent unexpected navigation",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`preventDefault` stops the event's normal browser action, such as a form loading a new page. Your code must provide the intended response.",
+        "`setWindowOpenHandler` decides whether a page may create a new window. This simple local utility denies the request."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The app denies renderer-driven page navigation and new-window requests for this simple local design."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "If external links are needed, allow only carefully checked destinations through a narrow main-process action."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Try a link in your local page and observe the policy."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "electron-prevent-unexpected-navigation-check"
+    }
+  ],
+  "exerciseIds": ["electron-prevent-unexpected-navigation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "electron",
+      "slug": "handle-a-bridge-failure"
+    }
+  ],
+  "seo": {
+    "title": "Electron: Prevent unexpected navigation",
+    "description": "A local app window should not become an unrestricted browser for unknown content. Navigation can be blocked when the app only needs its bundled page."
+  },
+  "updatedOn": "2026-11-16"
+}

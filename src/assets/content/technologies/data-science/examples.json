@@ -1,0 +1,126 @@
+{
+  "title": "Data Science Examples",
+  "description": "Small Data Science examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Begin with a clear question",
+      "description": "Data is recorded information. Data science uses careful questions and checks to learn from it. A clear question tells us what we need to count.",
+      "language": "text",
+      "code": "Question: which book type was borrowed most this week?\nNeeded: one row per borrowing and the book type\nNot needed: learner names or home addresses\nResult: a count for each type",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "organise-rows-and-columns",
+      "title": "Organise rows and columns",
+      "description": "A row holds one record. A column holds one kind of information. A list of dictionaries can represent a small table in Python.",
+      "language": "python",
+      "code": "rows = [{\"type\": \"story\", \"count\": 4}, {\"type\": \"science\", \"count\": 2}]\nprint(rows[0][\"count\"])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "organise-rows-and-columns"
+    },
+    {
+      "id": "read-a-tiny-csv-table",
+      "title": "Read a tiny CSV table",
+      "description": "CSV stores table rows as text, often with commas between fields. A CSV reader handles fields more carefully than splitting every line yourself.",
+      "language": "python",
+      "code": "import csv\nfrom io import StringIO\ntext = \"type,count\\nstory,4\\nscience,2\\n\"\nrows = list(csv.DictReader(StringIO(text)))\nprint(rows[0][\"count\"])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-tiny-csv-table"
+    },
+    {
+      "id": "use-consistent-units",
+      "title": "Use consistent units",
+      "description": "Before comparing measurements, put them in the same units. Metres and centimetres describe length on different scales.",
+      "language": "python",
+      "code": "lengths_cm = [100, 150, 200]\nlengths_m = [value / 100 for value in lengths_cm]\nprint(lengths_m)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-consistent-units"
+    },
+    {
+      "id": "handle-missing-values-honestly",
+      "title": "Handle missing values honestly",
+      "description": "A missing value means a measurement is absent. It does not mean zero. Keep track of what you leave out of a calculation.",
+      "language": "python",
+      "code": "minutes = [10, None, 20]\nknown = [value for value in minutes if value is not None]\nprint(sum(known) / len(known), len(known))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-missing-values-honestly"
+    },
+    {
+      "id": "check-duplicate-records",
+      "title": "Check duplicate records",
+      "description": "A duplicate is a repeated record. Some repeats are mistakes, but repeated events can also be real. Use a suitable identifier before removing anything.",
+      "language": "python",
+      "code": "events = [{\"id\": \"a\", \"type\": \"story\"}, {\"id\": \"a\", \"type\": \"story\"}, {\"id\": \"b\", \"type\": \"story\"}]\nids = [row[\"id\"] for row in events]\nprint(len(ids), len(set(ids)))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-duplicate-records"
+    },
+    {
+      "id": "count-categories",
+      "title": "Count categories",
+      "description": "A category is a named group. Counter counts how often each value occurs in a list.",
+      "language": "python",
+      "code": "from collections import Counter\nborrowings = [\"story\", \"science\", \"story\", \"poetry\"]\ncounts = Counter(borrowings)\nprint(counts[\"story\"], counts[\"science\"])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-categories"
+    },
+    {
+      "id": "mean-and-median-show-different-centres",
+      "title": "Mean and median show different centres",
+      "description": "The mean adds values and divides by their count. The median is the middle value after sorting. A very large value can pull the mean upward.",
+      "language": "python",
+      "code": "from statistics import mean, median\nminutes = [2, 3, 4, 5, 36]\nprint(mean(minutes), median(minutes))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "mean-and-median-show-different-centres"
+    },
+    {
+      "id": "look-at-spread",
+      "title": "Look at spread",
+      "description": "Spread describes how far apart values are. The range subtracts the smallest value from the largest. It is a simple start, not a full description.",
+      "language": "python",
+      "code": "scores = [6, 7, 7, 10]\nprint(max(scores) - min(scores))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "look-at-spread"
+    },
+    {
+      "id": "choose-a-clear-chart",
+      "title": "Choose a clear chart",
+      "description": "A chart should fit the question. Bars compare category counts. A line can show ordered measurements over time. Labels must name the values and units.",
+      "language": "text",
+      "code": "Question: compare borrowings by book type\nChart: bars\nHorizontal labels: story, science, poetry\nVertical label: number of borrowings\nBar baseline: zero",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-a-clear-chart"
+    },
+    {
+      "id": "a-pattern-does-not-prove-a-cause",
+      "title": "A pattern does not prove a cause",
+      "description": "Two things can change together without one causing the other. A third factor or the way data was collected may explain the pattern.",
+      "language": "text",
+      "code": "Observed: more ice cream sales and more swimming on hot days\nPossible shared cause: warm weather\nUnsupported claim: buying ice cream makes people swim",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "a-pattern-does-not-prove-a-cause"
+    },
+    {
+      "id": "report-the-answer-and-its-limits",
+      "title": "Report the answer and its limits",
+      "description": "A useful report states the question, result, method and limits. Readers should be able to check where the answer came from.",
+      "language": "text",
+      "code": "Question: which type was borrowed most this week?\nSample: 4 fictional borrowing events\nResult: story had 2 events; science and poetry had 1 each\nLimit: one tiny week does not describe the whole year",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "report-the-answer-and-its-limits"
+    }
+  ]
+}

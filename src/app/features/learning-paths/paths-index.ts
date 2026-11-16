@@ -13,9 +13,10 @@ import { PathCardComponent } from '../../shared/components/path-card/path-card';
     <cma-page-header
       eyebrow="Roadmaps"
       title="Learning paths"
-      lead="Ordered tutorials that take you from fundamentals to job-ready skills, with time estimates for every stage. Stages that point to planned tutorials are labelled so you always know what is available today."
+      lead="A learning path is a list of topics to follow in order. Choose what you want to learn, then take one small step. Every stage has lessons ready for you."
     />
     <div class="container-xxl py-4 py-lg-5">
+      <h2 class="h4 mb-3">Choose a learning goal</h2>
       <div class="row g-3">
         @for (path of catalog.paths(); track path.slug) {
           <div class="col-12 col-sm-6 col-lg-4"><cma-path-card [path]="path" /></div>

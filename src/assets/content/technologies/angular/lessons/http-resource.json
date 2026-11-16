@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "slug": "http-resource",
+  "title": "Loading Data with HttpClient and httpResource",
+  "summary": "Call a JSON API with HttpClient, turn the result into a signal with toSignal, declare reactive requests with httpResource and resource, and add headers with a functional interceptor.",
+  "introduction": "Almost every app shows data that lives on a server. Angular ships HttpClient, a typed, testable wrapper around fetch, and since version 19 the signal-based resource APIs that re-fetch automatically when their inputs change and expose loading and error states as signals. This lesson configures the HTTP client, loads a product list both ways, reacts to a changing category, and adds an authorization header to every request.",
+  "learningObjectives": [
+    "Register HttpClient with provideHttpClient and call a JSON API from a service",
+    "Convert an observable to a signal with toSignal and declare requests with httpResource",
+    "Handle loading, error and reload states and add headers with an interceptor"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Enable HttpClient"
+    },
+    {
+      "type": "paragraph",
+      "text": "`HttpClient` is not available until you provide it. Add `provideHttpClient()` to the application configuration; `withFetch()` makes it use the browser's `fetch` API, which is also what server-side rendering needs."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.config.ts",
+      "code": "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideHttpClient, withFetch } from '@angular/common/http';\nimport { provideRouter } from '@angular/router';\nimport { routes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideHttpClient(withFetch()),\n  ],\n};"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A service around the API"
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep URLs and response types in one service so components never build requests themselves. `HttpClient` methods return RxJS observables typed with the generic you pass; the JSON body is parsed for you."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/products-api.ts",
+      "code": "import { Injectable, inject } from '@angular/core';\nimport { HttpClient } from '@angular/common/http';\nimport { Observable } from 'rxjs';\n\nexport interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\n@Injectable({ providedIn: 'root' })\nexport class ProductsApi {\n  private readonly http = inject(HttpClient);\n\n  list(): Observable<Product[]> {\n    return this.http.get<Product[]>('/api/products');\n  }\n\n  create(product: Omit<Product, 'id'>): Observable<Product> {\n    return this.http.post<Product>('/api/products', product);\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "To display the list, convert the observable into a signal with `toSignal()`. It subscribes immediately, unsubscribes when the component is destroyed and gives the template a value to read right away, here an empty array."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/product-list/product-list.ts",
+      "code": "import { Component, inject } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { Product, ProductsApi } from '../products-api';\n\n@Component({\n  selector: 'app-product-list',\n  template: `\n    <ul>\n      @for (product of products(); track product.id) {\n        <li>{{ product.name }} - {{ product.price }} EUR</li>\n      } @empty {\n        <li>No products yet.</li>\n      }\n    </ul>\n  `,\n})\nexport class ProductList {\n  private readonly api = inject(ProductsApi);\n  readonly products = toSignal(this.api.list(), { initialValue: [] as Product[] });\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "With GET /api/products returning two products",
+      "content": "No products yet.\n\nOnce the response arrives:\nKeyboard - 49 EUR\nMouse - 19 EUR"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a request that never happens",
+      "text": "Observables are lazy. `this.api.create(product);` on its own sends nothing: no subscriber, no request. Either subscribe (`this.api.create(product).subscribe()`), convert to a promise with `await firstValueFrom(this.api.create(product))`, or hand the observable to `toSignal()`, which subscribes for you. The network tab in the browser's developer tools is the quickest way to confirm a request was really sent."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "httpResource: requests as signals"
+    },
+    {
+      "type": "paragraph",
+      "text": "`toSignal()` is fine for a one-off load, but it cannot tell you whether the request is still running, whether it failed, or re-run when a filter changes. `httpResource()` can. You give it a function that returns the URL or a request description; Angular tracks the signals that function reads and fetches again whenever they change. The result exposes `value()`, `isLoading()`, `error()`, `status()` and a `reload()` method."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/catalog/catalog.ts",
+      "code": "import { Component, signal } from '@angular/core';\nimport { httpResource } from '@angular/common/http';\nimport { Product } from '../products-api';\n\n@Component({\n  selector: 'app-catalog',\n  template: `\n    <select #cat (change)=\"category.set(cat.value)\">\n      <option value=\"all\">All</option>\n      <option value=\"audio\">Audio</option>\n    </select>\n    <button (click)=\"products.reload()\">Refresh</button>\n\n    @if (products.isLoading()) {\n      <p>Loading...</p>\n    } @else if (products.error()) {\n      <p>Could not load products.</p>\n    } @else {\n      <ul>\n        @for (product of products.value(); track product.id) {\n          <li>{{ product.name }}</li>\n        } @empty {\n          <li>No products in this category.</li>\n        }\n      </ul>\n    }\n  `,\n})\nexport class Catalog {\n  readonly category = signal('all');\n\n  readonly products = httpResource<Product[]>(\n    () => ({\n      url: '/api/products',\n      params: { category: this.category() },\n    }),\n    { defaultValue: [] },\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "Loading...\n\nAfter GET /api/products?category=all responds:\nKeyboard\nMouse\n\nAfter choosing \"Audio\" (GET /api/products?category=audio):\nLoading...\nHeadphones"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Changing `category` changes the request function's result, so the resource fetches again. No subscription, no `ngOnChanges`, no manual call.",
+        "`defaultValue: []` means `value()` is always an array, so the template needs no null checks. Without it, `value()` is `undefined` until the first response.",
+        "`reload()` repeats the current request, for a refresh button or after a write.",
+        "A request that is still running when its inputs change is cancelled automatically, so a slow earlier response cannot overwrite a newer one.",
+        "If the request function returns `undefined`, nothing is fetched; use that to wait until an id is known."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`httpResource` is for reading. Writes (POST, PUT, DELETE) stay with `HttpClient`, typically followed by `reload()` on the resource that shows the affected data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "resource() for anything asynchronous"
+    },
+    {
+      "type": "paragraph",
+      "text": "`httpResource` is a specialised form of `resource()`, which accepts any async loader: `fetch`, a database in the browser, a WebSocket request. `params` is the reactive input and the loader receives it together with an `abortSignal` for cancellation."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { resource, signal } from '@angular/core';\n\nconst userId = signal(7);\n\nconst user = resource({\n  params: () => ({ id: userId() }),\n  loader: async ({ params, abortSignal }) => {\n    const response = await fetch(`/api/users/${params.id}`, { signal: abortSignal });\n    if (!response.ok) throw new Error(`HTTP ${response.status}`);\n    return (await response.json()) as { id: number; name: string };\n  },\n});"
+    },
+    {
+      "type": "table",
+      "headers": ["Approach", "Best for", "Loading and error state"],
+      "rows": [
+        [
+          "`HttpClient` + `subscribe`",
+          "Writes and fire-and-forget calls",
+          "Handle in the subscriber"
+        ],
+        [
+          "`HttpClient` + `toSignal()`",
+          "A single read that never changes",
+          "Not tracked; use `catchError` in the pipe"
+        ],
+        [
+          "`httpResource()`",
+          "Reads that depend on signals (filters, route params)",
+          "`isLoading()`, `error()`, `reload()`"
+        ],
+        ["`resource()`", "Any async source with a custom loader", "Same API as `httpResource`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Interceptors"
+    },
+    {
+      "type": "paragraph",
+      "text": "An interceptor is a function that sees every request before it leaves and every response before it arrives. Typical jobs: adding an `Authorization` header, logging, retrying, or redirecting to the login page on a 401. Requests are immutable, so you `clone()` them with the change."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/auth-interceptor.ts and app.config.ts",
+      "code": "import { HttpInterceptorFn } from '@angular/common/http';\nimport { inject } from '@angular/core';\nimport { AuthService } from './auth-service';\n\nexport const authInterceptor: HttpInterceptorFn = (req, next) => {\n  const token = inject(AuthService).token();\n  if (!token) {\n    return next(req);\n  }\n  return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));\n};\n\n// app.config.ts\n// provideHttpClient(withFetch(), withInterceptors([authInterceptor]))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Request headers in the browser's network tab, once a token exists",
+      "content": "GET /api/products?category=all\nAccept: application/json, text/plain, */*\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.example"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "A failed request produces an `HttpErrorResponse` with `status` and `message`. With `httpResource`, `error()` holds it and the template decides what to show. With observables, `catchError` from RxJS turns the failure into a fallback value or a user-facing message: `this.http.get<Product[]>(url).pipe(catchError(() => of([])))`. Show the user something in every case; a blank screen after a failed request is the most common beginner bug in data-driven pages."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where is the API?",
+      "text": "During development, `ng serve` can forward `/api` to a backend on another port through a proxy configuration (`ng serve --proxy-config proxy.conf.json`). That keeps the URLs in your code relative and avoids CORS errors. The [REST API tutorial](/tutorials/rest-api) covers designing the endpoints themselves."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-http-loading-state"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-http-qc-1",
+          "type": "true-false",
+          "lessonSlug": "http-resource",
+          "difficulty": "beginner",
+          "question": "Calling `this.http.delete('/api/products/3')` without subscribing still sends the request.",
+          "explanation": "HttpClient observables are cold: nothing happens until something subscribes or the observable is converted with toSignal or firstValueFrom.",
+          "correct": false
+        },
+        {
+          "id": "angular-http-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "http-resource",
+          "difficulty": "intermediate",
+          "question": "An `httpResource` reads `this.page()` in its request function. What happens when `page` changes from 1 to 2?",
+          "explanation": "The request function is reactive: a change in any signal it reads triggers a new request, and the previous one is cancelled if still running.",
+          "options": [
+            "Nothing until `reload()` is called",
+            "A new request is sent automatically and the old one is cancelled",
+            "The resource throws because inputs cannot change",
+            "The previous value is cleared and must be re-fetched manually"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-http-loading-state"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "services-di"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "signals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    }
+  ],
+  "seo": {
+    "title": "Angular HttpClient and httpResource – Load API Data",
+    "description": "Learn to load data in Angular 22: provideHttpClient, typed HttpClient services, toSignal, reactive httpResource with loading and error states, resource() and."
+  },
+  "updatedOn": "2026-11-15"
+}

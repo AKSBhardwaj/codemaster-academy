@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "slug": "constraints",
+  "title": "Keys and Constraints",
+  "summary": "A constraint is a rule that a database checks when data is added or changed.",
+  "introduction": "A constraint is a rule that a database checks when data is added or changed. A school list should not have two students with the same id. Use rules to protect ids, required values and links between tables.",
+  "learningObjectives": [
+    "Choose primary keys, including composite keys",
+    "Enforce UNIQUE, NOT NULL, CHECK and DEFAULT rules",
+    "Link tables with FOREIGN KEY and choose an ON DELETE action",
+    "Enable foreign key enforcement in SQLite"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why constraints?"
+    },
+    {
+      "type": "paragraph",
+      "text": "You could validate data in application code, but there is usually more than one application, plus scripts, imports and manual fixes. A constraint lives with the table, so it applies to all of them. When a statement would break a rule, the database rejects it with an error and leaves the data unchanged."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Primary keys"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **primary key** uniquely identifies each row; it is automatically `NOT NULL` and `UNIQUE`, and other tables refer to it. Most tables use a surrogate integer id. When a combination of columns is naturally unique, a **composite key** lists them together, which also prevents duplicate pairs:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE enrollments (\n  student_id INTEGER NOT NULL,\n  course_id INTEGER NOT NULL,\n  PRIMARY KEY (student_id, course_id)\n);\nINSERT INTO enrollments VALUES (1, 10), (1, 11), (2, 10);\nINSERT INTO enrollments VALUES (1, 10);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE enrollments (\nOK: INSERT INTO enrollments VALUES (1, 10), (1, 11), (2, 10)\nUNIQUE constraint failed: enrollments.student_id, enrollments.course_id — in: INSERT INTO enrollments VALUES (1, 10)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The error names both key columns. Note the pattern: the first three rows were inserted, the duplicate was rejected, and the playground stopped at the error."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "UNIQUE, NOT NULL, CHECK and DEFAULT"
+    },
+    {
+      "type": "table",
+      "headers": ["Constraint", "Rule", "Typical use"],
+      "rows": [
+        ["`NOT NULL`", "A value is required", "names, dates, foreign key columns"],
+        ["`UNIQUE`", "No two rows share the value", "emails, usernames, product codes"],
+        [
+          "`CHECK (condition)`",
+          "The condition must be true for every row",
+          "`balance >= 0`, `status IN ('open', 'closed')`"
+        ],
+        [
+          "`DEFAULT value`",
+          "Used when the insert omits the column",
+          "`0`, `'draft'`, `CURRENT_TIMESTAMP`"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  email TEXT NOT NULL UNIQUE,\n  balance REAL NOT NULL DEFAULT 0 CHECK (balance >= 0)\n);\nINSERT INTO accounts (email, balance) VALUES ('ada@example.com', 120);\nINSERT INTO accounts (email) VALUES ('grace@example.com');\nSELECT * FROM accounts;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (email, balance) VALUES ('ada@example.com', 120)\nOK: INSERT INTO accounts (email) VALUES ('grace@example.com')\n\nid | email             | balance\n---+-------------------+--------\n1  | ada@example.com   | 120\n2  | grace@example.com | 0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Breaking a rule produces a specific error. The second account below reuses an email address:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  email TEXT NOT NULL UNIQUE,\n  balance REAL NOT NULL DEFAULT 0 CHECK (balance >= 0)\n);\nINSERT INTO accounts (email, balance) VALUES ('ada@example.com', 120);\nINSERT INTO accounts (email, balance) VALUES ('ada@example.com', 50);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (email, balance) VALUES ('ada@example.com', 120)\nUNIQUE constraint failed: accounts.email — in: INSERT INTO accounts (email, balance) VALUES ('ada@example.com', 50)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Foreign keys"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **foreign key** declares that a column holds values from another table's primary key: `orders.customer_id REFERENCES customers(id)`. The sample `orders` table already carries that declaration. With enforcement on, you cannot insert an order for a customer who does not exist, and you cannot delete a customer who still has orders unless you say what should happen to them."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "SQLite ignores foreign keys by default",
+      "text": "For backwards compatibility SQLite only enforces `REFERENCES` when the connection runs `PRAGMA foreign_keys = ON`. Each playground run is a new connection, so put that line first. PostgreSQL always enforces foreign keys; MySQL does with the InnoDB engine (the default). Forgetting the pragma is the most common reason an SQLite application ends up with orphaned rows."
+    },
+    {
+      "type": "paragraph",
+      "text": "Without the pragma, an order for the non-existent customer 99 is accepted:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO orders (customer_id, product_id, quantity, ordered_on)\nVALUES (99, 1, 1, '2025-09-01');\nSELECT id, customer_id FROM orders WHERE id = 9;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: INSERT INTO orders (customer_id, product_id, quantity, ordered_on)\n\nid | customer_id\n---+------------\n9  | 99"
+    },
+    {
+      "type": "paragraph",
+      "text": "With it, the same insert fails:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "PRAGMA foreign_keys = ON;\nINSERT INTO orders (customer_id, product_id, quantity, ordered_on)\nVALUES (99, 1, 1, '2025-09-01');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: PRAGMA foreign_keys = ON\nFOREIGN KEY constraint failed — in: INSERT INTO orders (customer_id, product_id, quantity, ordered_on)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ON DELETE actions"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `REFERENCES` clause can say what happens to child rows when the parent is deleted: `RESTRICT` or `NO ACTION` (the default: refuse), `CASCADE` (delete the children too) or `SET NULL` (keep the children, clear the reference). Cascading is right for rows that only make sense with their parent, such as the members of a team:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "PRAGMA foreign_keys = ON;\nCREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nCREATE TABLE members (\n  id INTEGER PRIMARY KEY,\n  team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,\n  name TEXT NOT NULL\n);\nINSERT INTO teams (name) VALUES ('Backend'), ('Frontend');\nINSERT INTO members (team_id, name) VALUES (1, 'Ada'), (1, 'Linus'), (2, 'Grace');\nDELETE FROM teams WHERE id = 1;\nSELECT * FROM members;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: PRAGMA foreign_keys = ON\nOK: CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT NOT NULL)\nOK: CREATE TABLE members (\nOK: INSERT INTO teams (name) VALUES ('Backend'), ('Frontend')\nOK: INSERT INTO members (team_id, name) VALUES (1, 'Ada'), (1, 'Linus'), (2, 'Grace'\nOK: DELETE FROM teams WHERE id = 1\n\nid | team_id | name\n---+---------+------\n3  | 2       | Grace"
+    },
+    {
+      "type": "paragraph",
+      "text": "Deleting the Backend team removed Ada and Linus automatically; only Grace from Frontend remains."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Naming and altering constraints"
+    },
+    {
+      "type": "paragraph",
+      "text": "Constraints can be named (`CONSTRAINT uq_accounts_email UNIQUE (email)`) so that error messages and `ALTER TABLE ... DROP CONSTRAINT` can refer to them in PostgreSQL and MySQL. SQLite cannot add or drop constraints on an existing table: you create a new table with the desired rules, copy the rows with `INSERT ... SELECT`, drop the old table and rename the new one."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Insert a second cart item with quantity 0 to see the CHECK error, then one with product id 42 to see the foreign key error."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 260,
+      "code": "PRAGMA foreign_keys = ON;\n\nCREATE TABLE cart_items (\n  id INTEGER PRIMARY KEY,\n  product_id INTEGER NOT NULL REFERENCES products(id),\n  quantity INTEGER NOT NULL CHECK (quantity BETWEEN 1 AND 100)\n);\n\nINSERT INTO cart_items (product_id, quantity) VALUES (3, 2);\nSELECT * FROM cart_items;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-constraints-foreign-keys"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "constraints-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "constraints",
+          "difficulty": "beginner",
+          "question": "Which constraint stops two customers from registering the same email address?",
+          "explanation": "UNIQUE rejects a second row with the same value. NOT NULL only requires a value, CHECK tests a condition on the row itself, and DEFAULT supplies a value when none is given.",
+          "options": ["`NOT NULL`", "`UNIQUE`", "`CHECK`", "`DEFAULT`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "constraints-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "constraints",
+          "difficulty": "intermediate",
+          "question": "What does `ON DELETE CASCADE` on `members.team_id` do when a team is deleted?",
+          "explanation": "CASCADE propagates the delete to the child rows that reference the deleted parent, so the members of that team are removed; other teams are untouched.",
+          "options": [
+            "Deletes the members of that team",
+            "Sets the members' team_id to NULL",
+            "Refuses to delete the team",
+            "Deletes every member of every team"
+          ],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-constraints-foreign-keys"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "update-delete"
+    }
+  ],
+  "seo": {
+    "title": "SQL Constraints – Primary Keys, UNIQUE, CHECK, Foreign Keys",
+    "description": "Learn SQL constraints: primary and composite keys, UNIQUE, NOT NULL, CHECK and DEFAULT, foreign keys with ON DELETE CASCADE, and enabling them in SQLite."
+  },
+  "updatedOn": "2026-11-16"
+}

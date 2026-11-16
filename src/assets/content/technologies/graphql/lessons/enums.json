@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "enums",
+  "title": "Use a named set of choices",
+  "summary": "GraphQL: Use a named set of choices. Return RED instead.",
+  "introduction": "An enum limits a value to named choices. GREEN is a schema label, not arbitrary text.",
+  "learningObjectives": ["Use a named set of choices with GraphQL", "Return RED instead"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use a named set of choices"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Use a named set of choices",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"enum Light { RED GREEN } type Query { light: Light! }\");\n\nconst rootValue = { light: () => \"GREEN\" };\nconst result = await graphql({ schema, rootValue, source: \"{ light }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The resolver returns GREEN, which is a legal enum value. JSON represents the enum name as text."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"light\":\"GREEN\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Return RED instead."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The resolver result must match an enum value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-enums-check"
+    }
+  ],
+  "exerciseIds": ["graphql-enums-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "fragments"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Use a named set of choices",
+    "description": "GraphQL: Use a named set of choices. Return RED instead. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

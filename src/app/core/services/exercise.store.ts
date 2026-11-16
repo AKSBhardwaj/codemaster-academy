@@ -16,7 +16,14 @@ export class ExerciseStore {
   private readonly persistence = inject(PersistenceService);
   private readonly records = signal<Record<string, ExerciseRecord>>({});
   readonly hydrated = signal(false);
-  readonly solvedIds = computed(() => new Set(Object.entries(this.records()).filter(([, r]) => r.solved).map(([id]) => id)));
+  readonly solvedIds = computed(
+    () =>
+      new Set(
+        Object.entries(this.records())
+          .filter(([, r]) => r.solved)
+          .map(([id]) => id),
+      ),
+  );
 
   constructor() {
     const injector = inject(Injector);
@@ -34,7 +41,14 @@ export class ExerciseStore {
   record(id: string, correct: boolean): void {
     this.records.update((map) => {
       const previous = map[id];
-      return { ...map, [id]: { attempts: (previous?.attempts ?? 0) + 1, solved: previous?.solved || correct, lastAt: new Date().toISOString() } };
+      return {
+        ...map,
+        [id]: {
+          attempts: (previous?.attempts ?? 0) + 1,
+          solved: previous?.solved || correct,
+          lastAt: new Date().toISOString(),
+        },
+      };
     });
     this.persistence.write(KEY, this.records());
   }

@@ -1,0 +1,156 @@
+{
+  "title": "Fiber Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Send a greeting",
+          "summary": "A Fiber handler returns an error value. SendString writes the response text. Open GET /hello.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/hello\", func(c *fiber.Ctx) error { return c.SendString(\"Hello, Asha!\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Return the error from response-writing methods."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Send named data",
+          "summary": "JSON writes an object as JSON. Open GET /book.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/book\", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{\"title\": \"Moon Trip\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Use the Fiber v2 context pointer shown in this course."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-inputs",
+          "name": "Read a route value",
+          "summary": "Params reads a named path part. Open GET /hello/Ravi.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/hello/:name\", func(c *fiber.Ctx) error { return c.SendString(\"Hi, \" + c.Params(\"name\") + \"!\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Path parameters start as text."],
+          "lessonSlug": "path-inputs"
+        },
+        {
+          "slug": "query",
+          "name": "Read a query string",
+          "summary": "Query reads a query value and can take a default. Open GET /page.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/page\", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{\"page\": c.Query(\"n\", \"1\")}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["A query value remains text until you parse it."],
+          "lessonSlug": "query"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "typed-params",
+          "name": "Parse an integer input",
+          "summary": "ParamsInt parses a route value as an integer. Open GET /double/4.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/double/:n\", func(c *fiber.Ctx) error { n, err := c.ParamsInt(\"n\"); if err != nil { return c.Status(400).SendString(\"Use a whole number\") }; return c.JSON(fiber.Map{\"answer\": n * 2}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Check the error before using the parsed number."],
+          "lessonSlug": "typed-params"
+        },
+        {
+          "slug": "json-body",
+          "name": "Read a body into a struct",
+          "summary": "BodyParser fills a struct from the request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\ntype Book struct { Title string `json:\"title\"` }\napp.Post(\"/books\", func(c *fiber.Ctx) error { var book Book; if err := c.BodyParser(&book); err != nil || book.Title == \"\" { return c.Status(400).JSON(fiber.Map{\"error\": \"Title needed\"}) }; return c.Status(201).JSON(book) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Parsing does not replace checks for a useful field value."],
+          "lessonSlug": "json-body"
+        },
+        {
+          "slug": "groups",
+          "name": "Group routes",
+          "summary": "Group adds a shared path prefix. Open GET /api/books.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napi := app.Group(\"/api\")\napi.Get(\"/books\", func(c *fiber.Ctx) error { return c.JSON([]string{\"Moon Trip\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Request the group prefix as well as the inner path."],
+          "lessonSlug": "groups"
+        },
+        {
+          "slug": "locals",
+          "name": "Share request data",
+          "summary": "Locals stores a value for the current request. A middleware can set it before a route reads it.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Use(func(c *fiber.Ctx) error { c.Locals(\"school\", \"Oak School\"); return c.Next() })\napp.Get(\"/school\", func(c *fiber.Ctx) error { return c.SendString(c.Locals(\"school\").(string)) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Check a value type if it may come from a different source."],
+          "lessonSlug": "locals"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "headers",
+          "name": "Set a reply header",
+          "summary": "Set adds a response header. Open GET /note and inspect Cache-Control.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/note\", func(c *fiber.Ctx) error { c.Set(\"Cache-Control\", \"no-store\"); return c.SendString(\"Practice note\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Set headers before sending the body."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "redirects",
+          "name": "Point to another route",
+          "summary": "Redirect sends a location and status. A browser following GET /start reaches /hello.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/start\", func(c *fiber.Ctx) error { return c.Redirect(\"/hello\", 302) })\napp.Get(\"/hello\", func(c *fiber.Ctx) error { return c.SendString(\"Welcome\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["A redirect requires another client request."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "status",
+          "name": "Reply with a missing-item status",
+          "summary": "Status selects a code before a body is sent. Open GET /missing.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/missing\", func(c *fiber.Ctx) error { return c.Status(404).JSON(fiber.Map{\"error\": \"Book not found\"}) })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["A helpful error body should keep the correct error status."],
+          "lessonSlug": "status"
+        },
+        {
+          "slug": "fallback",
+          "name": "Handle an unknown URL",
+          "summary": "A final Use handler can reply when no earlier route handled the request. Open GET /unknown.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/\", func(c *fiber.Ctx) error { return c.SendString(\"Home\") })\napp.Use(func(c *fiber.Ctx) error { return c.Status(404).SendString(\"Page not found\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Put a catch-all handler after the real routes."],
+          "lessonSlug": "fallback"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Zustand Small Examples",
+  "description": "Use these small Zustand examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Create a small store",
+      "description": "A Zustand store groups values and actions.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nexport const useReading=create(set=>({count:0,add:()=>set(state=>({count:state.count+1}))}));\nconsole.log(useReading.getState().count);",
+      "output": "The initial count is 0.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "select-one-value",
+      "title": "Select one value",
+      "description": "A selector chooses the store value a component needs.",
+      "language": "jsx",
+      "code": "import {useReading} from \"./store.js\";\nexport default function Count(){const count=useReading(state=>state.count);return <p>Books: {count}</p>;}",
+      "output": "The component displays the count from the store created in the first lesson.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-one-value"
+    },
+    {
+      "id": "call-an-action-from-a-button",
+      "title": "Call an action from a button",
+      "description": "An action is a function stored alongside the values.",
+      "language": "jsx",
+      "code": "import {useReading} from \"./store.js\";\nexport default function Add(){const add=useReading(state=>state.add);return <button onClick={add}>Read one</button>;}",
+      "output": "Clicking the button runs the store action and increases the count.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "call-an-action-from-a-button"
+    },
+    {
+      "id": "base-an-update-on-current-state",
+      "title": "Base an update on current state",
+      "description": "A set callback receives the current state.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useScore=create(set=>({score:2,double:()=>set(state=>({score:state.score*2}))}));\nuseScore.getState().double();\nconsole.log(useScore.getState().score);",
+      "output": "The score becomes 4.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "base-an-update-on-current-state"
+    },
+    {
+      "id": "update-one-top-level-field",
+      "title": "Update one top-level field",
+      "description": "By default, set merges the supplied top-level fields into state.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useClub=create(()=>({name:\"Garden\",count:2}));\nuseClub.setState({count:3});\nconsole.log(useClub.getState().name);",
+      "output": "The name is still Garden after count changes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "update-one-top-level-field"
+    },
+    {
+      "id": "copy-a-nested-object",
+      "title": "Copy a nested object",
+      "description": "A nested object needs its own copy when you change one of its fields.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useClub=create(set=>({profile:{name:\"Mia\",colour:\"blue\"},rename:name=>set(state=>({profile:{...state.profile,name}}))}));\nuseClub.getState().rename(\"Sam\");\nconsole.log(useClub.getState().profile.colour);",
+      "output": "The name changes to Sam while the colour stays blue.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "copy-a-nested-object"
+    },
+    {
+      "id": "add-an-item-without-changing-the-old-array",
+      "title": "Add an item without changing the old array",
+      "description": "A new array can keep the old items and add one more.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useBooks=create(set=>({books:[],add:book=>set(state=>({books:[...state.books,book]}))}));\nuseBooks.getState().add({id:1,title:\"Moon Trip\"});\nconsole.log(useBooks.getState().books.length);",
+      "output": "The list now has one book.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-an-item-without-changing-the-old-array"
+    },
+    {
+      "id": "calculate-a-derived-count",
+      "title": "Calculate a derived count",
+      "description": "A selector can calculate a value from stored data.",
+      "language": "jsx",
+      "code": "import {useBooks} from \"./book-store.js\";\nexport default function Unread(){const count=useBooks(state=>state.books.filter(book=>!book.read).length);return <p>{count} unread books</p>;}",
+      "output": "The component counts unread records from the real book-store export.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "calculate-a-derived-count"
+    },
+    {
+      "id": "use-a-store-without-react",
+      "title": "Use a store without React",
+      "description": "A vanilla Zustand store can be used by ordinary JavaScript.",
+      "language": "javascript",
+      "code": "import {createStore} from \"zustand/vanilla\";\nconst store=createStore(()=>({count:0}));\nstore.setState({count:4});\nconsole.log(store.getState().count);",
+      "output": "The value is 4 without needing a React component.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-store-without-react"
+    },
+    {
+      "id": "listen-and-then-unsubscribe",
+      "title": "Listen and then unsubscribe",
+      "description": "subscribe runs a listener after store changes.",
+      "language": "javascript",
+      "code": "import {createStore} from \"zustand/vanilla\";\nconst store=createStore(()=>({count:0}));\nconst stop=store.subscribe(state=>console.log(state.count));\nstore.setState({count:1});\nstop();\nstore.setState({count:2});",
+      "output": "The listener prints 1. It does not print 2 after stop is called.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "listen-and-then-unsubscribe"
+    },
+    {
+      "id": "save-a-browser-preference",
+      "title": "Save a browser preference",
+      "description": "The persist middleware can store selected state in browser storage.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nimport {persist} from \"zustand/middleware\";\nexport const useTheme=create(persist(set=>({theme:\"light\",choose:theme=>set({theme})}),{name:\"club-theme\",partialize:state=>({theme:state.theme})}));",
+      "output": "The theme choice can survive a reload where localStorage is available.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-a-browser-preference"
+    },
+    {
+      "id": "reset-only-the-intended-data",
+      "title": "Reset only the intended data",
+      "description": "A reset action should set the values that belong to its feature.",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useReading=create(set=>({count:0,title:\"\",reset:()=>set({count:0,title:\"\"})}));\nuseReading.setState({count:5,title:\"Moon Trip\"});\nuseReading.getState().reset();\nconsole.log(useReading.getState().count);",
+      "output": "The reading values return to their starting values and the reset action remains available.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "reset-only-the-intended-data"
+    }
+  ]
+}

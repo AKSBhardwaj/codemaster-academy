@@ -1,0 +1,133 @@
+{
+  "title": "Node.js Examples",
+  "description": "Copy-ready Node.js 24 snippets: HTTP and static servers, command-line parsing, a JSON file store, stream filters, an Express REST API with error handling, fetch with retries, a node:sqlite store, HTTP tests, graceful shutdown and a Dockerfile.",
+  "examples": [
+    {
+      "id": "hello-http-server",
+      "title": "Hello HTTP server",
+      "description": "The smallest useful node:http server: one JSON route, a 404 for everything else and a startup message.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["http", "server"],
+      "lessonSlug": "http-server",
+      "code": "import { createServer } from 'node:http';\n\nconst server = createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/api/time') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    return res.end(JSON.stringify({ now: new Date().toISOString() }));\n  }\n  res.writeHead(404, { 'Content-Type': 'text/plain' });\n  res.end('Not found');\n});\n\nserver.listen(3000, () => {\n  console.log('Listening on http://localhost:3000');\n});",
+      "output": "Listening on http://localhost:3000"
+    },
+    {
+      "id": "static-file-server",
+      "title": "Static file server",
+      "description": "Serves files from a public folder with node:http, maps extensions to content types, serves index.html for folders and blocks paths outside the root.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["http", "streams", "files"],
+      "lessonSlug": "http-server",
+      "code": "import { createServer } from 'node:http';\nimport { createReadStream } from 'node:fs';\nimport { stat } from 'node:fs/promises';\nimport { pipeline } from 'node:stream/promises';\nimport { join, normalize, extname, sep } from 'node:path';\n\nconst root = join(import.meta.dirname, 'public');\nconst types = {\n  '.html': 'text/html; charset=utf-8',\n  '.css': 'text/css; charset=utf-8',\n  '.js': 'text/javascript; charset=utf-8',\n  '.json': 'application/json',\n  '.png': 'image/png',\n  '.svg': 'image/svg+xml',\n};\n\ncreateServer(async (req, res) => {\n  const { pathname } = new URL(req.url, 'http://localhost');\n  let file = join(root, normalize(decodeURIComponent(pathname)));\n\n  if (!file.startsWith(root + sep)) {\n    res.writeHead(403, { 'Content-Type': 'text/plain' });\n    return res.end('Forbidden');\n  }\n\n  try {\n    let info = await stat(file);\n    if (info.isDirectory()) {\n      file = join(file, 'index.html');\n      info = await stat(file);\n    }\n    res.writeHead(200, {\n      'Content-Type': types[extname(file)] ?? 'application/octet-stream',\n      'Content-Length': info.size,\n    });\n    await pipeline(createReadStream(file), res);\n  } catch {\n    if (!res.headersSent) res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('Not found');\n  }\n}).listen(3000, () => console.log('Serving ./public on http://localhost:3000'));"
+    },
+    {
+      "id": "cli-parse-args",
+      "title": "Node.js: Print a message",
+      "description": "console.log prints a value in the terminal. Text goes inside quote marks. Save this as hello.js, then run node hello.js.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["cli", "util"],
+      "lessonSlug": "introduction",
+      "code": "console.log(\"Hello, Asha!\");",
+      "output": "Hello, Asha!"
+    },
+    {
+      "id": "json-file-store",
+      "title": "JSON file store",
+      "description": "A tiny persistence module: load an array from a JSON file (empty when missing), save it with indentation, and use it to keep a visit counter across runs.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["fs", "json"],
+      "lessonSlug": "file-system",
+      "code": "import { readFile, writeFile } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst file = join(import.meta.dirname, 'visits.json');\n\nasync function load() {\n  try {\n    return JSON.parse(await readFile(file, 'utf8'));\n  } catch (error) {\n    if (error.code === 'ENOENT') return [];\n    throw error;\n  }\n}\n\nasync function save(entries) {\n  await writeFile(file, JSON.stringify(entries, null, 2) + '\\n');\n}\n\nconst visits = await load();\nvisits.push({ at: new Date().toISOString(), node: process.version });\nawait save(visits);\nconsole.log(`This program has run ${visits.length} time(s)`);",
+      "output": "$ node visits.js\nThis program has run 1 time(s)\n$ node visits.js\nThis program has run 2 time(s)"
+    },
+    {
+      "id": "line-filter-stream",
+      "title": "Line filter for stdin",
+      "description": "A grep-like filter: reads standard input line by line with readline, prints lines containing the search term and reports the count on stderr. Works on files of any size.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["streams", "readline", "cli"],
+      "lessonSlug": "events-streams",
+      "code": "import { createInterface } from 'node:readline';\n\nconst needle = process.argv[2];\nif (!needle) {\n  console.error('Usage: node filter.js <text> < input-file');\n  process.exit(1);\n}\n\nconst lines = createInterface({ input: process.stdin, crlfDelay: Infinity });\nlet matched = 0;\n\nfor await (const line of lines) {\n  if (line.includes(needle)) {\n    matched++;\n    console.log(line);\n  }\n}\n\nconsole.error(`${matched} matching line(s)`);",
+      "output": "$ node filter.js \" 500 \" < access.log\n2026-11-15T09:00:15Z GET /api/books 500 41ms\n2026-11-15T09:00:20Z DELETE /api/books/2 500 9ms\n2 matching line(s)"
+    },
+    {
+      "id": "express-rest-api",
+      "title": "Express REST API",
+      "description": "A complete in-memory CRUD API for one resource with Express 5: list, get, create with validation, update, delete, a JSON 404 and an error handler.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["express", "rest", "json"],
+      "lessonSlug": "json-apis",
+      "code": "import express from 'express';\n\nconst app = express();\napp.use(express.json());\n\nconst notes = [];\nlet nextId = 1;\n\nfunction validate(body) {\n  const { text } = body ?? {};\n  if (typeof text !== 'string' || text.trim() === '') return 'text is required';\n  return null;\n}\n\napp.get('/api/notes', (req, res) => res.json(notes));\n\napp.get('/api/notes/:id', (req, res) => {\n  const note = notes.find((n) => n.id === Number(req.params.id));\n  if (!note) return res.status(404).json({ error: 'Note not found' });\n  res.json(note);\n});\n\napp.post('/api/notes', (req, res) => {\n  const problem = validate(req.body);\n  if (problem) return res.status(400).json({ error: problem });\n  const note = { id: nextId++, text: req.body.text.trim(), done: false };\n  notes.push(note);\n  res.status(201).json(note);\n});\n\napp.put('/api/notes/:id', (req, res) => {\n  const note = notes.find((n) => n.id === Number(req.params.id));\n  if (!note) return res.status(404).json({ error: 'Note not found' });\n  const problem = validate(req.body);\n  if (problem) return res.status(400).json({ error: problem });\n  note.text = req.body.text.trim();\n  note.done = req.body.done === true;\n  res.json(note);\n});\n\napp.delete('/api/notes/:id', (req, res) => {\n  const index = notes.findIndex((n) => n.id === Number(req.params.id));\n  if (index === -1) return res.status(404).json({ error: 'Note not found' });\n  notes.splice(index, 1);\n  res.status(204).end();\n});\n\napp.use((req, res) => res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` }));\n\napp.use((err, req, res, next) => {\n  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON body' });\n  console.error(err);\n  res.status(500).json({ error: 'Internal server error' });\n});\n\napp.listen(3000, () => console.log('Notes API on http://localhost:3000'));"
+    },
+    {
+      "id": "express-http-error",
+      "title": "HttpError class and central error handler",
+      "description": "Throw errors with a status code from any route (sync or async) and let one error middleware turn them into JSON, hiding details for 5xx responses.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["express", "middleware", "errors"],
+      "lessonSlug": "routing-middleware",
+      "code": "import express from 'express';\n\nexport class HttpError extends Error {\n  constructor(status, message) {\n    super(message);\n    this.status = status;\n  }\n}\n\nconst app = express();\napp.use(express.json());\n\napp.get('/api/books/:id', async (req, res) => {\n  const id = Number(req.params.id);\n  if (!Number.isInteger(id) || id < 1) throw new HttpError(400, 'id must be a positive integer');\n  const book = await findBook(id); // your database call\n  if (!book) throw new HttpError(404, `No book with id ${id}`);\n  res.json(book);\n});\n\napp.use((req, res) => {\n  res.status(404).json({ error: `No route for ${req.method} ${req.originalUrl}` });\n});\n\napp.use((err, req, res, next) => {\n  const status = err.status ?? 500;\n  if (status >= 500) console.error(err);\n  res.status(status).json({ error: status >= 500 ? 'Internal server error' : err.message });\n});\n\napp.listen(3000);"
+    },
+    {
+      "id": "fetch-timeout-retry",
+      "title": "fetch with timeout and retries",
+      "description": "A fetchJson helper that gives every request a deadline with AbortSignal.timeout and retries network errors, timeouts and 5xx responses with exponential backoff.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["fetch", "async", "resilience"],
+      "lessonSlug": "async-patterns",
+      "code": "import { setTimeout as sleep } from 'node:timers/promises';\n\nexport async function fetchJson(url, { retries = 3, timeoutMs = 5000 } = {}) {\n  for (let attempt = 1; attempt <= retries; attempt++) {\n    try {\n      const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });\n      if (response.status >= 500) throw new Error(`Server error ${response.status}`);\n      if (!response.ok) {\n        const error = new Error(`Request failed with ${response.status}`);\n        error.permanent = true; // 4xx will not get better by retrying\n        throw error;\n      }\n      return await response.json();\n    } catch (error) {\n      if (error.permanent || attempt === retries) throw error;\n      const delay = 200 * 2 ** (attempt - 1);\n      console.warn(`Attempt ${attempt} failed (${error.name}: ${error.message}); retrying in ${delay} ms`);\n      await sleep(delay);\n    }\n  }\n}\n\nconst books = await fetchJson('http://localhost:3000/api/books', { retries: 3, timeoutMs: 2000 });\nconsole.log(`Fetched ${books.length} books`);"
+    },
+    {
+      "id": "sqlite-todo-store",
+      "title": "SQLite todo store with node:sqlite",
+      "description": "A small data module: creates the table on first use, keeps prepared statements for insert, list, complete and delete, and converts the done column to a boolean.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["sqlite", "database"],
+      "lessonSlug": "databases",
+      "code": "import { DatabaseSync } from 'node:sqlite';\n\nconst db = new DatabaseSync('todos.db');\n\ndb.exec(`\n  CREATE TABLE IF NOT EXISTS todos (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    text TEXT NOT NULL,\n    done INTEGER NOT NULL DEFAULT 0,\n    created_at TEXT NOT NULL DEFAULT (datetime('now'))\n  )\n`);\n\nconst statements = {\n  insert: db.prepare('INSERT INTO todos (text) VALUES (?)'),\n  list: db.prepare('SELECT id, text, done FROM todos ORDER BY id'),\n  complete: db.prepare('UPDATE todos SET done = 1 WHERE id = ?'),\n  remove: db.prepare('DELETE FROM todos WHERE id = ?'),\n};\n\nexport function addTodo(text) {\n  return statements.insert.run(text).lastInsertRowid;\n}\n\nexport function listTodos() {\n  return statements.list.all().map((row) => ({ ...row, done: row.done === 1 }));\n}\n\nexport function completeTodo(id) {\n  return statements.complete.run(id).changes === 1;\n}\n\nexport function removeTodo(id) {\n  return statements.remove.run(id).changes === 1;\n}\n\nconst id = addTodo('Write the README');\ncompleteTodo(id);\nfor (const todo of listTodos()) {\n  console.log(todo.done ? '[x]' : '[ ]', todo.id, todo.text);\n}",
+      "output": "[x] 1 Write the README"
+    },
+    {
+      "id": "node-test-http",
+      "title": "HTTP tests with node:test",
+      "description": "Starts a server on a random port, waits for the listening event, sends real requests with fetch and closes the server in an after hook.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["testing", "http"],
+      "lessonSlug": "testing",
+      "code": "import { test, after } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { createServer } from 'node:http';\nimport { once } from 'node:events';\n\nfunction handler(req, res) {\n  if (req.url === '/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    return res.end('{\"status\":\"ok\"}');\n  }\n  res.writeHead(404, { 'Content-Type': 'text/plain' });\n  res.end('Not found');\n}\n\nconst server = createServer(handler).listen(0);\nawait once(server, 'listening');\nconst base = `http://localhost:${server.address().port}`;\n\nafter(() => server.close());\n\ntest('GET /health reports ok', async () => {\n  const response = await fetch(`${base}/health`);\n  assert.equal(response.status, 200);\n  assert.deepEqual(await response.json(), { status: 'ok' });\n});\n\ntest('unknown paths return 404', async () => {\n  const response = await fetch(`${base}/nope`);\n  assert.equal(response.status, 404);\n  assert.equal(await response.text(), 'Not found');\n});",
+      "output": "$ node --test health.test.js\n\u2714 GET /health reports ok (18.2041ms)\n\u2714 unknown paths return 404 (2.9137ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 70.1180"
+    },
+    {
+      "id": "graceful-shutdown",
+      "title": "Graceful shutdown for an Express server",
+      "description": "Handles SIGTERM and SIGINT by closing the server, exiting when connections are drained and forcing an exit after ten seconds; includes a health endpoint and trust proxy for use behind nginx.",
+      "language": "javascript",
+      "runnable": false,
+      "tags": ["deployment", "express", "signals"],
+      "lessonSlug": "deployment",
+      "code": "import express from 'express';\n\nconst app = express();\napp.set('trust proxy', 1);\n\napp.get('/health', (req, res) => {\n  res.json({ status: 'ok', uptime: Math.round(process.uptime()) });\n});\n\nconst port = Number(process.env.PORT ?? 3000);\nconst server = app.listen(port, () => console.log(`Listening on port ${port}`));\n\nlet shuttingDown = false;\n\nfunction shutdown(signal) {\n  if (shuttingDown) return;\n  shuttingDown = true;\n  console.log(`${signal} received, draining connections`);\n  server.close((error) => {\n    if (error) console.error(error);\n    process.exit(error ? 1 : 0);\n  });\n  setTimeout(() => {\n    console.error('Forcing exit after 10 s');\n    process.exit(1);\n  }, 10_000).unref();\n}\n\nfor (const signal of ['SIGTERM', 'SIGINT']) {\n  process.on(signal, () => shutdown(signal));\n}",
+      "output": "Listening on port 3000\nSIGTERM received, draining connections"
+    },
+    {
+      "id": "dockerfile-node-24",
+      "title": "Dockerfile for a Node 24 service",
+      "description": "A production image on node:24-slim: cached dependency layer, production-only install, unprivileged user, health check against /health and node started directly so signals reach it.",
+      "language": "dockerfile",
+      "runnable": false,
+      "tags": ["docker", "deployment"],
+      "lessonSlug": "deployment",
+      "code": "FROM node:24-slim\nWORKDIR /app\nENV NODE_ENV=production\n\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\n\nCOPY . .\nUSER node\nEXPOSE 3000\n\nHEALTHCHECK --interval=30s --timeout=3s \\\n  CMD node -e \"fetch('http://localhost:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\"\n\nCMD [\"node\", \"server.js\"]"
+    }
+  ]
+}

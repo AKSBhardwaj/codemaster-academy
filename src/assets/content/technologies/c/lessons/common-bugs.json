@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "slug": "common-bugs",
+  "title": "Undefined Behaviour and Common Bugs",
+  "summary": "What undefined behaviour means and why it is worse than a crash, the bugs that cause it most often, and the compiler flags, sanitizers and habits that catch them early.",
+  "introduction": "C's speed comes from trust: the compiler assumes your program never reads past an array, overflows a signed integer or uses a freed pointer, and optimises on that assumption. When the assumption is wrong the result is **undefined behaviour**: the standard places no requirements on what happens, so the program may crash, print garbage, work on your machine and fail in production, or have whole blocks of code deleted by the optimiser. This lesson catalogues the mistakes that cause it, shows what each one looks like, and sets up the tools that turn silent corruption into loud reports.",
+  "learningObjectives": [
+    "Explain what undefined behaviour is and why observed output proves nothing",
+    "Recognise the common sources: uninitialised reads, out-of-bounds access, signed overflow and string-literal writes",
+    "Use warnings, AddressSanitizer and UndefinedBehaviorSanitizer to catch them",
+    "Apply defensive habits that keep bugs out in the first place"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What undefined behaviour means"
+    },
+    {
+      "type": "paragraph",
+      "text": "The C standard describes three levels of freedom. **Implementation-defined** behaviour varies between compilers but must be documented, such as the size of `long`. **Unspecified** behaviour picks one of several allowed outcomes, such as the order in which the arguments of a function call are evaluated. **Undefined** behaviour (UB) is different in kind: the standard says nothing at all about what happens, and compilers exploit that by assuming it never occurs. A program with UB is not \"a program with a bug in one place\"; the whole program's meaning is gone, and the compiler may legally delete the check you wrote to detect the problem."
+    },
+    {
+      "type": "table",
+      "headers": ["Kind", "Example", "What you can rely on"],
+      "rows": [
+        ["Undefined", "`int a[3]; a[3] = 1;`", "Nothing; the compiler assumes it never happens"],
+        [
+          "Implementation-defined",
+          "`sizeof(long)`",
+          "A documented choice: 8 on Linux x86-64, 4 on 64-bit Windows"
+        ],
+        [
+          "Unspecified",
+          "`f() + g()` evaluation order",
+          "One of the allowed orders, which may differ between builds"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Signed overflow and the optimiser"
+    },
+    {
+      "type": "paragraph",
+      "text": "Adding 1 to `INT_MAX` is UB. On real hardware the bits wrap to `INT_MIN`, which tempts people to test for overflow *after* the fact with `x + 1 < x`. The optimiser knows that signed overflow cannot happen in a valid program, so it simplifies that expression to `0` and removes the test. The same source therefore behaves differently at `-O0` and `-O2`, and UndefinedBehaviorSanitizer (`-fsanitize=undefined`) reports the exact line."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "overflow.c",
+      "code": "#include <stdio.h>\n#include <limits.h>\n\nint will_overflow(int x)\n{\n    return x + 1 < x;        /* UB when x == INT_MAX; may be folded to 0 */\n}\n\nint main(void)\n{\n    printf(\"%d\\n\", will_overflow(INT_MAX));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (GCC on x86-64)",
+      "content": "$ gcc -Wall -Wextra -std=c17 -O0 overflow.c -o overflow && ./overflow\n1\n$ gcc -Wall -Wextra -std=c17 -O2 overflow.c -o overflow && ./overflow\n0\n$ gcc -std=c17 -g -fsanitize=undefined overflow.c -o overflow && ./overflow\noverflow.c:6:14: runtime error: signed integer overflow: 2147483647 + 1 cannot be represented in type 'int'\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The correct test checks *before* the operation: `if (b > 0 && a > INT_MAX - b)` detects that `a + b` would overflow without ever computing it. Unsigned arithmetic, by contrast, wraps around by definition and is never UB, which is why hashes and checksums use unsigned types."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Memory errors: out of bounds and use after free"
+    },
+    {
+      "type": "paragraph",
+      "text": "Reading or writing outside an array, through a dangling pointer, or through `NULL` are the memory errors behind most security vulnerabilities in C programs. Nothing in the language checks bounds, and a stray write usually damages some other variable rather than crashing on the spot. AddressSanitizer instruments every memory access and stops at the first bad one with the file and line of both the access and, for heap memory, the allocation."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "bounds.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int values[4] = {1, 2, 3, 4};\n    int sum = 0;\n\n    for (int i = 0; i <= 4; i++) {      /* <= reads values[4] */\n        sum += values[i];\n    }\n    printf(\"sum = %d\\n\", sum);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (trimmed; addresses vary)",
+      "content": "$ gcc -Wall -Wextra -std=c17 -g -fsanitize=address bounds.c -o bounds\n$ ./bounds\n=================================================================\n==5120==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffd3a1c0a50\nREAD of size 4 at 0x7ffd3a1c0a50 thread T0\n    #0 0x55b2c0e2a3f1 in main bounds.c:9\n\nSUMMARY: AddressSanitizer: stack-buffer-overflow bounds.c:9 in main"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without the sanitizer the program prints some sum, often `10` plus whatever happened to follow the array, and nobody notices. The [dynamic memory](/tutorials/c/memory-management) lesson showed the matching reports for leaks and use-after-free."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing to a string literal"
+    },
+    {
+      "type": "paragraph",
+      "text": "A string literal lives in read-only memory, and `char *s = \"hello\"` merely points at it. Writing through that pointer is UB; on Linux and macOS it crashes immediately, on other systems it may silently change every other use of the same literal. When you need text you can edit, declare an array, which copies the literal into writable storage. `const char *` for literals makes the compiler reject the write at compile time."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "literal.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    char *literal = \"hello\";     /* points into read-only memory */\n    char array[] = \"hello\";      /* a writable copy */\n\n    array[0] = 'H';\n    printf(\"%s\\n\", array);\n\n    literal[0] = 'H';            /* undefined behaviour */\n    printf(\"%s\\n\", literal);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (Linux)",
+      "content": "$ gcc -Wall -Wextra -std=c17 literal.c -o literal\n$ ./literal\nHello\nSegmentation fault (core dumped)"
+    },
+    {
+      "type": "table",
+      "caption": "Other classics",
+      "headers": ["Bug", "Example", "Fix"],
+      "rows": [
+        [
+          "Uninitialised variable",
+          "`int n; n++;`",
+          "Initialise at the declaration; `-Wall` warns about most cases"
+        ],
+        [
+          "Dereferencing `NULL`",
+          "`FILE *f = fopen(...); fgets(buf, n, f);`",
+          "Check every pointer-returning call before using the result"
+        ],
+        [
+          "Returning the address of a local",
+          "`return &local;`",
+          "Return by value, or allocate with `malloc`"
+        ],
+        [
+          "Format mismatch",
+          "`printf(\"%d\\n\", 3.5);`",
+          "Match specifiers to types; `-Wall` includes `-Wformat`"
+        ],
+        ["Division by zero", "`total / count` when `count` is 0", "Test the divisor first"],
+        [
+          "Modifying a variable twice in one expression",
+          "`i = i++ + 1;`",
+          "One modification per statement; `-Wall` includes `-Wsequence-point`"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Tools and habits"
+    },
+    {
+      "type": "table",
+      "headers": ["Tool", "Command", "Finds"],
+      "rows": [
+        [
+          "Compiler warnings",
+          "`-Wall -Wextra -Wshadow -Wconversion`",
+          "Uninitialised reads, format mismatches, lossy conversions, missing returns"
+        ],
+        [
+          "AddressSanitizer",
+          "`-fsanitize=address -g`",
+          "Out-of-bounds access, use-after-free, double free, leaks"
+        ],
+        [
+          "UndefinedBehaviorSanitizer",
+          "`-fsanitize=undefined -g`",
+          "Signed overflow, null dereference, shifts out of range, misaligned access"
+        ],
+        ["Valgrind", "`valgrind ./program`", "Memory errors and leaks without recompiling (Linux)"],
+        [
+          "GCC static analyser",
+          "`-fanalyzer` (GCC 10 and later)",
+          "Leaks, double free and null dereference found at compile time"
+        ],
+        [
+          "Debugger",
+          "`gdb ./program` or `lldb ./program`",
+          "Step through a crash in a build compiled with `-g`"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Tools catch bugs after they are written; habits stop them earlier. Initialise every variable. Make pointers and parameters `const` unless they must change. Pass a length with every array. Check every return value that can signal failure. State the assumptions a function makes with `assert`, which aborts with a clear message when an assumption is violated during development and can be compiled out with `-DNDEBUG` for release builds."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "checks.c",
+      "code": "#include <assert.h>\n#include <stdio.h>\n\ndouble average(const int *values, size_t n)\n{\n    assert(n > 0 && \"average of an empty array\");\n    int total = 0;\n    for (size_t i = 0; i < n; i++) total += values[i];\n    return (double)total / n;\n}\n\nint main(void)\n{\n    int data[] = {4, 8};\n    printf(\"%.1f\\n\", average(data, 2));\n    printf(\"%.1f\\n\", average(data, 0));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (Linux, glibc)",
+      "content": "$ gcc -Wall -Wextra -std=c17 checks.c -o checks\n$ ./checks\n6.0\nchecks: checks.c:6: average: Assertion `n > 0 && \"average of an empty array\"' failed.\nAborted (core dumped)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: \"it printed the right answer, so it is correct\"",
+      "text": "A program with undefined behaviour can pass every test. The uninitialised variable happens to contain zero, the out-of-bounds read lands on padding, the overflow wraps the way you expected at `-O0`. Then a compiler upgrade, a different machine or `-O2` changes everything. Treat every sanitizer report and every warning as a real bug even when the output looks fine, because the output of a program with UB is not evidence of anything."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "A development build recipe",
+      "text": "Keep two compiler commands in a Makefile: a debug build with `-O0 -g -fsanitize=address,undefined -Wall -Wextra` that you run during development and testing, and a release build with `-O2 -Wall -Wextra`. Run the test programs from [Installing a Compiler](/tutorials/c/setup-compiler) onwards under the debug build and you will catch most of the bugs in this lesson before they reach anyone else."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-bugs-not-undefined"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-bugs-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "common-bugs",
+          "difficulty": "beginner",
+          "question": "Which flag adds run-time detection of out-of-bounds reads and use-after-free?",
+          "explanation": "`-fsanitize=address` instruments memory accesses. `-Wall` only adds compile-time warnings, and `-O2` and `-std=c17` change optimisation and the language version.",
+          "options": ["`-Wall`", "`-fsanitize=address`", "`-O2`", "`-std=c17`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "c-bugs-qc-2",
+          "type": "true-false",
+          "lessonSlug": "common-bugs",
+          "difficulty": "intermediate",
+          "question": "If a program containing undefined behaviour prints the expected output, that behaviour is defined for the compiler you used.",
+          "explanation": "Observed output proves nothing. The same source may behave differently with another optimisation level, compiler version or machine, because the compiler is free to assume the undefined behaviour never happens.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-bugs-not-undefined"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "memory-management"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "pointers"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "arrays-strings"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "setup-compiler"
+    }
+  ],
+  "seo": {
+    "title": "C Undefined Behaviour – Common Bugs and Sanitizers",
+    "description": "Understand undefined behaviour in C: signed overflow, out-of-bounds access, uninitialised reads and string-literal writes, and catch them with sanitizers."
+  },
+  "updatedOn": "2026-11-15"
+}

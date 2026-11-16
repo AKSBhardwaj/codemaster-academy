@@ -6,10 +6,9 @@ describe('splitSqlStatements', () => {
   });
 
   it('ignores semicolons inside quotes and comments', () => {
-    expect(splitSqlStatements("INSERT INTO t VALUES ('a;b'); -- comment; here\nSELECT 1 /* ; */;")).toEqual([
-      "INSERT INTO t VALUES ('a;b')",
-      'SELECT 1',
-    ]);
+    expect(
+      splitSqlStatements("INSERT INTO t VALUES ('a;b'); -- comment; here\nSELECT 1 /* ; */;"),
+    ).toEqual(["INSERT INTO t VALUES ('a;b')", 'SELECT 1']);
   });
 
   it('returns the trailing statement without a semicolon', () => {

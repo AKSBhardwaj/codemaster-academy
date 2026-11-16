@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "deployments-manage-replicas",
+  "title": "Deployments manage replicas",
+  "summary": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy.",
+  "introduction": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain deployments manage replicas",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "yaml",
+      "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: club-web\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: club-web\n  template:\n    metadata:\n      labels:\n        app: club-web\n    spec:\n      containers:\n        - name: web\n          image: nginx:stable",
+      "title": "Deployments manage replicas",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The desired state asks for two Pods matching the template. Reading this YAML does not create them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Find the replicas field and change the planned count to 3.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "The selector must match the labels on the Pod template."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "kubernetes-deployments-manage-replicas"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Kubernetes further reading](https://kubernetes.io/docs/tutorials/kubernetes-basics/)."
+    }
+  ],
+  "exerciseIds": ["kubernetes-deployments-manage-replicas"],
+  "relatedLessons": [
+    {
+      "technologySlug": "kubernetes",
+      "slug": "labels-group-resources"
+    }
+  ],
+  "seo": {
+    "title": "Kubernetes: Deployments manage replicas",
+    "description": "Learn about deployments manage replicas in Kubernetes. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

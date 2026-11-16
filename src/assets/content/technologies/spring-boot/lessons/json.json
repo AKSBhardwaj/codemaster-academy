@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json",
+  "title": "Return named data",
+  "summary": "Spring Boot: Return named data. Add another field.",
+  "introduction": "Spring Boot writes a Map as JSON. Open GET /book. Read the example, then check the result.",
+  "learningObjectives": ["Return named data with Spring Boot", "Add another field"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return named data"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Return named data",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/book\") Map<String, Object> book() { return Map.of(\"title\", \"Moon Trip\"); }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Map key title becomes a JSON field with value Moon Trip."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add another field."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "JSON object field order is not part of its meaning."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-json-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "first-route"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Return named data",
+    "description": "Spring Boot: Return named data. Add another field. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

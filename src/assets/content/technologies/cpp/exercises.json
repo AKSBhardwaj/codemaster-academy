@@ -1,0 +1,205 @@
+{
+  "title": "C++ Exercises",
+  "description": "Try a small question or coding task. The answer notes explain each step. Use the setup lesson to run these programs on your computer.",
+  "exercises": [
+    {
+      "id": "cpp-intro-compile",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does a C++ compiler do?",
+      "explanation": "You write the source code. The compiler translates it and reports many mistakes before the program runs.",
+      "options": [
+        "Turns source code into a program",
+        "Changes the colour of the screen",
+        "Stores every program on the web"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "cpp-setup-flags",
+      "lessonSlug": "setup",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "Fill the gap: g++ ___ hello.cpp -o hello selects the C++20 rules.",
+      "explanation": "The -std flag chooses the language version. These examples use C++20.",
+      "answers": ["-std=c++20"]
+    },
+    {
+      "id": "cpp-variables-narrowing",
+      "lessonSlug": "syntax-variables",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "Why does this line fail to compile?",
+      "explanation": "Braces stop this change because 3.5 would lose its .5 part. Use double when you need a decimal.",
+      "language": "cpp",
+      "code": "int score{3.5};",
+      "options": [
+        "Braces cannot hold numbers",
+        "An int cannot keep the fractional part",
+        "The name score is forbidden"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "cpp-variables-auto-string",
+      "lessonSlug": "syntax-variables",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What type does auto name = \"Asha\"; choose?",
+      "explanation": "A text literal becomes a pointer to constant characters here. Use std::string name = \"Asha\"; for a string object.",
+      "options": ["const char*", "std::string", "int"],
+      "correctIndex": 0
+    },
+    {
+      "id": "cpp-control-switch-break",
+      "lessonSlug": "control-flow",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "Which word usually stops a switch case from continuing into the next case? ___",
+      "explanation": "break leaves the switch. Without it, the next case can run too.",
+      "answers": ["break"]
+    },
+    {
+      "id": "cpp-control-fizzbuzz",
+      "lessonSlug": "control-flow",
+      "difficulty": "beginner",
+      "type": "coding-task",
+      "question": "Print 1 to 15. Replace multiples of 3 with Fizz, 5 with Buzz, and both with FizzBuzz.",
+      "explanation": "Checking both first matters. Otherwise 15 would match the 3 rule and print only Fizz.",
+      "language": "cpp",
+      "starterCode": "#include <iostream>\nint main() {\n    // Add a loop here.\n}",
+      "solutionCode": "#include <iostream>\nint main() {\n    for (int n = 1; n <= 15; ++n) {\n        if (n % 15 == 0) std::cout << \"FizzBuzz\\n\";\n        else if (n % 3 == 0) std::cout << \"Fizz\\n\";\n        else if (n % 5 == 0) std::cout << \"Buzz\\n\";\n        else std::cout << n << \"\\n\";\n    }\n}",
+      "checklist": ["Check multiples of both numbers first.", "Run the loop from 1 through 15."]
+    },
+    {
+      "id": "cpp-functions-overload",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which pair can be two overloads of add?",
+      "explanation": "An overload is another function with the same name but different input types or input counts.",
+      "options": [
+        "add(int, int) and add(double, double)",
+        "Two functions with the same inputs and only different return types",
+        "Two variables named add"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "cpp-references-swap",
+      "lessonSlug": "references-pointers",
+      "difficulty": "beginner",
+      "type": "coding-task",
+      "question": "Write swapValues so it swaps the caller values. Use int& inputs.",
+      "explanation": "A reference is another name for the same value. Changing a and b changes x and y.",
+      "language": "cpp",
+      "starterCode": "#include <iostream>\nvoid swapValues(int& a, int& b) { }\nint main() { int x{2}, y{5}; swapValues(x, y); std::cout << x << \" \" << y << \"\\n\"; }",
+      "solutionCode": "#include <iostream>\nvoid swapValues(int& a, int& b) { int old = a; a = b; b = old; }\nint main() { int x{2}, y{5}; swapValues(x, y); std::cout << x << \" \" << y << \"\\n\"; }",
+      "checklist": ["Use references so the caller values change.", "Print 5 2 after the call."]
+    },
+    {
+      "id": "cpp-classes-const-method",
+      "lessonSlug": "classes",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does int value() const promise?",
+      "explanation": "The const after the method inputs says it can read the object without changing its ordinary fields.",
+      "options": [
+        "The method runs only once",
+        "This method will not change ordinary fields of the object",
+        "The answer must always be 0"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "cpp-classes-counter",
+      "lessonSlug": "classes",
+      "difficulty": "beginner",
+      "type": "coding-task",
+      "question": "Make a Counter class with add() and value(). It starts at zero and add() adds one.",
+      "explanation": "The object remembers its count. Its public methods let other code add to it or read it.",
+      "language": "cpp",
+      "starterCode": "#include <iostream>\nclass Counter {\n    // Add the fields and methods.\n};\nint main() { Counter c; c.add(); std::cout << c.value() << \"\\n\"; }",
+      "solutionCode": "#include <iostream>\nclass Counter {\n    int count{0};\npublic:\n    void add() { ++count; }\n    int value() const { return count; }\n};\nint main() { Counter c; c.add(); std::cout << c.value() << \"\\n\"; }",
+      "checklist": ["Keep the count inside the object.", "Print 1 after one call to add."]
+    },
+    {
+      "id": "cpp-inheritance-polymorphism-check",
+      "lessonSlug": "inheritance-polymorphism",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does override help C++ check?",
+      "explanation": "override catches mistakes such as spelling a method name wrong. The child must match a virtual method from the parent.",
+      "options": [
+        "That every number is positive",
+        "That every object has the same name",
+        "That a child method matches a virtual parent method"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "cpp-templates-check",
+      "lessonSlug": "templates",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "Fill the gap: ___ <typename T> starts a function recipe for different types.",
+      "explanation": "A template leaves a place for a type. C++ fills in that place when the recipe is used.",
+      "answers": ["template"]
+    },
+    {
+      "id": "cpp-stl-containers-check",
+      "lessonSlug": "stl-containers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "How many items does this vector have?",
+      "explanation": "The vector starts with two items. push_back adds one more at the end.",
+      "language": "cpp",
+      "code": "#include <vector>\n#include <iostream>\nint main() { std::vector<int> v{2, 5}; v.push_back(8); std::cout << v.size(); }",
+      "options": ["3", "2", "8"],
+      "correctIndex": 0
+    },
+    {
+      "id": "cpp-algorithms-lambdas-check",
+      "lessonSlug": "algorithms-lambdas",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which lambda is true when a number is greater than five?",
+      "explanation": "The > sign means greater than. For example, 8 > 5 is true.",
+      "options": [
+        "[](int n) { return n < 5; }",
+        "[](int n) { return n == 5; }",
+        "[](int n) { return n > 5; }"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "cpp-smart-pointers-check",
+      "lessonSlug": "smart-pointers",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "You should call delete yourself on the object owned by a unique_ptr.",
+      "explanation": "The unique_ptr cleans up the object it owns. Deleting that object yourself can cause a second, invalid delete.",
+      "correct": false
+    },
+    {
+      "id": "cpp-strings-streams-check",
+      "lessonSlug": "strings-streams",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does std::string(\"Hi, \") + \"Asha\" make?",
+      "explanation": "The + sign joins the pieces of text. The first piece already contains the comma and space.",
+      "options": ["Hi, Asha", "HiAsha with no space or comma", "A number"],
+      "correctIndex": 0
+    },
+    {
+      "id": "cpp-errors-exceptions-check",
+      "lessonSlug": "errors-exceptions",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "Fill the gap: score.___(0) reads an optional score or uses 0 if it is empty.",
+      "explanation": "value_or uses the stored value when present. Otherwise it returns the fallback you supplied.",
+      "answers": ["value_or"]
+    }
+  ]
+}

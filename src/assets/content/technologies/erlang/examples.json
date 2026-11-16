@@ -1,0 +1,138 @@
+{
+  "title": "Erlang Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-message",
+      "title": "Print a greeting",
+      "description": "io:format writes output. ~n starts a new line. The module exports main so the command can call it.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    io:format(\"Hello, Asha!~n\").\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-message"
+    },
+    {
+      "id": "variables",
+      "title": "Bind one value",
+      "description": "Variables start with a capital letter. A variable can be bound only once in a function call.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Pencils = 3,\n    io:format(\"~p~n\", [Pencils + 2]).\n",
+      "output": "5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "variables"
+    },
+    {
+      "id": "atoms",
+      "title": "Use a named label",
+      "description": "Atoms are fixed labels. An unquoted atom usually starts with a lower-case letter.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Status = ready,\n    io:format(\"~p~n\", [Status]).\n",
+      "output": "ready",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "atoms"
+    },
+    {
+      "id": "tuples",
+      "title": "Group a few values",
+      "description": "A tuple can hold a status and a result. Pattern matching pulls its parts into names.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    {ok, Score} = {ok, 8},\n    io:format(\"~p~n\", [Score]).\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "tuples"
+    },
+    {
+      "id": "lists",
+      "title": "Split a list",
+      "description": "[Head | Tail] separates the first item from the rest of a list.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    [First | _Rest] = [4, 5, 8],\n    io:format(\"~p~n\", [First]).\n",
+      "output": "4",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "lists"
+    },
+    {
+      "id": "maps",
+      "title": "Read a named key",
+      "description": "A map keeps key-value pairs. maps:get reads the value for a key.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Book = #{title => \"Moon Trip\", pages => 24},\n    io:format(\"~s~n\", [maps:get(title, Book)]).\n",
+      "output": "Moon Trip",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "maps"
+    },
+    {
+      "id": "case",
+      "title": "Choose from patterns",
+      "description": "case compares a value with patterns. The first matching branch supplies the result.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Light = green,\n    Message = case Light of red -> \"Stop\"; green -> \"Go\"; _ -> \"Wait\" end,\n    io:format(\"~s~n\", [Message]).\n",
+      "output": "Go",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "case"
+    },
+    {
+      "id": "guards",
+      "title": "Check a number in a branch",
+      "description": "A guard adds a small test after a pattern. when introduces that test.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Score = 8,\n    Message = case Score of N when N >= 5 -> \"Pass\"; _ -> \"Try again\" end,\n    io:format(\"~s~n\", [Message]).\n",
+      "output": "Pass",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "guards"
+    },
+    {
+      "id": "functions",
+      "title": "Call a local function",
+      "description": "A named function can take an input and return its final expression.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    io:format(\"~p~n\", [twice(4)]).\ntwice(N) -> N * 2.\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "functions"
+    },
+    {
+      "id": "comprehensions",
+      "title": "Make a list by a rule",
+      "description": "A list comprehension visits values and builds a result for each one.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Doubled = [N * 2 || N <- [2, 3]],\n    io:format(\"~p~n\", [Doubled]).\n",
+      "output": "[4,6]",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "comprehensions"
+    },
+    {
+      "id": "send-receive",
+      "title": "Send a message",
+      "description": "A process has a mailbox. ! sends a message, and receive reads a matching message.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    self() ! {score, 8},\n    receive {score, N} -> io:format(\"~p~n\", [N]) end.\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "send-receive"
+    },
+    {
+      "id": "spawn",
+      "title": "Start a small process",
+      "description": "spawn starts a new process. It can send a result back to the parent process.",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Parent = self(),\n    spawn(fun() -> Parent ! {answer, 4 * 2} end),\n    receive {answer, N} -> io:format(\"~p~n\", [N]) end.\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "spawn"
+    }
+  ]
+}

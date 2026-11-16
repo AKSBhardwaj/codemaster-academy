@@ -10,7 +10,7 @@ import { IconComponent } from '../../shared/components/icon/icon';
   selector: 'cma-exercise-block',
   imports: [RouterLink, IconComponent, ExerciseCardComponent],
   template: `
-    @defer (on idle; hydrate on viewport) {
+    @defer (on idle; hydrate on idle; hydrate on viewport) {
       @if (exercise(); as exercise) {
         <div class="my-4">
           <p class="cma-eyebrow mb-2">Practice exercise</p>
@@ -23,7 +23,7 @@ import { IconComponent } from '../../shared/components/icon/icon';
       } @else if (context.exerciseSetStatus() === 'loading') {
         <div class="cma-block-note" aria-busy="true">Loading exercise…</div>
       } @else {
-        <aside class="cma-callout" aria-label="Practice exercise">
+        <div class="cma-callout" role="note" aria-label="Practice exercise">
           <span class="cma-callout__icon"><cma-icon name="pencil-square" [size]="20" /></span>
           <div>
             <div class="cma-callout__title">Practice exercise</div>
@@ -35,7 +35,7 @@ import { IconComponent } from '../../shared/components/icon/icon';
               }
             </p>
           </div>
-        </aside>
+        </div>
       }
     } @placeholder {
       <div class="cma-block-note" aria-busy="true">Loading exercise…</div>

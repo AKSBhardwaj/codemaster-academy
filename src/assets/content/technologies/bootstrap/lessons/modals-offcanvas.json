@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "slug": "modals-offcanvas",
+  "title": "Modals and Offcanvas",
+  "summary": "A modal opens a box over the page. An offcanvas panel slides in from an edge.",
+  "introduction": "A modal opens a box over the page. An offcanvas panel slides in from an edge. Use these only when they help the reader finish a task. Learn how to open, close and name each one, including for keyboard users.",
+  "learningObjectives": [
+    "Build a modal from modal, modal-dialog and modal-content with a header, body and footer",
+    "Open and close modals and offcanvas panels with data attributes and with JavaScript",
+    "Size, centre and scroll modals, and place offcanvas panels on any edge",
+    "Explain what Bootstrap does for focus, Escape and the backdrop"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Modal markup"
+    },
+    {
+      "type": "paragraph",
+      "text": "A modal is three nested boxes. The outer `.modal` covers the viewport and is hidden until opened; `.modal-dialog` positions and sizes the dialog; `.modal-content` is the white box with the header, body and footer. The outer element needs `tabindex=\"-1\"` so Bootstrap can move focus to it, `aria-labelledby` pointing at the title, and `aria-hidden=\"true\"` while closed. Any element with `data-bs-toggle=\"modal\"` and a `data-bs-target` naming the modal's id opens it; any element inside with `data-bs-dismiss=\"modal\"` closes it."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A sign-up dialog",
+      "code": "<button type=\"button\" class=\"btn btn-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#signupModal\">\n  Join the club\n</button>\n\n<div class=\"modal fade\" id=\"signupModal\" tabindex=\"-1\" aria-labelledby=\"signupTitle\" aria-hidden=\"true\">\n  <div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n      <div class=\"modal-header\">\n        <h2 class=\"modal-title h5\" id=\"signupTitle\">Join the Garden Club</h2>\n        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n      </div>\n      <div class=\"modal-body\">\n        <label for=\"signupEmail\" class=\"form-label\">Email address</label>\n        <input type=\"email\" class=\"form-control\" id=\"signupEmail\">\n      </div>\n      <div class=\"modal-footer\">\n        <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cancel</button>\n        <button type=\"button\" class=\"btn btn-primary\">Send invitation</button>\n      </div>\n    </div>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser (bundle required)",
+      "content": "On load: only the \"Join the club\" button is visible\nClick it: the page dims under a 50% black backdrop and a white dialog, 500px wide, fades in near the top of the window, showing the title, an × button, the email field and two footer buttons\nFocus moves into the dialog and Tab cycles only through its controls; the page behind cannot scroll\nEscape, a click on the backdrop, × and Cancel all close it; \"Send invitation\" does nothing yet"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything in that last two lines, the backdrop, the scroll lock, the focus trap and the Escape key, is done by Bootstrap. You wrote none of it, which is the reason to use the component rather than a hand-rolled `<div>` with `display: none`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sizes, centring, scrolling and a static backdrop"
+    },
+    {
+      "type": "paragraph",
+      "text": "Modifier classes on `.modal-dialog` change the dialog; data attributes on `.modal` change the behaviour. The defaults suit a short form; long terms-and-conditions text wants a large, scrollable, centred dialog that the user cannot dismiss by accident."
+    },
+    {
+      "type": "table",
+      "headers": ["Where", "Class or attribute", "Effect"],
+      "rows": [
+        [
+          "`.modal-dialog`",
+          "`modal-sm`, `modal-lg`, `modal-xl`",
+          "Max width 300px, 800px or 1140px instead of the default 500px"
+        ],
+        [
+          "`.modal-dialog`",
+          "`modal-fullscreen`, `modal-fullscreen-md-down`",
+          "Fill the viewport always, or only below a breakpoint"
+        ],
+        [
+          "`.modal-dialog`",
+          "`modal-dialog-centered`",
+          "Centre the dialog vertically instead of placing it near the top"
+        ],
+        [
+          "`.modal-dialog`",
+          "`modal-dialog-scrollable`",
+          "Scroll the body inside the dialog instead of the whole dialog"
+        ],
+        [
+          "`.modal`",
+          "`data-bs-backdrop=\"static\"`",
+          "Clicking the backdrop no longer closes the modal"
+        ],
+        ["`.modal`", "`data-bs-keyboard=\"false\"`", "Escape no longer closes the modal"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A large, centred, scrollable modal that must be closed with a button",
+      "code": "<div class=\"modal fade\" id=\"termsModal\" tabindex=\"-1\" data-bs-backdrop=\"static\" data-bs-keyboard=\"false\"\n     aria-labelledby=\"termsTitle\" aria-hidden=\"true\">\n  <div class=\"modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg\">\n    <div class=\"modal-content\">\n      <div class=\"modal-header\">\n        <h2 class=\"modal-title h5\" id=\"termsTitle\">Membership terms</h2>\n      </div>\n      <div class=\"modal-body\">\n        <p>Long terms text goes here…</p>\n      </div>\n      <div class=\"modal-footer\">\n        <button type=\"button\" class=\"btn btn-primary\" data-bs-dismiss=\"modal\">I agree</button>\n      </div>\n    </div>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser",
+      "content": "An 800px wide dialog centred vertically in the window; if the terms are taller than the window, only the body scrolls while the header and footer stay put\nClicking the backdrop or pressing Escape does nothing; only \"I agree\" closes it"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Controlling a modal from JavaScript"
+    },
+    {
+      "type": "paragraph",
+      "text": "Data attributes cover \"open on click\". For anything else, such as opening a dialog after a timer or when a form fails, create an instance and call its methods. Since 5.2 the constructor accepts a selector string or an element. Every component also emits events you can listen for; `shown.bs.modal` fires once the fade-in has finished, which is the right moment to put the cursor in a field."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Opening the sign-up modal with code",
+      "code": "const modalElement = document.getElementById('signupModal');\nconst modal = new bootstrap.Modal(modalElement);\n\ndocument.getElementById('openSignup').addEventListener('click', () => modal.show());\n\nmodalElement.addEventListener('shown.bs.modal', () => {\n  document.getElementById('signupEmail').focus();\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser",
+      "content": "Clicking the element with id openSignup opens the dialog exactly as the data attribute did\nAs soon as the fade-in completes, the cursor is blinking in the email field"
+    },
+    {
+      "type": "paragraph",
+      "text": "The instance also has `hide()`, `toggle()` and `dispose()`. If a data attribute may already have created an instance for the same element, use `bootstrap.Modal.getOrCreateInstance(modalElement)` instead of `new`, so you do not end up with two controllers fighting over one dialog. The four lifecycle events are `show`, `shown`, `hide` and `hidden`, each suffixed with `.bs.modal`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Offcanvas"
+    },
+    {
+      "type": "paragraph",
+      "text": "Offcanvas uses the same ideas with different class names: `.offcanvas` plus a placement class (`offcanvas-start`, `offcanvas-end`, `offcanvas-top`, `offcanvas-bottom`), a header with a title and a `btn-close` with `data-bs-dismiss=\"offcanvas\"`, and a body. It is 400px wide (or 30vh tall for top and bottom) and slides in over a backdrop. Typical uses are mobile navigation, filter panels and shopping carts."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A filter panel from the right edge",
+      "code": "<button class=\"btn btn-outline-primary\" type=\"button\" data-bs-toggle=\"offcanvas\" data-bs-target=\"#filters\" aria-controls=\"filters\">\n  Filters\n</button>\n\n<div class=\"offcanvas offcanvas-end\" tabindex=\"-1\" id=\"filters\" aria-labelledby=\"filtersTitle\">\n  <div class=\"offcanvas-header\">\n    <h2 class=\"offcanvas-title h5\" id=\"filtersTitle\">Filter plants</h2>\n    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"offcanvas\" aria-label=\"Close\"></button>\n  </div>\n  <div class=\"offcanvas-body\">\n    <div class=\"form-check\">\n      <input class=\"form-check-input\" type=\"checkbox\" id=\"shade\">\n      <label class=\"form-check-label\" for=\"shade\">Shade tolerant</label>\n    </div>\n    <div class=\"form-check\">\n      <input class=\"form-check-input\" type=\"checkbox\" id=\"evergreen\">\n      <label class=\"form-check-label\" for=\"evergreen\">Evergreen</label>\n    </div>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser",
+      "content": "Click \"Filters\": a 400px wide white panel slides in from the right edge over a dimmed backdrop, showing the title, × and the two checkboxes\nEscape, the backdrop or × slide it back out; the page does not scroll while it is open"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two attributes adjust the behaviour: `data-bs-scroll=\"true\"` keeps the page scrollable behind the panel and `data-bs-backdrop=\"false\"` removes the backdrop. A **responsive offcanvas** uses `offcanvas-lg` (or another breakpoint) instead of plain `offcanvas`: below that width the content behaves as a sliding panel, and from the breakpoint up it is rendered in place as ordinary content, which is how a sidebar can double as a mobile drawer."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a modal nested inside a positioned parent",
+      "text": "Modals and offcanvas should be direct children of `<body>`, or at least outside any element that has `position: fixed`, `transform`, `filter` or `overflow: hidden`. Placed inside a fixed navbar or a card with `overflow: hidden`, the dialog is clipped, appears in the wrong place or sits beneath its own backdrop. Move the markup to the end of the body; the trigger button can stay wherever it is, because the connection is made by id."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Return focus is automatic",
+      "text": "When a modal or offcanvas closes, Bootstrap moves focus back to the element that opened it. Open dialogs from a real `<button>`, not a `<div>` with a click handler, so keyboard users can open them in the first place and land somewhere sensible afterwards."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-modal-toggle"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-modal-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "modals-offcanvas",
+          "difficulty": "beginner",
+          "question": "Which class centres the dialog vertically in the window?",
+          "explanation": "modal-dialog-centered goes on .modal-dialog. modal-lg changes width, modal-dialog-scrollable changes scrolling, and modal-fullscreen fills the viewport.",
+          "options": [
+            "`modal-lg`",
+            "`modal-dialog-centered`",
+            "`modal-dialog-scrollable`",
+            "`modal-fullscreen`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "bs-modal-qc-2",
+          "type": "true-false",
+          "lessonSlug": "modals-offcanvas",
+          "difficulty": "beginner",
+          "question": "In a left-to-right page, `offcanvas-end` slides the panel in from the right edge.",
+          "explanation": "start and end follow the writing direction: in LTR pages start is the left edge and end is the right edge. In RTL pages they swap.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-modal-toggle"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "setup"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "buttons"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "navbar"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Modals and Offcanvas – Dialogs and Side Panels",
+    "description": "Learn Bootstrap 5.3 modals and offcanvas: the markup, data-bs-toggle triggers, sizes and centring, static backdrops, the JavaScript API, events and placement."
+  },
+  "updatedOn": "2026-11-16"
+}

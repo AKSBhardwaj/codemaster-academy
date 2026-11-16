@@ -1,0 +1,138 @@
+{
+  "title": "Redis Small Examples",
+  "description": "Use these small Redis examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Store a value under a key",
+      "description": "A key is a name used to find a value. SET stores a string, and GET reads that string back.",
+      "language": "text",
+      "code": "SET cma:club \"Garden club\"\nGET cma:club",
+      "output": "SET replies OK. GET returns Garden club.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "count-with-an-atomic-increment",
+      "title": "Count with an atomic increment",
+      "description": "INCR adds one to a key holding an integer.",
+      "language": "text",
+      "code": "SET cma:books 0\nINCR cma:books\nINCR cma:books\nGET cma:books",
+      "output": "The final value is 2.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-with-an-atomic-increment"
+    },
+    {
+      "id": "give-a-key-an-expiry",
+      "title": "Give a key an expiry",
+      "description": "An expiry makes a key disappear after a time limit.",
+      "language": "text",
+      "code": "SET cma:tip \"Water the plants\" EX 30\nTTL cma:tip",
+      "output": "TTL reports the remaining life in seconds, near 30 if checked immediately.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "give-a-key-an-expiry"
+    },
+    {
+      "id": "check-whether-a-key-exists",
+      "title": "Check whether a key exists",
+      "description": "EXISTS checks for a key without reading its value.",
+      "language": "text",
+      "code": "SET cma:temporary \"sample\"\nEXISTS cma:temporary\nDEL cma:temporary\nEXISTS cma:temporary",
+      "output": "The first existence check returns 1, and the final check returns 0.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-whether-a-key-exists"
+    },
+    {
+      "id": "group-fields-in-a-hash",
+      "title": "Group fields in a hash",
+      "description": "A hash stores several named fields under one Redis key.",
+      "language": "text",
+      "code": "HSET cma:book:1 title \"Moon Trip\" pages 60\nHGET cma:book:1 title",
+      "output": "The field lookup returns Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-fields-in-a-hash"
+    },
+    {
+      "id": "use-a-list-as-a-small-queue",
+      "title": "Use a list as a small queue",
+      "description": "A Redis list keeps values in order. Adding on the right and removing on the left gives first-in, first-out behaviour.",
+      "language": "text",
+      "code": "DEL cma:queue\nRPUSH cma:queue \"Moon Trip\" \"Garden Days\"\nLPOP cma:queue",
+      "output": "The removed value is Moon Trip, the first item added.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-list-as-a-small-queue"
+    },
+    {
+      "id": "keep-each-member-once",
+      "title": "Keep each member once",
+      "description": "A set holds unique members without a promised order.",
+      "language": "text",
+      "code": "DEL cma:readers\nSADD cma:readers Mia Sam Mia\nSCARD cma:readers",
+      "output": "The set has 2 unique members.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-each-member-once"
+    },
+    {
+      "id": "rank-values-with-a-sorted-set",
+      "title": "Rank values with a sorted set",
+      "description": "A sorted set pairs each member with a score.",
+      "language": "text",
+      "code": "DEL cma:scores\nZADD cma:scores 5 Mia 8 Sam 3 Ravi\nZRANGE cma:scores 0 -1 WITHSCORES",
+      "output": "The ascending order is Ravi with 3, Mia with 5, then Sam with 8.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "rank-values-with-a-sorted-set"
+    },
+    {
+      "id": "scan-keys-in-small-batches",
+      "title": "Scan keys in small batches",
+      "description": "SCAN walks through key names using a cursor.",
+      "language": "text",
+      "code": "SCAN 0 MATCH cma:* COUNT 10",
+      "output": "The response includes a next cursor and some matching keys. Continue with that cursor until it returns 0.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "scan-keys-in-small-batches"
+    },
+    {
+      "id": "group-commands-with-multi",
+      "title": "Group commands with MULTI",
+      "description": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them.",
+      "language": "text",
+      "code": "MULTI\nSET cma:points 2\nINCR cma:points\nEXEC",
+      "output": "EXEC returns the results of setting the value and incrementing it to 3.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-commands-with-multi"
+    },
+    {
+      "id": "publish-a-live-message",
+      "title": "Publish a live message",
+      "description": "Publish/subscribe sends live messages to clients currently listening to a channel.",
+      "language": "text",
+      "code": "# Terminal A:\nSUBSCRIBE cma:club-news\n# Terminal B:\nPUBLISH cma:club-news \"Meeting at four\"",
+      "output": "The subscribed terminal receives Meeting at four while it is connected.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "publish-a-live-message"
+    },
+    {
+      "id": "choose-what-must-survive-a-restart",
+      "title": "Choose what must survive a restart",
+      "description": "Redis persistence settings decide how data is written to disk.",
+      "language": "text",
+      "code": "Example decision:\nCached book summary: can be loaded again if lost.\nOnly copy of a payment record: must not depend on an unreviewed cache setup.\nCheck the server's RDB snapshot and AOF settings, then test a practice restart.",
+      "output": "The worked decision separates replaceable cache data from records that need stronger guarantees.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-what-must-survive-a-restart"
+    }
+  ]
+}

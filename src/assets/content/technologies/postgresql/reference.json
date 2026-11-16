@@ -1,0 +1,144 @@
+{
+  "title": "PostgreSQL Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the PostgreSQL course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Ask the database a question",
+          "summary": "A SELECT query can calculate a value without reading a table.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT 2 + 3 AS total_books;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "make-a-practice-table",
+          "name": "Make a practice table",
+          "summary": "A table names the facts each row can hold.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TEMP TABLE pg_books (\n id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n title text NOT NULL,\n pages integer CHECK (pages > 0)\n);"
+          },
+          "lessonSlug": "make-a-practice-table"
+        },
+        {
+          "slug": "return-an-inserted-value",
+          "name": "Return an inserted value",
+          "summary": "RETURNING asks PostgreSQL to show values from a row it has just changed.",
+          "example": {
+            "language": "sql",
+            "code": "-- After creating pg_books in the previous lesson:\nINSERT INTO pg_books (title,pages) VALUES ('Moon Trip',60)\nRETURNING id,title;"
+          },
+          "lessonSlug": "return-an-inserted-value"
+        },
+        {
+          "slug": "search-text-without-letter-case",
+          "name": "Search text without letter case",
+          "summary": "ILIKE is PostgreSQL's case-insensitive pattern match.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(title) AS (VALUES ('Moon Trip'),('Garden Days'))\nSELECT title FROM books WHERE title ILIKE 'moon%';"
+          },
+          "lessonSlug": "search-text-without-letter-case"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "sort-before-taking-a-few-rows",
+          "name": "Sort before taking a few rows",
+          "summary": "ORDER BY chooses the result order. LIMIT then restricts how many of those rows are returned.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(title,pages) AS (VALUES ('Moon Trip',60),('Garden Days',40),('Tiny Seed',20))\nSELECT title,pages FROM books ORDER BY pages,title LIMIT 2;"
+          },
+          "lessonSlug": "sort-before-taking-a-few-rows"
+        },
+        {
+          "slug": "count-rows-in-each-group",
+          "name": "Count rows in each group",
+          "summary": "GROUP BY puts matching values together. An aggregate such as count gives one answer for each group.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(kind) AS (VALUES ('story'),('science'),('story'))\nSELECT kind,count(*) AS book_count FROM books GROUP BY kind ORDER BY kind;"
+          },
+          "lessonSlug": "count-rows-in-each-group"
+        },
+        {
+          "slug": "join-related-facts",
+          "name": "Join related facts",
+          "summary": "A join matches rows using a shared value.",
+          "example": {
+            "language": "sql",
+            "code": "WITH authors(id,name) AS (VALUES (1,'Mia')),\nbooks(title,author_id) AS (VALUES ('Moon Trip',1))\nSELECT books.title,authors.name FROM books JOIN authors ON authors.id=books.author_id;"
+          },
+          "lessonSlug": "join-related-facts"
+        },
+        {
+          "slug": "keep-a-change-in-a-transaction",
+          "name": "Keep a change in a transaction",
+          "summary": "A transaction groups changes into one job.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TEMP TABLE pg_scores (points integer);\nBEGIN;\nINSERT INTO pg_scores VALUES (5);\nROLLBACK;\nSELECT count(*) FROM pg_scores;"
+          },
+          "lessonSlug": "keep-a-change-in-a-transaction"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "read-a-jsonb-field",
+          "name": "Read a JSONB field",
+          "summary": "JSONB stores JSON data in a form PostgreSQL can query.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT '{\"title\":\"Moon Trip\",\"pages\":60}'::jsonb ->> 'title' AS title;"
+          },
+          "lessonSlug": "read-a-jsonb-field"
+        },
+        {
+          "slug": "use-an-array-for-a-small-value-list",
+          "name": "Use an array for a small value list",
+          "summary": "PostgreSQL can store an array of values.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT 'science' = ANY(ARRAY['story','science','poetry']) AS allowed;"
+          },
+          "lessonSlug": "use-an-array-for-a-small-value-list"
+        },
+        {
+          "slug": "number-rows-without-grouping-them",
+          "name": "Number rows without grouping them",
+          "summary": "A window function calculates across related rows while keeping each row visible.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(title,pages) AS (VALUES ('Moon Trip',60),('Tiny Seed',20))\nSELECT title,row_number() OVER (ORDER BY pages,title) AS reading_order FROM books ORDER BY reading_order;"
+          },
+          "lessonSlug": "number-rows-without-grouping-them"
+        },
+        {
+          "slug": "read-a-query-plan-first",
+          "name": "Read a query plan first",
+          "summary": "EXPLAIN shows how PostgreSQL plans to run a query.",
+          "example": {
+            "language": "sql",
+            "code": "EXPLAIN SELECT * FROM pg_books WHERE id=1;"
+          },
+          "lessonSlug": "read-a-query-plan-first"
+        }
+      ]
+    }
+  ]
+}

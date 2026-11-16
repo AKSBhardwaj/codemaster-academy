@@ -13,7 +13,13 @@ const COLLAPSED_KEY = 'ui:sidebar-collapsed';
 /** Three-column tutorial layout: lesson sidebar (drawer below lg), content, contextual sidebar (xl and up). */
 @Component({
   selector: 'cma-tutorial-layout',
-  imports: [RouterOutlet, IconComponent, OffcanvasComponent, TutorialSidebarComponent, ContextSidebarComponent],
+  imports: [
+    RouterOutlet,
+    IconComponent,
+    OffcanvasComponent,
+    TutorialSidebarComponent,
+    ContextSidebarComponent,
+  ],
   providers: [TutorialContext],
   templateUrl: './tutorial-layout.html',
   styleUrl: './tutorial-layout.scss',
@@ -48,7 +54,8 @@ export class TutorialLayoutComponent {
   constructor() {
     effect(() => this.context.techSlug.set(this.tech()));
     effect(() => {
-      if (this.progress.hydrated()) this.collapsed.set(this.persistence.read<boolean>(COLLAPSED_KEY, false));
+      if (this.progress.hydrated())
+        this.collapsed.set(this.persistence.read<boolean>(COLLAPSED_KEY, false));
     });
   }
 

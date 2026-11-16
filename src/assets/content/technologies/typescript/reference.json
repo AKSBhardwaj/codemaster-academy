@@ -1,0 +1,443 @@
+{
+  "title": "TypeScript Reference",
+  "description": "A compact reference of the TypeScript syntax, types, utility types, module forms and compiler options covered in the tutorial, each with a short example and the lesson that explains it.",
+  "groups": [
+    {
+      "id": "types",
+      "title": "Basic and special types",
+      "entries": [
+        {
+          "slug": "primitives",
+          "name": "string, number, boolean",
+          "summary": "The three everyday primitive types. number covers integers and floats alike; inference assigns them from initial values.",
+          "syntax": "let name: string = \"Ada\"; let age = 36; let active = true;",
+          "lessonSlug": "basic-types"
+        },
+        {
+          "slug": "null-undefined",
+          "name": "null and undefined",
+          "summary": "Separate types under strictNullChecks; a value may hold them only when its type says so with a union.",
+          "syntax": "let nickname: string | null = null;",
+          "notes": [
+            "Use ?? to supply a default and ?. to access a property of a possibly-missing value."
+          ],
+          "lessonSlug": "basic-types"
+        },
+        {
+          "slug": "any",
+          "name": "any",
+          "summary": "Opts a value out of type checking entirely. Avoid it; JSON.parse and untyped packages are the usual sources.",
+          "syntax": "const raw: any = JSON.parse(text);",
+          "lessonSlug": "basic-types"
+        },
+        {
+          "slug": "unknown",
+          "name": "unknown",
+          "summary": "The safe top type: accepts every value but must be narrowed before any member is used.",
+          "syntax": "const value: unknown = JSON.parse(text);\nif (typeof value === \"string\") { value.toUpperCase(); }",
+          "lessonSlug": "basic-types"
+        },
+        {
+          "slug": "never",
+          "name": "never",
+          "summary": "The type with no values: the return type of a function that always throws, and the result of exhaustive narrowing.",
+          "syntax": "function fail(msg: string): never { throw new Error(msg); }",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "void",
+          "name": "void",
+          "summary": "Return type of a function whose result is not meant to be used.",
+          "syntax": "function log(message: string): void { console.log(message); }",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "literal-types",
+          "name": "Literal types",
+          "summary": "A single value as a type. const declarations infer literal types; let widens them to the primitive.",
+          "syntax": "let theme: \"light\" | \"dark\" = \"light\";",
+          "example": {
+            "language": "typescript",
+            "code": "const state = \"active\"; // type \"active\"\nlet mode = \"dark\";      // type string\nlet level: 1 | 2 | 3 = 2;"
+          },
+          "lessonSlug": "basic-types"
+        }
+      ]
+    },
+    {
+      "id": "declarations",
+      "title": "Declaring types",
+      "entries": [
+        {
+          "slug": "interface",
+          "name": "interface",
+          "summary": "Names an object shape with required, optional and readonly properties and methods. Interfaces can extend others and merge.",
+          "syntax": "interface Product { id: number; name: string; tags?: string[]; readonly sku: string; }",
+          "lessonSlug": "objects-interfaces"
+        },
+        {
+          "slug": "type-alias",
+          "name": "type",
+          "summary": "Names any type: primitives, unions, object shapes, tuples or function types. Cannot be reopened or merged.",
+          "syntax": "type Id = number | string;\ntype Handler = (event: string) => void;",
+          "lessonSlug": "type-aliases-unions"
+        },
+        {
+          "slug": "optional-readonly",
+          "name": "?: and readonly",
+          "summary": "A question mark makes a property optional (its type gains undefined); readonly forbids assignment after creation.",
+          "syntax": "interface Options { retries?: number; readonly id: string; }",
+          "lessonSlug": "objects-interfaces"
+        },
+        {
+          "slug": "index-signature",
+          "name": "Index signature",
+          "summary": "Describes a dictionary: any key of the given type maps to the value type.",
+          "syntax": "interface Scores { [player: string]: number; }",
+          "notes": ["Prefer Record<Key, Value> when the set of keys is a known union."],
+          "lessonSlug": "objects-interfaces"
+        },
+        {
+          "slug": "union-type",
+          "name": "Union A | B",
+          "summary": "A value that is one of several types. Only members shared by every alternative are accessible until narrowed.",
+          "syntax": "function pad(value: string | number): string",
+          "lessonSlug": "type-aliases-unions"
+        },
+        {
+          "slug": "intersection-type",
+          "name": "Intersection A & B",
+          "summary": "A type with every property of both operands. Intersecting incompatible types silently produces never.",
+          "syntax": "type Post = { title: string } & Timestamps;",
+          "lessonSlug": "type-aliases-unions"
+        },
+        {
+          "slug": "array-type",
+          "name": "T[] and readonly T[]",
+          "summary": "An array whose elements all have type T. readonly removes every mutating method.",
+          "syntax": "const scores: number[] = [1, 2];\nconst fixed: readonly string[] = [\"a\"];",
+          "notes": ["Array<T> is identical to T[]."],
+          "lessonSlug": "arrays-tuples"
+        },
+        {
+          "slug": "tuple-type",
+          "name": "Tuple [A, B]",
+          "summary": "A fixed-length array with a known type per position; positions may be labelled, optional or a rest element.",
+          "syntax": "type Point = [x: number, y: number];\nfunction minMax(v: number[]): [min: number, max: number]",
+          "lessonSlug": "arrays-tuples"
+        },
+        {
+          "slug": "enum",
+          "name": "enum",
+          "summary": "A set of named constants that compiles to a real object. Numeric members get a reverse mapping; string enums are nominal.",
+          "syntax": "enum LogLevel { Debug = \"debug\", Info = \"info\" }",
+          "notes": [
+            "Not erasable: rejected by erasableSyntaxOnly and by Node's type stripping.",
+            "Prefer a literal union or an as const object for most cases."
+          ],
+          "lessonSlug": "enums-literals"
+        },
+        {
+          "slug": "as-const",
+          "name": "as const",
+          "summary": "Infers the narrowest, readonly type for a literal, turning arrays into readonly tuples and strings into literal types.",
+          "syntax": "const sizes = [\"S\", \"M\", \"L\"] as const;\ntype Size = (typeof sizes)[number];",
+          "lessonSlug": "arrays-tuples"
+        },
+        {
+          "slug": "keyof-typeof",
+          "name": "keyof, typeof and T[K]",
+          "summary": "keyof T is the union of property names, typeof x is the type of a value, and T[K] reads the type of one property.",
+          "syntax": "type Role = User[\"role\"];\ntype Keys = keyof typeof LOG_LEVELS;",
+          "lessonSlug": "generics"
+        },
+        {
+          "slug": "satisfies",
+          "name": "satisfies",
+          "summary": "Checks a value against a type without changing its inferred type, keeping precise literals.",
+          "syntax": "const config = { port: 3000 } satisfies Config;",
+          "lessonSlug": "narrowing"
+        }
+      ]
+    },
+    {
+      "id": "functions-classes",
+      "title": "Functions and classes",
+      "entries": [
+        {
+          "slug": "function-type",
+          "name": "Function type",
+          "summary": "The type of a function value: a parameter list and a return type joined by an arrow. Callbacks are contextually typed from it.",
+          "syntax": "type Formatter = (value: number) => string;",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "parameters",
+          "name": "Optional, default and rest parameters",
+          "summary": "A ? or a default value makes a parameter optional; ...rest collects trailing arguments into an array. Optional parameters must come last.",
+          "syntax": "function greet(name: string, greeting = \"Hello\", suffix?: string): string\nfunction sum(...values: number[]): number",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "access-modifiers",
+          "name": "public, private, protected",
+          "summary": "Compile-time access control for class members. private is erased; use #name for a field that is private at runtime.",
+          "syntax": "class Vault { private secret = \"x\"; #pin = 1234; protected tag = \"v\"; }",
+          "lessonSlug": "classes"
+        },
+        {
+          "slug": "parameter-properties",
+          "name": "Parameter properties",
+          "summary": "A modifier on a constructor parameter declares the field and assigns it in one step. Not erasable syntax.",
+          "syntax": "class Counter { constructor(private readonly step: number, public label = \"counter\") {} }",
+          "lessonSlug": "classes"
+        },
+        {
+          "slug": "abstract-implements",
+          "name": "abstract and implements",
+          "summary": "abstract classes cannot be instantiated and may require methods from subclasses; implements checks a class against an interface.",
+          "syntax": "abstract class Shape implements HasArea { abstract area(): number; }",
+          "lessonSlug": "classes"
+        },
+        {
+          "slug": "override",
+          "name": "override",
+          "summary": "Marks a method that replaces an inherited one, so a misspelled name is an error. noImplicitOverride makes it mandatory.",
+          "syntax": "class Circle extends Shape { override area(): number { return Math.PI * this.r ** 2; } }",
+          "lessonSlug": "classes"
+        }
+      ]
+    },
+    {
+      "id": "generics-narrowing",
+      "title": "Generics and narrowing",
+      "entries": [
+        {
+          "slug": "generic-function",
+          "name": "Generic function <T>",
+          "summary": "Declares a type parameter that the compiler infers at each call, preserving the caller's types in the result.",
+          "syntax": "function first<T>(items: T[]): T | undefined { return items[0]; }",
+          "lessonSlug": "generics"
+        },
+        {
+          "slug": "generic-constraint",
+          "name": "T extends Constraint",
+          "summary": "Limits what a type parameter may be, making the constraint's members available inside the function.",
+          "syntax": "function longest<T extends { length: number }>(a: T, b: T): T\nfunction pluck<T, K extends keyof T>(obj: T, key: K): T[K]",
+          "notes": ["Type parameters may have defaults: interface Response<T = unknown>."],
+          "lessonSlug": "generics"
+        },
+        {
+          "slug": "typeof-guard",
+          "name": "typeof guard",
+          "summary": "Narrows a union by primitive type inside the checked branch.",
+          "syntax": "if (typeof value === \"number\") { value.toFixed(2); }",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "in-instanceof-guards",
+          "name": "in and instanceof guards",
+          "summary": "in narrows by the presence of a property; instanceof narrows to a class and its subclasses.",
+          "syntax": "if (\"swim\" in animal) { animal.swim(); }\nif (pet instanceof Dog) { pet.bark(); }",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "discriminated-union",
+          "name": "Discriminated union",
+          "summary": "Object types that share a literal-typed property (the discriminant); a switch on it narrows to the matching member.",
+          "syntax": "type Shape = { kind: \"circle\"; radius: number } | { kind: \"square\"; side: number };",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "exhaustive-never",
+          "name": "Exhaustiveness check",
+          "summary": "Assigning the remaining value to a never variable in the default branch reports any union member without a case.",
+          "syntax": "default: { const unreachable: never = shape; return unreachable; }",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "type-predicate",
+          "name": "Type predicate (x is T)",
+          "summary": "A function whose return type tells the compiler what a true result proves; works with filter. Simple predicates are inferred since 5.5.",
+          "syntax": "function isFish(a: Fish | Bird): a is Fish { return \"swim\" in a; }",
+          "lessonSlug": "narrowing"
+        },
+        {
+          "slug": "assertions",
+          "name": "x! and x as T",
+          "summary": "The non-null assertion removes null and undefined; a type assertion replaces the type. Neither checks anything at runtime.",
+          "syntax": "const el = map.get(key)!;\nconst user = data as User;",
+          "notes": [
+            "Prefer a real check (if, ??, ?.) or satisfies; use as only when you know more than the compiler can."
+          ],
+          "lessonSlug": "narrowing"
+        }
+      ]
+    },
+    {
+      "id": "utility",
+      "title": "Utility types",
+      "entries": [
+        {
+          "slug": "partial-required-readonly",
+          "name": "Partial<T>, Required<T>, Readonly<T>",
+          "summary": "All properties optional, all required, or all read-only. All three are shallow: nested objects are not affected.",
+          "syntax": "type UserUpdate = Partial<User>;\nconst frozen: Readonly<User> = user;",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "pick-omit",
+          "name": "Pick<T, K>, Omit<T, K>",
+          "summary": "Keep only the listed keys, or everything except them. Compose with Partial for update payloads.",
+          "syntax": "type Preview = Pick<User, \"id\" | \"name\">;\ntype NewUser = Omit<User, \"id\">;",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "record",
+          "name": "Record<K, V>",
+          "summary": "An object type with exactly the keys K and values V; with a union of keys, every key is required.",
+          "syntax": "const permissions: Record<Role, string[]> = { admin: [\"write\"], member: [\"read\"] };",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "exclude-extract",
+          "name": "Exclude<U, M>, Extract<U, M>",
+          "summary": "Filter a union: remove the members assignable to M, or keep only those.",
+          "syntax": "type Settled = Exclude<Status, \"idle\" | \"loading\">;",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "nonnullable",
+          "name": "NonNullable<T>",
+          "summary": "Removes null and undefined from a type.",
+          "syntax": "type Name = NonNullable<string | null | undefined>; // string",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "returntype-parameters",
+          "name": "ReturnType<F>, Parameters<F>",
+          "summary": "Extract what a function type returns, or its parameter list as a tuple. Combine with typeof fn.",
+          "syntax": "type Created = ReturnType<typeof createUser>;\ntype Args = Parameters<typeof createUser>;",
+          "lessonSlug": "utility-types"
+        },
+        {
+          "slug": "awaited",
+          "name": "Awaited<T>",
+          "summary": "The resolved type of a promise, unwrapped recursively; models what await produces.",
+          "syntax": "type Ids = Awaited<ReturnType<typeof loadIds>>;",
+          "lessonSlug": "async-types"
+        }
+      ]
+    },
+    {
+      "id": "modules-declarations",
+      "title": "Modules and declaration files",
+      "entries": [
+        {
+          "slug": "export-import",
+          "name": "export and import",
+          "summary": "Share functions, values, classes and types between files. Under nodenext ES modules, relative paths need the .js extension.",
+          "syntax": "export function add(a: number, b: number): number { return a + b; }\nimport { add } from \"./math.js\";",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "import-type",
+          "name": "import type",
+          "summary": "Imports that exist only for the checker and are erased from the output; required for types under verbatimModuleSyntax.",
+          "syntax": "import type { Vector } from \"./math.js\";\nimport { add, type Vector } from \"./math.js\";",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "declaration-file",
+          "name": ".d.ts files",
+          "summary": "Type-only companions to JavaScript: signatures with declare and no bodies. Generated with the declaration option or published as @types packages.",
+          "syntax": "export declare function distance(a: Point, b: Point): number;",
+          "lessonSlug": "declaration-files"
+        },
+        {
+          "slug": "types-packages",
+          "name": "@types packages",
+          "summary": "Community declarations from DefinitelyTyped for JavaScript packages. Fixes TS7016 when the package ships no types.",
+          "syntax": "npm install --save-dev @types/node",
+          "lessonSlug": "declaration-files"
+        },
+        {
+          "slug": "declare-module",
+          "name": "declare module",
+          "summary": "Describes an untyped package yourself in a .d.ts file. The one-line form without a body types every export as any.",
+          "syntax": "declare module \"legacy-slugify\" { export default function slugify(input: string): string; }",
+          "lessonSlug": "declaration-files"
+        },
+        {
+          "slug": "declare-global",
+          "name": "declare global",
+          "summary": "Adds members to global types such as Window or NodeJS.ProcessEnv from inside a module file.",
+          "syntax": "export {};\ndeclare global { namespace NodeJS { interface ProcessEnv { DATABASE_URL: string } } }",
+          "lessonSlug": "declaration-files"
+        }
+      ]
+    },
+    {
+      "id": "compiler",
+      "title": "Compiler commands and options",
+      "entries": [
+        {
+          "slug": "tsc-commands",
+          "name": "tsc, --init, --noEmit, --watch",
+          "summary": "tsc compiles the project in tsconfig.json; --init creates the file, --noEmit only checks, --watch rebuilds on save. tsx runs a file without checking.",
+          "syntax": "npx tsc --init\nnpx tsc --noEmit\nnpx tsc --watch\nnpx tsx src/app.ts",
+          "lessonSlug": "setup"
+        },
+        {
+          "slug": "strict",
+          "name": "strict",
+          "summary": "Enables noImplicitAny, strictNullChecks, strictPropertyInitialization, strictFunctionTypes, strictBindCallApply, noImplicitThis, useUnknownInCatchVariables and alwaysStrict.",
+          "syntax": "\"strict\": true",
+          "lessonSlug": "strict-config"
+        },
+        {
+          "slug": "nouncheckedindexedaccess",
+          "name": "noUncheckedIndexedAccess",
+          "summary": "Makes array and index-signature reads T | undefined so out-of-range access must be handled.",
+          "syntax": "\"noUncheckedIndexedAccess\": true",
+          "lessonSlug": "arrays-tuples"
+        },
+        {
+          "slug": "exactoptionalpropertytypes",
+          "name": "exactOptionalPropertyTypes",
+          "summary": "An optional property may be absent but not explicitly set to undefined unless its type includes undefined.",
+          "syntax": "\"exactOptionalPropertyTypes\": true",
+          "lessonSlug": "strict-config"
+        },
+        {
+          "slug": "erasablesyntaxonly",
+          "name": "erasableSyntaxOnly",
+          "summary": "Rejects enums, namespaces with values and parameter properties so the code can run through type stripping (TS 5.8+).",
+          "syntax": "\"erasableSyntaxOnly\": true",
+          "lessonSlug": "enums-literals"
+        },
+        {
+          "slug": "verbatimmodulesyntax",
+          "name": "verbatimModuleSyntax",
+          "summary": "Keeps imports exactly as written; types must be imported with the type keyword (TS1484 otherwise).",
+          "syntax": "\"verbatimModuleSyntax\": true",
+          "lessonSlug": "modules"
+        },
+        {
+          "slug": "module-target",
+          "name": "module, target, rootDir, outDir",
+          "summary": "module nodenext follows Node's rules, target sets the emitted JavaScript version, rootDir and outDir map src to dist.",
+          "syntax": "\"module\": \"nodenext\", \"target\": \"es2022\", \"rootDir\": \"src\", \"outDir\": \"dist\"",
+          "lessonSlug": "setup"
+        },
+        {
+          "slug": "declaration-skiplibcheck",
+          "name": "declaration, skipLibCheck, types",
+          "summary": "declaration emits .d.ts files, skipLibCheck skips checking node_modules declarations, types limits which @types packages load.",
+          "syntax": "\"declaration\": true, \"skipLibCheck\": true, \"types\": [\"node\"]",
+          "lessonSlug": "declaration-files"
+        }
+      ]
+    }
+  ]
+}

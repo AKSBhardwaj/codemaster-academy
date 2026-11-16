@@ -1,0 +1,150 @@
+{
+  "title": "Unit Testing Reference",
+  "description": "A quick reminder of the ideas and examples in the Unit Testing lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "One small behaviour",
+          "summary": "A unit is a small piece of behaviour, often a function. Test what it returns for a clear input.",
+          "example": {
+            "language": "javascript",
+            "code": "function double(n) { return n * 2; }\nconsole.log(double(4) === 8);"
+          },
+          "notes": ["Do not test several unrelated functions in one unclear check."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "arrange-act-assert",
+          "name": "Arrange act assert",
+          "summary": "Arrange prepares input. Act runs the code. Assert checks the result. These three steps make a test easy to read.",
+          "example": {
+            "language": "javascript",
+            "code": "const input = 3; // arrange\nconst actual = input * input; // act\nconsole.log(actual === 9); // assert"
+          },
+          "notes": [
+            "Do not calculate the expected result using the same buggy function you are testing."
+          ],
+          "lessonSlug": "arrange-act-assert"
+        },
+        {
+          "slug": "name-the-rule",
+          "name": "Name the rule",
+          "summary": "A useful test name says the rule and the situation. Someone should understand a failure without opening every line of code.",
+          "example": {
+            "language": "javascript",
+            "code": "const title = \"empty name gets a friendly greeting\";\nconst greet = name => name ? \"Hi \" + name : \"Hello!\";\nconsole.log(title, greet(\"\") === \"Hello!\");"
+          },
+          "notes": ["Names such as test1 hide the reason for the test."],
+          "lessonSlug": "name-the-rule"
+        },
+        {
+          "slug": "compare-values-carefully",
+          "name": "Compare values carefully",
+          "summary": "Equality checks need to match the data you care about. Two different objects are not the same object even if their fields match.",
+          "example": {
+            "language": "javascript",
+            "code": "const actual = { score: 8 };\nconst expected = { score: 8 };\nconsole.log(actual === expected);\nconsole.log(actual.score === expected.score);"
+          },
+          "notes": ["Use a test runner's deep-value matcher when checking object contents."],
+          "lessonSlug": "compare-values-carefully"
+        },
+        {
+          "slug": "boundary-cases-in-a-unit",
+          "name": "Boundary cases in a unit",
+          "summary": "Choose a value where a rule changes. Test both sides so a wrong comparison sign is visible.",
+          "example": {
+            "language": "javascript",
+            "code": "const passes = score => score >= 5;\nconsole.log(passes(4) === false, passes(5) === true);"
+          },
+          "notes": ["Testing only a very high score misses a wrong boundary."],
+          "lessonSlug": "boundary-cases-in-a-unit"
+        },
+        {
+          "slug": "test-expected-errors",
+          "name": "Test expected errors",
+          "summary": "Some functions should reject bad input. Check that the rejection happens and that its message is useful.",
+          "example": {
+            "language": "javascript",
+            "code": "function divide(a, b) { if (b === 0) throw new Error(\"Zero divisor\"); return a / b; }\nlet message = \"\";\ntry { divide(4, 0); } catch (error) { message = error.message; }\nconsole.log(message === \"Zero divisor\");"
+          },
+          "notes": [
+            "A test that catches every error but checks nothing can pass for the wrong reason."
+          ],
+          "lessonSlug": "test-expected-errors"
+        },
+        {
+          "slug": "fresh-data-for-each-test",
+          "name": "Fresh data for each test",
+          "summary": "Tests should not depend on the order they run. Make fresh input when a function changes its input.",
+          "example": {
+            "language": "javascript",
+            "code": "const makeList = () => [\"book\"];\nconst first = makeList();\nfirst.push(\"pen\");\nconsole.log(makeList().length === 1);"
+          },
+          "notes": ["A shared mutable list can make tests pass alone but fail together."],
+          "lessonSlug": "fresh-data-for-each-test"
+        },
+        {
+          "slug": "inject-a-dependency",
+          "name": "Inject a dependency",
+          "summary": "A dependency is another function or object that code uses. Passing it in lets a test choose a simple, predictable replacement.",
+          "example": {
+            "language": "javascript",
+            "code": "function greetFrom(getName) { return \"Hi \" + getName(); }\nconsole.log(greetFrom(() => \"Asha\") === \"Hi Asha\");"
+          },
+          "notes": ["Do not call a real paid service just to test a greeting."],
+          "lessonSlug": "inject-a-dependency"
+        },
+        {
+          "slug": "spies-record-calls",
+          "name": "Spies record calls",
+          "summary": "A spy records how a dependency was used. This helps test actions such as saving a message.",
+          "example": {
+            "language": "javascript",
+            "code": "const calls = [];\nconst save = value => calls.push(value);\nfunction storeScore(score, saveScore) { saveScore(score); }\nstoreScore(8, save);\nconsole.log(calls.length === 1 && calls[0] === 8);"
+          },
+          "notes": ["Checking only call count misses a wrong argument."],
+          "lessonSlug": "spies-record-calls"
+        },
+        {
+          "slug": "wait-for-async-work",
+          "name": "Wait for async work",
+          "summary": "Async work finishes later. A test must wait for its promise before checking the result.",
+          "example": {
+            "language": "javascript",
+            "code": "async function getScore() { return 8; }\ngetScore().then(score => console.log(score === 8));"
+          },
+          "notes": ["A test can finish too early if you forget to wait."],
+          "lessonSlug": "wait-for-async-work"
+        },
+        {
+          "slug": "use-several-cases",
+          "name": "Use several cases",
+          "summary": "A table of cases checks the same rule with several inputs. Keep each expected result easy to see.",
+          "example": {
+            "language": "javascript",
+            "code": "const cases = [[0, 0], [2, 4], [-3, -6]];\nfor (const [input, expected] of cases) console.log(input * 2 === expected);"
+          },
+          "notes": [
+            "More repeated cases do not help if they all test the same uninteresting path."
+          ],
+          "lessonSlug": "use-several-cases"
+        },
+        {
+          "slug": "read-a-failure-before-fixing-it",
+          "name": "Read a failure before fixing it",
+          "summary": "A failure is evidence that actual and expected results differ. Check the requirement before changing either the code or the expected answer.",
+          "example": {
+            "language": "javascript",
+            "code": "const actual = 2 + 2;\nconst expected = 5;\nconsole.log({ actual, expected, passed: actual === expected });"
+          },
+          "notes": ["Do not change an expectation only to turn the test green."],
+          "lessonSlug": "read-a-failure-before-fixing-it"
+        }
+      ]
+    }
+  ]
+}

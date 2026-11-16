@@ -1,0 +1,138 @@
+{
+  "title": "Java Examples",
+  "description": "Copy-ready Java programs for common tasks: console output, loops and tables, classes, records and sealed types, collections, streams, strings, files and error handling. Compile with javac or run with java File.java.",
+  "examples": [
+    {
+      "id": "hello-world",
+      "title": "Java: Say hello",
+      "description": "The main method is where this program starts. System.out.println shows a value and starts a new line. Save each example as Main.java, one at a time.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["basics", "main"],
+      "lessonSlug": "introduction",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, Asha!\");\n    }\n}\n",
+      "output": "Hello, Asha!"
+    },
+    {
+      "id": "temperature-table",
+      "title": "Temperature conversion table",
+      "description": "A for loop with a step of 10 and printf width specifiers that line up a Celsius to Fahrenheit table in neat columns.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["loops", "printf"],
+      "lessonSlug": "loops",
+      "code": "public class TemperatureTable {\n    public static void main(String[] args) {\n        System.out.printf(\"%8s %12s%n\", \"Celsius\", \"Fahrenheit\");\n        for (int c = 0; c <= 40; c += 10) {\n            double f = c * 9.0 / 5 + 32;\n            System.out.printf(\"%8d %12.1f%n\", c, f);\n        }\n    }\n}",
+      "output": " Celsius   Fahrenheit\n       0         32.0\n      10         50.0\n      20         68.0\n      30         86.0\n      40        104.0"
+    },
+    {
+      "id": "bank-account",
+      "title": "Bank account class",
+      "description": "A class with private state, a constructor, methods that enforce rules and a formatted toString, driven by a small main program in the same file.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["classes", "encapsulation"],
+      "lessonSlug": "classes-objects",
+      "code": "class BankAccount {\n    private final String owner;\n    private double balance;\n\n    BankAccount(String owner, double openingBalance) {\n        this.owner = owner;\n        this.balance = openingBalance;\n    }\n\n    void deposit(double amount) {\n        if (amount > 0) {\n            balance += amount;\n        }\n    }\n\n    boolean withdraw(double amount) {\n        if (amount > balance) {\n            return false;\n        }\n        balance -= amount;\n        return true;\n    }\n\n    @Override\n    public String toString() {\n        return String.format(\"%s: %.2f\", owner, balance);\n    }\n}\n\npublic class BankDemo {\n    public static void main(String[] args) {\n        BankAccount account = new BankAccount(\"Ada\", 100);\n        account.deposit(25.5);\n        System.out.println(account.withdraw(200));\n        System.out.println(account.withdraw(100));\n        System.out.println(account);\n    }\n}",
+      "output": "false\ntrue\nAda: 25.50"
+    },
+    {
+      "id": "shapes-sealed-switch",
+      "title": "Sealed shapes with switch patterns",
+      "description": "A sealed interface with two records and a switch expression that deconstructs each record; the compiler checks that every shape is handled.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["records", "sealed", "switch"],
+      "lessonSlug": "records-streams",
+      "code": "sealed interface Shape permits Circle, Rectangle {}\nrecord Circle(double radius) implements Shape {}\nrecord Rectangle(double width, double height) implements Shape {}\n\npublic class ShapeAreas {\n    static double area(Shape shape) {\n        return switch (shape) {\n            case Circle(double r) -> Math.PI * r * r;\n            case Rectangle(double w, double h) -> w * h;\n        };\n    }\n\n    public static void main(String[] args) {\n        Shape[] shapes = { new Circle(1.5), new Rectangle(2, 3.5) };\n        for (Shape shape : shapes) {\n            System.out.printf(\"%s -> %.2f%n\", shape, area(shape));\n        }\n    }\n}",
+      "output": "Circle[radius=1.5] -> 7.07\nRectangle[width=2.0, height=3.5] -> 7.00"
+    },
+    {
+      "id": "word-frequency",
+      "title": "Word frequency with a map",
+      "description": "Counts words with Map.merge in a TreeMap so the keys stay sorted, then prints the words that appear more than once.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["collections", "map"],
+      "lessonSlug": "collections",
+      "code": "import java.util.Map;\nimport java.util.TreeMap;\n\npublic class WordFrequency {\n    public static void main(String[] args) {\n        String text = \"the quick brown fox jumps over the lazy dog the end\";\n        Map<String, Integer> counts = new TreeMap<>();\n        for (String word : text.split(\" \")) {\n            counts.merge(word, 1, Integer::sum);\n        }\n        counts.forEach((word, count) -> {\n            if (count > 1) {\n                System.out.println(word + \": \" + count);\n            }\n        });\n        System.out.println(counts.size() + \" distinct words\");\n    }\n}",
+      "output": "the: 3\n9 distinct words"
+    },
+    {
+      "id": "grade-statistics",
+      "title": "Grade statistics with streams",
+      "description": "Turns an int array into an IntStream to get min, max and average in one call, then counts passing grades with filter.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["streams", "arrays"],
+      "lessonSlug": "records-streams",
+      "code": "import java.util.Arrays;\nimport java.util.IntSummaryStatistics;\n\npublic class GradeStatistics {\n    public static void main(String[] args) {\n        int[] grades = {88, 72, 95, 60, 79};\n        IntSummaryStatistics stats = Arrays.stream(grades).summaryStatistics();\n        System.out.println(\"min \" + stats.getMin() + \", max \" + stats.getMax());\n        System.out.printf(\"average %.1f%n\", stats.getAverage());\n        long passed = Arrays.stream(grades).filter(g -> g >= 70).count();\n        System.out.println(passed + \" of \" + grades.length + \" passed\");\n    }\n}",
+      "output": "min 60, max 95\naverage 78.8\n4 of 5 passed"
+    },
+    {
+      "id": "text-block-template",
+      "title": "Email template with a text block",
+      "description": "A multi-line text block with placeholders filled by formatted, which keeps the message readable in the source code.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["strings", "text-block"],
+      "lessonSlug": "strings-io",
+      "code": "public class EmailTemplate {\n    public static void main(String[] args) {\n        String name = \"Ada\";\n        int items = 3;\n        String email = \"\"\"\n            Hello %s,\n\n            Your order with %d items has shipped.\n            Thank you for shopping with us!\n            \"\"\".formatted(name, items);\n        System.out.print(email);\n    }\n}",
+      "output": "Hello Ada,\n\nYour order with 3 items has shipped.\nThank you for shopping with us!"
+    },
+    {
+      "id": "file-line-count",
+      "title": "Write a file and count its lines",
+      "description": "Writes a small text file, streams it line by line inside try-with-resources, and reports non-empty lines, total lines and size in bytes.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["files", "streams"],
+      "lessonSlug": "strings-io",
+      "code": "import java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.util.stream.Stream;\n\npublic class LineCount {\n    public static void main(String[] args) throws IOException {\n        Path file = Path.of(\"poem.txt\");\n        Files.writeString(file, \"Roses are red\\nViolets are blue\\n\\nJava is typed\\nAnd so are you\\n\");\n        try (Stream<String> lines = Files.lines(file)) {\n            long nonEmpty = lines.filter(line -> !line.isBlank()).count();\n            System.out.println(nonEmpty + \" non-empty lines\");\n        }\n        System.out.println(Files.readAllLines(file).size() + \" lines in total\");\n        System.out.println(Files.size(file) + \" bytes\");\n    }\n}",
+      "output": "4 non-empty lines\n5 lines in total\n61 bytes"
+    },
+    {
+      "id": "palindrome-check",
+      "title": "Palindrome check",
+      "description": "Normalises a string to lowercase letters and digits, reverses it with StringBuilder and compares the two.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["strings", "stringbuilder"],
+      "lessonSlug": "strings-io",
+      "code": "public class Palindrome {\n    static boolean isPalindrome(String text) {\n        String letters = text.toLowerCase().replaceAll(\"[^a-z0-9]\", \"\");\n        String reversed = new StringBuilder(letters).reverse().toString();\n        return letters.equals(reversed);\n    }\n\n    public static void main(String[] args) {\n        String[] samples = {\"racecar\", \"A man, a plan, a canal: Panama\", \"Java\"};\n        for (String sample : samples) {\n            System.out.println(sample + \" -> \" + isPalindrome(sample));\n        }\n    }\n}",
+      "output": "racecar -> true\nA man, a plan, a canal: Panama -> true\nJava -> false"
+    },
+    {
+      "id": "enum-traffic-light",
+      "title": "Traffic light enum",
+      "description": "An enum with a field, a constructor and a next() method implemented with an exhaustive switch expression, cycling through its constants.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["enum", "switch"],
+      "lessonSlug": "records-streams",
+      "code": "enum Light {\n    RED(30), GREEN(25), YELLOW(5);\n\n    private final int seconds;\n\n    Light(int seconds) {\n        this.seconds = seconds;\n    }\n\n    Light next() {\n        return switch (this) {\n            case RED -> GREEN;\n            case GREEN -> YELLOW;\n            case YELLOW -> RED;\n        };\n    }\n\n    int seconds() {\n        return seconds;\n    }\n}\n\npublic class TrafficLight {\n    public static void main(String[] args) {\n        Light light = Light.RED;\n        for (int i = 0; i < 4; i++) {\n            System.out.println(light + \" for \" + light.seconds() + \"s\");\n            light = light.next();\n        }\n    }\n}",
+      "output": "RED for 30s\nGREEN for 25s\nYELLOW for 5s\nRED for 30s"
+    },
+    {
+      "id": "safe-parse",
+      "title": "Parse numbers safely",
+      "description": "A helper that catches NumberFormatException, reports the bad input with the exception message and falls back to a default so the total can still be computed.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["exceptions", "parsing"],
+      "lessonSlug": "exceptions",
+      "code": "import java.util.List;\n\npublic class SafeParse {\n    static int parseOrDefault(String text, int fallback) {\n        try {\n            return Integer.parseInt(text.strip());\n        } catch (NumberFormatException e) {\n            System.out.println(\"Ignoring '\" + text + \"': \" + e.getMessage());\n            return fallback;\n        }\n    }\n\n    public static void main(String[] args) {\n        List<String> inputs = List.of(\"12\", \" 7 \", \"x3\", \"\", \"40\");\n        int sum = 0;\n        for (String input : inputs) {\n            sum += parseOrDefault(input, 0);\n        }\n        System.out.println(\"Sum: \" + sum);\n    }\n}",
+      "output": "Ignoring 'x3': For input string: \"x3\"\nIgnoring '': For input string: \"\"\nSum: 59"
+    },
+    {
+      "id": "generic-pair",
+      "title": "Generic Pair class",
+      "description": "A class with two type parameters, accessor methods, a swap method that returns a Pair with the parameters reversed, and a toString.",
+      "language": "java",
+      "runnable": false,
+      "tags": ["generics", "classes"],
+      "lessonSlug": "generics",
+      "code": "public class Pair<A, B> {\n    private final A first;\n    private final B second;\n\n    public Pair(A first, B second) {\n        this.first = first;\n        this.second = second;\n    }\n\n    public A first() {\n        return first;\n    }\n\n    public B second() {\n        return second;\n    }\n\n    public Pair<B, A> swap() {\n        return new Pair<>(second, first);\n    }\n\n    @Override\n    public String toString() {\n        return \"(\" + first + \", \" + second + \")\";\n    }\n\n    public static void main(String[] args) {\n        Pair<String, Integer> entry = new Pair<>(\"age\", 36);\n        Pair<Integer, String> swapped = entry.swap();\n        System.out.println(entry);\n        System.out.println(swapped);\n        int next = swapped.first() + 1;\n        System.out.println(next);\n    }\n}",
+      "output": "(age, 36)\n(36, age)\n37"
+    }
+  ]
+}

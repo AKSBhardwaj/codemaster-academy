@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "slug": "indexes",
+  "title": "Indexes and EXPLAIN",
+  "summary": "See how InnoDB stores rows in the primary key, add secondary and composite indexes, read EXPLAIN and EXPLAIN ANALYZE output, and recognise the WHERE clauses that stop an index from being used.",
+  "introduction": "A query on a small table is fast however you write it; the same query on ten million rows is fast only if an index lets MySQL skip the rows it does not need. Indexes are the most effective performance tool you have, and EXPLAIN is how you see whether they are used. This lesson adds indexes to the roastery tables, compares the plans before and after, and lists the mistakes that make MySQL ignore an index you carefully created.",
+  "learningObjectives": [
+    "Explain how InnoDB's clustered primary key and secondary indexes are organised",
+    "Create single-column and composite indexes and apply the leftmost-prefix rule",
+    "Read the type, key, rows and Extra columns of EXPLAIN and run EXPLAIN ANALYZE",
+    "Spot WHERE clauses that defeat an index"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How InnoDB stores a table"
+    },
+    {
+      "type": "paragraph",
+      "text": "An InnoDB table *is* its primary key: the rows are stored in a B-tree ordered by the key, called the clustered index, so looking up `WHERE id = 42` descends a few tree levels and lands on the row. Every other index is a *secondary* index: a separate B-tree holding the indexed column values plus the primary key of each row. A lookup through a secondary index therefore takes two steps, find the key, then fetch the row from the clustered index, unless the index already contains every column the query needs."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is why an `AUTO_INCREMENT` primary key is a good default: new rows append at the end of the tree. Random keys such as UUIDs insert into the middle of the tree and bloat every secondary index, which stores a copy of the key."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading EXPLAIN"
+    },
+    {
+      "type": "paragraph",
+      "text": "`EXPLAIN` in front of a query shows the plan without running it. The `orders.status` column has no index yet, so the plan is a full table scan:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "EXPLAIN SELECT * FROM orders WHERE status = 'paid';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n| id | select_type | table  | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |\n+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n|  1 | SIMPLE      | orders | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    7 |    10.00 | Using where |\n+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "table",
+      "headers": ["Column", "Meaning"],
+      "rows": [
+        [
+          "`type`",
+          "How rows are read, from worst to best: `ALL` (scan every row), `index` (scan a whole index), `range`, `ref` (index lookup of one value), `eq_ref` (one row per join), `const`"
+        ],
+        ["`possible_keys` and `key`", "Indexes that could serve the query, and the one chosen"],
+        [
+          "`key_len`",
+          "Bytes of the index actually used; tells you how many columns of a composite index helped"
+        ],
+        [
+          "`rows` and `filtered`",
+          "Estimated rows examined, and the percentage the remaining conditions will keep; both come from statistics and vary"
+        ],
+        [
+          "`Extra`",
+          "`Using where` (rows filtered after reading), `Using index` (answered from the index alone), `Using filesort` and `Using temporary` (sorting or grouping work)"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The `1 warning` is a note containing the query as the optimizer rewrote it; `SHOW WARNINGS` prints it. The estimates (`rows`, `filtered`) depend on table statistics, so your numbers may differ slightly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Adding an index"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE INDEX idx_orders_status ON orders (status);\n\nEXPLAIN SELECT * FROM orders WHERE status = 'paid';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)\nRecords: 0  Duplicates: 0  Warnings: 0\n\n+----+-------------+--------+------------+------+-------------------+-------------------+---------+-------+------+----------+-------+\n| id | select_type | table  | partitions | type | possible_keys     | key               | key_len | ref   | rows | filtered | Extra |\n+----+-------------+--------+------------+------+-------------------+-------------------+---------+-------+------+----------+-------+\n|  1 | SIMPLE      | orders | NULL       | ref  | idx_orders_status | idx_orders_status | 1       | const |    2 |   100.00 | NULL  |\n+----+-------------+--------+------------+------+-------------------+-------------------+---------+-------+------+----------+-------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`type` changed from `ALL` to `ref`, the index is named under `key`, `key_len` is 1 because an `ENUM` with up to 255 members occupies one byte, and the estimate dropped from 7 rows to 2. On seven rows the difference is invisible; on seven million it is the difference between milliseconds and minutes. An index on a column with few distinct values (four statuses) pays off mainly when the value you search for is rare, such as the handful of pending orders among millions shipped."
+    },
+    {
+      "type": "paragraph",
+      "text": "`information_schema.STATISTICS` lists every index; `SHOW INDEX FROM orders` shows the same data in a wider table. The two `fk_` indexes were created automatically with the foreign keys."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE\nFROM information_schema.STATISTICS\nWHERE TABLE_SCHEMA = 'roastery' AND TABLE_NAME = 'orders'\nORDER BY NON_UNIQUE, INDEX_NAME;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------------+-------------+------------+\n| INDEX_NAME         | COLUMN_NAME | NON_UNIQUE |\n+--------------------+-------------+------------+\n| PRIMARY            | id          |          0 |\n| fk_orders_coffee   | coffee_id   |          1 |\n| fk_orders_customer | customer_id |          1 |\n| idx_orders_status  | status      |          1 |\n+--------------------+-------------+------------+\n4 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Composite indexes and the leftmost prefix"
+    },
+    {
+      "type": "paragraph",
+      "text": "An index on `(origin, roast)` is sorted by origin first and by roast within each origin, like a phone book sorted by surname then first name. It serves conditions on `origin` alone and on `origin` plus `roast`, but not on `roast` alone, exactly as a phone book cannot find everyone called Mei."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE INDEX idx_coffees_origin_roast ON coffees (origin, roast);\n\nEXPLAIN SELECT name FROM coffees WHERE origin = 'Brazil' AND roast = 'dark';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)\nRecords: 0  Duplicates: 0  Warnings: 0\n\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n| id | select_type | table   | partitions | type | possible_keys            | key                      | key_len | ref         | rows | filtered | Extra |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n|  1 | SIMPLE      | coffees | NULL       | ref  | idx_coffees_origin_roast | idx_coffees_origin_roast | 163     | const,const |    1 |   100.00 | NULL  |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`key_len` 163 is 162 bytes for the `VARCHAR(40)` in utf8mb4 (40 × 4 plus a 2-byte length) and 1 byte for the ENUM, so both columns were used. Filter on `roast` alone and the index is not even listed as possible:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "EXPLAIN SELECT name FROM coffees WHERE roast = 'dark';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------------+\n| id | select_type | table   | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |\n+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------------+\n|  1 | SIMPLE      | coffees | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    5 |    10.00 | Using where |\n+----+-------------+---------+------------+------+---------------+------+---------+------+------+----------+-------------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Order the columns of a composite index by how you query: equality columns first, then the column used in a range or an `ORDER BY`. One well-chosen composite index usually beats several single-column ones."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Covering indexes"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the index contains every column the query touches, MySQL never visits the table and `Extra` says `Using index`. Selecting only `origin` and `roast` makes the composite index *covering*:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "EXPLAIN SELECT origin, roast FROM coffees WHERE origin = 'Ethiopia';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------+------+----------+-------------+\n| id | select_type | table   | partitions | type | possible_keys            | key                      | key_len | ref   | rows | filtered | Extra       |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------+------+----------+-------------+\n|  1 | SIMPLE      | coffees | NULL       | ref  | idx_coffees_origin_roast | idx_coffees_origin_roast | 162     | const |    1 |   100.00 | Using index |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------+------+----------+-------------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "EXPLAIN ANALYZE"
+    },
+    {
+      "type": "paragraph",
+      "text": "`EXPLAIN ANALYZE` (8.0.18 and later) actually executes the query and prints a tree with the estimated cost next to the *actual* time and row count of each step, which is how you find a plan whose estimates were wrong. The times are from the machine it ran on; the structure is what matters."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "EXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'paid'\\G"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "*************************** 1. row ***************************\nEXPLAIN: -> Index lookup on orders using idx_orders_status (status='paid')  (cost=0.70 rows=2) (actual time=0.031..0.038 rows=2 loops=1)\n\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What stops an index being used"
+    },
+    {
+      "type": "paragraph",
+      "text": "The most common mistake is wrapping the indexed column in a function. MySQL cannot look up `DATE(ordered_at)` in an index built on `ordered_at`, so even with a fresh index the plan is a full scan. Rewrite the condition as a range on the raw column and the index is used, with `Using index condition` showing that InnoDB checks the range inside the index:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE INDEX idx_orders_ordered_at ON orders (ordered_at);\n\nEXPLAIN SELECT * FROM orders WHERE DATE(ordered_at) = '2025-05-02';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)\nRecords: 0  Duplicates: 0  Warnings: 0\n\n+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n| id | select_type | table  | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |\n+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n|  1 | SIMPLE      | orders | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    7 |   100.00 | Using where |\n+----+-------------+--------+------------+------+---------------+------+---------+------+------+----------+-------------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "EXPLAIN SELECT * FROM orders\nWHERE ordered_at >= '2025-05-02' AND ordered_at < '2025-05-03';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-------------+--------+------------+-------+-----------------------+-----------------------+---------+------+------+----------+-----------------------+\n| id | select_type | table  | partitions | type  | possible_keys         | key                   | key_len | ref  | rows | filtered | Extra                 |\n+----+-------------+--------+------------+-------+-----------------------+-----------------------+---------+------+------+----------+-----------------------+\n|  1 | SIMPLE      | orders | NULL       | range | idx_orders_ordered_at | idx_orders_ordered_at | 5       | NULL |    2 |   100.00 | Using index condition |\n+----+-------------+--------+------------+-------+-----------------------+-----------------------+---------+------+------+----------+-----------------------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Functions, leading wildcards and type mismatches hide indexes",
+      "text": "`WHERE YEAR(ordered_at) = 2025`, `WHERE LOWER(email) = '...'`, `WHERE name LIKE '%blend'` and `WHERE phone = 12345` on a `VARCHAR` column all force a full scan: the first two apply a function to the column, the leading `%` means there is no prefix to search, and the number makes MySQL convert every stored string before comparing. Compare the raw column with a range or a prefix pattern, or create a functional index such as `CREATE INDEX idx_email_lower ON customers ((LOWER(email)));`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The cost of an index"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every index must be updated on every `INSERT`, `UPDATE` of its columns and `DELETE`, and it takes disk and buffer-pool memory. Index the columns you filter, join and sort on; do not index everything. To test whether an index matters, make it invisible first: `ALTER TABLE orders ALTER INDEX idx_orders_status INVISIBLE;` keeps it maintained but hidden from the optimizer. If nothing slows down, `DROP INDEX idx_orders_status ON orders;`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-index-explain-type"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "indexes-qc-1",
+          "type": "true-false",
+          "lessonSlug": "indexes",
+          "difficulty": "intermediate",
+          "question": "`Extra: Using index` in EXPLAIN means the query was answered from the index without reading the table rows.",
+          "explanation": "Using index marks a covering index: every column the query needs is in the index, so the clustered index is never visited. Plain index use shows up in the key column instead.",
+          "correct": true
+        },
+        {
+          "id": "indexes-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "indexes",
+          "difficulty": "intermediate",
+          "question": "Which condition can use an index on `ordered_at`?",
+          "explanation": "A range on the raw column can be looked up in the B-tree. Applying DATE() or YEAR() to the column hides the stored values from the index.",
+          "options": [
+            "`WHERE DATE(ordered_at) = '2025-05-02'`",
+            "`WHERE YEAR(ordered_at) = 2025`",
+            "`WHERE ordered_at >= '2025-05-02' AND ordered_at < '2025-05-03'`",
+            "`WHERE DATE_FORMAT(ordered_at, '%Y-%m') = '2025-05'`"
+          ],
+          "correctIndex": 2
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-index-explain-type"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "select-filtering"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "aggregates"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "views-indexes"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Indexes and EXPLAIN – Faster Queries Explained",
+    "description": "Learn how InnoDB indexes work, create single and composite indexes, read EXPLAIN and EXPLAIN ANALYZE output, use covering indexes and avoid conditions that defeat an."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,158 @@
+{
+  "title": "Bash Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "printf writes formatted text. %s inserts a string and backslash-n ends the line.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nprintf '%s\\n' 'Hello, Asha!'\n"
+          },
+          "notes": ["Use a fixed format string so data is not mistaken for formatting."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "variables",
+          "name": "Store a text value",
+          "summary": "A variable assignment has no spaces around equals. Dollar-name reads the value.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nname=\"Asha\"\nprintf '%s\\n' \"$name\"\n"
+          },
+          "notes": ["Quote variable expansions so spaces stay inside one value."],
+          "lessonSlug": "variables"
+        },
+        {
+          "slug": "arithmetic",
+          "name": "Add whole numbers",
+          "summary": "Double parentheses with a dollar sign evaluate integer arithmetic.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\npencils=3\nprintf '%s\\n' \"$((pencils + 2))\"\n"
+          },
+          "notes": ["Bash arithmetic uses whole numbers, not decimal fractions."],
+          "lessonSlug": "arithmetic"
+        },
+        {
+          "slug": "choices",
+          "name": "Choose a message",
+          "summary": "[[ ... ]] tests a rule. -ge means greater than or equal for whole numbers.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nscore=8\nif [[ \"$score\" -ge 5 ]]; then\n printf 'Pass\\n'\nelse\n printf 'Try again\\n'\nfi\n"
+          },
+          "notes": ["Use spaces inside [[ and ]] and finish the block with fi."],
+          "lessonSlug": "choices"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "arrays",
+          "name": "Read an array item",
+          "summary": "A Bash array keeps indexed values. Its first position is zero.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\npets=(cat dog)\nprintf '%s\\n' \"${pets[1]}\"\n"
+          },
+          "notes": ["Braces are needed around an indexed variable expansion."],
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "loops",
+          "name": "Visit each value",
+          "summary": "A for loop repeats its body for each word in a list.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nfor n in 1 2 3; do\n printf '%s\\n' \"$n\"\ndone\n"
+          },
+          "notes": ["Use \"$@\" or quoted array expansion when looping over values with spaces."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "functions",
+          "name": "Name a set of commands",
+          "summary": "A function groups commands. $1 is its first input.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\ngreet() { printf 'Hi, %s!\\n' \"$1\"; }\ngreet \"Ravi\"\n"
+          },
+          "notes": ["Function inputs are positional; quote them when reading."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "case",
+          "name": "Match a label",
+          "summary": "case chooses commands from text patterns. ;; ends one branch.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nlight=green\ncase \"$light\" in\n red) printf 'Stop\\n' ;;\n green) printf 'Go\\n' ;;\n *) printf 'Wait\\n' ;;\nesac\n"
+          },
+          "notes": ["End the whole choice with esac."],
+          "lessonSlug": "case"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "fallbacks",
+          "name": "Use a default value",
+          "summary": "${name:-Guest} uses Guest when name is unset or empty.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nname=\"\"\nprintf '%s\\n' \"${name:-Guest}\"\n"
+          },
+          "notes": ["The colon makes an empty value use the fallback too."],
+          "lessonSlug": "fallbacks"
+        },
+        {
+          "slug": "length",
+          "name": "Count text characters",
+          "summary": "${#name} gives the length of the variable value.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nname=\"Asha\"\nprintf '%s\\n' \"${#name}\"\n"
+          },
+          "notes": [
+            "For these examples use simple English letters so character counting is clear."
+          ],
+          "lessonSlug": "length"
+        },
+        {
+          "slug": "exit-status",
+          "name": "Read a command status",
+          "summary": "A command returns an exit status. Zero usually means success. $? reads the last status.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\n(exit 3)\nstatus=$?\nprintf '%s\\n' \"$status\"\n"
+          },
+          "notes": ["Read $? immediately; the next command replaces it."],
+          "lessonSlug": "exit-status"
+        },
+        {
+          "slug": "prefixes",
+          "name": "Remove a text prefix",
+          "summary": "The # expansion removes a matching prefix from a value.",
+          "example": {
+            "language": "bash",
+            "code": "#!/usr/bin/env bash\nfile=\"notes.txt\"\nprintf '%s\\n' \"${file#notes}\"\n"
+          },
+          "notes": ["This edits the displayed text value; it does not rename a file."],
+          "lessonSlug": "prefixes"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "status",
+  "title": "Report a missing item",
+  "summary": "Phoenix: Report a missing item. Inspect the 404 status.",
+  "introduction": "put_status returns an updated connection. Pass that value to json. Open GET /missing.",
+  "learningObjectives": ["Report a missing item with Phoenix", "Inspect the 404 status"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing item"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Report a missing item",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/missing\", LessonController, :missing\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef missing(conn, _params), do: conn |> put_status(404) |> json(%{error: \"Book not found\"})\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "put_status returns a changed connection. The next piped call sends its error map."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the 404 status."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Connection functions return a new value; keep using that returned value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-status-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-status-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "post-body"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Report a missing item",
+    "description": "Phoenix: Report a missing item. Inspect the 404 status. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

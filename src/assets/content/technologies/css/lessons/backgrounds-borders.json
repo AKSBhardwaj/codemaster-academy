@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "slug": "backgrounds-borders",
+  "title": "Backgrounds and Borders",
+  "summary": "A background fills a box, while a border draws a line around its edge.",
+  "introduction": "A background fills a box, while a border draws a line around its edge. Think of decorating a notebook cover. Choose a fill colour, a border and some round corners for a page box.",
+  "learningObjectives": [
+    "Set background colours, gradients and images and control their size, position and repeat",
+    "Write border, border-radius and box-shadow declarations",
+    "Explain when to use outline instead of border"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Background colour and images"
+    },
+    {
+      "type": "paragraph",
+      "text": "`background-color` fills the content and padding areas of a box. `background-image` paints an image on top of that colour; by default the image starts in the top-left corner and repeats in both directions until the box is covered. Three properties tame it: `background-repeat: no-repeat`, `background-position` (keywords such as `center` or lengths), and `background-size`, where `cover` scales the image to fill the box (cropping if needed) and `contain` shows the whole image (leaving gaps if needed). Always keep a `background-color` behind an image: it shows while the image loads and if it fails."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "hero.css",
+      "code": ".hero {\n  background-color: #0f172a;                   /* visible until the image arrives */\n  background-image: url(\"../images/hero.jpg\"); /* path relative to this CSS file */\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  min-height: 40vh;\n  color: white;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Gradients are images"
+    },
+    {
+      "type": "paragraph",
+      "text": "`linear-gradient()` and `radial-gradient()` generate an image from a direction (or an angle) and a list of colour stops. Because they are images they belong in `background-image`, and like any images they can be layered: list several, separated by commas, and the first one is painted on top. A translucent white gradient over a coloured one is a cheap way to soften a background."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  background-image: linear-gradient(90deg, #1d4ed8, #9333ea);\n  color: white;\n  padding: 0.5rem 1rem;\n}\n\n.card {\n  background-image:\n    linear-gradient(rgb(255 255 255 / 80%), rgb(255 255 255 / 80%)),\n    radial-gradient(circle at top left, #93c5fd, #c7d2fe);\n  padding: 1rem;\n}\n\nbutton {\n  background-image: linear-gradient(#3b82f6, #1d4ed8);\n  color: white;\n  border: none;\n  padding: 0.5rem 1rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{background-image:linear-gradient(90deg,#1d4ed8,#9333ea);color:#fff;padding:6px 12px;font-size:1.3em}.card{background-image:linear-gradient(rgb(255 255 255 / 80%),rgb(255 255 255 / 80%)),radial-gradient(circle at top left,#93c5fd,#c7d2fe);padding:10px}button{background-image:linear-gradient(#3b82f6,#1d4ed8);color:#fff;border:none;padding:6px 14px}</style><h1>Sample heading</h1><div class=\"card\"><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The background shorthand"
+    },
+    {
+      "type": "paragraph",
+      "text": "`background` sets every background property at once. The values can appear in any order with one exception: `background-size` must follow `background-position`, separated by a slash. Anything you leave out is reset to its default, which is the catch described below."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": ".hero {\n  /* colour  image               position / size  repeat */\n  background: #0f172a url(\"../images/hero.jpg\") center / cover no-repeat;\n}"
+    },
+    {
+      "type": "table",
+      "headers": ["Longhand", "Controls", "Default"],
+      "rows": [
+        ["`background-color`", "The fill colour under everything", "`transparent`"],
+        ["`background-image`", "One or more images or gradients", "`none`"],
+        [
+          "`background-repeat`",
+          "Tiling: `repeat`, `no-repeat`, `repeat-x`, `repeat-y`",
+          "`repeat`"
+        ],
+        ["`background-position`", "Where the image starts", "`0% 0%` (top left)"],
+        ["`background-size`", "`auto`, `cover`, `contain` or lengths", "`auto`"],
+        ["`background-attachment`", "`scroll` or `fixed` to the viewport", "`scroll`"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The shorthand wipes the colour",
+      "text": "Writing `background-color: #0f172a;` on one line and `background: url(\"hero.jpg\");` on the next leaves you with no colour at all: the shorthand resets every background longhand you did not mention, including the colour. Put the colour inside the shorthand, or use the `background-image` longhand when you only want to add an image."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Borders"
+    },
+    {
+      "type": "paragraph",
+      "text": "A border needs three things: a width, a style and a colour, and the `border` shorthand sets all three. The style is the one you cannot skip, because its default is `none`: `border: 2px #1d4ed8;` draws nothing. Each side can be set on its own (`border-top`, `border-left`) and the usual styles are `solid`, `dashed`, `dotted` and `double`. The colour defaults to `currentColor`, the text colour."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  border-bottom: 3px solid #1d4ed8;\n  padding-bottom: 0.25rem;\n}\n\n.card {\n  border: 1px solid #cbd5e1;\n  border-left: 6px solid #1d4ed8;   /* an accent edge on one side */\n  border-radius: 12px;              /* rounded corners */\n  padding: 1rem;\n}\n\nbutton {\n  border: 2px solid #1d4ed8;\n  border-radius: 9999px;            /* a huge radius makes a pill */\n  background: white;\n  color: #1d4ed8;\n  padding: 0.5rem 1.25rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{border-bottom:3px solid #1d4ed8;padding-bottom:4px;font-size:1.3em}.card{border:1px solid #cbd5e1;border-left:6px solid #1d4ed8;border-radius:12px;padding:10px}button{border:2px solid #1d4ed8;border-radius:9999px;background:#fff;color:#1d4ed8;padding:6px 16px}</style><h1>Sample heading</h1><div class=\"card\"><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Rounded corners"
+    },
+    {
+      "type": "paragraph",
+      "text": "`border-radius` rounds the corners of the border, the background and (with `overflow: hidden`) the content. One value applies to all four corners; four values go clockwise from the top-left. A value of `50%` on a square box produces a circle, and any value larger than half the height produces a pill shape, which is why `9999px` is a common idiom for buttons and badges."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Box shadows"
+    },
+    {
+      "type": "paragraph",
+      "text": "`box-shadow` takes a horizontal offset, a vertical offset, an optional blur radius, an optional spread and a colour. Several shadows can be stacked with commas, which is how design systems get soft, realistic elevation: one small sharp shadow plus one large diffuse one, both with low-alpha colours. The `inset` keyword draws the shadow inside the box, a trick for a border that takes no layout space."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": ".card {\n  padding: 1rem;\n  border-radius: 12px;\n  background: white;\n  box-shadow:\n    0 1px 2px rgb(0 0 0 / 10%),\n    0 8px 24px rgb(0 0 0 / 8%);\n}\n\nbutton {\n  border: none;\n  padding: 0.5rem 1rem;\n  background: white;\n  box-shadow: inset 0 0 0 2px #1d4ed8;  /* looks like a border, takes no space */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.card{padding:10px 12px;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgb(0 0 0 / 10%),0 8px 24px rgb(0 0 0 / 8%)}button{border:none;padding:6px 14px;background:#fff;box-shadow:inset 0 0 0 2px #1d4ed8}</style><div class=\"card\"><h2 style=\"font-size:1.1em\">Card title</h2><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Outline is not border"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **outline** is drawn outside the border and takes no space, so adding or removing it never shifts the layout. Browsers use it for the focus ring that shows keyboard users where they are. You may restyle that ring, and `outline-offset` lets you push it away from the edge, but never remove it without a replacement that is at least as visible: `outline: none` on `:focus` makes a site unusable from the keyboard. Scope your style to `:focus-visible` so it appears for keyboard navigation and not for mouse clicks."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "button:focus-visible,\na:focus-visible {\n  outline: 3px solid #f59e0b;\n  outline-offset: 2px;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run it, then press the Tab key inside the preview: the link and the button receive an orange ring as they take focus."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Image paths in CSS",
+      "text": "A `url()` inside a stylesheet is resolved relative to the *CSS file*, not the HTML page that links it. With `css/styles.css` and `images/hero.jpg` side by side under the site root, the stylesheet needs `url(\"../images/hero.jpg\")`."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: style the card and the button",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Backgrounds and borders</title>\n  <style>\n    body { font-family: system-ui, sans-serif; background: #f8fafc; }\n    .card {\n      padding: 16px;\n      background: white;\n      /* Add a border, rounded corners and a soft shadow. */\n    }\n    .btn {\n      padding: 8px 16px;\n      border: none;\n      /* Try a gradient background, a pill radius and a focus-visible outline. */\n    }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h2>Weekend plan</h2>\n    <p>Edit the styles above to turn this into a card.</p>\n    <button class=\"btn\" type=\"button\">Save</button>\n  </div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-backgrounds-borders-radius"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-backgrounds-qc-1",
+          "type": "true-false",
+          "lessonSlug": "backgrounds-borders",
+          "difficulty": "beginner",
+          "question": "`border: 2px #1d4ed8;` draws a 2px blue border.",
+          "explanation": "The border style defaults to `none`, so without `solid` (or another style) nothing is drawn. Width and colour alone are not enough.",
+          "correct": false
+        },
+        {
+          "id": "css-backgrounds-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "backgrounds-borders",
+          "difficulty": "beginner",
+          "question": "Which `background-size` value scales an image to fill the whole box, cropping the parts that do not fit?",
+          "explanation": "`cover` makes the image as small as possible while still covering the box, so edges may be cropped. `contain` shows the whole image and may leave empty space.",
+          "options": ["`contain`", "`cover`", "`auto`", "`100%`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-backgrounds-borders-radius"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "colors"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "pseudo-classes-elements"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    }
+  ],
+  "seo": {
+    "title": "CSS Backgrounds and Borders – Gradients, Radius, Shadows",
+    "description": "Style boxes with CSS backgrounds and borders: colours, gradients and images, background-size, border styles, border-radius, box-shadow and outlines."
+  },
+  "updatedOn": "2026-11-16"
+}

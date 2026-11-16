@@ -1,0 +1,168 @@
+{
+  "id": "aspnet-web-api-quiz",
+  "title": "ASP.NET Web API Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "aspnet-web-api-review-1",
+      "lessonSlug": "controllers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"hello\")] public string Hello() => \"Hello, Asha!\";\n}\n\n",
+      "question": "A controller action handles a route. HttpGet maps GET /hello to the method. What result does this example give after the setup steps?",
+      "explanation": "AddControllers registers controller services and MapControllers uses their route attributes. Hello returns text. AddControllers and MapControllers are both needed.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-web-api-review-2",
+      "lessonSlug": "json-results",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"book\")] public IActionResult Book() => Ok(new { title = \"Moon Trip\", pages = 24 });\n}\n\n",
+      "question": "Ok creates a successful response with data. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "Ok wraps the anonymous object in a 200 response, and the web formatter writes JSON. Return data objects so the framework serialises them.",
+      "options": [
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-web-api-review-3",
+      "lessonSlug": "route-binding",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"double/{n:int}\")] public IActionResult Twice([FromRoute] int n) => Ok(new { answer = n * 2 });\n}\n\n",
+      "question": "FromRoute reads a path value. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "FromRoute reads the constrained n value. The method doubles the resulting 4. A route constraint controls matching; it is not a full data validation policy.",
+      "options": ["[8]", "{\"answer\":8}", "{\"answer\":9}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-web-api-review-4",
+      "lessonSlug": "query-binding",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"page\")] public IActionResult Page([FromQuery] int n = 1) => Ok(new { page = n });\n}\n\n",
+      "question": "FromQuery makes the source of an input clear. GET /page with no n uses 1. What result does this example give after the setup steps?",
+      "explanation": "FromQuery uses the URL input when present; otherwise the default parameter is 1. Inputs from clients still need suitable limits.",
+      "options": ["{\"page\":2}", "[1]", "{\"page\":1}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-web-api-review-5",
+      "lessonSlug": "body-binding",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic record BookInput(string Title);\n",
+      "question": "FromBody reads a JSON request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The JSON title is bound to the record. Ok returns that typed value as JSON. Send the correct Content-Type so JSON can be parsed.",
+      "options": ["[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-web-api-review-6",
+      "lessonSlug": "validation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic class BookInput { [Required] public string? Title { get; set; } }\n",
+      "question": "ApiController checks validation attributes. A valid POST /books with {\"title\":\"Moon Trip\"} reaches this action. What result does this example give after the setup steps?",
+      "explanation": "The required attribute is checked before the action. A valid title reaches Ok; an absent title gives 400. Required checks presence; add more rules for your actual needs.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-web-api-review-7",
+      "lessonSlug": "created-results",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"books/{id:int}\")] public IActionResult ById(int id) => Ok(new { id });\n[HttpPost(\"books\")] public IActionResult Create(BookInput book) => CreatedAtAction(nameof(ById), new { id = 1 }, book);\n}\npublic record BookInput(string Title);\n",
+      "question": "CreatedAtAction sends status 201 and a link to the new item. Send POST /books with {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "CreatedAtAction uses ById and id 1 to build a location. The submitted book is its response body. The named action and route values must identify a real route.",
+      "options": ["{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-web-api-review-8",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"missing\")] public IActionResult Missing() => NotFound(new { error = \"Book not found\" });\n}\n\n",
+      "question": "NotFound creates a 404 result. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "NotFound chooses status 404 and serialises the supplied error field. A missing item should not look like a successful response.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-web-api-review-9",
+      "lessonSlug": "lists",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"books\")] public ActionResult<string[]> Books() => new[] { \"Moon Trip\", \"Sun Trip\" };\n}\n\n",
+      "question": "A collection becomes a JSON array. Open GET /books. What result does this example give after the setup steps?",
+      "explanation": "The two strings become the two items in a JSON array. Use a clear item shape for larger collections.",
+      "options": [
+        "[\"Sun Trip\",\"Sun Trip\"]",
+        "[\"Sun Trip\",\"Moon Trip\"]",
+        "[\"Moon Trip\",\"Sun Trip\"]"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "aspnet-web-api-review-10",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"note\")] public IActionResult Note() { Response.Headers[\"Cache-Control\"] = \"no-store\"; return Ok(new { note = \"Practice\" }); }\n}\n\n",
+      "question": "A controller can set response metadata before returning a result. Open GET /note. What result does this example give after the setup steps?",
+      "explanation": "The action sets its header before calling Ok. The body still contains only the note field. Headers must be set before the response starts.",
+      "options": ["[\"Practice\"]", "{\"note\":\"Practice\"}", "{\"note\":\"PRACTICE\"}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "aspnet-web-api-review-11",
+      "lessonSlug": "no-content",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpDelete(\"books/{id:int}\")] public IActionResult Remove(int id) => NoContent();\n}\n\n",
+      "question": "NoContent returns status 204. Send DELETE /books/1 for this practice response. What result does this example give after the setup steps?",
+      "explanation": "NoContent selects 204 and sends no resource body. This sample only shows the response; it has no stored book to delete.",
+      "options": [
+        "204 No Content; empty body",
+        "200 OK; body: {\"removed\":true}",
+        "404 Not Found; empty body"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "aspnet-web-api-review-12",
+      "lessonSlug": "action-results",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "csharp",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"score/{n:int}\")] public IActionResult Score(int n) { if (n < 0) return BadRequest(new { error = \"Use zero or more\" }); return Ok(new { score = n }); }\n}\n\n",
+      "question": "IActionResult allows different outcomes. GET /score/8 returns a success; a negative score returns 400. What result does this example give after the setup steps?",
+      "explanation": "The positive route number bypasses BadRequest. The success branch returns score 8. Check invalid input before returning a success result.",
+      "options": ["[8]", "{\"score\":8}", "{\"score\":9}"],
+      "correctIndex": 1
+    }
+  ]
+}

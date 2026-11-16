@@ -25,11 +25,14 @@ export class RunSession {
     this.subscription = this.execution.run({ language, code, host }).subscribe({
       next: (event) => {
         this.events.update((list) => [...list, event]);
-        if (event.type === 'done') this.state.set(this.events().some((e) => e.type === 'error') ? 'error' : 'done');
-        else if (event.type === 'error' && this.execution.capabilityFor(language) === 'unavailable') this.state.set('error');
+        if (event.type === 'done')
+          this.state.set(this.events().some((e) => e.type === 'error') ? 'error' : 'done');
+        else if (event.type === 'error' && this.execution.capabilityFor(language) === 'unavailable')
+          this.state.set('error');
       },
       complete: () => {
-        if (this.state() === 'running') this.state.set(this.events().some((e) => e.type === 'error') ? 'error' : 'done');
+        if (this.state() === 'running')
+          this.state.set(this.events().some((e) => e.type === 'error') ? 'error' : 'done');
       },
     });
   }

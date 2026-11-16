@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-operators",
+  "title": "Query Operators",
+  "summary": "Build precise filters with comparison, logical, element, array and regular-expression operators, and learn how MongoDB combines conditions.",
+  "introduction": "Equality filters only get you so far. Real questions sound like \"peripherals under 100 that are in stock\" or \"products missing a rating\", and MongoDB answers them with query operators: keywords beginning with `$` that you nest inside the filter document. This lesson covers the operator families you will use daily, shows how conditions combine, and points out the two mistakes that silently return the wrong documents. It uses the six products inserted in the previous lesson.",
+  "learningObjectives": [
+    "Compare values with $gt, $gte, $lt, $lte, $ne, $in and $nin",
+    "Combine conditions with implicit AND, $and, $or and $not",
+    "Test for missing fields and types with $exists and $type",
+    "Match arrays and patterns with $all, $size, $elemMatch and regular expressions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Filters are documents"
+    },
+    {
+      "type": "paragraph",
+      "text": "A filter is itself a document. A plain field–value pair means *equals*; an operator document in place of the value means *compare like this*. Several fields in one filter are combined with AND. Everything in this lesson follows from those three rules, so keep them in mind as the examples get longer. If you did not run the previous lesson, re-create the collection first:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.products.drop()\ndb.products.insertMany([\n  { _id: 1, name: 'Mechanical keyboard', price: 89.5, category: 'peripherals', stock: 12, tags: ['usb', 'backlit'], rating: 4.6 },\n  { _id: 2, name: 'Wireless mouse', price: 24.99, category: 'peripherals', stock: 0, tags: ['wireless', 'usb'], rating: 4.1 },\n  { _id: 3, name: '27-inch monitor', price: 219, category: 'displays', stock: 5, tags: ['4k', 'hdmi'], rating: 4.8 },\n  { _id: 4, name: 'Desk lamp', price: 24.5, category: 'office', stock: 40, tags: ['led'] },\n  { _id: 5, name: 'USB-C hub', price: 39, category: 'peripherals', stock: 8, tags: ['usb'], rating: 3.9 },\n  { _id: 6, name: 'Webcam', price: 59, category: 'peripherals', stock: 3, tags: ['usb', 'video'], rating: 4.3, discontinued: true }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6 }\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparison operators"
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Matches when the field is", "Example"],
+      "rows": [
+        [
+          "`$eq`",
+          "equal to the value (same as writing the value directly)",
+          "`{ stock: { $eq: 0 } }`"
+        ],
+        ["`$ne`", "not equal to the value, or missing", "`{ category: { $ne: 'office' } }`"],
+        ["`$gt`, `$gte`", "greater than, greater than or equal", "`{ price: { $gt: 50 } }`"],
+        ["`$lt`, `$lte`", "less than, less than or equal", "`{ stock: { $lte: 5 } }`"],
+        ["`$in`", "any of the listed values", "`{ category: { $in: ['displays', 'office'] } }`"],
+        [
+          "`$nin`",
+          "none of the listed values, or missing",
+          "`{ category: { $nin: ['peripherals'] } }`"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Two operators on the same field go into one operator document, which reads as a range. `$in` replaces a chain of equality checks and also matches when the field is an array containing one of the values:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ price: { $gte: 30, $lt: 100 } }, { _id: 0, name: 1, price: 1 })\ndb.products.find({ category: { $in: ['displays', 'office'] } }, { _id: 0, name: 1, category: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { name: 'Mechanical keyboard', price: 89.5 },\n  { name: 'USB-C hub', price: 39 },\n  { name: 'Webcam', price: 59 }\n]\n[\n  { name: '27-inch monitor', category: 'displays' },\n  { name: 'Desk lamp', category: 'office' }\n]"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Writing the same field twice, as in `{ price: { $gt: 30 }, price: { $lt: 100 } }`, does not give you a range. The filter is a JavaScript object, and the second `price` key silently replaces the first, so the query only checks `$lt: 100`. Put both operators in one document, `{ price: { $gt: 30, $lt: 100 } }`, or use `$and` when the conditions are on the same field but cannot be merged."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Logical operators"
+    },
+    {
+      "type": "paragraph",
+      "text": "Separate fields in a filter are already ANDed, so `$and` is only needed when you must repeat a field or combine several `$or` clauses. `$or` takes an array of filters and matches when any of them does; `$nor` matches when none does; `$not` wraps an operator document and negates it, matching missing fields too."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ category: 'peripherals', stock: { $gt: 0 } }, { _id: 0, name: 1, stock: 1 })\ndb.products.find({ $or: [{ stock: 0 }, { discontinued: true }] }, { _id: 0, name: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { name: 'Mechanical keyboard', stock: 12 },\n  { name: 'USB-C hub', stock: 8 },\n  { name: 'Webcam', stock: 3 }\n]\n[ { name: 'Wireless mouse' }, { name: 'Webcam' } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first query reads \"peripherals AND stock greater than zero\". The second reads \"out of stock OR discontinued\", the kind of filter a shop uses to hide products from a listing. An `$or` whose clauses are all on the same field is better written with `$in`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Element operators: $exists and $type"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because documents in a collection may differ, you sometimes need to ask about the field itself rather than its value. `$exists: false` finds documents that lack a field, and `$type` checks the BSON type by name. Remember from the [Documents and Collections](/tutorials/mongodb/documents-collections) lesson that mongosh stores whole numbers as `int` and fractions as `double`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ rating: { $exists: false } }, { _id: 0, name: 1 })\ndb.products.find({ price: { $type: 'int' } }, { _id: 0, name: 1, price: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { name: 'Desk lamp' } ]\n[\n  { name: '27-inch monitor', price: 219 },\n  { name: 'USB-C hub', price: 39 },\n  { name: 'Webcam', price: 59 }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use `$type: 'number'` to match any numeric type at once. A field set to `null` *exists*, so `{ rating: null }` matches both documents where `rating` is `null` and documents where it is missing, while `{ rating: { $exists: false } }` matches only the latter."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Querying arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "A plain value against an array field matches when any element equals it, so `{ tags: 'usb' }` finds every USB product. The array operators ask more specific questions: `$all` requires every listed value to be present, `$size` matches an exact length, and `$elemMatch` requires one single element to satisfy several conditions at once, which matters for arrays of documents such as order lines."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ tags: { $all: ['usb', 'backlit'] } }, { _id: 0, name: 1 })\ndb.products.find({ tags: { $size: 1 } }, { _id: 0, name: 1, tags: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { name: 'Mechanical keyboard' } ]\n[\n  { name: 'Desk lamp', tags: [ 'led' ] },\n  { name: 'USB-C hub', tags: [ 'usb' ] }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The difference shows with arrays of documents. Two dotted conditions, `{ 'lines.sku': 'K1', 'lines.qty': { $gte: 2 } }`, match an order where *one* line has `sku: 'K1'` and a *different* line has a quantity of 2 or more. `{ lines: { $elemMatch: { sku: 'K1', qty: { $gte: 2 } } } }` keeps both conditions on the same element, which is almost always what you mean."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pattern matching"
+    },
+    {
+      "type": "paragraph",
+      "text": "A JavaScript regular expression in place of a value matches strings by pattern; `$regex` with a string pattern does the same from languages without regex literals. The `i` flag makes the match case-insensitive. Only patterns anchored at the start, such as `/^w/`, can use an index; a pattern like `/cam/` scans every document, so keep it for small collections or use Atlas Search for real text search."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ name: /^w/i }, { _id: 0, name: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { name: 'Wireless mouse' }, { name: 'Webcam' } ]"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Find the peripherals that are either rated 4.5 or higher or cost less than 30, excluding discontinued ones. You will need `$or` inside an implicit AND. Then rewrite `{ $or: [{ category: 'displays' }, { category: 'office' }] }` with `$in` and check that both return the same two products."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-query-find-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-query-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "query-operators",
+          "difficulty": "beginner",
+          "question": "Which filter finds products priced between 20 and 50 inclusive?",
+          "explanation": "Both bounds go into one operator document on the same field. Repeating the `price` key would discard the first condition.",
+          "options": [
+            "`{ price: { $gte: 20 }, price: { $lte: 50 } }`",
+            "`{ price: { $gte: 20, $lte: 50 } }`",
+            "`{ price: [20, 50] }`",
+            "`{ $between: { price: [20, 50] } }`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-query-qc-2",
+          "type": "true-false",
+          "lessonSlug": "query-operators",
+          "difficulty": "beginner",
+          "question": "The filter `{ tags: 'usb' }` matches a document whose `tags` array contains `'usb'` among other values.",
+          "explanation": "A scalar value against an array field matches when any element equals that value. To require several values at once, use `$all`.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-query-find-error", "mongodb-query-in-operator"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "crud-insert-find"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "indexes"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "where"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Query Operators – $gt, $in, $or, $exists, $regex",
+    "description": "Filter MongoDB documents with comparison, logical, element and array operators, match patterns with regular expressions and avoid the mistakes that return wrong results."
+  },
+  "updatedOn": "2026-11-15"
+}

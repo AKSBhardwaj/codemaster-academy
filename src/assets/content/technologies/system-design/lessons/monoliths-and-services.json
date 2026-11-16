@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "slug": "monoliths-and-services",
+  "title": "One app or several services?",
+  "summary": "Compare one application with several services. Keep clear module boundaries, then decide when a separate service is worth its extra work.",
+  "introduction": "A small library can start with one desk that has clear jobs. A large library may use several desks. More desks help only when the extra hand-offs are worth the trouble.",
+  "learningObjectives": [
+    "Describe a modular monolith and a service",
+    "Compare local calls with network calls",
+    "Choose a split based on a concrete need"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the job boundaries"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **monolith** is an application deployed as one main unit. It can still have tidy **modules**: groups of code with clear jobs. One module handles the catalog, another handles loans, and another handles reminders."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **service** is a separate running part reached through a defined interface. **Microservices** split a system into small services that can be deployed separately. Separate services add network calls and more things to operate."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "One app, clear internal jobs\nLibrary application\n  Catalog module: book titles and copies\n  Loan module: borrow and return rules\n  Reminder module: overdue reminder jobs\n\nFirst version\nOne application deployment\nOne database with clear table ownership\nOne queue for reminders\n\nPossible later split\nReminder service owns reminder jobs\nLoan module publishes LoanCreated events\nReminder service can be unavailable while borrowing still works\nEvents may repeat: the reminder service must handle duplicates",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Compare the choices"
+    },
+    {
+      "type": "table",
+      "headers": ["Question", "One app with modules", "Several services"],
+      "rows": [
+        [
+          "How do parts talk?",
+          "Often by a function call inside the app",
+          "By a network request or message"
+        ],
+        [
+          "How do we release a change?",
+          "Usually release the app together",
+          "May release one service on its own"
+        ],
+        [
+          "What failures need handling?",
+          "App or database failures still matter",
+          "Network delays and partial failures also matter"
+        ],
+        [
+          "How do we keep data changes together?",
+          "One database transaction may be enough",
+          "Changes across separate stores need extra planning"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A **partial failure** means one part fails while others still work. If the reminder service is down, borrowing may continue. If every loan request waits for a reminder reply, the split has not created much independence."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small boundary before a big split"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Write the job and owned data for each module. Do not let every module change every table without a rule.",
+        "Measure a real problem, such as reminders using too much capacity or needing releases at different times.",
+        "Choose a small boundary with a clear contract. A reminder event could contain a loan ID and due date, rather than the whole reader record.",
+        "Plan duplicate messages, timeouts, retries, monitoring, and who handles a failure.",
+        "Compare the result with keeping the module inside the app. Split only when the benefit is worth the added work."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand data ownership"
+    },
+    {
+      "type": "paragraph",
+      "text": "A service should have a clear owner for its facts. Sharing one database table freely among many services can tie their releases together. Moving to separate databases also makes cross-service transactions harder."
+    },
+    {
+      "type": "paragraph",
+      "text": "For example, changing a loan and recording a message to send should not leave half a job saved. A **transactional outbox** stores the change and a message record in one database transaction. A worker later sends that message and handles retries."
+    },
+    {
+      "type": "paragraph",
+      "text": "The outbox does not magically send a message only once. Receivers still need a safe way to handle repeated messages. The extra moving parts must have a reason to exist."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Suppose only two people maintain a small school library app and traffic is low. Choose a sensible first design.",
+        "A single app with clear modules is a good starting point. Keep its boundaries clear so a measured need can guide a later split."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not choose many services only because the diagram looks advanced. More network calls, deployments, and data boundaries create more work."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-monoliths-and-services"
+    }
+  ],
+  "exerciseIds": ["system-design-monoliths-and-services"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "design-a-library"
+    }
+  ],
+  "seo": {
+    "title": "System Design: One app or several services?",
+    "description": "Compare one application with several services. Keep clear module boundaries, then decide when a separate service is worth its extra work."
+  },
+  "updatedOn": "2026-11-16"
+}

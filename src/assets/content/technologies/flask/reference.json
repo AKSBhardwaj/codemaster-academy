@@ -1,0 +1,158 @@
+{
+  "title": "Flask Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Reply with text",
+          "summary": "A route decorator connects GET / to a function. Its return value becomes the reply.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/\")\ndef hello():\n    return \"Hello, Asha!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Keep the decorator directly above the function it belongs to."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Reply with JSON",
+          "summary": "jsonify turns data into a JSON response. Open GET /book.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/book\")\ndef book():\n    return jsonify(title=\"Moon Trip\", pages=24)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["JSON field order is not meaningful; Flask may sort keys."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-values",
+          "name": "Read a name from a path",
+          "summary": "Angle brackets mark a path input. GET /hello/Ravi passes Ravi to the function.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/hello/<name>\")\ndef hello(name):\n    return f\"Hi, {name}!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["A path value is untrusted input; do not paste it into raw HTML."],
+          "lessonSlug": "path-values"
+        },
+        {
+          "slug": "integer-routes",
+          "name": "Check a path number",
+          "summary": "The int converter accepts a whole-number path value. Open GET /double/4.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/double/<int:n>\")\ndef twice(n):\n    return jsonify(answer=n * 2)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": [
+            "A route converter decides whether the route matches before the function runs."
+          ],
+          "lessonSlug": "integer-routes"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "query",
+          "name": "Read a query value",
+          "summary": "request.args reads query-string values. Open GET /search?q=cat.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/search\")\ndef search():\n    return jsonify(term=request.args.get(\"q\", \"\"))\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Query values are text unless you convert them."],
+          "lessonSlug": "query"
+        },
+        {
+          "slug": "post-json",
+          "name": "Read a JSON request",
+          "summary": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The code checks that the body is an object with text title.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.post(\"/books\")\ndef create():\n    data = request.get_json(silent=True)\n    if not isinstance(data, dict) or not isinstance(data.get(\"title\"), str):\n        return jsonify(error=\"Title needed\"), 400\n    return jsonify(title=data[\"title\"]), 201\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Check parsed data before indexing into it."],
+          "lessonSlug": "post-json"
+        },
+        {
+          "slug": "status",
+          "name": "Report a missing item",
+          "summary": "Returning a response with 404 tells the client that this book was not found. Open GET /missing.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/missing\")\ndef missing():\n    return jsonify(error=\"Book not found\"), 404\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["A failure should not pretend to be a successful 200 response."],
+          "lessonSlug": "status"
+        },
+        {
+          "slug": "redirects",
+          "name": "Follow a named route",
+          "summary": "url_for builds a URL from a function endpoint name. GET /start redirects a browser to /hello.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/start\")\ndef start():\n    return redirect(url_for(\"hello\"))\n@app.get(\"/hello\")\ndef hello():\n    return \"Welcome\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["The endpoint name here is the Python function name, not the URL text."],
+          "lessonSlug": "redirects"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "headers",
+          "name": "Add a response header",
+          "summary": "make_response lets you add metadata before sending a reply. GET /note has Cache-Control: no-store.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/note\")\ndef note():\n    response = make_response(\"Practice note\")\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return response\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Headers describe the response; changing one does not change its body."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "before-request",
+          "name": "Run a shared check",
+          "summary": "before_request runs before route handlers. This practice check rejects paths under /closed. Visit GET /closed/books.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.before_request\ndef check_path():\n    if request.path.startswith(\"/closed/\"):\n        return \"Closed for practice\", 403\n@app.get(\"/closed/books\")\ndef books():\n    return \"Books\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Returning a response stops the request from reaching its view."],
+          "lessonSlug": "before-request"
+        },
+        {
+          "slug": "error-handlers",
+          "name": "Give a friendly error page",
+          "summary": "An error handler formats a known error. GET /missing uses abort to raise a 404.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.errorhandler(404)\ndef not_found(error):\n    return \"Page not found\", 404\n@app.get(\"/missing\")\ndef missing():\n    abort(404)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n"
+          },
+          "notes": ["Keep the error status when returning a friendly error body."],
+          "lessonSlug": "error-handlers"
+        },
+        {
+          "slug": "test-client",
+          "name": "Test a request in Python",
+          "summary": "The test client calls the app without an open port. This example prints the returned JSON score.",
+          "example": {
+            "language": "python",
+            "code": "from flask import Flask, jsonify\napp = Flask(__name__)\n@app.get(\"/score\")\ndef score():\n    return jsonify(score=8)\nwith app.test_client() as client:\n    response = client.get(\"/score\")\n    print(response.get_json()[\"score\"])"
+          },
+          "notes": ["Use the test client only for tests; it is not a public server."],
+          "lessonSlug": "test-client"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import type { JsonLd } from '../services/seo.service';
 import type { Lesson, Technology } from '../models/content';
+import { absoluteSiteUrl } from '../../../content-schema/site-constants';
 
 export interface Crumb {
   name: string;
@@ -31,11 +32,18 @@ export function techArticle(
     headline: lesson.title,
     description: lesson.seo.description,
     url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: absoluteSiteUrl('/brand/og-default.png'),
     dateModified: lesson.updatedOn,
     inLanguage: 'en',
     isPartOf: { '@type': 'WebSite', name: siteName, url: siteUrl },
     author: { '@type': 'Organization', name: siteName, url: siteUrl },
-    publisher: { '@type': 'Organization', name: siteName, url: siteUrl },
+    publisher: {
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      logo: { '@type': 'ImageObject', url: absoluteSiteUrl('/brand/logo.svg') },
+    },
     proficiencyLevel: 'Beginner',
   };
 }
@@ -56,7 +64,6 @@ export function course(
     provider: { '@type': 'Organization', name: siteName, url: siteUrl },
     isAccessibleForFree: true,
     inLanguage: 'en',
-    numberOfCredits: 0,
     hasCourseInstance: [
       {
         '@type': 'CourseInstance',
@@ -82,9 +89,9 @@ export function organization(site: SiteIdentity): JsonLd {
     '@type': 'Organization',
     name: site.name,
     url: site.siteUrl,
-    logo: `${site.siteUrl}${site.logoPath}`,
+    logo: absoluteSiteUrl(site.logoPath),
     description: site.description,
-    email: site.contactEmail,
+    ...(site.contactEmail ? { email: site.contactEmail } : {}),
   };
 }
 

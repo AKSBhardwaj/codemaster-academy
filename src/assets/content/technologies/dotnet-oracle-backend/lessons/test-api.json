@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "slug": "test-api",
+  "title": "Test your API step by step",
+  "summary": "Run health, validation and real Oracle CRUD checks for the Reading List API. Use a repeatable test script and know what each test proves.",
+  "introduction": "Testing means asking the app a question and checking the reply against what we expect. One happy request is not enough. We also try missing books, bad titles and the full create-read-update-delete journey.",
+  "learningObjectives": [
+    "Separate a health check from a database integration test",
+    "Check important HTTP status codes",
+    "Use the sample test script with a running Oracle database"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keep the test conditions clear"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Oracle is running and the sample table exists.",
+        "The connection secret belongs to reading_app in the right service.",
+        "The API is running on localhost:5080.",
+        "You are using only the separate learning database."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use the repeatable test script"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "./scripts/test-api.ps1",
+      "title": "Run in a second terminal from the extracted sample root",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Read the script before running it. It checks expected replies and uses a made-up book for its write tests. It should stop and report a failed check instead of printing a success message after a bad response. Its README describes the cleanup behaviour."
+    },
+    {
+      "type": "table",
+      "headers": ["Request or condition", "Expected reply", "What it proves"],
+      "rows": [
+        ["GET /health", "200; database says Not checked", "The web program is running."],
+        ["GET /api/books with working Oracle", "200 with an array", "The API can read the table."],
+        [
+          "POST with a valid title",
+          "201 with book and Location",
+          "A row was created and its ID returned."
+        ],
+        ["POST with spaces only", "400", "The server checks title input."],
+        ["PUT for the created ID", "204", "The editable fields were saved."],
+        ["DELETE for the created ID", "204, then GET gives 404", "That row was removed."],
+        ["GET with numeric ID 0", "400", "The controller rejects an invalid ID."]
+      ],
+      "caption": "Important checks for this API"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at the HTTP status yourself"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "$body = @{ title = \"Status Check Book\"; isRead = $false } | ConvertTo-Json\n$response = Invoke-WebRequest http://localhost:5080/api/books `\n  -Method Post -ContentType \"application/json\" -Body $body -UseBasicParsing\n$response.StatusCode\n$response.Headers.Location\n$book = $response.Content | ConvertFrom-Json\nInvoke-RestMethod \"http://localhost:5080/api/books/$($book.id)\" -Method Delete",
+      "title": "Inspect and clean up one POST",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Invoke-RestMethod is handy for data. Invoke-WebRequest also gives you headers and the status. Both report HTTP errors; a failing request is useful evidence while testing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What a build cannot prove"
+    },
+    {
+      "type": "paragraph",
+      "text": "A successful dotnet build checks that the C# code and packages fit together. A health test checks that the HTTP app starts. Neither one proves that Oracle accepted the SQL. Only the database checks, run against your real learning database, test that whole path."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write down the result for three checks: health, invalid title and create-read-delete. If the database check fails, record the error type without copying the password or connection string."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-test-api-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-test-api-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "browser-client"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "safe-queries-transactions"
+    }
+  ],
+  "seo": {
+    "title": "Test your API step by step | C# .NET and Oracle",
+    "description": "Run health, validation and real Oracle CRUD checks for the Reading List API. Use a repeatable test script and know what each test proves."
+  },
+  "updatedOn": "2026-11-16"
+}

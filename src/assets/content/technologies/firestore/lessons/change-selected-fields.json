@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "change-selected-fields",
+  "title": "Change selected fields",
+  "summary": "updateDoc changes named fields while leaving other fields alone.",
+  "introduction": "updateDoc changes named fields while leaving other fields alone. Your task: Update the title without changing pages.",
+  "learningObjectives": [
+    "Update the title without changing pages.",
+    "Explain the example for change selected fields"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "updateDoc changes named fields while leaving other fields alone. It expects the target document to already exist."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,updateDoc,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nawait updateDoc(doc(db,\"books\",\"moon-trip\"),{pages:64});",
+      "title": "Change selected fields",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`updateDoc` changes named fields on an existing document and fails if the document is absent.",
+        "`connectFirestoreEmulator` sends this SDK instance to the local emulator address before database operations begin."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The existing moon-trip document keeps its title and changes pages to 64."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "updateDoc fails when the document is missing. Handle that error instead of assuming every path exists."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Update the title without changing pages."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-change-selected-fields-check"
+    }
+  ],
+  "exerciseIds": ["firestore-change-selected-fields-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "let-firestore-choose-an-id"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Change selected fields",
+    "description": "updateDoc changes named fields while leaving other fields alone. It expects the target document to already exist."
+  },
+  "updatedOn": "2026-11-16"
+}

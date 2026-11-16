@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "display",
+  "title": "Display and Visibility",
+  "summary": "The CSS display property helps decide how a page part takes up space.",
+  "introduction": "The CSS display property helps decide how a page part takes up space. Some parts start a new line. Others sit beside words. Compare these choices before moving on to rows and grids.",
+  "learningObjectives": [
+    "Describe the behaviour of block, inline and inline-block boxes",
+    "Hide elements with display: none, visibility: hidden or a visually-hidden class, choosing the right one for accessibility",
+    "Use display: flow-root and display: contents appropriately"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Block and inline boxes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every element has a default `display` value. **Block** elements (`div`, `p`, headings, `ul`, `li`, `section`) start on a new line and stretch across the full width of their container; `width`, `height` and all margins apply to them. **Inline** elements (`a`, `span`, `strong`, `em`, `code`) flow along the line of text and are sized by their content: `width` and `height` are ignored, vertical margins are ignored, and vertical padding is painted but does not push neighbouring lines apart. Images are a special *inline replaced* case: they sit in the line but accept `width` and `height`."
+    },
+    {
+      "type": "table",
+      "headers": ["Default display", "Elements", "Width and height", "Vertical margin"],
+      "rows": [
+        [
+          "`block`",
+          "`div`, `p`, `h1`–`h6`, `ul`, `li`, `section`, `form`",
+          "Respected",
+          "Respected"
+        ],
+        ["`inline`", "`a`, `span`, `strong`, `em`, `code`, `label`", "Ignored", "Ignored"],
+        ["`inline-block`", "`button`, `select`, `img` (replaced)", "Respected", "Respected"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  span { background: #fef3c7; width: 200px; height: 40px; margin-top: 30px; }\n  .ib  { display: inline-block; }\n</style>\n<p>An inline <span>span ignores width, height and vertical margin</span> inside the text.</p>\n<p>An <span class=\"ib\">inline-block respects them</span> inside the text.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>span{background:#fef3c7;width:200px;height:40px;margin-top:30px}.ib{display:inline-block}p{margin:0 0 8px}</style><p>An inline <span>span ignores width, height and vertical margin</span> inside the text.</p><p>An <span class=\"ib\">inline-block respects them</span> inside the text.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first span keeps the size of its text and the 30px margin does nothing. The second, as an `inline-block`, becomes a 200 by 40 pixel box with a top margin, while still sitting in the line."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Changing the display type"
+    },
+    {
+      "type": "paragraph",
+      "text": "You can give any element any display value. Turning list items into `inline-block` boxes puts them on one line, which was the classic way to build a horizontal menu. The gap between them is the whitespace between the `li` tags in the HTML, rendered as a space, which is one reason flexbox replaced this technique for layout; it remains useful for badges and buttons that must flow with text."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "ul {\n  padding: 0;\n  list-style: none;\n}\n\nli {\n  display: inline-block;\n  padding: 0.25rem 0.75rem;\n  background: #eff6ff;\n  border-radius: 9999px;\n}\n\na {\n  display: block;   /* the link now fills a line and accepts width and margins */\n  margin: 1rem 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>ul{padding:0;list-style:none;margin:0 0 8px}li{display:inline-block;padding:4px 12px;background:#eff6ff;border-radius:9999px}a{display:block;margin:8px 0}</style><ul><li>First item</li><li>Second item</li><li>Third item</li></ul><a href=\"#\">link</a>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hiding things: none, hidden and visually hidden"
+    },
+    {
+      "type": "paragraph",
+      "text": "`display: none` removes the element from layout entirely: it takes no space, cannot be focused and is removed from the accessibility tree, so screen readers do not announce it. `visibility: hidden` keeps the space the element occupied but makes it invisible and, likewise, hidden from assistive technology. `opacity: 0` only makes it transparent; it still takes space, can be tabbed to and is read aloud. For text that should be *only* for screen readers (the label of an icon button, a \"skip to content\" link until it is focused) the convention is a visually-hidden class that shrinks the element to a 1px clipped box without hiding it from anyone who cannot see the screen."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Technique",
+        "Takes space",
+        "Visible",
+        "Announced by screen readers",
+        "Keyboard focusable"
+      ],
+      "rows": [
+        ["`display: none`", "No", "No", "No", "No"],
+        ["`visibility: hidden`", "Yes", "No", "No", "No"],
+        ["`opacity: 0`", "Yes", "No", "Yes", "Yes"],
+        ["`.visually-hidden` class", "No", "No", "Yes", "Yes (if it is a link or control)"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "The visually-hidden utility",
+      "code": ".visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n  border: 0;\n}"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "display: none hides from everyone",
+      "text": "Hiding a text label with `display: none` so that only an icon shows also hides it from screen reader users, who are then left with an unlabelled button. Use the `.visually-hidden` class for text that must remain available to assistive technology, and reserve `display: none` for content that nobody should get, such as a closed menu."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "flex, grid, flow-root and contents"
+    },
+    {
+      "type": "paragraph",
+      "text": "`display: flex` and `display: grid` keep the element as a block box on the outside but change how its *children* are laid out; the next lessons are about them. `inline-flex` and `inline-grid` do the same for a container that must sit in a line of text. `display: flow-root` creates a new *block formatting context*: it contains floated children and stops a child's margin from collapsing through the parent, which is the clean fix for the leaking-margin problem from the box model lesson. `display: contents` makes the element's own box disappear so that its children behave as children of its parent; it is handy for a wrapper that gets in the way of a flex or grid layout, but avoid it on buttons, tables and lists, where some browsers have dropped the element's semantics along with its box."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .box { background: #eff6ff; margin-bottom: 8px; }\n  .box h2 { margin: 24px 0 0; }\n  .contained { display: flow-root; }\n</style>\n<div class=\"box\"><h2>The margin leaks above this box</h2></div>\n<div class=\"box contained\"><h2>flow-root keeps the margin inside</h2></div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.box{background:#eff6ff;margin-bottom:8px}.box h2{margin:24px 0 0;font-size:1em}.contained{display:flow-root}</style><div class=\"box\"><h2>The margin leaks above this box</h2></div><div class=\"box contained\"><h2>flow-root keeps the margin inside</h2></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "In the first box the heading's top margin collapses through the parent and pushes the whole box down, leaving the heading flush with the top of the blue area. In the second, `flow-root` keeps the 24px inside, where it was meant to be."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Two-value display",
+      "text": "Modern browsers also accept the two-value syntax `display: block flex;` or `display: inline grid;`, which names the outer box type and the inner layout separately. The single keywords are shorthands for these pairs; you will mostly keep writing `flex` and `grid`, but the two-value form explains what they mean."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: change display values",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Display</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    /* Try: inline, inline-block, block, none, flex */\n    .tag { display: inline; background: #dbeafe; padding: 4px 10px; margin: 8px; width: 120px; }\n    .secret { visibility: hidden; }\n  </style>\n</head>\n<body>\n  <p>Tags: <span class=\"tag\">css</span> <span class=\"tag\">layout</span> <span class=\"tag\">display</span></p>\n  <p class=\"secret\">This paragraph is hidden but still takes up space.</p>\n  <p>This paragraph comes after the hidden one.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-display-inline-width"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-display-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "display",
+          "difficulty": "beginner",
+          "question": "Which declaration hides an element but keeps the space it occupied on the page?",
+          "explanation": "`visibility: hidden` leaves the box in the layout but does not paint it. `display: none` removes the box and its space.",
+          "options": [
+            "`display: none`",
+            "`visibility: hidden`",
+            "`display: contents`",
+            "`overflow: hidden`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-display-qc-2",
+          "type": "true-false",
+          "lessonSlug": "display",
+          "difficulty": "beginner",
+          "question": "`width: 300px` on a `span` with its default display makes it 300px wide.",
+          "explanation": "A span is inline, and inline boxes ignore `width` and `height`. Change its display to `inline-block` or `block` first.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-display-inline-width"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "grid"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "positioning"
+    }
+  ],
+  "seo": {
+    "title": "CSS Display – Block, Inline, inline-block and none",
+    "description": "Understand CSS display: block, inline and inline-block boxes, hiding elements with display: none versus visibility: hidden, plus flow-root and contents."
+  },
+  "updatedOn": "2026-11-16"
+}

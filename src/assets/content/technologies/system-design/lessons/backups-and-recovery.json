@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "slug": "backups-and-recovery",
+  "title": "Backups and recovery",
+  "summary": "Plan how to recover lost data. Tell backups from replicas, set simple recovery targets, and practise restoring a safe copy.",
+  "introduction": "Imagine spilling water on the library loan notebook. Another notebook saved earlier can help, but only if you know where it is and can read it. A backup plan needs a restore plan too.",
+  "learningObjectives": [
+    "Distinguish a backup from a live replica",
+    "Explain recovery time and allowed data loss",
+    "Plan a restore drill with clear checks"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A spare live copy is not enough"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **backup** is a saved copy used to recover older data. A **replica** follows changes in a live database. If someone deletes every loan by mistake, a replica may copy that mistake too."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep backups separate from the live database. Separate access rules can stop one stolen account or wrong command from destroying both. Protect backup copies because they may contain the same private data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose two recovery targets"
+    },
+    {
+      "type": "paragraph",
+      "text": "The **recovery point objective**, or RPO, says how much recent work we are willing to lose. An RPO of one hour means our plan should lose no more than one hour of changes."
+    },
+    {
+      "type": "paragraph",
+      "text": "The **recovery time objective**, or RTO, says how soon we aim to restore a useful service. An RTO of 30 minutes means we aim to restore and check the service within 30 minutes."
+    },
+    {
+      "type": "paragraph",
+      "text": "These are targets, not promises. A backup that failed yesterday cannot meet an hourly target. Check backup success and the age of the last good copy."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Practice recovery plan\nImportant facts: book copies and current loans\nBackup schedule: one backup each hour\nSeparate copy: stored away from the live database\nAllowed lost changes (RPO): at most 60 minutes\nTarget time to restore (RTO): at most 30 minutes\n\nExample drill\n12:00 - data point saved by the last good backup\n12:40 - the practice database is damaged\n12:55 - restore and checks finish\nGap since backup: 40 minutes\nTime to restore: 15 minutes\nResult: both targets met in this drill",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Practise a restore before a real problem"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Use a separate practice database. Do not replace a working live database during a drill.",
+        "Choose a known good backup from before the damage. If the newest copy is damaged too, use an older good one.",
+        "Restore the records and any needed files or settings. Follow written steps instead of relying on one person to remember them.",
+        "Check counts, a few known books, and a loan that should still be open. Confirm that each loan points to a real book copy.",
+        "Record the restore time and the missing changes. Compare them with the targets."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Balance cost and recovery needs"
+    },
+    {
+      "type": "paragraph",
+      "text": "More frequent copies can reduce the amount of lost work, but use storage, time, and money. Some databases also keep a change log, which can replay saved changes after a backup. This is called point-in-time recovery when it restores a chosen moment."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep more than one version. A problem discovered late may already be in recent backups. Decide how long to keep copies, how to protect them, and when to delete them safely."
+    },
+    {
+      "type": "paragraph",
+      "text": "Backups do not help if no one can find the restore steps, required keys, or files during an outage. Store those instructions securely where the people handling recovery can reach them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "In the plan, change the last good backup time to 11:00. Keep the failure at 12:40.",
+        "The gap is now 100 minutes. It misses the 60-minute RPO even if the restore still takes only 15 minutes."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "A message saying \"backup complete\" is not proof that recovery works. Test restoring the backup and check the recovered data."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-backups-and-recovery"
+    }
+  ],
+  "exerciseIds": ["system-design-backups-and-recovery"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "copies-improve-availability"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "observe-and-review-the-design"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Backups and recovery",
+    "description": "Plan how to recover lost data. Tell backups from replicas, set simple recovery targets, and practise restoring a safe copy."
+  },
+  "updatedOn": "2026-11-16"
+}

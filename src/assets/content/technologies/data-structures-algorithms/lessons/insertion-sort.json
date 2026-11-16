@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "slug": "insertion-sort",
+  "title": "Insertion Sort",
+  "summary": "Sort numbers like cards in your hand. Shift larger items to make a gap, trace insertion sort, and compare working code in six languages.",
+  "introduction": "When you pick up playing cards, you can keep your hand in order. Each new card slides into the right gap. Insertion sort does the same thing: it keeps a sorted left part and inserts one new number at a time.",
+  "learningObjectives": [
+    "Shift larger values to make a gap for a new item",
+    "Explain why nearly sorted input needs fewer shifts"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first item alone is already sorted. Take the next value and save it as key, the item we want to place. Shift every larger value one step right, then put key in the gap."
+    },
+    {
+      "type": "paragraph",
+      "text": "A shift copies one item into the next position. Saving key first stops it from being lost while those copies happen. The left part stays sorted after each insertion."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [4, 2, 3, 1]. Save key = 2. Shift 4 right and place 2 at the front: [2, 4, 3, 1].",
+        "Save key = 3. Shift 4 right, stop at 2, and place 3 after it: [2, 3, 4, 1].",
+        "Save key = 1. Shift 4, then 3, then 2 one position right.",
+        "There is no smaller item on the left, so place 1 at position 0. Now the list is [1, 2, 3, 4]."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Insertion Sort example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const a = [4, 2, 3, 1];\nconst n = a.length;\nfor (let i = 1; i < n; i++) {\n    let key = a[i];\n    let j = i - 1;\n    while (j >= 0 && a[j] > key) {\n        a[j + 1] = a[j];\n        j--;\n    }\n    a[j + 1] = key;\n}\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int a[] = {4, 2, 3, 1};\n    int n = sizeof a / sizeof a[0];\n    for (int i = 1; i < n; i++) {\n        int key = a[i];\n        int j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = key;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> a = {4, 2, 3, 1};\n    int n = static_cast<int>(a.size());\n    for (int i = 1; i < n; i++) {\n        int key = a[i];\n        int j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = key;\n    }\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "a = [4, 2, 3, 1]\nn = len(a)\nfor i in range(1, n):\n    key = a[i]\n    j = i - 1\n    while j >= 0 and a[j] > key:\n        a[j + 1] = a[j]\n        j -= 1\n    a[j + 1] = key\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {4, 2, 3, 1};\nint n = a.Length;\nfor (int i = 1; i < n; i++) {\n    int key = a[i];\n    int j = i - 1;\n    while (j >= 0 && a[j] > key) {\n        a[j + 1] = a[j];\n        j--;\n    }\n    a[j + 1] = key;\n}\nConsole.WriteLine(string.Join(\" \", a));",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[] a = {4, 2, 3, 1};\n        int n = a.length;\n        for (int i = 1; i < n; i++) {\n            int key = a[i];\n            int j = i - 1;\n            while (j >= 0 && a[j] > key) {\n                a[j + 1] = a[j];\n                j--;\n            }\n            a[j + 1] = key;\n        }\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The final list is in ascending order. key holds an item safely while its neighbours move. When the loop ends, j + 1 is the gap where that saved item belongs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Empty and one-item lists need no insertion. Duplicate values and negative numbers work. This program changes the original list."
+    },
+    {
+      "type": "paragraph",
+      "text": "This version is stable: it shifts values only when they are strictly larger than key. Equal values keep their order. The j >= 0 test comes first so the next test never reads before position 0."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "For n items in reverse order, each new key moves past the whole sorted part. The shifts add up like 1 + 2 + ... + (n - 1), so worst time is O(n²)."
+    },
+    {
+      "type": "paragraph",
+      "text": "For already sorted input, each key needs one quick check and no shift, giving O(n) best time. Nearly sorted lists often need few shifts. The saved key and positions take O(1) extra space."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the input to [1, 3, 2, 4]. Only 3 must move right when key is 2. Mark the shift on paper, then check for output 1 2 3 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not overwrite the item before saving it as key. Also place key at j + 1, not j: j is the item that stopped the search, or -1 when key belongs first."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-insertion-sort"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-insertion-sort"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "selection-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "bubble-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "merge-sort"
+    }
+  ],
+  "seo": {
+    "title": "Insertion Sort in Six Languages | DSA",
+    "description": "Sort numbers like cards in your hand. Shift larger items to make a gap, trace insertion sort, and compare working code in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

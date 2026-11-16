@@ -3,6 +3,7 @@ import type { ContentBlock } from '../../core/models/content';
 import { AlertBlockComponent } from '../blocks/alert-block';
 import { CalloutBlockComponent } from '../blocks/callout-block';
 import { CodeBlockHostComponent } from '../blocks/code-block-host';
+import { CodeTabsBlockComponent } from '../blocks/code-tabs-block';
 import { ExerciseBlockComponent } from '../blocks/exercise-block';
 import { HeadingBlockComponent } from '../blocks/heading-block';
 import { ImageBlockComponent } from '../blocks/image-block';
@@ -25,6 +26,7 @@ import { VideoBlockComponent } from '../blocks/video-block';
     ParagraphBlockComponent,
     ListBlockComponent,
     CodeBlockHostComponent,
+    CodeTabsBlockComponent,
     OutputBlockComponent,
     AlertBlockComponent,
     TableBlockComponent,
@@ -50,6 +52,9 @@ import { VideoBlockComponent } from '../blocks/video-block';
           }
           @case ('code') {
             <cma-code-block-host [block]="block" />
+          }
+          @case ('code-tabs') {
+            <cma-code-tabs-block [block]="block" [blockId]="idPrefix() + '-code-' + $index" />
           }
           @case ('output') {
             <cma-output-block [block]="block" />
@@ -85,4 +90,5 @@ import { VideoBlockComponent } from '../blocks/video-block';
 })
 export class ContentRendererComponent {
   readonly blocks = input.required<readonly ContentBlock[]>();
+  readonly idPrefix = input('lesson');
 }

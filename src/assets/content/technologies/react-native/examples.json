@@ -1,0 +1,138 @@
+{
+  "title": "React Native Small Examples",
+  "description": "Use these small React Native examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Make a native screen",
+      "description": "A View groups native page parts. Text displays words.",
+      "language": "jsx",
+      "code": "import {View,Text} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Text>Reading club</Text></View>;}",
+      "output": "The app screen shows Reading club with inner space around it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "create-named-styles",
+      "title": "Create named styles",
+      "description": "StyleSheet.create groups styles under names.",
+      "language": "jsx",
+      "code": "import {View,Text,StyleSheet} from \"react-native\";\nconst styles=StyleSheet.create({page:{padding:24,backgroundColor:\"#eef4ff\"},title:{fontSize:24,fontWeight:\"bold\"}});\nexport default function App(){return <View style={styles.page}><Text style={styles.title}>Our books</Text></View>;}",
+      "output": "The screen area has a pale background and a large bold title.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "create-named-styles"
+    },
+    {
+      "id": "add-a-button-and-state",
+      "title": "Add a button and state",
+      "description": "React state remembers a value between renders.",
+      "language": "jsx",
+      "code": "import {useState} from \"react\";\nimport {View,Text,Button} from \"react-native\";\nexport default function App(){const [count,setCount]=useState(0);return <View style={{padding:24}}><Text>Books: {count}</Text><Button title=\"Read one\" onPress={()=>setCount(count+1)}/></View>;}",
+      "output": "Each button press increases the visible number.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-button-and-state"
+    },
+    {
+      "id": "use-a-text-input",
+      "title": "Use a text input",
+      "description": "TextInput lets someone type text. onChangeText supplies the new text, so state can keep the field and screen together.",
+      "language": "jsx",
+      "code": "import {useState} from \"react\";import {View,Text,TextInput} from \"react-native\";\nexport default function App(){const [name,setName]=useState(\"\");return <View style={{padding:24}}><Text>Your name</Text><TextInput accessibilityLabel=\"Your name\" value={name} onChangeText={setName} style={{borderWidth:1,padding:12}}/><Text>Hello, {name}</Text></View>;}",
+      "output": "The greeting changes as a name is typed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-text-input"
+    },
+    {
+      "id": "arrange-a-row-with-flex",
+      "title": "Arrange a row with flex",
+      "description": "React Native uses Flexbox for layout. Its default direction is a column, so set row when items should sit beside each other.",
+      "language": "jsx",
+      "code": "import {View,Text} from \"react-native\";\nexport default function App(){return <View style={{padding:24,flexDirection:\"row\",gap:12}}><Text>Books read</Text><Text>4</Text></View>;}",
+      "output": "The label and count appear side by side with a gap.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "arrange-a-row-with-flex"
+    },
+    {
+      "id": "scroll-a-small-amount-of-content",
+      "title": "Scroll a small amount of content",
+      "description": "ScrollView makes its children scrollable.",
+      "language": "jsx",
+      "code": "import {ScrollView,Text} from \"react-native\";\nexport default function App(){return <ScrollView contentContainerStyle={{padding:24}}>{Array.from({length:20},(_,i)=><Text key={i} style={{padding:12}}>Reading tip {i+1}</Text>)}</ScrollView>;}",
+      "output": "The tips can scroll if they do not fit on the screen.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "scroll-a-small-amount-of-content"
+    },
+    {
+      "id": "render-a-list-efficiently",
+      "title": "Render a list efficiently",
+      "description": "FlatList receives data and a function for each row.",
+      "language": "jsx",
+      "code": "import {FlatList,Text} from \"react-native\";\nconst books=[{id:\"1\",title:\"Moon Trip\"},{id:\"2\",title:\"Garden Days\"}];\nexport default function App(){return <FlatList data={books} keyExtractor={item=>item.id} contentContainerStyle={{padding:24}} renderItem={({item})=><Text style={{padding:12}}>{item.title}</Text>}/>;}",
+      "output": "The app shows one row per book with a stable id for each.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "render-a-list-efficiently"
+    },
+    {
+      "id": "use-a-local-image",
+      "title": "Use a local image",
+      "description": "Image displays a native picture. A local file can be bundled with require so the app can include it at build time.",
+      "language": "jsx",
+      "code": "import {View,Image} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Image source={require(\"./assets/garden.png\")} style={{width:160,height:120}} accessibilityLabel=\"Our school garden\"/></View>;}",
+      "output": "After adding a real garden.png file, the app shows it at the chosen size.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-local-image"
+    },
+    {
+      "id": "make-a-custom-pressable-control",
+      "title": "Make a custom pressable control",
+      "description": "Pressable can wrap a custom control. Its style callback receives pressed, so the control can show a clear response.",
+      "language": "jsx",
+      "code": "import {Pressable,Text,View} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Pressable accessibilityRole=\"button\" onPress={()=>console.log(\"Chosen\")} style={({pressed})=>({padding:16,backgroundColor:pressed?\"#12345a\":\"#174a8b\"})}><Text style={{color:\"white\"}}>Choose a book</Text></Pressable></View>;}",
+      "output": "The control darkens while pressed and logs Chosen when activated.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-custom-pressable-control"
+    },
+    {
+      "id": "respect-the-safe-screen-area",
+      "title": "Respect the safe screen area",
+      "description": "Some screens have cutouts or system bars.",
+      "language": "jsx",
+      "code": "import {Text} from \"react-native\";\nimport {SafeAreaProvider,SafeAreaView} from \"react-native-safe-area-context\";\nexport default function App(){return <SafeAreaProvider><SafeAreaView style={{flex:1,padding:16}}><Text>Reading club</Text></SafeAreaView></SafeAreaProvider>;}",
+      "output": "On a supported device, the content stays inside the safe area.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "respect-the-safe-screen-area"
+    },
+    {
+      "id": "show-an-empty-list-message",
+      "title": "Show an empty-list message",
+      "description": "A useful list explains when it has no items.",
+      "language": "jsx",
+      "code": "import {FlatList,Text} from \"react-native\";\nexport default function App(){return <FlatList data={[]} renderItem={({item})=><Text>{item.title}</Text>} ListEmptyComponent={<Text>Add your first book to begin.</Text>} contentContainerStyle={{padding:24}}/>;}",
+      "output": "The empty list shows a helpful next step instead of a blank screen.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-an-empty-list-message"
+    },
+    {
+      "id": "make-a-local-two-view-demo",
+      "title": "Make a local two-view demo",
+      "description": "State can choose between two simple views while learning.",
+      "language": "jsx",
+      "code": "import {useState} from \"react\";import {View,Text,Button} from \"react-native\";\nexport default function App(){const [detail,setDetail]=useState(false);return <View style={{padding:24}}>{detail?<><Text>Moon Trip is a space story.</Text><Button title=\"Back\" onPress={()=>setDetail(false)}/></>:<><Text>Books</Text><Button title=\"Open Moon Trip\" onPress={()=>setDetail(true)}/></>}</View>;}",
+      "output": "The buttons switch between a list label and a book detail view within local state.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-local-two-view-demo"
+    }
+  ]
+}

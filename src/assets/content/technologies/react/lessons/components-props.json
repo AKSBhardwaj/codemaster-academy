@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "slug": "components-props",
+  "title": "Components and Props",
+  "summary": "A React component is a reusable page part. Props are values passed into that part.",
+  "introduction": "A React component is a reusable page part. Props are values passed into that part. Make one card and give it different book titles. Keep the part reusable by reading its props instead of putting every title inside the code.",
+  "learningObjectives": [
+    "Define a function component and render it from another component",
+    "Pass and destructure props, including defaults and non-string values",
+    "Explain why props are read-only and what that means for data flow",
+    "Use the children prop to build wrapper components"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A component is a function"
+    },
+    {
+      "type": "paragraph",
+      "text": "A React component is a JavaScript function with two rules: its name starts with a **capital letter**, and it returns JSX (or `null`). The capital letter is not a style choice; JSX uses it to tell your components apart from built-in tags such as `<section>`."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Welcome.jsx",
+      "code": "function Welcome() {\n  return <h1>Welcome back!</h1>;\n}\n\nexport default function App() {\n  return (\n    <>\n      <Welcome />\n      <Welcome />\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<h1>Welcome back!</h1><h1>Welcome back!</h1>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Using a component looks like using a tag. React calls `Welcome` once per use, so two tags give two headings. Components must also be **pure**: given the same props they return the same JSX and do not change anything outside themselves while rendering. React relies on that to be able to re-run them at any time."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Props: the inputs"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hard-coded headings are not useful. Data flows into a component through **props**: the attributes on the tag become one object that is passed as the function's first argument. Most components destructure it right in the parameter list."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "PriceTag.jsx",
+      "code": "function PriceTag({ amount, currency = 'EUR', onSale = false }) {\n  const label = onSale ? 'Sale' : 'Regular';\n  return (\n    <p>\n      {label}: {amount.toFixed(2)} {currency}\n    </p>\n  );\n}\n\nexport default function App() {\n  return (\n    <>\n      <PriceTag amount={12} />\n      <PriceTag amount={9.5} currency=\"USD\" onSale />\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<p>Regular: 12.00 EUR</p><p>Sale: 9.50 USD</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three details are worth noticing. Numbers, booleans, objects and functions must be passed in braces (`amount={12}`); a quoted value is always a string. A prop written without a value (`onSale`) is `true`. And defaults live in the destructuring pattern (`currency = 'EUR'`), which is the replacement for the old `defaultProps`, which React 19 no longer supports on function components."
+    },
+    {
+      "type": "table",
+      "headers": ["You write", "The component receives"],
+      "rows": [
+        ["`<Item count=\"3\" />`", "`props.count === '3'` (a string)"],
+        ["`<Item count={3} />`", "`props.count === 3` (a number)"],
+        ["`<Item active />`", "`props.active === true`"],
+        ["`<Item tags={['a', 'b']} />`", "`props.tags` is an array"],
+        [
+          "`<Item onSelect={handleSelect} />`",
+          "`props.onSelect` is a function the component can call"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Props are read-only"
+    },
+    {
+      "type": "paragraph",
+      "text": "A component must never modify its props. `props.amount = 0`, or `amount.push(x)` on an array prop, is a bug: the parent owns that data, and changing it in the child breaks the one-way flow that makes React predictable. If a component needs to change a value, it either keeps its own [state](/tutorials/react/state-usestate) or receives a function prop and asks the parent to change it. Data flows **down** through props; requests for change flow **up** through functions."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "The parent decides, the child asks",
+      "code": "function RemoveButton({ label, onRemove }) {\n  return <button onClick={() => onRemove(label)}>Remove {label}</button>;\n}\n\nexport default function App() {\n  function handleRemove(label) {\n    console.log(`remove ${label}`);\n  }\n\n  return <RemoveButton label=\"Draft\" onRemove={handleRemove} />;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console after one click",
+      "content": "remove Draft"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "children"
+    },
+    {
+      "type": "paragraph",
+      "text": "Anything placed between a component's opening and closing tags arrives as the special `children` prop. That is how you write wrappers, cards, layouts and dialogs without knowing in advance what goes inside them."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Card.jsx",
+      "code": "function Card({ title, children }) {\n  return (\n    <section className=\"card\">\n      <h2>{title}</h2>\n      {children}\n    </section>\n  );\n}\n\nexport default function App() {\n  return (\n    <Card title=\"Weather\">\n      <p>Sunny, 24 °C</p>\n      <button>Refresh</button>\n    </Card>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<section class=\"card\"><h2>Weather</h2><p>Sunny, 24 °C</p><button>Refresh</button></section>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`children` can be text, one element, many elements or nothing; `Card` does not care. When you need more than one slot, pass elements as ordinary props, for example `<Layout sidebar={<Nav />} content={<Article />} />`. JSX is just a value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Composition over configuration"
+    },
+    {
+      "type": "paragraph",
+      "text": "Beginners often grow a component by adding props (`showIcon`, `iconPosition`, `variant`, `size`, and so on) until nobody can read it. Prefer **composition**: small components that accept children and nest like HTML. A `Dialog` that renders whatever it is given is easier to reuse than one with twenty switches."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Dialog.jsx",
+      "code": "function Dialog({ children }) {\n  return <div role=\"dialog\" className=\"dialog\">{children}</div>;\n}\n\nfunction ConfirmDelete() {\n  return (\n    <Dialog>\n      <h2>Delete file?</h2>\n      <p>This cannot be undone.</p>\n      <button>Cancel</button>\n      <button>Delete</button>\n    </Dialog>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "<ConfirmDelete /> rendered",
+      "content": "<div role=\"dialog\" class=\"dialog\"><h2>Delete file?</h2><p>This cannot be undone.</p><button>Cancel</button><button>Delete</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "One component per file"
+    },
+    {
+      "type": "paragraph",
+      "text": "The convention is one exported component per file, named after the component, under `src/components/`. Import it where you use it. Keeping files small makes the tree in React DevTools match your folder structure."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/App.jsx",
+      "code": "import Card from './components/Card.jsx';\nimport PriceTag from './components/PriceTag.jsx';\n\nexport default function App() {\n  return (\n    <Card title=\"Today's deal\">\n      <PriceTag amount={19.9} onSale />\n    </Card>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<section class=\"card\"><h2>Today's deal</h2><p>Sale: 19.90 EUR</p></section>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: lowercase component names",
+      "text": "`<card title=\"Hi\" />` does not render your `Card` component. JSX treats lowercase tags as DOM elements, so React creates an unknown `<card>` element, logs a warning in development and shows nothing useful. Always capitalize component names, including when you store a component in a variable."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-props-card"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-props-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "components-props",
+          "difficulty": "beginner",
+          "question": "What does `<Alert level=\"3\" />` pass to the component as `level`?",
+          "explanation": "A quoted attribute value is always a string. To pass the number 3 write `level={3}`.",
+          "options": ["The number 3", "The string \"3\"", "`true`", "`undefined`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-props-qc-2",
+          "type": "true-false",
+          "lessonSlug": "components-props",
+          "difficulty": "beginner",
+          "question": "Everything written between `<Card>` and `</Card>` is available inside `Card` as `props.children`.",
+          "explanation": "Nested content becomes the `children` prop, which may be text, a single element, several elements or nothing.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-props-card", "react-props-readonly"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "jsx"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    }
+  ],
+  "seo": {
+    "title": "React Components and Props – Build Reusable UI",
+    "description": "Learn React function components and props: destructuring, default values, boolean and object props, read-only data flow, the children prop and composition."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "slug": "aggregation",
+  "title": "The Aggregation Pipeline",
+  "summary": "Summarise and reshape data on the server with pipelines of stages such as $match, $group, $unwind, $sort and $project, using accumulators and expressions.",
+  "introduction": "Finding documents is only half of what applications ask a database. The other half is questions like \"revenue per customer\", \"orders per month\" or \"how many lines does each order have\", and in MongoDB those are answered by the aggregation pipeline: an array of stages through which documents flow, each stage transforming them before passing them on. This lesson builds pipelines one stage at a time, explains the accumulators and expressions inside them, and shows the stage order that keeps pipelines fast.",
+  "learningObjectives": [
+    "Describe how documents flow through pipeline stages",
+    "Filter, group, sort and limit with $match, $group, $sort and $limit",
+    "Flatten arrays with $unwind and compute values with expressions",
+    "Reshape output with $project and $addFields and order stages for performance"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Stages and documents"
+    },
+    {
+      "type": "paragraph",
+      "text": "`db.collection.aggregate(pipeline)` takes an array of **stages**. Each stage is a document with one key, such as `$match` or `$group`, that receives the documents produced by the previous stage and emits new ones. The result of the last stage is what you get back. Because every stage works on documents, you can read a pipeline top to bottom like a recipe. Start with a fresh `orders` collection whose lines record the category and price at the time of purchase:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.orders.drop()\ndb.orders.insertMany([\n  { _id: 1001, customerId: 1, status: 'paid', placedAt: new Date('2026-03-02'),\n    lines: [{ productId: 1, category: 'peripherals', qty: 1, price: 89.5 }, { productId: 5, category: 'peripherals', qty: 2, price: 39 }] },\n  { _id: 1002, customerId: 2, status: 'paid', placedAt: new Date('2026-03-03'),\n    lines: [{ productId: 3, category: 'displays', qty: 1, price: 219 }] },\n  { _id: 1003, customerId: 1, status: 'cancelled', placedAt: new Date('2026-03-05'),\n    lines: [{ productId: 4, category: 'office', qty: 3, price: 24.5 }] },\n  { _id: 1004, customerId: 3, status: 'paid', placedAt: new Date('2026-04-01'),\n    lines: [{ productId: 4, category: 'office', qty: 2, price: 24.5 }, { productId: 2, category: 'peripherals', qty: 1, price: 22.99 }] },\n  { _id: 1005, customerId: 2, status: 'paid', placedAt: new Date('2026-04-09'),\n    lines: [{ productId: 1, category: 'peripherals', qty: 1, price: 89.5 }] }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1001, '1': 1002, '2': 1003, '3': 1004, '4': 1005 }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "The smallest useful pipeline has two stages: `$match` keeps the documents that satisfy a filter, written exactly like a `find` filter, and `$count` replaces them with a single document holding the number that got through."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $match: { status: 'paid' } },\n  { $count: 'paidOrders' }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { paidOrders: 4 } ]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Grouping with $group"
+    },
+    {
+      "type": "paragraph",
+      "text": "`$group` collapses many documents into one per distinct value of its `_id` expression. The other fields of the stage are **accumulators** that combine values across the group. A string starting with `$` is a **field path**: `'$customerId'` means \"the value of the customerId field\", and `'$lines.qty'` reaches into embedded documents. Order lines are an array, so first `$unwind` turns each order into one document per line; then the arithmetic is simple:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $match: { status: 'paid' } },\n  { $unwind: '$lines' },\n  { $group: {\n      _id: '$customerId',\n      revenue: { $sum: { $multiply: ['$lines.qty', '$lines.price'] } },\n      items: { $sum: '$lines.qty' }\n  } },\n  { $sort: { revenue: -1 } }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { _id: 2, revenue: 308.5, items: 2 },\n  { _id: 1, revenue: 167.5, items: 3 },\n  { _id: 3, revenue: 71.99, items: 3 }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read it stage by stage: four paid orders go in; `$unwind` makes six line documents; `$group` adds up `qty × price` and `qty` per customer; `$sort` orders the three results by revenue. The cancelled order never reaches the arithmetic because `$match` removed it first. `$group` outputs documents in no particular order, so a pipeline that needs order must end with `$sort`."
+    },
+    {
+      "type": "table",
+      "headers": ["Accumulator", "Result per group"],
+      "rows": [
+        ["`$sum`", "Total of an expression, or a count when given `1`"],
+        ["`$avg`, `$min`, `$max`", "Average, smallest and largest value"],
+        [
+          "`$first`, `$last`",
+          "The value from the first or last document seen, meaningful after a `$sort`"
+        ],
+        ["`$push`", "An array of every value"],
+        ["`$addToSet`", "An array of the distinct values"],
+        ["`$count`", "The number of documents in the group"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Forgetting the `$` on a field path. `{ $group: { _id: 'customerId' } }` groups by the literal string `'customerId'`, so every document lands in one group and the output is a single row. Field references inside aggregation expressions always start with `$`; plain strings are constants."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reshaping with $project and $addFields"
+    },
+    {
+      "type": "paragraph",
+      "text": "`$project` chooses and renames fields, like a `find` projection but with expressions allowed; `$addFields` (alias `$set`) adds computed fields while keeping the rest. Date expressions such as `$dateToString` and arithmetic such as `$round` work in both, and in `$group` keys. Monthly revenue combines everything so far:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $match: { status: 'paid' } },\n  { $unwind: '$lines' },\n  { $group: {\n      _id: { $dateToString: { format: '%Y-%m', date: '$placedAt' } },\n      revenue: { $sum: { $multiply: ['$lines.qty', '$lines.price'] } }\n  } },\n  { $sort: { _id: 1 } },\n  { $project: { _id: 0, month: '$_id', revenue: { $round: ['$revenue', 2] } } }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { month: '2026-03', revenue: 386.5 },\n  { month: '2026-04', revenue: 161.49 }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `$project` at the end turns the internal `_id` into a readable `month` and rounds the floating-point sum to two decimals. A pipeline that adds a derived field to whole documents is just as common:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $addFields: { lineCount: { $size: '$lines' } } },\n  { $project: { customerId: 1, lineCount: 1 } },\n  { $sort: { _id: 1 } },\n  { $limit: 2 }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { _id: 1001, customerId: 1, lineCount: 2 },\n  { _id: 1002, customerId: 2, lineCount: 1 }\n]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The stages at a glance"
+    },
+    {
+      "type": "table",
+      "headers": ["Stage", "What it does"],
+      "rows": [
+        ["`$match`", "Keeps documents matching a filter; put it first so indexes apply"],
+        ["`$group`", "One document per distinct `_id` expression, with accumulators"],
+        [
+          "`$sort`, `$limit`, `$skip`",
+          "Order, cap and page the stream, exactly like the cursor methods"
+        ],
+        ["`$project`, `$addFields`", "Choose, rename, compute or add fields"],
+        ["`$unwind`", "One document per array element"],
+        ["`$count`", "A single document with the number of documents"],
+        ["`$lookup`", "Joins documents from another collection (next lesson)"],
+        ["`$out`, `$merge`", "Write the results into a collection instead of returning them"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Order matters for performance. `$match` and `$sort` at the very start can use indexes; after a `$group`, `$unwind` or `$project` the server works on in-memory documents only. Place `$match` as early as possible and `$project` as late as possible, and remember that `$group` must see every document before it emits anything, so a `$limit` *after* it does not reduce the work."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Group the unwound lines by `lines.category` and compute revenue and the number of distinct orders per category (use `$addToSet` on `$_id` and `$size` in a following `$project`). Then add a `$match` on the grouped revenue to keep only categories above 100 and notice that filters after `$group` refer to the *new* field names."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-aggregation-revenue-task"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-aggregation-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "aggregation",
+          "difficulty": "beginner",
+          "question": "Why should `$match` usually be the first stage of a pipeline?",
+          "explanation": "A leading `$match` can use indexes and reduces the number of documents every later stage must process. After `$group` or `$unwind`, the server works on in-memory documents.",
+          "options": [
+            "Later stages cannot contain filters at all",
+            "It can use an index and cuts the work for every later stage",
+            "`$group` requires a preceding `$match`",
+            "It makes the output sorted"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-aggregation-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "aggregation",
+          "difficulty": "intermediate",
+          "question": "What does this pipeline return for the orders inserted in this lesson?",
+          "explanation": "Only the four paid orders pass `$match`; `$sum: 1` counts one per document, so the single group holds 4. The `_id` of `null` means all documents form one group.",
+          "language": "javascript",
+          "code": "db.orders.aggregate([\n  { $match: { status: 'paid' } },\n  { $group: { _id: null, n: { $sum: 1 } } }\n])",
+          "options": [
+            "`[ { _id: null, n: 4 } ]`",
+            "`[ { _id: null, n: 5 } ]`",
+            "`[ { _id: 'paid', n: 4 } ]`",
+            "`[ { n: 6 } ]`"
+          ],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-aggregation-revenue-task", "mongodb-aggregation-predict-group"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "relationships"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "query-operators"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "group-by-having"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Aggregation Pipeline – $match, $group, $unwind",
+    "description": "Learn the MongoDB aggregation pipeline: $match, $group with accumulators, $unwind, $sort, $project and $addFields, with worked examples and performance tips."
+  },
+  "updatedOn": "2026-11-15"
+}

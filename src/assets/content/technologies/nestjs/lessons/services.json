@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "services",
+  "title": "Share a service",
+  "summary": "NestJS: Share a service. Change the service title.",
+  "introduction": "A provider is a shared helper supplied by Nest. The controller asks for Books in its constructor. Open GET /book.",
+  "learningObjectives": ["Share a service with NestJS", "Change the service title"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Share a service"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Share a service",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n@Injectable()\nclass Books { title() { return \"Moon Trip\"; } }\n@Controller()\nclass LessonController {\nconstructor(private readonly books: Books) {}\n@Get(\"book\") book() { return this.books.title(); }\n}\n@Module({ controllers: [LessonController], providers: [Books] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The module creates Books as a provider. Constructor injection gives the same helper to the controller."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Moon Trip"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the service title."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "List Books in module providers so Nest can create it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-services-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-services-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "post-body"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Share a service",
+    "description": "NestJS: Share a service. Change the service title. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

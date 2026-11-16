@@ -1,0 +1,144 @@
+{
+  "title": "Electron Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Electron course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Know the two main sides",
+          "summary": "Electron's main process manages desktop windows.",
+          "example": {
+            "language": "text",
+            "code": "Main process: creates and manages windows.\nRenderer process: displays HTML, CSS and page JavaScript.\nPreload script: exposes a small approved bridge between them."
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "create-a-local-window",
+          "name": "Create a local window",
+          "summary": "BrowserWindow creates a desktop window. Wait for app readiness before creating it, then load a local page.",
+          "example": {
+            "language": "javascript",
+            "code": "// main.cjs\nconst {app,BrowserWindow}=require(\"electron\");\napp.whenReady().then(()=>{const win=new BrowserWindow({width:800,height:600,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});win.loadFile(\"index.html\");});"
+          },
+          "lessonSlug": "create-a-local-window"
+        },
+        {
+          "slug": "build-the-renderer-page",
+          "name": "Build the renderer page",
+          "summary": "The renderer can use normal HTML, CSS and browser JavaScript.",
+          "example": {
+            "language": "html",
+            "code": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Reading club</title></head><body><h1>Reading club</h1><button id=\"hello\">Say hello</button><p id=\"reply\"></p><script src=\"renderer.js\"></script></body></html>"
+          },
+          "lessonSlug": "build-the-renderer-page"
+        },
+        {
+          "slug": "set-a-restrictive-page-policy",
+          "name": "Set a restrictive page policy",
+          "summary": "A Content Security Policy limits where a page can load and run content.",
+          "example": {
+            "language": "html",
+            "code": "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:\">\n<!-- Put this in index.html head; use local external JS and CSS files. -->"
+          },
+          "lessonSlug": "set-a-restrictive-page-policy"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "configure-a-preload-file",
+          "name": "Configure a preload file",
+          "summary": "A preload script runs before the page and can expose a small API.",
+          "example": {
+            "language": "javascript",
+            "code": "// Add to main.cjs when creating the window.\nconst path=require(\"node:path\");\nconst options={webPreferences:{preload:path.join(__dirname,\"preload.cjs\"),contextIsolation:true,nodeIntegration:false,sandbox:true}};\n// Create the window with new BrowserWindow(options)."
+          },
+          "lessonSlug": "configure-a-preload-file"
+        },
+        {
+          "slug": "expose-one-harmless-value",
+          "name": "Expose one harmless value",
+          "summary": "contextBridge can expose a chosen value to the renderer without sharing full Node tools.",
+          "example": {
+            "language": "javascript",
+            "code": "// preload.cjs\nconst {contextBridge}=require(\"electron\");\ncontextBridge.exposeInMainWorld(\"club\",{name:\"Reading club\"});\n// renderer.js can now read window.club.name."
+          },
+          "lessonSlug": "expose-one-harmless-value"
+        },
+        {
+          "slug": "ask-the-main-process-a-narrow-question",
+          "name": "Ask the main process a narrow question",
+          "summary": "IPC lets the renderer ask the main process for an approved result.",
+          "example": {
+            "language": "javascript",
+            "code": "// preload.cjs\nconst {contextBridge,ipcRenderer}=require(\"electron\");\ncontextBridge.exposeInMainWorld(\"club\",{getVersion:()=>ipcRenderer.invoke(\"club:version\")});\n// main.cjs, after creating win:\n// ipcMain.handle(\"club:version\", event => {\n//   if(event.senderFrame !== win.webContents.mainFrame) throw new Error(\"Untrusted caller\");\n//   return app.getVersion();\n// });"
+          },
+          "lessonSlug": "ask-the-main-process-a-narrow-question"
+        },
+        {
+          "slug": "handle-a-bridge-failure",
+          "name": "Handle a bridge failure",
+          "summary": "A request through the bridge can reject.",
+          "example": {
+            "language": "javascript",
+            "code": "// renderer.js, with a status element and the previous bridge installed.\nasync function showVersion(){\n  const status=document.querySelector(\"#status\");\n  try{status.textContent=await window.club.getVersion();}\n  catch{status.textContent=\"The app version could not be read.\";}\n}\nshowVersion();"
+          },
+          "lessonSlug": "handle-a-bridge-failure"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "prevent-unexpected-navigation",
+          "name": "Prevent unexpected navigation",
+          "summary": "A local app window should not become an unrestricted browser for unknown content.",
+          "example": {
+            "language": "javascript",
+            "code": "// main.cjs, after creating win.\nwin.webContents.on(\"will-navigate\",event=>event.preventDefault());\nwin.webContents.setWindowOpenHandler(()=>({action:\"deny\"}));"
+          },
+          "lessonSlug": "prevent-unexpected-navigation"
+        },
+        {
+          "slug": "keep-a-window-reference",
+          "name": "Keep a window reference",
+          "summary": "The main process can keep a reference to its window and clear it when the window is closed.",
+          "example": {
+            "language": "javascript",
+            "code": "let mainWindow;\nfunction createWindow(){\n  mainWindow=new BrowserWindow({webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});\n  mainWindow.loadFile(\"index.html\");\n  mainWindow.on(\"closed\",()=>{mainWindow=null;});\n}\n// Call createWindow after app.whenReady; import BrowserWindow in main.cjs."
+          },
+          "lessonSlug": "keep-a-window-reference"
+        },
+        {
+          "slug": "respect-desktop-lifecycle-rules",
+          "name": "Respect desktop lifecycle rules",
+          "summary": "Desktop platforms have different conventions after all windows close.",
+          "example": {
+            "language": "javascript",
+            "code": "// main.cjs, using createWindow from the previous lesson.\napp.on(\"window-all-closed\",()=>{if(process.platform!==\"darwin\")app.quit();});\napp.on(\"activate\",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});"
+          },
+          "lessonSlug": "respect-desktop-lifecycle-rules"
+        },
+        {
+          "slug": "check-the-packaged-app",
+          "name": "Check the packaged app",
+          "summary": "A packaged desktop app can behave differently from the development folder.",
+          "example": {
+            "language": "text",
+            "code": "Use a maintained Electron packaging tool such as Electron Forge.\nBuild for a supported target platform.\nOpen the packaged app.\nCheck local images and scripts.\nTest bridge success and failure.\nConfirm no renderer Node access or unexpected new windows."
+          },
+          "lessonSlug": "check-the-packaged-app"
+        }
+      ]
+    }
+  ]
+}

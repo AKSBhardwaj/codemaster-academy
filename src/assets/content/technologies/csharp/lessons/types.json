@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "types",
+  "title": "Value and Reference Types",
+  "summary": "How value types and reference types behave differently when copied, why strings act like values, nullable types with the null operators, and safe conversions.",
+  "introduction": "Every C# type is either a value type or a reference type, and the difference decides what happens when you copy a variable, compare two values or pass something to a method. Getting this wrong produces bugs that compile fine and only show up at runtime. This lesson shows the difference with short experiments, explains why string behaves like a value even though it is a reference type, introduces nullable types and the operators that handle null, and covers converting between types.",
+  "learningObjectives": [
+    "Predict what happens when value-type and reference-type variables are copied",
+    "Use nullable types and the ??, ??= and ?. operators to handle missing values",
+    "Convert between types with casts, Parse and TryParse"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Two kinds of types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **value type** variable holds the value itself. Assigning it to another variable copies the value, so the two variables are independent. All the numeric types, `bool`, `char`, enums and structs are value types. A **reference type** variable holds a *reference* (think of it as an address) to an object that lives on the managed heap. Assigning it copies the reference, so both variables point at the same object. Classes, arrays, strings, delegates and records are reference types."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int a = 10;\nint b = a;              // copies the value\nb = 20;\nConsole.WriteLine($\"a = {a}, b = {b}\");\n\nint[] first = [1, 2, 3];\nint[] second = first;   // copies the reference, not the array\nsecond[0] = 99;\nConsole.WriteLine($\"first[0] = {first[0]}, second[0] = {second[0]}\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "a = 10, b = 20\nfirst[0] = 99, second[0] = 99"
+    },
+    {
+      "type": "paragraph",
+      "text": "Changing `b` left `a` alone, but changing `second[0]` also changed `first[0]` because there is only one array. The same rule explains method parameters: a method that modifies an array or object it received changes the caller's object, while a method that changes an `int` parameter changes only its own copy. (`[1, 2, 3]` is a *collection expression*, the modern way to create an array; `new[] { 1, 2, 3 }` means the same.)"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "struct versus class"
+    },
+    {
+      "type": "paragraph",
+      "text": "You can see the rule at work with your own types. A `struct` is a value type; a `class` is a reference type. The two types below are identical apart from that keyword. With top-level statements, type declarations go after the statements."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Point p1 = new Point(1, 2);\nPoint p2 = p1;          // a copy of the struct\np2.X = 50;\nConsole.WriteLine($\"p1.X = {p1.X}, p2.X = {p2.X}\");\n\nBox b1 = new Box(1, 2);\nBox b2 = b1;            // a second reference to the same object\nb2.X = 50;\nConsole.WriteLine($\"b1.X = {b1.X}, b2.X = {b2.X}\");\n\nstruct Point\n{\n    public int X;\n    public int Y;\n    public Point(int x, int y) { X = x; Y = y; }\n}\n\nclass Box\n{\n    public int X;\n    public int Y;\n    public Box(int x, int y) { X = x; Y = y; }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "p1.X = 1, p2.X = 50\nb1.X = 50, b2.X = 50"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use structs for small, value-like data that you would rather copy than share (a point, a colour, a money amount) and classes for everything else; the [classes lesson](/tutorials/csharp/classes-objects) goes into detail."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Strings: a reference type that acts like a value"
+    },
+    {
+      "type": "paragraph",
+      "text": "`string` is a class, yet copying a string and then changing the copy never affects the original. The reason is **immutability**: no string method modifies the existing object; each one returns a new string, so sharing is harmless. Equality is also special: `==` on strings compares the characters, not the references."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string s1 = \"hello\";\nstring s2 = s1;\ns2 += \" world\";         // builds a new string and points s2 at it\nConsole.WriteLine(s1);\nConsole.WriteLine(s2);\nConsole.WriteLine(s1 == \"hello\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "hello\nhello world\nTrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Built-in numeric types"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Size", "Range or precision", "Use for"],
+      "rows": [
+        ["`int`", "32-bit", "about ±2.1 billion", "counts, indexes, most whole numbers"],
+        ["`long`", "64-bit", "about ±9.2 quintillion", "file sizes, timestamps, big counters"],
+        ["`double`", "64-bit", "about 15–16 significant digits", "measurements, science, graphics"],
+        ["`float`", "32-bit", "about 7 significant digits", "graphics APIs that require it"],
+        [
+          "`decimal`",
+          "128-bit",
+          "28–29 significant digits, exact decimal fractions",
+          "money and anything an accountant will read"
+        ],
+        ["`byte`", "8-bit", "0 to 255", "raw bytes, file and network data"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`double` stores binary fractions, so `0.1` is not exactly representable, in the same way that one third has no exact decimal form. `decimal` stores decimal digits and is slower, which is a good trade for prices. Integers do not warn when they run out of room: they **overflow** and wrap around."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "double d = 0.1 + 0.2;\ndecimal m = 0.1m + 0.2m;\n\nConsole.WriteLine(d == 0.3);\nConsole.WriteLine(m == 0.3m);\nConsole.WriteLine(d);\n\nint big = int.MaxValue;\nConsole.WriteLine(big);\nConsole.WriteLine(big + 1);     // wraps around silently"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "False\nTrue\n0.30000000000000004\n2147483647\n-2147483648"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use `long` when a number can grow that large, or wrap arithmetic in a `checked { ... }` block to get an `OverflowException` instead of a wrong answer."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nullable types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A value type can never be \"missing\": an `int` is always some number. When a value may be absent, add `?` to make it **nullable**: `int? score = null;`. A nullable value has `HasValue` and `Value`, and the operators below keep the code short. Reference types can hold `null` by nature, and with `<Nullable>enable</Nullable>` in the project file the compiler tracks which references *may* be `null` (those declared with `?`) and warns when you use one without checking."
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Name", "Meaning"],
+      "rows": [
+        ["`??`", "Null-coalescing", "`a ?? b` is `a` unless it is `null`, then `b`"],
+        ["`??=`", "Null-coalescing assignment", "`a ??= b` assigns `b` only if `a` is `null`"],
+        [
+          "`?.`",
+          "Null-conditional",
+          "`a?.Length` is `null` instead of throwing when `a` is `null`"
+        ],
+        [
+          "`!`",
+          "Null-forgiving",
+          "`a!` tells the compiler you know `a` is not `null`; it has no effect at runtime"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int? score = null;\nConsole.WriteLine(score.HasValue);\nscore = 88;\nConsole.WriteLine(score.HasValue);\nConsole.WriteLine(score ?? 0);\n\nstring? nickname = null;\nConsole.WriteLine(nickname ?? \"(no nickname)\");\nConsole.WriteLine(nickname?.Length ?? 0);\n\nnickname ??= \"ada\";\nConsole.WriteLine(nickname.ToUpper());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "False\nTrue\n88\n(no nickname)\n0\nADA"
+    },
+    {
+      "type": "paragraph",
+      "text": "After `nickname ??= \"ada\"` the compiler knows the variable is no longer `null`, so calling `ToUpper()` on it produces no warning. Calling it before that line would have produced *warning CS8602: Dereference of a possibly null reference* and, at runtime, a `NullReferenceException`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Converting between types"
+    },
+    {
+      "type": "paragraph",
+      "text": "C# converts automatically only when nothing can be lost (an **implicit** conversion): `int` to `long` or to `double`. Going the other way needs an explicit **cast** in parentheses, which truncates fractions and can overflow. Text is converted with `Parse`, which throws on bad input, or `TryParse`, which returns `false` instead and is the right choice for anything a user typed."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int small = 42;\nlong big = small;             // implicit\ndouble precise = small;       // implicit: 42 becomes 42.0\n\ndouble pi = 3.99;\nint truncated = (int)pi;      // explicit cast drops the fraction\nConsole.WriteLine(truncated);\nConsole.WriteLine(Math.Round(pi));\n\nint number = int.Parse(\"123\") + 1;\nConsole.WriteLine(number);\n\nbool ok = int.TryParse(\"12x\", out int parsed);\nConsole.WriteLine($\"{ok} {parsed}\");\n\nConsole.WriteLine(number.ToString().Length);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\n4\n124\nFalse 0\n3"
+    },
+    {
+      "type": "paragraph",
+      "text": "`TryParse` writes its result into the `out` variable (`0` when parsing fails) and returns whether it succeeded, so one `if (int.TryParse(input, out int value))` both validates and converts. Every type has `ToString()` for the opposite direction."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Casting is not rounding",
+      "text": "`(int)3.99` is 3, not 4: a cast simply drops the fractional part, and `(int)-3.99` is -3. Use `Math.Round`, `Math.Floor` or `Math.Ceiling` when you need a rounding rule, and never compare `double` values with `==` after arithmetic; compare the difference to a small tolerance or use `decimal` for money."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-types-copy-semantics"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-types-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "types",
+          "difficulty": "beginner",
+          "question": "Which of these is a value type?",
+          "explanation": "Numeric types such as `double` are value types and are copied on assignment. Strings, arrays and `List<T>` are reference types.",
+          "options": ["`string`", "`int[]`", "`double`", "`List<int>`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "csharp-types-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "types",
+          "difficulty": "beginner",
+          "question": "To declare an integer variable that may also hold `null`, write `___ count = null;`.",
+          "explanation": "Appending `?` to a value type makes it nullable: `int?` is shorthand for `Nullable<int>`.",
+          "answers": ["int?"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-types-copy-semantics", "csharp-types-nullable"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    }
+  ],
+  "seo": {
+    "title": "C# Value and Reference Types, Nullable Types, Casts",
+    "description": "Understand C# value types versus reference types, why strings are immutable, nullable types with ??, ?. and ??=, and safe conversions with casts, Parse and TryParse."
+  },
+  "updatedOn": "2026-11-15"
+}

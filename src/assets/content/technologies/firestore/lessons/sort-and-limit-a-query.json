@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "sort-and-limit-a-query",
+  "title": "Sort and limit a query",
+  "summary": "orderBy sorts query results by a field. limit caps how many documents are returned.",
+  "introduction": "orderBy sorts query results by a field. limit caps how many documents are returned. Your task: Ask for the longest two books with descending order.",
+  "learningObjectives": [
+    "Ask for the longest two books with descending order.",
+    "Explain the example for sort and limit a query"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "orderBy sorts query results by a field. limit caps how many documents are returned."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,query,collection,orderBy,limit,getDocs} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst request=query(collection(db,\"books\"),orderBy(\"pages\"),limit(2));\nconst result=await getDocs(request);\nresult.forEach(item=>console.log(item.data().pages));",
+      "title": "Sort and limit a query",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`connectFirestoreEmulator` sends this SDK instance to the local emulator address before database operations begin."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "At most two documents are returned, from the smallest page counts upward."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Documents without the ordered field are not included by this orderBy. More complex queries may require an index."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Ask for the longest two books with descending order."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-sort-and-limit-a-query-check"
+    }
+  ],
+  "exerciseIds": ["firestore-sort-and-limit-a-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "ask-for-matching-documents"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Sort and limit a query",
+    "description": "orderBy sorts query results by a field. limit caps how many documents are returned."
+  },
+  "updatedOn": "2026-11-16"
+}

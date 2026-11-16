@@ -29,7 +29,9 @@ export class PathStore {
   }
 
   toggle(slug: string): void {
-    this.enrolled.update((list) => (list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug]));
+    this.enrolled.update((list) =>
+      list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug],
+    );
     this.persistence.write(KEY, this.enrolled());
   }
 

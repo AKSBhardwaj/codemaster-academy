@@ -1,0 +1,160 @@
+{
+  "id": "fastify-quiz",
+  "title": "Fastify Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "fastify-review-1",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/\", async () => \"Hello, Asha!\");\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "A Fastify handler can return a value directly. Open GET /. What result does this example give after the setup steps?",
+      "explanation": "Fastify sends the returned string as the route response. async lets the handler return through a promise. Return the result or send it with reply; do not do both.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/book\", async () => ({ title: \"Moon Trip\", pages: 24 }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "Fastify turns a returned object into JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The returned JavaScript object is serialised as JSON with its two fields. Return data, not a hand-built JSON string, when possible.",
+      "options": [
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "fastify-review-3",
+      "lessonSlug": "params",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/hello/:name\", async request => `Hi, ${request.params.name}!`);\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "A colon marks a path parameter. GET /hello/Ravi puts the name in request.params. What result does this example give after the setup steps?",
+      "explanation": "request.params.name contains Ravi. That value is inserted into the returned string. Path values are text unless a schema converts and validates them.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "fastify-review-4",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/search\", async request => ({ term: typeof request.query.q === \"string\" ? request.query.q : \"\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "Query input follows the question mark. GET /search?q=cat reads q. What result does this example give after the setup steps?",
+      "explanation": "request.query.q holds cat. The type check accepts it and creates the term field. Check query values rather than assuming they are always strings.",
+      "options": ["{\"term\":\"dog\"}", "[\"cat\"]", "{\"term\":\"cat\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-5",
+      "lessonSlug": "body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.post(\"/books\", async (request, reply) => {\n if (typeof request.body?.title !== \"string\") return reply.code(400).send({ error: \"Title needed\" });\n return reply.code(201).send({ title: request.body.title });\n});\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "Fastify can parse JSON bodies. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "The JSON parser provides the body object. A valid title reaches the 201 response. Content-Type tells the server how to read the body.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-6",
+      "lessonSlug": "schemas",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/books/:id\", { schema: { params: { type: \"object\", required: [\"id\"], properties: { id: { type: \"integer\", minimum: 1 } } } } }, async request => ({ id: request.params.id }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "A schema describes allowed data. GET /books/3 converts and checks id as a positive integer. What result does this example give after the setup steps?",
+      "explanation": "The integer schema converts and checks the path input. The handler receives numeric id 3. Schemas must describe the input shape you actually expect.",
+      "options": ["{\"id\":3}", "{\"id\":4}", "[3]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fastify-review-7",
+      "lessonSlug": "hooks",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.decorateRequest(\"school\", \"\");\napp.addHook(\"preHandler\", async request => { request.school = \"Oak School\"; });\napp.get(\"/\", async request => request.school);\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "A preHandler hook runs before the route handler. GET / uses the request field set by the hook. What result does this example give after the setup steps?",
+      "explanation": "decorateRequest declares the field. The hook fills it before the route reads it. Use async hooks or callback hooks consistently; do not mix both styles.",
+      "options": ["Oak School", "Pine School", "oak school"],
+      "correctIndex": 0
+    },
+    {
+      "id": "fastify-review-8",
+      "lessonSlug": "decorators",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.decorate(\"greet\", name => `Hi, ${name}!`);\napp.get(\"/\", async () => app.greet(\"Ravi\"));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "decorate adds a named helper to the Fastify instance. GET / uses that helper. What result does this example give after the setup steps?",
+      "explanation": "decorate adds greet to the app instance. The route calls it with Ravi. Register the helper before the route uses it.",
+      "options": ["Hi, Asha!", "hi, ravi!", "Hi, Ravi!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-9",
+      "lessonSlug": "plugins",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\nawait app.register(async api => { api.get(\"/books\", async () => [\"Moon Trip\"]); }, { prefix: \"/api\" });\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "register gives a plugin its own scope. A prefix puts its routes under /api. Open GET /api/books. What result does this example give after the setup steps?",
+      "explanation": "The plugin owns /books under its /api prefix, so the combined route matches. The plugin prefix is part of the final URL.",
+      "options": ["[\"Sun Trip\"]", "[]", "[\"Moon Trip\"]"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-10",
+      "lessonSlug": "response-schema",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/book\", { schema: { response: { 200: { type: \"object\", properties: { title: { type: \"string\" } } } } } }, async () => ({ title: \"Moon Trip\", internalNote: \"draft\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "A response schema can choose which fields are sent. GET /book keeps title and leaves out internalNote. What result does this example give after the setup steps?",
+      "explanation": "The response schema lists title only. Fastify serialises that public field and omits the note. A response schema is not a replacement for deciding which data is safe to return.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-11",
+      "lessonSlug": "errors",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.setErrorHandler((error, request, reply) => reply.code(500).send({ error: \"Try again later\" }));\napp.get(\"/broken\", async () => { throw new Error(\"Practice failure\"); });\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "question": "setErrorHandler handles errors from routes. GET /broken returns a simple public message. What result does this example give after the setup steps?",
+      "explanation": "The thrown error reaches the configured handler, which sends status 500 and a short message. Avoid showing private stack traces to clients.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "[\"Try again later\"]",
+        "{\"error\":\"Try again later\"}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "fastify-review-12",
+      "lessonSlug": "injection-tests",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/score\", async () => ({ score: 8 }));\nconst response = await app.inject({ method: \"GET\", url: \"/score\" });\nconsole.log(response.body);\nawait app.close();",
+      "question": "inject runs a request inside Fastify. This example prints the response body and closes the app without listening. What result does this example give after the setup steps?",
+      "explanation": "inject executes GET /score in memory. response.body is the JSON string from that route. Close the app after tests so resources are released.",
+      "options": ["{\"score\":8}", "{\"score\":9}", "[8]"],
+      "correctIndex": 0
+    }
+  ]
+}

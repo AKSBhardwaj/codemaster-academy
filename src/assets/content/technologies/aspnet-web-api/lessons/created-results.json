@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "created-results",
+  "title": "Return a new item location",
+  "summary": "ASP.NET Web API: Return a new item location. Inspect the Location header.",
+  "introduction": "CreatedAtAction sends status 201 and a link to the new item. Send POST /books with {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": [
+    "Return a new item location with ASP.NET Web API",
+    "Inspect the Location header"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a new item location"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Return a new item location",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"books/{id:int}\")] public IActionResult ById(int id) => Ok(new { id });\n[HttpPost(\"books\")] public IActionResult Create(BookInput book) => CreatedAtAction(nameof(ById), new { id = 1 }, book);\n}\npublic record BookInput(string Title);\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "CreatedAtAction uses ById and id 1 to build a location. The submitted book is its response body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the Location header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The named action and route values must identify a real route."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-created-results-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-created-results-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "validation"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Return a new item location",
+    "description": "ASP.NET Web API: Return a new item location. Inspect the Location header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

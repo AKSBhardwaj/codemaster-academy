@@ -1,0 +1,144 @@
+{
+  "title": "NgRx Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the NgRx course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Describe an event with an action",
+          "summary": "An action is a named message about something that happened.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createAction} from \"@ngrx/store\";\nexport const bookRead=createAction(\"[Reading] Book read\");\nconsole.log(bookRead().type);"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "put-a-value-in-an-action",
+          "name": "Put a value in an action",
+          "summary": "props describes values carried by an action.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createAction,props} from \"@ngrx/store\";\nexport const addBooks=createAction(\"[Reading] Add books\",props<{amount:number}>());\nconsole.log(addBooks({amount:3}).amount);"
+          },
+          "lessonSlug": "put-a-value-in-an-action"
+        },
+        {
+          "slug": "write-a-reducer-rule",
+          "name": "Write a reducer rule",
+          "summary": "A reducer takes the old state and an action and returns the next state.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst add=createAction(\"[Reading] Add\");\nconst reducer=createReducer({count:0},on(add,state=>({...state,count:state.count+1})));\nconsole.log(reducer({count:2},add()).count);"
+          },
+          "lessonSlug": "write-a-reducer-rule"
+        },
+        {
+          "slug": "register-a-root-store",
+          "name": "Register a root store",
+          "summary": "provideStore connects reducer functions to root state keys.",
+          "example": {
+            "language": "typescript",
+            "code": "// app.config.ts; counterReducer is exported from your state.ts file.\nimport {ApplicationConfig} from \"@angular/core\";\nimport {provideStore} from \"@ngrx/store\";\nimport {counterReducer} from \"./state\";\nexport const appConfig:ApplicationConfig={providers:[provideStore({reading:counterReducer})]};"
+          },
+          "lessonSlug": "register-a-root-store"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "read-state-with-a-selector",
+          "name": "Read state with a selector",
+          "summary": "A selector is a function that chooses a useful part of state.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createSelector} from \"@ngrx/store\";\ninterface AppState{reading:{count:number}}\nconst selectReading=(state:AppState)=>state.reading;\nexport const selectCount=createSelector(selectReading,reading=>reading.count);\nconsole.log(selectCount({reading:{count:4}}));"
+          },
+          "lessonSlug": "read-state-with-a-selector"
+        },
+        {
+          "slug": "use-a-store-value-as-a-signal",
+          "name": "Use a store value as a signal",
+          "summary": "Store.selectSignal gives an Angular signal for a selected value.",
+          "example": {
+            "language": "typescript",
+            "code": "// Counter component; selectCount comes from your state file.\nimport {Component,inject} from \"@angular/core\";\nimport {Store} from \"@ngrx/store\";\nimport {selectCount} from \"./state\";\n@Component({selector:\"app-count\",template:\"<p>Books: {{ count() }}</p>\"})\nexport class CountComponent{count=inject(Store).selectSignal(selectCount);}"
+          },
+          "lessonSlug": "use-a-store-value-as-a-signal"
+        },
+        {
+          "slug": "dispatch-from-a-component",
+          "name": "Dispatch from a component",
+          "summary": "A component can dispatch an action in response to a user action.",
+          "example": {
+            "language": "typescript",
+            "code": "import {Component,inject} from \"@angular/core\";\nimport {Store} from \"@ngrx/store\";\nimport {bookRead} from \"./state\";\n@Component({selector:\"app-add\",template:`<button (click)=\"add()\">Read one</button>`})\nexport class AddComponent{private store=inject(Store);add(){this.store.dispatch(bookRead());}}"
+          },
+          "lessonSlug": "dispatch-from-a-component"
+        },
+        {
+          "slug": "group-related-action-names",
+          "name": "Group related action names",
+          "summary": "An action group keeps related event creators together.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createActionGroup,emptyProps,props} from \"@ngrx/store\";\nconst reading=createActionGroup({source:\"Reading\",events:{\"Add Book\":props<{title:string}>(),\"Clear\":emptyProps()}});\nconsole.log(reading.addBook({title:\"Moon Trip\"}).title);"
+          },
+          "lessonSlug": "group-related-action-names"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "keep-outside-work-in-an-effect",
+          "name": "Keep outside work in an effect",
+          "summary": "An effect listens for actions and can return new actions after outside work.",
+          "example": {
+            "language": "typescript",
+            "code": "import {Injectable,inject} from \"@angular/core\";\nimport {Actions,createEffect,ofType} from \"@ngrx/effects\";\nimport {map} from \"rxjs\";\nimport {loadBooks,booksLoaded} from \"./state\";\n@Injectable()\nexport class BookEffects{private actions=inject(Actions);load=createEffect(()=>this.actions.pipe(ofType(loadBooks),map(()=>booksLoaded({titles:[\"Moon Trip\"]}))));}\n// Register with provideEffects(BookEffects); define both action creators in state.ts."
+          },
+          "lessonSlug": "keep-outside-work-in-an-effect"
+        },
+        {
+          "slug": "keep-a-normalised-list",
+          "name": "Keep a normalised list",
+          "summary": "A list with ids can be stored as an id array plus a lookup object.",
+          "example": {
+            "language": "typescript",
+            "code": "const state={ids:[\"b1\",\"b2\"],entities:{b1:{title:\"Moon Trip\"},b2:{title:\"Garden Days\"}}};\nconsole.log(state.entities.b2.title);"
+          },
+          "lessonSlug": "keep-a-normalised-list"
+        },
+        {
+          "slug": "try-a-signalstore",
+          "name": "Try a SignalStore",
+          "summary": "SignalStore is another NgRx way to organise state using Angular signals.",
+          "example": {
+            "language": "typescript",
+            "code": "import {signalStore,withState,withMethods,patchState} from \"@ngrx/signals\";\nexport const ReadingStore=signalStore({providedIn:\"root\"},withState({count:0}),withMethods(store=>({add(){patchState(store,{count:store.count()+1});}})));\n// In a component, inject ReadingStore; read store.count() and call store.add()."
+          },
+          "lessonSlug": "try-a-signalstore"
+        },
+        {
+          "slug": "test-a-state-rule-directly",
+          "name": "Test a state rule directly",
+          "summary": "A reducer can be tested without opening the page.",
+          "example": {
+            "language": "typescript",
+            "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst reset=createAction(\"[Reading] Reset\");\nconst reducer=createReducer({count:0},on(reset,()=>({count:0})));\nconst before={count:5};const after=reducer(before,reset());\nconsole.assert(after.count===0);\nconsole.assert(before.count===5);"
+          },
+          "lessonSlug": "test-a-state-rule-directly"
+        }
+      ]
+    }
+  ]
+}

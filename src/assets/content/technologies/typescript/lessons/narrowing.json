@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "slug": "narrowing",
+  "title": "Narrowing and Type Guards",
+  "summary": "Narrowing means checking a value so TypeScript can learn more about its type.",
+  "introduction": "Narrowing means checking a value so TypeScript can learn more about its type. A value might be text or a number. Check which kind it is before you use an action that only works for one of those kinds.",
+  "learningObjectives": [
+    "Narrow a union with typeof, equality checks, in and instanceof",
+    "Model variants as a discriminated union and make a switch exhaustive with never",
+    "Write a type predicate and explain why non-null assertions and casts are risky"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Control-flow narrowing"
+    },
+    {
+      "type": "paragraph",
+      "text": "The compiler tracks each check you write. After `if (value === null) return`, the type of `value` no longer includes `null`; inside `if (typeof value === \"number\")` it is `number`; and whatever is left after those branches is the remaining member, here `string`. No annotations, just ordinary JavaScript conditions."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "typeof.ts",
+      "code": "function format(value: string | number | null): string {\n  if (value === null) {\n    return \"n/a\";\n  }\n  if (typeof value === \"number\") {\n    return value.toFixed(2);\n  }\n  return value.trim();\n}\n\nconsole.log(format(3.14159), format(\"  hi  \"), format(null));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx typeof.ts",
+      "content": "3.14 hi n/a"
+    },
+    {
+      "type": "table",
+      "headers": ["Guard", "Narrows by", "Example"],
+      "rows": [
+        [
+          "`typeof x === \"string\"`",
+          "Primitive type",
+          "`string`, `number`, `boolean`, `bigint`, `symbol`, `function`, `object`"
+        ],
+        [
+          "`x === null`, `x !== undefined`, `if (x)`",
+          "Equality and truthiness",
+          "Removes `null`/`undefined` (truthiness also removes `0` and `\"\"`)"
+        ],
+        ["`\"swim\" in x`", "Presence of a property", "Objects whose type declares `swim`"],
+        [
+          "`x instanceof Dog`",
+          "Class prototype chain",
+          "Values created by `new Dog()` or a subclass"
+        ],
+        [
+          "`x.kind === \"circle\"`",
+          "Discriminant property",
+          "The member of a discriminated union with that literal"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Discriminated unions and exhaustiveness"
+    },
+    {
+      "type": "paragraph",
+      "text": "When several object shapes share a property with a different literal type in each (`kind: \"circle\"`, `kind: \"square\"`), a `switch` on that property narrows to the matching shape in every `case`. The `default` branch assigns the value to a variable of type `never`: if every case is handled, nothing reaches it and the assignment is fine. Add a new member to the union and forget a case, and the assignment fails with a message naming the shape you forgot."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "shapes.ts",
+      "code": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; side: number }\n  | { kind: \"rect\"; width: number; height: number };\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\":\n      return Math.PI * shape.radius ** 2;\n    case \"square\":\n      return shape.side ** 2;\n    default: {\n      const unreachable: never = shape;\n      return unreachable;\n    }\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc shapes.ts",
+      "content": "shapes.ts:13:13 - error TS2322: Type '{ kind: \"rect\"; width: number; height: number; }' is not assignable to type 'never'.\n\n13       const unreachable: never = shape;\n               ~~~~~~~~~~~\n\n\nFound 1 error in shapes.ts:13"
+    },
+    {
+      "type": "paragraph",
+      "text": "This is the compile-time safety net that makes discriminated unions so valuable in large codebases: every `switch` over the union is re-checked whenever the union grows. Add the missing case and the file compiles."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "shapes-fixed.ts",
+      "code": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; side: number }\n  | { kind: \"rect\"; width: number; height: number };\n\nfunction area(shape: Shape): number {\n  switch (shape.kind) {\n    case \"circle\":\n      return Math.PI * shape.radius ** 2;\n    case \"square\":\n      return shape.side ** 2;\n    case \"rect\":\n      return shape.width * shape.height;\n    default: {\n      const unreachable: never = shape;\n      return unreachable;\n    }\n  }\n}\n\nconsole.log(area({ kind: \"circle\", radius: 1 }).toFixed(2));\nconsole.log(area({ kind: \"rect\", width: 2, height: 3 }));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx shapes-fixed.ts",
+      "content": "3.14\n6"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "instanceof, in and type predicates"
+    },
+    {
+      "type": "paragraph",
+      "text": "`instanceof` narrows class instances. `in` narrows by the presence of a property, which suits interfaces that have no runtime class. When a check is too complex for the compiler to follow, or you want to reuse it, wrap it in a function whose return type is a *type predicate*: `animal is Fish` tells the compiler that a `true` result proves the argument is a `Fish`. Since TypeScript 5.5 the compiler even infers predicates for simple arrow functions, which is why `filter((v) => v !== null)` below produces a `string[]`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "guards.ts",
+      "code": "class Dog {\n  bark(): string {\n    return \"Woof\";\n  }\n}\n\nclass Cat {\n  meow(): string {\n    return \"Meow\";\n  }\n}\n\nfunction speak(pet: Dog | Cat): string {\n  return pet instanceof Dog ? pet.bark() : pet.meow();\n}\n\ninterface Fish {\n  swim(): void;\n}\n\ninterface Bird {\n  fly(): void;\n}\n\nfunction isFish(animal: Fish | Bird): animal is Fish {\n  return \"swim\" in animal;\n}\n\nconst animals: (Fish | Bird)[] = [{ swim() {} }, { fly() {} }, { swim() {} }];\nconst swimmers = animals.filter(isFish);\n\nconst values: (string | null)[] = [\"a\", null, \"b\"];\nconst strings = values.filter((v) => v !== null);\n\nconsole.log(speak(new Dog()), speak(new Cat()));\nconsole.log(swimmers.length, strings);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx guards.ts",
+      "content": "Woof Meow\n2 [ 'a', 'b' ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "`swimmers` is typed `Fish[]` because `filter` has an overload that accepts a type predicate, and `strings` is `string[]`. A type predicate is a promise: if `isFish` returned `true` for a bird, the compiler would believe it. Keep predicate bodies simple and honest."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Checks the compiler rejects"
+    },
+    {
+      "type": "paragraph",
+      "text": "Narrowing also catches comparisons that can never be true. Comparing a `Status` with a string that is not one of its members is almost always a typo, and the compiler says so instead of letting the branch silently never run."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "overlap.ts",
+      "code": "type Status = \"idle\" | \"loading\" | \"done\";\n\nfunction isFinished(status: Status): boolean {\n  return status === \"finished\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc overlap.ts",
+      "content": "overlap.ts:4:10 - error TS2367: This comparison appears to be unintentional because the types 'Status' and '\"finished\"' have no overlap.\n\n4   return status === \"finished\";\n           ~~~~~~~~~~~~~~~~~~~~~\n\n\nFound 1 error in overlap.ts:4"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The shortcuts: ! and as"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two pieces of syntax let you skip narrowing. The non-null assertion `value!` removes `null` and `undefined` from a type, and a type assertion `value as Type` replaces the type altogether. Neither generates a check; both are you telling the compiler to stop looking."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "nonnull.ts",
+      "code": "const prices = new Map<string, number>([[\"pen\", 1.5]]);\n\nconst price = prices.get(\"pencil\")!;\nconsole.log(price.toFixed(2));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx nonnull.ts (compiles cleanly, then crashes)",
+      "content": "TypeError: Cannot read properties of undefined (reading 'toFixed')"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: silencing the compiler with ! or as",
+      "text": "`Map.get` returns `number | undefined` because the key may be absent, and `!` threw that information away. The honest version is `const price = prices.get(\"pencil\"); if (price === undefined) { ... }` or `prices.get(\"pencil\") ?? 0`. Likewise `response as User` does not validate a response; it only changes what the editor believes. Use `as` for the few cases where you know more than the compiler can (narrowing a DOM element you just created, for instance) and never to make an error go away."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "satisfies, the safe cousin of as",
+      "text": "`const config = { port: 3000 } satisfies Config` checks the literal against `Config` without changing its inferred type, so you keep the precise literal types and still get the error if a property is wrong. It is the right tool when you want validation of a literal rather than a conversion."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-narrowing-vehicles"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-narrowing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "narrowing",
+          "difficulty": "intermediate",
+          "question": "In an exhaustive `switch` over a discriminated union, why is the `default` branch given `const unreachable: never = shape;`?",
+          "explanation": "If every member has a case, shape is narrowed to never in default and the assignment is valid. When a member is missing, its type remains and the assignment fails, pointing at the forgotten case.",
+          "options": [
+            "To throw a runtime error for unknown shapes",
+            "To make the compiler report any union member that has no case",
+            "To convert the shape to a string for logging",
+            "Because switch statements must end with an assignment"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-narrowing-qc-2",
+          "type": "true-false",
+          "lessonSlug": "narrowing",
+          "difficulty": "beginner",
+          "question": "`user!.name` inserts a runtime check that throws a clear error when `user` is null.",
+          "explanation": "The non-null assertion is erased at compile time. If user is null at runtime, the property access throws the usual TypeError, exactly as it would without the !.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-narrowing-vehicles"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "type-aliases-unions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "strict-config"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Narrowing – Type Guards and Discriminated Unions",
+    "description": "Learn TypeScript narrowing: typeof, in and instanceof guards, discriminated unions with exhaustive never checks, type predicates, and why ! and as hide bugs."
+  },
+  "updatedOn": "2026-11-16"
+}

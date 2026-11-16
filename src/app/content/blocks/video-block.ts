@@ -28,5 +28,8 @@ import { IconComponent } from '../../shared/components/icon/icon';
 export class VideoBlockComponent {
   readonly block = input.required<VideoBlock>();
   protected readonly loaded = signal(false);
-  protected readonly embedUrl = computed(() => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(this.block().videoId)}?autoplay=1`);
+  protected readonly embedUrl = computed(
+    () =>
+      `https://www.youtube-nocookie.com/embed/${encodeURIComponent(this.block().videoId)}?autoplay=1`,
+  );
 }

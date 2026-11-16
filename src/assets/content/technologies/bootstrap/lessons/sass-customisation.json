@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "sass-customisation",
+  "title": "Customising with Sass",
+  "summary": "Sass is a tool that makes CSS before the page is shown. It lets you choose some Bootstrap values before building its styles.",
+  "introduction": "Sass is a tool that makes CSS before the page is shown. It lets you choose some Bootstrap values before building its styles. Think of picking colours before mixing the paint. Change one theme value first, then learn where the imports belong.",
+  "learningObjectives": [
+    "Set up a Sass build that imports Bootstrap's source from node_modules",
+    "Override default variables before the import to change colours, fonts and spacing",
+    "Add a theme colour and enable optional features with the $enable-* flags",
+    "Import only the parts of Bootstrap a project uses"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Setting up a build"
+    },
+    {
+      "type": "paragraph",
+      "text": "Bootstrap is written in SCSS, the Sass syntax that looks like CSS with extras, and the file you load from the CDN is the compiled result. To compile your own you need the source, which comes with the npm package, and a compiler: the `sass` package (Dart Sass). Both install in one command. Keep your own file outside `node_modules` so updates never overwrite it."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "npm install bootstrap@5.3.3 sass\nmkdir scss dist\nnpx sass --quiet-deps scss/custom.scss dist/custom.css"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Result",
+      "content": "The compiler prints nothing on success\ndist/custom.css and dist/custom.css.map are written; link dist/custom.css in your HTML instead of the CDN stylesheet"
+    },
+    {
+      "type": "paragraph",
+      "text": "`--quiet-deps` hides deprecation warnings from inside `node_modules`. Bootstrap 5.3 is written with Sass's older `@import` rule, which recent Dart Sass versions flag as deprecated; the output is still correct, and the flag keeps the terminal readable. Add `--watch` to recompile on every save."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Option A: override, then import everything"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every Bootstrap variable is declared with the `!default` flag, which means \"use this value unless one already exists\". So any variable you set **before** importing Bootstrap becomes the value the whole framework compiles with. The simplest custom build is a few assignments followed by one import of the complete framework."
+    },
+    {
+      "type": "code",
+      "language": "scss",
+      "title": "scss/custom.scss",
+      "code": "// Your values first: they win because Bootstrap's defaults use !default\n$primary: #6f42c1;\n$font-family-sans-serif: \"Inter\", system-ui, sans-serif;\n$border-radius: .75rem;\n$spacer: 1.25rem;\n\n// Then the whole framework\n@import \"../node_modules/bootstrap/scss/bootstrap\";\n\n// Your own rules can follow and may use Bootstrap's mixins and variables\n.hero {\n  padding: $spacer * 3 0;\n  @include media-breakpoint-up(lg) {\n    padding: $spacer * 5 0;\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "What changes in dist/custom.css",
+      "content": "Every primary element is purple: .btn-primary, .bg-primary, .text-primary, links, focus rings and the --bs-primary variables\nThe body font stack starts with Inter\nButtons, cards, inputs and alerts have .75rem rounded corners\nThe spacing scale grows: mt-3 is now 1.25rem and mt-5 is 3.75rem, and container padding and gutters scale with it\n.hero gets 3.75rem of vertical padding, 6.25rem from 992px"
+    },
+    {
+      "type": "paragraph",
+      "text": "Changing `$primary` here recolours *everything* derived from it, including the `--bs-btn-*` variables that the previous lesson had to override one by one. That is the difference between Sass and CSS variables: Sass runs before the derivation, CSS variables after."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: overriding after the import",
+      "text": "Put `$primary: #6f42c1;` *below* the `@import` line and nothing changes. By then Bootstrap has already given `$primary` its default and compiled every rule that uses it; your assignment only affects your own code further down. The order is always: your variables, then Bootstrap, then your rules. If you need Bootstrap's functions (such as `tint-color()`) inside an override, use the ordered import in the next section, because in Option A the functions do not exist yet when your overrides run."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Option B: ordered imports and a new theme colour"
+    },
+    {
+      "type": "paragraph",
+      "text": "Adding a colour to the theme means changing a **map**, and maps can only be modified after Bootstrap's variables are defined but before the maps are turned into CSS. The documented order is: functions, your variable overrides, `variables` and `variables-dark`, your map overrides, then `maps`, `mixins`, `root` and the parts you want. Since 5.3 a theme colour also needs entries in the text-emphasis, subtle-background and subtle-border maps for both colour modes, because alerts and list groups read those variants."
+    },
+    {
+      "type": "code",
+      "language": "scss",
+      "title": "scss/custom.scss with a tertiary colour",
+      "code": "// 1. Functions first, so tint-color() and shade-color() are available\n@import \"../node_modules/bootstrap/scss/functions\";\n\n// 2. Variable overrides\n$tertiary: #0b7285;\n\n// 3. Bootstrap's variables for both colour modes\n@import \"../node_modules/bootstrap/scss/variables\";\n@import \"../node_modules/bootstrap/scss/variables-dark\";\n\n// 4. Map overrides: the colour itself and its 5.3 variants\n$theme-colors: map-merge($theme-colors, (\"tertiary\": $tertiary));\n$theme-colors-text: map-merge($theme-colors-text, (\"tertiary\": shade-color($tertiary, 60%)));\n$theme-colors-bg-subtle: map-merge($theme-colors-bg-subtle, (\"tertiary\": tint-color($tertiary, 80%)));\n$theme-colors-border-subtle: map-merge($theme-colors-border-subtle, (\"tertiary\": tint-color($tertiary, 60%)));\n$theme-colors-text-dark: map-merge($theme-colors-text-dark, (\"tertiary\": tint-color($tertiary, 40%)));\n$theme-colors-bg-subtle-dark: map-merge($theme-colors-bg-subtle-dark, (\"tertiary\": shade-color($tertiary, 80%)));\n$theme-colors-border-subtle-dark: map-merge($theme-colors-border-subtle-dark, (\"tertiary\": shade-color($tertiary, 40%)));\n\n// 5. The rest of the required files\n@import \"../node_modules/bootstrap/scss/maps\";\n@import \"../node_modules/bootstrap/scss/mixins\";\n@import \"../node_modules/bootstrap/scss/root\";\n\n// 6. Only the parts this project uses\n@import \"../node_modules/bootstrap/scss/utilities\";\n@import \"../node_modules/bootstrap/scss/reboot\";\n@import \"../node_modules/bootstrap/scss/type\";\n@import \"../node_modules/bootstrap/scss/containers\";\n@import \"../node_modules/bootstrap/scss/grid\";\n@import \"../node_modules/bootstrap/scss/buttons\";\n@import \"../node_modules/bootstrap/scss/alert\";\n@import \"../node_modules/bootstrap/scss/helpers\";\n\n// 7. The utility API last: it generates the utility classes from the maps\n@import \"../node_modules/bootstrap/scss/utilities/api\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "What dist/custom.css now contains",
+      "content": "New classes: .btn-tertiary, .btn-outline-tertiary, .bg-tertiary, .text-tertiary, .border-tertiary, .alert-tertiary, .bg-tertiary-subtle, .text-tertiary-emphasis and .border-tertiary-subtle, each with light and dark values\nNew variables: --bs-tertiary, --bs-tertiary-rgb, --bs-tertiary-text-emphasis, --bs-tertiary-bg-subtle, --bs-tertiary-border-subtle\nNo card, navbar, modal or form styles: those files were not imported, and the file is much smaller than the CDN build"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Feature flags, breakpoints and the utility API"
+    },
+    {
+      "type": "paragraph",
+      "text": "A set of `$enable-*` booleans switches whole features on or off at compile time: `$enable-shadows` adds subtle shadows to components, `$enable-gradients` adds gradient backgrounds, `$enable-negative-margins` generates the `m*-n*` classes, `$enable-rounded: false` removes every border radius, and `$enable-dark-mode: false` drops the dark colour mode entirely for a smaller file. Breakpoints and container widths are maps too (`$grid-breakpoints`, `$container-max-widths`) and can be edited the same way as the theme colours. New utilities come from the **utility API**: add an entry to the `$utilities` map between the `utilities` import and `utilities/api`."
+    },
+    {
+      "type": "code",
+      "language": "scss",
+      "title": "Place flags with overrides; add the utility before utilities/api",
+      "code": "// With the other variable overrides (step 2)\n$enable-shadows: true;\n$enable-negative-margins: true;\n\n// After @import \"../node_modules/bootstrap/scss/utilities\" and before utilities/api\n$utilities: map-merge(\n  $utilities,\n  (\n    \"cursor\": (\n      property: cursor,\n      class: cursor,\n      values: auto pointer grab,\n    ),\n  )\n);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "What dist/custom.css now contains",
+      "content": "Buttons, cards and form controls carry box shadows\nNegative margin classes such as .mt-n3 and .ms-n2 exist\nThree new utilities: .cursor-auto, .cursor-pointer and .cursor-grab, each declared with !important like every other utility"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Importing only what you use"
+    },
+    {
+      "type": "paragraph",
+      "text": "Option B's step 6 is also a size optimisation: a landing page that uses the grid, type, buttons and utilities does not need the 20-odd component files. The required core is `functions`, `variables`, `variables-dark`, `maps`, `mixins` and `root`; everything else is optional, and `utilities/api` must stay last. The JavaScript can be trimmed the same way in a bundler by importing individual plugins, for example `import Modal from 'bootstrap/js/dist/modal'`, instead of the whole bundle."
+    },
+    {
+      "type": "table",
+      "headers": ["Goal", "Tool", "Where it runs"],
+      "rows": [
+        [
+          "Nudge a few colours on a finished site",
+          "CSS variables (previous lesson)",
+          "In the browser, after Bootstrap's CSS"
+        ],
+        [
+          "Change the palette, fonts, radius or spacing scale everywhere",
+          "Sass variable overrides",
+          "At build time, before Bootstrap compiles"
+        ],
+        ["Add a theme colour with all its classes", "Sass map merges", "At build time"],
+        ["Ship a smaller stylesheet", "Selective imports and `$enable-*` flags", "At build time"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep the defaults file open",
+      "text": "`node_modules/bootstrap/scss/_variables.scss` lists every variable with its default and the `!default` flag. Searching it is the fastest way to find the name of whatever you want to change, and reading how `$primary` feeds `$theme-colors` shows why map overrides must wait until after the variables are imported."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-sass-order"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-sass-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "sass-customisation",
+          "difficulty": "beginner",
+          "question": "Where must `$primary: #6f42c1;` appear in custom.scss to recolour the framework?",
+          "explanation": "Bootstrap declares its variables with !default, so a value defined earlier is kept. An override placed after the import is too late.",
+          "options": [
+            "Before the Bootstrap import",
+            "After the Bootstrap import",
+            "Inside a :root block",
+            "Anywhere, order does not matter"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "id": "bs-sass-qc-2",
+          "type": "true-false",
+          "lessonSlug": "sass-customisation",
+          "difficulty": "intermediate",
+          "question": "Adding `\"tertiary\"` to the `$theme-colors` map generates classes such as `.btn-tertiary` and `.bg-tertiary` in the compiled CSS.",
+          "explanation": "Buttons, backgrounds, text and border utilities loop over $theme-colors. The 5.3 subtle and emphasis variants additionally need entries in the text, bg-subtle and border-subtle maps for both colour modes.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-sass-order"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "dark-mode-theming"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "setup"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "utilities-spacing-flex"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    }
+  ],
+  "seo": {
+    "title": "Customising Bootstrap with Sass – Variables and Colours",
+    "description": "Customise Bootstrap 5.3 with Sass: override $primary, $spacer and fonts before the import, add a theme colour, set feature flags and import only what you need."
+  },
+  "updatedOn": "2026-11-16"
+}

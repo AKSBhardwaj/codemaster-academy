@@ -1,4 +1,12 @@
-import { Component, ElementRef, afterNextRender, effect, inject, input, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterNextRender,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import type { OutputBlock } from '../../core/models/content';
 import { PlatformService } from '../../core/services/platform.service';
 import { IconComponent } from '../../shared/components/icon/icon';
@@ -17,10 +25,20 @@ const PREVIEW_STYLES = `<style>
   imports: [IconComponent],
   template: `
     <div class="cma-output">
-      <div class="cma-output__header"><cma-icon name="terminal" [size]="12" /> {{ block().title ?? (block().kind === 'html' ? 'Rendered output' : 'Output') }}</div>
+      <div class="cma-output__header">
+        <cma-icon name="terminal" [size]="12" />
+        {{ block().title ?? (block().kind === 'html' ? 'Rendered output' : 'Output') }}
+      </div>
       @if (block().kind === 'html') {
         <div class="cma-output__frame-wrap" [style.height.px]="height()">
-          <iframe #frame class="cma-output__frame" sandbox="" title="Rendered output preview" loading="lazy" [style.height.px]="height()"></iframe>
+          <iframe
+            #frame
+            class="cma-output__frame"
+            sandbox=""
+            title="Rendered output preview"
+            loading="lazy"
+            [style.height.px]="height()"
+          ></iframe>
         </div>
       } @else {
         <pre class="cma-output__text">{{ block().content }}</pre>

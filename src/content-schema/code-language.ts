@@ -1,0 +1,40 @@
+/** Display names shared by code examples and build-time search. No runtime schema dependency. */
+const LANGUAGE_LABEL: Record<string, string> = {
+  html: 'HTML',
+  css: 'CSS',
+  scss: 'SCSS',
+  javascript: 'JavaScript',
+  js: 'JavaScript',
+  typescript: 'TypeScript',
+  ts: 'TypeScript',
+  json: 'JSON',
+  sql: 'SQL',
+  python: 'Python',
+  py: 'Python',
+  java: 'Java',
+  csharp: 'C#',
+  cs: 'C#',
+  cpp: 'C++',
+  c: 'C',
+  php: 'PHP',
+  bash: 'Bash',
+  sh: 'Shell',
+  shell: 'Shell',
+  text: 'Text',
+  yaml: 'YAML',
+  dockerfile: 'Dockerfile',
+  go: 'Go',
+  rust: 'Rust',
+  kotlin: 'Kotlin',
+  swift: 'Swift',
+  'angular-html': 'Angular template',
+  'angular-ts': 'Angular',
+  jsx: 'JSX',
+  tsx: 'TSX',
+  markdown: 'Markdown',
+  xml: 'XML',
+};
+
+export function codeLanguageLabel(language: string): string {
+  return LANGUAGE_LABEL[language.toLowerCase()] ?? language.toUpperCase();
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Progressive Web Apps Small Examples",
+  "description": "Use these small Progressive Web Apps examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Start with a useful website",
+      "description": "A progressive web app starts as a working website.",
+      "language": "html",
+      "code": "<!doctype html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Reading list</title></head><body><main><h1>Reading list</h1><p>Choose a book for today.</p></main></body></html>",
+      "output": "The page works as a normal website before any app feature is added.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "describe-the-app-in-a-manifest",
+      "title": "Describe the app in a manifest",
+      "description": "A manifest is a JSON file that describes the app name, start address and display choices.",
+      "language": "json",
+      "code": "{\"name\":\"Reading Club\",\"short_name\":\"Read\",\"start_url\":\"/\",\"scope\":\"/\",\"display\":\"standalone\",\"background_color\":\"#ffffff\",\"theme_color\":\"#174a8b\"}",
+      "output": "Save this as manifest.webmanifest. It supplies app details; a browser may need valid icons and other checks before offering installation.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "describe-the-app-in-a-manifest"
+    },
+    {
+      "id": "link-the-manifest-and-icons",
+      "title": "Link the manifest and icons",
+      "description": "The page must link its manifest. Icons should be real image files in the sizes declared by the manifest.",
+      "language": "html",
+      "code": "<link rel=\"manifest\" href=\"/manifest.webmanifest\">\n<meta name=\"theme-color\" content=\"#174a8b\">\n<!-- In the manifest, add real 192x192 and 512x512 PNG icons with their actual sizes. -->",
+      "output": "The browser can discover the manifest from the page. In its app tools, check that the manifest and icons load without errors.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "link-the-manifest-and-icons"
+    },
+    {
+      "id": "register-a-service-worker",
+      "title": "Register a service worker",
+      "description": "A service worker is a script that the browser can run separately from the page.",
+      "language": "javascript",
+      "code": "if (\"serviceWorker\" in navigator) {\n  navigator.serviceWorker.register(\"/sw.js\").catch(console.error);\n}",
+      "output": "On HTTPS or localhost, the browser tries to install sw.js. Put an actual worker file at that path.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "register-a-service-worker"
+    },
+    {
+      "id": "install-an-offline-page",
+      "title": "Install an offline page",
+      "description": "The install event is a chance to prepare files for later use.",
+      "language": "javascript",
+      "code": "// sw.js\nself.addEventListener(\"install\", event => {\n  event.waitUntil(caches.open(\"reading-v1\").then(cache => cache.addAll([\"/offline.html\"])));\n});",
+      "output": "The worker stores a real offline.html page in the named cache during installation.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "install-an-offline-page"
+    },
+    {
+      "id": "give-navigation-an-offline-fallback",
+      "title": "Give navigation an offline fallback",
+      "description": "A fetch handler can try the network first and use a saved page when that request fails.",
+      "language": "javascript",
+      "code": "// Add to sw.js after the install handler.\nself.addEventListener(\"fetch\", event => {\n  if (event.request.mode === \"navigate\") {\n    event.respondWith(fetch(event.request).catch(async () => {\n      return await caches.match(\"/offline.html\") || new Response(\"You are offline.\", {headers:{\"Content-Type\":\"text/plain\"}});\n    }));\n  }\n});",
+      "output": "Page navigation uses the network when available. If it fails, a cached offline page or a plain message is returned.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "give-navigation-an-offline-fallback"
+    },
+    {
+      "id": "choose-a-cache-rule-for-a-purpose",
+      "title": "Choose a cache rule for a purpose",
+      "description": "Cache-first uses a stored response before trying the network.",
+      "language": "javascript",
+      "code": "// Example helper inside sw.js\nasync function cachedAsset(request) {\n  const cache = await caches.open(\"reading-assets-v1\");\n  const saved = await cache.match(request);\n  if (saved) return saved;\n  const response = await fetch(request);\n  if (response.ok) await cache.put(request, response.clone());\n  return response;\n}",
+      "output": "The helper reuses a stored response. On a first successful fetch, it saves a copy and returns the original response.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-a-cache-rule-for-a-purpose"
+    },
+    {
+      "id": "remove-your-own-old-caches",
+      "title": "Remove your own old caches",
+      "description": "The activate event can tidy old cache versions.",
+      "language": "javascript",
+      "code": "self.addEventListener(\"activate\", event => {\n  event.waitUntil(caches.keys().then(keys => Promise.all(\n    keys.filter(key => key.startsWith(\"reading-\") && ![\"reading-v1\", \"reading-assets-v1\"].includes(key)).map(key => caches.delete(key))\n  )));\n});",
+      "output": "Old reading-prefixed caches are removed. The two current names are kept.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "remove-your-own-old-caches"
+    },
+    {
+      "id": "understand-a-waiting-update",
+      "title": "Understand a waiting update",
+      "description": "A new worker may wait while the old one still controls open pages.",
+      "language": "javascript",
+      "code": "navigator.serviceWorker.ready.then(registration => {\n  console.log(\"Active worker:\", registration.active?.scriptURL);\n  console.log(\"Waiting worker:\", registration.waiting?.scriptURL);\n});",
+      "output": "The console shows the active worker and, when present, a waiting version. The values depend on the current installation state.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "understand-a-waiting-update"
+    },
+    {
+      "id": "save-a-small-local-preference",
+      "title": "Save a small local preference",
+      "description": "A page can remember a small choice in localStorage.",
+      "language": "javascript",
+      "code": "try {\n  localStorage.setItem(\"reading-theme\", \"dark\");\n  console.log(localStorage.getItem(\"reading-theme\"));\n} catch {\n  console.log(\"This browser could not save the choice.\");\n}",
+      "output": "On a page where storage is allowed, the console shows dark. The catch handles blocked or unavailable storage.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-a-small-local-preference"
+    },
+    {
+      "id": "treat-network-hints-as-hints",
+      "title": "Treat network hints as hints",
+      "description": "The online and offline events are useful clues.",
+      "language": "javascript",
+      "code": "window.addEventListener(\"offline\", () => console.log(\"The browser reports offline.\"));\nwindow.addEventListener(\"online\", () => console.log(\"The browser reports online. Try the request again.\"));",
+      "output": "The page can explain a change in connection state. It still needs to catch failures from each real request.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "treat-network-hints-as-hints"
+    },
+    {
+      "id": "test-and-reset-your-practice-app",
+      "title": "Test and reset your practice app",
+      "description": "A PWA needs tests for first visit, repeat visit, offline use and updates.",
+      "language": "text",
+      "code": "Open Application tools on your own local project.\nCheck manifest errors and worker scope.\nLoad once online, then test offline navigation.\nChange sw.js and inspect the waiting version.\nFor a clean test, unregister only your practice worker and clear only its app caches.",
+      "output": "These checks show whether the fallback, scope and update behaviour match your design.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "test-and-reset-your-practice-app"
+    }
+  ]
+}

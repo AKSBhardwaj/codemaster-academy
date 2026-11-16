@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "slug": "deployment",
+  "title": "Running in Production",
+  "summary": "Prepare a Node service for real traffic: production installs and NODE_ENV, graceful shutdown on SIGTERM, a process manager or container to keep it alive, and a reverse proxy in front.",
+  "introduction": "A server that works on your laptop is not yet a service. In production nobody is watching the terminal, the process must survive crashes and deploys, secrets arrive from the platform, and a reverse proxy terminates TLS in front of Node. None of this requires exotic tools. This lesson walks through the checklist that turns the bookshelf API into something you can leave running: install for production, shut down without dropping requests, supervise the process with systemd or a container, and put nginx in front.",
+  "learningObjectives": [
+    "Install dependencies for production and set NODE_ENV correctly",
+    "Shut a server down gracefully when it receives SIGTERM or SIGINT",
+    "Keep the process alive with systemd or Docker and place it behind a reverse proxy"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What changes in production"
+    },
+    {
+      "type": "table",
+      "headers": ["Concern", "While developing", "In production"],
+      "rows": [
+        [
+          "Restarts",
+          "`node --watch` on every save",
+          "A supervisor restarts the process when it exits"
+        ],
+        [
+          "Configuration",
+          "`.env` file via `--env-file`",
+          "Variables set by the platform; `NODE_ENV=production`"
+        ],
+        [
+          "Dependencies",
+          "Everything, including test tools",
+          "`npm ci --omit=dev` from the lockfile"
+        ],
+        [
+          "Errors",
+          "Stack traces in responses help you",
+          "Generic messages to clients, details in the logs"
+        ],
+        ["Logs", "Your terminal", "Written to stdout, collected by the platform"],
+        ["TLS and ports", "Plain HTTP on port 3000", "A reverse proxy on 443 forwards to Node"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Installing for production"
+    },
+    {
+      "type": "paragraph",
+      "text": "On the server, install exactly the versions you tested and nothing you do not need. `npm ci` installs from `package-lock.json` and refuses to continue if it disagrees with `package.json`; `--omit=dev` skips `devDependencies`. Then start the program with `NODE_ENV` set, which switches Express and many libraries into their production behaviour:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm ci --omit=dev\nNODE_ENV=production PORT=3000 node server.js"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Listening on port 3000"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write logs to standard output with `console.log` and `console.error`, one event per line. Whatever runs the process (systemd, Docker, a cloud platform) captures that stream, timestamps it and lets you search it; writing your own log files only means rotating them yourself."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Shutting down gracefully"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a supervisor stops your process for a deploy, it sends the `SIGTERM` signal and waits a few seconds before killing it. In-flight requests would be cut off, unless the process handles the signal: stop accepting new connections, let current requests finish, then exit. `server.close()` does exactly that, and a fallback timer guarantees an exit even if a connection refuses to end. `SIGINT` is what Ctrl+C sends, so the same handler makes local stops clean too:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "server.js",
+      "code": "import { createServer } from 'node:http';\n\nconst port = Number(process.env.PORT ?? 3000);\n\nconst server = createServer((req, res) => {\n  if (req.url === '/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    return res.end('{\"status\":\"ok\"}');\n  }\n  res.end('Bookshelf is running\\n');\n});\n\nserver.listen(port, () => console.log(`Listening on port ${port}`));\n\nfunction shutdown(signal) {\n  console.log(`${signal} received, finishing open requests`);\n  server.close(() => {\n    console.log('All connections closed, exiting');\n    process.exit(0);\n  });\n  setTimeout(() => process.exit(1), 10_000).unref();\n}\n\nprocess.on('SIGTERM', () => shutdown('SIGTERM'));\nprocess.on('SIGINT', () => shutdown('SIGINT'));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal, after pressing Ctrl+C",
+      "content": "Listening on port 3000\nSIGINT received, finishing open requests\nAll connections closed, exiting"
+    },
+    {
+      "type": "paragraph",
+      "text": "`unref()` on the fallback timer tells Node not to keep the process alive just for that timer, so a clean shutdown is not delayed by it. The `/health` route is what load balancers and container platforms poll to decide whether the instance may receive traffic. On Windows, Ctrl+C triggers `SIGINT` as shown, but there is no `SIGTERM`; services there are stopped by the service manager instead."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not keep a broken process alive",
+      "text": "It is tempting to add `process.on('uncaughtException', () => {})` so that the server never exits. After an unexpected exception the program is in an unknown state: half-written files, open transactions, leaked connections. Let it crash, log the error, and let the supervisor start a fresh process; that is what the supervisor is for. The same goes for unhandled promise rejections."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keeping it running with systemd"
+    },
+    {
+      "type": "paragraph",
+      "text": "On a Linux server, systemd is already there. A unit file describes how to start the service, which user runs it, where its environment comes from and that it should restart on failure. PM2 is a popular Node-specific alternative with the same role:"
+    },
+    {
+      "type": "code",
+      "language": "ini",
+      "title": "/etc/systemd/system/bookshelf.service",
+      "code": "[Unit]\nDescription=Bookshelf API\nAfter=network.target\n\n[Service]\nType=simple\nUser=bookshelf\nWorkingDirectory=/srv/bookshelf\nEnvironmentFile=/srv/bookshelf/.env\nExecStart=/usr/bin/node server.js\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "sudo systemctl enable --now bookshelf\njournalctl -u bookshelf -f"
+    },
+    {
+      "type": "paragraph",
+      "text": "`enable --now` starts the service and registers it to start at boot; `journalctl -u bookshelf -f` follows its logs, which are simply the stdout and stderr of your process. Running as a dedicated unprivileged user limits what a compromised process could do."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Containers"
+    },
+    {
+      "type": "paragraph",
+      "text": "A container image packages Node, your code and the production dependencies into one artefact that runs identically on any host. The official `node:24-slim` image is a good base. Copying the package files and installing *before* copying the rest of the code lets Docker cache the install layer between builds:"
+    },
+    {
+      "type": "code",
+      "language": "dockerfile",
+      "title": "Dockerfile",
+      "code": "FROM node:24-slim\nWORKDIR /app\nENV NODE_ENV=production\n\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\n\nCOPY . .\nUSER node\nEXPOSE 3000\nCMD [\"node\", \"server.js\"]"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "docker build -t bookshelf .\ndocker run --rm -p 3000:3000 -e PORT=3000 bookshelf"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (build output omitted)",
+      "content": "Listening on port 3000"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a `.dockerignore` containing `node_modules` and `.env` so that neither ends up in the image. Node listens on all interfaces by default, which is what a container needs; binding explicitly to `127.0.0.1` would make the service unreachable from outside the container. `CMD` runs `node` directly rather than through `npm start`, so signals such as `SIGTERM` reach your process and the graceful shutdown above works."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Behind a reverse proxy"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node serves plain HTTP on a high port; a reverse proxy such as [nginx](/tutorials/nginx) listens on ports 80 and 443, terminates TLS, compresses responses, serves static files and forwards API requests to Node. A minimal server block:"
+    },
+    {
+      "type": "code",
+      "language": "nginx",
+      "title": "/etc/nginx/sites-available/bookshelf",
+      "code": "server {\n    listen 80;\n    server_name books.example.com;\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because requests now arrive from the proxy, `req.ip` would always be `127.0.0.1`. In Express, `app.set('trust proxy', 1)` makes `req.ip` and `req.protocol` use the `X-Forwarded-*` headers from one trusted hop, which rate limiters and redirect-to-HTTPS logic rely on."
+    },
+    {
+      "type": "callout",
+      "icon": "rocket-takeoff",
+      "title": "Production checklist",
+      "text": "Lockfile committed and `npm ci --omit=dev` on the server; `NODE_ENV=production`; secrets from the environment, never from the repository; a `/health` endpoint; graceful shutdown on `SIGTERM`; logs on stdout; a supervisor or container runtime that restarts the process; a reverse proxy with TLS in front; and `npm audit` plus dependency updates on a schedule."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-deployment-sigterm"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-deploy-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "deployment",
+          "difficulty": "intermediate",
+          "question": "Why does the Dockerfile copy `package.json` and `package-lock.json` and run `npm ci` before copying the rest of the code?",
+          "explanation": "Docker caches each layer. When only application code changes, the install layer is reused and the build skips the slow npm ci step.",
+          "options": [
+            "npm refuses to install when other files are present",
+            "So Docker can reuse the cached install layer when only code changes",
+            "Because `COPY . .` would overwrite node_modules",
+            "It is required for `USER node` to work"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-deploy-qc-2",
+          "type": "true-false",
+          "lessonSlug": "deployment",
+          "difficulty": "beginner",
+          "question": "`npm ci --omit=dev` installs the exact versions from package-lock.json and skips devDependencies.",
+          "explanation": "npm ci performs a clean install from the lockfile and fails if it is out of sync with package.json; --omit=dev leaves out development-only packages.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-deployment-sigterm"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "environment-config"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "testing"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "http-server"
+    }
+  ],
+  "seo": {
+    "title": "Node.js in Production – NODE_ENV, SIGTERM, systemd, Docker",
+    "description": "Deploy a Node.js service: npm ci --omit=dev, NODE_ENV=production, graceful shutdown on SIGTERM, a systemd unit, a Dockerfile and an nginx reverse proxy."
+  },
+  "updatedOn": "2026-11-15"
+}

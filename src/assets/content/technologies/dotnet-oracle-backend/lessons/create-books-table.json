@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "slug": "create-books-table",
+  "title": "Create the books table",
+  "summary": "Create an Oracle table for book IDs, titles and read flags. Add two sample rows and learn why a COMMIT makes inserts last.",
+  "introduction": "A table is like a sheet with named columns. Each row will describe one book. We will let Oracle make the ID, store the title as text, and use 0 or 1 to show whether a book has been read.",
+  "learningObjectives": [
+    "Explain the three book columns and their rules",
+    "Create and check the sample table",
+    "Save seed rows with COMMIT"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Connect with the learning account"
+    },
+    {
+      "type": "paragraph",
+      "text": "Leave the administrator SQL*Plus session with EXIT. From the sample root folder, connect as reading_app and enter its password when asked."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "sqlplus reading_app@localhost:1521/FREEPDB1",
+      "title": "Use the app's learning account",
+      "runnable": false
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "@database/02-create-table.sql",
+      "title": "Inside SQL*Plus",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Here is the complete table-and-seed script included in the project. Run the file once; you do not also need to paste it."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "-- Run once as READING_APP in FREEPDB1. This script creates a new table and two fictional books.\n-- There is deliberately no DROP TABLE or automatic reset step.\nWHENEVER SQLERROR EXIT SQL.SQLCODE\nCREATE TABLE reading_list_books (\n    id NUMBER(10) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    title VARCHAR2(120 CHAR) NOT NULL,\n    is_read NUMBER(1) DEFAULT 0 NOT NULL,\n    CONSTRAINT reading_books_read_flag CHECK (is_read IN (0, 1))\n);\n\nINSERT INTO reading_list_books (title, is_read) VALUES ('The Moon Garden', 0);\nINSERT INTO reading_list_books (title, is_read) VALUES ('Ocean Friends', 1);\nCOMMIT;\n\nSELECT id, title, is_read FROM reading_list_books ORDER BY id;",
+      "title": "database/02-create-table.sql",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the table rules"
+    },
+    {
+      "type": "table",
+      "headers": ["Rule", "Plain meaning"],
+      "rows": [
+        [
+          "NUMBER(10) and PRIMARY KEY",
+          "An ID is a whole number with at most ten digits. No two books share it."
+        ],
+        [
+          "GENERATED ALWAYS AS IDENTITY",
+          "Oracle chooses the ID when we add a row. Our INSERT leaves it out."
+        ],
+        [
+          "VARCHAR2(120 CHAR) NOT NULL",
+          "Store a title up to 120 characters long. A missing title is not allowed."
+        ],
+        [
+          "NUMBER(1), DEFAULT 0 and CHECK",
+          "Use 0 for to-read or 1 for read. Reject other numbers."
+        ],
+        ["COMMIT", "Save the inserted sample rows so other connections can see them."]
+      ],
+      "caption": "Rules that protect each book row"
+    },
+    {
+      "type": "paragraph",
+      "text": "The table starts with The Moon Garden and Ocean Friends. Query the rows to see their IDs. IDs may have gaps; they are labels, not a count of your books."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Remove the setup permission"
+    },
+    {
+      "type": "paragraph",
+      "text": "Exit the reading_app session. Reconnect as SYSTEM in FREEPDB1 and run the final setup script. It removes permission to create more tables."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "@database/03-remove-setup-permission.sql",
+      "title": "Run as SYSTEM after the table exists",
+      "runnable": false
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "A learning account still owns its table",
+      "text": "Revoking CREATE TABLE does not remove the owner's control over its existing table. This is a simple local learning setup. A public service should use a separate table owner and a more limited runtime account."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Oracle table commands commit",
+      "text": "CREATE TABLE is a structure command, called DDL. Oracle commits around DDL. A later ROLLBACK will not undo table creation. Use the sample in its own learning schema."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "As reading_app, run SELECT title FROM reading_list_books ORDER BY id. Find the two names. Explain why our INSERT statements do not supply an ID."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-create-books-table-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-create-books-table-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "csharp-models"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "oracle-setup"
+    }
+  ],
+  "seo": {
+    "title": "Create the books table | C# .NET and Oracle",
+    "description": "Create an Oracle table for book IDs, titles and read flags. Add two sample rows and learn why a COMMIT makes inserts last."
+  },
+  "updatedOn": "2026-11-16"
+}

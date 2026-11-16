@@ -102,6 +102,11 @@ const LOGO_CREDITS: readonly LogoCredit[] = [
 ];
 
 const SOFTWARE: readonly { name: string; licence: string; url: string }[] = [
+  {
+    name: 'Manrope typeface by Mikhail Sharanda and contributors',
+    licence: 'SIL Open Font License 1.1',
+    url: 'https://github.com/sharanda/manrope',
+  },
   { name: 'Angular', licence: 'MIT', url: 'https://angular.dev' },
   { name: 'Bootstrap and Bootstrap Icons', licence: 'MIT', url: 'https://getbootstrap.com' },
   { name: 'Devicon (technology logo set)', licence: 'MIT', url: 'https://devicon.dev' },

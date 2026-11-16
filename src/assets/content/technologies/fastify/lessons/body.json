@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "body",
+  "title": "Read a JSON body",
+  "summary": "Fastify: Read a JSON body. Send an empty object and compare the response.",
+  "introduction": "Fastify can parse JSON bodies. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": [
+    "Read a JSON body with Fastify",
+    "Send an empty object and compare the response"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Read a JSON body",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.post(\"/books\", async (request, reply) => {\n if (typeof request.body?.title !== \"string\") return reply.code(400).send({ error: \"Title needed\" });\n return reply.code(201).send({ title: request.body.title });\n});\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The JSON parser provides the body object. A valid title reaches the 201 response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object and compare the response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Content-Type tells the server how to read the body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-body-check"
+    }
+  ],
+  "exerciseIds": ["fastify-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Read a JSON body",
+    "description": "Fastify: Read a JSON body. Send an empty object and compare the response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

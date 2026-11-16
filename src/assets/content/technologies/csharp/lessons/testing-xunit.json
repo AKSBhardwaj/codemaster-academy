@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "testing-xunit",
+  "title": "Testing with xUnit",
+  "summary": "Create an xUnit test project, write Fact and Theory tests with Assert, test exceptions and async code, and run and filter tests with dotnet test.",
+  "introduction": "A test is a small program that calls your code with known input and checks the result, and a test runner executes hundreds of them in seconds. Tests catch regressions the moment they appear, document how code is meant to behave, and give you the confidence to refactor. xUnit is the most widely used test framework in .NET and the one the dotnet templates ship. In this lesson you create a class library and a test project, write Fact and Theory tests, assert on values and exceptions, and run the suite with dotnet test.",
+  "learningObjectives": [
+    "Create a test project that references the code under test",
+    "Write Fact and Theory tests with xUnit assertions, including for exceptions",
+    "Run, filter and read the results of dotnet test"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Setting up the projects"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tests live in their own project so that test code and test packages never ship with the application. Create a class library for the code and an xUnit test project that references it. The `xunit` template adds the xUnit packages and the test SDK that lets `dotnet test` discover and run the tests."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "dotnet new classlib -n Calculator\ndotnet new xunit -n Calculator.Tests\ndotnet add Calculator.Tests reference Calculator"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output of the last command",
+      "content": "Reference `..\\Calculator\\Calculator.csproj` added to the project."
+    },
+    {
+      "type": "paragraph",
+      "text": "Delete the `Class1.cs` that the library template created and add the class under test. It is `public`, which it must be for another project to see it; the default `internal` would hide `MathOps` from the test project."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Calculator/MathOps.cs",
+      "code": "namespace Calculator;\n\npublic static class MathOps\n{\n    public static int Add(int a, int b) => a + b;\n\n    public static bool IsEven(int n) => n % 2 == 0;\n\n    public static double Divide(double a, double b)\n    {\n        if (b == 0)\n        {\n            throw new DivideByZeroException(\"Divisor must not be zero.\");\n        }\n        return a / b;\n    }\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing tests"
+    },
+    {
+      "type": "paragraph",
+      "text": "A test is a public method in a public class, marked with an attribute so that xUnit finds it. `[Fact]` marks a test with no parameters; `[Theory]` with `[InlineData]` rows runs the same test once per row, which is the right tool for \"these inputs give these outputs\" tables. Each test follows **Arrange, Act, Assert**: set up the input, call the code, check the result with `Assert`. The template's project file imports the `Xunit` namespace globally, so no `using` line is needed. Replace `UnitTest1.cs` in the test project with:"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Calculator.Tests/MathOpsTests.cs",
+      "code": "namespace Calculator.Tests;\n\npublic class MathOpsTests\n{\n    [Fact]\n    public void Add_ReturnsSum()\n    {\n        // Arrange\n        int a = 2, b = 3;\n\n        // Act\n        int result = MathOps.Add(a, b);\n\n        // Assert\n        Assert.Equal(5, result);\n    }\n\n    [Theory]\n    [InlineData(2, true)]\n    [InlineData(7, false)]\n    [InlineData(0, true)]\n    public void IsEven_DetectsEvenNumbers(int input, bool expected)\n    {\n        Assert.Equal(expected, MathOps.IsEven(input));\n    }\n\n    [Fact]\n    public void Divide_ByZero_Throws()\n    {\n        var ex = Assert.Throws<DivideByZeroException>(() => MathOps.Divide(1, 0));\n        Assert.Equal(\"Divisor must not be zero.\", ex.Message);\n    }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Assert.Throws<T>` runs the lambda, fails the test if no exception or a different exception type comes out, and returns the exception so you can check its message. Because the test namespace `Calculator.Tests` sits inside `Calculator`, `MathOps` is in scope without a `using` directive."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Running the tests"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "cd Calculator.Tests\ndotnet test"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Example output (times vary)",
+      "content": "Restore complete (0.6s)\n  Calculator succeeded (0.9s) → ..\\Calculator\\bin\\Debug\\net10.0\\Calculator.dll\n  Calculator.Tests succeeded (1.2s) → bin\\Debug\\net10.0\\Calculator.Tests.dll\n  Calculator.Tests test succeeded (1.5s)\n\nTest summary: total: 5, failed: 0, succeeded: 5, skipped: 0, duration: 1.5s\nBuild succeeded in 4.7s"
+    },
+    {
+      "type": "paragraph",
+      "text": "Five tests ran: one `Fact`, three rows of the `Theory`, and the exception test. Change `Assert.Equal(5, result)` to `Assert.Equal(6, result)` and run again to see a failure. xUnit prints what it expected and what it got, and `dotnet test` exits with a non-zero code, which is what makes it useful in continuous integration:"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Failure message (excerpt)",
+      "content": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Useful assertions"
+    },
+    {
+      "type": "table",
+      "headers": ["Assertion", "Checks"],
+      "rows": [
+        [
+          "`Assert.Equal(expected, actual)`",
+          "Values are equal; works for numbers, strings and whole collections"
+        ],
+        ["`Assert.True(condition)`, `Assert.False(condition)`", "A boolean"],
+        ["`Assert.Null(x)`, `Assert.NotNull(x)`", "Null-ness"],
+        ["`Assert.Contains(item, collection)`", "Membership; also a substring inside a string"],
+        ["`Assert.Empty(collection)`, `Assert.Single(collection)`", "Collection size"],
+        ["`Assert.Throws<T>(() => ...)`", "The code throws exactly `T`; returns the exception"],
+        ["`await Assert.ThrowsAsync<T>(async () => ...)`", "The same for async code"],
+        ["`Assert.InRange(value, low, high)`", "A number within bounds"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep the argument order `expected, actual`: the failure message labels them that way, and swapping them makes failures confusing. Prefer one logical assertion per test and name tests after the behaviour, `Method_Scenario_Expectation`, so a failing name tells you what broke before you open the file."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Async tests and filtering"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tests can be `async Task` and `await` the code under test; xUnit waits for them to complete. To run a subset, filter by name: `dotnet test --filter \"FullyQualifiedName~Divide\"` runs only tests whose full name contains *Divide*. Run `dotnet test` from a folder that contains several test projects, or a solution file, to run all of them at once."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "An async test",
+      "code": "[Fact]\npublic async Task DelayedValue_IsReturned()\n{\n    Task<int> work = Task.Run(async () =>\n    {\n        await Task.Delay(50);\n        return 42;\n    });\n\n    int value = await work;\n\n    Assert.Equal(42, value);\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What to test"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Pure logic first (calculations, parsing, validation): it is the cheapest to test and the most likely to hide bugs.",
+        "Edge cases: zero, negative numbers, empty strings, `null`, the largest input you expect.",
+        "Error paths: the exceptions a method promises to throw, as `Divide_ByZero_Throws` does.",
+        "Not the framework: there is no need to prove that `List<T>.Add` works."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Tests that cannot be found",
+      "text": "xUnit discovers only `public` methods in `public` classes. A test class or method that is `internal` or `private`, or a method without `[Fact]` or `[Theory]`, is skipped silently and `dotnet test` reports fewer tests than you wrote. Also make sure the test project *references* the project under test; otherwise the test fails to compile with *CS0246: The type or namespace name 'MathOps' could not be found*."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Beyond xUnit",
+      "text": "NUnit and MSTest work the same way with different attribute names, and all three are driven by `dotnet test`. For general techniques such as test doubles and coverage, see the [unit testing tutorial](/tutorials/unit-testing)."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-testing-theory"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-testing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "testing-xunit",
+          "difficulty": "beginner",
+          "question": "Which attribute marks a test method that runs once per InlineData row?",
+          "explanation": "`[Theory]` takes parameters and runs once for each `[InlineData]` row. `[Fact]` is for parameterless tests and `[Test]` belongs to NUnit.",
+          "options": ["`[Fact]`", "`[Theory]`", "`[Test]`", "`[InlineData]` on its own"],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-testing-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "testing-xunit",
+          "difficulty": "beginner",
+          "question": "The command that builds the projects and runs every discovered test is `dotnet ___`.",
+          "explanation": "`dotnet test` restores, builds, discovers and runs the tests, and prints a summary with the number that passed and failed.",
+          "answers": ["test"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-testing-theory"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "setup-dotnet"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "exceptions"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "async-await"
+    }
+  ],
+  "seo": {
+    "title": "C# Unit Testing with xUnit – Fact, Theory, dotnet test",
+    "description": "Learn unit testing in C# with xUnit: create a test project, write Fact and Theory tests, assert on values and exceptions, and run and filter tests with dotnet test."
+  },
+  "updatedOn": "2026-11-15"
+}

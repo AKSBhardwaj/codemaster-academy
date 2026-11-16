@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "use-a-dedicated-counter-table",
+  "title": "Use a dedicated counter table",
+  "summary": "Cassandra counters use a special column type and update rules.",
+  "introduction": "Cassandra counters use a special column type and update rules. Your task: Explain what happens if the same increment is retried twice.",
+  "learningObjectives": [
+    "Explain what happens if the same increment is retried twice.",
+    "Explain the example for use a dedicated counter table"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Cassandra counters use a special column type and update rules. Keep them in a table designed for counts."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS books_count(reader_id text PRIMARY KEY,total counter);\nUPDATE books_count SET total=total+1 WHERE reader_id='mia';\nSELECT total FROM books_count WHERE reader_id='mia';",
+      "title": "Use a dedicated counter table",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key.",
+        "A Cassandra counter supports increments with special rules. Repeating a retried increment may count it again.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The stored counter increases by one each time the update is applied."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Counter retries need care because repeating an increment can count twice. Counter columns also have special schema restrictions."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain what happens if the same increment is retried twice."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-use-a-dedicated-counter-table-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-use-a-dedicated-counter-table-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "group-a-small-related-write"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Use a dedicated counter table",
+    "description": "Cassandra counters use a special column type and update rules. Keep them in a table designed for counts."
+  },
+  "updatedOn": "2026-11-16"
+}

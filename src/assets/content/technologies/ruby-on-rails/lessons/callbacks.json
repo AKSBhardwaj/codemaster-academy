@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "callbacks",
+  "title": "Run a shared step",
+  "summary": "Ruby on Rails: Run a shared step. Change the school name.",
+  "introduction": "before_action runs before controller actions. GET /school reads the value set by the callback.",
+  "learningObjectives": ["Run a shared step with Ruby on Rails", "Change the school name"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with rails new school --api --skip-active-record. Enter it. Put each labelled section into its named file, then run bin/rails server -b 127.0.0.1 -p 8000. No database is needed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a shared step"
+    },
+    {
+      "type": "code",
+      "language": "ruby",
+      "title": "Run a shared step",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/school\", to: \"lesson#school\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\nbefore_action :set_school\ndef school\n render plain: @school\nend\nprivate\ndef set_school\n @school = \"Oak School\"\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The callback runs first and sets @school for this controller request. The action reads that value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the school name."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Callbacks can affect many actions, so keep their purpose clear."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ruby-on-rails-callbacks-check"
+    }
+  ],
+  "exerciseIds": ["ruby-on-rails-callbacks-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ruby-on-rails",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Ruby on Rails: Run a shared step",
+    "description": "Ruby on Rails: Run a shared step. Change the school name. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

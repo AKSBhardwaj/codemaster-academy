@@ -1,0 +1,183 @@
+{
+  "id": "nodejs-quiz",
+  "title": "Node.js Quiz",
+  "description": "Fourteen questions covering the whole Node.js tutorial: the runtime, npm, modules, files, events and streams, HTTP and Express 5, configuration, async code, node:sqlite, testing and deployment.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "nodejs-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which of these globals is NOT available in a Node.js script?",
+      "explanation": "Node has no DOM, so document does not exist. process is Node-specific, while fetch and setTimeout are available in both Node and browsers.",
+      "options": ["`process`", "`fetch`", "`document`", "`setTimeout`"],
+      "correctIndex": 2
+    },
+    {
+      "id": "nodejs-q-02",
+      "type": "true-false",
+      "lessonSlug": "setup-npm",
+      "difficulty": "beginner",
+      "question": "`npm install express` records a version range in package.json and the exact resolved version in package-lock.json.",
+      "explanation": "package.json gets a range such as ^5.1.0; the lockfile pins the precise versions of express and every package it depends on, so later installs reproduce the same tree.",
+      "correct": true
+    },
+    {
+      "id": "nodejs-q-03",
+      "type": "fill-blank",
+      "lessonSlug": "modules",
+      "difficulty": "beginner",
+      "question": "Adding `\"type\": \"___\"` to package.json makes every .js file in the project an ES module.",
+      "explanation": "With \"type\": \"module\", .js files use import and export; without it they are CommonJS. .mjs and .cjs files ignore the field.",
+      "answers": ["module"],
+      "caseSensitive": false
+    },
+    {
+      "id": "nodejs-q-04",
+      "type": "predict-output",
+      "lessonSlug": "file-system",
+      "difficulty": "beginner",
+      "question": "The file `hi.txt` contains exactly the two characters `hi`. What is printed?",
+      "explanation": "Without an encoding argument readFile resolves with a Buffer of raw bytes. A Buffer is an object (typeof gives 'object') and its length is the byte count, 2.",
+      "language": "javascript",
+      "code": "import { readFile } from 'node:fs/promises';\n\nconst data = await readFile('hi.txt');\nconsole.log(typeof data, data.length);",
+      "options": ["string 2", "object 2", "object 0", "undefined 2"],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-q-05",
+      "type": "multiple-choice",
+      "lessonSlug": "events-streams",
+      "difficulty": "beginner",
+      "question": "Which EventEmitter method registers a listener that runs only the first time the event is emitted?",
+      "explanation": "once adds a listener that removes itself after its first call; on keeps the listener until off removes it; emit triggers the listeners.",
+      "options": ["`on`", "`once`", "`emit`", "`off`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-q-06",
+      "type": "multiple-choice",
+      "lessonSlug": "http-server",
+      "difficulty": "intermediate",
+      "question": "In `createServer((req, res) => { ... })` from node:http, which statement is true?",
+      "explanation": "The request is a readable stream (the body arrives in chunks) and the response is a writable stream that must be finished with res.end. Nothing parses the body for you in node:http.",
+      "options": [
+        "`req` is a readable stream and `res` is a writable stream",
+        "`req` and `res` are plain strings",
+        "`req.body` already contains the parsed JSON body",
+        "`res` is sent automatically when the handler returns"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "nodejs-q-07",
+      "type": "fill-blank",
+      "lessonSlug": "express-basics",
+      "difficulty": "beginner",
+      "question": "In Express, `res.___({ ok: true })` serialises the object and sends it with `Content-Type: application/json`.",
+      "explanation": "res.json always sends JSON, including for strings and numbers; res.send would also send an object as JSON but treats strings as HTML.",
+      "answers": ["json"],
+      "caseSensitive": false
+    },
+    {
+      "id": "nodejs-q-08",
+      "type": "find-error",
+      "lessonSlug": "routing-middleware",
+      "difficulty": "intermediate",
+      "question": "Requesting an unknown id makes the server log `ERR_HTTP_HEADERS_SENT`. What is wrong?",
+      "explanation": "After the 404 response the function keeps running and calls res.json(book) with undefined, attempting a second response. A return in front of the 404 (or an else branch) fixes it.",
+      "language": "javascript",
+      "code": "app.get('/api/books/:id', (req, res) => {\n  const book = books.find((b) => b.id === Number(req.params.id));\n  if (!book) res.status(404).json({ error: 'Not found' });\n  res.json(book);\n});",
+      "options": [
+        "Line 3 is missing `return`, so `res.json(book)` on line 4 runs as well",
+        "`res.status` must be called after `res.json`",
+        "`Number()` cannot be applied to route parameters",
+        "The handler must call `next()` after responding"
+      ],
+      "correctIndex": 0,
+      "errorLine": 3
+    },
+    {
+      "id": "nodejs-q-09",
+      "type": "multiple-choice",
+      "lessonSlug": "json-apis",
+      "difficulty": "beginner",
+      "question": "A `DELETE /api/books/3` request succeeds and the API sends no body. Which status code fits best?",
+      "explanation": "204 No Content signals success with an intentionally empty body. 201 is for creation, 404 means the resource was not found and 500 is a server failure.",
+      "options": [
+        "`201 Created`",
+        "`204 No Content`",
+        "`404 Not Found`",
+        "`500 Internal Server Error`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-q-10",
+      "type": "true-false",
+      "lessonSlug": "environment-config",
+      "difficulty": "beginner",
+      "question": "When a program is started with `PORT=3000 node app.js`, `process.env.PORT` is the number 3000.",
+      "explanation": "Environment variables are always strings; process.env.PORT is '3000'. Convert with Number() before doing arithmetic or comparisons with numbers.",
+      "correct": false
+    },
+    {
+      "id": "nodejs-q-11",
+      "type": "predict-output",
+      "lessonSlug": "async-patterns",
+      "difficulty": "intermediate",
+      "question": "What is the output order?",
+      "explanation": "Synchronous code prints sync first. Promise callbacks (microtasks) run as soon as the script finishes, before any timer, so promise comes second and the zero-delay timer last.",
+      "language": "javascript",
+      "code": "setTimeout(() => console.log('timer'), 0);\nPromise.resolve().then(() => console.log('promise'));\nconsole.log('sync');",
+      "options": [
+        "sync, promise, timer",
+        "sync, timer, promise",
+        "promise, sync, timer",
+        "timer, promise, sync"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "nodejs-q-12",
+      "type": "multiple-choice",
+      "lessonSlug": "databases",
+      "difficulty": "beginner",
+      "question": "Why should SQL that includes user input use `?` placeholders instead of string concatenation?",
+      "explanation": "With placeholders the SQL text and the values travel separately, so a value can never change the statement's structure. That is what prevents SQL injection; it also lets SQLite reuse the compiled statement.",
+      "options": [
+        "Placeholders make the query return rows as arrays",
+        "The values are bound separately from the SQL, so input cannot change the statement (no SQL injection)",
+        "SQLite rejects string literals in WHERE clauses",
+        "Placeholders are required for SELECT statements to return results"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-q-13",
+      "type": "fill-blank",
+      "lessonSlug": "testing",
+      "difficulty": "beginner",
+      "question": "Run every test file in the project with the built-in runner: `node --___`.",
+      "explanation": "node --test discovers files such as *.test.js and files under test folders, runs them and prints a report; add --watch to rerun on changes.",
+      "answers": ["test"],
+      "caseSensitive": false
+    },
+    {
+      "id": "nodejs-q-14",
+      "type": "multiple-choice",
+      "lessonSlug": "deployment",
+      "difficulty": "intermediate",
+      "question": "Which command installs exactly the locked versions of the production dependencies on a server?",
+      "explanation": "npm ci installs from package-lock.json and fails if it is out of sync; --omit=dev skips devDependencies such as linters and test tools.",
+      "options": [
+        "`npm ci --omit=dev`",
+        "`npm install --save`",
+        "`npm update`",
+        "`npx install --production`"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

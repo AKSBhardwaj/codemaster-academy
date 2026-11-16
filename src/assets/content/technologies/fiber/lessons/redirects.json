@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Point to another route",
+  "summary": "Fiber: Point to another route. Inspect the first 302 response.",
+  "introduction": "Redirect sends a location and status. A browser following GET /start reaches /hello.",
+  "learningObjectives": ["Point to another route with Fiber", "Inspect the first 302 response"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Point to another route"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Point to another route",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/start\", func(c *fiber.Ctx) error { return c.Redirect(\"/hello\", 302) })\napp.Get(\"/hello\", func(c *fiber.Ctx) error { return c.SendString(\"Welcome\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Redirect writes a 302 response with /hello as its location."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first 302 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect requires another client request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-redirects-check"
+    }
+  ],
+  "exerciseIds": ["fiber-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Point to another route",
+    "description": "Fiber: Point to another route. Inspect the first 302 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

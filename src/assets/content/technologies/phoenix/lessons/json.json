@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json",
+  "title": "Send JSON data",
+  "summary": "Phoenix: Send JSON data. Add a page count.",
+  "introduction": "json turns an Elixir map into a JSON reply. Open GET /book. Read the example, then check the result.",
+  "learningObjectives": ["Send JSON data with Phoenix", "Add a page count"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send JSON data"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Send JSON data",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/book\", LessonController, :book\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef book(conn, _params), do: json(conn, %{title: \"Moon Trip\"})\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "json turns the atom-keyed map into a JSON object."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a page count."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A map holds named data; its field order is not important."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-json-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "first-route"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Send JSON data",
+    "description": "Phoenix: Send JSON data. Add a page count. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

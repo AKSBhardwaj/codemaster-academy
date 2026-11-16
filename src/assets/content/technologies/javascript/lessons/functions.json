@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "Functions",
+  "summary": "A function is a named group of steps you can use again. It can take values in and give an answer back.",
+  "introduction": "A function is a named group of steps you can use again. It can take values in and give an answer back. Make a helper that adds two numbers. Call it with different numbers so you do not have to write the same steps each time.",
+  "learningObjectives": [
+    "Declare a function with parameters and call it with arguments",
+    "Return a value and explain what a function returns when it has no return",
+    "Write function expressions and arrow functions",
+    "Explain closures and pass a function to another function as a callback"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring and calling"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **function declaration** starts with the `function` keyword, a name, a list of **parameters** in parentheses and a body in braces. Writing the declaration runs nothing; the body executes only when the function is **called** with parentheses. The values you pass in the call are the **arguments**, and `return` sends a value back to the caller, ending the function immediately."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function area(width, height) {\n  return width * height;\n}\n\nconsole.log(area(3, 4));\nconsole.log(area(2.5, 2));\n\nconst result = area(10, 10);\nconsole.log(`The result is ${result}`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "12\n5\nThe result is 100"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parameters, defaults and missing returns"
+    },
+    {
+      "type": "paragraph",
+      "text": "A parameter that receives no argument is `undefined`. To avoid checking for that by hand, give the parameter a **default value** with `=`; it is used whenever the argument is missing or explicitly `undefined`. A function that finishes without reaching a `return` (or whose `return` has no value) hands back `undefined`, which is a frequent source of 'why is this undefined?' questions."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function greet(name = \"friend\", punctuation = \"!\") {\n  return `Hello, ${name}${punctuation}`;\n}\nconsole.log(greet());\nconsole.log(greet(\"Ada\"));\nconsole.log(greet(\"Ada\", \"?\"));\n\nfunction logTwice(text) {\n  console.log(text);\n  console.log(text);\n}\nconst nothing = logTwice(\"hi\");\nconsole.log(nothing);   // logTwice prints but does not return anything"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, friend!\nHello, Ada!\nHello, Ada?\nhi\nhi\nundefined"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Printing is not returning",
+      "text": "`console.log` shows a value; `return` hands it back. A function that only logs cannot be used in a calculation: `logTwice(\"hi\") + \"!\"` gives `\"undefined!\"`. If the caller needs the value, return it and let the caller decide whether to print it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Function expressions and arrow functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function is a value, so it can be stored in a variable. `const square = function (n) {...}` is a **function expression**. The **arrow function** is a shorter form: parameters, then `=>`, then the body. When the body is a single expression the braces and `return` can be dropped, and the value of the expression is returned automatically. Arrow functions are the usual choice for short functions passed to other functions; the [Modern Syntax](/tutorials/javascript/es6-features) lesson covers their other difference, how they treat `this`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const square = function (n) {\n  return n * n;\n};\n\nconst cube = (n) => n * n * n;           // single expression: implicit return\nconst add = (a, b) => a + b;\nconst describe = (n) => {                 // several statements need braces and return\n  const kind = n % 2 === 0 ? \"even\" : \"odd\";\n  return `${n} is ${kind}`;\n};\n\nconsole.log(square(4));\nconsole.log(cube(2));\nconsole.log(add(2, 3));\nconsole.log(describe(7));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "16\n8\n5\n7 is odd"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scope and closures"
+    },
+    {
+      "type": "paragraph",
+      "text": "Variables declared inside a function are local: they exist only while the function runs and are invisible outside. A function can, however, read variables from the scope where it was *created*. When an inner function is returned and used later, it still remembers those variables; that combination of a function plus its remembered surroundings is a **closure**. Closures let you keep private state, as the counter below does: `count` cannot be reached from outside, yet every call to the returned function updates it."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function makeCounter() {\n  let count = 0;            // private to this counter\n  return function () {\n    count++;\n    return count;\n  };\n}\n\nconst counterA = makeCounter();\nconst counterB = makeCounter();   // a separate count\nconsole.log(counterA());\nconsole.log(counterA());\nconsole.log(counterB());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1\n2\n1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Functions as values: callbacks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because functions are values, you can pass one to another function, which calls it when appropriate. The passed function is a **callback**. This pattern is everywhere in JavaScript: array methods call your function once per element, `addEventListener` calls it when the user acts, and timers call it later. Note that you pass the function itself (`applyDiscount`), not the result of calling it (`applyDiscount()`)."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function repeat(times, action) {\n  for (let i = 1; i <= times; i++) {\n    action(i);\n  }\n}\n\nrepeat(3, (n) => console.log(`Tick ${n}`));\n\nfunction applyDiscount(price) {\n  return price * 0.9;\n}\nconst prices = [10, 20];\nconsole.log(prices.map(applyDiscount).join(\", \"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Tick 1\nTick 2\nTick 3\n9, 18"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hoisting: declarations versus expressions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Function declarations are **hoisted**: the whole function is available before the line where it is written, so you can put helpers at the bottom of a file and call them at the top. Function expressions and arrow functions live in variables, and a `const` cannot be used before its declaration runs."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(double(4));        // works: declarations are hoisted\n\nfunction double(n) {\n  return n * 2;\n}\n\ntry {\n  console.log(triple(4));      // fails: the const is not initialised yet\n} catch (error) {\n  console.log(error.name);\n}\nconst triple = (n) => n * 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "8\nReferenceError"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing good functions"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "One job per function, named with a verb: `calculateTotal`, `formatDate`, `isValidEmail`.",
+        "Prefer returning a value over changing variables outside the function; such **pure** functions are easier to test and reuse.",
+        "Keep the parameter list short. If a function needs five settings, pass one object (the [Objects](/tutorials/javascript/objects) lesson shows how).",
+        "Default parameters beat checks for `undefined` inside the body."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Write `makeGreeter(greeting)` that returns a function taking a name, so that `const hello = makeGreeter(\"Hello\"); hello(\"Ada\")` gives `\"Hello, Ada\"`. It is the counter example with a string instead of a number."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-functions-closure"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "functions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "What does a function return when its body contains no return statement?",
+          "explanation": "Without an explicit return the call evaluates to undefined. Logging inside the function does not change that.",
+          "options": ["`null`", "`0`", "`undefined`", "The last value it logged"],
+          "correctIndex": 2
+        },
+        {
+          "id": "functions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "An arrow function whose body is a single expression returns that expression's value without the return keyword.",
+          "explanation": "That is the implicit return: `(n) => n * 2` returns the value of `n * 2`. As soon as you add braces you need an explicit return.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-functions-closure"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "variables"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "es6-features"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Functions – Parameters, Return, Closures",
+    "description": "Learn JavaScript functions: declarations, parameters with defaults, return values, function expressions, arrow functions, closures, callbacks and hoisting."
+  },
+  "updatedOn": "2026-11-16"
+}

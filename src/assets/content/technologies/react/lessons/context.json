@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "slug": "context",
+  "title": "Context",
+  "summary": "React context shares a value with parts deeper in the page without passing it through every middle part.",
+  "introduction": "React context shares a value with parts deeper in the page without passing it through every middle part. Imagine a classroom clock that every group can read. Share one useful setting, then learn when normal props are the clearer choice.",
+  "learningObjectives": [
+    "Explain the prop drilling problem that context solves",
+    "Create a context, provide a value and read it with useContext or use",
+    "Share state and its setter through context",
+    "Decide when context is appropriate and when composition is better"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The prop drilling problem"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Before: the user travels through Layout",
+      "code": "function App() {\n  const user = { name: 'Ada' };\n  return <Layout user={user} />;\n}\n\nfunction Layout({ user }) {\n  return (\n    <main>\n      <Header user={user} />\n    </main>\n  );\n}\n\nfunction Header({ user }) {\n  return <p>Signed in as {user.name}</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<main><p>Signed in as Ada</p></main>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Layout` has no interest in `user`; it only passes it along. With a dozen such components, adding a new shared value means editing all of them, and renaming a prop becomes a project."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating and providing a context"
+    },
+    {
+      "type": "paragraph",
+      "text": "`createContext(defaultValue)` creates a context object. Rendering that object as a component with a `value` prop makes the value available to everything inside it. React 19 lets you render the context itself as the provider; in React 18 you had to write `<UserContext.Provider value={user}>`, which still works in 19."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "After: context",
+      "code": "import { createContext, useContext } from 'react';\n\nconst UserContext = createContext(null);\n\nfunction App() {\n  const user = { name: 'Ada' };\n  return (\n    <UserContext value={user}>\n      <Layout />\n    </UserContext>\n  );\n}\n\nfunction Layout() {\n  return (\n    <main>\n      <Header />\n    </main>\n  );\n}\n\nfunction Header() {\n  const user = useContext(UserContext);\n  return <p>Signed in as {user.name}</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "<main><p>Signed in as Ada</p></main>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useContext(UserContext)` finds the **nearest** `UserContext` provider above the calling component and returns its value. If there is none, it returns the default passed to `createContext`, here `null`. Providers can nest: an inner provider overrides the outer one for its own subtree, which is how you give one section of a page a different theme."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading context with use"
+    },
+    {
+      "type": "paragraph",
+      "text": "React 19 adds `use`, which reads a context like `useContext` but may be called inside conditions and loops. This is handy when a component only needs the value in some branches."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Price.jsx",
+      "code": "import { use } from 'react';\n\nfunction Price({ amount, showCurrency }) {\n  if (!showCurrency) return <span>{amount}</span>;\n\n  const { currency } = use(SettingsContext);\n  return <span>{amount} {currency}</span>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "With a SettingsContext value of { currency: 'EUR' }",
+      "content": "<Price amount={42} />               →  <span>42</span>\n<Price amount={42} showCurrency />  →  <span>42 EUR</span>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sharing state through context"
+    },
+    {
+      "type": "paragraph",
+      "text": "A context value is just a value, so it can be an object holding state **and** the function to change it. Put the `useState` call in a provider component and expose both."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "ThemeContext.jsx",
+      "code": "import { createContext, useContext, useState } from 'react';\n\nconst ThemeContext = createContext({ theme: 'light', toggle: () => {} });\n\nexport function ThemeProvider({ children }) {\n  const [theme, setTheme] = useState('light');\n  const toggle = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));\n\n  return <ThemeContext value={{ theme, toggle }}>{children}</ThemeContext>;\n}\n\nexport function useTheme() {\n  return useContext(ThemeContext);\n}"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "App.jsx",
+      "code": "import { ThemeProvider, useTheme } from './ThemeContext.jsx';\n\nfunction ThemeButton() {\n  const { theme, toggle } = useTheme();\n  return <button onClick={toggle}>Theme: {theme}</button>;\n}\n\nfunction Page() {\n  const { theme } = useTheme();\n  return (\n    <main className={theme}>\n      <ThemeButton />\n    </main>\n  );\n}\n\nexport default function App() {\n  return (\n    <ThemeProvider>\n      <Page />\n    </ThemeProvider>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "initially:        <main class=\"light\"><button>Theme: light</button></main>\nafter one click:  <main class=\"dark\"><button>Theme: dark</button></main>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Exporting a `useTheme` hook next to the provider keeps the context object private and gives consumers one obvious import. When a value is required, create the context with `undefined` as the default and make the hook throw a clear error if it finds it, instead of letting `undefined.theme` crash somewhere far away:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "const ThemeContext = createContext(undefined);\n\nexport function useTheme() {\n  const value = useContext(ThemeContext);\n  if (value === undefined) {\n    throw new Error('useTheme must be used inside <ThemeProvider>');\n  }\n  return value;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Re-renders and context"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every component that reads a context re-renders when the provider's `value` changes, compared with `Object.is`. `value={{ theme, toggle }}` creates a new object on every render of the provider, so all consumers re-render whenever the provider renders, even if `theme` did not change. For small apps that is fine. When it becomes a problem, memoize the object with `useMemo`, split rarely-changing and frequently-changing values into separate contexts, or let the [React Compiler](/tutorials/react/performance-memo) do the memoization."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting the provider",
+      "text": "Reading a context with no provider above does not throw; it silently returns the default value from `createContext`. If that default is `null` you get `Cannot read properties of null` somewhere unrelated, and if it is a placeholder object the UI looks wrong without any error. Wrap the tree in the provider in `main.jsx` or `App.jsx`, and make your custom hook fail loudly when the provider is missing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When not to use context"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**Passing data two levels down.** Props are simpler and easier to trace.",
+        "**Avoiding a prop you could compose away.** Often the intermediate component can accept `children` and the parent can render the consumer directly, which removes the drilling without context.",
+        "**High-frequency updates** such as the mouse position or a text input's value: every consumer re-renders on each change. Keep that state local or in a dedicated store.",
+        "**Server data.** Fetching and caching is better handled by a library such as TanStack Query, covered in [Fetching and Caching Data](/tutorials/react/data-fetching)."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Good uses: theme, locale, the authenticated user, a form's shared state, and dependency injection such as an API client."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-context-default"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-context-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "context",
+          "difficulty": "beginner",
+          "question": "Which React 19 syntax provides a context value to a subtree?",
+          "explanation": "In React 19 the context object itself can be rendered as the provider with a `value` prop. `<ThemeContext.Provider>` still works; the other options do not exist.",
+          "options": [
+            "`<ThemeContext value={theme}>`",
+            "`<ThemeContext.Consumer value={theme}>`",
+            "`<ThemeContext provide={theme}>`",
+            "`useContext(ThemeContext, theme)`"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "id": "react-context-qc-2",
+          "type": "true-false",
+          "lessonSlug": "context",
+          "difficulty": "intermediate",
+          "question": "A component that calls `useContext` re-renders whenever the nearest provider's value changes.",
+          "explanation": "That is how context propagates updates. It is also why a new object literal in `value` on every render re-renders every consumer.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-context-default"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "components-props"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "custom-hooks"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "performance-memo"
+    }
+  ],
+  "seo": {
+    "title": "React Context – Share Data Without Prop Drilling",
+    "description": "Learn React context: createContext, the React 19 provider syntax, reading values with useContext and use, sharing state via a provider and when to avoid it."
+  },
+  "updatedOn": "2026-11-16"
+}

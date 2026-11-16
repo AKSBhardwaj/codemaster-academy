@@ -1,0 +1,144 @@
+{
+  "title": "React Native Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the React Native course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Make a native screen",
+          "summary": "A View groups native page parts. Text displays words.",
+          "example": {
+            "language": "jsx",
+            "code": "import {View,Text} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Text>Reading club</Text></View>;}"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "create-named-styles",
+          "name": "Create named styles",
+          "summary": "StyleSheet.create groups styles under names.",
+          "example": {
+            "language": "jsx",
+            "code": "import {View,Text,StyleSheet} from \"react-native\";\nconst styles=StyleSheet.create({page:{padding:24,backgroundColor:\"#eef4ff\"},title:{fontSize:24,fontWeight:\"bold\"}});\nexport default function App(){return <View style={styles.page}><Text style={styles.title}>Our books</Text></View>;}"
+          },
+          "lessonSlug": "create-named-styles"
+        },
+        {
+          "slug": "add-a-button-and-state",
+          "name": "Add a button and state",
+          "summary": "React state remembers a value between renders.",
+          "example": {
+            "language": "jsx",
+            "code": "import {useState} from \"react\";\nimport {View,Text,Button} from \"react-native\";\nexport default function App(){const [count,setCount]=useState(0);return <View style={{padding:24}}><Text>Books: {count}</Text><Button title=\"Read one\" onPress={()=>setCount(count+1)}/></View>;}"
+          },
+          "lessonSlug": "add-a-button-and-state"
+        },
+        {
+          "slug": "use-a-text-input",
+          "name": "Use a text input",
+          "summary": "TextInput lets someone type text. onChangeText supplies the new text, so state can keep the field and screen together.",
+          "example": {
+            "language": "jsx",
+            "code": "import {useState} from \"react\";import {View,Text,TextInput} from \"react-native\";\nexport default function App(){const [name,setName]=useState(\"\");return <View style={{padding:24}}><Text>Your name</Text><TextInput accessibilityLabel=\"Your name\" value={name} onChangeText={setName} style={{borderWidth:1,padding:12}}/><Text>Hello, {name}</Text></View>;}"
+          },
+          "lessonSlug": "use-a-text-input"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "arrange-a-row-with-flex",
+          "name": "Arrange a row with flex",
+          "summary": "React Native uses Flexbox for layout. Its default direction is a column, so set row when items should sit beside each other.",
+          "example": {
+            "language": "jsx",
+            "code": "import {View,Text} from \"react-native\";\nexport default function App(){return <View style={{padding:24,flexDirection:\"row\",gap:12}}><Text>Books read</Text><Text>4</Text></View>;}"
+          },
+          "lessonSlug": "arrange-a-row-with-flex"
+        },
+        {
+          "slug": "scroll-a-small-amount-of-content",
+          "name": "Scroll a small amount of content",
+          "summary": "ScrollView makes its children scrollable.",
+          "example": {
+            "language": "jsx",
+            "code": "import {ScrollView,Text} from \"react-native\";\nexport default function App(){return <ScrollView contentContainerStyle={{padding:24}}>{Array.from({length:20},(_,i)=><Text key={i} style={{padding:12}}>Reading tip {i+1}</Text>)}</ScrollView>;}"
+          },
+          "lessonSlug": "scroll-a-small-amount-of-content"
+        },
+        {
+          "slug": "render-a-list-efficiently",
+          "name": "Render a list efficiently",
+          "summary": "FlatList receives data and a function for each row.",
+          "example": {
+            "language": "jsx",
+            "code": "import {FlatList,Text} from \"react-native\";\nconst books=[{id:\"1\",title:\"Moon Trip\"},{id:\"2\",title:\"Garden Days\"}];\nexport default function App(){return <FlatList data={books} keyExtractor={item=>item.id} contentContainerStyle={{padding:24}} renderItem={({item})=><Text style={{padding:12}}>{item.title}</Text>}/>;}"
+          },
+          "lessonSlug": "render-a-list-efficiently"
+        },
+        {
+          "slug": "use-a-local-image",
+          "name": "Use a local image",
+          "summary": "Image displays a native picture. A local file can be bundled with require so the app can include it at build time.",
+          "example": {
+            "language": "jsx",
+            "code": "import {View,Image} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Image source={require(\"./assets/garden.png\")} style={{width:160,height:120}} accessibilityLabel=\"Our school garden\"/></View>;}"
+          },
+          "lessonSlug": "use-a-local-image"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "make-a-custom-pressable-control",
+          "name": "Make a custom pressable control",
+          "summary": "Pressable can wrap a custom control. Its style callback receives pressed, so the control can show a clear response.",
+          "example": {
+            "language": "jsx",
+            "code": "import {Pressable,Text,View} from \"react-native\";\nexport default function App(){return <View style={{padding:24}}><Pressable accessibilityRole=\"button\" onPress={()=>console.log(\"Chosen\")} style={({pressed})=>({padding:16,backgroundColor:pressed?\"#12345a\":\"#174a8b\"})}><Text style={{color:\"white\"}}>Choose a book</Text></Pressable></View>;}"
+          },
+          "lessonSlug": "make-a-custom-pressable-control"
+        },
+        {
+          "slug": "respect-the-safe-screen-area",
+          "name": "Respect the safe screen area",
+          "summary": "Some screens have cutouts or system bars.",
+          "example": {
+            "language": "jsx",
+            "code": "import {Text} from \"react-native\";\nimport {SafeAreaProvider,SafeAreaView} from \"react-native-safe-area-context\";\nexport default function App(){return <SafeAreaProvider><SafeAreaView style={{flex:1,padding:16}}><Text>Reading club</Text></SafeAreaView></SafeAreaProvider>;}"
+          },
+          "lessonSlug": "respect-the-safe-screen-area"
+        },
+        {
+          "slug": "show-an-empty-list-message",
+          "name": "Show an empty-list message",
+          "summary": "A useful list explains when it has no items.",
+          "example": {
+            "language": "jsx",
+            "code": "import {FlatList,Text} from \"react-native\";\nexport default function App(){return <FlatList data={[]} renderItem={({item})=><Text>{item.title}</Text>} ListEmptyComponent={<Text>Add your first book to begin.</Text>} contentContainerStyle={{padding:24}}/>;}"
+          },
+          "lessonSlug": "show-an-empty-list-message"
+        },
+        {
+          "slug": "make-a-local-two-view-demo",
+          "name": "Make a local two-view demo",
+          "summary": "State can choose between two simple views while learning.",
+          "example": {
+            "language": "jsx",
+            "code": "import {useState} from \"react\";import {View,Text,Button} from \"react-native\";\nexport default function App(){const [detail,setDetail]=useState(false);return <View style={{padding:24}}>{detail?<><Text>Moon Trip is a space story.</Text><Button title=\"Back\" onPress={()=>setDetail(false)}/></>:<><Text>Books</Text><Button title=\"Open Moon Trip\" onPress={()=>setDetail(true)}/></>}</View>;}"
+          },
+          "lessonSlug": "make-a-local-two-view-demo"
+        }
+      ]
+    }
+  ]
+}

@@ -13,7 +13,11 @@ export interface BreadcrumbItem {
     <nav aria-label="Breadcrumb">
       <ol class="breadcrumb mb-3 small">
         @for (item of items(); track $index; let last = $last) {
-          <li class="breadcrumb-item" [class.active]="last" [attr.aria-current]="last ? 'page' : null">
+          <li
+            class="breadcrumb-item"
+            [class.active]="last"
+            [attr.aria-current]="last ? 'page' : null"
+          >
             @if (item.path && !last) {
               <a [routerLink]="item.path">{{ item.label }}</a>
             } @else {

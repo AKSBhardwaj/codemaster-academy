@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "insert",
+  "title": "INSERT",
+  "summary": "INSERT adds new rows to a table. Each value needs to go into the right column.",
+  "introduction": "INSERT adds new rows to a table. Each value needs to go into the right column. Add one practice row first. Name the columns so it is clear where each value belongs, then try adding more than one row.",
+  "learningObjectives": [
+    "Insert one or several rows with INSERT ... VALUES",
+    "Let the database generate ids and default values",
+    "Escape single quotes inside text values",
+    "Copy rows with INSERT ... SELECT and read generated ids with RETURNING"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "INSERT ... VALUES"
+    },
+    {
+      "type": "paragraph",
+      "text": "The statement names the table, lists the columns in parentheses and provides one value per column, in the same order. Columns you leave out get their default: for `id`, which is an `INTEGER PRIMARY KEY`, SQLite assigns the next number automatically."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO customers (name, country, joined)\nVALUES ('Barbara Liskov', 'US', '2025-06-14');\nSELECT * FROM customers WHERE id = 6;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: INSERT INTO customers (name, country, joined)\n\nid | name           | country | joined\n---+----------------+---------+-----------\n6  | Barbara Liskov | US      | 2025-06-14"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `OK` line confirms that the insert ran; the SELECT shows the new row with the generated id 6."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Several rows at once"
+    },
+    {
+      "type": "paragraph",
+      "text": "One `INSERT` can carry several row tuples separated by commas. It is much faster than separate statements because the database parses the statement once and writes the rows in a single transaction. SQLite, PostgreSQL, MySQL and SQL Server all support this form; Oracle traditionally needs `INSERT ALL` instead."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO products (name, category, price) VALUES\n  ('Desk lamp', 'Office', 24.90),\n  ('Pen set', 'Stationery', 6.25);\nSELECT id, name, category, price FROM products WHERE id > 6;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: INSERT INTO products (name, category, price) VALUES\n\nid | name      | category   | price\n---+-----------+------------+------\n7  | Desk lamp | Office     | 24.9\n8  | Pen set   | Stationery | 6.25"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Quotes inside text"
+    },
+    {
+      "type": "paragraph",
+      "text": "Text values use single quotes. To include a single quote inside a value, double it: `'O''Brien'`. This works in every SQL database. Do not use backslashes; they are a MySQL extension and are stored as ordinary characters elsewhere."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO customers (name, country, joined)\nVALUES ('Conor O''Brien', 'Ireland', '2025-07-01');\nSELECT name, country FROM customers WHERE country = 'Ireland';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: INSERT INTO customers (name, country, joined)\n\nname          | country\n--------------+--------\nConor O'Brien | Ireland"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "INSERT ... SELECT: copying rows"
+    },
+    {
+      "type": "paragraph",
+      "text": "Instead of `VALUES`, an `INSERT` can take a query. Every row the query returns is inserted, which is how you archive old records, seed a table from another or build summary tables. The columns of the query must match the target columns in number and order."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE archived_orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER NOT NULL,\n  product_id INTEGER NOT NULL,\n  quantity INTEGER NOT NULL,\n  ordered_on TEXT NOT NULL\n);\nINSERT INTO archived_orders\nSELECT * FROM orders WHERE ordered_on < '2025-03-01';\nSELECT * FROM archived_orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE archived_orders (\nOK: INSERT INTO archived_orders\n\nid | customer_id | product_id | quantity | ordered_on\n---+-------------+------------+----------+-----------\n1  | 1           | 4          | 1        | 2025-01-15\n2  | 1           | 1          | 3        | 2025-01-15\n3  | 2           | 3          | 2        | 2025-02-02\n4  | 3           | 5          | 1        | 2025-02-20"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "RETURNING: the generated values"
+    },
+    {
+      "type": "paragraph",
+      "text": "After inserting, applications usually need the new id. `RETURNING` sends chosen columns of the inserted rows back as a result, saving a second query. It is supported by PostgreSQL, SQLite 3.35+ and MariaDB; MySQL uses `LAST_INSERT_ID()` and SQL Server uses an `OUTPUT` clause instead."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO products (name, category, price)\nVALUES ('Webcam', 'Electronics', 45)\nRETURNING id, name, price;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "id | name   | price\n---+--------+------\n7  | Webcam | 45"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When a value is missing"
+    },
+    {
+      "type": "paragraph",
+      "text": "A column declared `NOT NULL` without a default must be provided. Forgetting it is a hard error, and the statement inserts nothing:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "INSERT INTO customers (name, country) VALUES ('No Date', 'UK');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "NOT NULL constraint failed: customers.joined — in: INSERT INTO customers (name, country) VALUES ('No Date', 'UK')"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Always list the columns",
+      "text": "`INSERT INTO products VALUES (7, 'Lamp', 'Office', 24.9)` works today, but it relies on the table's column order and on providing every column, including the id. Add a column or reorder the table and the statement breaks or, worse, writes values into the wrong columns without any error. Naming the columns makes the statement self-describing and robust."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Insert yourself as a customer, then insert two orders for that customer (use product ids 1 to 6) and select them back."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 240,
+      "code": "INSERT INTO customers (name, country, joined)\nVALUES ('Your Name', 'Spain', '2025-10-01');\n\nSELECT * FROM customers;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-insert-values-mismatch"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "insert-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "insert",
+          "difficulty": "beginner",
+          "question": "What does SQLite do with `id` when you omit it from `INSERT INTO customers (name, country, joined) VALUES (...)`?",
+          "explanation": "An INTEGER PRIMARY KEY column is filled with the next unused integer (largest existing id plus one). Omitting it is the normal way to insert.",
+          "options": [
+            "Stores NULL",
+            "Raises an error",
+            "Assigns the next unused integer",
+            "Reuses the lowest free number"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "insert-qc-2",
+          "type": "true-false",
+          "lessonSlug": "insert",
+          "difficulty": "beginner",
+          "question": "In standard SQL a single quote inside a text value is written as two single quotes.",
+          "explanation": "Doubling the quote is the portable escape: 'O''Brien' stores O'Brien. Backslash escapes are a MySQL extension.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-insert-values-mismatch"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "update-delete"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    }
+  ],
+  "seo": {
+    "title": "SQL INSERT – Add Rows, Defaults and RETURNING",
+    "description": "Learn SQL INSERT: add one or many rows with VALUES, rely on generated ids and defaults, copy rows with INSERT SELECT and read ids back with RETURNING."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "slug": "navbar",
+  "title": "Navbar",
+  "summary": "A navbar groups the main site links. On a small screen, its links can fit inside a menu that opens and closes.",
+  "introduction": "A navbar groups the main site links. On a small screen, its links can fit inside a menu that opens and closes. Start with a few clear links. Then connect a menu button to the correct menu id and load the Bootstrap JavaScript it needs.",
+  "learningObjectives": [
+    "Assemble the navbar markup: brand, toggler, collapse wrapper and nav links",
+    "Choose the breakpoint at which the navbar expands with navbar-expand-*",
+    "Mark the current page and add a dropdown and a search form",
+    "Switch to a dark navbar and fix it to the top of the page"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Anatomy of a navbar"
+    },
+    {
+      "type": "paragraph",
+      "text": "A navbar is a `<nav class=\"navbar\">` containing a container, which gives it side padding, and inside that three things: the **brand** (a link with the site name), the **toggler** (a hamburger button shown only on small screens) and the **collapse wrapper** that holds the links. The toggler and the wrapper are connected by an id: the button's `data-bs-target` must name the wrapper, and that connection is what the JavaScript bundle uses to open and close the menu."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A complete responsive navbar",
+      "code": "<nav class=\"navbar navbar-expand-lg bg-body-tertiary\">\n  <div class=\"container-fluid\">\n    <a class=\"navbar-brand\" href=\"/\">Garden Club</a>\n    <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#mainNav\"\n            aria-controls=\"mainNav\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">\n      <span class=\"navbar-toggler-icon\"></span>\n    </button>\n    <div class=\"collapse navbar-collapse\" id=\"mainNav\">\n      <ul class=\"navbar-nav\">\n        <li class=\"nav-item\"><a class=\"nav-link active\" aria-current=\"page\" href=\"/\">Home</a></li>\n        <li class=\"nav-item\"><a class=\"nav-link\" href=\"/events\">Events</a></li>\n        <li class=\"nav-item\"><a class=\"nav-link\" href=\"/join\">Join</a></li>\n      </ul>\n    </div>\n  </div>\n</nav>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "992px and wider: a light grey bar with \"Garden Club\" on the left and Home, Events, Join on the same line; Home is dark (current page), the others are grey\nBelow 992px: the bar shows \"Garden Club\" and a bordered hamburger button on the right; the links are hidden\nClicking the hamburger (JavaScript bundle required) slides the three links open, stacked under the brand; clicking again closes them"
+    },
+    {
+      "type": "table",
+      "headers": ["Class or attribute", "Purpose"],
+      "rows": [
+        [
+          "`navbar`",
+          "The flex container that lays the parts out in a row with `.5rem` vertical padding"
+        ],
+        [
+          "`navbar-expand-lg`",
+          "Below the lg breakpoint the links collapse behind the toggler; from 992px they display inline"
+        ],
+        [
+          "`bg-body-tertiary`",
+          "A background that follows the colour mode: light grey in light mode, dark grey in dark mode"
+        ],
+        [
+          "`navbar-brand`",
+          "Larger (1.25rem) text for the site name, usually a link to the home page"
+        ],
+        [
+          "`navbar-toggler` and `navbar-toggler-icon`",
+          "The hamburger button and the three-line icon inside it"
+        ],
+        [
+          "`data-bs-toggle=\"collapse\"` and `data-bs-target`",
+          "Tell the bundle which element the button opens; `aria-controls` repeats the id for assistive technology"
+        ],
+        ["`collapse navbar-collapse`", "The wrapper that is hidden on small screens until toggled"],
+        [
+          "`navbar-nav`, `nav-item`, `nav-link`",
+          "The list, items and links, styled without bullets and with hover and active colours"
+        ],
+        [
+          "`active` and `aria-current=\"page\"`",
+          "Mark the link for the page the user is on, visually and for screen readers"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing the expand breakpoint"
+    },
+    {
+      "type": "paragraph",
+      "text": "`navbar-expand-{sm|md|lg|xl|xxl}` sets the width from which the links show inline. Pick it by measuring: with three short links, `md` is enough; with six links, a dropdown and a search form, the row will not fit until `lg` or `xl`. Plain `navbar-expand` keeps the bar horizontal at every size, and leaving the class out keeps it collapsed at every size, which suits a mobile-style menu even on desktops."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dropdowns and a search form"
+    },
+    {
+      "type": "paragraph",
+      "text": "A dropdown is a `nav-item` with the extra class `dropdown`, a link marked `dropdown-toggle` with `data-bs-toggle=\"dropdown\"`, and a `dropdown-menu` list. Popper, included in the bundle, positions the menu. A form can sit directly in the collapse wrapper; `me-auto` on the link list pushes everything after it to the right edge."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Replace the collapse wrapper from the first example with this",
+      "code": "<div class=\"collapse navbar-collapse\" id=\"mainNav\">\n  <ul class=\"navbar-nav me-auto mb-2 mb-lg-0\">\n    <li class=\"nav-item\"><a class=\"nav-link active\" aria-current=\"page\" href=\"/\">Home</a></li>\n    <li class=\"nav-item dropdown\">\n      <a class=\"nav-link dropdown-toggle\" href=\"#\" role=\"button\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\">Events</a>\n      <ul class=\"dropdown-menu\">\n        <li><a class=\"dropdown-item\" href=\"/events/talks\">Talks</a></li>\n        <li><a class=\"dropdown-item\" href=\"/events/visits\">Garden visits</a></li>\n        <li><hr class=\"dropdown-divider\"></li>\n        <li><a class=\"dropdown-item\" href=\"/events/archive\">Past events</a></li>\n      </ul>\n    </li>\n  </ul>\n  <form class=\"d-flex\" role=\"search\">\n    <input class=\"form-control me-2\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">\n    <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>\n  </form>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "992px and wider: Home and \"Events\" with a small down-pointing triangle on the left; the search field and green outlined button sit at the right edge\nClicking Events opens a white panel beneath it listing Talks, Garden visits, a thin divider line, Past events; clicking anywhere else closes it\nBelow 992px with the menu open: the links are stacked, then the search form below them with an 8px gap"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dark navbars and fixed placement"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before 5.3 you coloured a navbar with `navbar-dark` and `bg-dark`. In 5.3 `navbar-dark` is deprecated: set `data-bs-theme=\"dark\"` on the `<nav>` instead, which flips the brand, link and toggler colours to light, and pick any dark background utility. `fixed-top` pins the bar to the viewport so it stays visible while scrolling; `sticky-top` lets it scroll with the page until it reaches the top, then sticks."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A dark navbar fixed to the top",
+      "code": "<nav class=\"navbar navbar-expand-lg bg-dark fixed-top\" data-bs-theme=\"dark\">\n  <div class=\"container\">\n    <a class=\"navbar-brand\" href=\"/\">Garden Club</a>\n    <ul class=\"navbar-nav\">\n      <li class=\"nav-item\"><a class=\"nav-link\" href=\"/events\">Events</a></li>\n      <li class=\"nav-item\"><a class=\"nav-link\" href=\"/join\">Join</a></li>\n    </ul>\n  </div>\n</nav>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A #212529 bar pinned to the top of the window; \"Garden Club\" in white, the links in light grey turning white on hover\nThe page scrolls underneath the bar; without extra top padding on the body, the first 56px of content start hidden behind it"
+    },
+    {
+      "type": "paragraph",
+      "text": "A fixed navbar is taken out of the page flow, so add `padding-top` to the `<body>` equal to the bar's height (about 56px with the defaults) or the top of your content disappears behind it. `sticky-top` does not have this problem."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: the toggler does nothing",
+      "text": "Nine times out of ten the hamburger is wired to the wrong id. `data-bs-target=\"#mainNav\"` must match `id=\"mainNav\"` on the collapse wrapper exactly, including case, and the `#` belongs only in the target. The other causes, in order: the JavaScript bundle is not loaded, the attribute is spelled the Bootstrap 4 way (`data-toggle`), or the wrapper is missing the `collapse` class, in which case the links are always visible and the button has nothing to show."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "One navbar per page",
+      "text": "Keep a single `<nav>` for the main navigation and give it an `aria-label` (for example `aria-label=\"Main\"`) if the page has other navigation such as a footer menu, so screen reader users can tell them apart."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-navbar-expand"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-nav-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "navbar",
+          "difficulty": "beginner",
+          "question": "With `navbar-expand-md`, on which screens are the links hidden behind the toggler?",
+          "explanation": "The expand class names the width from which links display inline. md starts at 768px, so narrower viewports see the collapsed menu.",
+          "options": [
+            "Narrower than 768px",
+            "768px and wider",
+            "Narrower than 992px",
+            "They are never hidden"
+          ],
+          "correctIndex": 0
+        },
+        {
+          "id": "bs-nav-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "navbar",
+          "difficulty": "beginner",
+          "question": "Besides the `active` class, the current page's link should carry the attribute `___=\"page\"` so screen readers announce it.",
+          "explanation": "aria-current=\"page\" is the accessible counterpart of the visual .active class; Bootstrap's CSS does not add it for you.",
+          "answers": ["aria-current"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-navbar-expand"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "breakpoints-responsive"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "dark-mode-theming"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "semantic-elements"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Navbar – Responsive Navigation with Toggler",
+    "description": "Build a responsive Bootstrap 5.3 navbar with a brand, links, dropdown and search form, choose the expand breakpoint, mark the current page and switch it to dark."
+  },
+  "updatedOn": "2026-11-16"
+}

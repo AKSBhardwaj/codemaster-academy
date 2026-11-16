@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "slug": "arrays-tuples",
+  "title": "Arrays and Tuples",
+  "summary": "TypeScript can describe the values in a list. A tuple also describes what kind of value belongs in each position.",
+  "introduction": "TypeScript can describe the values in a list. A tuple also describes what kind of value belongs in each position. Use a number list for scores. Then try a pair that holds a name and a score, where each position has its own job.",
+  "learningObjectives": [
+    "Declare typed and readonly arrays and read the errors for wrong element types",
+    "Use tuple types with labelled positions for fixed-length results",
+    "Explain what noUncheckedIndexedAccess changes and when to use as const"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Array types"
+    },
+    {
+      "type": "paragraph",
+      "text": "`number[]` and `Array<number>` mean the same thing; the first is shorter and more common, the second shows that arrays are generic (the [generics lesson](/tutorials/typescript/generics) explains the angle brackets). The element type is enforced on every write: `push`, index assignment, `unshift` and `splice` all check their arguments."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "arrays.ts",
+      "code": "const scores: number[] = [90, 85];\nconst names: Array<string> = [\"Ada\", \"Grace\"];\n\nscores.push(100);\nnames.push(\"Linus\");\n\nconst average = scores.reduce((sum, s) => sum + s, 0) / scores.length;\nconsole.log(names.join(\", \"), average.toFixed(1));\n\nscores.push(\"95\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc arrays.ts",
+      "content": "arrays.ts:10:13 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\n\n10 scores.push(\"95\");\n               ~~~~\n\n\nFound 1 error in arrays.ts:10"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without the last line the file prints `Ada, Grace, Linus 91.7`. The `reduce` callback needs no annotations: `sum` and `s` are inferred from the array's element type and the initial value `0`. Note that `const` protects the *binding*, not the contents; `scores.push(100)` is allowed on a `const` array."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Readonly arrays and inferred methods"
+    },
+    {
+      "type": "paragraph",
+      "text": "`readonly number[]` removes every mutating method from the type. Accepting readonly arrays in function parameters is a strong signal to callers that their data will not be changed. Non-mutating methods such as `map`, `filter` and `slice` still work and return ordinary, mutable arrays whose element type is inferred from the callback."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "readonly.ts",
+      "code": "const primes: readonly number[] = [2, 3, 5];\n\nconst doubled = primes.map((p) => p * 2);\nconst labels = primes.map((p) => `#${p}`);\n\nconsole.log(doubled, labels);\n\nprimes.push(7);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc readonly.ts",
+      "content": "readonly.ts:8:8 - error TS2339: Property 'push' does not exist on type 'readonly number[]'.\n\n8 primes.push(7);\n         ~~~~\n\n\nFound 1 error in readonly.ts:8"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hover over `doubled` and `labels`: they are `number[]` and `string[]` respectively, derived from what each callback returns. Running the file without the last line prints `[ 4, 6, 10 ] [ '#2', '#3', '#5' ]`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Tuples"
+    },
+    {
+      "type": "paragraph",
+      "text": "A tuple is an array with a fixed length and a known type for each position, written as a list in square brackets. Since TypeScript 4.0 you can label the positions (`[x: number, y: number]`); labels document the meaning and appear in hover text but do not change the runtime array. Tuples are ideal for returning two values from a function and destructuring them."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "tuples.ts",
+      "code": "type Point = [x: number, y: number];\n\nconst origin: Point = [0, 0];\n\nfunction minMax(values: number[]): [min: number, max: number] {\n  return [Math.min(...values), Math.max(...values)];\n}\n\nconst [low, high] = minMax([4, 9, 1]);\nconsole.log(origin, low, high);\n\nconst bad: Point = [1, 2, 3];"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc tuples.ts",
+      "content": "tuples.ts:12:7 - error TS2322: Type '[number, number, number]' is not assignable to type 'Point'.\n  Source has 3 element(s) but target allows only 2.\n\n12 const bad: Point = [1, 2, 3];\n         ~~~\n\n\nFound 1 error in tuples.ts:12"
+    },
+    {
+      "type": "paragraph",
+      "text": "The working part prints `[ 0, 0 ] 1 9`. Destructuring `const [low, high] = minMax(...)` gives `low` and `high` the type `number` straight from the tuple positions. Tuples may also have optional positions (`[string, number?]`) and a rest element (`[string, ...number[]]`) for lists with a fixed head and a variable tail."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The index-access trap"
+    },
+    {
+      "type": "paragraph",
+      "text": "Reading `colors[2]` from an array of two strings returns `undefined` at runtime, yet the type of the expression is `string`. By default TypeScript assumes every index is in range, because checking for `undefined` after every array access would make simple loops noisy."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "index.ts",
+      "code": "const colors = [\"red\", \"green\"];\nconst third = colors[2];\n\nconsole.log(third.toUpperCase());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx index.ts (no compiler error with the default settings)",
+      "content": "TypeError: Cannot read properties of undefined (reading 'toUpperCase')"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: trusting an index",
+      "text": "Add `\"noUncheckedIndexedAccess\": true` to `compilerOptions` and the same file fails to compile with `index.ts:4:13 - error TS18048: 'third' is possibly 'undefined'.` The option makes every element read from an array or index signature `T | undefined`, which forces a check such as `third?.toUpperCase()` or an early return. It is one of the two extra checks that `tsc --init` enables in TypeScript 5.9. Turn it on for new projects; for lists you iterate with `for...of`, `map` or `filter` nothing changes, because those never produce an out-of-range element."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "as const for literal arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "`[\"S\", \"M\", \"L\"]` is inferred as `string[]`: the literal values are widened and the array stays mutable. Adding `as const` turns it into the readonly tuple `readonly [\"S\", \"M\", \"L\"]`, and the indexed access type `(typeof sizes)[number]` extracts the union of its elements. The array now serves two purposes: a runtime list to loop over and a compile-time type that stays in sync with it."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "asconst.ts",
+      "code": "const sizes = [\"S\", \"M\", \"L\"] as const;\ntype SizeName = (typeof sizes)[number];\n\nfunction order(size: SizeName): string {\n  return `ordered size ${size}`;\n}\n\nconsole.log(order(\"M\"));\nconsole.log(sizes.length);\norder(\"XL\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc asconst.ts",
+      "content": "asconst.ts:10:7 - error TS2345: Argument of type '\"XL\"' is not assignable to parameter of type '\"S\" | \"M\" | \"L\"'.\n\n10 order(\"XL\");\n         ~~~~\n\n\nFound 1 error in asconst.ts:10"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Which one to reach for",
+      "text": "A list of things of the same kind: `T[]`. A fixed-shape result with different meanings per position: a labelled tuple. A fixed set of allowed values that you also need at runtime: `as const` plus `(typeof list)[number]`. A parameter you promise not to modify: `readonly T[]`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-arrays-tuples-tuple"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-arrays-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "arrays-tuples",
+          "difficulty": "beginner",
+          "question": "What is the inferred type of `const ids = [1, 2, 3].map((n) => String(n));`?",
+          "explanation": "map returns a new array whose element type is whatever the callback returns. String(n) returns a string, so the result is string[].",
+          "options": ["`number[]`", "`string[]`", "`(string | number)[]`", "`readonly string[]`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-arrays-qc-2",
+          "type": "true-false",
+          "lessonSlug": "arrays-tuples",
+          "difficulty": "intermediate",
+          "question": "With the default compiler settings, `const x = [10, 20][5];` gives `x` the type `number | undefined`.",
+          "explanation": "By default indexed access is assumed to be in range, so x is typed number even though it is undefined at runtime. Only noUncheckedIndexedAccess adds the undefined.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-arrays-tuples-tuple"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "enums-literals"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "strict-config"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Arrays and Tuples – readonly, as const, Index",
+    "description": "Learn TypeScript array types, readonly arrays, inferred map results, labelled tuples, noUncheckedIndexedAccess and as const with real compiler output."
+  },
+  "updatedOn": "2026-11-16"
+}

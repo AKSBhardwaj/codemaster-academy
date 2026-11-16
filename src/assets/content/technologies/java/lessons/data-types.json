@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "slug": "data-types",
+  "title": "Data Types and Casting",
+  "summary": "Java's eight primitive types and their ranges, numeric literals, integer versus floating-point arithmetic, widening and narrowing casts, overflow, and the wrapper classes.",
+  "introduction": "Every value in a Java program has a type, and the type decides how much memory the value takes, what operations are allowed and what happens at the edges: what 7 divided by 2 gives, what happens when a number grows past its limit, and what you lose when you squeeze a double into an int. This lesson covers the eight primitive types, how to write literals, the two kinds of conversion, and the wrapper classes that let primitives live inside collections. Each example prints its exact result so you can predict before you run.",
+  "learningObjectives": [
+    "Choose the right primitive type for whole numbers, decimals, characters and flags",
+    "Predict the result of integer and floating-point arithmetic",
+    "Convert between types with widening conversions and explicit casts",
+    "Explain overflow and use wrapper classes and parsing methods"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The eight primitive types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **primitive** holds a plain value directly, not a reference to an object. There are exactly eight, and in day-to-day code four of them do almost all the work: `int` for whole numbers, `double` for decimals, `boolean` for yes/no and `char` for single characters. The others exist for very large numbers, memory-sensitive data or interoperability."
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Size", "Range or precision", "Typical use"],
+      "rows": [
+        ["`byte`", "8 bits", "-128 to 127", "raw binary data, file bytes"],
+        ["`short`", "16 bits", "-32,768 to 32,767", "rare; compact numeric arrays"],
+        [
+          "`int`",
+          "32 bits",
+          "-2,147,483,648 to 2,147,483,647",
+          "counters, indexes, most whole numbers"
+        ],
+        ["`long`", "64 bits", "about ±9.2 quintillion", "timestamps, IDs, large totals"],
+        ["`float`", "32 bits", "about 7 significant digits", "graphics, when memory matters"],
+        ["`double`", "64 bits", "about 15 to 16 significant digits", "default for any decimal"],
+        ["`char`", "16 bits", "one UTF-16 code unit", "a single character such as `'A'`"],
+        ["`boolean`", "1 value", "`true` or `false`", "conditions and flags"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing literals"
+    },
+    {
+      "type": "paragraph",
+      "text": "A whole-number literal such as `42` is an `int`; add `L` to make it a `long`. A decimal literal such as `2.5` is a `double`; add `f` for a `float`. Underscores may separate digit groups for readability, characters go in single quotes and strings in double quotes."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Types.java",
+      "code": "public class Types {\n    public static void main(String[] args) {\n        byte small = 100;\n        short medium = 30_000;\n        int count = 2_000_000_000;\n        long big = 9_000_000_000L;\n        float ratio = 2.5f;\n        double precise = 3.14159;\n        char letter = 'J';\n        boolean ready = true;\n        System.out.println(small + \" \" + medium + \" \" + count);\n        System.out.println(big + \" \" + ratio + \" \" + precise);\n        System.out.println(letter + \" \" + ready);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Types.java",
+      "content": "100 30000 2000000000\n9000000000 2.5 3.14159\nJ true"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Integer and floating-point arithmetic"
+    },
+    {
+      "type": "paragraph",
+      "text": "The type of an arithmetic result depends on the operands, not on the variable you store it in. Two `int` values divided give an `int`: the fraction is thrown away, not rounded. As soon as one operand is a `double`, the whole calculation happens in `double`. Doubles are binary fractions, so some decimal values cannot be stored exactly, which is why `0.1 + 0.2` is famously not `0.3`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "System.out.println(7 / 2);\nSystem.out.println(7 % 2);\nSystem.out.println(7 / 2.0);\nSystem.out.println(0.1 + 0.2);\nSystem.out.println(1.0 / 3);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\n1\n3.5\n0.30000000000000004\n0.3333333333333333"
+    },
+    {
+      "type": "paragraph",
+      "text": "`%` is the remainder operator: `7 % 2` is `1` because 7 is 3 times 2 with 1 left over. For money and anything where cents must add up exactly, do not use `double`; use `long` cents or the `java.math.BigDecimal` class."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Widening and narrowing conversions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java converts automatically when no information can be lost: `byte` to `short` to `int` to `long` to `float` to `double`, and `char` to `int`. This is a **widening** conversion. Going the other way is **narrowing**, and Java insists that you write a **cast**, `(int)` for example, to show you accept the loss. Casting a decimal to an integer type truncates toward zero; casting a large integer into a smaller type keeps only the low bits, so the value wraps around."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int i = 42;\nlong l = i;                  // widening, automatic\ndouble d = i;                // widening, automatic\nSystem.out.println(l + \" \" + d);\n\ndouble price = 9.99;\nint whole = (int) price;     // narrowing: truncates toward zero\nSystem.out.println(whole);\nSystem.out.println((int) -9.99);\nSystem.out.println(Math.round(price));\n\nint big = 130;\nbyte b = (byte) big;         // keeps the low 8 bits: wraps around\nSystem.out.println(b);\n\nchar c = 'A';\nint code = c;                // a char is a number underneath\nSystem.out.println(code);\nSystem.out.println((char) (c + 2));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "42 42.0\n9\n-9\n10\n-126\n65\nC"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Math.round` is the tool when you want the nearest whole number rather than truncation; it returns a `long` for a `double` argument. The `char` lines show that characters are numbers: `'A'` is 65 in Unicode, and adding 2 then casting back gives `'C'`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Overflow"
+    },
+    {
+      "type": "paragraph",
+      "text": "An `int` cannot grow past 2,147,483,647. Add one and it silently wraps to the most negative value; there is no error and no warning. When a total might exceed two billion (milliseconds since 1970 already do), use `long`, and make at least one operand a `long` so the arithmetic itself is done in 64 bits."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int max = Integer.MAX_VALUE;\nSystem.out.println(max);\nSystem.out.println(max + 1);\nlong safe = max + 1L;\nSystem.out.println(safe);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "2147483647\n-2147483648\n2147483648"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strings, wrappers and parsing"
+    },
+    {
+      "type": "paragraph",
+      "text": "`String` is not a primitive: it is a class, and a `String` variable holds a reference to an object. Every primitive also has a **wrapper class** (`Integer`, `Double`, `Boolean`, `Character` and so on) that packages the value as an object, which is what collections such as `ArrayList` require. Java converts between a primitive and its wrapper automatically (autoboxing and unboxing). The wrappers also provide parsing methods that turn text into numbers, and `String.valueOf` goes the other way. Note that `+` with a string on either side means concatenation, not addition."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String input = \"42\";\nint parsed = Integer.parseInt(input);\ndouble half = Double.parseDouble(\"2.5\") / 2;\nInteger boxed = parsed;          // autoboxing\nint unboxed = boxed + 1;         // unboxing\nSystem.out.println(parsed + 1);\nSystem.out.println(input + 1);\nSystem.out.println(half);\nSystem.out.println(unboxed);\nSystem.out.println(String.valueOf(3.0) + 4);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "43\n421\n1.25\n43\n3.04"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The compiler protects you"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because narrowing can lose data, Java refuses it without a cast. The message names both types, which makes it easy to decide whether a cast or a different variable type is the right fix."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Lossy.java",
+      "code": "public class Lossy {\n    public static void main(String[] args) {\n        int whole = 9.99;\n        System.out.println(whole);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "javac Lossy.java",
+      "content": "Lossy.java:3: error: incompatible types: possible lossy conversion from double to int\n        int whole = 9.99;\n                    ^\n1 error"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Literal suffixes",
+      "text": "`long population = 8_000_000_000;` does not compile and reports `error: integer number too large`, because a literal without a suffix is an `int` and 8 billion exceeds the `int` range even though the variable is a `long`. Write `8_000_000_000L`. Likewise `float f = 3.14;` fails with a lossy-conversion error because a decimal literal is a `double`; write `3.14f` or use `double`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Default choices",
+      "text": "When in doubt, use `int` for whole numbers and `double` for decimals. Reach for `long` when values can exceed two billion, and for `float`, `short` or `byte` only when a library or memory constraint asks for them."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-data-types-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-data-types-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "What does `System.out.println(10 / 4);` print?",
+          "explanation": "Both operands are `int`, so the division is integer division and the fraction is discarded: 2. Write `10 / 4.0` to get 2.5.",
+          "options": ["`2.5`", "`2`", "`3`", "`2.0`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "java-data-types-qc-2",
+          "type": "true-false",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "Casting a `double` to an `int` with `(int)` rounds to the nearest whole number.",
+          "explanation": "A cast truncates toward zero: `(int) 9.99` is 9 and `(int) -9.99` is -9. Use `Math.round` for rounding.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-data-types-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "operators-conditionals"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "strings-io"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    }
+  ],
+  "seo": {
+    "title": "Java Data Types and Casting – Primitives Explained",
+    "description": "Java's eight primitive types, literals, integer division, widening and narrowing casts, overflow and wrapper classes, with exact output for every example."
+  },
+  "updatedOn": "2026-11-15"
+}

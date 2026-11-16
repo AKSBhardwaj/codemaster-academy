@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "join-grouped-text",
+  "title": "Join grouped text",
+  "summary": "GROUP_CONCAT joins text values from a group into one string.",
+  "introduction": "GROUP_CONCAT joins text values from a group into one string. Your task: Change the separator to a slash.",
+  "learningObjectives": [
+    "Change the separator to a slash.",
+    "Explain the example for join grouped text"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "GROUP_CONCAT joins text values from a group into one string. It can make a short list of names for a report."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use MariaDB 10.11+ with its mariadb client in an empty practice database. These dialect-specific examples do not run in the site's SQLite playground. Keep the sample database separate from real records."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "WITH books AS (SELECT 'story' AS kind,'Moon Trip' AS title UNION ALL SELECT 'story','Tiny Seed')\nSELECT kind,GROUP_CONCAT(title ORDER BY title SEPARATOR ', ') AS titles FROM books GROUP BY kind;",
+      "title": "Join grouped text",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ORDER BY` chooses a result order. Include a tie-break field when equal values need a stable order.",
+        "`GROUP BY` makes one summary group for each distinct combination of the named grouping values.",
+        "`GROUP_CONCAT` joins group text values with the chosen separator and ordering."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The story group has the text Moon Trip, Tiny Seed."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Large concatenated results can be limited by server settings. Do not use one long text list as a replacement for normal related rows."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the separator to a slash."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mariadb-join-grouped-text-check"
+    }
+  ],
+  "exerciseIds": ["mariadb-join-grouped-text-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mariadb",
+      "slug": "take-a-sorted-sample"
+    }
+  ],
+  "seo": {
+    "title": "MariaDB: Join grouped text",
+    "description": "GROUP_CONCAT joins text values from a group into one string. It can make a short list of names for a report."
+  },
+  "updatedOn": "2026-11-16"
+}

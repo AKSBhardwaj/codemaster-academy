@@ -2,8 +2,8 @@
   <nav class="navbar navbar-expand-lg cma-navbar" aria-label="Primary">
     <div class="container-xxl">
       <a class="navbar-brand d-flex align-items-center gap-2 me-lg-4" routerLink="/">
-        <img [ngSrc]="site.logoPath" width="28" height="28" alt="" priority />
-        <span class="cma-brand-name">{{ site.name }}</span>
+        <img [ngSrc]="site.logoPath" width="36" height="36" alt="" priority />
+        <span class="cma-brand-name">CodeMaster <span>Academy</span></span>
       </a>
 
       <ul class="navbar-nav d-none d-lg-flex me-auto">
@@ -68,21 +68,13 @@
             type="button"
             class="btn btn-ghost btn-icon"
             cmaDropdownToggle
-            aria-label="Account menu"
-            title="Account"
+            aria-label="My learning menu"
+            title="My learning"
           >
-            <cma-icon name="person-circle" [size]="20" />
+            <cma-icon name="speedometer2" [size]="20" />
           </button>
           <ul class="dropdown-menu dropdown-menu-end" cmaDropdownMenu>
-            @if (auth.user(); as user) {
-              <li class="px-3 py-1 small cma-text-secondary">
-                Signed in as <strong class="text-body">{{ user.name }}</strong><span class="d-block"
-                  >demo account (this browser)</span
-                >
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-            }
-            @for (link of accountLinks(); track link.path) {
+            @for (link of learningLinks; track link.path) {
               <li>
                 <a class="dropdown-item" [routerLink]="link.path">
                   @if (link.icon) {
@@ -90,14 +82,6 @@
                   }
                   {{ link.label }}
                 </a>
-              </li>
-            }
-            @if (auth.isAuthenticated()) {
-              <li><hr class="dropdown-divider" /></li>
-              <li>
-                <button type="button" class="dropdown-item" (click)="logout()">
-                  <cma-icon name="box-arrow-right" /> Log out
-                </button>
               </li>
             }
           </ul>
@@ -159,9 +143,9 @@
         }
       }
       <li class="cma-mobile-nav__group">
-        <span class="cma-mobile-nav__heading">Account</span>
+        <span class="cma-mobile-nav__heading">My learning</span>
         <ul class="list-unstyled">
-          @for (link of accountLinks(); track link.path) {
+          @for (link of learningLinks; track link.path) {
             <li>
               <a class="cma-mobile-nav__link" [routerLink]="link.path" (click)="closeMenu()">
                 @if (link.icon) {
@@ -169,17 +153,6 @@
                 }
                 {{ link.label }}
               </a>
-            </li>
-          }
-          @if (auth.isAuthenticated()) {
-            <li>
-              <button
-                type="button"
-                class="cma-mobile-nav__link w-100 border-0 bg-transparent"
-                (click)="logout()"
-              >
-                <cma-icon name="box-arrow-right" /> Log out
-              </button>
             </li>
           }
         </ul>

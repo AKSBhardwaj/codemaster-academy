@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "slug": "memory-management",
+  "title": "Dynamic Memory",
+  "summary": "Why some data cannot live on the stack, how malloc, calloc, realloc and free work, growing arrays on demand, ownership rules, and finding leaks with sanitizers.",
+  "introduction": "Local variables and fixed-size arrays live on the stack: they appear when a function starts, vanish when it returns, and their size is fixed at compile time. Real programs need data whose size is only known at run time and that must outlive the function that created it. That memory comes from the heap through `malloc` and friends, and you are responsible for giving it back with `free`. This lesson explains the allocation functions, the idioms that make them safe, how to grow an array with `realloc`, and how to let the compiler's sanitizers find leaks and use-after-free bugs for you.",
+  "learningObjectives": [
+    "Explain the difference between automatic (stack) and dynamic (heap) storage",
+    "Allocate memory with malloc and calloc, check the result and release it with free",
+    "Grow an array on demand with realloc without losing data on failure",
+    "Detect leaks and use-after-free bugs with AddressSanitizer"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Stack and heap"
+    },
+    {
+      "type": "paragraph",
+      "text": "C has three kinds of storage. **Static** storage (file-scope and `static` variables) exists for the whole run. **Automatic** storage (ordinary locals and parameters) lives on the *stack*: it is created on function entry, released on return, and limited to a few megabytes in total, so a huge local array can crash the program. **Dynamic** storage comes from the *heap*: you request it at run time with a size you compute, and it stays allocated until you call `free`. Choose dynamic memory when the size is unknown at compile time, when the data must outlive the function that creates it, or when it is too big for the stack."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "malloc, calloc and free"
+    },
+    {
+      "type": "paragraph",
+      "text": "`malloc(n)` returns a pointer to `n` bytes of uninitialised memory, or `NULL` if the request cannot be met. `calloc(count, size)` returns `count * size` bytes set to zero and checks that the multiplication does not overflow. `free(p)` returns the block to the allocator; after that call `p` is a dangling pointer. All three are declared in `<stdlib.h>`. Compute sizes with `sizeof *p` rather than repeating the type name, so that changing the pointer's type can never desynchronise the allocation, and do not cast the result of `malloc`: a `void *` converts to any object pointer automatically in C."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "alloc.c",
+      "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void)\n{\n    size_t n = 5;\n    int *squares = malloc(n * sizeof *squares);   /* n ints, contents undefined */\n    if (squares == NULL) {\n        fprintf(stderr, \"out of memory\\n\");\n        return 1;\n    }\n    for (size_t i = 0; i < n; i++) {\n        squares[i] = (int)(i * i);\n    }\n\n    double *zeros = calloc(3, sizeof *zeros);     /* 3 doubles, all 0.0 */\n    if (zeros == NULL) {\n        free(squares);\n        return 1;\n    }\n\n    for (size_t i = 0; i < n; i++) {\n        printf(\"%d%s\", squares[i], i + 1 < n ? \" \" : \"\\n\");\n    }\n    printf(\"%.1f %.1f %.1f\\n\", zeros[0], zeros[1], zeros[2]);\n\n    free(squares);\n    free(zeros);\n    squares = NULL;     /* a freed pointer must not be used again */\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 alloc.c -o alloc\n$ ./alloc\n0 1 4 9 16\n0.0 0.0 0.0"
+    },
+    {
+      "type": "table",
+      "caption": "The ownership rules",
+      "headers": ["Rule", "Why"],
+      "rows": [
+        [
+          "Every allocation is freed exactly once",
+          "Zero times is a leak; twice corrupts the allocator's bookkeeping"
+        ],
+        [
+          "Free only pointers that came from `malloc`, `calloc` or `realloc`",
+          "Freeing a stack array or a pointer into the middle of a block is undefined behaviour"
+        ],
+        [
+          "Check for `NULL` before using the block",
+          "Allocation can fail; writing through `NULL` crashes"
+        ],
+        [
+          "Set the pointer to `NULL` after `free` when it stays in scope",
+          "Turns a silent use-after-free into an obvious crash and makes a double `free` harmless"
+        ],
+        [
+          "Document who owns returned memory",
+          "The caller of a function that allocates must know it has to free"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Growing an array with realloc"
+    },
+    {
+      "type": "paragraph",
+      "text": "`realloc(p, new_size)` resizes a block, moving it to a new address if necessary and copying the old contents. On failure it returns `NULL` **and leaves the old block valid**, so never write `p = realloc(p, ...)`: a failure would overwrite your only pointer to the data and leak it. Assign to a temporary, check it, then commit. Doubling the capacity whenever the array fills keeps the total copying cost proportional to the final size."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "grow.c",
+      "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void)\n{\n    size_t capacity = 2, count = 0;\n    int *items = malloc(capacity * sizeof *items);\n    if (items == NULL) return 1;\n\n    for (int value = 1; value <= 9; value++) {\n        if (count == capacity) {\n            size_t bigger = capacity * 2;\n            int *tmp = realloc(items, bigger * sizeof *items);\n            if (tmp == NULL) {\n                free(items);           /* the old block is still ours */\n                return 1;\n            }\n            items = tmp;\n            capacity = bigger;\n            printf(\"capacity grew to %zu\\n\", capacity);\n        }\n        items[count++] = value * value;\n    }\n\n    printf(\"%zu items, last = %d\\n\", count, items[count - 1]);\n    free(items);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "capacity grew to 4\ncapacity grew to 8\ncapacity grew to 16\n9 items, last = 81"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strings on the heap"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same pattern builds strings of any length. `strdup`, available on POSIX systems and standard in C23, returns a `malloc`-ed copy of a string that the caller must free; in C17 you can write it yourself in a few lines. A function that returns allocated memory should say so in its name or a comment, because the caller now owns the block and must release it."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "copystr.c",
+      "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nchar *copy_string(const char *src)      /* caller must free the result */\n{\n    size_t len = strlen(src) + 1;       /* include the terminator */\n    char *dst = malloc(len);\n    if (dst != NULL) {\n        memcpy(dst, src, len);\n    }\n    return dst;\n}\n\nint main(void)\n{\n    char *greeting = copy_string(\"hello\");\n    if (greeting == NULL) return 1;\n\n    greeting[0] = 'H';                  /* heap memory is writable */\n    printf(\"%s (%zu bytes allocated)\\n\", greeting, strlen(greeting) + 1);\n    free(greeting);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Hello (6 bytes allocated)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Finding leaks and use-after-free"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **leak** is memory that is never freed; a long-running program that leaks inside a loop eventually runs out of memory. **Use after free** reads or writes a block after `free`, corrupting whatever the allocator has since handed out. Both are invisible in a normal run. Compile with `-fsanitize=address -g` and the program checks every memory access and reports leaks at exit (on Linux; Apple's Clang omits the leak checker). Valgrind (`valgrind ./leak`) finds the same problems without recompiling."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "leak.c",
+      "code": "#include <stdlib.h>\n\nint main(void)\n{\n    int *data = malloc(10 * sizeof *data);\n    data[0] = 1;\n    return 0;            /* data is never freed */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (trimmed; addresses, process id and paths vary)",
+      "content": "$ gcc -Wall -Wextra -std=c17 -g -fsanitize=address leak.c -o leak\n$ ./leak\n\n=================================================================\n==4242==ERROR: LeakSanitizer: detected memory leaks\n\nDirect leak of 40 byte(s) in 1 object(s) allocated from:\n    #0 0x7f3c2a4b5a7f in malloc\n    #1 0x55d1b2c9a1a9 in main leak.c:5\n\nSUMMARY: AddressSanitizer: 40 byte(s) leaked in 1 allocation(s)."
+    },
+    {
+      "type": "paragraph",
+      "text": "The report names the size, the allocating line and the fact that nothing freed it. A use-after-free produces a `heap-use-after-free` report with both the access and the earlier `free` call located; a double free produces `attempting double-free`. Run your test programs under the sanitizer routinely and the whole class of memory bugs stops being mysterious."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: using a block after freeing it",
+      "text": "`free(list); printf(\"%d\\n\", list[0]);` often prints the old value, which teaches the wrong lesson: the memory still exists, but the allocator may reuse it at any moment, and on another run or machine the same code prints garbage or crashes. The same applies to a second `free(list)`. Treat a pointer as poison the instant it is freed, set it to `NULL` if it stays in scope, and never store a freed address in two places without a plan for both."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Add `free(data);` before the `return` in `leak.c` and confirm the sanitizer is silent. Then read `data[0]` after the `free` and compare the new report: it names the line that freed the block and the line that used it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-memory-dynamic-array"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-memory-qc-1",
+          "type": "true-false",
+          "lessonSlug": "memory-management",
+          "difficulty": "beginner",
+          "question": "`malloc` sets the memory it returns to zero.",
+          "explanation": "`malloc` returns uninitialised memory containing whatever was there before. `calloc` is the function that zeroes the block.",
+          "correct": false
+        },
+        {
+          "id": "c-memory-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "memory-management",
+          "difficulty": "intermediate",
+          "question": "Why is `p = realloc(p, size);` considered unsafe?",
+          "explanation": "When `realloc` fails it returns `NULL` but leaves the original block allocated. Overwriting `p` with that `NULL` loses the only pointer to the block, so it can never be freed.",
+          "options": [
+            "`realloc` never returns `NULL`",
+            "If `realloc` fails, `NULL` overwrites the only pointer to the still-allocated block",
+            "`realloc` always moves the block to a new address",
+            "`realloc` frees the block when the size is unchanged"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-memory-dynamic-array"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "pointers"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "arrays-strings"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "structs"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "common-bugs"
+    }
+  ],
+  "seo": {
+    "title": "C Dynamic Memory – malloc, calloc, realloc, free",
+    "description": "Learn C dynamic memory: stack versus heap, malloc, calloc and free, growing arrays with realloc, ownership rules and finding leaks with AddressSanitizer."
+  },
+  "updatedOn": "2026-11-15"
+}

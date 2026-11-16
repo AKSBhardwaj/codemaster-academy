@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,23 +13,45 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { HighlightMatchPipe } from '../../shared/pipes/highlight-match.pipe';
 
-const ALL_KINDS: SearchDocumentKind[] = ['technology', 'lesson', 'category', 'path', 'example', 'exercises', 'quiz', 'reference'];
+const ALL_KINDS: SearchDocumentKind[] = [
+  'technology',
+  'lesson',
+  'category',
+  'path',
+  'example',
+  'exercises',
+  'quiz',
+  'reference',
+];
 
 @Component({
   selector: 'cma-search',
-  imports: [ReactiveFormsModule, RouterLink, PageHeaderComponent, EmptyStateComponent, IconComponent, StatusBadgeComponent, HighlightMatchPipe],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    IconComponent,
+    StatusBadgeComponent,
+    HighlightMatchPipe,
+  ],
   templateUrl: './search.html',
 })
 export class SearchPage {
   /** Bound from the `q` query parameter via withComponentInputBinding. */
   readonly q = input('');
-  protected readonly control = new FormControl('', { nonNullable: true });
+  protected readonly control = new FormControl(
+    { value: '', disabled: true },
+    { nonNullable: true },
+  );
   protected readonly hits = signal<SearchHit[]>([]);
   protected readonly searched = signal('');
   protected readonly loading = signal(false);
   protected readonly kindFilter = signal<SearchDocumentKind | 'all'>('all');
   protected readonly kindLabel = KIND_LABEL;
-  protected readonly availableKinds = computed(() => ALL_KINDS.filter((kind) => this.hits().some((hit) => hit.kind === kind)));
+  protected readonly availableKinds = computed(() =>
+    ALL_KINDS.filter((kind) => this.hits().some((hit) => hit.kind === kind)),
+  );
   protected readonly visibleHits = computed(() => {
     const kind = this.kindFilter();
     return kind === 'all' ? this.hits() : this.hits().filter((hit) => hit.kind === kind);
@@ -49,9 +71,11 @@ export class SearchPage {
   private requestId = 0;
 
   constructor() {
+    afterNextRender(() => this.control.enable({ emitEvent: false }));
     effect(() => {
       const fromUrl = (this.q() ?? '').trim();
-      if (fromUrl !== this.control.value.trim()) this.control.setValue(fromUrl, { emitEvent: false });
+      if (fromUrl !== this.control.value.trim())
+        this.control.setValue(fromUrl, { emitEvent: false });
       void this.run(fromUrl);
       this.seo.apply({
         title: fromUrl ? `Search results for “${fromUrl}”` : 'Search',
@@ -63,7 +87,10 @@ export class SearchPage {
       const text = this.typed();
       // null = nothing typed yet; programmatic updates do not emit, so this only reacts to the learner typing.
       if (text !== null && text !== (this.q() ?? '').trim()) {
-        void this.router.navigate(['/search'], { queryParams: text ? { q: text } : {}, replaceUrl: true });
+        void this.router.navigate(['/search'], {
+          queryParams: text ? { q: text } : {},
+          replaceUrl: true,
+        });
       }
     });
   }

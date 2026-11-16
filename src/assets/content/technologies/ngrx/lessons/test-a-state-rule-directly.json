@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "test-a-state-rule-directly",
+  "title": "Test a state rule directly",
+  "summary": "A reducer can be tested without opening the page.",
+  "introduction": "A reducer can be tested without opening the page. Your task: Add a test for the add action in your project.",
+  "learningObjectives": [
+    "Add a test for the add action in your project.",
+    "Explain the example for test a state rule directly"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A reducer can be tested without opening the page. Give it a known state and action, then compare the result."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use an Angular project with the matching major version of @ngrx/store. Effects and SignalStore examples also need @ngrx/effects or @ngrx/signals. Save linked snippets in the files named by their imports."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import {createAction,createReducer,on} from \"@ngrx/store\";\nconst reset=createAction(\"[Reading] Reset\");\nconst reducer=createReducer({count:0},on(reset,()=>({count:0})));\nconst before={count:5};const after=reducer(before,reset());\nconsole.assert(after.count===0);\nconsole.assert(before.count===5);",
+      "title": "Test a state rule directly",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`createAction` defines an NgRx event creator. Calling the creator makes an action object to dispatch.",
+        "`createReducer` matches actions to state update rules. In NgRx, return new state instead of mutating the old object."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both checks pass: the result resets while the original state stays unchanged."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Test behaviour and original-state safety. Merely checking that a reducer function exists tells little."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add a test for the add action in your project."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ngrx-test-a-state-rule-directly-check"
+    }
+  ],
+  "exerciseIds": ["ngrx-test-a-state-rule-directly-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ngrx",
+      "slug": "try-a-signalstore"
+    }
+  ],
+  "seo": {
+    "title": "NgRx: Test a state rule directly",
+    "description": "A reducer can be tested without opening the page. Give it a known state and action, then compare the result."
+  },
+  "updatedOn": "2026-11-16"
+}

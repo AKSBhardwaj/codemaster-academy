@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Point to another URL",
+  "summary": "FastAPI: Point to another URL. Inspect the first 302 response.",
+  "introduction": "RedirectResponse sends a Location header. A browser following GET /start reaches /hello.",
+  "learningObjectives": ["Point to another URL with FastAPI", "Inspect the first 302 response"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Point to another URL"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Point to another URL",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/start\")\ndef start():\n    return RedirectResponse(\"/hello\", status_code=302)\n@app.get(\"/hello\", response_class=PlainTextResponse)\ndef hello():\n    return \"Welcome\"\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "RedirectResponse sends /hello as the location. The browser makes a second request to it."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first 302 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Choose the redirect status deliberately, especially for non-GET methods."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-redirects-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Point to another URL",
+    "description": "FastAPI: Point to another URL. Inspect the first 302 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

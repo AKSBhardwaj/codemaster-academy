@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "number-rows-without-grouping-them",
+  "title": "Number rows without grouping them",
+  "summary": "A window function calculates across related rows while keeping each row visible.",
+  "introduction": "A window function calculates across related rows while keeping each row visible. Your task: Reverse the window ordering and predict the numbers.",
+  "learningObjectives": [
+    "Reverse the window ordering and predict the numbers.",
+    "Explain the example for number rows without grouping them"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A window function calculates across related rows while keeping each row visible. row_number can number a sorted result."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use PostgreSQL in a new practice database through psql or a database editor. These are PostgreSQL examples, not SQLite. They do not run in this site's SQL playground. Use only sample data."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "WITH books(title,pages) AS (VALUES ('Moon Trip',60),('Tiny Seed',20))\nSELECT title,row_number() OVER (ORDER BY pages,title) AS reading_order FROM books ORDER BY reading_order;",
+      "title": "Number rows without grouping them",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ORDER BY` chooses a result order. Include a tie-break field when equal values need a stable order.",
+        "`row_number` numbers rows according to its window order while keeping those rows separate.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tiny Seed gets 1 and Moon Trip gets 2."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A window ORDER BY sets the calculation order. Use an outer ORDER BY when the displayed row order matters too."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Reverse the window ordering and predict the numbers."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "postgresql-number-rows-without-grouping-them-check"
+    }
+  ],
+  "exerciseIds": ["postgresql-number-rows-without-grouping-them-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "postgresql",
+      "slug": "use-an-array-for-a-small-value-list"
+    }
+  ],
+  "seo": {
+    "title": "PostgreSQL: Number rows without grouping them",
+    "description": "A window function calculates across related rows while keeping each row visible. row_number can number a sorted result."
+  },
+  "updatedOn": "2026-11-16"
+}

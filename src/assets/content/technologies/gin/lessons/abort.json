@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "abort",
+  "title": "Stop a handler chain",
+  "summary": "Gin: Stop a handler chain. Replace the blocking first handler with c.Next and compare.",
+  "introduction": "AbortWithStatusJSON stops later handlers in the chain. GET /closed receives this practice block message.",
+  "learningObjectives": [
+    "Stop a handler chain with Gin",
+    "Replace the blocking first handler with c.Next and compare"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Stop a handler chain"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Stop a handler chain",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/closed\", func(c *gin.Context) { c.AbortWithStatusJSON(http.StatusForbidden, gin.H{\"error\": \"Closed for practice\"}) }, func(c *gin.Context) { c.String(http.StatusOK, \"This is skipped\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "AbortWithStatusJSON writes the error and stops later handlers. The second handler is not called."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Closed for practice\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Replace the blocking first handler with c.Next and compare."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Abort stops later handlers but does not return from the current Go function."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-abort-check"
+    }
+  ],
+  "exerciseIds": ["gin-abort-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "not-found"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Stop a handler chain",
+    "description": "Gin: Stop a handler chain. Replace the blocking first handler with c.Next and compare. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

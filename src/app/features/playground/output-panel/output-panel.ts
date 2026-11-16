@@ -23,11 +23,22 @@ export class OutputPanelComponent {
   readonly frameHost = viewChild.required<ElementRef<HTMLDivElement>>('frameHost');
 
   protected readonly consoleEvents = computed(() =>
-    this.events().filter((e): e is Extract<RunEvent, { type: 'console' | 'error' }> => e.type === 'console' || e.type === 'error'),
+    this.events().filter(
+      (e): e is Extract<RunEvent, { type: 'console' | 'error' }> =>
+        e.type === 'console' || e.type === 'error',
+    ),
   );
-  protected readonly results = computed(() => this.events().filter((e): e is Extract<RunEvent, { type: 'result' }> => e.type === 'result'));
-  protected readonly status = computed(() => this.events().filter((e): e is Extract<RunEvent, { type: 'status' }> => e.type === 'status').at(-1));
-  protected readonly done = computed(() => this.events().find((e): e is Extract<RunEvent, { type: 'done' }> => e.type === 'done'));
+  protected readonly results = computed(() =>
+    this.events().filter((e): e is Extract<RunEvent, { type: 'result' }> => e.type === 'result'),
+  );
+  protected readonly status = computed(() =>
+    this.events()
+      .filter((e): e is Extract<RunEvent, { type: 'status' }> => e.type === 'status')
+      .at(-1),
+  );
+  protected readonly done = computed(() =>
+    this.events().find((e): e is Extract<RunEvent, { type: 'done' }> => e.type === 'done'),
+  );
   protected readonly hasErrors = computed(() => this.events().some((e) => e.type === 'error'));
 
   /** Element the engine renders the sandboxed frame into. */

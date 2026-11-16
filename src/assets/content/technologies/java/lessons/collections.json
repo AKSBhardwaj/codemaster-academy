@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "collections",
+  "title": "Collections: List, Set and Map",
+  "summary": "Store groups of values with ArrayList, keep values unique with HashSet and TreeSet, and map keys to values with HashMap, LinkedHashMap and TreeMap, with every output shown.",
+  "introduction": "Arrays have a fixed size and no helpful methods; the Java Collections Framework provides resizable, searchable, sortable containers for almost every situation. This lesson introduces the three interfaces you will use daily: List for ordered sequences, Set for unique values and Map for key-value pairs, together with their standard implementations. You add, remove, search, sort and iterate, see which implementation keeps which order, and meet the two mistakes that bite everyone once: removing by index instead of by value, and modifying a list while looping over it.",
+  "learningObjectives": [
+    "Create and modify an ArrayList and iterate over it",
+    "Use HashSet and TreeSet to keep values unique, ordered or not",
+    "Store and look up key-value pairs with HashMap, LinkedHashMap and TreeMap",
+    "Pick the right collection and avoid the common removal mistakes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lists"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `List` keeps elements in insertion order, allows duplicates and gives every element an index. `ArrayList` is the implementation to reach for. The element type goes in angle brackets and must be a class, so a list of whole numbers is `List<Integer>`, never `List<int>`; autoboxing converts the primitives for you. Declare the variable with the interface type `List` and create an `ArrayList`: the code then depends only on the contract, and `new ArrayList<>()` with the empty diamond lets the compiler repeat the element type."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Tasks.java",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Tasks {\n    public static void main(String[] args) {\n        List<String> tasks = new ArrayList<>();\n        tasks.add(\"write code\");\n        tasks.add(\"test code\");\n        tasks.add(\"ship\");\n        tasks.add(1, \"review\");           // insert at index 1\n        System.out.println(tasks);\n        System.out.println(tasks.size() + \" tasks, first: \" + tasks.getFirst());\n        tasks.set(0, \"write tests\");       // replace the element at index 0\n        tasks.remove(\"ship\");              // remove by value\n        System.out.println(tasks.contains(\"ship\") + \" \" + tasks.indexOf(\"review\"));\n        for (String task : tasks) {\n            System.out.println(\"- \" + task);\n        }\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Tasks.java",
+      "content": "[write code, review, test code, ship]\n4 tasks, first: write code\nfalse 1\n- write tests\n- review\n- test code"
+    },
+    {
+      "type": "paragraph",
+      "text": "Printing a list shows its elements in square brackets, which is handy for debugging. `getFirst()` and `getLast()` arrived in Java 21 alongside `reversed()`; on older versions use `get(0)` and `get(size() - 1)`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Fixed lists and sorting"
+    },
+    {
+      "type": "paragraph",
+      "text": "`List.of(...)` builds an **unmodifiable** list in one expression: perfect for constants and test data, but any attempt to add or remove throws `UnsupportedOperationException`. To get a modifiable copy, pass it to the `ArrayList` constructor. `Collections.sort` orders a list of comparable elements such as numbers or strings in place."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main (with java.util imports)",
+      "code": "List<Integer> fixed = List.of(3, 1, 2);\nList<Integer> numbers = new ArrayList<>(fixed);\nnumbers.add(0);\nCollections.sort(numbers);\nSystem.out.println(numbers);\nSystem.out.println(numbers.reversed());\ntry {\n    fixed.add(4);\n} catch (UnsupportedOperationException e) {\n    System.out.println(\"List.of() lists cannot change\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[0, 1, 2, 3]\n[3, 2, 1, 0]\nList.of() lists cannot change"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sets"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `Set` holds each value at most once; adding a duplicate is ignored and `add` returns `false` to tell you. `HashSet` is the fastest and makes **no promise about order**: never rely on the order in which it prints. `LinkedHashSet` remembers insertion order, and `TreeSet` keeps its elements sorted. Sets answer the questions *have I seen this before?* and *how many distinct values are there?* in one line."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main (with java.util imports)",
+      "code": "Set<String> seen = new HashSet<>();\nString[] visits = {\"ada\", \"bob\", \"ada\", \"cy\", \"bob\"};\nfor (String visit : visits) {\n    boolean added = seen.add(visit);\n    System.out.println(visit + \" new? \" + added);\n}\nSystem.out.println(seen.size() + \" unique visitors\");\nSet<String> sorted = new TreeSet<>(seen);\nSystem.out.println(sorted);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ada new? true\nbob new? true\nada new? false\ncy new? true\nbob new? false\n3 unique visitors\n[ada, bob, cy]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Maps"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `Map` associates each **key** with one **value**: product name to stock level, user id to user, word to count. `put` adds or replaces, `get` returns the value or `null` when the key is absent, and `getOrDefault` avoids that `null`. `merge` combines a new value with an existing one in a single call, which makes counting a one-liner. `HashMap` is unordered, `LinkedHashMap` keeps insertion order and `TreeMap` sorts by key; the example uses `LinkedHashMap` so the output is predictable."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main (with java.util imports)",
+      "code": "Map<String, Integer> stock = new LinkedHashMap<>();\nstock.put(\"apple\", 5);\nstock.put(\"pear\", 2);\nstock.put(\"apple\", 7);                 // replaces the value for apple\nSystem.out.println(stock);\nSystem.out.println(stock.get(\"pear\"));\nSystem.out.println(stock.get(\"kiwi\"));\nSystem.out.println(stock.getOrDefault(\"kiwi\", 0));\nstock.merge(\"pear\", 3, Integer::sum);   // 2 + 3\nstock.merge(\"kiwi\", 1, Integer::sum);   // absent, so stored as 1\nfor (Map.Entry<String, Integer> entry : stock.entrySet()) {\n    System.out.println(entry.getKey() + \" -> \" + entry.getValue());\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{apple=7, pear=2}\n2\nnull\n0\napple -> 7\npear -> 5\nkiwi -> 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Integer::sum` is a **method reference**, a compact way to pass the `sum` method as the combining function; the [Records, Enums and Streams](/tutorials/java/records-streams) lesson covers lambdas and method references properly. Iterating `entrySet()` visits key and value together; `keySet()` and `values()` give just one side."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing a collection"
+    },
+    {
+      "type": "table",
+      "headers": ["You need", "Use", "Order"],
+      "rows": [
+        ["An ordered sequence, duplicates allowed, index access", "`ArrayList`", "insertion order"],
+        ["Unique values, fastest", "`HashSet`", "none guaranteed"],
+        ["Unique values in insertion order", "`LinkedHashSet`", "insertion order"],
+        ["Unique values, sorted", "`TreeSet`", "sorted"],
+        ["Key to value, fastest", "`HashMap`", "none guaranteed"],
+        [
+          "Key to value, predictable or sorted order",
+          "`LinkedHashMap` / `TreeMap`",
+          "insertion / sorted by key"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Two removal traps"
+    },
+    {
+      "type": "paragraph",
+      "text": "`List` has two `remove` methods: `remove(int index)` and `remove(Object value)`. For a `List<Integer>` the call `numbers.remove(1)` matches the `int` version and removes the element at index 1, not the value 1. Pass `Integer.valueOf(1)` to remove by value. The second trap is removing elements inside an enhanced `for` loop over the same list, which throws `ConcurrentModificationException` on the next iteration. Use `removeIf` with a condition instead."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main (with java.util imports)",
+      "code": "List<Integer> numbers = new ArrayList<>(List.of(5, 1, 8, 1, 3));\nnumbers.remove(1);                   // index 1: removes the first 1\nnumbers.remove(Integer.valueOf(1));  // value 1: removes the other 1\nSystem.out.println(numbers);\nnumbers.removeIf(n -> n > 4);        // safe removal by condition\nSystem.out.println(numbers);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[5, 8, 3]\n[3]"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not trust HashMap and HashSet order",
+      "text": "`HashMap` and `HashSet` may print their contents in any order, and that order can change when elements are added or when you upgrade Java. Code that passes a test only because the elements happened to come out in insertion order is a bug waiting for production. When order matters, say so with `LinkedHashMap`, `TreeMap` or an explicit sort."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-collections-remove"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-collections-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "collections",
+          "difficulty": "beginner",
+          "question": "Which collection stores values and silently ignores an attempt to add a value it already contains?",
+          "explanation": "A `Set` holds each value once: `add` returns `false` for a duplicate and the set is unchanged. Lists accept duplicates, and a map stores key-value pairs.",
+          "options": ["`ArrayList`", "`HashSet`", "`HashMap`", "An array"],
+          "correctIndex": 1
+        },
+        {
+          "id": "java-collections-qc-2",
+          "type": "true-false",
+          "lessonSlug": "collections",
+          "difficulty": "beginner",
+          "question": "A `HashMap` guarantees that its entries are iterated in the order they were inserted.",
+          "explanation": "`HashMap` makes no ordering promise. `LinkedHashMap` keeps insertion order and `TreeMap` sorts by key.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-collections-remove", "java-collections-word-count"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "generics"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "records-streams"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "dictionaries"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    }
+  ],
+  "seo": {
+    "title": "Java Collections – ArrayList, HashSet and HashMap",
+    "description": "Java's collections framework: ArrayList for ordered lists, HashSet and TreeSet for unique values, HashMap and TreeMap for key-value pairs, with outputs shown."
+  },
+  "updatedOn": "2026-11-15"
+}

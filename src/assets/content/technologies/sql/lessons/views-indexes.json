@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "slug": "views-indexes",
+  "title": "Views and Indexes",
+  "summary": "A view saves a query under a name. An index helps the database find certain rows more quickly.",
+  "introduction": "A view saves a query under a name. An index helps the database find certain rows more quickly. A saved reading list and a book index have different jobs. Learn which tool helps you reuse a question and which helps find an answer.",
+  "learningObjectives": [
+    "Create, query and drop views",
+    "Explain what a view stores and what it does not",
+    "Create indexes and confirm their use with EXPLAIN QUERY PLAN",
+    "Decide which columns deserve an index"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Views: a saved query"
+    },
+    {
+      "type": "paragraph",
+      "text": "`CREATE VIEW name AS SELECT ...` stores the query. Afterwards the view can be used in FROM like a table: filtered, sorted and joined. The three-table join from the JOIN lesson becomes a one-line query:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE VIEW order_details AS\nSELECT o.id, c.name AS customer, p.name AS product, o.quantity,\n       ROUND(p.price * o.quantity, 2) AS line_total, o.ordered_on\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id;\nSELECT customer, product, line_total\nFROM order_details\nWHERE line_total > 30\nORDER BY line_total DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE VIEW order_details AS\n\ncustomer         | product             | line_total\n-----------------+---------------------+-----------\nAda Lovelace     | Mechanical keyboard | 89\nGuido van Rossum | Mechanical keyboard | 89\nLinus Torvalds   | Monitor stand       | 39.5"
+    },
+    {
+      "type": "paragraph",
+      "text": "A view stores the *query*, not the result: every time you select from it, the underlying tables are read, so it always reflects the current data and takes no extra space. (PostgreSQL and Oracle also offer *materialized* views that do store results and must be refreshed.) Aggregating over a view is common:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE VIEW order_details AS\nSELECT o.id, c.name AS customer, p.name AS product, o.quantity,\n       ROUND(p.price * o.quantity, 2) AS line_total, o.ordered_on\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id;\nSELECT customer, ROUND(SUM(line_total), 2) AS spent\nFROM order_details\nGROUP BY customer\nORDER BY spent DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE VIEW order_details AS\n\ncustomer          | spent\n------------------+------\nAda Lovelace      | 102.5\nGuido van Rossum  | 89\nLinus Torvalds    | 57.48\nGrace Hopper      | 28.5\nMargaret Hamilton | 27.5"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because every playground run starts from a fresh database, each example recreates the view; in a real database you create it once. `DROP VIEW order_details` removes it. Simple single-table views are updatable in PostgreSQL and MySQL; SQLite views are always read-only, and inserting into one fails with *cannot modify ... because it is a view*."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Indexes: finding rows fast"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without an index, `WHERE customer_id = 2` makes the database read every row of `orders` (a *scan*). An index on `customer_id` keeps the values sorted with pointers to their rows, so the database can *search* directly. `EXPLAIN QUERY PLAN` (SQLite; `EXPLAIN` in PostgreSQL and MySQL) shows which strategy will be used:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "EXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id = 2;\nCREATE INDEX idx_orders_customer ON orders (customer_id);\nEXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id = 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "id | parent | notused | detail\n---+--------+---------+------------\n2  | 0      | 216     | SCAN orders\n\nOK: CREATE INDEX idx_orders_customer ON orders (customer_id)\n\nid | parent | notused | detail\n---+--------+---------+--------------------------------------------------------------\n3  | 0      | 61      | SEARCH orders USING INDEX idx_orders_customer (customer_id=?)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before the index the plan says `SCAN orders`; after it, `SEARCH orders USING INDEX`. The numeric columns are internal identifiers; the `detail` column is what to read. On 8 rows the difference is invisible, on 8 million it is the difference between milliseconds and minutes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which columns to index"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Columns used in `WHERE`, `JOIN ... ON` and `ORDER BY` of frequent queries; foreign key columns such as `orders.customer_id` are the classic candidates.",
+        "Primary keys are indexed automatically, and a `UNIQUE` constraint creates an index as well.",
+        "A composite index on `(country, joined)` serves queries on `country` alone and on both columns, but not on `joined` alone: column order matters.",
+        "A `UNIQUE INDEX` enforces uniqueness just like the constraint, as the next example shows."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE UNIQUE INDEX idx_customers_name ON customers (name);\nINSERT INTO customers (name, country, joined) VALUES ('Ada Lovelace', 'UK', '2025-09-01');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE UNIQUE INDEX idx_customers_name ON customers (name)\nUNIQUE constraint failed: customers.name — in: INSERT INTO customers (name, country, joined) VALUES ('Ada Lovelace', 'UK', '202"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Indexes are not free",
+      "text": "Every INSERT, UPDATE and DELETE must also update each index on the table, and indexes take disk space. Indexing every column slows writes down for no gain. Also, an index on `email` does not help `WHERE LOWER(email) = ...`: applying a function to the column hides it from the index. Store the value in the form you search for, or create an index on the expression (SQLite and PostgreSQL support that)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Listing and dropping indexes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexes appear in `sqlite_master` like tables, and `DROP INDEX` removes one without touching the data:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE INDEX idx_orders_customer ON orders (customer_id);\nCREATE INDEX idx_products_category ON products (category);\nSELECT name, tbl_name FROM sqlite_master WHERE type = 'index';\nDROP INDEX idx_products_category;\nSELECT name, tbl_name FROM sqlite_master WHERE type = 'index';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE INDEX idx_orders_customer ON orders (customer_id)\nOK: CREATE INDEX idx_products_category ON products (category)\n\nname                  | tbl_name\n----------------------+---------\nidx_orders_customer   | orders\nidx_products_category | products\n\nOK: DROP INDEX idx_products_category\n\nname                | tbl_name\n--------------------+---------\nidx_orders_customer | orders"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Select from the `electronics` view, then create an index on `products(category)` and run the EXPLAIN QUERY PLAN line again to see SCAN turn into SEARCH."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 260,
+      "code": "CREATE VIEW electronics AS\nSELECT name, price FROM products WHERE category = 'Electronics';\n\nSELECT * FROM electronics ORDER BY price;\n\nEXPLAIN QUERY PLAN SELECT * FROM products WHERE category = 'Office';"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-views-indexes-stored-data"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "views-indexes-qc-1",
+          "type": "true-false",
+          "lessonSlug": "views-indexes",
+          "difficulty": "beginner",
+          "question": "Selecting from a view re-runs its query against the current table data.",
+          "explanation": "A view is a stored query, so it always reflects the latest rows. Only materialized views keep a copy of the result.",
+          "correct": true
+        },
+        {
+          "id": "views-indexes-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "views-indexes",
+          "difficulty": "beginner",
+          "question": "Which statement about indexes is correct?",
+          "explanation": "An index makes lookups on the indexed column fast but must be maintained on every write, so it slows inserts, updates and deletes slightly.",
+          "options": [
+            "They speed up every statement",
+            "They speed up lookups but slow down writes",
+            "They store a copy of the whole table",
+            "Primary keys cannot be indexed"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-views-indexes-stored-data"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "sorting-limiting"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    }
+  ],
+  "seo": {
+    "title": "SQL Views and Indexes – Reusable Queries, Faster Lookups",
+    "description": "Learn SQL views and indexes: save a query as a view, create indexes on filter and join columns, check them with EXPLAIN QUERY PLAN, and weigh their write cost."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Flask Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-route",
+      "title": "Reply with text",
+      "description": "A route decorator connects GET / to a function. Its return value becomes the reply.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/\")\ndef hello():\n    return \"Hello, Asha!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-route"
+    },
+    {
+      "id": "json",
+      "title": "Reply with JSON",
+      "description": "jsonify turns data into a JSON response. Open GET /book.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/book\")\ndef book():\n    return jsonify(title=\"Moon Trip\", pages=24)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "{\"pages\":24,\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "path-values",
+      "title": "Read a name from a path",
+      "description": "Angle brackets mark a path input. GET /hello/Ravi passes Ravi to the function.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/hello/<name>\")\ndef hello(name):\n    return f\"Hi, {name}!\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "path-values"
+    },
+    {
+      "id": "integer-routes",
+      "title": "Check a path number",
+      "description": "The int converter accepts a whole-number path value. Open GET /double/4.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/double/<int:n>\")\ndef twice(n):\n    return jsonify(answer=n * 2)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "{\"answer\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "integer-routes"
+    },
+    {
+      "id": "query",
+      "title": "Read a query value",
+      "description": "request.args reads query-string values. Open GET /search?q=cat.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/search\")\ndef search():\n    return jsonify(term=request.args.get(\"q\", \"\"))\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "{\"term\":\"cat\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query"
+    },
+    {
+      "id": "post-json",
+      "title": "Read a JSON request",
+      "description": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The code checks that the body is an object with text title.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.post(\"/books\")\ndef create():\n    data = request.get_json(silent=True)\n    if not isinstance(data, dict) or not isinstance(data.get(\"title\"), str):\n        return jsonify(error=\"Title needed\"), 400\n    return jsonify(title=data[\"title\"]), 201\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "post-json"
+    },
+    {
+      "id": "status",
+      "title": "Report a missing item",
+      "description": "Returning a response with 404 tells the client that this book was not found. Open GET /missing.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/missing\")\ndef missing():\n    return jsonify(error=\"Book not found\"), 404\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "{\"error\":\"Book not found\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "status"
+    },
+    {
+      "id": "redirects",
+      "title": "Follow a named route",
+      "description": "url_for builds a URL from a function endpoint name. GET /start redirects a browser to /hello.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/start\")\ndef start():\n    return redirect(url_for(\"hello\"))\n@app.get(\"/hello\")\ndef hello():\n    return \"Welcome\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Welcome",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "redirects"
+    },
+    {
+      "id": "headers",
+      "title": "Add a response header",
+      "description": "make_response lets you add metadata before sending a reply. GET /note has Cache-Control: no-store.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/note\")\ndef note():\n    response = make_response(\"Practice note\")\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return response\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Practice note",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "headers"
+    },
+    {
+      "id": "before-request",
+      "title": "Run a shared check",
+      "description": "before_request runs before route handlers. This practice check rejects paths under /closed. Visit GET /closed/books.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.before_request\ndef check_path():\n    if request.path.startswith(\"/closed/\"):\n        return \"Closed for practice\", 403\n@app.get(\"/closed/books\")\ndef books():\n    return \"Books\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Closed for practice",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "before-request"
+    },
+    {
+      "id": "error-handlers",
+      "title": "Give a friendly error page",
+      "description": "An error handler formats a known error. GET /missing uses abort to raise a 404.",
+      "language": "python",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.errorhandler(404)\ndef not_found(error):\n    return \"Page not found\", 404\n@app.get(\"/missing\")\ndef missing():\n    abort(404)\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "output": "Page not found",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "error-handlers"
+    },
+    {
+      "id": "test-client",
+      "title": "Test a request in Python",
+      "description": "The test client calls the app without an open port. This example prints the returned JSON score.",
+      "language": "python",
+      "code": "from flask import Flask, jsonify\napp = Flask(__name__)\n@app.get(\"/score\")\ndef score():\n    return jsonify(score=8)\nwith app.test_client() as client:\n    response = client.get(\"/score\")\n    print(response.get_json()[\"score\"])",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "test-client"
+    }
+  ]
+}

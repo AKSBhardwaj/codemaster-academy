@@ -1,0 +1,126 @@
+{
+  "title": "Playwright Examples",
+  "description": "Small Playwright examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "A browser test",
+      "description": "A browser test opens a page and checks what a person can do. setContent gives this test a tiny page without a website server.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"a browser test\", async ({ page }) => {\n  await page.setContent(\"<h1>Library</h1>\");\n  await expect(page.getByRole(\"heading\", { name: \"Library\" })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "find-by-role",
+      "title": "Find by role",
+      "description": "A role describes what an element does. A button role and its name make a locator that resembles how a person finds the control.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"find by role\", async ({ page }) => {\n  await page.setContent(\"<button>Borrow</button>\");\n  await expect(page.getByRole(\"button\", { name: \"Borrow\" })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-by-role"
+    },
+    {
+      "id": "labels-identify-inputs",
+      "title": "Labels identify inputs",
+      "description": "A label tells a person what an input is for. getByLabel uses that relationship.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"labels identify inputs\", async ({ page }) => {\n  await page.setContent('<label for=\"title\">Book title</label><input id=\"title\">');\n  await page.getByLabel(\"Book title\").fill(\"Moon\");\n  await expect(page.getByLabel(\"Book title\")).toHaveValue(\"Moon\");\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "labels-identify-inputs"
+    },
+    {
+      "id": "click-an-action",
+      "title": "Click an action",
+      "description": "click asks Playwright to perform a real user-like click. Check the visible result, not only that the click method returned.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"click an action\", async ({ page }) => {\n  await page.setContent('<button onclick=\"this.textContent=\\\"Done\\\"\">Save</button>');\n  await page.getByRole(\"button\", { name: \"Save\" }).click();\n  await expect(page.getByRole(\"button\", { name: \"Done\" })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "click-an-action"
+    },
+    {
+      "id": "assertions-wait-for-a-result",
+      "title": "Assertions wait for a result",
+      "description": "Playwright locator assertions retry for a short time. This helps when a visible change happens after the action.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"assertions wait for a result\", async ({ page }) => {\n  await page.setContent(\"<p>Ready</p>\");\n  await expect(page.getByText(\"Ready\", { exact: true })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "assertions-wait-for-a-result"
+    },
+    {
+      "id": "count-repeated-items",
+      "title": "Count repeated items",
+      "description": "A locator can match several elements. toHaveCount checks how many matches exist.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"count repeated items\", async ({ page }) => {\n  await page.setContent(\"<ul><li>Moon</li><li>Ocean</li></ul>\");\n  await expect(page.getByRole(\"listitem\")).toHaveCount(2);\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-repeated-items"
+    },
+    {
+      "id": "check-a-checkbox",
+      "title": "Check a checkbox",
+      "description": "check sets a checkbox to checked. It is clearer than clicking when the desired state is known.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"check a checkbox\", async ({ page }) => {\n  await page.setContent('<label><input type=\"checkbox\">Remember this book</label>');\n  const box = page.getByLabel(\"Remember this book\");\n  await box.check();\n  await expect(box).toBeChecked();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-a-checkbox"
+    },
+    {
+      "id": "select-an-option",
+      "title": "Select an option",
+      "description": "A select input stores an option value. The label shown to people can differ from that value.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"select an option\", async ({ page }) => {\n  await page.setContent('<label>Size<select><option value=\"s\">Small</option><option value=\"l\">Large</option></select></label>');\n  await page.getByLabel(\"Size\").selectOption(\"l\");\n  await expect(page.getByLabel(\"Size\")).toHaveValue(\"l\");\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-an-option"
+    },
+    {
+      "id": "test-keyboard-access",
+      "title": "Test keyboard access",
+      "description": "A keyboard test checks focus and key actions. It can reveal a control that works only with a mouse.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"test keyboard access\", async ({ page }) => {\n  await page.setContent(\"<button>First</button><button>Second</button>\");\n  await page.getByRole(\"button\", { name: \"First\" }).focus();\n  await page.keyboard.press(\"Tab\");\n  await expect(page.getByRole(\"button\", { name: \"Second\" })).toBeFocused();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "test-keyboard-access"
+    },
+    {
+      "id": "mock-a-page-response",
+      "title": "Mock a page response",
+      "description": "A route handler can provide a known response. The test controls the content without calling a real external service.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"mock a page response\", async ({ page }) => {\n  await page.route(\"https://books.test/\", route => route.fulfill({ contentType: \"text/html\", body: \"<h1>Book list</h1>\" }));\n  await page.goto(\"https://books.test/\");\n  await expect(page.getByRole(\"heading\", { name: \"Book list\" })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "mock-a-page-response"
+    },
+    {
+      "id": "isolate-test-state",
+      "title": "Isolate test state",
+      "description": "Each Playwright test normally gets a fresh browser context. A context separates saved state such as cookies between tests.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"isolate test state\", async ({ page }) => {\n  await page.setContent(\"<p>Fresh test</p>\");\n  await expect(page.getByText(\"Fresh test\", { exact: true })).toBeVisible();\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "isolate-test-state"
+    },
+    {
+      "id": "capture-useful-evidence",
+      "title": "Capture useful evidence",
+      "description": "A screenshot records visible state. It helps explain a failure but is not a replacement for a precise behaviour check.",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"capture useful evidence\", async ({ page }) => {\n  await page.setContent(\"<h1>Library</h1>\");\n  await expect(page.getByRole(\"heading\")).toHaveText(\"Library\");\n  await page.screenshot({ path: \"library.png\", fullPage: true });\n});",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "capture-useful-evidence"
+    }
+  ]
+}

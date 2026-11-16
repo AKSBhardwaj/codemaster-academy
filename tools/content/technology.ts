@@ -32,6 +32,7 @@ import {
   type TocEntry,
 } from '../../src/content-schema/index';
 import { tokenise } from './highlight';
+import { codeLanguageLabel } from '../../src/content-schema/code-language';
 
 export class ContentError extends Error {}
 
@@ -75,7 +76,9 @@ async function readJson(path: string, root: string): Promise<unknown> {
 function parseWith<T>(schema: z.ZodType<T>, value: unknown, file: string, root: string): T {
   const result = schema.safeParse(value);
   if (result.success) return result.data;
-  const issues = result.error.issues.map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`).join('\n');
+  const issues = result.error.issues
+    .map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`)
+    .join('\n');
   throw new ContentError(`${rel(file, root)}: schema validation failed\n${issues}`);
 }
 
@@ -103,6 +106,8 @@ function textOf(block: ContentBlockSource): string[] {
       return [block.caption ?? '', ...block.rows.flat()];
     case 'code':
       return [block.caption ?? ''];
+    case 'code-tabs':
+      return [block.title ?? '', ...block.variants.flatMap(textOf)];
     case 'image':
       return [block.caption ?? ''];
     case 'quiz':
@@ -113,26 +118,43 @@ function textOf(block: ContentBlockSource): string[] {
 }
 
 function readingTime(lesson: LessonSource): number {
-  const words = [lesson.introduction, ...lesson.learningObjectives, ...lesson.blocks.flatMap(textOf)]
+  const words = [
+    lesson.introduction,
+    ...lesson.learningObjectives,
+    ...lesson.blocks.flatMap(textOf),
+  ]
     .map(stripInlineMarkup)
     .join(' ')
     .split(/\s+/)
     .filter(Boolean).length;
-  const codeLines = lesson.blocks.reduce(
-    (sum, block) => sum + (block.type === 'code' || block.type === 'interactive' ? block.code.split('\n').length : 0),
-    0,
-  );
+  const codeLines = lesson.blocks.reduce((sum, block) => {
+    if (block.type === 'code' || block.type === 'interactive') {
+      return sum + block.code.split('\n').length;
+    }
+    // A learner reads one version of the example, not every available language.
+    if (block.type === 'code-tabs') {
+      const variant =
+        block.variants.find((item) => item.language === block.defaultLanguage) ?? block.variants[0];
+      return sum + variant.code.split('\n').length;
+    }
+    return sum;
+  }, 0);
   return Math.max(2, Math.ceil(words / WORDS_PER_MINUTE + codeLines / CODE_LINES_PER_MINUTE));
 }
 
-async function compileBlocks(blocks: ContentBlockSource[], file: string, root: string): Promise<{ blocks: ContentBlock[]; toc: TocEntry[] }> {
+async function compileBlocks(
+  blocks: ContentBlockSource[],
+  file: string,
+  root: string,
+): Promise<{ blocks: ContentBlock[]; toc: TocEntry[] }> {
   const usedIds = new Set<string>();
   const toc: TocEntry[] = [];
   const compiled: ContentBlock[] = [];
   for (const block of blocks) {
     if (block.type === 'heading') {
       let id = block.id ?? slugify(block.text);
-      if (!id) throw new ContentError(`${rel(file, root)}: heading "${block.text}" produces an empty id`);
+      if (!id)
+        throw new ContentError(`${rel(file, root)}: heading "${block.text}" produces an empty id`);
       let counter = 2;
       const base = id;
       while (usedIds.has(id)) id = `${base}-${counter++}`;
@@ -143,6 +165,16 @@ async function compileBlocks(blocks: ContentBlockSource[], file: string, root: s
       const tokens = await tokenise(block.code, block.language);
       const codeBlock: CodeBlock = { ...block, tokens };
       compiled.push(codeBlock);
+    } else if (block.type === 'code-tabs') {
+      const variants: CodeBlock[] = [];
+      for (const variant of block.variants) {
+        variants.push({ ...variant, tokens: await tokenise(variant.code, variant.language) });
+      }
+      compiled.push({
+        ...block,
+        defaultLanguage: block.defaultLanguage ?? variants[0].language,
+        variants,
+      });
     } else {
       compiled.push(block);
     }
@@ -150,13 +182,44 @@ async function compileBlocks(blocks: ContentBlockSource[], file: string, root: s
   return { blocks: compiled, toc };
 }
 
+/** Small search terms for alternative examples; avoid indexing six copies of each program. */
+export function codeTabSearchKeywords(blocks: readonly ContentBlockSource[]): string[] {
+  return [
+    ...new Set(
+      blocks.flatMap((block) =>
+        block.type === 'code-tabs'
+          ? [
+              block.title ?? '',
+              ...block.variants.flatMap((variant) => [
+                variant.language,
+                codeLanguageLabel(variant.language),
+                variant.title ?? '',
+              ]),
+            ].filter(Boolean)
+          : [],
+      ),
+    ),
+  ];
+}
+
 function linksIn(texts: string[], file: string, root: string): { href: string; file: string }[] {
-  return texts.flatMap((text) => collectInlineLinks(text).map((href) => ({ href, file: rel(file, root) })));
+  return texts.flatMap((text) =>
+    collectInlineLinks(text).map((href) => ({ href, file: rel(file, root) })),
+  );
 }
 
 export async function compileTechnologyFolder(
   source: TechnologySource,
-  catalogEntry: Omit<TechnologyCatalogEntry, 'status' | 'totalLessons' | 'estimatedMinutes' | 'hasExercises' | 'hasQuiz' | 'hasReference' | 'hasExamples'>,
+  catalogEntry: Omit<
+    TechnologyCatalogEntry,
+    | 'status'
+    | 'totalLessons'
+    | 'estimatedMinutes'
+    | 'hasExercises'
+    | 'hasQuiz'
+    | 'hasReference'
+    | 'hasExamples'
+  >,
   contentDir: string,
   root: string,
 ): Promise<CompiledTechnology | null> {
@@ -164,32 +227,50 @@ export async function compileTechnologyFolder(
   const overviewFile = resolve(dir, 'overview.json');
   if (!(await exists(overviewFile))) return null;
 
-  const overview = parseWith(technologyOverviewSourceSchema, await readJson(overviewFile, root), overviewFile, root);
-  if (overview.slug !== source.slug) throw new ContentError(`${rel(overviewFile, root)}: slug must be "${source.slug}"`);
+  const overview = parseWith(
+    technologyOverviewSourceSchema,
+    await readJson(overviewFile, root),
+    overviewFile,
+    root,
+  );
+  if (overview.slug !== source.slug)
+    throw new ContentError(`${rel(overviewFile, root)}: slug must be "${source.slug}"`);
 
   // --- lessons ---
   const lessonsDir = resolve(dir, 'lessons');
   const lessonFiles = (await exists(lessonsDir))
-    ? (await readdir(lessonsDir)).filter((name) => name.endsWith('.json')).map((name) => resolve(lessonsDir, name))
+    ? (await readdir(lessonsDir))
+        .filter((name) => name.endsWith('.json'))
+        .map((name) => resolve(lessonsDir, name))
     : [];
   const sources = new Map<string, { source: LessonSource; file: string }>();
   for (const file of lessonFiles) {
     const lesson = parseWith(lessonSourceSchema, await readJson(file, root), file, root);
-    if (lesson.slug !== basename(file, '.json')) throw new ContentError(`${rel(file, root)}: slug "${lesson.slug}" must match the file name`);
+    if (lesson.slug !== basename(file, '.json'))
+      throw new ContentError(`${rel(file, root)}: slug "${lesson.slug}" must match the file name`);
     sources.set(lesson.slug, { source: lesson, file });
   }
   const orderedSlugs: { slug: string; categoryId: string; categoryTitle: string }[] = [];
   const seenInSidebar = new Set<string>();
   for (const category of overview.sidebarCategories) {
     for (const slug of category.lessonSlugs) {
-      if (seenInSidebar.has(slug)) throw new ContentError(`${rel(overviewFile, root)}: lesson "${slug}" listed twice in sidebarCategories`);
+      if (seenInSidebar.has(slug))
+        throw new ContentError(
+          `${rel(overviewFile, root)}: lesson "${slug}" listed twice in sidebarCategories`,
+        );
       seenInSidebar.add(slug);
-      if (!sources.has(slug)) throw new ContentError(`${rel(overviewFile, root)}: sidebar lists lesson "${slug}" but lessons/${slug}.json does not exist`);
+      if (!sources.has(slug))
+        throw new ContentError(
+          `${rel(overviewFile, root)}: sidebar lists lesson "${slug}" but lessons/${slug}.json does not exist`,
+        );
       orderedSlugs.push({ slug, categoryId: category.id, categoryTitle: category.title });
     }
   }
   for (const slug of sources.keys()) {
-    if (!seenInSidebar.has(slug)) throw new ContentError(`${rel(overviewFile, root)}: lessons/${slug}.json exists but is not listed in sidebarCategories`);
+    if (!seenInSidebar.has(slug))
+      throw new ContentError(
+        `${rel(overviewFile, root)}: lessons/${slug}.json exists but is not listed in sidebarCategories`,
+      );
   }
 
   // --- exercises, quiz, reference, examples ---
@@ -197,12 +278,23 @@ export async function compileTechnologyFolder(
   let exerciseSet: ExerciseSet | undefined;
   const exercisesFile = resolve(dir, 'exercises.json');
   if (await exists(exercisesFile)) {
-    const parsed = parseWith(exerciseSetSourceSchema, await readJson(exercisesFile, root), exercisesFile, root);
+    const parsed = parseWith(
+      exerciseSetSourceSchema,
+      await readJson(exercisesFile, root),
+      exercisesFile,
+      root,
+    );
     const ids = new Set<string>();
     for (const exercise of parsed.exercises) {
-      if (ids.has(exercise.id)) throw new ContentError(`${rel(exercisesFile, root)}: duplicate exercise id "${exercise.id}"`);
+      if (ids.has(exercise.id))
+        throw new ContentError(
+          `${rel(exercisesFile, root)}: duplicate exercise id "${exercise.id}"`,
+        );
       ids.add(exercise.id);
-      if (!sources.has(exercise.lessonSlug)) throw new ContentError(`${rel(exercisesFile, root)}: exercise "${exercise.id}" references unknown lesson "${exercise.lessonSlug}"`);
+      if (!sources.has(exercise.lessonSlug))
+        throw new ContentError(
+          `${rel(exercisesFile, root)}: exercise "${exercise.id}" references unknown lesson "${exercise.lessonSlug}"`,
+        );
       links.push(...linksIn([exercise.question, exercise.explanation], exercisesFile, root));
     }
     exerciseSet = { ...parsed, technologySlug: source.slug, technologyName: source.name };
@@ -213,22 +305,37 @@ export async function compileTechnologyFolder(
     const parsed = parseWith(quizSourceSchema, await readJson(quizFile, root), quizFile, root);
     const ids = new Set<string>();
     for (const question of parsed.questions) {
-      if (ids.has(question.id)) throw new ContentError(`${rel(quizFile, root)}: duplicate question id "${question.id}"`);
+      if (ids.has(question.id))
+        throw new ContentError(`${rel(quizFile, root)}: duplicate question id "${question.id}"`);
       ids.add(question.id);
-      if (!sources.has(question.lessonSlug)) throw new ContentError(`${rel(quizFile, root)}: question "${question.id}" references unknown lesson "${question.lessonSlug}"`);
+      if (!sources.has(question.lessonSlug))
+        throw new ContentError(
+          `${rel(quizFile, root)}: question "${question.id}" references unknown lesson "${question.lessonSlug}"`,
+        );
     }
     quiz = { ...parsed, technologySlug: source.slug, technologyName: source.name };
   }
   let reference: Reference | undefined;
   const referenceFile = resolve(dir, 'reference.json');
   if (await exists(referenceFile)) {
-    const parsed = parseWith(referenceSourceSchema, await readJson(referenceFile, root), referenceFile, root);
+    const parsed = parseWith(
+      referenceSourceSchema,
+      await readJson(referenceFile, root),
+      referenceFile,
+      root,
+    );
     const slugs = new Set<string>();
     for (const group of parsed.groups) {
       for (const entry of group.entries) {
-        if (slugs.has(entry.slug)) throw new ContentError(`${rel(referenceFile, root)}: duplicate reference slug "${entry.slug}"`);
+        if (slugs.has(entry.slug))
+          throw new ContentError(
+            `${rel(referenceFile, root)}: duplicate reference slug "${entry.slug}"`,
+          );
         slugs.add(entry.slug);
-        if (entry.lessonSlug && !sources.has(entry.lessonSlug)) throw new ContentError(`${rel(referenceFile, root)}: "${entry.slug}" references unknown lesson "${entry.lessonSlug}"`);
+        if (entry.lessonSlug && !sources.has(entry.lessonSlug))
+          throw new ContentError(
+            `${rel(referenceFile, root)}: "${entry.slug}" references unknown lesson "${entry.lessonSlug}"`,
+          );
       }
     }
     reference = { ...parsed, technologySlug: source.slug, technologyName: source.name };
@@ -236,13 +343,22 @@ export async function compileTechnologyFolder(
   let exampleSet: ExampleSet | undefined;
   const examplesFile = resolve(dir, 'examples.json');
   if (await exists(examplesFile)) {
-    const parsed = parseWith(exampleSetSourceSchema, await readJson(examplesFile, root), examplesFile, root);
+    const parsed = parseWith(
+      exampleSetSourceSchema,
+      await readJson(examplesFile, root),
+      examplesFile,
+      root,
+    );
     const ids = new Set<string>();
     const examples: Example[] = [];
     for (const example of parsed.examples) {
-      if (ids.has(example.id)) throw new ContentError(`${rel(examplesFile, root)}: duplicate example id "${example.id}"`);
+      if (ids.has(example.id))
+        throw new ContentError(`${rel(examplesFile, root)}: duplicate example id "${example.id}"`);
       ids.add(example.id);
-      if (example.lessonSlug && !sources.has(example.lessonSlug)) throw new ContentError(`${rel(examplesFile, root)}: "${example.id}" references unknown lesson "${example.lessonSlug}"`);
+      if (example.lessonSlug && !sources.has(example.lessonSlug))
+        throw new ContentError(
+          `${rel(examplesFile, root)}: "${example.id}" references unknown lesson "${example.lessonSlug}"`,
+        );
       examples.push({ ...example, tokens: await tokenise(example.code, example.language) });
     }
     exampleSet = { ...parsed, technologySlug: source.slug, technologyName: source.name, examples };
@@ -263,18 +379,33 @@ export async function compileTechnologyFolder(
     const { slug, categoryId, categoryTitle } = orderedSlugs[index];
     const { source: lesson, file } = sources.get(slug)!;
     for (const id of lesson.exerciseIds ?? []) {
-      if (!exerciseIds.has(id)) throw new ContentError(`${rel(file, root)}: exerciseIds references unknown exercise "${id}"`);
+      if (!exerciseIds.has(id))
+        throw new ContentError(
+          `${rel(file, root)}: exerciseIds references unknown exercise "${id}"`,
+        );
     }
     for (const block of lesson.blocks) {
       if (block.type === 'exercise' && !exerciseIds.has(block.exerciseId)) {
-        throw new ContentError(`${rel(file, root)}: exercise block references unknown exercise "${block.exerciseId}"`);
+        throw new ContentError(
+          `${rel(file, root)}: exercise block references unknown exercise "${block.exerciseId}"`,
+        );
       }
-      if (block.type === 'code' && block.runnable && !['html', 'css', 'javascript', 'js', 'sql'].includes(block.language.toLowerCase())) {
-        throw new ContentError(`${rel(file, root)}: runnable code blocks must be html, css, javascript or sql (got "${block.language}")`);
+      const codeBlocks =
+        block.type === 'code' ? [block] : block.type === 'code-tabs' ? block.variants : [];
+      for (const code of codeBlocks) {
+        if (
+          code.runnable &&
+          !['html', 'css', 'javascript', 'js', 'sql'].includes(code.language.toLowerCase())
+        ) {
+          throw new ContentError(
+            `${rel(file, root)}: runnable code blocks must be html, css, javascript or sql (got "${code.language}")`,
+          );
+        }
       }
     }
     links.push(...linksIn([lesson.introduction, ...lesson.blocks.flatMap(textOf)], file, root));
-    for (const related of lesson.relatedLessons) relatedRefs.push({ from: rel(file, root), ...related });
+    for (const related of lesson.relatedLessons)
+      relatedRefs.push({ from: rel(file, root), ...related });
     const { blocks, toc } = await compileBlocks(lesson.blocks, file, root);
     const minutes = readingTime(lesson);
     const compiled: Lesson = {
@@ -295,7 +426,14 @@ export async function compileTechnologyFolder(
       hasQuiz: !!quiz,
     };
     lessons.push(compiled);
-    summaries.push({ slug, title: lesson.title, summary: lesson.summary, categoryId, order: index + 1, readingTimeMinutes: minutes });
+    summaries.push({
+      slug,
+      title: lesson.title,
+      summary: lesson.summary,
+      categoryId,
+      order: index + 1,
+      readingTimeMinutes: minutes,
+    });
   }
 
   const totalLessons = lessons.length;
@@ -304,12 +442,19 @@ export async function compileTechnologyFolder(
   const referenceCount = reference?.groups.reduce((sum, g) => sum + g.entries.length, 0) ?? 0;
   const exampleCount = exampleSet?.examples.length ?? 0;
   const status: Technology['status'] =
-    totalLessons >= 12 && exerciseCount >= 10 && quizQuestions >= 10 && referenceCount > 0 && exampleCount > 0
+    totalLessons >= 12 &&
+    exerciseCount >= 10 &&
+    quizQuestions >= 10 &&
+    referenceCount > 0 &&
+    exampleCount > 0
       ? 'complete'
       : totalLessons > 0
         ? 'in-progress'
         : 'planned';
-  const updatedOn = lessons.map((l) => l.updatedOn).sort().at(-1);
+  const updatedOn = lessons
+    .map((l) => l.updatedOn)
+    .sort()
+    .at(-1);
 
   const technology: Technology = {
     ...catalogEntry,
@@ -327,8 +472,23 @@ export async function compileTechnologyFolder(
     learningObjectives: overview.learningObjectives,
     sidebarCategories: overview.sidebarCategories,
     lessons: summaries,
-    counts: { lessons: totalLessons, exercises: exerciseCount, quizQuestions, references: referenceCount, examples: exampleCount },
+    counts: {
+      lessons: totalLessons,
+      exercises: exerciseCount,
+      quizQuestions,
+      references: referenceCount,
+      examples: exampleCount,
+    },
     seo: overview.seo,
   };
-  return { overview: technology, lessons, exerciseSet, quiz, reference, exampleSet, links, relatedRefs };
+  return {
+    overview: technology,
+    lessons,
+    exerciseSet,
+    quiz,
+    reference,
+    exampleSet,
+    links,
+    relatedRefs,
+  };
 }

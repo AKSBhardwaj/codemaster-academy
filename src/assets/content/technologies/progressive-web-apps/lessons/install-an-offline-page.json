@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "install-an-offline-page",
+  "title": "Install an offline page",
+  "summary": "The install event is a chance to prepare files for later use.",
+  "introduction": "The install event is a chance to prepare files for later use. Your task: Create offline.html with a short offline message.",
+  "learningObjectives": [
+    "Create offline.html with a short offline message.",
+    "Explain the example for install an offline page"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The install event is a chance to prepare files for later use. waitUntil keeps the install job open while those files are saved."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples belong in separate files on your own HTTPS or localhost site. Service workers need that trusted origin and cannot run in this site's sandbox. Use browser developer tools to inspect them."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// sw.js\nself.addEventListener(\"install\", event => {\n  event.waitUntil(caches.open(\"reading-v1\").then(cache => cache.addAll([\"/offline.html\"])));\n});",
+      "title": "Install an offline page",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`addEventListener` waits for the named event before calling the function you pass to it.",
+        "`waitUntil` tells the browser to keep this worker event active until the promise finishes.",
+        "`caches.open` opens a named Cache Storage collection. Choose versioned names that your app can manage safely."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The worker stores a real offline.html page in the named cache during installation."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Every file in addAll must load successfully. A missing offline.html can make installation fail."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Create offline.html with a short offline message."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "progressive-web-apps-install-an-offline-page-check"
+    }
+  ],
+  "exerciseIds": ["progressive-web-apps-install-an-offline-page-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "progressive-web-apps",
+      "slug": "register-a-service-worker"
+    }
+  ],
+  "seo": {
+    "title": "Progressive Web Apps: Install an offline page",
+    "description": "The install event is a chance to prepare files for later use. waitUntil keeps the install job open while those files are saved."
+  },
+  "updatedOn": "2026-11-16"
+}

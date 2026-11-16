@@ -1,4 +1,12 @@
-import { Component, computed, effect, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  resource,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -15,48 +23,85 @@ import { debounceTime, map } from 'rxjs';
 
 @Component({
   selector: 'cma-reference',
-  imports: [ReactiveFormsModule, RouterLink, BreadcrumbsComponent, CodeBlockComponent, EmptyStateComponent, PageHeaderComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    BreadcrumbsComponent,
+    CodeBlockComponent,
+    EmptyStateComponent,
+    PageHeaderComponent,
+  ],
   templateUrl: './reference.html',
   styleUrl: './reference.scss',
 })
 export class ReferencePage {
   readonly tech = input.required<string>();
-  protected readonly filter = new FormControl('', { nonNullable: true });
+  protected readonly filter = new FormControl({ value: '', disabled: true }, { nonNullable: true });
   private readonly content = inject(ContentService);
   private readonly catalog = inject(CatalogService);
   private readonly seo = inject(SeoService);
-  private readonly query = toSignal(this.filter.valueChanges.pipe(debounceTime(80), map((v) => v.trim().toLowerCase())), { initialValue: '' });
+  private readonly query = toSignal(
+    this.filter.valueChanges.pipe(
+      debounceTime(80),
+      map((v) => v.trim().toLowerCase()),
+    ),
+    { initialValue: '' },
+  );
 
   protected readonly entry = computed(() => this.catalog.technology(this.tech()));
   protected readonly referenceResource = resource({
     params: () => this.tech(),
     loader: ({ params }) => this.content.load<Reference>(`technologies/${params}/reference.json`),
   });
-  protected readonly reference = computed(() => (this.referenceResource.hasValue() ? this.referenceResource.value() : undefined));
+  protected readonly reference = computed(() =>
+    this.referenceResource.hasValue()
+      ? this.referenceResource.value()
+      : this.content.peek<Reference>(`technologies/${this.tech()}/reference.json`),
+  );
   protected readonly missing = computed(() => this.referenceResource.status() === 'error');
   protected readonly groups = computed(() => {
     const query = this.query();
     const groups = this.reference()?.groups ?? [];
     if (!query) return groups;
     return groups
-      .map((group) => ({ ...group, entries: group.entries.filter((e) => e.name.toLowerCase().includes(query) || e.summary.toLowerCase().includes(query)) }))
+      .map((group) => ({
+        ...group,
+        entries: group.entries.filter(
+          (e) => e.name.toLowerCase().includes(query) || e.summary.toLowerCase().includes(query),
+        ),
+      }))
       .filter((group) => group.entries.length > 0);
   });
-  protected readonly total = computed(() => this.reference()?.groups.reduce((sum, g) => sum + g.entries.length, 0) ?? 0);
-  protected readonly crumbs = computed(() => [{ label: 'References', path: '/references' }, { label: this.entry()?.name ?? this.tech() }]);
+  protected readonly total = computed(
+    () => this.reference()?.groups.reduce((sum, g) => sum + g.entries.length, 0) ?? 0,
+  );
+  protected readonly crumbs = computed(() => [
+    { label: 'References', path: '/references' },
+    { label: this.entry()?.name ?? this.tech() },
+  ]);
 
   constructor() {
+    afterNextRender(() => this.filter.enable({ emitEvent: false }));
     effect(() => {
       const reference = this.reference();
       const entry = this.entry();
       if (reference) {
         this.seo.apply({
           title: reference.title,
-          description: reference.description,
-          jsonLd: [breadcrumbList([{ name: 'References', url: this.seo.absoluteUrl('/references') }, { name: reference.title, url: this.seo.absoluteUrl(`/references/${this.tech()}`) }])],
+          description: `${reference.title}. ${reference.description}`,
+          jsonLd: [
+            breadcrumbList([
+              { name: 'References', url: this.seo.absoluteUrl('/references') },
+              { name: reference.title, url: this.seo.absoluteUrl(`/references/${this.tech()}`) },
+            ]),
+          ],
         });
       } else if (this.missing()) {
-        this.seo.apply({ title: `${entry?.name ?? 'Reference'} reference`, description: 'This reference has not been published yet.', robots: 'noindex,follow' });
+        this.seo.apply({
+          title: `${entry?.name ?? 'Reference'} reference`,
+          description: 'This reference could not load. Please try again.',
+          robots: 'noindex,follow',
+        });
       }
     });
   }

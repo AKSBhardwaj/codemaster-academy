@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "slug": "inheritance-interfaces",
+  "title": "Inheritance and Interfaces",
+  "summary": "Reuse and specialise behaviour with base classes, virtual and override, abstract classes, and define contracts with interfaces that unrelated classes can implement.",
+  "introduction": "Inheritance lets a class take everything another class has and add or change behaviour; interfaces let completely different classes promise the same set of members. Together they make polymorphism possible: code written against a base type or an interface runs unchanged with any type that derives from or implements it. This lesson builds an animal hierarchy with virtual methods, an abstract Shape class, a notifier interface with two implementations, and shows how to test an object's type at runtime.",
+  "learningObjectives": [
+    "Derive a class from a base class and override virtual members",
+    "Decide between an abstract class and an interface",
+    "Write code against a base type or interface so that new types work without changes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inheritance"
+    },
+    {
+      "type": "paragraph",
+      "text": "Writing `class Dog : Animal` makes `Dog` a **derived** class of the **base** class `Animal`: a `Dog` has every public and protected member of `Animal` and can be used wherever an `Animal` is expected. A base member marked `virtual` may be replaced in the derived class with `override`. A derived class's primary constructor passes along the arguments the base needs with `: Animal(name)`."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Animal[] zoo = [new Dog(\"Rex\"), new Cat(\"Tom\"), new Animal(\"Generic\")];\n\nforeach (Animal animal in zoo)\n{\n    Console.WriteLine($\"{animal.Name}: {animal.Speak()}\");\n}\n\nclass Animal(string name)\n{\n    public string Name { get; } = name;\n\n    public virtual string Speak() => \"...\";\n}\n\nclass Dog(string name) : Animal(name)\n{\n    public override string Speak() => \"Woof\";\n}\n\nclass Cat(string name) : Animal(name)\n{\n    public override string Speak() => \"Meow\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Rex: Woof\nTom: Meow\nGeneric: ..."
+    },
+    {
+      "type": "paragraph",
+      "text": "The loop variable has type `Animal`, yet `Speak()` runs the `Dog` and `Cat` versions. The runtime looks at the actual object, not the declared type: this is **polymorphism**. A derived class can still call the base version with `base.Speak()`, which is useful when you want to extend rather than replace behaviour. C# allows only one base class per class, and a class marked `sealed` cannot be derived from at all."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Abstract classes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sometimes the base class has no sensible implementation of its own: there is no such thing as the area of \"a shape\". Marking the class `abstract` forbids `new Shape()`, and an `abstract` member has no body and *must* be overridden. Abstract classes still provide shared state and concrete methods, such as `Describe` below, to every subclass."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Shape[] shapes = [new Circle(1), new Rectangle(2, 3)];\n\nforeach (Shape shape in shapes)\n{\n    Console.WriteLine(shape.Describe());\n}\n\nabstract class Shape\n{\n    public abstract double Area();\n\n    public string Describe() => $\"{GetType().Name} with area {Area():F2}\";\n}\n\nclass Circle(double radius) : Shape\n{\n    public override double Area() => Math.PI * radius * radius;\n}\n\nclass Rectangle(double width, double height) : Shape\n{\n    public override double Area() => width * height;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Circle with area 3.14\nRectangle with area 6.00"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Interfaces"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **interface** lists members without implementing them; a class that implements the interface promises to provide every one of them. Unlike base classes, a class may implement any number of interfaces, and unrelated classes can share one. Interface names start with `I` by convention. Code that depends on `INotifier` does not care whether a message goes by email or SMS, which makes it easy to add a third channel later or to substitute a fake in tests."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "INotifier[] channels = [new EmailNotifier(), new SmsNotifier(\"+44 7700 900123\")];\n\nforeach (INotifier channel in channels)\n{\n    channel.Send(\"Build finished\");\n}\n\ninterface INotifier\n{\n    void Send(string message);\n}\n\nclass EmailNotifier : INotifier\n{\n    public void Send(string message) => Console.WriteLine($\"Email: {message}\");\n}\n\nclass SmsNotifier(string number) : INotifier\n{\n    public void Send(string message) => Console.WriteLine($\"SMS to {number}: {message}\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Email: Build finished\nSMS to +44 7700 900123: Build finished"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Interfaces from the .NET library"
+    },
+    {
+      "type": "paragraph",
+      "text": "The base library is built on interfaces, and implementing them plugs your types into existing machinery. `IComparable<T>` lets `Sort` order your objects, `IEnumerable<T>` lets `foreach` and LINQ iterate them, and `IDisposable` lets `using` clean up resources. Implementing `IComparable<Player>` below is all it takes for `Array.Sort` to work."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Player[] players = [new Player(\"Ada\", 1500), new Player(\"Linus\", 1800), new Player(\"Grace\", 1650)];\n\nArray.Sort(players);\nforeach (Player player in players)\n{\n    Console.WriteLine($\"{player.Name} {player.Rating}\");\n}\n\nclass Player(string name, int rating) : IComparable<Player>\n{\n    public string Name { get; } = name;\n    public int Rating { get; } = rating;\n\n    public int CompareTo(Player? other) =>\n        other is null ? 1 : other.Rating.CompareTo(Rating);   // highest rating first\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Linus 1800\nGrace 1650\nAda 1500"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Checking a type at runtime"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you hold a base type or `object`, the `is` operator tests the actual type and, with a **declaration pattern**, gives you a correctly typed variable in one step. The `as` operator converts or yields `null` instead of throwing, and a cast `(string)item` throws `InvalidCastException` when the type does not match."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "object[] items = [42, \"hello\", new int[] { 1, 2 }, 3.5];\n\nforeach (object item in items)\n{\n    if (item is int number)\n        Console.WriteLine($\"int {number}\");\n    else if (item is string text)\n        Console.WriteLine($\"string of length {text.Length}\");\n    else if (item is int[] array)\n        Console.WriteLine($\"array of {array.Length}\");\n    else\n        Console.WriteLine($\"something else: {item}\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "int 42\nstring of length 5\narray of 2\nsomething else: 3.5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Abstract class or interface?"
+    },
+    {
+      "type": "table",
+      "headers": ["Question", "Choose"],
+      "rows": [
+        ["Do the types share state or code?", "Abstract class"],
+        ["Might a type need more than one?", "Interface (a class has only one base class)"],
+        ["Are you describing what something *is*?", "Abstract class (a Circle *is a* Shape)"],
+        ["Are you describing what something *can do*?", "Interface (a notifier *can* `Send`)"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Interfaces may also carry **default implementations** since C# 8, but that feature exists mainly for evolving public libraries; in everyday code keep interfaces as pure contracts. Many designs use both: an interface for the contract and an abstract base class that implements the boring parts."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting virtual or override",
+      "text": "If the base method is not `virtual`, or the derived method lacks `override`, the derived method *hides* the base one instead of replacing it: calls through an `Animal` variable still run the base version, and the compiler warns with *CS0108: 'Dog.Speak()' hides inherited member 'Animal.Speak()'*. Mark the base method `virtual` and the derived one `override`; never silence the warning with `new` unless hiding is really what you want."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-inheritance-virtual-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-inherit-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "inheritance-interfaces",
+          "difficulty": "beginner",
+          "question": "Which of these can a C# class do?",
+          "explanation": "C# has single inheritance for classes but a class may implement any number of interfaces. Only virtual or abstract members can be overridden, and abstract classes cannot be instantiated.",
+          "options": [
+            "Inherit from several base classes",
+            "Implement several interfaces",
+            "Override a method that is not virtual",
+            "Be created with new while marked abstract"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-inherit-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "inheritance-interfaces",
+          "difficulty": "beginner",
+          "question": "To let a derived class replace a base-class method, the base method is marked `___` and the derived method is marked `override`.",
+          "explanation": "`virtual` opts a member in to being overridden; `abstract` does the same while leaving out the body.",
+          "answers": ["virtual"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-inheritance-virtual-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "testing-xunit"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    }
+  ],
+  "seo": {
+    "title": "C# Inheritance and Interfaces – virtual, abstract, is",
+    "description": "Learn C# inheritance with base classes, virtual and override, abstract and sealed classes, interfaces such as IComparable, polymorphism and runtime type checks with is."
+  },
+  "updatedOn": "2026-11-15"
+}

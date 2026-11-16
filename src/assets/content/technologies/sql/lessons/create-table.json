@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "slug": "create-table",
+  "title": "CREATE TABLE and Data Types",
+  "summary": "CREATE TABLE makes a new table and names its columns. Each column stores one kind of fact.",
+  "introduction": "CREATE TABLE makes a new table and names its columns. Each column stores one kind of fact. Design a small book list. Choose columns for a title and page count, then decide which facts every row must have.",
+  "learningObjectives": [
+    "Create a table with typed columns, NOT NULL and DEFAULT",
+    "Choose data types that work across SQLite, PostgreSQL and MySQL",
+    "Explain how auto-generated ids differ between databases",
+    "Modify and remove tables with ALTER TABLE and DROP TABLE"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "CREATE TABLE"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `CREATE TABLE` statement lists the columns, each with a type and optional rules. `NOT NULL` requires a value, `DEFAULT` supplies one when the insert omits the column, and `INTEGER PRIMARY KEY` makes `id` the unique, auto-numbered identifier of each row."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  department TEXT NOT NULL,\n  salary REAL NOT NULL,\n  hired_on TEXT NOT NULL,\n  remote INTEGER NOT NULL DEFAULT 0\n);\nINSERT INTO employees (name, department, salary, hired_on)\nVALUES ('Nia Patel', 'Engineering', 72000, '2025-03-01');\nINSERT INTO employees (name, department, salary, hired_on, remote)\nVALUES ('Omar Haddad', 'Design', 58000, '2025-04-15', 1);\nSELECT * FROM employees;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE employees (\nOK: INSERT INTO employees (name, department, salary, hired_on)\nOK: INSERT INTO employees (name, department, salary, hired_on, remote)\n\nid | name        | department  | salary | hired_on   | remote\n---+-------------+-------------+--------+------------+-------\n1  | Nia Patel   | Engineering | 72000  | 2025-03-01 | 0\n2  | Omar Haddad | Design      | 58000  | 2025-04-15 | 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first insert omits `remote`, so it receives the default 0; the second sets it explicitly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Data types across databases"
+    },
+    {
+      "type": "paragraph",
+      "text": "The SQL standard defines types such as `INTEGER`, `DECIMAL(p,s)`, `VARCHAR(n)`, `DATE` and `BOOLEAN`, but every database implements its own set. These choices transfer well:"
+    },
+    {
+      "type": "table",
+      "headers": ["Data", "SQLite", "PostgreSQL", "MySQL"],
+      "rows": [
+        ["Whole numbers", "`INTEGER`", "`INTEGER`, `BIGINT`", "`INT`, `BIGINT`"],
+        [
+          "Money, exact decimals",
+          "`INTEGER` cents (no exact decimal type)",
+          "`NUMERIC(10,2)`",
+          "`DECIMAL(10,2)`"
+        ],
+        ["Floating point", "`REAL`", "`DOUBLE PRECISION`", "`DOUBLE`"],
+        ["Text", "`TEXT`", "`TEXT`, `VARCHAR(n)`", "`VARCHAR(n)`, `TEXT`"],
+        ["Dates and times", "`TEXT` in ISO 8601", "`DATE`, `TIMESTAMP`", "`DATE`, `DATETIME`"],
+        ["True or false", "`INTEGER` 0 or 1", "`BOOLEAN`", "`TINYINT(1)` (alias `BOOL`)"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite is special: it uses *type affinity*. A column's declared type is a preference, not a rule, so you can store text in an `INTEGER` column unless the table is declared `STRICT` (SQLite 3.37+). `VARCHAR(50)` is accepted but the length is not enforced. `TRUE` and `FALSE` are just aliases for 1 and 0, and dates are text, which is why the ISO format matters so much. The `typeof()` function reveals what was actually stored:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT typeof(42) AS integer_value,\n       typeof(4.2) AS real_value,\n       typeof('42') AS text_value,\n       typeof(NULL) AS null_value,\n       typeof(TRUE) AS boolean_value;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "integer_value | real_value | text_value | null_value | boolean_value\n--------------+------------+------------+------------+--------------\ninteger       | real       | text       | null       | integer"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Floating point is wrong for money",
+      "text": "`REAL`, `FLOAT` and `DOUBLE` cannot represent 0.1 exactly, so sums of prices drift: `0.1 + 0.2` gives `0.30000000000000004`. Use `DECIMAL`/`NUMERIC` with a fixed scale in PostgreSQL and MySQL, and in SQLite store integer cents (`2475` for 24.75) or round at output with `ROUND()`. The sample `products.price` column uses `REAL` for simplicity, which is why the lessons round their totals."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Automatic ids"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every database can number rows for you, but the syntax differs. SQLite: `id INTEGER PRIMARY KEY` is an alias for the internal row id and auto-numbers; adding `AUTOINCREMENT` guarantees that the numbers of deleted rows are never reused. PostgreSQL: `id INTEGER GENERATED ALWAYS AS IDENTITY` (or the older `SERIAL`). MySQL: `id INT AUTO_INCREMENT PRIMARY KEY`. SQL Server: `id INT IDENTITY(1,1) PRIMARY KEY`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE notes (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  body TEXT NOT NULL,\n  status TEXT NOT NULL DEFAULT 'draft'\n);\nINSERT INTO notes (body) VALUES ('Buy milk'), ('Call Ada');\nDELETE FROM notes WHERE id = 2;\nINSERT INTO notes (body) VALUES ('Ship v2');\nSELECT * FROM notes;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE notes (\nOK: INSERT INTO notes (body) VALUES ('Buy milk'), ('Call Ada')\nOK: DELETE FROM notes WHERE id = 2\nOK: INSERT INTO notes (body) VALUES ('Ship v2')\n\nid | body     | status\n---+----------+-------\n1  | Buy milk | draft\n3  | Ship v2  | draft"
+    },
+    {
+      "type": "paragraph",
+      "text": "After deleting note 2, the next insert received id 3 because of `AUTOINCREMENT`; without it SQLite would have reused 2 (it assigns the largest existing id plus one). Reusing ids is rarely what you want when other systems remember them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ALTER TABLE and DROP TABLE"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tables evolve. `ALTER TABLE ... ADD COLUMN` adds a column (existing rows get the default or NULL); `RENAME COLUMN` and `DROP COLUMN` rename or remove one (SQLite supports them since 3.25 and 3.35). `DROP TABLE` deletes the table and all its rows; `IF EXISTS` avoids an error when it is already gone."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0;\nUPDATE products SET stock = 25 WHERE id = 1;\nSELECT id, name, stock FROM products WHERE id <= 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0\nOK: UPDATE products SET stock = 25 WHERE id = 1\n\nid | name      | stock\n---+-----------+------\n1  | Notebook  | 25\n2  | Mouse pad | 0"
+    },
+    {
+      "type": "paragraph",
+      "text": "In SQLite the `sqlite_master` table lists every table, index and view in the database, the equivalent of MySQL's `SHOW TABLES` or the `\\dt` command in psql. After creating and dropping a temporary table, only the three sample tables remain:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE temp_list (value TEXT);\nDROP TABLE temp_list;\nSELECT name FROM sqlite_master WHERE type = 'table';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE temp_list (value TEXT)\nOK: DROP TABLE temp_list\n\nname\n---------\ncustomers\nproducts\norders"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Extend the `books` table with a `published` year column, insert a second book that relies on the default author, and select everything."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 260,
+      "code": "CREATE TABLE books (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  author TEXT NOT NULL DEFAULT 'Unknown',\n  pages INTEGER\n);\n\nINSERT INTO books (title, pages) VALUES ('SQL in a weekend', 180);\nSELECT * FROM books;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-create-table-autoincrement"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "create-table-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "create-table",
+          "difficulty": "beginner",
+          "question": "Which type should hold a price such as 24.75 in PostgreSQL?",
+          "explanation": "NUMERIC (or DECIMAL) with a fixed scale stores decimals exactly. REAL is binary floating point and drifts, TEXT cannot be summed, and INTEGER would only work for cents.",
+          "options": ["`REAL`", "`NUMERIC(10,2)`", "`TEXT`", "`INTEGER`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "create-table-qc-2",
+          "type": "true-false",
+          "lessonSlug": "create-table",
+          "difficulty": "beginner",
+          "question": "In SQLite, `TRUE` is stored as the integer 1.",
+          "explanation": "SQLite has no boolean type; TRUE and FALSE are keywords for the integers 1 and 0, as typeof(TRUE) shows.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-create-table-autoincrement"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "insert"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "SQL CREATE TABLE – Data Types, Defaults and Auto Ids",
+    "description": "Learn SQL CREATE TABLE: data types in SQLite, PostgreSQL and MySQL, NOT NULL and DEFAULT, auto-generated ids, and how to change tables with ALTER and DROP."
+  },
+  "updatedOn": "2026-11-16"
+}

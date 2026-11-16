@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "slug": "operators-control-flow",
+  "title": "Operators and Control Flow",
+  "summary": "Arithmetic, comparison, logical and assignment operators, then the statements that make decisions and repeat work: if, switch, while, do-while, for, break and continue.",
+  "introduction": "Operators combine values, and control-flow statements decide which code runs and how often. C's set of both is small and has been copied by almost every language since, so what you learn here transfers directly to JavaScript, Java and Go. The details that trip people up are specific to C, though: comparisons produce the integers 0 and 1 rather than a special boolean, a single `=` inside a condition is legal, and `switch` cases fall through unless you stop them.",
+  "learningObjectives": [
+    "Use arithmetic, comparison, logical and compound-assignment operators with correct precedence",
+    "Branch with if/else and switch, including deliberate fall-through",
+    "Repeat work with while, do-while and for loops",
+    "Leave a loop early with break and skip an iteration with continue"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Operators"
+    },
+    {
+      "type": "paragraph",
+      "text": "The arithmetic operators are `+`, `-`, `*`, `/` and `%` (remainder, integers only). Comparisons (`<`, `<=`, `>`, `>=`, `==`, `!=`) produce an `int`: 1 for true and 0 for false. The logical operators `&&` (and), `||` (or) and `!` (not) treat any non-zero value as true and **short-circuit**: the right operand of `&&` is not evaluated when the left one is already false. Compound assignments such as `+=` and `*=` update a variable in place, and `++` and `--` add or subtract one, either before (`++i`) or after (`i++`) the value is used."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "operators.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 17, b = 5;\n\n    printf(\"%d %d %d %d %d\\n\", a + b, a - b, a * b, a / b, a % b);\n    printf(\"%d %d %d\\n\", a > b, a == b, a != b);\n    printf(\"%d %d %d\\n\", a > 10 && b > 10, a > 10 || b > 10, !(a > 10));\n\n    a += 3;       /* a = a + 3 */\n    b *= 2;       /* b = b * 2 */\n    printf(\"%d %d\\n\", a, b);\n\n    int i = 5;\n    int j = i++;  /* j gets 5, then i becomes 6 */\n    int k = ++i;  /* i becomes 7, then k gets 7 */\n    printf(\"%d %d %d\\n\", i, j, k);\n\n    printf(\"%d\\n\", 2 + 3 * 4);    /* * binds tighter than +: 14 */\n    printf(\"%d\\n\", (2 + 3) * 4);  /* parentheses first: 20 */\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 operators.c -o operators\n$ ./operators\n22 12 85 3 2\n1 0 1\n0 1 0\n20 10\n7 5 7\n14\n20"
+    },
+    {
+      "type": "table",
+      "caption": "Operator precedence from highest to lowest (abridged)",
+      "headers": ["Operators", "Meaning"],
+      "rows": [
+        ["`()` `[]` `.` `->`", "Grouping, array index, member access"],
+        [
+          "`!` `-` `++` `--` `(type)` `sizeof` and unary `*` `&`",
+          "Unary operators, evaluated right to left"
+        ],
+        ["`*` `/` `%`", "Multiplication, division, remainder"],
+        ["`+` `-`", "Addition, subtraction"],
+        ["`<` `<=` `>` `>=`", "Relational comparisons"],
+        ["`==` `!=`", "Equality comparisons"],
+        ["`&&` then `||`", "Logical and, then logical or"],
+        ["`?:`", "Conditional (ternary) operator"],
+        ["`=` `+=` `-=` `*=` `/=` `%=`", "Assignments, evaluated right to left"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Making decisions: if, else and the ternary operator"
+    },
+    {
+      "type": "paragraph",
+      "text": "`if` runs a statement when its condition is non-zero; `else` provides the alternative, and `else if` chains let you test several conditions in order, stopping at the first match. The braces are optional around a single statement, but writing them always prevents the classic bug of adding a second line that silently falls outside the `if`. The ternary operator `condition ? a : b` is an *expression* that picks one of two values, which is convenient inside a `printf` or an initialiser."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "grade.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int score = 73;\n\n    if (score >= 90) {\n        printf(\"A\\n\");\n    } else if (score >= 70) {\n        printf(\"B\\n\");\n    } else if (score >= 50) {\n        printf(\"C\\n\");\n    } else {\n        printf(\"F\\n\");\n    }\n\n    const char *verdict = score >= 50 ? \"pass\" : \"fail\";\n    printf(\"%s\\n\", verdict);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "B\npass"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "switch"
+    },
+    {
+      "type": "paragraph",
+      "text": "`switch` compares an integer expression against constant `case` labels. Execution jumps to the matching label and then **falls through** every following case until it meets a `break`. Fall-through lets several labels share one block, as the winter months do below, and it is also the source of a classic bug when a `break` is forgotten. `default` runs when no label matches."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "season.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    for (int month = 1; month <= 4; month++) {\n        printf(\"month %d: \", month);\n        switch (month) {\n        case 12:\n        case 1:\n        case 2:\n            printf(\"winter\\n\");\n            break;\n        case 3:\n            printf(\"spring\\n\");\n            break;\n        default:\n            printf(\"unknown\\n\");\n            break;\n        }\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "month 1: winter\nmonth 2: winter\nmonth 3: spring\nmonth 4: unknown"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Loops: while, do-while and for"
+    },
+    {
+      "type": "paragraph",
+      "text": "`while` checks its condition before each pass, so the body may run zero times. `do ... while` checks afterwards and always runs at least once, which suits input validation. `for` packs initialisation, condition and update into one header and is the idiom for counting; a variable declared in the header exists only inside the loop. All three repeat a single statement or block."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "loops.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int n = 1;\n    while (n < 100) {        /* keep doubling until the limit */\n        n *= 2;\n    }\n    printf(\"first power of two >= 100: %d\\n\", n);\n\n    int attempts = 0;\n    do {\n        attempts++;\n    } while (attempts < 3);\n    printf(\"attempts: %d\\n\", attempts);\n\n    int sum = 0;\n    for (int i = 1; i <= 10; i++) {\n        sum += i;\n    }\n    printf(\"1 + 2 + ... + 10 = %d\\n\", sum);\n\n    for (int i = 10; i > 0; i -= 3) {\n        printf(\"i = %d\\n\", i);\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "first power of two >= 100: 128\nattempts: 3\n1 + 2 + ... + 10 = 55\ni = 10\ni = 7\ni = 4\ni = 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "break and continue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`break` leaves the innermost loop (or `switch`) immediately; `continue` abandons the current pass and jumps to the next check of the condition. Both keep loops readable by handling the exceptional case first and letting the normal case follow without extra nesting."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "oddstop.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    /* print odd numbers, but stop at the first multiple of 7 */\n    for (int i = 1; i < 20; i++) {\n        if (i % 2 == 0) {\n            continue;        /* skip even numbers */\n        }\n        if (i % 7 == 0) {\n            printf(\"stopping at %d\\n\", i);\n            break;           /* leave the loop entirely */\n        }\n        printf(\"%d\\n\", i);\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "1\n3\n5\nstopping at 7"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: = instead of ==",
+      "text": "`if (x = 5)` is legal C. It assigns 5 to `x`, and because the value of an assignment is the value assigned, the condition is always true. GCC and Clang warn with `-Wall` (\"suggest parentheses around assignment used as truth value\"), so never ignore that message. The related mistake is a forgotten `break` in a `switch`, which runs the next case too; `-Wextra` includes `-Wimplicit-fallthrough` to flag it."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "In `season.c`, delete the `break` after `winter` and run the program again to see fall-through in action. Then rewrite the `while` loop in `loops.c` as a `for` loop and the `for` loop that sums 1 to 10 as a `while` loop; every loop can be written in every form, and choosing the clearest one is part of the craft."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-control-fizzbuzz"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-control-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "operators-control-flow",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "3 is greater than 2 and less than 5, so the first branch prints `in`. A true comparison has the integer value 1, so the second line prints `1`, not `true`.",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int x = 3;\n    if (x > 2 && x < 5)\n        printf(\"in\\n\");\n    else\n        printf(\"out\\n\");\n    printf(\"%d\\n\", x > 2);\n    return 0;\n}",
+          "options": ["`in` then `1`", "`in` then `true`", "`out` then `0`", "`in` then `3`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "c-control-qc-2",
+          "type": "true-false",
+          "lessonSlug": "operators-control-flow",
+          "difficulty": "beginner",
+          "question": "A `do ... while` loop always executes its body at least once.",
+          "explanation": "The condition of a `do ... while` loop is tested after the body, so the body runs once before the first check.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-control-fizzbuzz", "c-control-loop-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "loops"
+    }
+  ],
+  "seo": {
+    "title": "C Operators and Control Flow – if, switch, Loops",
+    "description": "Learn C operators and precedence, then control flow with if/else, switch with fall-through, while, do-while and for loops, break and continue."
+  },
+  "updatedOn": "2026-11-15"
+}

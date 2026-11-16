@@ -1,0 +1,144 @@
+{
+  "title": "Web Performance Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Web Performance course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Measure before changing code",
+          "summary": "A performance measurement is a clue about a real task.",
+          "example": {
+            "language": "text",
+            "code": "Choose one page and one task.\nRecord the device and network setting.\nLoad it several times.\nWrite down what feels slow.\nChange one cause and repeat the same test."
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "know-the-three-web-vital-ideas",
+          "name": "Know the three web vital ideas",
+          "summary": "Core Web Vitals describe loading, response to input and visual stability.",
+          "example": {
+            "language": "text",
+            "code": "LCP: When the largest main content becomes visible.\nINP: How quickly the page shows a response to interactions.\nCLS: How much visible content unexpectedly moves."
+          },
+          "lessonSlug": "know-the-three-web-vital-ideas"
+        },
+        {
+          "slug": "give-images-their-size",
+          "name": "Give images their size",
+          "summary": "Image width and height tell the browser the picture's shape before it finishes loading.",
+          "example": {
+            "language": "html",
+            "code": "<!-- Use the real dimensions of your own image. -->\n<img src=\"garden.jpg\" alt=\"Our school garden\" width=\"1200\" height=\"800\" style=\"max-width:100%;height:auto\">"
+          },
+          "lessonSlug": "give-images-their-size"
+        },
+        {
+          "slug": "load-lower-images-later",
+          "name": "Load lower images later",
+          "summary": "Lazy loading delays some images until they are near the visible area.",
+          "example": {
+            "language": "html",
+            "code": "<!-- Place well below the first screen of content. -->\n<img src=\"club-trip.jpg\" alt=\"The club visits a garden\" width=\"800\" height=\"600\" loading=\"lazy\">"
+          },
+          "lessonSlug": "load-lower-images-later"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "offer-an-image-that-fits",
+          "name": "Offer an image that fits",
+          "summary": "Responsive image sources let the browser choose a suitable image size.",
+          "example": {
+            "language": "html",
+            "code": "<img src=\"garden-800.jpg\" srcset=\"garden-400.jpg 400w, garden-800.jpg 800w\" sizes=\"(max-width:600px) 100vw, 600px\" width=\"800\" height=\"600\" alt=\"Garden beds\">"
+          },
+          "lessonSlug": "offer-an-image-that-fits"
+        },
+        {
+          "slug": "keep-early-scripts-from-blocking-html",
+          "name": "Keep early scripts from blocking HTML",
+          "summary": "A deferred classic script downloads while HTML is read and runs after parsing.",
+          "example": {
+            "language": "html",
+            "code": "<script src=\"club.js\" defer></script>"
+          },
+          "lessonSlug": "keep-early-scripts-from-blocking-html"
+        },
+        {
+          "slug": "load-optional-code-when-needed",
+          "name": "Load optional code when needed",
+          "summary": "Dynamic import can load a JavaScript module when a feature is used.",
+          "example": {
+            "language": "javascript",
+            "code": "document.querySelector(\"#chart-button\").addEventListener(\"click\", async () => {\n  const { showChart } = await import(\"./chart.js\");\n  showChart();\n});"
+          },
+          "lessonSlug": "load-optional-code-when-needed"
+        },
+        {
+          "slug": "avoid-repeating-layout-work",
+          "name": "Avoid repeating layout work",
+          "summary": "Reading layout after each style change can make the browser repeatedly calculate positions.",
+          "example": {
+            "language": "javascript",
+            "code": "const cards = [...document.querySelectorAll(\".card\")];\nconst widths = cards.map(card => card.getBoundingClientRect().width);\ncards.forEach((card, index) => { card.style.minHeight = widths[index] / 2 + \"px\"; });"
+          },
+          "lessonSlug": "avoid-repeating-layout-work"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "schedule-a-visual-update",
+          "name": "Schedule a visual update",
+          "summary": "requestAnimationFrame asks the browser to run a visual update before a future paint.",
+          "example": {
+            "language": "javascript",
+            "code": "const box = document.querySelector(\".box\");\nrequestAnimationFrame(() => {\n  box.style.transform = \"translateX(20px)\";\n});"
+          },
+          "lessonSlug": "schedule-a-visual-update"
+        },
+        {
+          "slug": "use-a-font-fallback",
+          "name": "Use a font fallback",
+          "summary": "A fallback font shows readable words while a web font loads.",
+          "example": {
+            "language": "css",
+            "code": "@font-face {\n  font-family: \"ClubText\";\n  src: url(\"/fonts/club.woff2\") format(\"woff2\");\n  font-display: swap;\n}\nbody { font-family: \"ClubText\", system-ui, sans-serif; }"
+          },
+          "lessonSlug": "use-a-font-fallback"
+        },
+        {
+          "slug": "understand-browser-caching",
+          "name": "Understand browser caching",
+          "summary": "A cache keeps a response so it may be reused.",
+          "example": {
+            "language": "text",
+            "code": "For a versioned asset such as app.a1b2c3.js, a static host may send:\nCache-Control: public, max-age=31536000, immutable\n\nFor HTML that changes, use a policy that lets the browser check for updates."
+          },
+          "lessonSlug": "understand-browser-caching"
+        },
+        {
+          "slug": "keep-a-performance-checklist",
+          "name": "Keep a performance checklist",
+          "summary": "A useful performance budget sets limits that matter for the page.",
+          "example": {
+            "language": "text",
+            "code": "List important pages and tasks.\nTrack total transferred image and script sizes.\nCheck a slower device and network.\nReview LCP, INP and CLS evidence.\nKeep accessibility and readable content in every check.\nRepeat after large new features."
+          },
+          "lessonSlug": "keep-a-performance-checklist"
+        }
+      ]
+    }
+  ]
+}

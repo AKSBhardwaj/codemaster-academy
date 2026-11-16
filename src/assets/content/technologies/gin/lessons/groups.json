@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "groups",
+  "title": "Share a route prefix",
+  "summary": "Gin: Share a route prefix. Add another route inside api.",
+  "introduction": "A group gives related handlers a common path prefix. Open GET /api/books.",
+  "learningObjectives": ["Share a route prefix with Gin", "Add another route inside api"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Share a route prefix"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Share a route prefix",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\napi := r.Group(\"/api\")\napi.GET(\"/books\", func(c *gin.Context) { c.JSON(http.StatusOK, []string{\"Moon Trip\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The api group adds /api to /books before matching the route."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "[\"Moon Trip\"]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add another route inside api."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The group prefix belongs in the requested URL."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-groups-check"
+    }
+  ],
+  "exerciseIds": ["gin-groups-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "json-body"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Share a route prefix",
+    "description": "Gin: Share a route prefix. Add another route inside api. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

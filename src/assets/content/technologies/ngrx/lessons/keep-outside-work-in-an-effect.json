@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-outside-work-in-an-effect",
+  "title": "Keep outside work in an effect",
+  "summary": "An effect listens for actions and can return new actions after outside work.",
+  "introduction": "An effect listens for actions and can return new actions after outside work. Your task: Name the action this effect listens for and the one it returns.",
+  "learningObjectives": [
+    "Name the action this effect listens for and the one it returns.",
+    "Explain the example for keep outside work in an effect"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An effect listens for actions and can return new actions after outside work. Reducers can stay focused on state changes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use an Angular project with the matching major version of @ngrx/store. Effects and SignalStore examples also need @ngrx/effects or @ngrx/signals. Save linked snippets in the files named by their imports."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import {Injectable,inject} from \"@angular/core\";\nimport {Actions,createEffect,ofType} from \"@ngrx/effects\";\nimport {map} from \"rxjs\";\nimport {loadBooks,booksLoaded} from \"./state\";\n@Injectable()\nexport class BookEffects{private actions=inject(Actions);load=createEffect(()=>this.actions.pipe(ofType(loadBooks),map(()=>booksLoaded({titles:[\"Moon Trip\"]}))));}\n// Register with provideEffects(BookEffects); define both action creators in state.ts.",
+      "title": "Keep outside work in an effect",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`createEffect` listens to actions for outside work and can produce follow-up actions."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "A loadBooks action is followed by booksLoaded with local sample data."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not listen for the same action you return without a stopping rule. That can create an endless effect loop."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Name the action this effect listens for and the one it returns."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ngrx-keep-outside-work-in-an-effect-check"
+    }
+  ],
+  "exerciseIds": ["ngrx-keep-outside-work-in-an-effect-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ngrx",
+      "slug": "group-related-action-names"
+    }
+  ],
+  "seo": {
+    "title": "NgRx: Keep outside work in an effect",
+    "description": "An effect listens for actions and can return new actions after outside work. Reducers can stay focused on state changes."
+  },
+  "updatedOn": "2026-11-16"
+}

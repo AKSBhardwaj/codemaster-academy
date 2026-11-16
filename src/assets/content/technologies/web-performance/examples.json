@@ -1,0 +1,138 @@
+{
+  "title": "Web Performance Small Examples",
+  "description": "Use these small Web Performance examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Measure before changing code",
+      "description": "A performance measurement is a clue about a real task.",
+      "language": "text",
+      "code": "Choose one page and one task.\nRecord the device and network setting.\nLoad it several times.\nWrite down what feels slow.\nChange one cause and repeat the same test.",
+      "output": "A fair comparison can show whether a change helped that task instead of only changing a number by chance.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "know-the-three-web-vital-ideas",
+      "title": "Know the three web vital ideas",
+      "description": "Core Web Vitals describe loading, response to input and visual stability.",
+      "language": "text",
+      "code": "LCP: When the largest main content becomes visible.\nINP: How quickly the page shows a response to interactions.\nCLS: How much visible content unexpectedly moves.",
+      "output": "The three measures help separate a slow load, a slow click response and a jumping layout.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "know-the-three-web-vital-ideas"
+    },
+    {
+      "id": "give-images-their-size",
+      "title": "Give images their size",
+      "description": "Image width and height tell the browser the picture's shape before it finishes loading.",
+      "language": "html",
+      "code": "<!-- Use the real dimensions of your own image. -->\n<img src=\"garden.jpg\" alt=\"Our school garden\" width=\"1200\" height=\"800\" style=\"max-width:100%;height:auto\">",
+      "output": "The browser can reserve a 3-to-2 shaped area before garden.jpg loads.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "give-images-their-size"
+    },
+    {
+      "id": "load-lower-images-later",
+      "title": "Load lower images later",
+      "description": "Lazy loading delays some images until they are near the visible area.",
+      "language": "html",
+      "code": "<!-- Place well below the first screen of content. -->\n<img src=\"club-trip.jpg\" alt=\"The club visits a garden\" width=\"800\" height=\"600\" loading=\"lazy\">",
+      "output": "The browser may wait to load this lower image until the reader gets closer to it.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "load-lower-images-later"
+    },
+    {
+      "id": "offer-an-image-that-fits",
+      "title": "Offer an image that fits",
+      "description": "Responsive image sources let the browser choose a suitable image size.",
+      "language": "html",
+      "code": "<img src=\"garden-800.jpg\" srcset=\"garden-400.jpg 400w, garden-800.jpg 800w\" sizes=\"(max-width:600px) 100vw, 600px\" width=\"800\" height=\"600\" alt=\"Garden beds\">",
+      "output": "With real image files at those widths, the browser chooses a source using the layout size and display density.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "offer-an-image-that-fits"
+    },
+    {
+      "id": "keep-early-scripts-from-blocking-html",
+      "title": "Keep early scripts from blocking HTML",
+      "description": "A deferred classic script downloads while HTML is read and runs after parsing.",
+      "language": "html",
+      "code": "<script src=\"club.js\" defer></script>",
+      "output": "The browser fetches club.js without stopping HTML parsing at this tag. It executes after the document is parsed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-early-scripts-from-blocking-html"
+    },
+    {
+      "id": "load-optional-code-when-needed",
+      "title": "Load optional code when needed",
+      "description": "Dynamic import can load a JavaScript module when a feature is used.",
+      "language": "javascript",
+      "code": "document.querySelector(\"#chart-button\").addEventListener(\"click\", async () => {\n  const { showChart } = await import(\"./chart.js\");\n  showChart();\n});",
+      "output": "On a page with a real button and chart.js export, the chart module is requested when the feature is first opened.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "load-optional-code-when-needed"
+    },
+    {
+      "id": "avoid-repeating-layout-work",
+      "title": "Avoid repeating layout work",
+      "description": "Reading layout after each style change can make the browser repeatedly calculate positions.",
+      "language": "javascript",
+      "code": "const cards = [...document.querySelectorAll(\".card\")];\nconst widths = cards.map(card => card.getBoundingClientRect().width);\ncards.forEach((card, index) => { card.style.minHeight = widths[index] / 2 + \"px\"; });",
+      "output": "The code reads all widths first, then applies the new heights.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "avoid-repeating-layout-work"
+    },
+    {
+      "id": "schedule-a-visual-update",
+      "title": "Schedule a visual update",
+      "description": "requestAnimationFrame asks the browser to run a visual update before a future paint.",
+      "language": "javascript",
+      "code": "const box = document.querySelector(\".box\");\nrequestAnimationFrame(() => {\n  box.style.transform = \"translateX(20px)\";\n});",
+      "output": "On a page with a .box element, the box moves in a scheduled visual update.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "schedule-a-visual-update"
+    },
+    {
+      "id": "use-a-font-fallback",
+      "title": "Use a font fallback",
+      "description": "A fallback font shows readable words while a web font loads.",
+      "language": "css",
+      "code": "@font-face {\n  font-family: \"ClubText\";\n  src: url(\"/fonts/club.woff2\") format(\"woff2\");\n  font-display: swap;\n}\nbody { font-family: \"ClubText\", system-ui, sans-serif; }",
+      "output": "With a real font file, text can appear in a system font first and switch when ClubText is ready.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-font-fallback"
+    },
+    {
+      "id": "understand-browser-caching",
+      "title": "Understand browser caching",
+      "description": "A cache keeps a response so it may be reused.",
+      "language": "text",
+      "code": "For a versioned asset such as app.a1b2c3.js, a static host may send:\nCache-Control: public, max-age=31536000, immutable\n\nFor HTML that changes, use a policy that lets the browser check for updates.",
+      "output": "A file whose address changes with its contents can be cached for a long time. HTML needs a policy that still delivers updates.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "understand-browser-caching"
+    },
+    {
+      "id": "keep-a-performance-checklist",
+      "title": "Keep a performance checklist",
+      "description": "A useful performance budget sets limits that matter for the page.",
+      "language": "text",
+      "code": "List important pages and tasks.\nTrack total transferred image and script sizes.\nCheck a slower device and network.\nReview LCP, INP and CLS evidence.\nKeep accessibility and readable content in every check.\nRepeat after large new features.",
+      "output": "The project gets a repeatable check, not a one-time speed score.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-a-performance-checklist"
+    }
+  ]
+}

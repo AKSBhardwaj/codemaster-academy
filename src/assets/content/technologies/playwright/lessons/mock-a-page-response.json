@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "mock-a-page-response",
+  "title": "Mock a page response",
+  "summary": "A route handler can provide a known response. The test controls the content without calling a real external service.",
+  "introduction": "A route handler can provide a known response. The test controls the content without calling a real external service. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain mock a page response",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A route handler can provide a known response. The test controls the content without calling a real external service."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"mock a page response\", async ({ page }) => {\n  await page.route(\"https://books.test/\", route => route.fulfill({ contentType: \"text/html\", body: \"<h1>Book list</h1>\" }));\n  await page.goto(\"https://books.test/\");\n  await expect(page.getByRole(\"heading\", { name: \"Book list\" })).toBeVisible();\n});",
+      "title": "Mock a page response",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The route handler supplies the whole page. No real books.test server is needed for this request."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Return a different heading from the handler.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Register the route before the request it must catch."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "playwright-mock-a-page-response"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Playwright further reading](https://playwright.dev/docs/intro)."
+    }
+  ],
+  "exerciseIds": ["playwright-mock-a-page-response"],
+  "relatedLessons": [
+    {
+      "technologySlug": "playwright",
+      "slug": "isolate-test-state"
+    }
+  ],
+  "seo": {
+    "title": "Playwright: Mock a page response",
+    "description": "Learn about mock a page response in Playwright. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

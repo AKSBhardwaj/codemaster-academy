@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read a query value",
+  "summary": "Gin: Read a query value. Visit /page?n=3.",
+  "introduction": "DefaultQuery reads a query parameter and supplies a fallback. GET /page uses the text fallback 1.",
+  "learningObjectives": ["Read a query value with Gin", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query value"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Read a query value",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/page\", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{\"page\": c.DefaultQuery(\"n\", \"1\")}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "DefaultQuery reads no n value and uses the string 1. JSON therefore quotes it."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":\"1\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Query values are strings, even when they look like numbers."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-query-check"
+    }
+  ],
+  "exerciseIds": ["gin-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "path-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Read a query value",
+    "description": "Gin: Read a query value. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

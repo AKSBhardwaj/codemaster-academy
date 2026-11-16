@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "slug": "conditionals",
+  "title": "Conditionals",
+  "summary": "A condition lets a program choose what to do. An if statement runs some code when a rule is true.",
+  "introduction": "A condition lets a program choose what to do. An if statement runs some code when a rule is true. A game might say \"You win\" when points reach ten. Write a small rule, then test values on both sides of it.",
+  "learningObjectives": [
+    "Write if, else if and else branches that cover every case",
+    "List the falsy values and predict how a condition evaluates",
+    "Use switch for a value with many fixed options",
+    "Simplify nested conditions with early returns"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "if, else if and else"
+    },
+    {
+      "type": "paragraph",
+      "text": "`if` runs its block when the condition in parentheses is true. `else if` adds another condition that is only checked when the previous ones were false, and `else` catches everything that is left. The branches are tested from top to bottom and exactly one runs, so order matters: put the most specific condition first."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const hour = 14;\n\nif (hour < 12) {\n  console.log(\"Good morning\");\n} else if (hour < 18) {\n  console.log(\"Good afternoon\");\n} else {\n  console.log(\"Good evening\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Good afternoon"
+    },
+    {
+      "type": "paragraph",
+      "text": "`hour < 12` is false, so the first block is skipped. `hour < 18` is true, so the second block runs and the `else` is never reached. Change `hour` to `9` or `21` and run it again."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Truthy and falsy"
+    },
+    {
+      "type": "paragraph",
+      "text": "A condition does not have to be a boolean. JavaScript converts whatever you put inside `if (...)` to true or false. Only a handful of values convert to false; they are called **falsy**, and everything else is **truthy**. Knowing the list lets you write `if (name)` to mean 'if a name was given' and `if (items.length)` to mean 'if the list is not empty'."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`false`",
+        "`0` (also `-0` and the BigInt `0n`)",
+        "`\"\"` (an empty string)",
+        "`null`",
+        "`undefined`",
+        "`NaN`"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function describe(value) {\n  if (value) {\n    console.log(\"truthy\");\n  } else {\n    console.log(\"falsy\");\n  }\n}\n\ndescribe(0);\ndescribe(\"0\");\ndescribe(\"\");\ndescribe(null);\ndescribe([]);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "falsy\ntruthy\nfalsy\nfalsy\ntruthy"
+    },
+    {
+      "type": "paragraph",
+      "text": "`describe` is a small function so the test can be repeated; the [Functions](/tutorials/javascript/functions) lesson explains the syntax. The results to remember: the string `\"0\"` is truthy because it is not empty, and an empty array is truthy because it is an object. To check whether an array has items, test its `length`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "switch for many fixed options"
+    },
+    {
+      "type": "paragraph",
+      "text": "When one value is compared against a list of fixed options, a chain of `else if` gets repetitive. `switch` compares the value with each `case` using strict equality and runs the matching block. Execution continues into the next case until it meets `break`, which is how several cases can share one block, as `\"sat\"` and `\"sun\"` do below. `default` handles anything that did not match."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const day = \"sat\";\n\nswitch (day) {\n  case \"sat\":\n  case \"sun\":\n    console.log(\"Weekend\");\n    break;\n  case \"fri\":\n    console.log(\"Almost weekend\");\n    break;\n  default:\n    console.log(\"Weekday\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Weekend"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A missing break falls through",
+      "text": "Without `break`, execution continues into the next case even though its value did not match. Remove the `break` after `\"Weekend\"` in the example and the output becomes `Weekend` followed by `Almost weekend`. Intentional fall-through (several cases sharing a block) is fine; an accidental one is a classic bug."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Early returns keep conditions flat"
+    },
+    {
+      "type": "paragraph",
+      "text": "Deeply nested `if` blocks are hard to follow. Inside a function you can instead handle the special cases first and `return` immediately, so the remaining code deals only with the normal case. Each condition is read on its own, without remembering the ones above it."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function shippingCost(country, total) {\n  if (total >= 100) return 0;        // free shipping, whatever the country\n  if (country === \"FR\") return 5;\n  return 15;\n}\n\nconsole.log(shippingCost(\"FR\", 120));\nconsole.log(shippingCost(\"FR\", 40));\nconsole.log(shippingCost(\"US\", 40));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0\n5\n15"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Combining conditions"
+    },
+    {
+      "type": "paragraph",
+      "text": "The logical operators from the [Operators](/tutorials/javascript/operators) lesson let one `if` express several requirements. `&&` demands both, `||` accepts either, and `!` negates. For a simple choice between two values, the ternary operator is shorter than an `if`/`else`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const user = { name: \"Ada\", age: 17, hasParentConsent: true };\n\nif (user.age >= 18 || user.hasParentConsent) {\n  console.log(`${user.name} may register`);\n}\n\nif (!user.name) {\n  console.log(\"Name is required\");\n}\n\nconst status = user.age >= 18 ? \"adult\" : \"minor\";\nconsole.log(status);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada may register\nminor"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A mistake that looks like a comparison"
+    },
+    {
+      "type": "paragraph",
+      "text": "A single `=` inside a condition assigns instead of comparing. The assignment evaluates to the assigned value, so `if (role = \"admin\")` is always truthy and quietly overwrites `role`. Run the example and notice that it prints `admin` even though the variable was `guest`. Use `===`, and consider putting the constant on the left (`\"admin\" === role`), which makes the typo a syntax error."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let role = \"guest\";\n\nif (role = \"admin\") {   // assignment, not comparison!\n  console.log(\"Access granted to\", role);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Access granted to admin"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Rewrite the greeting example as a function `greeting(hour)` that uses early returns instead of else if, then call it with 9, 14 and 21. The output should not change."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-conditionals-grade"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "conditionals-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "conditionals",
+          "difficulty": "beginner",
+          "question": "Which of these values is falsy?",
+          "explanation": "The falsy values are false, 0 (including -0 and 0n), \"\", null, undefined and NaN. The string \"0\", an empty array and the string \"false\" are all truthy.",
+          "options": ["`\"0\"`", "`[]`", "`0`", "`\"false\"`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "conditionals-qc-2",
+          "type": "true-false",
+          "lessonSlug": "conditionals",
+          "difficulty": "beginner",
+          "question": "In a switch statement, execution continues into the next case unless it meets a break.",
+          "explanation": "That behaviour is called fall-through. It is useful for grouping cases, but forgetting a break runs code that was meant for another value.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-conditionals-grade"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "operators"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Conditionals – if, else, switch and Truthiness",
+    "description": "Learn JavaScript conditionals: if, else if and else, the falsy values, switch with break and default, early returns and the assignment-in-condition bug."
+  },
+  "updatedOn": "2026-11-16"
+}

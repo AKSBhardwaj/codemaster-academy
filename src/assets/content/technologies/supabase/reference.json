@@ -1,0 +1,144 @@
+{
+  "title": "Supabase Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Supabase course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Know the database and the client",
+          "summary": "Supabase stores table data in PostgreSQL and exposes APIs around it.",
+          "example": {
+            "language": "text",
+            "code": "Browser page -> Supabase API -> PostgreSQL table\nThe public client key identifies the project.\nRow-level security decides which rows the client role may access."
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "create-a-local-sample-table",
+          "name": "Create a local sample table",
+          "summary": "A PostgreSQL table defines the fields used by the API.",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE public.cma_books(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,title text NOT NULL,pages integer CHECK(pages>0));"
+          },
+          "lessonSlug": "create-a-local-sample-table"
+        },
+        {
+          "slug": "seed-public-sample-records",
+          "name": "Seed public sample records",
+          "summary": "Seed data is a small set of known records used for learning or testing.",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO public.cma_books(title,pages) VALUES('Moon Trip',60),('Garden Days',40),('Tiny Seed',20);"
+          },
+          "lessonSlug": "seed-public-sample-records"
+        },
+        {
+          "slug": "enable-row-level-security",
+          "name": "Enable row-level security",
+          "summary": "Row-level security adds a database check for rows accessed through client roles.",
+          "example": {
+            "language": "sql",
+            "code": "ALTER TABLE public.cma_books ENABLE ROW LEVEL SECURITY;"
+          },
+          "lessonSlug": "enable-row-level-security"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "allow-only-the-public-read",
+          "name": "Allow only the public read",
+          "summary": "A SELECT policy can make fictional sample rows readable to the anon role.",
+          "example": {
+            "language": "sql",
+            "code": "GRANT SELECT ON public.cma_books TO anon;\nCREATE POLICY \"Read public sample books\" ON public.cma_books FOR SELECT TO anon USING (true);"
+          },
+          "lessonSlug": "allow-only-the-public-read"
+        },
+        {
+          "slug": "make-a-local-client",
+          "name": "Make a local client",
+          "summary": "createClient connects the JavaScript SDK to the chosen project API.",
+          "example": {
+            "language": "javascript",
+            "code": "import {createClient} from \"@supabase/supabase-js\";\nexport const supabase=createClient(\"http://127.0.0.1:54321\",\"REPLACE_WITH_LOCAL_PUBLIC_KEY\");"
+          },
+          "lessonSlug": "make-a-local-client"
+        },
+        {
+          "slug": "select-named-columns",
+          "name": "Select named columns",
+          "summary": "A select request can ask only for the columns a page needs.",
+          "example": {
+            "language": "javascript",
+            "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"id,title\").order(\"id\");\nif(error)console.log(\"Books could not load\");else console.log(data);"
+          },
+          "lessonSlug": "select-named-columns"
+        },
+        {
+          "slug": "filter-with-a-comparison",
+          "name": "Filter with a comparison",
+          "summary": "The client can add a filter to a query. gte means greater than or equal to.",
+          "example": {
+            "language": "javascript",
+            "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"title,pages\").gte(\"pages\",50);\nconsole.log(error?error.message:data);"
+          },
+          "lessonSlug": "filter-with-a-comparison"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "order-and-limit-the-result",
+          "name": "Order and limit the result",
+          "summary": "Ordering and limiting help a page request a small useful set.",
+          "example": {
+            "language": "javascript",
+            "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"title,pages\").order(\"pages\").limit(2);\nconsole.log(error?error.message:data);"
+          },
+          "lessonSlug": "order-and-limit-the-result"
+        },
+        {
+          "slug": "count-without-requesting-every-row",
+          "name": "Count without requesting every row",
+          "summary": "A select can request a count while leaving the row body out.",
+          "example": {
+            "language": "javascript",
+            "code": "import {supabase} from \"./client.js\";\nconst {count,error}=await supabase.from(\"cma_books\").select(\"*\",{count:\"exact\",head:true});\nconsole.log(error?error.message:count);"
+          },
+          "lessonSlug": "count-without-requesting-every-row"
+        },
+        {
+          "slug": "expect-a-denied-write",
+          "name": "Expect a denied write",
+          "summary": "A read-only policy should reject browser writes.",
+          "example": {
+            "language": "javascript",
+            "code": "import {supabase} from \"./client.js\";\nconst {error}=await supabase.from(\"cma_books\").insert({title:\"Not allowed\",pages:10});\nconsole.log(error?\"Write correctly denied\":\"Check your permissions\");"
+          },
+          "lessonSlug": "expect-a-denied-write"
+        },
+        {
+          "slug": "keep-environments-separate",
+          "name": "Keep environments separate",
+          "summary": "Local and hosted projects have different addresses and keys.",
+          "example": {
+            "language": "text",
+            "code": "Local development: local URL, local public key, fictional sample rows.\nHosted app: its own public URL/key and reviewed policies.\nServer-only operations: secret key kept out of browser bundles.\nBefore running changes: verify which project the client points to."
+          },
+          "lessonSlug": "keep-environments-separate"
+        }
+      ]
+    }
+  ]
+}

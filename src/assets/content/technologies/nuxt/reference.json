@@ -1,0 +1,144 @@
+{
+  "title": "Nuxt.js Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Nuxt.js course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Show the current page",
+          "summary": "NuxtPage is the place where Nuxt displays the page chosen by the address.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- app.vue -->\n<template><NuxtPage /></template>\n\n<!-- pages/index.vue, separate file -->\n<template><main><h1>Reading club</h1><p>Pick a book today.</p></main></template>"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "add-a-file-route",
+          "name": "Add a file route",
+          "summary": "A Vue file in pages becomes a route. index.vue is the home page, while books.vue makes /books.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/books.vue -->\n<template><main><h1>Books</h1><ul><li>Moon Trip</li></ul></main></template>"
+          },
+          "lessonSlug": "add-a-file-route"
+        },
+        {
+          "slug": "navigate-with-nuxtlink",
+          "name": "Navigate with NuxtLink",
+          "summary": "NuxtLink provides a normal link meaning while letting Nuxt handle local route navigation.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/index.vue -->\n<template><main><h1>Reading club</h1><NuxtLink to=\"/books\">Read the book list</NuxtLink></main></template>"
+          },
+          "lessonSlug": "navigate-with-nuxtlink"
+        },
+        {
+          "slug": "share-a-layout",
+          "name": "Share a layout",
+          "summary": "A layout wraps pages with shared content.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- app.vue -->\n<template><NuxtLayout><NuxtPage /></NuxtLayout></template>\n\n<!-- layouts/default.vue, separate file -->\n<template><div><header>Reading club</header><slot/><footer>Keep reading</footer></div></template>"
+          },
+          "lessonSlug": "share-a-layout"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "reuse-a-component",
+          "name": "Reuse a component",
+          "summary": "Nuxt can auto-import components from its components folder.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- components/BookCard.vue -->\n<script setup>defineProps({title:String});</script><template><h2>{{ title }}</h2></template>\n\n<!-- pages/books.vue, separate file -->\n<template><main><h1>Books</h1><BookCard title=\"Moon Trip\"/></main></template>"
+          },
+          "lessonSlug": "reuse-a-component"
+        },
+        {
+          "slug": "set-the-page-title",
+          "name": "Set the page title",
+          "summary": "useSeoMeta describes title and description values for a page.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/books.vue -->\n<script setup>useSeoMeta({title:\"Books | Reading Club\",description:\"Our club's short reading list.\"});</script>\n<template><main><h1>Books</h1></main></template>"
+          },
+          "lessonSlug": "set-the-page-title"
+        },
+        {
+          "slug": "share-state-with-a-key",
+          "name": "Share state with a key",
+          "summary": "useState creates state that Nuxt can share safely within one app visit.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/index.vue -->\n<script setup>const count=useState(\"books-read\",()=>0);</script>\n<template><button @click=\"count++\">Books read: {{ count }}</button></template>"
+          },
+          "lessonSlug": "share-state-with-a-key"
+        },
+        {
+          "slug": "load-a-local-json-file",
+          "name": "Load a local JSON file",
+          "summary": "useFetch can load data and give the page loading and error state.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- Put {\"title\":\"Moon Trip\"} in public/book.json. -->\n<!-- pages/books.vue -->\n<script setup>const {data,error}=await useFetch(\"/book.json\");</script>\n<template><p v-if=\"error\">The book could not load.</p><h1 v-else>{{ data?.title }}</h1></template>"
+          },
+          "lessonSlug": "load-a-local-json-file"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "read-a-route-value",
+          "name": "Read a route value",
+          "summary": "A bracketed page file captures part of an address.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/books/[slug].vue -->\n<script setup>const route=useRoute();</script>\n<template><main><h1>Book: {{ route.params.slug }}</h1></main></template>"
+          },
+          "lessonSlug": "read-a-route-value"
+        },
+        {
+          "slug": "run-browser-only-work-after-mount",
+          "name": "Run browser-only work after mount",
+          "summary": "Some APIs exist only in the browser. onMounted runs after the component is mounted there, so it can safely read browser-only objects.",
+          "example": {
+            "language": "vue",
+            "code": "<!-- pages/index.vue -->\n<script setup>const width=ref(null);onMounted(()=>{width.value=window.innerWidth;});</script>\n<template><p>Window width: {{ width ?? \"Checking\" }}</p></template>"
+          },
+          "lessonSlug": "run-browser-only-work-after-mount"
+        },
+        {
+          "slug": "keep-a-public-setting-public",
+          "name": "Keep a public setting public",
+          "summary": "Runtime config separates public settings from server-only settings.",
+          "example": {
+            "language": "typescript",
+            "code": "// nuxt.config.ts\nexport default defineNuxtConfig({runtimeConfig:{public:{clubName:\"Reading club\"}}});\n\n// In a component script setup:\n// const config = useRuntimeConfig();\n// Read config.public.clubName in the template."
+          },
+          "lessonSlug": "keep-a-public-setting-public"
+        },
+        {
+          "slug": "generate-static-pages",
+          "name": "Generate static pages",
+          "summary": "Nuxt can build a site as static files. List dynamic routes that cannot be found by following ordinary page links.",
+          "example": {
+            "language": "typescript",
+            "code": "// nuxt.config.ts\nexport default defineNuxtConfig({nitro:{prerender:{routes:[\"/books/moon-trip\",\"/books/garden-days\"]}}});\n// Run: npx nuxi generate\n// Serve the generated .output/public directory on a static host."
+          },
+          "lessonSlug": "generate-static-pages"
+        }
+      ]
+    }
+  ]
+}

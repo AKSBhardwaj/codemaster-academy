@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "integer-pipe",
+  "title": "Check and parse a number",
+  "summary": "NestJS: Check and parse a number. Visit /double/cat.",
+  "introduction": "ParseIntPipe reads an integer or rejects bad input. GET /double/4 uses the checked number.",
+  "learningObjectives": ["Check and parse a number with NestJS", "Visit /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check and parse a number"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Check and parse a number",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"double/:n\") twice(@Param(\"n\", ParseIntPipe) n: number) { return { answer: n * 2 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "ParseIntPipe converts 4 before the method runs. Multiplying the resulting number gives 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The pipe does the runtime check; the number annotation alone does not."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-integer-pipe-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-integer-pipe-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "query-inputs"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Check and parse a number",
+    "description": "NestJS: Check and parse a number. Visit /double/cat. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,8 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { LearningPathSummary, TechnologyCatalogEntry } from '../../core/models/content';
-import { redirectGuestAfterHydration } from '../../core/guards/auth.guard';
-import { AuthStore } from '../../core/services/auth.store';
+import { LearnerStore } from '../../core/services/learner.store';
 import { BookmarkStore } from '../../core/services/bookmark.store';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ExerciseStore } from '../../core/services/exercise.store';
@@ -45,7 +44,7 @@ export interface TechnologyProgress {
   styleUrl: './dashboard.scss',
 })
 export class DashboardPage {
-  protected readonly auth = inject(AuthStore);
+  protected readonly learner = inject(LearnerStore);
   protected readonly progress = inject(ProgressStore);
   protected readonly exercises = inject(ExerciseStore);
   protected readonly quizzes = inject(QuizStore);
@@ -105,10 +104,6 @@ export class DashboardPage {
   );
   protected readonly certificates = computed(() => this.enrolledPaths().filter((p) => p.complete));
   protected readonly lastLesson = computed(() => this.recent.recent()[0]);
-
-  constructor() {
-    redirectGuestAfterHydration('/dashboard');
-  }
 
   protected accentFor(tech: TechnologyCatalogEntry): string | undefined {
     return this.catalog.category(tech.categorySlug)?.accent;

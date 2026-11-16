@@ -1,0 +1,126 @@
+{
+  "title": "Kubernetes Exercises",
+  "description": "Practise the ideas from this Kubernetes course. Each answer has an explanation to help you learn.",
+  "exercises": [
+    {
+      "id": "kubernetes-introduction",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is kubectl?",
+      "options": ["A client tool", "A complete cluster by itself"],
+      "correctIndex": 0,
+      "explanation": "A cluster is a group of machines managed together. kubectl is a command-line tool that asks the Kubernetes API about that cluster. This prints the client version without requiring a working cluster. It does not install a cluster."
+    },
+    {
+      "id": "kubernetes-check-the-current-context",
+      "lessonSlug": "check-the-current-context",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why check context first?",
+      "options": ["To speed up every Pod", "To know the target cluster"],
+      "correctIndex": 1,
+      "explanation": "A context chooses a cluster, user and sometimes namespace. Read it first so you know where a command would act. The output shows configured contexts. A learning setup should use an explicitly chosen local context."
+    },
+    {
+      "id": "kubernetes-pods-hold-containers",
+      "lessonSlug": "pods-hold-containers",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is the smallest runnable unit here?",
+      "options": ["Pod", "Cluster"],
+      "correctIndex": 0,
+      "explanation": "A Pod is Kubernetes' smallest runnable unit. Containers in one Pod share some resources, such as the network address. Most simple examples put one main container in a Pod. A Pod is not a whole virtual machine."
+    },
+    {
+      "id": "kubernetes-deployments-manage-replicas",
+      "lessonSlug": "deployments-manage-replicas",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "How many replicas are requested?",
+      "options": ["1", "2"],
+      "correctIndex": 1,
+      "explanation": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy. The desired state asks for two Pods matching the template. Reading this YAML does not create them."
+    },
+    {
+      "id": "kubernetes-labels-group-resources",
+      "lessonSlug": "labels-group-resources",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does a selector use?",
+      "options": ["Matching labels", "Only the resource age"],
+      "correctIndex": 0,
+      "explanation": "A label is a key-value marker attached to a resource. Selectors find resources with matching labels. These two labels describe the resource. A selector app=club-web can find it."
+    },
+    {
+      "id": "kubernetes-inspect-resources",
+      "lessonSlug": "inspect-resources",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which command gives detailed information?",
+      "options": ["delete", "describe"],
+      "correctIndex": 1,
+      "explanation": "get lists resources. describe gives a detailed human-readable view with events that can explain problems. These commands read the current namespace in the chosen cluster. The Deployment must exist there for describe to succeed."
+    },
+    {
+      "id": "kubernetes-services-give-a-stable-route",
+      "lessonSlug": "services-give-a-stable-route",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which Service type is used?",
+      "options": ["ClusterIP", "LoadBalancer"],
+      "correctIndex": 0,
+      "explanation": "A Service gives a stable way to reach a selected group of Pods. This example is internal to the cluster. The Service selects Pods labelled app=club-web and forwards traffic to their port 80. It does not create a public cloud load balancer."
+    },
+    {
+      "id": "kubernetes-configmaps-hold-ordinary-settings",
+      "lessonSlug": "configmaps-hold-ordinary-settings",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What belongs in this ConfigMap?",
+      "options": ["A production password", "A non-secret welcome message"],
+      "correctIndex": 1,
+      "explanation": "A ConfigMap stores non-secret configuration. An application may read selected values through environment variables or files. The ConfigMap contains an ordinary welcome message. It is not a secure place for passwords."
+    },
+    {
+      "id": "kubernetes-resource-requests-and-limits",
+      "lessonSlug": "resource-requests-and-limits",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does 100m CPU represent?",
+      "options": ["One tenth of a CPU unit", "One hundred CPU units"],
+      "correctIndex": 0,
+      "explanation": "Requests help schedule a container. Limits bound some resource use. CPU m means one thousandth of a CPU unit. The request is 0.1 CPU and 64 mebibytes of memory. A low memory limit can cause the container to be stopped when it exceeds it."
+    },
+    {
+      "id": "kubernetes-readiness-and-liveness",
+      "lessonSlug": "readiness-and-liveness",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which check controls receiving traffic?",
+      "options": ["Liveness only", "Readiness"],
+      "correctIndex": 1,
+      "explanation": "A readiness check asks whether a container should receive traffic. A liveness check asks whether Kubernetes should restart it. The two checks serve different purposes. A temporary dependency problem should not always trigger a restart loop."
+    },
+    {
+      "id": "kubernetes-read-logs-and-rollout-state",
+      "lessonSlug": "read-logs-and-rollout-state",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does rollout status observe?",
+      "options": ["A Deployment update", "A local text editor"],
+      "correctIndex": 0,
+      "explanation": "Logs show the program's messages. Rollout status reports progress while a Deployment changes its Pods. The first command reads selected container logs; the second observes the Deployment rollout. Output depends on the local cluster state."
+    },
+    {
+      "id": "kubernetes-namespaces-organise-a-cluster",
+      "lessonSlug": "namespaces-organise-a-cluster",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Is a namespace alone a complete security boundary?",
+      "options": ["Yes", "No"],
+      "correctIndex": 1,
+      "explanation": "A namespace groups namespaced resources. It helps separate teams or practice work, but is not by itself a complete security boundary. The names can coexist with similar resources in another namespace. Access controls still matter."
+    }
+  ]
+}

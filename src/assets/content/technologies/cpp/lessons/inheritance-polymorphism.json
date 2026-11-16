@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "slug": "inheritance-polymorphism",
+  "title": "Inheritance and Shared Actions",
+  "summary": "A class can build on another class. Think of a bicycle and a bus: both are vehicles, but they move in their own way.",
+  "introduction": "A class can build on another class. Think of a bicycle and a bus: both are vehicles, but they move in their own way. Read one example at a time. Save it in a .cpp file and use the compiler from the setup lesson to run it.",
+  "learningObjectives": [
+    "Build a child class from a parent class",
+    "Replace a shared action with a child action",
+    "Use override to check a method name"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Build on a class"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inheritance lets a new class reuse parts of another class. Here, a Dog can use the Animal class to get a name."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "inheritance-polymorphism.cpp",
+      "code": "#include <iostream>\n#include <string>\n\nstruct Animal { std::string name; };\nstruct Dog : Animal { void bark() const { std::cout << name << \" says woof\\n\"; } };\n\nint main() {\n    Dog pet;\n    pet.name = \"Milo\";\n    pet.bark();\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Milo says woof"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give an action a new meaning"
+    },
+    {
+      "type": "paragraph",
+      "text": "A virtual function is an action a child class can replace. The word override asks C++ to check that the action exists in the parent. A destructor cleans up an object. Making it virtual lets cleanup reach the child too when an object is deleted through a parent pointer."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "inheritance-polymorphism.cpp",
+      "code": "#include <iostream>\n\nstruct Animal {\n    virtual void speak() const { std::cout << \"Hello\\n\"; }\n    virtual ~Animal() = default;\n};\nstruct Dog : Animal {\n    void speak() const override { std::cout << \"Woof\\n\"; }\n};\n\nint main() {\n    Dog pet;\n    const Animal& animal = pet;\n    animal.speak();\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Woof"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Make a shared rule"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pure virtual function has = 0. It says that child classes must supply this action before you can make objects from them."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "inheritance-polymorphism.cpp",
+      "code": "#include <iostream>\n\nstruct Shape {\n    virtual int sides() const = 0;\n    virtual ~Shape() = default;\n};\nstruct Square : Shape { int sides() const override { return 4; } };\n\nint main() {\n    Square tile;\n    std::cout << tile.sides() << \" sides\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "4 sides"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use inheritance for an \"is a\" link: a dog is an animal. A dog has a name, so its name should be a field, not a parent class."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the dog sound to Bark. Run the second program again."
+    }
+  ],
+  "exerciseIds": ["cpp-inheritance-polymorphism-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "classes"
+    }
+  ],
+  "seo": {
+    "title": "C++ Inheritance and Shared Actions",
+    "description": "A class can build on another class. Think of a bicycle and a bus: both are vehicles, but they move in their own way."
+  },
+  "updatedOn": "2026-11-16"
+}

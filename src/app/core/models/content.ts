@@ -8,6 +8,7 @@ export type {
   Catalog,
   Category,
   CodeBlock,
+  CodeTabsBlock,
   CodeToken,
   ContentBlock,
   Difficulty,

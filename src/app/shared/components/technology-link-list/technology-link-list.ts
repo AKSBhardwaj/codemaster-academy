@@ -13,8 +13,16 @@ import { TechIconComponent } from '../tech-icon/tech-icon';
     <div class="row g-3">
       @for (tech of technologies(); track tech.slug) {
         <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
-          <a class="cma-card cma-card--link d-flex align-items-center gap-3 p-3 h-100" [routerLink]="basePath() + '/' + tech.slug">
-            <cma-tech-icon [icon]="tech.icon" [name]="tech.name" [size]="44" [accent]="accentFor(tech)" />
+          <a
+            class="cma-card cma-card--link d-flex align-items-center gap-3 p-3 h-100"
+            [routerLink]="basePath() + '/' + tech.slug"
+          >
+            <cma-tech-icon
+              [icon]="tech.icon"
+              [name]="tech.name"
+              [size]="44"
+              [accent]="accentFor(tech)"
+            />
             <span class="min-w-0 flex-grow-1">
               <span class="d-block fw-semibold">{{ tech.name }}</span>
               <span class="d-block small cma-text-secondary">{{ label() }}</span>
@@ -31,7 +39,9 @@ export class TechnologyLinkListComponent {
   readonly basePath = input.required<string>();
   readonly label = input('Open');
   private readonly catalog = inject(CatalogService);
-  private readonly accents = computed(() => new Map(this.catalog.categories().map((c) => [c.slug, c.accent])));
+  private readonly accents = computed(
+    () => new Map(this.catalog.categories().map((c) => [c.slug, c.accent])),
+  );
 
   protected accentFor(tech: TechnologyCatalogEntry): string | undefined {
     return this.accents().get(tech.categorySlug);

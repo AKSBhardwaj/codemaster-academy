@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "String, Number and Date Functions",
+  "summary": "An SQL function does a small job with a value, such as changing text or rounding a number.",
+  "introduction": "An SQL function does a small job with a value, such as changing text or rounding a number. Try one function at a time. Learn which examples belong to SQLite, since other database tools may use different function names.",
+  "learningObjectives": [
+    "Transform text with UPPER, LOWER, LENGTH, SUBSTR, TRIM and REPLACE",
+    "Concatenate strings and round or compare numbers",
+    "Compute and format dates with SQLite's date and strftime",
+    "Return conditional values with CASE and COALESCE"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "String functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "`UPPER` and `LOWER` change case and `LENGTH` counts characters. Like every function, they can be applied to a column so that each row is transformed:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, UPPER(name) AS shouted, LENGTH(name) AS letters\nFROM customers\nWHERE id <= 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name         | shouted      | letters\n-------------+--------------+--------\nAda Lovelace | ADA LOVELACE | 12\nGrace Hopper | GRACE HOPPER | 12"
+    },
+    {
+      "type": "paragraph",
+      "text": "Concatenation uses the standard `||` operator; MySQL and SQL Server use `CONCAT()` (SQLite 3.44+ accepts `CONCAT` too). `SUBSTR(text, start, length)` extracts part of a string, counting from 1:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name || ' (' || category || ')' AS label,\n       SUBSTR(name, 1, 3) AS code\nFROM products\nWHERE id <= 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "label                   | code\n------------------------+-----\nNotebook (Stationery)   | Not\nMouse pad (Office)      | Mou\nUSB cable (Electronics) | USB"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT TRIM('   padded   ') AS trimmed,\n       REPLACE('2025-01-15', '-', '/') AS slashed,\n       INSTR('Mechanical keyboard', 'key') AS position,\n       LOWER('SQL') AS lowered;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "trimmed | slashed    | position | lowered\n--------+------------+----------+--------\npadded  | 2025/01/15 | 12       | sql"
+    },
+    {
+      "type": "table",
+      "headers": ["Task", "SQLite", "PostgreSQL", "MySQL"],
+      "rows": [
+        ["Concatenate", "`a || b`", "`a || b`, `CONCAT`", "`CONCAT(a, b)`"],
+        ["Substring", "`SUBSTR(s, 1, 3)`", "`SUBSTRING(s, 1, 3)`", "`SUBSTRING(s, 1, 3)`"],
+        ["Length", "`LENGTH(s)`", "`LENGTH(s)`", "`CHAR_LENGTH(s)`"],
+        ["Find position", "`INSTR(s, 'x')`", "`POSITION('x' IN s)`", "`LOCATE('x', s)`"],
+        ["Trim spaces", "`TRIM(s)`", "`TRIM(s)`", "`TRIM(s)`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Number functions"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT ROUND(8.99 * 3, 2) AS total,\n       ABS(-7) AS absolute,\n       17 % 5 AS remainder,\n       MAX(10, 42, 7) AS largest,\n       7 / 2 AS int_div;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "total | absolute | remainder | largest | int_div\n------+----------+-----------+---------+--------\n26.97 | 7        | 2         | 42      | 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ROUND(x, n)` rounds to *n* decimals, `ABS` removes the sign and `%` gives the remainder (`MOD(x, y)` in PostgreSQL and MySQL). With two or more arguments SQLite's `MAX` and `MIN` compare the values in one row instead of aggregating, a job done by `GREATEST` and `LEAST` elsewhere. Note once more the integer division in the last column. `CEIL`, `FLOOR`, `POWER` and `SQRT` exist in PostgreSQL and MySQL and in SQLite builds that include the math functions."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Date functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite has no DATE type; it stores dates as ISO 8601 text and provides `date()`, `time()`, `datetime()`, `julianday()` and `strftime()` to work with them. Modifiers such as `'+1 year'` or `'-7 days'` shift a date, and `strftime` formats it with the same codes as C's `strftime`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, joined,\n       date(joined, '+1 year') AS renewal,\n       strftime('%Y', joined) AS year\nFROM customers\nWHERE id <= 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name           | joined     | renewal    | year\n---------------+------------+------------+-----\nAda Lovelace   | 2024-01-12 | 2025-01-12 | 2024\nGrace Hopper   | 2024-03-04 | 2025-03-04 | 2024\nLinus Torvalds | 2024-06-21 | 2025-06-21 | 2024"
+    },
+    {
+      "type": "paragraph",
+      "text": "`julianday` turns a date into a day number, so subtracting two of them gives the number of days between. `CAST(... AS INTEGER)` drops the fractional part:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT id, ordered_on,\n       CAST(julianday(ordered_on) - julianday('2025-01-01') AS INTEGER) AS days_since_jan_1,\n       strftime('%d/%m/%Y', ordered_on) AS formatted\nFROM orders\nWHERE id <= 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "id | ordered_on | days_since_jan_1 | formatted\n---+------------+------------------+-----------\n1  | 2025-01-15 | 14               | 15/01/2025\n2  | 2025-01-15 | 14               | 15/01/2025\n3  | 2025-02-02 | 32               | 02/02/2025"
+    },
+    {
+      "type": "paragraph",
+      "text": "PostgreSQL and MySQL have real `DATE` types and different helpers: `CURRENT_DATE`, `date + INTERVAL '1 year'`, `EXTRACT(YEAR FROM d)` and `TO_CHAR` in PostgreSQL; `DATE_ADD`, `YEAR()`, `DATEDIFF` and `DATE_FORMAT` in MySQL. The idea is identical, only the names change."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Store dates in ISO format",
+      "text": "SQLite's date functions only understand `YYYY-MM-DD` (and the ISO time formats). `date('15/01/2025')` returns NULL, and text in that format sorts and compares wrongly (`'15/01/2025' < '20/12/2024'` is true). Always store `2025-01-15`; format for display only at the end with `strftime`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "CASE and COALESCE"
+    },
+    {
+      "type": "paragraph",
+      "text": "`CASE` returns a different value depending on conditions, like an if/else chain, and works in every database:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price,\n       CASE\n         WHEN price >= 50 THEN 'premium'\n         WHEN price >= 10 THEN 'standard'\n         ELSE 'budget'\n       END AS tier\nFROM products\nORDER BY price DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price | tier\n--------------------+-------+---------\nMechanical keyboard | 89    | premium\nMonitor stand       | 39.5  | standard\nUSB cable           | 12    | standard\nMouse pad           | 8.99  | budget\nNotebook            | 4.5   | budget\nSticky notes        | 2.75  | budget"
+    },
+    {
+      "type": "paragraph",
+      "text": "`COALESCE` returns the first non-NULL argument, the standard way to substitute a default for missing data (`COALESCE(assignee, 'unassigned')`). SQLite and MySQL also have the two-argument `IFNULL`; SQL Server calls it `ISNULL`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT COALESCE(NULL, NULL, 'third') AS first_non_null,\n       IFNULL(NULL, 0) AS ifnull_result;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "first_non_null | ifnull_result\n---------------+--------------\nthird          | 0"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Show each customer's name in lower case, the year they joined, and a CASE label `recent` for 2025 joiners and `established` for the rest."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT LOWER(name) AS name,\n       strftime('%Y', joined) AS year\nFROM customers;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-functions-upper"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "functions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "What does `SUBSTR('Notebook', 1, 4)` return?",
+          "explanation": "SUBSTR counts from 1: starting at the first character and taking four characters gives Note.",
+          "options": ["`Note`", "`otebo`", "`book`", "`N`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "functions-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "Which expression replaces a NULL assignee with the text `unassigned` in every major database?",
+          "explanation": "COALESCE is standard SQL and returns the first non-NULL argument. IFNULL and ISNULL are dialect-specific, and the other options are not valid substitutions.",
+          "options": [
+            "`assignee OR 'unassigned'`",
+            "`COALESCE(assignee, 'unassigned')`",
+            "`assignee = 'unassigned'`",
+            "`DEFAULT(assignee)`"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-functions-upper"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "select"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "group-by-having"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    }
+  ],
+  "seo": {
+    "title": "SQL Functions – Strings, Numbers, Dates, CASE, COALESCE",
+    "description": "Learn SQL built-in functions: UPPER, SUBSTR and concatenation, ROUND and modulo, SQLite date arithmetic with date and strftime, plus CASE and COALESCE."
+  },
+  "updatedOn": "2026-11-16"
+}

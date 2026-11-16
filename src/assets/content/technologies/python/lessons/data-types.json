@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "slug": "data-types",
+  "title": "Data Types",
+  "summary": "A data type tells Python what kind of value it is using, such as text, a whole number or a list.",
+  "introduction": "A data type tells Python what kind of value it is using, such as text, a whole number or a list. Sort a few values into kinds. Then try changing a text number into a real number before doing maths with it.",
+  "learningObjectives": [
+    "Identify the type of any value with type() and isinstance()",
+    "Convert between str, int, float and bool safely",
+    "Explain what dynamic and strong typing mean for your code",
+    "Recognise the collection types list, tuple, dict and set"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Every value has a type"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ask Python what something is with the built-in `type()` function. The four types you will use in nearly every program are `int` (whole numbers), `float` (numbers with a decimal point), `str` (text) and `bool` (`True` or `False`). `None` is a special value meaning *no value*, with its own type `NoneType`."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "check_types.py",
+      "code": "print(type(42))\nprint(type(3.14))\nprint(type(\"hello\"))\nprint(type(True))\nprint(type(None))\n\nage = 30\nprint(isinstance(age, int))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python check_types.py",
+      "content": "<class 'int'>\n<class 'float'>\n<class 'str'>\n<class 'bool'>\n<class 'NoneType'>\nTrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`type()` returns the class itself, which is why it prints as `<class 'int'>`. When code needs to test a type, prefer `isinstance(value, int)` over comparing `type()` results: it reads better and also accepts subclasses, which matters once you write your own classes."
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Example literal", "Typical use"],
+      "rows": [
+        ["`int`", "`42`, `-7`, `1_000_000`", "Counting, indexing, whole quantities"],
+        ["`float`", "`3.14`, `2.0`, `1e-3`", "Measurements and estimates (not exact)"],
+        ["`str`", "`\"hello\"`, `'a'`, `\"\"`", "Text of any length, including empty"],
+        ["`bool`", "`True`, `False`", "Conditions and flags"],
+        ["`NoneType`", "`None`", "Absence of a value, missing results"],
+        ["`list`", "`[1, 2, 3]`", "Ordered, changeable sequence"],
+        ["`tuple`", "`(1, 2)`", "Ordered, fixed sequence"],
+        ["`dict`", "`{\"id\": 1}`", "Mapping from keys to values"],
+        ["`set`", "`{1, 2, 3}`", "Unique items, fast membership tests"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dynamic but strong"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python is **dynamically typed**: a variable gets its type from the value currently assigned, and you may assign a value of another type later. It is also **strongly typed**: Python never silently converts one type into another to make an operation work. JavaScript turns `\"3\" + 4` into `\"34\"`; Python raises an error instead, because adding text to a number is ambiguous."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "strong.py",
+      "code": "count = \"3\"\ntotal = count + 4\nprint(total)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python strong.py",
+      "content": "Traceback (most recent call last):\n  File \"/home/ada/projects/strong.py\", line 2, in <module>\n    total = count + 4\n            ~~~~~~^~~\nTypeError: can only concatenate str (not \"int\") to str"
+    },
+    {
+      "type": "paragraph",
+      "text": "The message says exactly what went wrong: you tried to concatenate (join) a string with something that is not a string, and the markers point at the `+`. Dynamic typing means errors like this appear when the line *runs*, not when the file is loaded, so a program can work for minutes and then fail on a path you never tested."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Converting between types"
+    },
+    {
+      "type": "paragraph",
+      "text": "Conversion is explicit: call the type you want as a function. `int()` and `float()` parse text, `str()` turns anything into text, and `int()` applied to a float drops the fractional part."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "convert.py",
+      "code": "count = int(\"3\")\nprint(count + 4)\n\nprice = float(\"19.99\")\nprint(price * 2)\n\nprint(\"Total: \" + str(count * 10))\n\nprint(int(7.9))          # truncates towards zero, does not round\nprint(float(7))\nprint(int(True), int(False))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python convert.py",
+      "content": "7\n39.98\nTotal: 30\n7\n7.0\n1 0"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Converting user input"
+    },
+    {
+      "type": "paragraph",
+      "text": "`input()` always returns a string, so the classic beginner bug is to add or compare the raw input. Convert it first, then calculate. In the output, `29` is what the user typed."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "age.py",
+      "code": "age = int(input(\"How old are you? \"))\nprint(\"Next year you will be\", age + 1)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python age.py",
+      "content": "How old are you? 29\nNext year you will be 30"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Not every string converts",
+      "text": "`int(\"3.7\")` raises `ValueError: invalid literal for int() with base 10: '3.7'`, and so do `int(\"ten\")` and `int(\"\")`. Only text that looks like a whole number converts with `int()`; use `float()` for decimals, and when the text comes from a user or a file, expect failure and handle it, as shown in [Errors and Exceptions](/tutorials/python/errors-exceptions)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Truthiness: what counts as False"
+    },
+    {
+      "type": "paragraph",
+      "text": "`bool()` converts any value to `True` or `False`, and an `if` statement applies the same rule implicitly. The falsy values are `False`, `None`, zero of any numeric type (`0`, `0.0`) and empty containers (`\"\"`, `[]`, `()`, `{}`, `set()`). Everything else is truthy, including the string `\"False\"` and the list `[0]`, because a non-empty container is not empty."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "truthy.py",
+      "code": "print(bool(0), bool(42), bool(-1))\nprint(bool(\"\"), bool(\"False\"))\nprint(bool([]), bool([0]))\nprint(bool(None))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python truthy.py",
+      "content": "False True True\nFalse True\nFalse True\nFalse"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Collections at a glance"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python's four built-in collections each get a dedicated lesson later; for now, learn to recognise their brackets. Square brackets make a list, parentheses a tuple, curly braces with colons a dict, and curly braces without colons a set."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "containers.py",
+      "code": "scores = [90, 85, 77]              # list: ordered, changeable\npoint = (3, 4)                     # tuple: ordered, fixed\nuser = {\"name\": \"Ada\", \"age\": 36}  # dict: keys to values\ntags = {\"python\", \"beginner\"}      # set: unique, unordered\n\nprint(type(scores), len(scores))\nprint(type(point), point[0])\nprint(type(user), user[\"name\"])\nprint(type(tags), \"python\" in tags)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python containers.py",
+      "content": "<class 'list'> 3\n<class 'tuple'> 3\n<class 'dict'> Ada\n<class 'set'> True"
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexing starts at zero, so `point[0]` is the first item. Strings are sequences too: `\"Python\"[0]` is `\"P\"`, as the [Strings](/tutorials/python/strings) lesson shows next."
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "Type hints",
+      "text": "Modern code often reads `def area(width: float, height: float) -> float:`. Those annotations are *hints* for editors and type checkers such as mypy; Python itself does not enforce them at run time. The [Functions](/tutorials/python/functions) lesson shows where they belong."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-data-types-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-types-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "What type does `input()` return when the user types `42`?",
+          "explanation": "`input()` always returns `str`. Convert with `int()` or `float()` before doing arithmetic.",
+          "options": ["`int`", "`str`", "Whichever type matches what was typed", "`float`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "py-types-qc-2",
+          "type": "true-false",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "`bool(\"False\")` evaluates to `False`.",
+          "explanation": "Only the empty string is falsy. `\"False\"` has five characters, so it is truthy and `bool(\"False\")` is `True`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-data-types-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "strings"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "numbers"
+    }
+  ],
+  "seo": {
+    "title": "Python Data Types – int, float, str, bool and None",
+    "description": "Learn Python's built-in data types, check them with type() and isinstance(), convert between str, int and float, and understand truthiness and strong typing."
+  },
+  "updatedOn": "2026-11-16"
+}

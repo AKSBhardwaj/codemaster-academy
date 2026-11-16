@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "slug": "stacks",
+  "title": "Stacks",
+  "summary": "Use a stack like a pile of plates. Push two items, pop the newest one, and check for an empty stack before looking at its top.",
+  "introduction": "When you stack plates, the last plate you put down is the first one you lift. A stack gives programs the same rule. It helps with undo buttons and keeping track of unfinished jobs.",
+  "learningObjectives": [
+    "Explain last in, first out",
+    "Push, pop, and peek at a small stack",
+    "Guard an empty stack and a full fixed-size stack"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **stack** lets us add or remove an item at one end, called the top. **Push** adds an item. **Pop** removes and returns the top item. **Peek** reads the top without removing it."
+    },
+    {
+      "type": "paragraph",
+      "text": "The rule is **last in, first out**, often shortened to LIFO. An undo list uses this idea: undo the newest action before an older action."
+    },
+    {
+      "type": "paragraph",
+      "text": "A stack is a rule for using data. It can be built with an array or linked nodes. Library stacks hide those storage details. In the C example, size tells us how many array places are in use."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with an empty stack.",
+        "Push 10, then push 20. The top is now 20.",
+        "Check the stack is not empty. Pop and print 20.",
+        "Check again. Peek and print 10, leaving it on the stack."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Stacks example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const stack = [];\nstack.push(10);\nstack.push(20);\nif (stack.length > 0) console.log(stack.pop());\nif (stack.length > 0) console.log(stack[stack.length - 1]);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int stack[3];\n    int size = 0;\n    if (size < 3) stack[size++] = 10;\n    if (size < 3) stack[size++] = 20;\n    if (size > 0) printf(\"%d\\n\", stack[--size]);\n    if (size > 0) printf(\"%d\\n\", stack[size - 1]);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <stack>\n\nint main() {\n    std::stack<int> stack;\n    stack.push(10);\n    stack.push(20);\n    if (!stack.empty()) {\n        std::cout << stack.top() << '\\n';\n        stack.pop();\n    }\n    if (!stack.empty()) std::cout << stack.top() << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "stack = []\nstack.append(10)\nstack.append(20)\nif stack:\n    print(stack.pop())\nif stack:\n    print(stack[-1])",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "var stack = new System.Collections.Generic.Stack<int>();\nstack.Push(10);\nstack.Push(20);\nif (stack.Count > 0) System.Console.WriteLine(stack.Pop());\nif (stack.Count > 0) System.Console.WriteLine(stack.Peek());",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.ArrayDeque;\n\npublic class Main {\n    public static void main(String[] args) {\n        ArrayDeque<Integer> stack = new ArrayDeque<>();\n        stack.push(10);\n        stack.push(20);\n        if (!stack.isEmpty()) System.out.println(stack.pop());\n        if (!stack.isEmpty()) System.out.println(stack.peek());\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "20\n10"
+    },
+    {
+      "type": "paragraph",
+      "text": "The newest item, 20, leaves first. Peeking then shows 10. C++ separates reading the top from removing it because its pop method does not return the removed value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty stack has nothing to pop or peek. The checks keep the examples safe. In the C example, pushing also checks size < 3 because the array has room for only three items."
+    },
+    {
+      "type": "paragraph",
+      "text": "These top operations usually take O(1) work. A growing array may occasionally need to copy its items into more space. Over many pushes, such growth is spread out across the pushes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Push 30 after pushing 20 and before the pop. In C, use the same size < 3 check.",
+        "The output becomes 30 then 20. Item 10 is still at the bottom. Pop order follows the order of pushes in reverse."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not remove from the first array position when you mean a stack top at the end. That changes which item leaves and may require shifting items."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-stacks"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-stacks"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "queues"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "linked-lists"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Stacks in six languages",
+    "description": "Use a stack like a pile of plates. Push two items, pop the newest one, and check for an empty stack before looking at its top."
+  },
+  "updatedOn": "2026-11-16"
+}

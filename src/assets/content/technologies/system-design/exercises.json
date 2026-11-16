@@ -1,0 +1,387 @@
+{
+  "title": "System Design Practice",
+  "description": "Use small examples to practise system design. Work out demand, spot risky choices, and choose a useful next step. Read the explanation after each answer.",
+  "exercises": [
+    {
+      "id": "system-design-introduction",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which line gives a goal we can measure?",
+      "options": [
+        "Make the service amazing",
+        "95 of 100 searches finish within 2 seconds",
+        "Use as many servers as possible"
+      ],
+      "correctIndex": 1,
+      "explanation": "A measured goal says what to count and the limit to check. We can time the searches and count how many finish within 2 seconds."
+    },
+    {
+      "id": "system-design-requirements-and-tradeoffs",
+      "lessonSlug": "requirements-and-tradeoffs",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which is a rule about correct data?",
+      "options": [
+        "Use a blue page header",
+        "One copy cannot have two active loans",
+        "Buy two more computers"
+      ],
+      "correctIndex": 1,
+      "explanation": "The loan rule protects a real library fact. Colors and equipment choices do not replace the need to keep that fact correct."
+    },
+    {
+      "id": "system-design-follow-one-request",
+      "lessonSlug": "follow-one-request",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "The reply to a request is called a ___.",
+      "answers": ["response"],
+      "caseSensitive": false,
+      "explanation": "A response is the reply to a request. It may contain useful data, an empty result, or information about a problem."
+    },
+    {
+      "id": "system-design-estimate-demand",
+      "lessonSlug": "estimate-demand",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "A class makes 240 searches in 120 seconds. Its average rate is ___ searches per second.",
+      "answers": ["2"],
+      "caseSensitive": false,
+      "explanation": "Divide searches by seconds: 240 divided by 120 is 2 searches per second. This rate is an average for that period."
+    },
+    {
+      "id": "system-design-latency-and-throughput",
+      "lessonSlug": "latency-and-throughput",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which measurement describes throughput?",
+      "options": [
+        "200 ms for one search",
+        "40 completed searches in 2 seconds",
+        "One search that timed out"
+      ],
+      "correctIndex": 1,
+      "explanation": "Throughput counts completed work over time. Forty completed searches in 2 seconds means an average throughput of 20 searches per second."
+    },
+    {
+      "id": "system-design-apis-and-contracts",
+      "lessonSlug": "apis-and-contracts",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why does the search API limit each page to at most 20 records?",
+      "options": [
+        "To keep the amount of work and reply size bounded",
+        "To guarantee that no request can fail",
+        "To remove the need to check input"
+      ],
+      "correctIndex": 0,
+      "explanation": "A page limit bounds each reply and limits work per request. It does not remove failures or replace input checks."
+    },
+    {
+      "id": "system-design-choose-the-data",
+      "lessonSlug": "choose-the-data",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does bookId=17 in copy 203 mean?",
+      "options": [
+        "The copy is on shelf 17",
+        "The copy belongs to book record 17",
+        "The copy has been borrowed 17 times"
+      ],
+      "correctIndex": 1,
+      "explanation": "bookId is the link from a physical copy to the shared book record. The shelf and borrowing history are different facts."
+    },
+    {
+      "id": "system-design-sql-and-nosql",
+      "lessonSlug": "sql-and-nosql",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is the best starting point for choosing a database?",
+      "options": [
+        "The questions and update rules the app needs",
+        "Which product has the brightest logo",
+        "The idea that all NoSQL databases behave the same"
+      ],
+      "correctIndex": 0,
+      "explanation": "The needed reads, writes, and correctness rules help you compare real database features. A family name alone does not answer those questions."
+    },
+    {
+      "id": "system-design-indexes-help-find-records",
+      "lessonSlug": "indexes-help-find-records",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What extra work can a title index cause when a title changes?",
+      "options": [
+        "The index may need an update",
+        "The database must delete every book",
+        "Every reader must change their browser"
+      ],
+      "correctIndex": 0,
+      "explanation": "The index stores information about title values. When a stored title changes, the database may need to update that extra structure too."
+    },
+    {
+      "id": "system-design-transactions-and-safe-updates",
+      "lessonSlug": "transactions-and-safe-updates",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The conditional UPDATE changes zero rows. What should this request do?",
+      "options": [
+        "Create a second loan anyway",
+        "Report that this attempt did not claim the copy",
+        "Assume the earlier check is still true"
+      ],
+      "correctIndex": 1,
+      "explanation": "Zero changed rows means the condition did not hold. This request did not claim the copy, so it must not create a loan as if it had."
+    },
+    {
+      "id": "system-design-scaling-up-and-out",
+      "lessonSlug": "scaling-up-and-out",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Three app servers can do 120 searches/s, but the shared database can do 90. What is this model's whole-service limit?",
+      "options": ["40 searches/s", "90 searches/s", "120 searches/s"],
+      "correctIndex": 1,
+      "explanation": "The whole request must pass through both parts. The smaller capacity, 90 searches per second, sets this model's limit."
+    },
+    {
+      "id": "system-design-load-balancers",
+      "lessonSlug": "load-balancers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "Which server receives the third request in this small round-robin model?",
+      "code": "const ready = [\"A\", \"C\"];\nconsole.log(ready[2 % ready.length]);",
+      "language": "javascript",
+      "options": ["A", "B", "C"],
+      "correctIndex": 0,
+      "explanation": "The remainder of 2 divided by 2 is 0. Index 0 holds A, so the third request returns to A."
+    },
+    {
+      "id": "system-design-caches-keep-useful-copies",
+      "lessonSlug": "caches-keep-useful-copies",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The main title changes at time 6, but its cache expires at time 10. What can a read at time 7 return?",
+      "options": ["Only the new title", "The old cached title", "No title can ever be returned"],
+      "correctIndex": 1,
+      "explanation": "The cache can reuse the old value until expiry unless a working refresh or invalidation rule changes it sooner."
+    },
+    {
+      "id": "system-design-cdn-and-static-files",
+      "lessonSlug": "cdn-and-static-files",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which item is the clearest choice for a shared public CDN cache?",
+      "options": [
+        "A public book-cover image",
+        "A learner's private borrowing history",
+        "A staff password-reset response"
+      ],
+      "correctIndex": 0,
+      "explanation": "Every reader may receive the same public cover. The other responses need private handling and must not be shared publicly."
+    },
+    {
+      "id": "system-design-copies-improve-availability",
+      "lessonSlug": "copies-improve-availability",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "An accidental delete is copied to every replica. Which extra plan can help recover the earlier record?",
+      "options": [
+        "More reads from the same replicas",
+        "A tested backup or point-in-time recovery plan",
+        "Changing the page color"
+      ],
+      "correctIndex": 1,
+      "explanation": "A backup or retained history can recover an earlier state. Replicas alone may all contain the same bad change."
+    },
+    {
+      "id": "system-design-partitioning-data",
+      "lessonSlug": "partitioning-data",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "With shard = bookId % 3, book 14 belongs to shard ___.",
+      "answers": ["2"],
+      "explanation": "14 divided by 3 leaves a remainder of 2. The three shard numbers are 0, 1, and 2."
+    },
+    {
+      "id": "system-design-consistency-describes-agreement",
+      "lessonSlug": "consistency-describes-agreement",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A replica is behind after a successful title edit. Which statement fits eventual consistency?",
+      "options": [
+        "Every read must already show the edit",
+        "A read may show the old title while the replica catches up",
+        "The replicas can never agree again"
+      ],
+      "correctIndex": 1,
+      "explanation": "Eventual consistency allows a delay. Copies converge once updates stop and communication and repair can complete; no fixed delay is implied."
+    },
+    {
+      "id": "system-design-queues-handle-work-later",
+      "lessonSlug": "queues-handle-work-later",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Five jobs arrive and three finish each round. Starting from zero, how many wait after three rounds?",
+      "options": ["2", "6", "15"],
+      "correctIndex": 1,
+      "explanation": "The backlog grows by 2 each round. After three rounds it contains 6 jobs."
+    },
+    {
+      "id": "system-design-retries-need-safe-rules",
+      "lessonSlug": "retries-need-safe-rules",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A reservation succeeds but its reply is lost. Which request should a safe retry use?",
+      "options": [
+        "The same action details and the same idempotency key",
+        "A new key for every attempt",
+        "A different book ID to avoid waiting"
+      ],
+      "correctIndex": 0,
+      "explanation": "The same key lets the service recognize the same intended action and return its recorded result under its idempotency rules."
+    },
+    {
+      "id": "system-design-timeouts-and-circuit-breakers",
+      "lessonSlug": "timeouts-and-circuit-breakers",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does this circuit breaker do in its open state?",
+      "options": [
+        "Send every request immediately",
+        "Reject calls quickly until its recovery test is allowed",
+        "Erase the database"
+      ],
+      "correctIndex": 1,
+      "explanation": "The open state pauses calls to the dependency. After a cooldown, a limited half-open probe tests recovery."
+    },
+    {
+      "id": "system-design-rate-limits-and-backpressure",
+      "lessonSlug": "rate-limits-and-backpressure",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The waiting tray is full. Which action applies backpressure?",
+      "options": [
+        "Add work forever",
+        "Ask the sender to slow down",
+        "Tell every request it succeeded"
+      ],
+      "correctIndex": 1,
+      "explanation": "Backpressure tells the sender that the next part cannot accept more work yet. A bounded tray prevents endless waiting and memory growth."
+    },
+    {
+      "id": "system-design-backups-and-recovery",
+      "lessonSlug": "backups-and-recovery",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The last good backup is at 12:00 and data is damaged at 12:40. How much recent work may be missing?",
+      "options": ["15 minutes", "40 minutes", "100 minutes"],
+      "correctIndex": 1,
+      "explanation": "There are 40 minutes between the last saved copy and the damage. Restore duration is a different measurement."
+    },
+    {
+      "id": "system-design-observe-and-review-the-design",
+      "lessonSlug": "observe-and-review-the-design",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A dashboard shows 2 errors among 40 requests. What is the error rate?",
+      "options": ["2 percent", "5 percent", "20 percent"],
+      "correctIndex": 1,
+      "explanation": "Divide 2 by 40 and multiply by 100. The result is 5 percent. The number of requests matters when comparing error counts."
+    },
+    {
+      "id": "system-design-security-and-privacy",
+      "lessonSlug": "security-and-privacy",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A reader changes a record ID in a request. Which check prevents them from seeing another reader's loans?",
+      "options": [
+        "Hide the browser button",
+        "Check permission for the requested records in the service",
+        "Use a longer page title"
+      ],
+      "correctIndex": 1,
+      "explanation": "The service must check authorization for the exact records being requested. Browser controls alone cannot enforce access rules."
+    },
+    {
+      "id": "system-design-monoliths-and-services",
+      "lessonSlug": "monoliths-and-services",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which is the strongest reason to split the reminder module into a separate service?",
+      "options": [
+        "A bigger diagram looks better",
+        "Measured reminder load needs independent capacity and the team can operate the split",
+        "Every small app needs ten services"
+      ],
+      "correctIndex": 1,
+      "explanation": "A split should solve a real need and have a team ready for its extra work. Clear modules are useful even when the app stays in one deployment."
+    },
+    {
+      "id": "system-design-design-a-library",
+      "lessonSlug": "design-a-library",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Two readers try to borrow the same available copy at the same time. What must the design protect?",
+      "options": [
+        "Each request must get a success message",
+        "Only one current loan may be saved for that copy",
+        "The cached page must always win"
+      ],
+      "correctIndex": 1,
+      "explanation": "The database must enforce the loan rule while saving related changes together. One request succeeds; the other gets a clear refusal."
+    },
+    {
+      "id": "system-design-design-a-url-shortener",
+      "lessonSlug": "design-a-url-shortener",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A code generator produces a code already stored for another destination. What is the safe next step?",
+      "options": [
+        "Overwrite the existing destination",
+        "Try a new code after the unique insert fails",
+        "Send visitors to a random site"
+      ],
+      "correctIndex": 1,
+      "explanation": "The stored mapping belongs to the earlier link. A unique database rule prevents replacement, and bounded retries can choose a new code."
+    },
+    {
+      "id": "system-design-design-a-chat-app",
+      "lessonSlug": "design-a-chat-app",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A message was saved but the sender lost the reply. How should the sender retry?",
+      "options": [
+        "Use the same client message ID for the same text",
+        "Generate a new ID every millisecond",
+        "Delete the whole conversation"
+      ],
+      "correctIndex": 0,
+      "explanation": "Keeping the same ID lets the service find the saved outcome and avoid saving the same send twice."
+    },
+    {
+      "id": "system-design-design-a-news-feed",
+      "lessonSlug": "design-a-news-feed",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "One author gains a million followers. Which cost grows sharply with building feeds on write?",
+      "options": [
+        "The number of feed entries added for one post",
+        "The number of letters in the author's name",
+        "The size of every request ID"
+      ],
+      "correctIndex": 0,
+      "explanation": "Fan-out may create one entry for each follower. A popular account can make one small post turn into a large amount of work."
+    },
+    {
+      "id": "system-design-design-a-file-upload",
+      "lessonSlug": "design-a-file-upload",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Upload bytes arrived, but the required checks have not finished. Which state is correct?",
+      "options": ["Ready for every reader", "Checking", "Deleted from every backup"],
+      "correctIndex": 1,
+      "explanation": "Uploaded and ready are different states. The file remains unavailable until the required checks pass on the version that will be served."
+    }
+  ]
+}

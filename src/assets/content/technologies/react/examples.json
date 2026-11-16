@@ -1,0 +1,138 @@
+{
+  "title": "React Examples",
+  "description": "Copy-ready React 19 components for common tasks: counters, controlled forms, lists, data loading, context, custom hooks, refs, routing, form Actions and memoization. Paste them into a Vite project; they do not run inside this site.",
+  "examples": [
+    {
+      "id": "counter",
+      "title": "Counter with useState",
+      "description": "The smallest useful stateful component: increment, decrement and reset with updater functions and a disabled state.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["state", "useState", "events"],
+      "lessonSlug": "state-usestate",
+      "code": "import { useState } from 'react';\n\nexport default function Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount((c) => c - 1)}>−1</button>\n      <button onClick={() => setCount((c) => c + 1)}>+1</button>\n      <button onClick={() => setCount(0)} disabled={count === 0}>\n        Reset\n      </button>\n    </div>\n  );\n}",
+      "output": "After clicking +1 three times: <p>Count: 3</p> and the Reset button is enabled."
+    },
+    {
+      "id": "controlled-form",
+      "title": "Controlled sign-up form",
+      "description": "One state object for several fields, a shared change handler, live validation that disables the submit button, and a confirmation message.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["forms", "controlled", "validation"],
+      "lessonSlug": "events-forms",
+      "code": "import { useState } from 'react';\n\nexport default function SignupForm() {\n  const [form, setForm] = useState({ name: '', email: '', plan: 'free' });\n  const [submitted, setSubmitted] = useState(null);\n\n  function handleChange(e) {\n    const { name, value } = e.target;\n    setForm({ ...form, [name]: value });\n  }\n\n  function handleSubmit(e) {\n    e.preventDefault();\n    setSubmitted(form);\n  }\n\n  const valid = form.name.trim() !== '' && form.email.includes('@');\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <label>\n        Name\n        <input name=\"name\" value={form.name} onChange={handleChange} />\n      </label>\n      <label>\n        Email\n        <input name=\"email\" type=\"email\" value={form.email} onChange={handleChange} />\n      </label>\n      <label>\n        Plan\n        <select name=\"plan\" value={form.plan} onChange={handleChange}>\n          <option value=\"free\">Free</option>\n          <option value=\"pro\">Pro</option>\n        </select>\n      </label>\n      <button type=\"submit\" disabled={!valid}>\n        Sign up\n      </button>\n      {submitted && (\n        <p>\n          Welcome, {submitted.name}! You chose the {submitted.plan} plan.\n        </p>\n      )}\n    </form>\n  );\n}",
+      "output": "After entering Ada, ada@example.com and Pro, then submitting: <p>Welcome, Ada! You chose the pro plan.</p>"
+    },
+    {
+      "id": "todo-list",
+      "title": "Todo list with add, toggle and remove",
+      "description": "A list in state updated immutably with spread, map and filter, stable ids as keys, and an empty-state message.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["lists", "keys", "state"],
+      "lessonSlug": "lists-keys",
+      "code": "import { useState } from 'react';\n\nlet nextId = 1;\n\nexport default function TodoList() {\n  const [todos, setTodos] = useState([]);\n  const [text, setText] = useState('');\n\n  function addTodo(e) {\n    e.preventDefault();\n    const title = text.trim();\n    if (!title) return;\n    setTodos([...todos, { id: nextId++, title, done: false }]);\n    setText('');\n  }\n\n  function toggle(id) {\n    setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));\n  }\n\n  function remove(id) {\n    setTodos(todos.filter((t) => t.id !== id));\n  }\n\n  return (\n    <>\n      <form onSubmit={addTodo}>\n        <input value={text} onChange={(e) => setText(e.target.value)} placeholder=\"New todo\" />\n        <button>Add</button>\n      </form>\n      {todos.length === 0 ? (\n        <p>Nothing to do.</p>\n      ) : (\n        <ul>\n          {todos.map((todo) => (\n            <li key={todo.id}>\n              <label>\n                <input type=\"checkbox\" checked={todo.done} onChange={() => toggle(todo.id)} />\n                <span style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>{todo.title}</span>\n              </label>\n              <button onClick={() => remove(todo.id)}>Delete</button>\n            </li>\n          ))}\n        </ul>\n      )}\n    </>\n  );\n}",
+      "output": "After adding \"Buy milk\" and \"Write code\" and ticking the first: two list items, the first struck through; deleting both shows <p>Nothing to do.</p>"
+    },
+    {
+      "id": "fetch-with-abort",
+      "title": "Fetch with loading, error and cancellation",
+      "description": "Loads a post in an effect, handles HTTP errors, and aborts the request in the cleanup so a changed id never shows stale data.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["effects", "fetch", "AbortController"],
+      "lessonSlug": "effects",
+      "code": "import { useEffect, useState } from 'react';\n\nexport default function Post({ id }) {\n  const [post, setPost] = useState(null);\n  const [status, setStatus] = useState('loading');\n\n  useEffect(() => {\n    const controller = new AbortController();\n    setStatus('loading');\n\n    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, { signal: controller.signal })\n      .then((res) => {\n        if (!res.ok) throw new Error(`HTTP ${res.status}`);\n        return res.json();\n      })\n      .then((data) => {\n        setPost(data);\n        setStatus('ready');\n      })\n      .catch((err) => {\n        if (err.name !== 'AbortError') setStatus('error');\n      });\n\n    return () => controller.abort();\n  }, [id]);\n\n  if (status === 'loading') return <p>Loading…</p>;\n  if (status === 'error') return <p>Could not load post {id}.</p>;\n\n  return (\n    <article>\n      <h2>{post.title}</h2>\n      <p>{post.body}</p>\n    </article>\n  );\n}",
+      "output": "<Post id={1} /> renders <p>Loading…</p>, then an article whose heading is \"sunt aut facere repellat provident occaecati excepturi optio reprehenderit\"."
+    },
+    {
+      "id": "theme-context",
+      "title": "Theme context with toggle",
+      "description": "A provider that owns the theme state, the React 19 provider syntax, and a useTheme hook that throws when the provider is missing.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["context", "hooks", "theme"],
+      "lessonSlug": "context",
+      "code": "import { createContext, useContext, useState } from 'react';\n\nconst ThemeContext = createContext(undefined);\n\nexport function ThemeProvider({ children }) {\n  const [theme, setTheme] = useState('light');\n  const toggle = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));\n  return <ThemeContext value={{ theme, toggle }}>{children}</ThemeContext>;\n}\n\nexport function useTheme() {\n  const ctx = useContext(ThemeContext);\n  if (ctx === undefined) throw new Error('useTheme must be used inside <ThemeProvider>');\n  return ctx;\n}\n\nfunction ThemeToggle() {\n  const { theme, toggle } = useTheme();\n  return <button onClick={toggle}>Switch to {theme === 'light' ? 'dark' : 'light'} mode</button>;\n}\n\nfunction Page() {\n  const { theme } = useTheme();\n  return (\n    <main className={`page ${theme}`}>\n      <h1>Settings</h1>\n      <ThemeToggle />\n    </main>\n  );\n}\n\nexport default function App() {\n  return (\n    <ThemeProvider>\n      <Page />\n    </ThemeProvider>\n  );\n}",
+      "output": "Initially <main class=\"page light\"> with the button \"Switch to dark mode\"; after one click <main class=\"page dark\"> with \"Switch to light mode\"."
+    },
+    {
+      "id": "use-local-storage",
+      "title": "useLocalStorage hook",
+      "description": "A drop-in replacement for useState that persists the value in localStorage, with a lazy initializer and a guard against unreadable storage.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["custom hook", "localStorage", "persistence"],
+      "lessonSlug": "custom-hooks",
+      "code": "import { useEffect, useState } from 'react';\n\nexport function useLocalStorage(key, initialValue) {\n  const [value, setValue] = useState(() => {\n    try {\n      const stored = localStorage.getItem(key);\n      return stored === null ? initialValue : JSON.parse(stored);\n    } catch {\n      return initialValue;\n    }\n  });\n\n  useEffect(() => {\n    localStorage.setItem(key, JSON.stringify(value));\n  }, [key, value]);\n\n  return [value, setValue];\n}\n\nexport default function Preferences() {\n  const [name, setName] = useLocalStorage('name', '');\n  const [notifications, setNotifications] = useLocalStorage('notifications', true);\n\n  return (\n    <form>\n      <label>\n        Display name\n        <input value={name} onChange={(e) => setName(e.target.value)} />\n      </label>\n      <label>\n        <input\n          type=\"checkbox\"\n          checked={notifications}\n          onChange={(e) => setNotifications(e.target.checked)}\n        />\n        Email notifications\n      </label>\n    </form>\n  );\n}",
+      "output": "After typing Ada and unticking the box, localStorage holds name → \"\\\"Ada\\\"\" and notifications → \"false\"; both survive a reload."
+    },
+    {
+      "id": "focus-on-mount",
+      "title": "Focus an input when a dialog opens",
+      "description": "A ref on the input and an effect that runs once after mount, the standard way to move keyboard focus into a dialog.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["refs", "useRef", "accessibility"],
+      "lessonSlug": "refs",
+      "code": "import { useEffect, useRef } from 'react';\n\nexport default function SearchDialog({ onClose }) {\n  const inputRef = useRef(null);\n\n  useEffect(() => {\n    inputRef.current.focus();\n  }, []);\n\n  return (\n    <div role=\"dialog\" aria-labelledby=\"search-title\">\n      <h2 id=\"search-title\">Search</h2>\n      <input ref={inputRef} type=\"search\" placeholder=\"Type to search\" />\n      <button onClick={onClose}>Close</button>\n    </div>\n  );\n}",
+      "output": "When the dialog mounts, the search input has keyboard focus: document.activeElement is the input."
+    },
+    {
+      "id": "router-layout",
+      "title": "Router with layout, params and 404",
+      "description": "A complete main.jsx for React Router 7: a shared layout with NavLinks and an Outlet, an index route, a dynamic article route and a catch-all.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["routing", "react-router", "layout"],
+      "lessonSlug": "routing",
+      "code": "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport { BrowserRouter, Routes, Route, NavLink, Outlet, useParams } from 'react-router';\n\nconst articles = { intro: 'Getting started', hooks: 'Thinking in hooks' };\n\nfunction Layout() {\n  return (\n    <>\n      <nav>\n        <NavLink to=\"/\" end>Home</NavLink>\n        <NavLink to=\"/articles\">Articles</NavLink>\n      </nav>\n      <main>\n        <Outlet />\n      </main>\n    </>\n  );\n}\n\nfunction Home() {\n  return <h1>Welcome</h1>;\n}\n\nfunction ArticleList() {\n  return (\n    <ul>\n      {Object.entries(articles).map(([slug, title]) => (\n        <li key={slug}>\n          <NavLink to={`/articles/${slug}`}>{title}</NavLink>\n        </li>\n      ))}\n    </ul>\n  );\n}\n\nfunction Article() {\n  const { slug } = useParams();\n  const title = articles[slug];\n  return title ? <h1>{title}</h1> : <h1>Article not found</h1>;\n}\n\nfunction NotFound() {\n  return <h1>Page not found</h1>;\n}\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <BrowserRouter>\n      <Routes>\n        <Route element={<Layout />}>\n          <Route index element={<Home />} />\n          <Route path=\"articles\" element={<ArticleList />} />\n          <Route path=\"articles/:slug\" element={<Article />} />\n          <Route path=\"*\" element={<NotFound />} />\n        </Route>\n      </Routes>\n    </BrowserRouter>\n  </StrictMode>,\n);",
+      "output": "At /articles/hooks the main area shows <h1>Thinking in hooks</h1> and the Articles link carries class=\"active\"; at /nowhere it shows <h1>Page not found</h1>."
+    },
+    {
+      "id": "query-users",
+      "title": "User list with TanStack Query",
+      "description": "QueryClientProvider at the root, a useQuery with staleTime, and a refresh button driven by isFetching.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["data fetching", "tanstack query", "caching"],
+      "lessonSlug": "data-fetching",
+      "code": "import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';\n\nconst queryClient = new QueryClient();\n\nasync function fetchUsers() {\n  const res = await fetch('https://jsonplaceholder.typicode.com/users');\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return res.json();\n}\n\nfunction Users() {\n  const { data, isPending, isError, error, refetch, isFetching } = useQuery({\n    queryKey: ['users'],\n    queryFn: fetchUsers,\n    staleTime: 5 * 60 * 1000,\n  });\n\n  if (isPending) return <p>Loading users…</p>;\n  if (isError) return <p role=\"alert\">Could not load users: {error.message}</p>;\n\n  return (\n    <>\n      <button onClick={() => refetch()} disabled={isFetching}>\n        {isFetching ? 'Refreshing…' : 'Refresh'}\n      </button>\n      <ul>\n        {data.map((user) => (\n          <li key={user.id}>\n            {user.name} ({user.email})\n          </li>\n        ))}\n      </ul>\n    </>\n  );\n}\n\nexport default function App() {\n  return (\n    <QueryClientProvider client={queryClient}>\n      <Users />\n    </QueryClientProvider>\n  );\n}",
+      "output": "A list of ten users starting with <li>Leanne Graham (Sincere@april.biz)</li>; clicking Refresh shows \"Refreshing…\" until the new response arrives."
+    },
+    {
+      "id": "action-form",
+      "title": "Contact form with a React 19 Action",
+      "description": "An async form action with validation and error state through useActionState, and a submit button that reads pending state with useFormStatus.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["forms", "actions", "useActionState"],
+      "lessonSlug": "events-forms",
+      "code": "import { useActionState } from 'react';\nimport { useFormStatus } from 'react-dom';\n\nasync function sendMessage(previousState, formData) {\n  const message = formData.get('message').trim();\n  if (message.length < 10) {\n    return { error: 'Please write at least 10 characters.' };\n  }\n  const res = await fetch('/api/messages', { method: 'POST', body: formData });\n  if (!res.ok) return { error: 'Sending failed, please try again.' };\n  return { success: true };\n}\n\nfunction SubmitButton() {\n  const { pending } = useFormStatus();\n  return <button disabled={pending}>{pending ? 'Sending…' : 'Send'}</button>;\n}\n\nexport default function ContactForm() {\n  const [state, formAction] = useActionState(sendMessage, {});\n\n  return (\n    <form action={formAction}>\n      <label>\n        Message\n        <textarea name=\"message\" required />\n      </label>\n      <SubmitButton />\n      {state.error && <p role=\"alert\">{state.error}</p>}\n      {state.success && <p>Thanks, your message was sent.</p>}\n    </form>\n  );\n}",
+      "output": "Submitting \"hi\" shows <p role=\"alert\">Please write at least 10 characters.</p>; after a successful send the form shows <p>Thanks, your message was sent.</p> and the textarea is cleared."
+    },
+    {
+      "id": "memo-list",
+      "title": "Memoized filtered catalog",
+      "description": "useMemo caches the filtered list across unrelated re-renders and memo keeps unchanged rows from re-rendering.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["performance", "useMemo", "memo"],
+      "lessonSlug": "performance-memo",
+      "code": "import { memo, useMemo, useState } from 'react';\n\nconst Row = memo(function Row({ item }) {\n  return (\n    <li>\n      {item.name} – {item.price.toFixed(2)}\n    </li>\n  );\n});\n\nexport default function Catalog({ items }) {\n  const [query, setQuery] = useState('');\n  const [maxPrice, setMaxPrice] = useState(100);\n\n  const visible = useMemo(\n    () =>\n      items\n        .filter((item) => item.name.toLowerCase().includes(query.toLowerCase()))\n        .filter((item) => item.price <= maxPrice),\n    [items, query, maxPrice],\n  );\n\n  return (\n    <>\n      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder=\"Filter\" />\n      <label>\n        Max price {maxPrice}\n        <input\n          type=\"range\"\n          min=\"0\"\n          max=\"100\"\n          value={maxPrice}\n          onChange={(e) => setMaxPrice(Number(e.target.value))}\n        />\n      </label>\n      <p>\n        {visible.length} of {items.length} items\n      </p>\n      <ul>\n        {visible.map((item) => (\n          <Row key={item.id} item={item} />\n        ))}\n      </ul>\n    </>\n  );\n}",
+      "output": "With items Pen 1.50, Lamp 24.00 and Desk 180.00 and the default max price of 100: <p>2 of 3 items</p> followed by the rows \"Pen – 1.50\" and \"Lamp – 24.00\"."
+    },
+    {
+      "id": "tabs",
+      "title": "Tabs built by composition",
+      "description": "A reusable Tabs component that receives its panels as data containing JSX, with ARIA roles and aria-selected for accessibility.",
+      "language": "jsx",
+      "runnable": false,
+      "tags": ["components", "composition", "accessibility"],
+      "lessonSlug": "components-props",
+      "code": "import { useState } from 'react';\n\nfunction Tabs({ tabs }) {\n  const [active, setActive] = useState(tabs[0].id);\n  const current = tabs.find((tab) => tab.id === active);\n\n  return (\n    <div>\n      <div role=\"tablist\">\n        {tabs.map((tab) => (\n          <button\n            key={tab.id}\n            role=\"tab\"\n            aria-selected={tab.id === active}\n            onClick={() => setActive(tab.id)}\n          >\n            {tab.label}\n          </button>\n        ))}\n      </div>\n      <div role=\"tabpanel\">{current.content}</div>\n    </div>\n  );\n}\n\nexport default function ProductPage() {\n  return (\n    <Tabs\n      tabs={[\n        { id: 'details', label: 'Details', content: <p>Solid oak desk, 140 × 70 cm.</p> },\n        { id: 'reviews', label: 'Reviews', content: <p>No reviews yet.</p> },\n        { id: 'shipping', label: 'Shipping', content: <p>Delivered in 3 to 5 days.</p> },\n      ]}\n    />\n  );\n}",
+      "output": "Initially the panel shows <p>Solid oak desk, 140 × 70 cm.</p>; clicking Reviews shows <p>No reviews yet.</p> and that button gets aria-selected=\"true\"."
+    }
+  ]
+}

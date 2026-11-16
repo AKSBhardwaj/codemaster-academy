@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "number-checks",
+  "title": "Parse a number",
+  "summary": "Gin: Parse a number. Try /double/cat. Try a small example and check what happens.",
+  "introduction": "strconv.Atoi turns text into an int or reports an error. Open GET /double/4.",
+  "learningObjectives": ["Parse a number with Gin", "Try /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parse a number"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Parse a number",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n\"strconv\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/double/:n\", func(c *gin.Context) {\n n, err := strconv.Atoi(c.Param(\"n\"))\n if err != nil { c.String(http.StatusBadRequest, \"Use a whole number\"); return }\n c.JSON(http.StatusOK, gin.H{\"answer\": n * 2})\n})\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Atoi successfully parses 4. The handler then returns its doubled value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Always check the parse error before using the number."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-number-checks-check"
+    }
+  ],
+  "exerciseIds": ["gin-number-checks-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Parse a number",
+    "description": "Gin: Parse a number. Try /double/cat. Try a small example and check what happens. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

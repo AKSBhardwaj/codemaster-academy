@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "strong-parameters",
+  "title": "Choose allowed inputs",
+  "summary": "Ruby on Rails: Choose allowed inputs. Add another permitted field deliberately.",
+  "introduction": "permit chooses allowed parameter keys. Send POST /books with title and an extra secret key; only title is returned.",
+  "learningObjectives": [
+    "Choose allowed inputs with Ruby on Rails",
+    "Add another permitted field deliberately"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with rails new school --api --skip-active-record. Enter it. Put each labelled section into its named file, then run bin/rails server -b 127.0.0.1 -p 8000. No database is needed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose allowed inputs"
+    },
+    {
+      "type": "code",
+      "language": "ruby",
+      "title": "Choose allowed inputs",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n allowed = params.permit(:title)\n render json: allowed\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "permit selects title and leaves out the unlisted key. Rendering the allowed parameters sends only that field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add another permitted field deliberately."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Permitting a key does not validate its meaning or value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ruby-on-rails-strong-parameters-check"
+    }
+  ],
+  "exerciseIds": ["ruby-on-rails-strong-parameters-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ruby-on-rails",
+      "slug": "post-body"
+    }
+  ],
+  "seo": {
+    "title": "Ruby on Rails: Choose allowed inputs",
+    "description": "Ruby on Rails: Choose allowed inputs. Add another permitted field deliberately. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

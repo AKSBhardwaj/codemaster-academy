@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "primary",
+  "title": "Choose a default bean",
+  "summary": "Spring Framework: Choose a default bean. Move @Primary to red.",
+  "introduction": "@Primary marks the preferred bean when several beans match a type.",
+  "learningObjectives": ["Choose a default bean with Spring Framework", "Move @Primary to red"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose a default bean"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Choose a default bean",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String red() { return \"red\"; }\n@Bean @Primary String blue() { return \"blue\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(String.class));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both factories return Strings, but @Primary tells a type-only lookup to prefer blue."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "blue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Move @Primary to red."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Only one matching bean should be the primary choice."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-primary-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-primary-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "cleanup"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Choose a default bean",
+    "description": "Spring Framework: Choose a default bean. Move @Primary to red. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

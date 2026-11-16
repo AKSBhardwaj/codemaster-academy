@@ -1,10 +1,18 @@
 import { Component, computed, inject } from '@angular/core';
 import { ThemeStore, type ThemePreference } from '../../../core/services/theme.store';
 import { IconComponent } from '../icon/icon';
-import { DropdownDirective, DropdownMenuDirective, DropdownToggleDirective } from '../../directives/dropdown';
+import {
+  DropdownDirective,
+  DropdownMenuDirective,
+  DropdownToggleDirective,
+} from '../../directives/dropdown';
 import type { UiIconName } from '../../icons/ui-icons.generated';
 
-const ICONS: Record<ThemePreference, UiIconName> = { system: 'circle-half', light: 'sun', dark: 'moon-stars' };
+const ICONS: Record<ThemePreference, UiIconName> = {
+  system: 'circle-half',
+  light: 'sun',
+  dark: 'moon-stars',
+};
 
 @Component({
   selector: 'cma-theme-toggle',

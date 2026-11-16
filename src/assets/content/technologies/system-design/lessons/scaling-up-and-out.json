@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "scaling-up-and-out",
+  "title": "Scaling up and out",
+  "summary": "Compare one bigger server with several smaller servers. Use a tiny capacity model, then check the shared parts that may still slow the service.",
+  "introduction": "One library desk is busy all day. We can give that desk better tools, or open another desk. Computer services have similar choices. The best choice depends on the slowest part and the work we need to share.",
+  "learningObjectives": [
+    "Explain the difference between scaling up and scaling out",
+    "Estimate capacity using clearly stated assumptions",
+    "Find a shared part that limits the whole system"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Scaling up** means giving one server more power, such as memory or processor capacity. Think of giving one librarian a faster scanner. There is a limit to how large that one machine can become."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Scaling out** means adding more servers that share the work. Think of opening extra library desks. A **bottleneck** is the part that holds up the whole trip, like one narrow door used by every desk."
+    },
+    {
+      "type": "paragraph",
+      "text": "A server that keeps no important user state only in its own memory is easier to replace. This is often called **stateless**. Shared records still need a suitable data store. More web servers do not remove that need."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Assume one app server can handle 40 searches each second for our chosen workload.",
+        "Our database can handle 90 searches each second. Every search needs one database read in this model.",
+        "With two app servers, app capacity is 80. The whole service is limited to the smaller capacity: 80.",
+        "With three app servers, app capacity is 120, but the database still limits the service to 90."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const perServer = 40;\nconst databaseLimit = 90;\nfor (const servers of [1, 2, 3]) {\n  const capacity = Math.min(servers * perServer, databaseLimit);\n  console.log(`${servers} server(s): ${capacity} searches/s`);\n}",
+      "title": "Scaling up and out model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "1 server(s): 40 searches/s\n2 server(s): 80 searches/s\n3 server(s): 90 searches/s"
+    },
+    {
+      "type": "paragraph",
+      "text": "The third server adds only 10 searches per second in this model. We must improve or reduce database work to go beyond 90."
+    },
+    {
+      "type": "paragraph",
+      "text": "Real capacity does not always multiply neatly. Requests differ in cost. Servers also spend time talking, waiting, and sharing work. Measure a realistic workload before buying more machines."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Scale up",
+          "A simple way to add room to one machine",
+          "A large machine costs more and still needs a failure plan"
+        ],
+        [
+          "Scale out",
+          "Spread work and replace one failed worker",
+          "Requires routing, shared-state rules, and more operations"
+        ],
+        [
+          "Reduce work first",
+          "A good index or smaller response may save capacity",
+          "Measure the slow step so the change solves the real problem"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "If there are no requests, extra servers still may cost money. Automatic scaling changes server counts with demand, but starting a server takes time. Leave spare room for a sudden rush."
+    },
+    {
+      "type": "paragraph",
+      "text": "If one of two servers fails, the remaining one must cope or reject some work safely. Plan for that reduced capacity; do not size every normal server at its absolute limit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change databaseLimit from 90 to 150. Predict the capacity with three servers.",
+        "The answer is 120 searches/s. The app servers become the smaller limit."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not assume twice as many servers always means twice as much useful work. A shared database or slow network can still limit the system."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-scaling-up-and-out"
+    }
+  ],
+  "exerciseIds": ["system-design-scaling-up-and-out"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "load-balancers"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "estimate-demand"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Scaling up and out",
+    "description": "Compare one bigger server with several smaller servers. Use a tiny capacity model, then check the shared parts that may still slow the service."
+  },
+  "updatedOn": "2026-11-16"
+}

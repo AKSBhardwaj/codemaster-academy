@@ -1,0 +1,159 @@
+{
+  "title": "C# .NET and Oracle Backend Examples",
+  "description": "Follow small examples from the Reading List API. The C# and Oracle code needs the local sample tools. Each fragment names its setup; HTTP and browser examples use the running API on localhost:5080.",
+  "examples": [
+    {
+      "id": "follow-a-request",
+      "lessonSlug": "introduction",
+      "title": "Follow one request and one reply",
+      "description": "After the local API starts, send this GET request. The reply says that the API process is running. This small check does not connect to Oracle or prove that book requests will work.",
+      "language": "http",
+      "code": "GET http://localhost:5080/health HTTP/1.1\nAccept: application/json",
+      "output": "HTTP status: 200 OK\nJSON body: {\"status\":\"API is running\",\"database\":\"Not checked\"}",
+      "runnable": false,
+      "tags": ["api", "requests", "json"]
+    },
+    {
+      "id": "build-the-downloaded-sample",
+      "lessonSlug": "setup-dotnet",
+      "title": "Check the SDK and build the sample",
+      "description": "Open a terminal in the downloaded sample's ReadingListApi folder. Check that a .NET 10 SDK is listed. Restore gets the project's packages; build checks the C# code.",
+      "language": "bash",
+      "code": "dotnet --list-sdks\ndotnet restore\ndotnet build",
+      "output": "The SDK list should include a 10.0.x version.\nThe final command should report: Build succeeded.\nThis checks the code; it does not prove Oracle is connected.",
+      "runnable": false,
+      "tags": ["dotnet", "setup", "build"]
+    },
+    {
+      "id": "check-the-oracle-session",
+      "lessonSlug": "oracle-setup",
+      "title": "Check which Oracle account you opened",
+      "description": "Run this in SQLcl or SQL Developer after connecting with your separate practice account. It shows the database account and service used by this SQL session.",
+      "language": "sql",
+      "code": "SELECT USER AS account_name,\n       SYS_CONTEXT('USERENV', 'SERVICE_NAME') AS service_name\nFROM dual;",
+      "output": "For the course's local setup, the account is READING_APP.\nThe service should be the one in your connection setting, such as FREEPDB1.\nUse the actual service supplied by your Oracle setup.",
+      "runnable": false,
+      "tags": ["oracle", "connection", "setup"]
+    },
+    {
+      "id": "make-the-book-table",
+      "lessonSlug": "create-books-table",
+      "title": "Create the table once",
+      "description": "Run once as the practice table's owner. If the sample's SQL setup already made this table, skip this command. id is a label, title is text, and is_read accepts only 0 or 1.",
+      "language": "sql",
+      "code": "CREATE TABLE reading_list_books (\n    id NUMBER(10) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    title VARCHAR2(120 CHAR) NOT NULL,\n    is_read NUMBER(1) DEFAULT 0 NOT NULL,\n    CHECK (is_read IN (0, 1))\n);",
+      "output": "Oracle creates one empty table.\nThe next API insert can ask Oracle to make an id.",
+      "runnable": false,
+      "tags": ["oracle", "table", "constraints"]
+    },
+    {
+      "id": "describe-a-book-request",
+      "lessonSlug": "csharp-models",
+      "title": "Describe and check the request body",
+      "description": "This small request model shows the same title rules as the sample. In an API controller with [ApiController], invalid model values produce a 400 reply before the action uses them.",
+      "language": "csharp",
+      "code": "using System.ComponentModel.DataAnnotations;\n\npublic sealed class SaveBookRequest\n{\n    [Required]\n    [StringLength(120)]\n    public string? Title { get; init; }\n\n    public bool IsRead { get; init; }\n}",
+      "output": "A title such as \"Moon Trip\" can pass.\nA missing title, whitespace-only title, or title over 120 characters fails.\nThe request body does not choose the book id.",
+      "runnable": false,
+      "tags": ["csharp", "models", "validation"]
+    },
+    {
+      "id": "open-and-check-oracle",
+      "lessonSlug": "connect-oracle",
+      "title": "Open a short Oracle connection",
+      "description": "This fragment belongs in an async C# helper with Oracle.ManagedDataAccess.Client imported. connectionString must come from the API's private configuration. SELECT 1 checks this connection without changing data.",
+      "language": "csharp",
+      "code": "using var connection = new OracleConnection(connectionString);\nawait connection.OpenAsync();\n\nusing var command = connection.CreateCommand();\ncommand.CommandText = \"SELECT 1 FROM dual\";\nvar answer = await command.ExecuteScalarAsync();\nConsole.WriteLine(answer);",
+      "output": "1\n\nAn error here means the database connection or query needs attention.\nA successful /health response alone does not run this check.",
+      "runnable": false,
+      "tags": ["oracle", "connection", "odp-net"]
+    },
+    {
+      "id": "register-controller-routes",
+      "lessonSlug": "first-api",
+      "title": "Connect controller routes in Program.cs",
+      "description": "These are the two controller lines used in Program.cs. Keep the sample's other setup lines. AddControllers goes before builder.Build(); MapControllers goes after it and before app.Run().",
+      "language": "csharp",
+      "code": "// Before builder.Build():\nbuilder.Services.AddControllers();\n\n// After builder.Build(), before app.Run():\napp.MapControllers();",
+      "output": "The API can match controller route attributes such as [Route(\"api/books\")] and [HttpGet].",
+      "runnable": false,
+      "tags": ["aspnet-core", "controllers", "routes"]
+    },
+    {
+      "id": "read-one-bound-id",
+      "lessonSlug": "read-books",
+      "title": "Read one book with a named id",
+      "description": "Use inside an async helper with an open OracleConnection named connection. Set bookId to an id returned by POST. The title is read as data; a missing id prints a clear message.",
+      "language": "csharp",
+      "code": "// bookId is the positive long id returned by POST.\nusing var command = connection.CreateCommand();\ncommand.BindByName = true;\ncommand.CommandText = \"\"\"\n    SELECT id, title, is_read\n    FROM reading_list_books\n    WHERE id = :id\n    \"\"\";\ncommand.Parameters.Add(\"id\", OracleDbType.Int64).Value = bookId;\n\nusing var reader = await command.ExecuteReaderAsync();\nif (await reader.ReadAsync())\n{\n    long id = reader.GetInt64(0);\n    string title = reader.GetString(1);\n    bool isRead = reader.GetInt32(2) == 1;\n    Console.WriteLine($\"{id}: {title}; read = {isRead}\");\n}\nelse\n{\n    Console.WriteLine(\"Book not found\");\n}",
+      "runnable": false,
+      "tags": ["oracle", "select", "parameters"]
+    },
+    {
+      "id": "post-a-book",
+      "lessonSlug": "add-books",
+      "title": "Ask the API to add a book",
+      "description": "Send this from an HTTP tool after the local API and Oracle table are ready. Read the returned id and Location header. An id can have gaps, so save the returned value for later requests.",
+      "language": "http",
+      "code": "POST http://localhost:5080/api/books HTTP/1.1\nContent-Type: application/json\n\n{\n  \"title\": \"Moon Trip\",\n  \"isRead\": false\n}",
+      "output": "201 Created\nThe body has id, title and isRead.\nThe Location header points to the saved book's /api/books/ address.",
+      "runnable": false,
+      "tags": ["post", "json", "create"]
+    },
+    {
+      "id": "change-and-remove-a-practice-book",
+      "lessonSlug": "update-delete-books",
+      "title": "Change and remove only your new practice book",
+      "description": "Run in PowerShell with the local sample running. This creates a fresh practice book, reads its real id, marks it read, then removes that same book. Existing book ids are not guessed.",
+      "language": "powershell",
+      "code": "$api = 'http://localhost:5080/api/books'\n$book = Invoke-RestMethod -Uri $api -Method Post `\n  -ContentType 'application/json' `\n  -Body '{\"title\":\"Practice book\",\"isRead\":false}'\n$bookUrl = \"$api/$($book.id)\"\n\nInvoke-RestMethod -Uri $bookUrl -Method Put `\n  -ContentType 'application/json' `\n  -Body '{\"title\":\"Practice book\",\"isRead\":true}'\n\nInvoke-RestMethod -Uri $bookUrl -Method Delete",
+      "output": "The successful PUT and DELETE each return 204 No Content.\nThey do not need a JSON reply body.\nA later GET for this deleted id returns 404.",
+      "runnable": false,
+      "tags": ["put", "delete", "powershell"]
+    },
+    {
+      "id": "try-and-roll-back-an-insert",
+      "lessonSlug": "safe-queries-transactions",
+      "title": "Undo one practice insert",
+      "description": "Run in an async C# helper with a private connection string and the ODP.NET namespace imported. This fresh connection starts its own transaction. Rollback undoes the inserted row, but its identity number may still be skipped.",
+      "language": "csharp",
+      "code": "using var connection = new OracleConnection(connectionString);\nawait connection.OpenAsync();\nusing var transaction = connection.BeginTransaction();\n\nusing var command = connection.CreateCommand();\ncommand.Transaction = transaction;\ncommand.BindByName = true;\ncommand.CommandText = \"\"\"\n    INSERT INTO reading_list_books (title, is_read)\n    VALUES (:title, :is_read)\n    \"\"\";\ncommand.Parameters.Add(\"title\", OracleDbType.Varchar2, 120).Value = \"Rollback practice\";\ncommand.Parameters.Add(\"is_read\", OracleDbType.Int32).Value = 0;\nawait command.ExecuteNonQueryAsync();\n\ntransaction.Rollback();\nConsole.WriteLine(\"Practice insert rolled back.\");",
+      "output": "Practice insert rolled back.\nThe inserted practice row does not remain in the table.",
+      "runnable": false,
+      "tags": ["transaction", "rollback", "parameters"]
+    },
+    {
+      "id": "check-success-and-mistakes",
+      "lessonSlug": "test-api",
+      "title": "Test a normal reply and a bad title",
+      "description": "Use an HTTP tool to send these separately. The first request only checks that the API is alive. The second checks the title rule. A real saved-book test must also call the routes that use Oracle.",
+      "language": "http",
+      "code": "GET http://localhost:5080/health HTTP/1.1\n\n### Whitespace is not a valid title.\nPOST http://localhost:5080/api/books HTTP/1.1\nContent-Type: application/json\n\n{\"title\":\"   \",\"isRead\":false}\n\n### An id must be positive in this sample.\nGET http://localhost:5080/api/books/0 HTTP/1.1",
+      "output": "GET /health: 200; it does not check Oracle.\nPOST with only spaces in title: 400.\nGET with id 0: 400.",
+      "runnable": false,
+      "tags": ["testing", "validation", "status-codes"]
+    },
+    {
+      "id": "fetch-books-in-the-browser",
+      "lessonSlug": "browser-client",
+      "title": "Read API data from a browser page",
+      "description": "Run this in the console of the sample page served at http://localhost:5500. Start the API in Development with Development:CorsEnabled=true. The API must allow that exact origin; localhost and 127.0.0.1 are different origins.",
+      "language": "javascript",
+      "code": "const reply = await fetch('http://localhost:5080/api/books');\nif (!reply.ok) {\n  throw new Error(`The API replied with ${reply.status}`);\n}\nconst books = await reply.json();\nconsole.table(books);",
+      "output": "The console shows the saved books, or an empty list.\nThe browser gets JSON from the API. It never needs an Oracle password.",
+      "runnable": false,
+      "tags": ["browser", "fetch", "cors"]
+    },
+    {
+      "id": "build-and-run-your-finished-copy",
+      "lessonSlug": "finish-project",
+      "title": "Build and run your local finished copy",
+      "description": "Run from ReadingListApi in PowerShell after setting your development secrets. Release builds the code with release settings. The Development environment still loads your local secrets. Keep this teaching copy on your own computer.",
+      "language": "powershell",
+      "code": "$env:ASPNETCORE_ENVIRONMENT = 'Development'\ndotnet build --configuration Release\ndotnet run --configuration Release --no-build --no-launch-profile --urls http://localhost:5080",
+      "output": "The build should succeed and the API should listen on http://localhost:5080.\nThen repeat the saved-book and invalid-input checks from Test the API.\nPress Ctrl+C to stop the API.",
+      "runnable": false,
+      "tags": ["dotnet", "build", "review"]
+    }
+  ]
+}

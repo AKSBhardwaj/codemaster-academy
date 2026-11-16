@@ -1,0 +1,36 @@
+<section class="cma-code-tabs" [attr.aria-label]="block().title ?? 'Code examples by language'">
+  <div class="cma-code-tabs__intro">
+    <span class="cma-code-tabs__title">{{ block().title ?? 'Choose your language' }}</span>
+    <span class="cma-code-tabs__hint">Same idea, different languages</span>
+    <span class="cma-code-tabs__scroll-hint">Swipe for more languages</span>
+  </div>
+  <div class="cma-code-tabs__languages" role="tablist" aria-label="Code language">
+    @for (variant of block().variants; track variant.language) {
+      <button
+        type="button"
+        role="tab"
+        [id]="blockId() + '-tab-' + $index"
+        [attr.aria-controls]="blockId() + '-panel-' + $index"
+        [attr.aria-selected]="selectedLanguage() === variant.language"
+        [tabIndex]="selectedLanguage() === variant.language ? 0 : -1"
+        [disabled]="!interactive()"
+        (click)="choose(variant.language)"
+        (keydown)="onKeydown($event, $index)"
+      >
+        {{ languageLabel(variant.language) }}
+      </button>
+    }
+  </div>
+  @for (variant of block().variants; track variant.language) {
+    <div
+      role="tabpanel"
+      [id]="blockId() + '-panel-' + $index"
+      [attr.aria-labelledby]="blockId() + '-tab-' + $index"
+      [hidden]="selectedLanguage() !== variant.language"
+    >
+      @if (selectedLanguage() === variant.language) {
+        <cma-code-block-host [block]="variant" />
+      }
+    </div>
+  }
+</section>

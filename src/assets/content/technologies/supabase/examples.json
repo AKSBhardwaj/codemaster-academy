@@ -1,0 +1,138 @@
+{
+  "title": "Supabase Small Examples",
+  "description": "Use these small Supabase examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Know the database and the client",
+      "description": "Supabase stores table data in PostgreSQL and exposes APIs around it.",
+      "language": "text",
+      "code": "Browser page -> Supabase API -> PostgreSQL table\nThe public client key identifies the project.\nRow-level security decides which rows the client role may access.",
+      "output": "The worked flow separates the browser request from the database permission check.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "create-a-local-sample-table",
+      "title": "Create a local sample table",
+      "description": "A PostgreSQL table defines the fields used by the API.",
+      "language": "sql",
+      "code": "CREATE TABLE public.cma_books(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,title text NOT NULL,pages integer CHECK(pages>0));",
+      "output": "The local database has an empty sample table for books.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "create-a-local-sample-table"
+    },
+    {
+      "id": "seed-public-sample-records",
+      "title": "Seed public sample records",
+      "description": "Seed data is a small set of known records used for learning or testing.",
+      "language": "sql",
+      "code": "INSERT INTO public.cma_books(title,pages) VALUES('Moon Trip',60),('Garden Days',40),('Tiny Seed',20);",
+      "output": "The three sample records are inserted through the local database tool.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "seed-public-sample-records"
+    },
+    {
+      "id": "enable-row-level-security",
+      "title": "Enable row-level security",
+      "description": "Row-level security adds a database check for rows accessed through client roles.",
+      "language": "sql",
+      "code": "ALTER TABLE public.cma_books ENABLE ROW LEVEL SECURITY;",
+      "output": "The table now uses row-level security. The public client still needs an explicit read policy.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "enable-row-level-security"
+    },
+    {
+      "id": "allow-only-the-public-read",
+      "title": "Allow only the public read",
+      "description": "A SELECT policy can make fictional sample rows readable to the anon role.",
+      "language": "sql",
+      "code": "GRANT SELECT ON public.cma_books TO anon;\nCREATE POLICY \"Read public sample books\" ON public.cma_books FOR SELECT TO anon USING (true);",
+      "output": "The anon client can read these public sample books. This policy does not grant insert, update or delete access.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "allow-only-the-public-read"
+    },
+    {
+      "id": "make-a-local-client",
+      "title": "Make a local client",
+      "description": "createClient connects the JavaScript SDK to the chosen project API.",
+      "language": "javascript",
+      "code": "import {createClient} from \"@supabase/supabase-js\";\nexport const supabase=createClient(\"http://127.0.0.1:54321\",\"REPLACE_WITH_LOCAL_PUBLIC_KEY\");",
+      "output": "After replacing the placeholder with the local public key from supabase status, the client can make permitted requests.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-local-client"
+    },
+    {
+      "id": "select-named-columns",
+      "title": "Select named columns",
+      "description": "A select request can ask only for the columns a page needs.",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"id,title\").order(\"id\");\nif(error)console.log(\"Books could not load\");else console.log(data);",
+      "output": "With the table and policy ready, the result contains the sample ids and titles.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "select-named-columns"
+    },
+    {
+      "id": "filter-with-a-comparison",
+      "title": "Filter with a comparison",
+      "description": "The client can add a filter to a query. gte means greater than or equal to.",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"title,pages\").gte(\"pages\",50);\nconsole.log(error?error.message:data);",
+      "output": "The sample result includes Moon Trip with 60 pages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-with-a-comparison"
+    },
+    {
+      "id": "order-and-limit-the-result",
+      "title": "Order and limit the result",
+      "description": "Ordering and limiting help a page request a small useful set.",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {data,error}=await supabase.from(\"cma_books\").select(\"title,pages\").order(\"pages\").limit(2);\nconsole.log(error?error.message:data);",
+      "output": "Tiny Seed and Garden Days are the two shortest sample books.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "order-and-limit-the-result"
+    },
+    {
+      "id": "count-without-requesting-every-row",
+      "title": "Count without requesting every row",
+      "description": "A select can request a count while leaving the row body out.",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {count,error}=await supabase.from(\"cma_books\").select(\"*\",{count:\"exact\",head:true});\nconsole.log(error?error.message:count);",
+      "output": "The count is 3 for the seeded sample table visible to this role.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-without-requesting-every-row"
+    },
+    {
+      "id": "expect-a-denied-write",
+      "title": "Expect a denied write",
+      "description": "A read-only policy should reject browser writes.",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {error}=await supabase.from(\"cma_books\").insert({title:\"Not allowed\",pages:10});\nconsole.log(error?\"Write correctly denied\":\"Check your permissions\");",
+      "output": "With only the read permissions from this course, the insert is denied.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "expect-a-denied-write"
+    },
+    {
+      "id": "keep-environments-separate",
+      "title": "Keep environments separate",
+      "description": "Local and hosted projects have different addresses and keys.",
+      "language": "text",
+      "code": "Local development: local URL, local public key, fictional sample rows.\nHosted app: its own public URL/key and reviewed policies.\nServer-only operations: secret key kept out of browser bundles.\nBefore running changes: verify which project the client points to.",
+      "output": "The worked checklist keeps the practice project and a real app from being confused.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-environments-separate"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "group-writes-in-a-batch",
+  "title": "Group writes in a batch",
+  "summary": "A write batch applies several writes together.",
+  "introduction": "A write batch applies several writes together. Your task: Explain why both writes need to pass their rules.",
+  "learningObjectives": [
+    "Explain why both writes need to pass their rules.",
+    "Explain the example for group writes in a batch"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A write batch applies several writes together. Either the batch is accepted as a unit or it fails."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,writeBatch,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst batch=writeBatch(db);\nbatch.set(doc(db,\"books\",\"seed-story\"),{title:\"Seed Story\",pages:20});\nbatch.set(doc(db,\"books\",\"rain-story\"),{title:\"Rain Story\",pages:24});\nawait batch.commit();",
+      "title": "Group writes in a batch",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`writeBatch` collects writes for one commit. A value-dependent change needs a transaction that also reads.",
+        "`connectFirestoreEmulator` sends this SDK instance to the local emulator address before database operations begin."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both local sample books are written together when the rules allow both writes."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A batch does not read values first. Use a transaction for changes that depend on a value read from the database."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why both writes need to pass their rules."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-group-writes-in-a-batch-check"
+    }
+  ],
+  "exerciseIds": ["firestore-group-writes-in-a-batch-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "listen-for-local-updates"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Group writes in a batch",
+    "description": "A write batch applies several writes together. Either the batch is accepted as a unit or it fails."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,126 @@
+{
+  "title": "Terraform Examples",
+  "description": "Small Terraform examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Configuration before action",
+      "description": "Infrastructure as code means describing resources in files. Terraform reads those files and compares the desired result with recorded state.",
+      "language": "bash",
+      "code": "terraform version",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "a-local-resource-example",
+      "title": "A local resource example",
+      "description": "terraform_data is a built-in resource that stores an input in Terraform state. It does not create a cloud machine.",
+      "language": "hcl",
+      "code": "terraform {\n  required_version = \">= 1.4.0\"\n}\nresource \"terraform_data\" \"greeting\" {\n  input = \"Hello, club\"\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "a-local-resource-example"
+    },
+    {
+      "id": "initialise-the-folder",
+      "title": "Initialise the folder",
+      "description": "init prepares a working directory. Backend configuration controls where state is stored; this practice keeps remote backends disabled.",
+      "language": "bash",
+      "code": "terraform init -backend=false",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "initialise-the-folder"
+    },
+    {
+      "id": "format-and-validate",
+      "title": "Format and validate",
+      "description": "fmt checks or rewrites formatting. validate checks whether the configuration is internally valid after needed initialization.",
+      "language": "bash",
+      "code": "terraform fmt -check\nterraform validate",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "format-and-validate"
+    },
+    {
+      "id": "variables-accept-inputs",
+      "title": "Variables accept inputs",
+      "description": "A variable declares an input and can provide a default. Types make the expected kind of value clear.",
+      "language": "hcl",
+      "code": "variable \"club_name\" {\n  type = string\n  default = \"Reading club\"\n}\nresource \"terraform_data\" \"club\" {\n  input = var.club_name\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "variables-accept-inputs"
+    },
+    {
+      "id": "outputs-show-selected-values",
+      "title": "Outputs show selected values",
+      "description": "An output exposes a useful result from the configuration. It does not automatically make a private value safe to publish.",
+      "language": "hcl",
+      "code": "output \"club_message\" {\n  value = terraform_data.greeting.output\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "outputs-show-selected-values"
+    },
+    {
+      "id": "read-a-plan",
+      "title": "Read a plan",
+      "description": "plan describes proposed changes. It gives you a chance to review before choosing whether to apply.",
+      "language": "bash",
+      "code": "terraform plan",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-plan"
+    },
+    {
+      "id": "state-records-managed-resources",
+      "title": "State records managed resources",
+      "description": "State links configuration to managed objects and their data. It can contain sensitive information, so treat it as important private project data.",
+      "language": "text",
+      "code": "Configuration: what you want\nState: what Terraform recorded\nProvider reads: what exists now",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "state-records-managed-resources"
+    },
+    {
+      "id": "local-values-name-expressions",
+      "title": "Local values name expressions",
+      "description": "locals name calculated values used inside a configuration. They are not inputs supplied from outside like variables.",
+      "language": "hcl",
+      "code": "locals {\n  greeting = \"Hello, ${var.club_name}\"\n}\nresource \"terraform_data\" \"message\" {\n  input = local.greeting\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "local-values-name-expressions"
+    },
+    {
+      "id": "references-express-dependencies",
+      "title": "References express dependencies",
+      "description": "A reference to another resource's result tells Terraform about a dependency. It can then choose a valid order of work.",
+      "language": "hcl",
+      "code": "resource \"terraform_data\" \"first\" { input = \"Book\" }\nresource \"terraform_data\" \"second\" { input = terraform_data.first.output }",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "references-express-dependencies"
+    },
+    {
+      "id": "modules-package-configuration",
+      "title": "Modules package configuration",
+      "description": "A module is a group of Terraform configuration files used together. The current folder is the root module; other modules can be called from it.",
+      "language": "text",
+      "code": "Root module\n  -> local module for a repeated group of settings\nModule inputs: variables\nModule results: outputs",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "modules-package-configuration"
+    },
+    {
+      "id": "separate-review-from-applying",
+      "title": "Separate review from applying",
+      "description": "apply performs the reviewed changes. A safe workflow checks scope, target and the exact plan before changing any real resources.",
+      "language": "text",
+      "code": "Read configuration\nCheck working directory and state target\nValidate and plan\nReview proposed effects\nApply only when authorised",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "separate-review-from-applying"
+    }
+  ]
+}

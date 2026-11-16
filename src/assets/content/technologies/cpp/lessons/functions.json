@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "Functions",
+  "summary": "Declare and define functions, pass arguments and return values, overload by parameter type, supply default arguments, and move work to compile time with constexpr.",
+  "introduction": "A function names a piece of work so you can call it from anywhere, test it on its own and read the program at a higher level. C++ functions add a few ideas that scripting languages lack: a declaration can be separated from its definition, several functions may share a name as long as their parameter types differ, and a `constexpr` function can run inside the compiler. This lesson covers all of that with programs you can compile as you go.",
+  "learningObjectives": [
+    "Separate a function's declaration from its definition and explain why the order matters",
+    "Overload functions and predict which overload a call selects",
+    "Use default arguments and the [[nodiscard]] attribute",
+    "Write a constexpr function and check it with static_assert"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring, defining and calling"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **declaration** (also called a prototype) states the return type, the name and the parameter types: `int square(int x);`. A **definition** adds the body. The compiler reads a file from top to bottom and must see at least a declaration before any call, which is why headers are full of declarations and `.cpp` files hold the definitions. Inside one file you can declare first and define later, as below."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "average.cpp",
+      "code": "#include <iostream>\n#include <vector>\n\nint square(int x);                               // declaration\ndouble average(const std::vector<int>& values);  // declaration\n\nint main() {\n    std::cout << square(12) << '\\n';\n    std::vector<int> marks{80, 92, 71};\n    std::cout << average(marks) << '\\n';\n}\n\nint square(int x) {                              // definition\n    return x * x;\n}\n\ndouble average(const std::vector<int>& values) {\n    if (values.empty()) return 0.0;\n    int sum{};\n    for (int v : values) sum += v;\n    return static_cast<double>(sum) / values.size();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra average.cpp -o average\n$ ./average\n144\n81"
+    },
+    {
+      "type": "paragraph",
+      "text": "`square` takes its argument **by value**: `x` is a copy, and changing it inside the function would not touch the caller's variable. `average` takes a `const std::vector<int>&`, a reference to the caller's vector, so nothing is copied and the `const` promises not to modify it. The [next lesson](/tutorials/cpp/references-pointers) explains references in depth; for now, pass small things (numbers, `char`, `bool`) by value and anything bigger by `const&`."
+    },
+    {
+      "type": "paragraph",
+      "text": "A function that returns nothing has the return type `void`. `return;` with no value leaves it early. Every non-`void` function must return a value on every path; forgetting one is undefined behaviour, and `-Wall` reports it as `control reaches end of non-void function`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Overloading and default arguments"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several functions may share a name if their parameter lists differ; the compiler picks the best match from the argument types at each call. This is **overloading**, and it is how `std::cout << x` works for every type. A parameter can also carry a **default argument**, used when the caller omits it; defaults must come last and are written in the declaration."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "overload.cpp",
+      "code": "#include <iostream>\n#include <string>\n\nvoid describe(int n) {\n    std::cout << \"int \" << n << '\\n';\n}\n\nvoid describe(double d) {\n    std::cout << \"double \" << d << '\\n';\n}\n\nvoid describe(const std::string& s) {\n    std::cout << \"string \\\"\" << s << \"\\\"\\n\";\n}\n\nstd::string greet(const std::string& name, const std::string& greeting = \"Hello\") {\n    return greeting + \", \" + name + \"!\";\n}\n\nint main() {\n    describe(7);\n    describe(7.5);\n    describe(std::string{\"seven\"});\n    std::cout << greet(\"Ada\") << '\\n';\n    std::cout << greet(\"Ada\", \"Welcome back\") << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra overload.cpp -o overload\n$ ./overload\nint 7\ndouble 7.5\nstring \"seven\"\nHello, Ada!\nWelcome back, Ada!"
+    },
+    {
+      "type": "paragraph",
+      "text": "Overload resolution prefers an exact match, then standard conversions (`int` to `double`), then user-defined conversions (a string literal to `std::string`). Two overloads that differ only in return type are not allowed, because the return type plays no part in choosing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "constexpr: computing at compile time"
+    },
+    {
+      "type": "paragraph",
+      "text": "Marking a function `constexpr` allows the compiler to evaluate it while compiling, whenever the arguments are known constants. The same function still works with run-time values. `static_assert` turns that into a test that fails the build instead of a test that fails at night."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "factorial.cpp",
+      "code": "#include <iostream>\n\nconstexpr long long factorial(int n) {\n    return n <= 1 ? 1 : n * factorial(n - 1);\n}\n\nstatic_assert(factorial(5) == 120);   // verified by the compiler\n\nint main() {\n    constexpr long long f10 = factorial(10);   // computed at compile time\n    std::cout << \"10! = \" << f10 << '\\n';\n\n    int n{};\n    std::cout << \"n: \";\n    std::cin >> n;\n    std::cout << n << \"! = \" << factorial(n) << '\\n';   // computed at run time\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (the user types 6)",
+      "content": "$ g++ -std=c++20 -Wall -Wextra factorial.cpp -o factorial\n$ ./factorial\n10! = 3628800\nn: 6\n6! = 720"
+    },
+    {
+      "type": "paragraph",
+      "text": "`factorial` calls itself: that is **recursion**, and it needs a base case (`n <= 1`) or it would never stop. The return type is `long long` because `13!` already overflows a 32-bit `int`, and signed overflow is undefined behaviour in C++, not a wrap-around."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "[[nodiscard]] and trailing return types"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a function's only purpose is its result, mark it `[[nodiscard]]`; the compiler then warns if a caller throws the result away, which usually means a forgotten `if`. The trailing form `auto name(params) -> type` is equivalent to writing the type first and is common in generic code where the return type depends on the parameters."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "leap.cpp",
+      "code": "#include <initializer_list>\n#include <iostream>\n\n[[nodiscard]] bool isLeap(int year) {\n    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;\n}\n\nauto daysIn(int year) -> int {\n    return isLeap(year) ? 366 : 365;\n}\n\nint main() {\n    for (int year : {1900, 2000, 2024, 2026}) {\n        std::cout << year << \": \" << daysIn(year) << '\\n';\n    }\n    isLeap(2024);   // result ignored: the compiler warns\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra leap.cpp -o leap\nleap.cpp: In function 'int main()':\nleap.cpp:16:11: warning: ignoring return value of 'bool isLeap(int)', declared with attribute 'nodiscard' [-Wunused-result]\n   16 |     isLeap(2024);   // result ignored: the compiler warns\n      |     ~~~~~~^~~~~~\n$ ./leap\n1900: 365\n2000: 366\n2024: 366\n2026: 365"
+    },
+    {
+      "type": "paragraph",
+      "text": "The exact wording and column number of the warning vary between compiler versions, but the program still builds; a warning never stops the build unless you pass `-Werror`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: calling before declaring",
+      "text": "Move `main` to the top of a file and define `square` below it without the prototype, and GCC stops with `error: 'square' was not declared in this scope`. C++ does not look ahead the way JavaScript hoists functions or Python resolves names at call time. Either define functions before `main` or keep the declarations at the top (or in a header) and define in any order."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep functions short and pure where you can",
+      "text": "A function that takes its inputs as parameters, returns its result and touches no global state is easy to test, easy to reuse and safe to call from several threads. Reserve `void` functions with side effects for the edges of your program: printing, writing files, talking to hardware."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-functions-overload"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-functions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "Given `void show(int)` and `void show(double)`, which overload does `show(3.0f)` call?",
+          "explanation": "`3.0f` is a `float`. Converting it to `double` is a promotion, which ranks above the conversion to `int`, so the `double` overload wins.",
+          "options": [
+            "`show(int)`",
+            "`show(double)`",
+            "The call is ambiguous and does not compile",
+            "Neither; a `float` overload is required"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "cpp-functions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "functions",
+          "difficulty": "intermediate",
+          "question": "A `constexpr` function can only be called with arguments known at compile time.",
+          "explanation": "`constexpr` permits compile-time evaluation but does not require it. The same function works with run-time values such as input from `std::cin`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-functions-overload"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "references-pointers"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "templates"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C++ Functions – Declarations, Overloading, constexpr",
+    "description": "Declare and define C++ functions, pass arguments and return values, overload by parameter type, use default arguments and compute results at compile time with constexpr."
+  },
+  "updatedOn": "2026-11-15"
+}

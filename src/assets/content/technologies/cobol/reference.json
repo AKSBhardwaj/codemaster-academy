@@ -1,0 +1,160 @@
+{
+  "title": "COBOL Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Display a message",
+          "summary": "The procedure division holds steps. DISPLAY writes a value. STOP RUN ends the program.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n\nprocedure division.\nDISPLAY \"Hello, Asha!\"\nstop run.\n"
+          },
+          "notes": ["Compile these examples with -free because they use free-format source."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "data-items",
+          "name": "Name a number",
+          "summary": "Working-storage holds data. PIC 9 describes one decimal digit.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 PENCILS PIC 9 VALUE 3.\nprocedure division.\nDISPLAY PENCILS\nstop run.\n"
+          },
+          "notes": ["PIC 9 holds one digit; choose a wider picture for bigger numbers."],
+          "lessonSlug": "data-items"
+        },
+        {
+          "slug": "addition",
+          "name": "Add to a count",
+          "summary": "ADD changes a numeric item by adding a value to it.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 PENCILS PIC 9 VALUE 3.\nprocedure division.\nADD 2 TO PENCILS\nDISPLAY PENCILS\nstop run.\n"
+          },
+          "notes": ["Make sure the result fits the item picture."],
+          "lessonSlug": "addition"
+        },
+        {
+          "slug": "compute",
+          "name": "Work out a formula",
+          "summary": "COMPUTE assigns the result of a calculation.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 ANSWER PIC 9.\nprocedure division.\nCOMPUTE ANSWER = 3 * 2\nDISPLAY ANSWER\nstop run.\n"
+          },
+          "notes": ["A field that is too small can lose digits."],
+          "lessonSlug": "compute"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "choices",
+          "name": "Choose a message",
+          "summary": "IF checks a rule. END-IF marks where its branches finish.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 SCORE PIC 9 VALUE 8.\nprocedure division.\nIF SCORE >= 5\n DISPLAY \"Pass\"\nELSE\n DISPLAY \"Try again\"\nEND-IF\nstop run.\n"
+          },
+          "notes": ["End the conditional with END-IF before unrelated steps."],
+          "lessonSlug": "choices"
+        },
+        {
+          "slug": "evaluate",
+          "name": "Choose from several labels",
+          "summary": "EVALUATE selects steps by matching a value. WHEN OTHER is a fallback.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 LIGHT PIC X VALUE \"G\".\nprocedure division.\nEVALUATE LIGHT\n WHEN \"R\" DISPLAY \"Stop\"\n WHEN \"G\" DISPLAY \"Go\"\n WHEN OTHER DISPLAY \"Wait\"\nEND-EVALUATE\nstop run.\n"
+          },
+          "notes": ["Use a picture large enough for each label."],
+          "lessonSlug": "evaluate"
+        },
+        {
+          "slug": "loops",
+          "name": "Repeat with a counter",
+          "summary": "PERFORM VARYING updates a counter and repeats until its stop rule is true.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 N PIC 9.\nprocedure division.\nPERFORM VARYING N FROM 1 BY 1 UNTIL N > 3\n DISPLAY N\nEND-PERFORM\nstop run.\n"
+          },
+          "notes": ["Check that the counter changes toward the stopping rule."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "tables",
+          "name": "Read a table item",
+          "summary": "OCCURS makes repeated data items. Subscripts start at 1 in COBOL.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 SCORES.\n 05 SCORE PIC 9 OCCURS 3 TIMES.\nprocedure division.\nMOVE 4 TO SCORE(1)\nMOVE 5 TO SCORE(2)\nMOVE 8 TO SCORE(3)\nDISPLAY SCORE(2)\nstop run.\n"
+          },
+          "notes": ["A table subscript must stay within its declared count."],
+          "lessonSlug": "tables"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "text",
+          "name": "Store a name",
+          "summary": "PIC X describes a character. A number in parentheses gives the field length.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 STUDENT-NAME PIC X(4) VALUE \"Asha\".\nprocedure division.\nDISPLAY STUDENT-NAME\nstop run.\n"
+          },
+          "notes": ["Longer text needs a larger field or it will be cut short."],
+          "lessonSlug": "text"
+        },
+        {
+          "slug": "uppercase",
+          "name": "Change text case",
+          "summary": "UPPER-CASE is a built-in function that makes letters uppercase.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n\nprocedure division.\nDISPLAY FUNCTION UPPER-CASE(\"asha\")\nstop run.\n"
+          },
+          "notes": ["Call this with FUNCTION before the function name."],
+          "lessonSlug": "uppercase"
+        },
+        {
+          "slug": "length",
+          "name": "Measure a text field",
+          "summary": "LENGTH gives the declared length of this text field, including any spaces.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\ndata division.\nworking-storage section.\n01 PET PIC X(3) VALUE \"cat\".\n01 SIZE-NUM PIC 9.\nprocedure division.\nCOMPUTE SIZE-NUM = FUNCTION LENGTH(PET)\nDISPLAY SIZE-NUM\nstop run.\n"
+          },
+          "notes": [
+            "Field length includes padding spaces; it is not always the typed word length."
+          ],
+          "lessonSlug": "length"
+        },
+        {
+          "slug": "paragraphs",
+          "name": "Name a group of steps",
+          "summary": "A paragraph labels a group of steps. PERFORM runs that paragraph and returns.",
+          "example": {
+            "language": "cobol",
+            "code": "identification division.\nprogram-id. lesson.\nprocedure division.\nPERFORM GREET\nSTOP RUN.\nGREET.\nDISPLAY \"Hello again\"."
+          },
+          "notes": [
+            "STOP RUN before paragraph definitions prevents accidental fall-through at the end."
+          ],
+          "lessonSlug": "paragraphs"
+        }
+      ]
+    }
+  ]
+}

@@ -21,7 +21,10 @@ export class HtmlSandboxEngine implements ExecutionEngine {
     return new Observable<RunEvent>((subscriber) => {
       const host = request.host;
       if (!host) {
-        subscriber.next({ type: 'error', message: 'The HTML runner needs an output panel to render into.' });
+        subscriber.next({
+          type: 'error',
+          message: 'The HTML runner needs an output panel to render into.',
+        });
         subscriber.complete();
         return undefined;
       }
@@ -31,7 +34,10 @@ export class HtmlSandboxEngine implements ExecutionEngine {
       const frame = document.createElement('iframe');
       frame.setAttribute('sandbox', 'allow-scripts');
       frame.setAttribute('referrerpolicy', 'no-referrer');
-      frame.setAttribute('allow', "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; fullscreen 'none'");
+      frame.setAttribute(
+        'allow',
+        "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'; fullscreen 'none'",
+      );
       frame.setAttribute('title', 'Code output');
       frame.className = 'cma-sandbox-frame';
 
@@ -50,7 +56,10 @@ export class HtmlSandboxEngine implements ExecutionEngine {
       };
       window.addEventListener('message', onMessage);
       const loadTimer = setTimeout(() => {
-        subscriber.next({ type: 'error', message: 'The page did not finish loading within 10 seconds. Check for an infinite loop.' });
+        subscriber.next({
+          type: 'error',
+          message: 'The page did not finish loading within 10 seconds. Check for an infinite loop.',
+        });
       }, LOAD_TIMEOUT_MS);
 
       host.replaceChildren(frame);

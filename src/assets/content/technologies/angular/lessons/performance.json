@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "slug": "performance",
+  "title": "Performance: Lazy Loading, Defer and Hydration",
+  "summary": "Keep the first download small with lazy routes and @defer blocks, speed up the first paint with server-side rendering and hydration, and watch bundle budgets so regressions fail the build.",
+  "introduction": "An Angular app is fast by default until it grows: every feature you add to the main bundle makes every user download it on their first visit, whether they use it or not. Angular gives you three levers. Lazy routes and @defer blocks split the code and load pieces on demand; server-side rendering with hydration shows content before any JavaScript runs; and bundle budgets turn size regressions into build errors. This lesson applies each one and shows the effect in the build output.",
+  "learningObjectives": [
+    "Split the bundle with lazy routes and @defer blocks and choose the right trigger",
+    "Add server-side rendering with hydration and explain what incremental hydration does",
+    "Read the build output and enforce bundle budgets"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Where the time goes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A browser must download, parse and run the JavaScript before an Angular app can render, so the size of the **initial** bundle decides how long users stare at a blank page. Everything else (how fast the app reacts once loaded) is mostly solved by signals and zoneless change detection, which update only what changed. The measurable goals are a small initial download, content visible early, and no layout jumps. Use the Performance panel and Lighthouse in the browser's developer tools to measure before and after each change."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lazy routes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Routes defined with `loadComponent` or `loadChildren` become separate chunks that the router downloads on first navigation. The [routing lesson](/tutorials/angular/routing) introduced the syntax; here is what it does to the build."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng build"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Initial chunk files   | Names          |  Raw size | Estimated transfer size\nmain-K7WQZ2VU.js      | main           | 212.90 kB |                58.45 kB\nstyles-5INURTSO.css   | styles         |   1.02 kB |               412 bytes\n\n                      | Initial total  | 213.92 kB |                58.86 kB\n\nLazy chunk files      | Names          |  Raw size | Estimated transfer size\nchunk-ZQ3EMDWA.js     | products       |  14.37 kB |                 3.98 kB\nchunk-7RVU6QPA.js     | product-detail |   6.21 kB |                 2.14 kB\n\nApplication bundle generation complete. [4.218 seconds]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only the *initial* rows are downloaded on the first visit. The products and product-detail chunks arrive when a user navigates there, and the router can also prefetch them when the browser is idle with `withPreloading(PreloadAllModules)` in `provideRouter`. A rule of thumb: eager-load the landing page, lazy-load everything else."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "@defer blocks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Routes split by page; `@defer` splits *within* a page. Components used only inside a `@defer` block are compiled into their own chunk and loaded when the trigger fires. Reviews below the fold, a chart library, a comment editor: anything heavy that is not needed for the first paint is a candidate."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "src/app/product-page/product-page.html",
+      "code": "<h1>Product</h1>\n<app-product-summary [id]=\"id()\" />\n\n@defer (on viewport) {\n  <app-reviews [productId]=\"id()\" />\n} @placeholder (minimum 500ms) {\n  <p>Reviews load when you scroll down.</p>\n} @loading (after 100ms; minimum 1s) {\n  <p>Loading reviews...</p>\n} @error {\n  <p>Reviews could not be loaded.</p>\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "What the user sees",
+      "content": "Product\n(product summary)\nReviews load when you scroll down.\n\nAfter scrolling the placeholder into view:\nLoading reviews...\n\nOnce the chunk has arrived:\n(reviews component)"
+    },
+    {
+      "type": "table",
+      "headers": ["Trigger", "Loads the block"],
+      "rows": [
+        ["`on idle` (default)", "When the browser is idle after the page has rendered"],
+        ["`on viewport`", "When the placeholder scrolls into view"],
+        ["`on interaction`", "When the user clicks or focuses the placeholder"],
+        ["`on hover`", "When the pointer hovers the placeholder"],
+        ["`on timer(3s)`", "After the given delay"],
+        ["`on immediate`", "As soon as possible, but still in a separate chunk"],
+        ["`when condition()`", "When a boolean expression becomes true"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Triggers combine: `@defer (on viewport; prefetch on idle)` downloads the chunk while the browser is idle but renders it only when visible, so the content appears instantly on scroll. `@placeholder` shows until the trigger fires, `@loading` while the chunk downloads (the `after` and `minimum` timings avoid a flash), and `@error` if the download fails."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a deferred component that is not deferred",
+      "text": "Angular can only move a component into a lazy chunk if nothing eager references it. If `Reviews` is also used outside a `@defer` block in the same template, queried with `viewChild(Reviews)`, or imported by an eagerly loaded component elsewhere, it stays in the main bundle and the `@defer` block only delays rendering. Check the *Lazy chunk files* section of the build output: a deferred component that does not appear there was bundled eagerly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Server-side rendering and hydration"
+    },
+    {
+      "type": "paragraph",
+      "text": "With client-side rendering the user receives an almost empty `index.html` and waits for JavaScript. With **server-side rendering** (SSR) a Node server runs the app, sends finished HTML, and the browser shows content immediately. **Hydration** then lets the downloaded Angular app adopt that HTML instead of re-rendering it, so nothing flickers. One command adds both."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng add @angular/ssr"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "✔ Determining Package Manager\n  › Using package manager: npm\n✔ Searching for compatible package version\n  › Found compatible package version: @angular/ssr@22.0.3.\n✔ Loading package information from registry\n✔ Confirming installation\n✔ Installing package\nCREATE src/main.server.ts (65 bytes)\nCREATE src/server.ts (1348 bytes)\nCREATE src/app/app.config.server.ts (321 bytes)\nCREATE src/app/app.routes.server.ts (141 bytes)\nUPDATE package.json (1289 bytes)\nUPDATE angular.json (2951 bytes)\nUPDATE tsconfig.app.json (338 bytes)\nUPDATE src/app/app.config.ts (556 bytes)\n✔ Packages installed successfully."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.config.ts (after ng add, with incremental hydration enabled)",
+      "code": "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideClientHydration, withEventReplay, withIncrementalHydration } from '@angular/platform-browser';\nimport { provideRouter } from '@angular/router';\nimport { routes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideClientHydration(withEventReplay(), withIncrementalHydration()),\n  ],\n};"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`withEventReplay()` records clicks that happen before hydration finishes and replays them afterwards, so an early click is never lost.",
+        "`withIncrementalHydration()` lets `@defer (hydrate on viewport)` blocks render on the server but download and hydrate their JavaScript only when needed; the server HTML stays interactive-looking and the client does less work.",
+        "`app.routes.server.ts` decides per route whether to prerender at build time, render on each request or render on the client only.",
+        "SSR code runs in Node, where `window` and `document` do not exist. Put browser-only work in `afterNextRender()` or guard it with `isPlatformBrowser`."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Incremental hydration for a heavy block",
+      "code": "@defer (hydrate on viewport) {\n  <app-reviews [productId]=\"id()\" />\n} @placeholder {\n  <p>Loading reviews...</p>\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Bundle budgets"
+    },
+    {
+      "type": "paragraph",
+      "text": "`angular.json` contains budgets for the production configuration. When a bundle exceeds `maximumWarning` the build prints a warning; above `maximumError` it fails, which keeps an accidental 300 kB import from reaching users."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "title": "angular.json (excerpt)",
+      "code": "\"budgets\": [\n  { \"type\": \"initial\", \"maximumWarning\": \"500kB\", \"maximumError\": \"1MB\" },\n  { \"type\": \"anyComponentStyle\", \"maximumWarning\": \"4kB\", \"maximumError\": \"8kB\" }\n]"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "ng build, after importing a large library eagerly",
+      "content": "▲ [WARNING] bundle initial exceeded maximum budget. Budget 500.00 kB was not met by 23.41 kB with a total of 523.41 kB.\n\nApplication bundle generation complete. [5.034 seconds]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Everyday habits"
+    },
+    {
+      "type": "table",
+      "headers": ["Habit", "Why"],
+      "rows": [
+        [
+          "Keep state in signals and derive with `computed()`",
+          "Zoneless change detection updates only the views that read a changed signal"
+        ],
+        ["`track` by id in `@for`", "Rows are moved, not rebuilt, when the list changes"],
+        [
+          "Use `NgOptimizedImage`",
+          "Correct sizes, lazy loading and priority hints without manual work"
+        ],
+        [
+          "Avoid method calls in templates for expensive work",
+          "A method runs on every check; a `computed()` or pure pipe is memoised"
+        ],
+        ["Lazy-load routes and defer below-the-fold components", "Smaller initial download"],
+        [
+          "Run `ng build` and read the chunk table before every release",
+          "Regressions are visible as numbers"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Measure first",
+      "text": "Optimisation without a measurement is guessing. Lighthouse in the browser's developer tools reports Largest Contentful Paint and total JavaScript, and the [web performance tutorial](/tutorials/web-performance) explains what the numbers mean."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-performance-defer"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-performance-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "performance",
+          "difficulty": "intermediate",
+          "question": "A comments section sits at the bottom of a long article. Which trigger loads it only when the reader gets there?",
+          "explanation": "`on viewport` fires when the placeholder scrolls into view. `on idle` would load it shortly after the page renders regardless of scrolling.",
+          "options": [
+            "`@defer (on idle)`",
+            "`@defer (on viewport)`",
+            "`@defer (on immediate)`",
+            "`@defer (on timer(1s))`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-performance-qc-2",
+          "type": "true-false",
+          "lessonSlug": "performance",
+          "difficulty": "intermediate",
+          "question": "Hydration re-renders the server HTML from scratch once the JavaScript has loaded.",
+          "explanation": "Hydration adopts the existing DOM and attaches listeners to it; re-rendering from scratch is exactly what it avoids.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-performance-defer"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "routing"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "deployment"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "pipes-directives"
+    }
+  ],
+  "seo": {
+    "title": "Angular Performance – Lazy Loading, @defer, Hydration",
+    "description": "Make Angular 22 apps faster: lazy routes, @defer blocks with triggers, server-side rendering with event replay and incremental hydration, and bundle budgets."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-file-upload",
+  "title": "Design a file-upload service",
+  "summary": "Plan a private file upload without sending large files through every app server. Track upload states, check the stored bytes, and clean up failed work.",
+  "introduction": "Sending a large project file is different from saving a short title. The bytes may take time to arrive, and a connection can break halfway. We will design clear steps so an unfinished or unchecked file is never shown as ready.",
+  "learningObjectives": [
+    "Separate file bytes from descriptive records",
+    "Trace temporary upload permission and file states",
+    "Handle interrupted uploads, checks, and private downloads"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set the limits first"
+    },
+    {
+      "type": "paragraph",
+      "text": "Plan project-file uploads for a small school club. For this example, allow approved file types up to 20 MB and give each member a storage quota. A **quota** is a maximum amount they may store. Public file sharing is outside this first version."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Object storage** holds file bytes under a key, which works like a unique storage label. A database holds **metadata**: facts about the file, such as its owner, size, state, and exact stored version."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/file-upload.svg",
+      "width": 400,
+      "height": 544,
+      "alt": "The app allows a limited upload, private storage receives the bytes, checks run, and only a ready record is available to approved readers.",
+      "caption": "An upload permission should be short-lived and limited. Bytes arriving in storage does not mean the file is safe or ready to share."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Private file-upload design\nFile: fileId, ownerId, storageKey, storedVersion, size, status\nStates: waiting -> uploaded -> checking -> ready (or rejected)\n\nPOST /uploads {name, expectedSize, type}\n  Check caller and allowed size; reserve quota with the waiting record.\n  Create a new private temporary key and a short-lived upload grant.\n\nBrowser -> object storage: upload bytes to that allowed key\nPOST /uploads/{fileId}/complete\n  Verify that bytes arrived; mark checking, not ready.\n\nWorker\n  Check actual size and type; scan the uploaded version.\n  Copy approved bytes to an immutable private final key/version.\n  Mark that exact checked version ready.\n\nGET /files/{fileId}\n  Check permission and ready state.\n  Issue a short-lived download for the checked version only.",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Let the bytes take a direct path"
+    },
+    {
+      "type": "paragraph",
+      "text": "The app service grants temporary permission for one upload. A **presigned URL** is one common form of this permission: a signed, short-lived address accepted by object storage. It must be limited to the intended operation and new private key."
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The service checks the caller, expected size, and type. It reserves quota safely with a waiting file record, so simultaneous uploads cannot all spend the same space. It creates a new temporary storage key.",
+        "The browser sends bytes directly to object storage using the limited grant. This keeps large byte streams away from the app service.",
+        "After upload, the browser calls complete. The service verifies the stored object; it does not trust the browser's claim that upload succeeded.",
+        "A worker checks actual size and file type and performs required safety scans. The state remains checking while work is unfinished.",
+        "Approved bytes move to a final private key or immutable version. Only then does metadata mark that exact version ready."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use the stored facts, not just the file name"
+    },
+    {
+      "type": "paragraph",
+      "text": "A caller can claim that a large file is small or rename a program to look like a picture. Enforce upload restrictions where supported, then check actual stored size and content again. Reject a file larger than its reserved size. A claimed type or file-name ending is not enough."
+    },
+    {
+      "type": "paragraph",
+      "text": "Scan and later serve the same fixed bytes. If a still-valid upload link can overwrite a file after it was checked, a safe scan result might describe an older version. Immutable final keys or version-specific reads prevent that mix-up."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle slow, repeated, and abandoned work"
+    },
+    {
+      "type": "paragraph",
+      "text": "A repeated complete request should keep the same file record and avoid duplicate processing. Workers may receive duplicate events too. Base each check on file ID and stored version, and keep state changes safe."
+    },
+    {
+      "type": "paragraph",
+      "text": "For larger files, a **multipart upload** sends numbered pieces and joins them after every required piece arrives. It can retry one failed piece. It adds bookkeeping, so the 20 MB first version may start with a simpler whole-file retry."
+    },
+    {
+      "type": "paragraph",
+      "text": "Set a time limit for waiting uploads. Clean up abandoned temporary objects and incomplete parts. Release quota reservations for failed uploads. Otherwise, invisible unfinished files can consume storage and money."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keep downloads private"
+    },
+    {
+      "type": "paragraph",
+      "text": "The service checks permission before issuing a short-lived download link for a ready version. Temporary links act like keys until they expire, so keep them out of public logs and do not share them casually."
+    },
+    {
+      "type": "paragraph",
+      "text": "If the checking worker is down, files stay checking and downloads remain blocked. Show that state clearly. Do not turn an unknown scan result into success just to empty the queue."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The bytes arrived, but the scanner is unavailable. Which state should the file show?",
+        "Keep it checking and retry the job with safe limits. It must not become ready until the required checks on that stored version pass."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not mark a file ready just because the browser says it finished. Verify the stored bytes, required checks, and the exact version being served."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-design-a-file-upload"
+    }
+  ],
+  "exerciseIds": ["system-design-design-a-file-upload"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "security-and-privacy"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "backups-and-recovery"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Design a file-upload service",
+    "description": "Plan a private file upload without sending large files through every app server. Track upload states, check the stored bytes, and clean up failed work."
+  },
+  "updatedOn": "2026-11-16"
+}

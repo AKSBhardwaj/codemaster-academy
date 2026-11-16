@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json",
+  "title": "Send structured message data",
+  "summary": "WebSockets: Send structured message data. Send score 7.",
+  "introduction": "JSON can give a message named fields. The server reads score and doubles it.",
+  "learningObjectives": ["Send structured message data with WebSockets", "Send score 7"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send structured message data"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Send structured message data",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { const message = JSON.parse(data.toString()); socket.send(JSON.stringify({ answer: message.score * 2 })); }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(JSON.stringify({ score: 4 })));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The client sends score 4 as JSON. The server parses it, doubles the number, and serialises answer 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send score 7."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Real message handlers need checks for invalid JSON and invalid fields."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-json-check"
+    }
+  ],
+  "exerciseIds": ["websockets-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "echo"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Send structured message data",
+    "description": "WebSockets: Send structured message data. Send score 7. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "move-a-calculation-to-a-worker",
+  "title": "Move a calculation to a worker",
+  "summary": "A web worker runs JavaScript in another thread.",
+  "introduction": "A web worker runs JavaScript in another thread. Your task: Send 9 to the worker and predict its reply.",
+  "learningObjectives": [
+    "Send 9 to the worker and predict its reply.",
+    "Explain the example for move a calculation to a worker"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A web worker runs JavaScript in another thread. It can do a calculation without directly changing the page DOM."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use these examples in a local page in a current browser. APIs involving files, storage, clipboard or location may need HTTPS, a user action or permission. They are shown as code because this site's sandbox limits those features."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// worker.js\nself.onmessage = event => { self.postMessage(event.data * 2); };\n\n// main.js, a separate file on the same local site\nconst worker = new Worker(\"./worker.js\");\nworker.onmessage = event => { console.log(event.data); worker.terminate(); };\nworker.postMessage(6);",
+      "title": "Move a calculation to a worker",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`postMessage` sends data between the worker and page. Each side handles the message through its own listener."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "With the two real files served locally, the main page logs 12 and then stops the worker."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Save the two sections as separate files. A worker cannot use document.querySelector to change the page."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Send 9 to the worker and predict its reply."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-apis-move-a-calculation-to-a-worker-check"
+    }
+  ],
+  "exerciseIds": ["web-apis-move-a-calculation-to-a-worker-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-apis",
+      "slug": "watch-a-box-size"
+    }
+  ],
+  "seo": {
+    "title": "Web APIs: Move a calculation to a worker",
+    "description": "A web worker runs JavaScript in another thread. It can do a calculation without directly changing the page DOM."
+  },
+  "updatedOn": "2026-11-16"
+}

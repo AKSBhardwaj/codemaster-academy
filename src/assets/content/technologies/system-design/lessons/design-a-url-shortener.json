@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-url-shortener",
+  "title": "Design a URL shortener",
+  "summary": "Plan a service that turns a long web address into a short link. Handle code collisions, redirects, expired links, and unsafe destinations.",
+  "introduction": "A short link is like a small label on a large folder. The label helps us find the stored destination, but it is not the destination itself. We will design a service that saves and looks up these labels.",
+  "learningObjectives": [
+    "Map a short code to a checked destination",
+    "Explain unique codes and safe collision handling",
+    "Plan redirects, expiry, caching, and abuse controls"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose the first version"
+    },
+    {
+      "type": "paragraph",
+      "text": "The service creates a short link and redirects visitors to its destination. For practice, assume 100 new links each day and many more opens than creates. Custom labels and detailed visitor tracking can wait."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **redirect** is a reply telling the browser to visit another address. The short-link service looks up a record; it does not need to download the destination page itself."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/short-link.svg",
+      "width": 400,
+      "height": 544,
+      "alt": "A browser opens a short code. The redirect service finds its link record, checks the destination and expiry, and returns a redirect.",
+      "caption": "This shows reading an existing link. Creating a code also needs a unique-code check and clear rules for allowed destinations."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Short-link design\nPOST /links {destination} -> {code, shortUrl}\nGET /s/{code} -> temporary redirect or not-found reply\n\nLink record\ncode: unique short label\ndestination: checked HTTP or HTTPS web address\ncreatedAt, expiresAt, disabledAt\n\nCreate\nCheck address and creation limits.\nGenerate an unpredictable candidate code.\nInsert only if the code is unused; retry a bounded number of collisions.\n\nOpen\nLook up the code.\nCheck disabled/expired state.\nReply with HTTP 302 and the checked destination.\nUnknown, expired, or disabled code -> clear unavailable page.",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow a link from creation to opening"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A caller submits a destination. Use a URL parser, allow only intended schemes such as HTTPS, and limit the address length. A scheme is the part before the colon, such as https.",
+        "Generate an unpredictable code and try to insert it with a database uniqueness rule. A collision means the code is already used; generate another and retry within a set limit.",
+        "Return the new short link only after its record is saved. The code becomes an exact lookup key.",
+        "A visitor opens the short link. Look up the record, check its current state, then redirect or show a clear unavailable page."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use storage and caching for the actual workload"
+    },
+    {
+      "type": "paragraph",
+      "text": "One database table is a sensible start. A unique index on code both helps lookup and protects the code rule. A random generator alone cannot promise that two codes will never match."
+    },
+    {
+      "type": "paragraph",
+      "text": "Popular public links may be cached because reads are frequent. Give cache entries a short lifetime and clear them when a link is disabled. If a blocked link must stop immediately, check an up-to-date block decision before redirecting."
+    },
+    {
+      "type": "paragraph",
+      "text": "HTTP 302 is a temporary redirect in this plan. Set deliberate cache rules because destinations may expire or be disabled. A long-lived permanent redirect can remain in browsers after the service changes its mind."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Plan for failures and misuse"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a lookup store is unavailable, a cache miss is a service failure, not proof that the code does not exist. A not-found reply is for a successful lookup that found no usable record."
+    },
+    {
+      "type": "paragraph",
+      "text": "An unpredictable code is not permission to read a private file. If a destination is private, its own service must check access. Anyone who sees a public short link may share it."
+    },
+    {
+      "type": "paragraph",
+      "text": "Short links can hide harmful destinations. Limit creation, provide a way to report abuse, and apply destination policies. A school-only service might allow only approved school domains. Valid URL syntax alone does not prove a destination is safe."
+    },
+    {
+      "type": "paragraph",
+      "text": "Avoid fetching destination pages merely to redirect. If a later preview feature fetches URLs, it needs separate rules against reaching private network addresses and other unintended targets."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Two creation requests generate the same candidate code. What should happen to the second insert?",
+        "The database rejects the duplicate code. The second request tries a new code within its retry limit; it must not replace the first destination."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not check that a code is unused and then assume it stays unused. Concurrent requests need a database uniqueness rule at insertion."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-design-a-url-shortener"
+    }
+  ],
+  "exerciseIds": ["system-design-design-a-url-shortener"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "indexes-help-find-records"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "caches-keep-useful-copies"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "security-and-privacy"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Design a URL shortener",
+    "description": "Plan a service that turns a long web address into a short link. Handle code collisions, redirects, expired links, and unsafe destinations."
+  },
+  "updatedOn": "2026-11-16"
+}

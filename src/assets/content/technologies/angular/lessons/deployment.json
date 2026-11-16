@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "deployment",
+  "title": "Building and Deploying",
+  "summary": "Create a production build with ng build, configure environments, serve the browser folder from a static host or nginx with a fallback to index.html, run the SSR server, and automate it all in CI.",
+  "introduction": "Development is done when the app runs on a URL other people can open. A production build turns your TypeScript into a handful of hashed files that any web server can serve, but single-page apps have one requirement that static hosts do not meet by default: every URL must fall back to index.html. This lesson builds the app, separates development and production settings, deploys to a static host and to nginx, runs the server-side rendered version, and sets up a workflow that tests and builds on every push.",
+  "learningObjectives": [
+    "Produce and inspect a production build with ng build",
+    "Configure per-environment settings with file replacements",
+    "Deploy the browser output to a static host or nginx with an index.html fallback and run the SSR server"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The production build"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ng build` uses the `production` configuration by default: it bundles with esbuild, minifies, removes unused code, inlines critical CSS and adds a content hash to every file name so browsers can cache them forever. The output goes to `dist/<project>/`."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng build"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Initial chunk files   | Names         |  Raw size | Estimated transfer size\nmain-K7WQZ2VU.js      | main          | 212.90 kB |                58.45 kB\nstyles-5INURTSO.css   | styles        |   1.02 kB |               412 bytes\n\n                      | Initial total | 213.92 kB |                58.86 kB\n\nLazy chunk files      | Names         |  Raw size | Estimated transfer size\nchunk-ZQ3EMDWA.js     | products      |  14.37 kB |                 3.98 kB\n\nApplication bundle generation complete. [4.218 seconds]\n\nOutput location: C:\\projects\\my-app\\dist\\my-app"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "dist/my-app after the build",
+      "content": "dist/my-app/\n├── 3rdpartylicenses.txt\n└── browser/\n    ├── chunk-ZQ3EMDWA.js\n    ├── favicon.ico\n    ├── index.html\n    ├── main-K7WQZ2VU.js\n    └── styles-5INURTSO.css"
+    },
+    {
+      "type": "paragraph",
+      "text": "The files you deploy are the ones inside `browser/`. `index.html` references the hashed files, so every release produces new names and old cached copies are never served by mistake. `ng build --configuration development` produces an unminified build with source maps for debugging a deployment problem."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: deploying the wrong folder",
+      "text": "Uploading `dist/my-app` instead of `dist/my-app/browser` puts `index.html` one level too deep: the site root shows a directory listing or a 404 while `/browser/` works. Point the host at the `browser` folder. With SSR enabled there is also a `server/` folder next to it, which static hosts must not serve."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Environment settings"
+    },
+    {
+      "type": "paragraph",
+      "text": "API URLs and feature flags differ between your machine and production. The CLI handles this with **file replacements**: `ng generate environments` creates two files and tells `angular.json` to swap one for the other in development builds. Import from `environment.ts` everywhere; the build picks the right file."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng generate environments"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "CREATE src/environments/environment.ts (31 bytes)\nCREATE src/environments/environment.development.ts (31 bytes)\nUPDATE angular.json (3041 bytes)"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/environments/environment.ts and environment.development.ts",
+      "code": "// src/environments/environment.ts (used by ng build)\nexport const environment = {\n  apiUrl: 'https://api.example.com',\n};\n\n// src/environments/environment.development.ts (used by ng serve)\nexport const environment = {\n  apiUrl: 'http://localhost:3000',\n};"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.config.ts (excerpt)",
+      "code": "import { environment } from '../environments/environment';\nimport { API_URL } from './api-url';\n\n// inside providers:\n{ provide: API_URL, useValue: environment.apiUrl }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Never put secrets in environment files: everything in the browser bundle is public. Secrets belong on the server; the browser only ever gets a session token."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Static hosting and the fallback rule"
+    },
+    {
+      "type": "paragraph",
+      "text": "A client-rendered Angular app is just static files, so any static host works: Netlify, Vercel, GitHub Pages, Cloudflare Pages, Firebase Hosting, an S3 bucket, or your own nginx. All of them need one rule: a request for `/products/42` must return `index.html`, because the file `products/42` does not exist and the Angular router will read the URL once the app loads. Without that rule, reloading any page other than the home page gives a 404."
+    },
+    {
+      "type": "code",
+      "language": "nginx",
+      "title": "/etc/nginx/conf.d/my-app.conf",
+      "code": "server {\n  listen 80;\n  root /usr/share/nginx/html;\n  index index.html;\n\n  location / {\n    try_files $uri $uri/ /index.html;\n  }\n\n  location ~* \\.(js|css|woff2)$ {\n    add_header Cache-Control \"public, max-age=31536000, immutable\";\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "curl -I http://localhost/products/42",
+      "content": "HTTP/1.1 200 OK\nServer: nginx\nContent-Type: text/html"
+    },
+    {
+      "type": "paragraph",
+      "text": "`try_files` serves a real file when one exists (the hashed JavaScript and CSS) and `index.html` for everything else. The cache header is safe because the file names change whenever their content changes. Other hosts express the same rule in their own files:"
+    },
+    {
+      "type": "table",
+      "headers": ["Host", "Fallback configuration"],
+      "rows": [
+        ["Netlify", "A `_redirects` file in `public/` containing `/* /index.html 200`"],
+        [
+          "Firebase Hosting",
+          "`\"rewrites\": [{ \"source\": \"**\", \"destination\": \"/index.html\" }]` in `firebase.json`"
+        ],
+        [
+          "Vercel",
+          "`\"rewrites\": [{ \"source\": \"/(.*)\", \"destination\": \"/index.html\" }]` in `vercel.json`"
+        ],
+        [
+          "GitHub Pages",
+          "No rewrites available: build with `--base-href /repo-name/` and copy `index.html` to `404.html`"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Files placed in the project's `public/` folder are copied to the build output unchanged, which is where `_redirects`, `robots.txt` and similar files live. When the app is served from a sub-path, `ng build --base-href /my-app/` sets the `<base href>` so that relative URLs and the router resolve correctly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Deploying the SSR server"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `@angular/ssr` added, `ng build` also produces `dist/my-app/server/server.mjs`, a Node application that renders pages on request and serves the browser files. Run it on any host that supports Node.js: a container, a virtual machine or a platform such as Render, Railway or Fly.io. The fallback rule is handled by the server itself."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng build\nnode dist/my-app/server/server.mjs"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Node Express server listening on http://localhost:4000"
+    },
+    {
+      "type": "paragraph",
+      "text": "Routes marked for prerendering in `app.routes.server.ts` are rendered to static HTML at build time, so a marketing page costs nothing per request while a personalised dashboard still renders on demand. A `Dockerfile` for the server needs only `node:24-alpine`, the `dist` folder and `CMD [\"node\", \"dist/my-app/server/server.mjs\"]`; the [Docker tutorial](/tutorials/docker) covers the details."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Continuous integration"
+    },
+    {
+      "type": "paragraph",
+      "text": "A workflow that installs dependencies, runs the tests and builds on every push catches broken builds before they reach a server. This [GitHub Actions](/tutorials/github-actions) workflow does exactly that; `ng test` and `ng build` exit with a non-zero code on failure, which marks the run as failed."
+    },
+    {
+      "type": "code",
+      "language": "yaml",
+      "title": ".github/workflows/ci.yml",
+      "code": "name: CI\non: [push, pull_request]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 24\n          cache: npm\n      - run: npm ci\n      - run: npx ng test\n      - run: npx ng build\n      - uses: actions/upload-artifact@v4\n        with:\n          name: browser\n          path: dist/my-app/browser"
+    },
+    {
+      "type": "paragraph",
+      "text": "`npm ci` installs exactly the versions in `package-lock.json`, so the build on the server matches the one on your machine. The uploaded artifact is what a deploy step copies to the host; many hosts can also watch the repository and run the build themselves."
+    },
+    {
+      "type": "table",
+      "headers": ["Before you ship", "Check"],
+      "rows": [
+        ["Budgets", "`ng build` prints no budget warnings"],
+        ["Deep links", "Reloading `/products/42` on the host returns the app, not a 404"],
+        ["Environment", "The production API URL is used; open the network tab to confirm"],
+        ["Caching", "Hashed files are cached, `index.html` is not"],
+        [
+          "Title and metadata",
+          "Each route sets a `title`; SSR or prerendering if search engines matter"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "ng deploy",
+      "text": "Hosting providers publish deploy builders: after `ng add @angular/fire` or `ng add angular-cli-ghpages`, a single `ng deploy` builds and uploads the app. They are convenient for personal projects; for team projects, keep the deployment in the CI workflow where everyone can see it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-deployment-fallback"
+    }
+  ],
+  "exerciseIds": ["angular-deployment-fallback"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "performance"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "setup-cli"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "routing"
+    }
+  ],
+  "seo": {
+    "title": "Build and Deploy an Angular App – ng build, Hosting, SSR",
+    "description": "Learn to ship Angular 22: production builds with ng build, environment files, static hosting with an index.html fallback on nginx and other hosts, the SSR server and CI."
+  },
+  "updatedOn": "2026-11-15"
+}

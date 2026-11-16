@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "transactions",
+  "title": "Transactions and Isolation",
+  "summary": "Group changes into InnoDB transactions with START TRANSACTION, COMMIT, ROLLBACK and SAVEPOINT, understand autocommit and implicit commits, choose an isolation level and handle lock waits and.",
+  "introduction": "Selling two bags of coffee means lowering the stock and inserting an order; if the server crashes between those statements, the shop has sold coffee it still thinks it has. A transaction makes several statements succeed or fail as one unit. InnoDB gives every MySQL table that guarantee, but only if you know when a transaction starts, which statements commit it without asking, and how concurrent transactions see each other's changes. This lesson covers all three.",
+  "learningObjectives": [
+    "Start, commit and roll back transactions and use savepoints",
+    "Explain autocommit and the statements that commit implicitly",
+    "Describe the four isolation levels and InnoDB's REPEATABLE READ default",
+    "Lock rows with SELECT ... FOR UPDATE and react to deadlocks"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Autocommit"
+    },
+    {
+      "type": "paragraph",
+      "text": "By default every statement is its own transaction: MySQL commits it the moment it finishes, which is what `@@autocommit = 1` means. `START TRANSACTION` (or `BEGIN`) suspends that until you say `COMMIT` or `ROLLBACK`. The second variable below is the isolation level, explained further down."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT @@autocommit, @@transaction_isolation;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------+-------------------------+\n| @@autocommit | @@transaction_isolation |\n+--------------+-------------------------+\n|            1 | REPEATABLE-READ         |\n+--------------+-------------------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`SET autocommit = 0` makes every statement in the session part of an open transaction until you commit. It is easy to forget the `COMMIT` and hold locks for hours, so explicit `START TRANSACTION` blocks are the safer habit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ROLLBACK"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside a transaction your own session sees its changes immediately; other sessions keep seeing the old rows until you commit. `ROLLBACK` throws the changes away as if they had never happened."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "START TRANSACTION;\n\nDELETE FROM orders WHERE status = 'cancelled';\nSELECT COUNT(*) FROM orders;\n\nROLLBACK;\nSELECT COUNT(*) FROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.00 sec)\n\nQuery OK, 1 row affected (0.00 sec)\n\n+----------+\n| COUNT(*) |\n+----------+\n|        6 |\n+----------+\n1 row in set (0.00 sec)\n\nQuery OK, 0 rows affected (0.01 sec)\n\n+----------+\n| COUNT(*) |\n+----------+\n|        7 |\n+----------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "SAVEPOINT"
+    },
+    {
+      "type": "paragraph",
+      "text": "A savepoint marks a position inside a transaction. `ROLLBACK TO` undoes everything after the mark but keeps the transaction open, which lets an application retry one step without redoing the whole unit. The final `ROLLBACK` here discards the price change as well, so the data is unchanged afterwards."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "START TRANSACTION;\nUPDATE coffees SET price = 99 WHERE id = 1;\nSAVEPOINT before_stock;\nUPDATE coffees SET stock = 0 WHERE id = 1;\nROLLBACK TO before_stock;\nSELECT price, stock FROM coffees WHERE id = 1;\nROLLBACK;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.00 sec)\n\nQuery OK, 1 row affected (0.00 sec)\nRows matched: 1  Changed: 1  Warnings: 0\n\nQuery OK, 0 rows affected (0.00 sec)\n\nQuery OK, 1 row affected (0.00 sec)\nRows matched: 1  Changed: 1  Warnings: 0\n\nQuery OK, 0 rows affected (0.00 sec)\n\n+-------+-------+\n| price | stock |\n+-------+-------+\n| 99.00 |    40 |\n+-------+-------+\n1 row in set (0.00 sec)\n\nQuery OK, 0 rows affected (0.01 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A real transaction: selling two bags"
+    },
+    {
+      "type": "paragraph",
+      "text": "A sale is two writes that must both happen. `SELECT ... FOR UPDATE` locks the stock row until the transaction ends, so a second checkout for the same coffee waits instead of both reading 40 and both succeeding. The application checks that the stock is sufficient, then updates and inserts, and commits only when every step worked."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "START TRANSACTION;\n\nSELECT stock FROM coffees WHERE id = 1 FOR UPDATE;\n\nUPDATE coffees SET stock = stock - 2 WHERE id = 1;\n\nINSERT INTO orders (customer_id, coffee_id, quantity, status)\nVALUES (5, 1, 2, 'paid');\n\nCOMMIT;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.00 sec)\n\n+-------+\n| stock |\n+-------+\n|    40 |\n+-------+\n1 row in set (0.00 sec)\n\nQuery OK, 1 row affected (0.00 sec)\nRows matched: 1  Changed: 1  Warnings: 0\n\nQuery OK, 1 row affected (0.00 sec)\n\nQuery OK, 0 rows affected (0.01 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`COMMIT` makes both changes durable at once: Hannah has her first order (id 8) and Morning Blend is at 38. Had the `INSERT` failed, for instance on a foreign key, the application would issue `ROLLBACK` and the stock would be untouched. The `UNSIGNED` stock column is a second safety net: subtracting below zero fails with error 1690 under strict mode instead of wrapping around."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Schema statements commit for you",
+      "text": "`CREATE TABLE`, `ALTER TABLE`, `DROP`, `TRUNCATE`, `CREATE INDEX`, `CREATE USER` and `GRANT` cause an *implicit commit* before they run and cannot be rolled back. A migration that mixes a data fix with an `ALTER TABLE` therefore commits the fix early, and a `ROLLBACK` afterwards does nothing. Keep schema changes and data changes in separate transactions, and check with `SHOW TABLE STATUS` that your tables really are InnoDB: the legacy MyISAM engine ignores transactions without a word."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Isolation levels"
+    },
+    {
+      "type": "paragraph",
+      "text": "Isolation decides what a transaction sees of changes that other transactions make at the same time. Higher levels prevent more anomalies and take more locks."
+    },
+    {
+      "type": "table",
+      "headers": ["Level", "Dirty reads", "Non-repeatable reads", "Notes"],
+      "rows": [
+        ["`READ UNCOMMITTED`", "possible", "possible", "sees uncommitted changes of others; avoid"],
+        [
+          "`READ COMMITTED`",
+          "no",
+          "possible",
+          "each statement sees what was committed when it started; PostgreSQL's default"
+        ],
+        [
+          "`REPEATABLE READ`",
+          "no",
+          "no",
+          "InnoDB's default; consistent snapshot from the first read, so plain reads also avoid phantoms"
+        ],
+        ["`SERIALIZABLE`", "no", "no", "plain SELECTs lock the rows they read; safest and slowest"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Under `REPEATABLE READ`, each transaction reads from a snapshot taken at its first `SELECT`, so repeated reads return the same rows even while other sessions commit. The walkthrough below needs two client windows:"
+    },
+    {
+      "type": "table",
+      "headers": ["Step", "Session A", "Session B"],
+      "rows": [
+        [
+          "1",
+          "`START TRANSACTION;` then `SELECT stock FROM coffees WHERE id = 1;` returns 38",
+          "No action in this session"
+        ],
+        [
+          "2",
+          "No action in this session",
+          "`UPDATE coffees SET stock = 50 WHERE id = 1;` commits at once (autocommit)"
+        ],
+        [
+          "3",
+          "`SELECT stock FROM coffees WHERE id = 1;` still returns 38, from the snapshot",
+          "No action in this session"
+        ],
+        ["4", "`COMMIT;` then the same SELECT returns 50", "No action in this session"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Locking reads (`FOR UPDATE`, `UPDATE`, `DELETE`) always work on the latest committed data and take row locks, which is why the sale above used one. `SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;` switches a session to the level PostgreSQL uses, where each statement sees what was committed when it started; it is a common choice for write-heavy workloads because InnoDB takes fewer gap locks there."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lock waits and deadlocks"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction that needs a row another transaction has locked waits up to `innodb_lock_wait_timeout` seconds (50 by default) and then fails. When two transactions each wait for the other, InnoDB detects the deadlock immediately, rolls back the one that did less work and reports it. Both errors are normal in a busy system; the application must catch them and retry the whole transaction."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "-- Session B, while session A holds the lock on coffee 1\nSELECT stock FROM coffees WHERE id = 1 FOR UPDATE;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction"
+    },
+    {
+      "type": "paragraph",
+      "text": "The deadlock message is `ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting transaction`, and `SHOW ENGINE INNODB STATUS\\G` prints the latest one in detail. Prevent most deadlocks by keeping transactions short, touching rows in a consistent order (always coffees before orders, for example) and committing promptly."
+    },
+    {
+      "type": "callout",
+      "icon": "code-slash",
+      "title": "Transactions in application code",
+      "text": "Drivers expose the same statements: `beginTransaction()`, `commit()` and `rollback()` on a connection in Node's mysql2, or `connection.commit()` in Python's connectors. A transaction belongs to one connection, so never spread its statements across a connection pool, and always release the connection after `COMMIT` or `ROLLBACK`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-tx-rollback-result"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "transactions-qc-1",
+          "type": "true-false",
+          "lessonSlug": "transactions",
+          "difficulty": "intermediate",
+          "question": "An `ALTER TABLE` inside a transaction can be undone with ROLLBACK.",
+          "explanation": "Schema statements cause an implicit commit before they run and cannot be rolled back. Keep them out of data transactions.",
+          "correct": false
+        },
+        {
+          "id": "transactions-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "transactions",
+          "difficulty": "intermediate",
+          "question": "What should an application do after receiving error 1213 (deadlock)?",
+          "explanation": "InnoDB has already rolled back the losing transaction. The correct response is to retry the whole transaction from the start, usually after a short pause.",
+          "options": [
+            "Run COMMIT to keep the partial work",
+            "Retry the entire transaction",
+            "Switch the table to MyISAM",
+            "Increase innodb_lock_wait_timeout"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-tx-rollback-result"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "crud"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "users-privileges"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "transactions"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Transactions and Isolation Levels \u2013 InnoDB Guide",
+    "description": "Use InnoDB transactions in MySQL: START TRANSACTION, COMMIT, ROLLBACK, SAVEPOINT, autocommit, implicit commits, isolation levels, SELECT FOR UPDATE and deadlocks."
+  },
+  "updatedOn": "2026-11-15"
+}

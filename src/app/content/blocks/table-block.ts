@@ -9,7 +9,11 @@ import { InlineMarkupComponent } from '../../shared/components/inline-markup/inl
     <div class="table-responsive">
       <table class="table table-bordered align-top">
         @if (block().caption) {
-          <caption>{{ block().caption }}</caption>
+          <caption>
+            {{
+              block().caption
+            }}
+          </caption>
         }
         <thead>
           <tr>

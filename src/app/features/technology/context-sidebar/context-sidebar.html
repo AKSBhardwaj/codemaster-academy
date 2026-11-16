@@ -4,7 +4,13 @@
     <ul class="cma-toc list-unstyled mb-0">
       @for (entry of toc(); track entry.id) {
         <li [class.cma-toc__item--sub]="entry.level === 3">
-          <a class="cma-toc__link" [class.active]="activeId() === entry.id" [href]="'#' + entry.id" [attr.aria-current]="activeId() === entry.id ? 'location' : null">{{ entry.text }}</a>
+          <a
+            class="cma-toc__link"
+            [class.active]="activeId() === entry.id"
+            [href]="anchors.href(entry.id)"
+            [attr.aria-current]="activeId() === entry.id ? 'location' : null"
+            >{{ entry.text }}</a
+          >
         </li>
       }
     </ul>
@@ -14,10 +20,20 @@
 @if (context.technology(); as tech) {
   <section class="cma-context__section" aria-labelledby="progress-heading">
     <h2 id="progress-heading" class="cma-context__title">Your progress</h2>
-    <div class="progress mb-2" role="progressbar" [attr.aria-valuenow]="percent()" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Lessons completed: ' + completedCount() + ' of ' + total()" style="height: 6px">
+    <div
+      class="progress mb-2"
+      role="progressbar"
+      [attr.aria-valuenow]="percent()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-label]="'Lessons completed: ' + completedCount() + ' of ' + total()"
+      style="height: 6px"
+    >
       <div class="progress-bar" [style.width.%]="percent()"></div>
     </div>
-    <p class="small cma-text-secondary mb-0">{{ completedCount() }} of {{ total() }} lessons completed. Saved in this browser.</p>
+    <p class="small cma-text-secondary mb-0">
+      {{ completedCount() }} of {{ total() }} lessons completed. Saved in this browser.
+    </p>
   </section>
 
   @if (tech.hasExercises || tech.hasQuiz || tech.hasReference || tech.hasExamples) {
@@ -25,16 +41,37 @@
       <h2 id="practice-heading" class="cma-context__title">Practice and reference</h2>
       <ul class="list-unstyled cma-context__links mb-0">
         @if (tech.hasExamples) {
-          <li><a [routerLink]="['/examples', tech.slug]"><cma-icon name="file-earmark-code" [size]="14" /> {{ tech.counts.examples }} examples</a></li>
+          <li>
+            <a [routerLink]="['/examples', tech.slug]"
+              ><cma-icon name="file-earmark-code" [size]="14" />
+              {{ tech.counts.examples }} examples</a
+            >
+          </li>
         }
         @if (tech.hasExercises) {
-          <li><a [routerLink]="['/exercises', tech.slug]"><cma-icon name="pencil-square" [size]="14" /> {{ tech.counts.exercises }} exercises</a></li>
+          <li>
+            <a [routerLink]="['/exercises', tech.slug]"
+              ><cma-icon name="pencil-square" [size]="14" />
+              {{ tech.counts.exercises }} exercises</a
+            >
+          </li>
         }
         @if (tech.hasQuiz) {
-          <li><a [routerLink]="['/quizzes', tech.slug]"><cma-icon name="patch-check" [size]="14" /> Quiz ({{ tech.counts.quizQuestions }} questions)</a></li>
+          <li>
+            <a [routerLink]="['/quizzes', tech.slug]"
+              ><cma-icon name="patch-check" [size]="14" /> Quiz ({{
+                tech.counts.quizQuestions
+              }}
+              questions)</a
+            >
+          </li>
         }
         @if (tech.hasReference) {
-          <li><a [routerLink]="['/references', tech.slug]"><cma-icon name="journal-code" [size]="14" /> {{ tech.name }} reference</a></li>
+          <li>
+            <a [routerLink]="['/references', tech.slug]"
+              ><cma-icon name="journal-code" [size]="14" /> {{ tech.name }} reference</a
+            >
+          </li>
         }
       </ul>
     </section>
@@ -42,13 +79,15 @@
 }
 
 @if (related().length) {
-  <section class="cma-context__section" aria-labelledby="related-heading">
-    <h2 id="related-heading" class="cma-context__title">Related tutorials</h2>
+  <section class="cma-context__section" aria-labelledby="related-tutorials-heading">
+    <h2 id="related-tutorials-heading" class="cma-context__title">Related tutorials</h2>
     <ul class="list-unstyled cma-context__links mb-0">
       @for (item of related(); track item.slug) {
         <li>
           <a [routerLink]="['/tutorials', item.slug]">{{ item.name }}</a>
-          <span class="cma-context__status cma-context__status--{{ item.status }}">{{ item.status === 'in-progress' ? 'in progress' : item.status }}</span>
+          <span class="cma-context__status cma-context__status--{{ item.status }}">{{
+            item.status === 'in-progress' ? 'in progress' : item.status
+          }}</span>
         </li>
       }
     </ul>

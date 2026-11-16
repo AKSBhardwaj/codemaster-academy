@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "closing",
+  "title": "Close with a reason",
+  "summary": "WebSockets: Close with a reason. Use a different short close reason.",
+  "introduction": "A close frame can carry a code and short reason. Code 1000 means a normal close.",
+  "learningObjectives": [
+    "Close with a reason with WebSockets",
+    "Use a different short close reason"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Close with a reason"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Close with a reason",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.close(1000, \"Done\"));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"close\", (code, reason) => { console.log(code + \" \" + reason.toString()); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The server sends a normal-close code 1000 and reason Done. The client prints both from its close event."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "1000 Done"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a different short close reason."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A close event means messages can no longer be sent on that connection."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-closing-check"
+    }
+  ],
+  "exerciseIds": ["websockets-closing-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "ping-pong"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Close with a reason",
+    "description": "WebSockets: Close with a reason. Use a different short close reason. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

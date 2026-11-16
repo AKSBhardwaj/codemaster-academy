@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-dotnet",
+  "title": "Installing .NET and Creating a Project",
+  "summary": "Install the .NET 10 SDK, create a console project with dotnet new, understand the files it generates, and build and run it from the terminal.",
+  "introduction": "Everything in C# starts with the .NET SDK: one free download that contains the compiler, the runtime, the base library and the dotnet command. In this lesson you install it, check the version, create your first console project, look at what the template generated, and learn the three commands you will type hundreds of times: dotnet new, dotnet build and dotnet run. You also pick an editor with C# support.",
+  "learningObjectives": [
+    "Install the .NET SDK and verify it with dotnet --version",
+    "Create, build and run a console project from the terminal",
+    "Explain what Program.cs and the .csproj file contain"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install the .NET SDK"
+    },
+    {
+      "type": "paragraph",
+      "text": "Download the **.NET 10 SDK** from [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download) and run the installer. There are separate downloads for Windows, macOS (Intel and Apple silicon) and Linux; on most Linux distributions you can also install the `dotnet-sdk-10.0` package with the system package manager. The *SDK* includes everything you need to build; the smaller *Runtime* download only runs finished programs, so make sure you pick the SDK."
+    },
+    {
+      "type": "paragraph",
+      "text": "Open a new terminal (PowerShell, Terminal.app or any shell) after installing and check that the command is available:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "dotnet --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Example output",
+      "content": "10.0.100"
+    },
+    {
+      "type": "paragraph",
+      "text": "The exact number depends on the patch you installed; any `10.x` version works for this tutorial. If the terminal says the command is not found, close and reopen it so it picks up the updated `PATH`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create a console project"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `dotnet new` command creates projects from templates. `console` is the template for a command-line program, and `-n` sets the project name, which also becomes the folder name:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "dotnet new console -n HelloDotnet\ncd HelloDotnet"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Example output",
+      "content": "The template \"Console App\" was created successfully.\n\nProcessing post-creation actions...\nRestoring C:\\dev\\HelloDotnet\\HelloDotnet.csproj:\nRestore succeeded."
+    },
+    {
+      "type": "paragraph",
+      "text": "*Restoring* means downloading any NuGet packages the project depends on; a fresh console project needs none, so it finishes instantly. The folder now contains two files you care about plus a folder of build bookkeeping:"
+    },
+    {
+      "type": "table",
+      "headers": ["Item", "What it is"],
+      "rows": [
+        ["`Program.cs`", "Your source code. The template contains one statement."],
+        [
+          "`HelloDotnet.csproj`",
+          "The project file: an XML description of how to build the program."
+        ],
+        ["`obj/`", "Intermediate build files. Never edit them; it is safe to delete the folder."]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Program.cs"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Program.cs",
+      "code": "// See https://aka.ms/new-console-template for more information\nConsole.WriteLine(\"Hello, World!\");"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first line is a comment: anything after `//` up to the end of the line is ignored by the compiler. The second line is the top-level statement you met in the introduction."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "The project file"
+    },
+    {
+      "type": "code",
+      "language": "xml",
+      "title": "HelloDotnet.csproj",
+      "code": "<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n\n</Project>"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`OutputType` `Exe` builds a runnable program; class libraries use `Library`.",
+        "`TargetFramework` `net10.0` means the program needs the .NET 10 runtime and may use its whole API.",
+        "`ImplicitUsings` imports the common namespaces `System`, `System.Collections.Generic`, `System.IO`, `System.Linq`, `System.Net.Http`, `System.Threading` and `System.Threading.Tasks` into every file, so you rarely write `using` lines yourself.",
+        "`Nullable` turns on nullable reference types, which make the compiler warn when a value might be `null`. The [types lesson](/tutorials/csharp/types) explains this."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Build and run"
+    },
+    {
+      "type": "paragraph",
+      "text": "`dotnet run` compiles the project if anything changed and then starts it. Run it inside the project folder:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "dotnet run"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, World!"
+    },
+    {
+      "type": "paragraph",
+      "text": "To compile without running, for example to check for errors, use `dotnet build`. .NET 9 and later print a compact summary that ends with the path of the compiled assembly:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "dotnet build"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Example output (times vary)",
+      "content": "Restore complete (0.4s)\n  HelloDotnet succeeded (1.1s) → bin\\Debug\\net10.0\\HelloDotnet.dll\n\nBuild succeeded in 1.9s"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `.dll` under `bin/Debug/net10.0/` is the compiled Intermediate Language from the previous lesson. A native launcher (`HelloDotnet.exe` on Windows, `HelloDotnet` on macOS and Linux) sits next to it, so the program can also be started without `dotnet run`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Edit, save, run again"
+    },
+    {
+      "type": "paragraph",
+      "text": "Replace the contents of `Program.cs` with the program below, save, and run `dotnet run` again. The build notices the change automatically. `Console.ReadLine()` waits for you to type a line and press Enter; `Environment.Version` reports the runtime that is executing the program."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Program.cs",
+      "code": "Console.Write(\"Enter your name: \");\nstring name = Console.ReadLine() ?? \"friend\";\nConsole.WriteLine($\"Welcome to .NET {Environment.Version.Major}, {name}!\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output after typing Ada",
+      "content": "Enter your name: Ada\nWelcome to .NET 10, Ada!"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Console.Write` prints without moving to a new line, which is why the prompt and the typed name share a line. The `?? \"friend\"` part supplies a fallback if no line could be read; the [types lesson](/tutorials/csharp/types) covers this operator."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing an editor"
+    },
+    {
+      "type": "table",
+      "headers": ["Editor", "Notes"],
+      "rows": [
+        [
+          "Visual Studio Code with the C# Dev Kit extension",
+          "Free, cross-platform and lightweight; the usual beginner choice. The extension adds IntelliSense, debugging and a test explorer."
+        ],
+        [
+          "Visual Studio (Community edition)",
+          "Free full IDE for Windows with the richest debugger and visual designers."
+        ],
+        [
+          "JetBrains Rider",
+          "Cross-platform IDE with strong refactoring tools; free for non-commercial use."
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Any of them can open the folder you just created. The terminal commands keep working no matter which editor you pick, and this tutorial never needs more than the terminal."
+    },
+    {
+      "type": "callout",
+      "icon": "lightning-charge",
+      "title": "Run a single file",
+      "text": ".NET 10 can also run a lone `.cs` file without a project: save `Console.WriteLine(\"Hi\");` as `hello.cs` and type `dotnet run hello.cs`. It is handy for quick experiments; use a project for anything you keep."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Wrong folder",
+      "text": "`dotnet run` looks for a `.csproj` file in the current directory. Running it from the parent folder fails with *Couldn't find a project to run*. Always `cd` into the project folder first, or pass the path with `dotnet run --project HelloDotnet`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-setup-run-command"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-dotnet",
+          "difficulty": "beginner",
+          "question": "Which download do you need in order to compile C# programs?",
+          "explanation": "The SDK contains the compiler, the runtime and the dotnet tools. The Runtime alone only executes programs that are already built, and an editor is optional.",
+          "options": [
+            ".NET Runtime",
+            ".NET SDK",
+            "Visual Studio Code",
+            "ASP.NET Core Hosting Bundle"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-setup-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "setup-dotnet",
+          "difficulty": "beginner",
+          "question": "The template name that creates a command-line project is `dotnet new ___ -n MyApp`.",
+          "explanation": "`console` is the template for console applications; other templates include `classlib`, `web` and `xunit`.",
+          "answers": ["console"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-setup-run-command"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "testing-xunit"
+    }
+  ],
+  "seo": {
+    "title": "Install .NET 10 and Create a C# Console Project",
+    "description": "Install the .NET 10 SDK, create a console app with dotnet new, read Program.cs and the .csproj file, then build and run your C# program from the terminal."
+  },
+  "updatedOn": "2026-11-15"
+}

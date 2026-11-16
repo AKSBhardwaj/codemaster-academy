@@ -1,14 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import {
-  ACCOUNT_NAV_GUEST,
-  ACCOUNT_NAV_USER,
-  PRIMARY_NAV,
-  type NavItem,
-} from '../../../core/config/navigation';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { LEARNING_NAV, PRIMARY_NAV, type NavItem } from '../../../core/config/navigation';
 import { SITE_CONFIG } from '../../../core/config/site-config';
-import { AuthStore } from '../../../core/services/auth.store';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { SearchUiStore } from '../../../core/services/search-ui.store';
 import { IconComponent } from '../icon/icon';
@@ -39,11 +33,9 @@ import type { UiIconName } from '../../icons/ui-icons.generated';
 })
 export class NavbarComponent {
   protected readonly site = inject(SITE_CONFIG);
-  protected readonly auth = inject(AuthStore);
   protected readonly menuOpen = signal(false);
   private readonly catalog = inject(CatalogService);
   private readonly searchUi = inject(SearchUiStore);
-  private readonly router = inject(Router);
 
   /** Primary navigation with the technology categories appended to the Tutorials group. */
   protected readonly nav = computed<NavItem[]>(() =>
@@ -64,9 +56,7 @@ export class NavbarComponent {
         : item,
     ),
   );
-  protected readonly accountLinks = computed(() =>
-    this.auth.isAuthenticated() ? ACCOUNT_NAV_USER : ACCOUNT_NAV_GUEST,
-  );
+  protected readonly learningLinks = LEARNING_NAV;
 
   protected openSearch(): void {
     this.searchUi.open();
@@ -74,11 +64,5 @@ export class NavbarComponent {
 
   protected closeMenu(): void {
     this.menuOpen.set(false);
-  }
-
-  protected async logout(): Promise<void> {
-    this.closeMenu();
-    await this.auth.logout();
-    await this.router.navigateByUrl('/');
   }
 }

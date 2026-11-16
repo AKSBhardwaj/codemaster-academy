@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-component-styles-together",
+  "title": "Keep component styles together",
+  "summary": "Styles inside a shadow root usually apply to its internal elements.",
+  "introduction": "Styles inside a shadow root usually apply to its internal elements. Your task: Add a bold style to the internal paragraph.",
+  "learningObjectives": [
+    "Add a bold style to the internal paragraph.",
+    "Explain the example for keep component styles together"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Styles inside a shadow root usually apply to its internal elements. They do not select unrelated elements elsewhere on the page."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run these HTML examples in this site's HTML playground. Each example defines its own custom element in a fresh page. No extra JavaScript library is needed."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<p>Outside note</p><green-note></green-note>\n<script>\n  class GreenNote extends HTMLElement {\n    constructor() {\n      super();\n      this.attachShadow({ mode: \"open\" }).innerHTML = \"<style>p { color: green; }</style><p>Inside note</p>\";\n    }\n  }\n  customElements.define(\"green-note\", GreenNote);\n</script>",
+      "title": "Keep component styles together",
+      "runnable": true
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`customElements.define` registers a hyphenated tag name with its class. Register a given name only once per document.",
+        "`attachShadow` creates the component's internal shadow root. Open mode allows access through its `shadowRoot` property."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only Inside note gets this green rule. The outside paragraph keeps its own style."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "This example uses a fixed, trusted string. Do not build innerHTML from untrusted user text."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add a bold style to the internal paragraph."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-components-keep-component-styles-together-check"
+    }
+  ],
+  "exerciseIds": ["web-components-keep-component-styles-together-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-components",
+      "slug": "create-a-shadow-tree"
+    }
+  ],
+  "seo": {
+    "title": "Web Components: Keep component styles together",
+    "description": "Styles inside a shadow root usually apply to its internal elements. They do not select unrelated elements elsewhere on the page."
+  },
+  "updatedOn": "2026-11-16"
+}

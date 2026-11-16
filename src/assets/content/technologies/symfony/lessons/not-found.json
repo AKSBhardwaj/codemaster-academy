@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "not-found",
+  "title": "Send an error status",
+  "summary": "Symfony: Send an error status. Inspect the 404 status.",
+  "introduction": "The second JsonResponse argument is the status. Open GET /missing.",
+  "learningObjectives": ["Send an error status with Symfony", "Inspect the 404 status"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send an error status"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Send an error status",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/missing\", methods: [\"GET\"])]\npublic function missing(): JsonResponse { return new JsonResponse([\"error\" => \"Book not found\"], 404); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response constructor takes both the error data and the 404 status."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the 404 status."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not hide a missing item behind a 200 success status."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-not-found-check"
+    }
+  ],
+  "exerciseIds": ["symfony-not-found-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Send an error status",
+    "description": "Symfony: Send an error status. Inspect the 404 status. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

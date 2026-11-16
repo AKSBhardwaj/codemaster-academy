@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "slug": "effects",
+  "title": "Effects and Data Loading",
+  "summary": "An Effect helps a React component stay in step with something outside its normal page drawing.",
+  "introduction": "An Effect helps a React component stay in step with something outside its normal page drawing. For example, a part might start a timer and stop it when it is no longer needed. Learn both the setup step and the clean-up step.",
+  "learningObjectives": [
+    "Run code after render with useEffect and control when it re-runs with dependencies",
+    "Return a cleanup function for timers, listeners and subscriptions",
+    "Explain why Strict Mode runs effects twice in development",
+    "Load data in an effect without race conditions and recognize cases that need no effect"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What an effect is"
+    },
+    {
+      "type": "paragraph",
+      "text": "An effect is a function React calls after it has committed your JSX to the DOM. Because it runs after render, it may do things that would be wrong during render: read or change the DOM, start a timer, subscribe to something, send a request. The classic first example keeps the document title in sync with state."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Title.jsx",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction Title() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    document.title = `${count} new messages`;\n  }, [count]);\n\n  return <button onClick={() => setCount(count + 1)}>Add message</button>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Browser tab title after two clicks",
+      "content": "2 new messages"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dependencies decide when it runs"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second argument is the **dependency array**. After a render, React re-runs the effect only if one of the listed values changed (compared with `Object.is`). The array must list every prop, state or derived value the effect reads; the `react-hooks/exhaustive-deps` lint rule in the Vite template checks this for you."
+    },
+    {
+      "type": "table",
+      "headers": ["Second argument", "The effect runs"],
+      "rows": [
+        ["omitted", "after every render"],
+        ["`[]`", "once, after the first render (and again only if the component remounts)"],
+        ["`[a, b]`", "after the first render and whenever `a` or `b` changes"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Logger.jsx",
+      "code": "import { useEffect } from 'react';\n\nfunction Logger({ userId }) {\n  useEffect(() => {\n    console.log('after every render');\n  });\n\n  useEffect(() => {\n    console.log('once after mount');\n  }, []);\n\n  useEffect(() => {\n    console.log('userId is now', userId);\n  }, [userId]);\n\n  return <p>User {userId}</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console: userId changes from 1 to 2 in a production build",
+      "content": "after every render\nonce after mount\nuserId is now 1\nafter every render\nuserId is now 2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Cleanup"
+    },
+    {
+      "type": "paragraph",
+      "text": "Anything an effect starts must be stopped when the component unmounts, and also before the effect runs again with new dependencies. Return a function from the effect; React calls it at exactly those moments."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Clock.jsx",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction Clock() {\n  const [seconds, setSeconds] = useState(0);\n\n  useEffect(() => {\n    const id = setInterval(() => setSeconds((s) => s + 1), 1000);\n    return () => clearInterval(id);\n  }, []);\n\n  return <p>Running for {seconds} s</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After three seconds",
+      "content": "<p>Running for 3 s</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The updater form `setSeconds((s) => s + 1)` matters here: the interval callback was created once and would otherwise keep seeing the `seconds` value from the first render. Event listeners (`window.addEventListener`), subscriptions and an `AbortController` for requests follow the same start-in-effect, stop-in-cleanup shape."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: no cleanup, or an effect that never settles",
+      "text": "An interval without `clearInterval` keeps running after the component is gone, and in Strict Mode you get two of them, so the counter jumps by two every second. The other classic is an effect with no dependency array that calls a state setter: every render runs the effect, the setter causes a render, and the component loops forever. Always ask: what starts here, and what stops it?"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strict Mode runs effects twice"
+    },
+    {
+      "type": "paragraph",
+      "text": "In development, `<StrictMode>` mounts every component, runs its effects, immediately runs the cleanups, then runs the effects again. This simulates a component being hidden and shown and exposes effects whose cleanup is missing or wrong. It happens only in development, never in production."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "useEffect(() => {\n  console.log('subscribe');\n  return () => console.log('unsubscribe');\n}, []);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console in development with Strict Mode",
+      "content": "subscribe\nunsubscribe\nsubscribe"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the double log makes you want to remove Strict Mode, resist: an effect that cannot survive being run twice has a bug that will show up in production the moment the component remounts."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Loading data in an effect"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fetching is the most common effect, and the most common place for a subtle bug: if the dependencies change while a request is in flight, the old response may arrive after the new one and overwrite it. The fix is an `ignore` flag that the cleanup flips."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "UserList.jsx",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction UserList() {\n  const [users, setUsers] = useState([]);\n  const [status, setStatus] = useState('loading');\n\n  useEffect(() => {\n    let ignore = false;\n\n    fetch('https://jsonplaceholder.typicode.com/users?_limit=3')\n      .then((res) => {\n        if (!res.ok) throw new Error(`HTTP ${res.status}`);\n        return res.json();\n      })\n      .then((data) => {\n        if (!ignore) {\n          setUsers(data);\n          setStatus('ready');\n        }\n      })\n      .catch(() => {\n        if (!ignore) setStatus('error');\n      });\n\n    return () => {\n      ignore = true;\n    };\n  }, []);\n\n  if (status === 'loading') return <p>Loading…</p>;\n  if (status === 'error') return <p>Could not load users.</p>;\n\n  return (\n    <ul>\n      {users.map((user) => (\n        <li key={user.id}>{user.name}</li>\n      ))}\n    </ul>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "first render:    <p>Loading…</p>\nafter response:  <ul><li>Leanne Graham</li><li>Ervin Howell</li><li>Clementine Bauch</li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three states (loading, error, ready) cover every outcome, and the `ok` check matters because `fetch` only rejects on network failure, not on a 404 or 500. In Strict Mode this component sends the request twice during development; the first response is ignored thanks to the flag. The [data fetching lesson](/tutorials/react/data-fetching) shows how a library removes this boilerplate and adds caching."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "You might not need an effect"
+    },
+    {
+      "type": "paragraph",
+      "text": "Effects are for synchronizing with something **outside** React. Two kinds of code often end up in effects by mistake and belong elsewhere:"
+    },
+    {
+      "type": "table",
+      "headers": ["Situation", "Instead of an effect"],
+      "rows": [
+        [
+          "A value computed from props or state (a total, a filtered list)",
+          "Compute it during render, or with `useMemo` if it is expensive"
+        ],
+        ["Reacting to a user action (submit, click)", "Do the work in the event handler"],
+        [
+          "Resetting state when a prop changes",
+          "Give the component a `key` so it remounts, or compute the state from the prop"
+        ],
+        [
+          "Notifying the parent of a state change",
+          "Call the parent's callback in the same handler that sets the state"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A quick test: if you can describe the code as \"when X happens, do Y\" and X is a user event, write a handler. If it is \"keep Z in sync with the outside world\", it is an effect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-effects-cleanup"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-effects-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "effects",
+          "difficulty": "beginner",
+          "question": "When does an effect with `[]` as its dependency array run in a production build?",
+          "explanation": "An empty array means no dependency can ever change, so the effect runs once after the first render and its cleanup runs when the component unmounts.",
+          "options": [
+            "After every render",
+            "Once, after the component first renders",
+            "Before the first render",
+            "Only when state changes"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-effects-qc-2",
+          "type": "true-false",
+          "lessonSlug": "effects",
+          "difficulty": "intermediate",
+          "question": "`fetch` rejects its promise when the server responds with status 500.",
+          "explanation": "`fetch` only rejects on network errors. A 500 or 404 resolves normally with `response.ok === false`, which is why the examples check `ok` and throw.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-effects-cleanup"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "data-fetching"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "custom-hooks"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    }
+  ],
+  "seo": {
+    "title": "React useEffect – Dependencies, Cleanup and Data",
+    "description": "Learn useEffect in React 19: dependency arrays, cleanup, why Strict Mode runs effects twice, loading data without race conditions and when not to use an effect."
+  },
+  "updatedOn": "2026-11-16"
+}

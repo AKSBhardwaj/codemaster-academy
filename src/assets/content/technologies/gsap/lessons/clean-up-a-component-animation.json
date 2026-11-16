@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "clean-up-a-component-animation",
+  "title": "Clean up a component animation",
+  "summary": "A GSAP context can collect animations created for a component.",
+  "introduction": "A GSAP context can collect animations created for a component. Your task: Find the call that reverts the GSAP context.",
+  "learningObjectives": [
+    "Find the call that reverts the GSAP context.",
+    "Explain the example for clean up a component animation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A GSAP context can collect animations created for a component. Reverting it restores their styles and removes that animation work."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a browser project with GSAP 3 installed. Each example creates its own small box. Run one example at a time with a module build tool. GSAP is not loaded by this site's plain runner."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst context=gsap.context(()=>{gsap.to(box,{x:120,duration:1});});\nfunction removeFeature(){context.revert();box.remove();}\n// Call removeFeature when this component is removed.",
+      "title": "Clean up a component animation",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`textContent` reads or replaces plain text inside an element. It does not interpret the supplied words as HTML.",
+        "`createElement` makes a new element in memory. Append it to the document when you want it to appear.",
+        "`to` moves from the current values toward the values you supply. GSAP duration values are in seconds."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Cleanup reverts the tween's changes before removing its box."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A removed page part should not leave running tweens behind. Keep cleanup with the feature that owns the animation."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Find the call that reverts the GSAP context."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gsap-clean-up-a-component-animation-check"
+    }
+  ],
+  "exerciseIds": ["gsap-clean-up-a-component-animation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gsap",
+      "slug": "respect-reduced-motion"
+    }
+  ],
+  "seo": {
+    "title": "GSAP: Clean up a component animation",
+    "description": "A GSAP context can collect animations created for a component. Reverting it restores their styles and removes that animation work."
+  },
+  "updatedOn": "2026-11-16"
+}

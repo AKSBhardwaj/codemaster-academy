@@ -1,0 +1,156 @@
+{
+  "title": "Solidity Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-result",
+          "name": "Return a greeting",
+          "summary": "A contract groups functions and data. Call message() to read a greeting without changing stored data.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction message() external pure returns (string memory) { return \"Hello, Asha!\"; }\n}\n"
+          },
+          "notes": ["Use the practice VM; no wallet or real money is needed."],
+          "lessonSlug": "first-result"
+        },
+        {
+          "slug": "numbers",
+          "name": "Return a whole number",
+          "summary": "uint256 stores a nonnegative whole number. Call answer() to add two small counts.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { return 3 + 2; }\n}\n"
+          },
+          "notes": ["Unsigned numbers cannot represent negative values."],
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "state",
+          "name": "Read stored state",
+          "summary": "A state variable lives in contract storage. public creates a getter. Call score().",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nuint256 public score = 3;\n}\n"
+          },
+          "notes": ["Changing source code does not change a contract already deployed."],
+          "lessonSlug": "state"
+        },
+        {
+          "slug": "parameters",
+          "name": "Use a function input",
+          "summary": "A parameter is an input value. Call twice(4) in Remix.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction twice(uint256 n) external pure returns (uint256) { return n * 2; }\n}\n"
+          },
+          "notes": ["Very large products can overflow and revert in Solidity 0.8."],
+          "lessonSlug": "parameters"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "choices",
+          "name": "Choose a message",
+          "summary": "if selects a result based on a rule. Call message(8).",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction message(uint256 score) external pure returns (string memory) { if (score >= 5) return \"Pass\"; return \"Try again\"; }\n}\n"
+          },
+          "notes": ["Specify memory for this returned string."],
+          "lessonSlug": "choices"
+        },
+        {
+          "slug": "arrays",
+          "name": "Read an array item",
+          "summary": "A memory array is temporary data for the call. Call answer() to read its second item.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { uint256[] memory scores = new uint256[](2); scores[0] = 4; scores[1] = 8; return scores[1]; }\n}\n"
+          },
+          "notes": ["An index outside the array reverts the call."],
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "loops",
+          "name": "Add values in a loop",
+          "summary": "A for loop repeats steps. Call answer() to add 1, 2 and 3.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction answer() external pure returns (uint256) { uint256 total; for (uint256 n = 1; n <= 3; n++) { total += n; } return total; }\n}\n"
+          },
+          "notes": ["Unbounded loops can use too much gas in real transactions."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "enums",
+          "name": "Name a fixed choice",
+          "summary": "An enum names a small set of choices. Call answer() to read the chosen case number.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nenum Light { Red, Green }\nfunction answer() external pure returns (uint256) { return uint256(Light.Green); }\n}\n"
+          },
+          "notes": ["Enum case numbers start at zero."],
+          "lessonSlug": "enums"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "structs",
+          "name": "Group fields",
+          "summary": "A struct groups related fields. Call answer() to read a book page count.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nstruct Book { string title; uint256 pages; }\nfunction answer() external pure returns (uint256) { Book memory book = Book(\"Moon Trip\", 24); return book.pages; }\n}\n"
+          },
+          "notes": ["Choose memory for a temporary struct used only inside a call."],
+          "lessonSlug": "structs"
+        },
+        {
+          "slug": "mappings",
+          "name": "Read a mapping value",
+          "summary": "A mapping pairs keys with values. Unset integer keys return zero. Call scoreOf(1).",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nmapping(uint256 => uint256) public scoreOf;\n}\n"
+          },
+          "notes": ["A zero result does not tell you whether a key was ever written."],
+          "lessonSlug": "mappings"
+        },
+        {
+          "slug": "validation",
+          "name": "Reject an invalid input",
+          "summary": "require stops a call when its rule is false. Call check(0) to see the error.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nfunction check(uint256 amount) external pure returns (uint256) { require(amount > 0, \"Use a positive amount\"); return amount; }\n}\n"
+          },
+          "notes": ["A reverted call does not keep its state changes."],
+          "lessonSlug": "validation"
+        },
+        {
+          "slug": "view-functions",
+          "name": "Read state without changing it",
+          "summary": "view allows reading contract state. Call doubled() to read twice the stored score.",
+          "example": {
+            "language": "solidity",
+            "code": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\ncontract Lesson {\nuint256 private score = 4;\nfunction doubled() external view returns (uint256) { return score * 2; }\n}\n"
+          },
+          "notes": ["pure cannot read state; use view when state is needed."],
+          "lessonSlug": "view-functions"
+        }
+      ]
+    }
+  ]
+}

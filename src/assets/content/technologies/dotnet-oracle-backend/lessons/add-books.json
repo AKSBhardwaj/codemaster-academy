@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "slug": "add-books",
+  "title": "Add a book with POST",
+  "summary": "Send JSON to add a book, validate its title and return an Oracle identity ID. Learn how HTTP 201 and Location describe a new record.",
+  "introduction": "Now our reading club wants to add a book. POST means \"please create something here.\" We send a title and a read flag. The API checks them, Oracle saves a row, and the reply tells us which book was created.",
+  "learningObjectives": [
+    "Send a valid JSON request with PowerShell",
+    "Explain how Oracle returns the new ID",
+    "Use the created book returned by the API"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send one small request"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "$body = @{ title = \"My Space Adventure\"; isRead = $false } | ConvertTo-Json\n$created = Invoke-RestMethod http://localhost:5080/api/books `\n  -Method Post -ContentType \"application/json\" -Body $body\n$created",
+      "title": "Create a practice book",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The PowerShell backtick at the end of a line continues the same command. ConvertTo-Json turns our values into JSON. Content-Type tells the API what format the body uses. Keep $created for the next lesson; it contains the real new ID."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check before saving"
+    },
+    {
+      "type": "paragraph",
+      "text": "[ApiController] asks .NET to validate SaveBookRequest. An empty or space-only title, a title longer than 120 characters, or an invalid boolean gets HTTP 400. The action does not call the repository for an invalid request."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Insert and ask for the new ID"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "INSERT INTO reading_list_books (title, is_read)\nVALUES (:title, :is_read)\nRETURNING id INTO :new_id",
+      "title": "The create query",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Oracle fills the identity column. RETURNING puts that new number into an output parameter. We do not guess the next ID or ask for MAX(id), because another request could create a book at the same time."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var newId = command.Parameters.Add(\"new_id\", OracleDbType.Int64);\nnewId.Direction = ParameterDirection.Output;\nawait command.ExecuteNonQueryAsync(cancellationToken);\nvar id = ((OracleDecimal)newId.Value).ToInt64();\nawait transaction.CommitAsync(cancellationToken);",
+      "title": "The output parameter in CreateAsync",
+      "runnable": false,
+      "caption": "The complete method in BookRepository.cs creates the connection, transaction and input parameters before this excerpt."
+    },
+    {
+      "type": "paragraph",
+      "text": "OracleDecimal is the driver's representation of an Oracle NUMBER. Our table limits the ID to ten digits, so converting it to long is safe. CommitAsync saves the change before the repository returns the book."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reply with a useful address"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "return CreatedAtAction(nameof(Get), new { id = book.Id }, book);",
+      "title": "The controller's create reply",
+      "runnable": false,
+      "caption": "This line runs after the repository creates book. Get is the controller's one-book action."
+    },
+    {
+      "type": "paragraph",
+      "text": "CreatedAtAction sends HTTP 201, the book data, and a Location header for its GET address. The caller can immediately request that address. A generated ID can have gaps; that is normal."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "A lost reply does not always mean a failed save",
+      "text": "If the connection drops after Oracle saves the row, the browser may miss the reply. Refresh the list before sending the same POST again. This small sample does not have a system for removing duplicate retries."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use $created.id to request the new book. Check that the title matches what you sent. Then send an empty title and confirm that the API rejects it instead of adding a row."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-add-books-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-add-books-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "update-delete-books"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "read-books"
+    }
+  ],
+  "seo": {
+    "title": "Add a book with POST | C# .NET and Oracle",
+    "description": "Send JSON to add a book, validate its title and return an Oracle identity ID. Learn how HTTP 201 and Location describe a new record."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -8,7 +8,8 @@ export const REFERENCES_ROUTES: Routes = [
     data: {
       seo: {
         title: 'References',
-        description: 'Quick references for HTML tags, CSS properties, JavaScript methods, SQL statements and more.',
+        description:
+          'Quick references for HTML tags, CSS properties, JavaScript methods, SQL statements and more.',
       },
     },
   },

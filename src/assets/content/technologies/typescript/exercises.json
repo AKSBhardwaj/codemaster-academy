@@ -1,0 +1,269 @@
+{
+  "title": "TypeScript Exercises",
+  "description": "Practice every TypeScript lesson with multiple-choice questions, true-or-false statements, fill-in-the-blank prompts, output prediction, find-the-error puzzles and small coding tasks you complete locally with tsc or tsx.",
+  "exercises": [
+    {
+      "id": "ts-introduction-erased",
+      "type": "true-false",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Type labels stay in the JavaScript output and automatically check every new value while the program runs.",
+      "explanation": "Type labels are left out when TypeScript becomes JavaScript. They help check your code before it runs. Your program must still check outside data, such as the contents of a file.",
+      "correct": false
+    },
+    {
+      "id": "ts-introduction-compiler",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which tool can check TypeScript and turn it into JavaScript?",
+      "explanation": "The TypeScript compiler is called tsc. It can check the types and create JavaScript output. Browsers run that JavaScript after the type labels have been removed.",
+      "options": [
+        "A photo editor",
+        "The TypeScript compiler, tsc",
+        "A paper printer",
+        "The CSS colour picker"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "ts-setup-noemit",
+      "type": "fill-blank",
+      "lessonSlug": "setup",
+      "difficulty": "beginner",
+      "question": "To type-check a whole project without writing any JavaScript files, run `npx tsc ___`.",
+      "explanation": "The --noEmit flag runs the checker only. It is the right command for CI and for a quick check while developing, because tsx and Node's type stripping never report type errors.",
+      "answers": ["--noEmit", "noEmit"],
+      "caseSensitive": false
+    },
+    {
+      "id": "ts-basic-types-predict",
+      "type": "predict-output",
+      "lessonSlug": "basic-types",
+      "difficulty": "beginner",
+      "question": "What does this program print when run with `npx tsx`?",
+      "explanation": "Adding a string to a number is allowed and produces a string, exactly as in JavaScript; TypeScript infers label as string. typeof label is therefore \"string\" and the value is \"105\".",
+      "language": "typescript",
+      "code": "const count: number = 10;\nconst label = count + \"5\";\nconsole.log(typeof label, label);",
+      "options": [
+        "number 15",
+        "string 105",
+        "string 15",
+        "A compiler error: cannot add string to number"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "ts-basic-types-unknown",
+      "type": "find-error",
+      "lessonSlug": "basic-types",
+      "difficulty": "intermediate",
+      "question": "This function does not compile under strict mode. Why?",
+      "explanation": "unknown accepts any value but exposes nothing until it is narrowed. The compiler reports TS18046: 'input' is of type 'unknown'. Add a check such as if (typeof input === \"string\") before calling toUpperCase, and decide what to return otherwise.",
+      "language": "typescript",
+      "code": "function shout(input: unknown): string {\n  return input.toUpperCase();\n}",
+      "options": [
+        "`unknown` must be narrowed, for example with `typeof input === \"string\"`, before a string method can be called",
+        "`toUpperCase` is not a method of strings in TypeScript",
+        "The return type should be `unknown` to match the parameter",
+        "`unknown` is not allowed as a parameter type; only `any` is"
+      ],
+      "correctIndex": 0,
+      "errorLine": 2
+    },
+    {
+      "id": "ts-functions-format-name",
+      "type": "coding-task",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "question": "Complete `formatName` so that it returns \"First Last\", or just \"First\" when no last name is given, and returns the result in upper case when `upper` is true. Run the file with `npx tsx` and check the three printed lines.",
+      "explanation": "An optional parameter has the type string | undefined inside the body, so it must be checked before use. A parameter with a default value is also optional for callers but is never undefined inside the function. Keep the optional and default parameters after the required one.",
+      "language": "typescript",
+      "starterCode": "function formatName(first: string, last?: string, upper = false): string {\n  return first;\n}\n\nconsole.log(formatName(\"Ada\"));\nconsole.log(formatName(\"Ada\", \"Lovelace\"));\nconsole.log(formatName(\"Ada\", \"Lovelace\", true));",
+      "solutionCode": "function formatName(first: string, last?: string, upper = false): string {\n  const full = last === undefined ? first : `${first} ${last}`;\n  return upper ? full.toUpperCase() : full;\n}\n\nconsole.log(formatName(\"Ada\"));\nconsole.log(formatName(\"Ada\", \"Lovelace\"));\nconsole.log(formatName(\"Ada\", \"Lovelace\", true));",
+      "checklist": [
+        "The function checks whether `last` is undefined before building the full name",
+        "The result is passed through `toUpperCase()` only when `upper` is true",
+        "`npx tsc --noEmit` reports no errors for the file",
+        "The program prints Ada, then Ada Lovelace, then ADA LOVELACE"
+      ]
+    },
+    {
+      "id": "ts-objects-interfaces-excess",
+      "type": "find-error",
+      "lessonSlug": "objects-interfaces",
+      "difficulty": "beginner",
+      "question": "The compiler rejects this object literal. What is wrong?",
+      "explanation": "A fresh object literal assigned to a typed variable may only contain known properties. author is not declared in Book, so tsc reports TS2353. Either add author to the interface (optionally with ?) or remove it from the literal.",
+      "language": "typescript",
+      "code": "interface Book {\n  title: string;\n  pages: number;\n}\n\nconst novel: Book = {\n  title: \"Dune\",\n  pages: 412,\n  author: \"Frank Herbert\",\n};",
+      "options": [
+        "`author` is not declared in `Book`, so the excess property check rejects it",
+        "`pages` must be a string because it is a count",
+        "Interfaces cannot be used to type object literals; use `type` instead",
+        "The property names must be quoted inside an object literal"
+      ],
+      "correctIndex": 0,
+      "errorLine": 9
+    },
+    {
+      "id": "ts-type-aliases-unions-predict",
+      "type": "predict-output",
+      "lessonSlug": "type-aliases-unions",
+      "difficulty": "intermediate",
+      "question": "What does this program print?",
+      "explanation": "Each typeof check narrows value to one member of the union. \"hey\" has length 3, 21 doubled is 42, and false reaches the last line where the ternary returns \"no\".",
+      "language": "typescript",
+      "code": "type Input = string | number | boolean;\n\nfunction describe(value: Input): string {\n  if (typeof value === \"string\") return `text(${value.length})`;\n  if (typeof value === \"number\") return `num(${value * 2})`;\n  return value ? \"yes\" : \"no\";\n}\n\nconsole.log([describe(\"hey\"), describe(21), describe(false)].join(\" \"));",
+      "options": [
+        "text(3) num(42) no",
+        "text(hey) num(21) false",
+        "A compiler error, because `value.length` is not valid on a union",
+        "text(3) num(42) yes"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "ts-arrays-tuples-tuple",
+      "type": "fill-blank",
+      "lessonSlug": "arrays-tuples",
+      "difficulty": "beginner",
+      "question": "An array type with a fixed length and a specific type for each position, such as `[string, number]`, is called a ___.",
+      "explanation": "A tuple fixes both the length and the type at each index, which makes it ideal for returning several values from a function and destructuring them with the right types.",
+      "answers": ["tuple", "tuple type"],
+      "caseSensitive": false
+    },
+    {
+      "id": "ts-enums-literals-predict",
+      "type": "predict-output",
+      "lessonSlug": "enums-literals",
+      "difficulty": "intermediate",
+      "question": "What does this program print?",
+      "explanation": "Numeric enum members without an initialiser continue from the previous value, so Medium is 2 and High is 3. Numeric enums also get a reverse mapping, so Priority[2] is the string \"Medium\".",
+      "language": "typescript",
+      "code": "enum Priority {\n  Low = 1,\n  Medium,\n  High,\n}\n\nconsole.log(Priority.High, Priority[2]);",
+      "options": ["3 Medium", "2 Medium", "High 2", "3 undefined"],
+      "correctIndex": 0
+    },
+    {
+      "id": "ts-classes-private",
+      "type": "true-false",
+      "lessonSlug": "classes",
+      "difficulty": "intermediate",
+      "question": "A property declared with TypeScript's `private` keyword cannot be read from outside the class once the code is compiled and running.",
+      "explanation": "The private modifier is checked only by the compiler. In the emitted JavaScript the property is ordinary and can be read with a cast such as (obj as any).secret or listed by Object.keys. Use JavaScript's #private fields for a runtime guarantee.",
+      "correct": false
+    },
+    {
+      "id": "ts-generics-last-of",
+      "type": "coding-task",
+      "lessonSlug": "generics",
+      "difficulty": "intermediate",
+      "question": "Make `lastOf` and `pairUp` generic. `lastOf` returns the last element of any array (or `undefined` when it is empty) and `pairUp` returns a tuple of its two arguments, each keeping its own type. The file must compile under strict mode without `any`.",
+      "explanation": "A type parameter captures the element type at each call, so lastOf([1, 2, 3]) returns number | undefined and lastOf([\"x\"]) returns string | undefined. pairUp needs two parameters so that the tuple records both types independently.",
+      "language": "typescript",
+      "starterCode": "function lastOf(items: unknown[]): unknown {\n  return items[items.length - 1];\n}\n\nfunction pairUp(first: unknown, second: unknown): unknown[] {\n  return [first, second];\n}\n\nconst lastNumber = lastOf([1, 2, 3]);\nconst lastWord = lastOf([\"x\", \"y\"]);\nconst pair = pairUp(\"age\", 36);\n\nconsole.log(lastNumber, lastWord, pair, lastOf([]));",
+      "solutionCode": "function lastOf<T>(items: T[]): T | undefined {\n  return items[items.length - 1];\n}\n\nfunction pairUp<A, B>(first: A, second: B): [A, B] {\n  return [first, second];\n}\n\nconst lastNumber = lastOf([1, 2, 3]);\nconst lastWord = lastOf([\"x\", \"y\"]);\nconst pair = pairUp(\"age\", 36);\n\nconsole.log(lastNumber, lastWord, pair, lastOf([]));",
+      "checklist": [
+        "`lastOf` declares a type parameter `T` and takes `items: T[]`",
+        "`lastOf` returns `T | undefined`, not `T`, `unknown` or `any`",
+        "`pairUp` declares two type parameters and returns the tuple type `[A, B]`",
+        "Hovering `pair` in the editor shows `[string, number]`",
+        "The program prints 3 y [ 'age', 36 ] undefined"
+      ]
+    },
+    {
+      "id": "ts-narrowing-vehicles",
+      "type": "coding-task",
+      "lessonSlug": "narrowing",
+      "difficulty": "intermediate",
+      "question": "Complete `describe` so that it handles every member of the `Vehicle` union with a `switch` on `kind`, returning \"car with N doors\", \"electric bike\" or \"bike\", and \"bus for N passengers\". Add a `default` branch that assigns the vehicle to a `never` variable so that a future fourth kind becomes a compile error.",
+      "explanation": "Switching on the discriminant narrows vehicle in each case, so vehicle.doors, vehicle.electric and vehicle.seats are available where they exist. In the default branch the remaining type is never once all cases are handled; assigning it to a never variable turns a forgotten case into a TS2322 error.",
+      "language": "typescript",
+      "starterCode": "type Vehicle =\n  | { kind: \"car\"; doors: number }\n  | { kind: \"bike\"; electric: boolean }\n  | { kind: \"bus\"; seats: number };\n\nfunction describe(vehicle: Vehicle): string {\n  switch (vehicle.kind) {\n    case \"car\":\n      return `car with ${vehicle.doors} doors`;\n  }\n}\n\nconsole.log(describe({ kind: \"car\", doors: 5 }));\nconsole.log(describe({ kind: \"bike\", electric: true }));\nconsole.log(describe({ kind: \"bus\", seats: 40 }));",
+      "solutionCode": "type Vehicle =\n  | { kind: \"car\"; doors: number }\n  | { kind: \"bike\"; electric: boolean }\n  | { kind: \"bus\"; seats: number };\n\nfunction describe(vehicle: Vehicle): string {\n  switch (vehicle.kind) {\n    case \"car\":\n      return `car with ${vehicle.doors} doors`;\n    case \"bike\":\n      return vehicle.electric ? \"electric bike\" : \"bike\";\n    case \"bus\":\n      return `bus for ${vehicle.seats} passengers`;\n    default: {\n      const unreachable: never = vehicle;\n      return unreachable;\n    }\n  }\n}\n\nconsole.log(describe({ kind: \"car\", doors: 5 }));\nconsole.log(describe({ kind: \"bike\", electric: true }));\nconsole.log(describe({ kind: \"bus\", seats: 40 }));",
+      "checklist": [
+        "There is a `case` for \"car\", \"bike\" and \"bus\" and each uses only the properties of that member",
+        "The `default` branch assigns `vehicle` to a variable typed `never`",
+        "Adding a fourth member to `Vehicle` without a case makes `npx tsc --noEmit` fail",
+        "The program prints car with 5 doors, electric bike, and bus for 40 passengers"
+      ]
+    },
+    {
+      "id": "ts-utility-types-pick",
+      "type": "multiple-choice",
+      "lessonSlug": "utility-types",
+      "difficulty": "beginner",
+      "question": "Given `interface Task { id: number; title: string; done: boolean }`, which type has exactly the properties `id` and `title`?",
+      "explanation": "Pick keeps the listed keys. Omit with the same keys would keep only done, Partial keeps all three as optional, and Record builds an object whose values are whole Task objects.",
+      "options": [
+        "`Pick<Task, \"id\" | \"title\">`",
+        "`Omit<Task, \"id\" | \"title\">`",
+        "`Partial<Task>`",
+        "`Record<\"id\" | \"title\", Task>`"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "ts-modules-extension",
+      "type": "find-error",
+      "lessonSlug": "modules",
+      "difficulty": "intermediate",
+      "question": "The project uses `\"module\": \"nodenext\"` and its package.json contains `\"type\": \"module\"`. The file `src/text.ts` exists and exports `slugify`. Why does this file fail to compile?",
+      "explanation": "Under nodenext with ES modules, relative imports must use the path that exists after compilation, including the .js extension. tsc reports TS2835 and suggests ./text.js.",
+      "language": "typescript",
+      "code": "import { slugify } from \"./text\";\n\nconsole.log(slugify(\"Hello World\"));",
+      "options": [
+        "The relative import must include the `.js` extension: `\"./text.js\"`",
+        "Named imports are not allowed for local files; a default import is required",
+        "`slugify` must be imported with `import type`",
+        "The path must start with `/src` to be resolved"
+      ],
+      "correctIndex": 0,
+      "errorLine": 1
+    },
+    {
+      "id": "ts-async-types-await",
+      "type": "find-error",
+      "lessonSlug": "async-types",
+      "difficulty": "intermediate",
+      "question": "The compiler reports `Property 'toFixed' does not exist on type 'Promise<number>'` for this file. What is the mistake?",
+      "explanation": "loadTotal is async, so calling it returns a Promise<number>. Without await, total is the promise itself, which has no toFixed method. Write const total = await loadTotal(); the compiler even hints: Did you forget to use 'await'?",
+      "language": "typescript",
+      "code": "async function loadTotal(): Promise<number> {\n  return 42;\n}\n\nasync function main(): Promise<void> {\n  const total = loadTotal();\n  console.log(total.toFixed(2));\n}\n\nmain();",
+      "options": [
+        "`loadTotal()` returns a promise; it must be awaited before `toFixed` can be called on the number",
+        "An `async` function cannot return a number",
+        "`toFixed` only exists on strings",
+        "`main` must return the total instead of logging it"
+      ],
+      "correctIndex": 0,
+      "errorLine": 6
+    },
+    {
+      "id": "ts-strict-config-flag",
+      "type": "fill-blank",
+      "lessonSlug": "strict-config",
+      "difficulty": "intermediate",
+      "question": "The flag inside `strict` that makes `null` and `undefined` separate types and produces errors such as `'x' is possibly 'undefined'` is `___`.",
+      "explanation": "strictNullChecks is the single most valuable strict flag: it forces every possibly-missing value to be checked before use and prevents the classic Cannot read properties of undefined crash.",
+      "answers": ["strictNullChecks"],
+      "caseSensitive": false
+    },
+    {
+      "id": "ts-declaration-files-types",
+      "type": "multiple-choice",
+      "lessonSlug": "declaration-files",
+      "difficulty": "beginner",
+      "question": "You import `lodash` and tsc reports `TS7016: Could not find a declaration file for module 'lodash'`. What is the usual fix?",
+      "explanation": "lodash is written in JavaScript and its types are maintained on DefinitelyTyped. Installing @types/lodash as a dev dependency gives the compiler the declarations it needs. Writing declare module 'lodash'; would compile but type everything as any.",
+      "options": [
+        "Install the community types: `npm install --save-dev @types/lodash`",
+        "Rename your file from `.ts` to `.js`",
+        "Set `\"strict\": false` in tsconfig.json",
+        "Copy lodash's source into your `src` folder"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

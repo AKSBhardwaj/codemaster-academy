@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-table-for-one-question",
+  "title": "Design a table for one question",
+  "summary": "The partition key chooses a group of rows stored together.",
+  "introduction": "The partition key chooses a group of rows stored together. Your task: State the question this table can answer efficiently.",
+  "learningObjectives": [
+    "State the question this table can answer efficiently.",
+    "Explain the example for design a table for one question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The partition key chooses a group of rows stored together. A clustering column orders rows inside that partition."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS reading_by_reader(reader_id text,day date,title text,pages int,PRIMARY KEY((reader_id),day)) WITH CLUSTERING ORDER BY(day DESC);",
+      "title": "Design a table for one question",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ORDER BY` chooses a result order. Include a tie-break field when equal values need a stable order.",
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key.",
+        "Clustering order sorts rows within one Cassandra partition, not across every partition in the cluster."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The table groups a reader's entries by reader_id and orders that reader's days newest first."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "This schema allows one row per reader per day. Add another key part if multiple entries per day must be distinct."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "State the question this table can answer efficiently."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-design-a-table-for-one-question-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-design-a-table-for-one-question-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Design a table for one question",
+    "description": "The partition key chooses a group of rows stored together. A clustering column orders rows inside that partition."
+  },
+  "updatedOn": "2026-11-16"
+}

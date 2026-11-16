@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "write-text",
+  "title": "Ask Linux to write text",
+  "summary": "Assembly: Ask Linux to write text. Change Hi to Hey and change the length to 4.",
+  "introduction": "The write system call uses rax=1, rdi=1 for standard output, an address in rsi and a length in rdx.",
+  "learningObjectives": [
+    "Ask Linux to write text with Assembly",
+    "Change Hi to Hey and change the length to 4"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask Linux to write text"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Ask Linux to write text",
+      "code": "global _start\nsection .data\nmessage: db \"Hi\", 10\nsection .text\n_start:\n    mov rax, 1\n    mov rdi, 1\n    lea rsi, [rel message]\n    mov rdx, 3\n    syscall\n    mov rdi, 0\n    mov rax, 60\n    syscall",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The data contains two letters and one newline byte. Linux writes three bytes, then exits with zero."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hi\nexit code: 0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change Hi to Hey and change the length to 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The length counts bytes, including the newline byte."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-write-text-check"
+    }
+  ],
+  "exerciseIds": ["assembly-write-text-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "calls"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Ask Linux to write text",
+    "description": "Assembly: Ask Linux to write text. Change Hi to Hey and change the length to 4. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

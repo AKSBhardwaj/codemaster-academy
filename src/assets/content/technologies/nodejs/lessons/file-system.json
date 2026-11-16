@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "file-system",
+  "title": "Working with Files",
+  "summary": "Read, write and append text files with node:fs/promises, build paths that work from any folder, handle missing files, list directories and keep data in a JSON file.",
+  "introduction": "Servers read configuration, write logs, accept uploads and cache results; scripts rename, convert and clean up files. All of that goes through the `node:fs` module. This lesson uses its promise-based API, which fits naturally with `async`/`await`, and covers the handful of operations you need most, plus the two mistakes nearly everyone makes once: forgetting the text encoding and assuming a relative path is relative to the script.",
+  "learningObjectives": [
+    "Read, write and append files asynchronously with node:fs/promises",
+    "Build reliable paths with node:path and import.meta.dirname",
+    "Handle missing files, create folders, list directory contents and store JSON data"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading and writing text"
+    },
+    {
+      "type": "paragraph",
+      "text": "`node:fs/promises` exports functions that return promises. `writeFile` creates or replaces a file, `appendFile` adds to the end, and `readFile` returns the contents. Passing `'utf8'` as the encoding turns the raw bytes into a string:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "todo.js",
+      "code": "import { writeFile, appendFile, readFile } from 'node:fs/promises';\n\nawait writeFile('todo.txt', 'Buy milk\\n');\nawait appendFile('todo.txt', 'Call Ada\\n');\n\nconst text = await readFile('todo.txt', 'utf8');\nconsole.log(text);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node todo.js",
+      "content": "Buy milk\nCall Ada"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting the encoding",
+      "text": "Without `'utf8'`, `readFile` resolves with a **Buffer**, Node's type for raw bytes, and `console.log` prints `<Buffer 42 75 79 20 6d 69 6c 6b 0a 43 61 6c 6c 20 41 64 61 0a>` instead of your text. Buffers are right for images and archives; for anything you want to read as text, pass the encoding or call `.toString()`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Paths that work from any folder"
+    },
+    {
+      "type": "paragraph",
+      "text": "A relative path such as `'todo.txt'` is resolved against the **current working directory**: the folder your terminal was in when you ran `node`, not the folder that contains the script. Running `node src/todo.js` from the project root therefore creates `todo.txt` in the root, and running the same script from another folder creates it somewhere else. For files that belong to the program, anchor the path to the module's own folder with `import.meta.dirname` and join the pieces with `node:path`, which also uses the right separator on Windows:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "where.js",
+      "code": "import { join, resolve, basename, extname } from 'node:path';\n\nconst dataFile = join(import.meta.dirname, 'data', 'books.json');\n\nconsole.log(dataFile);\nconsole.log(basename(dataFile), extname(dataFile));\nconsole.log(resolve('todo.txt'));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node where.js, run from /home/ada/bookshelf",
+      "content": "/home/ada/bookshelf/data/books.json\nbooks.json .json\n/home/ada/bookshelf/todo.txt"
+    },
+    {
+      "type": "paragraph",
+      "text": "`resolve` turns a relative path into an absolute one using the working directory, which is exactly what `readFile('todo.txt')` does internally; printing it is a quick way to see where a file will really end up."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling a missing file"
+    },
+    {
+      "type": "paragraph",
+      "text": "File operations fail for everyday reasons: the file is not there yet, the folder is read-only, a disk is full. The rejected promise carries an error whose `code` property names the cause; `ENOENT` means *no such file or directory*. Check the code so that you handle the expected case and let anything unexpected crash loudly:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "settings.js",
+      "code": "import { readFile } from 'node:fs/promises';\n\ntry {\n  const text = await readFile('settings.txt', 'utf8');\n  console.log('Settings:', text);\n} catch (error) {\n  if (error.code === 'ENOENT') {\n    console.log('No settings file yet, using defaults');\n  } else {\n    throw error;\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node settings.js (before settings.txt exists)",
+      "content": "No settings file yet, using defaults"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Folders and directory listings"
+    },
+    {
+      "type": "paragraph",
+      "text": "`mkdir` with `recursive: true` creates a whole chain of folders and does not complain if they already exist. `readdir` lists a folder; with `withFileTypes: true` each entry knows whether it is a file or a directory, which saves a `stat` call per entry. The operating system decides the order of the listing, so sort it when the order matters:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "reports.js",
+      "code": "import { mkdir, writeFile, readdir, stat } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst root = join(import.meta.dirname, 'reports');\nawait mkdir(join(root, '2026'), { recursive: true });\nawait writeFile(join(root, 'summary.txt'), 'Three reports this year\\n');\nawait writeFile(join(root, '2026', 'november.txt'), 'Sales were up\\n');\n\nconst entries = await readdir(root, { withFileTypes: true });\nentries.sort((a, b) => a.name.localeCompare(b.name));\n\nfor (const entry of entries) {\n  if (entry.isDirectory()) {\n    console.log(`[dir]  ${entry.name}`);\n  } else {\n    const info = await stat(join(root, entry.name));\n    console.log(`[file] ${entry.name} (${info.size} bytes)`);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node reports.js",
+      "content": "[dir]  2026\n[file] summary.txt (24 bytes)"
+    },
+    {
+      "type": "paragraph",
+      "text": "`stat` returns size, timestamps (`mtime` is the last modification) and the same `isFile()`/`isDirectory()` checks. To delete, use `rm(path)` for a file and `rm(path, { recursive: true, force: true })` for a folder tree; `force` suppresses the error when the target does not exist."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A JSON data file"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before reaching for a database, many small tools keep their data in a JSON file. The pattern is always the same: read and parse (treating a missing file as empty), change the array in memory, then serialise and write the whole file back. `JSON.stringify(notes, null, 2)` indents the output so that the file stays readable in an editor:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "notes.js",
+      "code": "import { readFile, writeFile } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst file = join(import.meta.dirname, 'notes.json');\n\nasync function loadNotes() {\n  try {\n    return JSON.parse(await readFile(file, 'utf8'));\n  } catch (error) {\n    if (error.code === 'ENOENT') return [];\n    throw error;\n  }\n}\n\nconst notes = await loadNotes();\nnotes.push({ id: notes.length + 1, text: process.argv[2] ?? 'Untitled note' });\nawait writeFile(file, JSON.stringify(notes, null, 2) + '\\n');\nconsole.log(`Saved ${notes.length} note(s) to notes.json`);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node notes.js \"Read about streams\"\nnode notes.js \"Try node:sqlite\""
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Saved 1 note(s) to notes.json\nSaved 2 note(s) to notes.json"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "notes.json after both runs",
+      "content": "[\n  {\n    \"id\": 1,\n    \"text\": \"Read about streams\"\n  },\n  {\n    \"id\": 2,\n    \"text\": \"Try node:sqlite\"\n  }\n]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Synchronous functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every function above has a synchronous twin in `node:fs`: `readFileSync`, `writeFileSync`, `mkdirSync`, `existsSync` and so on. They block the whole process until the disk answers, which is harmless in a short script or while a server is starting up (loading a config file before `listen`), and harmful inside a request handler, where one slow read freezes every other request. Rule of thumb: synchronous at startup, asynchronous once the program is serving."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Large files",
+      "text": "`readFile` loads the entire file into memory. For logs, exports and uploads that may be gigabytes, read them piece by piece with streams; the [next lesson](/tutorials/nodejs/events-streams) shows how."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-file-system-write-json"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-fs-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "file-system",
+          "difficulty": "beginner",
+          "question": "You run `node tools/export.js` from the project root. Where does `writeFile('out.csv', data)` create the file?",
+          "explanation": "Relative paths resolve against the current working directory (the folder the terminal was in), not against the script's folder. Use import.meta.dirname to anchor paths to the script.",
+          "options": [
+            "In the `tools` folder",
+            "In the project root",
+            "In the user's home folder",
+            "It throws because the path is relative"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-fs-qc-2",
+          "type": "true-false",
+          "lessonSlug": "file-system",
+          "difficulty": "beginner",
+          "question": "`mkdir('a/b/c', { recursive: true })` throws if the folder `a` already exists.",
+          "explanation": "With recursive: true, mkdir creates whichever parts of the chain are missing and succeeds silently when the folders already exist.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-file-system-write-json"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "modules"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "events-streams"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    }
+  ],
+  "seo": {
+    "title": "Node.js File System – Read, Write and List Files with fs",
+    "description": "Read, write and append files with node:fs/promises, build paths with import.meta.dirname, handle ENOENT, list folders and keep data in a JSON file."
+  },
+  "updatedOn": "2026-11-15"
+}

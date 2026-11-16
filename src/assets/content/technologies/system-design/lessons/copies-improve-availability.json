@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "slug": "copies-improve-availability",
+  "title": "Copies improve availability",
+  "summary": "Use replicas to keep extra data copies, then trace a delayed update and a failed leader. Learn why replicas still need backups and safe failover.",
+  "introduction": "A second librarian has a copy of the book list. If one desk closes, another may help. Keeping computer copies can also help, but the copies need rules for receiving changes and deciding who is allowed to write.",
+  "learningObjectives": [
+    "Describe a leader and a replica",
+    "Explain the difference between synchronous and asynchronous copies",
+    "Separate replication, failover, and backup plans"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Replication** keeps copies of data on different machines. A common plan has one **leader** accept writes, then send changes to **replicas**. Other designs exist, but we will start with this one."
+    },
+    {
+      "type": "paragraph",
+      "text": "With **asynchronous replication**, the leader may reply before a replica receives the change. This can be faster, but a replica can be behind. The delay is called **replication lag**."
+    },
+    {
+      "type": "paragraph",
+      "text": "With **synchronous replication**, the success rule waits for the required copies to confirm. That adds waiting and may block progress when those copies cannot be reached. The exact guarantee depends on what the confirmations mean."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The leader and replica both start with 2 available copies of a book.",
+        "A borrower takes one. The leader writes 1 and replies; the replica still shows 2 for a short time.",
+        "The replica receives the update and shows 1.",
+        "If the leader fails before that copy arrives, promoting the lagging replica can lose an acknowledged update under this asynchronous plan."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "ASYNCHRONOUS COPY TRACE\nTime 0: leader = 2; replica = 2\nTime 1: leader records checkout; leader = 1\nTime 2: leader replies \"saved\"; replica is still 2\nTime 3: replica applies update; replica = 1\n\nFAILOVER QUESTIONS\nWhich copy is up to date enough to become leader?\nWho decides, and how is the old leader stopped from writing?\nWhat data loss and recovery delay can the library accept?",
+      "title": "Copies improve availability plan",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "**Failover** means switching work to a replacement after a failure. A safe plan must prevent the old and new leaders from both accepting conflicting writes. That problem is often called split brain."
+    },
+    {
+      "type": "paragraph",
+      "text": "Replicas should be in useful separate failure locations when the requirements call for it. Two copies on one failed disk cannot help each other. Even separate machines may share a power or network failure."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Asynchronous copies",
+          "Can reply without waiting for every copy",
+          "Readers can see old data; failover may lose recent writes"
+        ],
+        [
+          "Synchronous success rule",
+          "Can protect acknowledged writes across required copies",
+          "Needs extra waiting and a plan when copies are unreachable"
+        ],
+        [
+          "Backups with restore tests",
+          "Can recover older data after a bad change",
+          "Restore takes time and depends on backup freshness"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "A mistaken delete can quickly spread to every replica. A **backup** keeps recoverable data from an earlier time. Replication is not a replacement for backups."
+    },
+    {
+      "type": "paragraph",
+      "text": "Test how the service detects failure, changes leaders, and routes readers afterward. A replica that exists but has never been tested as a replacement is an incomplete recovery plan."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Move the leader failure from after time 3 to just after time 2. What risk changes?",
+        "The replica may still show 2. The acknowledged checkout may be missing after promotion, so this plan needs an acceptable data-loss limit or a stronger write rule."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not call a replica a backup. A copy that immediately repeats a bad delete cannot by itself restore yesterday's good data."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-copies-improve-availability"
+    }
+  ],
+  "exerciseIds": ["system-design-copies-improve-availability"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "consistency-describes-agreement"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Copies improve availability",
+    "description": "Use replicas to keep extra data copies, then trace a delayed update and a failed leader. Learn why replicas still need backups and safe failover."
+  },
+  "updatedOn": "2026-11-16"
+}

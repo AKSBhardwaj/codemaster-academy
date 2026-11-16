@@ -35,24 +35,22 @@ export const tocEntrySchema = z.strictObject({
 export type TocEntry = z.infer<typeof tocEntrySchema>;
 
 /** Compiled shape served at /assets/content/technologies/<slug>/lessons/<lesson>.json */
-export const lessonSchema = lessonSourceSchema
-  .omit({ blocks: true, relatedLessons: true })
-  .extend({
-    id: z.string(),
-    technologySlug: slugSchema,
-    technologyName: z.string(),
-    order: z.number().int().positive(),
-    categoryId: slugSchema,
-    categoryTitle: z.string(),
-    readingTimeMinutes: z.number().int().positive(),
-    blocks: z.array(contentBlockSchema),
-    toc: z.array(tocEntrySchema),
-    relatedLessons: z.array(lessonRefSchema),
-    previousLesson: lessonRefSchema.nullable(),
-    nextLesson: lessonRefSchema.nullable(),
-    hasExerciseSet: z.boolean(),
-    hasQuiz: z.boolean(),
-  });
+export const lessonSchema = lessonSourceSchema.omit({ blocks: true, relatedLessons: true }).extend({
+  id: z.string(),
+  technologySlug: slugSchema,
+  technologyName: z.string(),
+  order: z.number().int().positive(),
+  categoryId: slugSchema,
+  categoryTitle: z.string(),
+  readingTimeMinutes: z.number().int().positive(),
+  blocks: z.array(contentBlockSchema),
+  toc: z.array(tocEntrySchema),
+  relatedLessons: z.array(lessonRefSchema),
+  previousLesson: lessonRefSchema.nullable(),
+  nextLesson: lessonRefSchema.nullable(),
+  hasExerciseSet: z.boolean(),
+  hasQuiz: z.boolean(),
+});
 export type Lesson = z.infer<typeof lessonSchema>;
 
 export const lessonSummarySchema = z.strictObject({
@@ -109,7 +107,9 @@ export const referenceEntrySchema = z.strictObject({
   name: z.string().min(1).max(60),
   summary: z.string().min(20).max(300),
   syntax: z.string().max(300).optional(),
-  example: z.strictObject({ language: z.string().min(1), code: z.string().min(1).max(2000) }).optional(),
+  example: z
+    .strictObject({ language: z.string().min(1), code: z.string().min(1).max(2000) })
+    .optional(),
   notes: z.array(z.string().min(5).max(240)).max(6).optional(),
   lessonSlug: slugSchema.optional(),
 });
@@ -124,7 +124,10 @@ export const referenceSourceSchema = z.strictObject({
   groups: z.array(referenceGroupSchema).min(1).max(20),
 });
 export type ReferenceSource = z.infer<typeof referenceSourceSchema>;
-export const referenceSchema = referenceSourceSchema.extend({ technologySlug: slugSchema, technologyName: z.string() });
+export const referenceSchema = referenceSourceSchema.extend({
+  technologySlug: slugSchema,
+  technologyName: z.string(),
+});
 export type Reference = z.infer<typeof referenceSchema>;
 export type ReferenceEntry = z.infer<typeof referenceEntrySchema>;
 export type ReferenceGroup = z.infer<typeof referenceGroupSchema>;
@@ -147,7 +150,9 @@ export const exampleSetSourceSchema = z.strictObject({
   examples: z.array(exampleSourceSchema).min(1).max(100),
 });
 export type ExampleSetSource = z.infer<typeof exampleSetSourceSchema>;
-export const exampleSchema = exampleSourceSchema.extend({ tokens: z.array(z.array(z.tuple([z.string(), z.string().optional()]))) });
+export const exampleSchema = exampleSourceSchema.extend({
+  tokens: z.array(z.array(z.tuple([z.string(), z.string().optional()]))),
+});
 export type Example = z.infer<typeof exampleSchema>;
 export const exampleSetSchema = exampleSetSourceSchema.extend({
   technologySlug: slugSchema,

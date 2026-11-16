@@ -1,0 +1,507 @@
+{
+  "title": "Python Reference",
+  "description": "A compact reference of the Python 3.13 syntax, built-in functions, methods and standard-library modules covered in the tutorial, grouped by topic with syntax and short examples.",
+  "groups": [
+    {
+      "id": "syntax-basics",
+      "title": "Syntax basics",
+      "entries": [
+        {
+          "slug": "print",
+          "name": "print()",
+          "summary": "Writes its arguments to the screen separated by sep (default a space) and followed by end (default a new line).",
+          "syntax": "print(*values, sep=\" \", end=\"\\n\")",
+          "example": {
+            "language": "python",
+            "code": "print(\"Total:\", 42)\nprint(\"a\", \"b\", sep=\"-\", end=\"!\\n\")"
+          },
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "input",
+          "name": "input()",
+          "summary": "Shows a prompt, waits for the user to press Enter and returns the typed text as a string. Convert with int() or float() before doing arithmetic.",
+          "syntax": "text = input(\"Prompt: \")",
+          "example": { "language": "python", "code": "age = int(input(\"How old are you? \"))" },
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "assignment",
+          "name": "name = value",
+          "summary": "Creates or rebinds a variable; no type declaration is needed. Augmented forms such as += update in place, and several names can be assigned at once. A # starts a comment.",
+          "syntax": "x = 1\nx += 2\na, b = 1, 2   # comment",
+          "notes": [
+            "Names use snake_case; UPPER_CASE signals a constant by convention only.",
+            "Assignment never copies a list or dict; both names refer to the same object."
+          ],
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "indentation",
+          "name": "Indentation and blocks",
+          "summary": "A line ending with a colon opens a block; the indented lines below it (four spaces by convention) belong to that block.",
+          "syntax": "if condition:\n    statement\n    statement",
+          "notes": [
+            "Mixing tabs and spaces raises TabError.",
+            "Inconsistent indentation raises IndentationError before the program runs."
+          ],
+          "lessonSlug": "syntax-variables"
+        },
+        {
+          "slug": "type-isinstance",
+          "name": "type() and isinstance()",
+          "summary": "type(value) returns the class of a value; isinstance(value, Class) tests whether a value is an instance of a class or its subclasses.",
+          "syntax": "type(x)\nisinstance(x, int)",
+          "example": {
+            "language": "python",
+            "code": "print(type(3.5))          # <class 'float'>\nprint(isinstance(3, int))  # True"
+          },
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "conversions",
+          "name": "int(), float(), str(), bool()",
+          "summary": "Explicit conversions between the basic types. int() and float() parse text; str() formats anything; bool() applies truthiness.",
+          "syntax": "int(\"42\")  float(\"2.5\")  str(7)  bool(x)",
+          "notes": [
+            "int(\"3.7\") raises ValueError; use float() for decimals.",
+            "Falsy values: False, None, 0, 0.0, \"\", [], (), {}, set()."
+          ],
+          "lessonSlug": "data-types"
+        }
+      ]
+    },
+    {
+      "id": "strings",
+      "title": "Strings",
+      "entries": [
+        {
+          "slug": "slicing",
+          "name": "Indexing and slicing",
+          "summary": "s[i] is the character at position i (negative counts from the end); s[start:stop:step] returns a substring up to but excluding stop. Works on lists and tuples too; len() gives the length.",
+          "syntax": "s[0]  s[-1]  s[1:4]  s[::2]  s[::-1]  len(s)",
+          "example": {
+            "language": "python",
+            "code": "word = \"Python\"\nprint(word[0], word[-1], word[1:4], word[::-1])  # P n yth nohtyP"
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "str-strip",
+          "name": "strip(), upper(), lower(), title()",
+          "summary": "Return a new string with surrounding whitespace removed or the case changed. Strings are immutable, so assign the result.",
+          "syntax": "s.strip()  s.lstrip()  s.upper()  s.lower()  s.title()",
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "str-split-join",
+          "name": "split() and join()",
+          "summary": "split() cuts a string into a list on whitespace or a separator; join() is called on the separator and glues an iterable of strings together.",
+          "syntax": "s.split()  s.split(\",\")  \", \".join(items)",
+          "example": {
+            "language": "python",
+            "code": "words = \"a b c\".split()      # ['a', 'b', 'c']\nprint(\"-\".join(words))      # a-b-c"
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "str-search",
+          "name": "in, find(), replace(), startswith()",
+          "summary": "Test for a substring with in, get its position with find() (-1 if absent), swap text with replace(), test the ends with startswith() and endswith(), count occurrences with count().",
+          "syntax": "\"py\" in s  s.find(\"py\")  s.replace(old, new)  s.startswith(\"http\")  s.count(\"a\")",
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "f-strings",
+          "name": "f-strings",
+          "summary": "A string prefixed with f evaluates expressions in braces and inserts them; a colon adds a format specification for decimals, width, alignment and separators.",
+          "syntax": "f\"{value}\"  f\"{price:.2f}\"  f\"{n:,}\"  f\"{name:>10}\"  f\"{x!r}\"",
+          "example": {
+            "language": "python",
+            "code": "total = 1234.5\nprint(f\"Total: {total:,.2f} EUR\")   # Total: 1,234.50 EUR"
+          },
+          "lessonSlug": "strings"
+        }
+      ]
+    },
+    {
+      "id": "numbers",
+      "title": "Numbers",
+      "entries": [
+        {
+          "slug": "arithmetic-operators",
+          "name": "+ - * / // % **",
+          "summary": "Addition, subtraction, multiplication, true division (always a float), floor division, remainder and power. ** groups from the right and binds tighter than unary minus.",
+          "syntax": "7 / 2 == 3.5   7 // 2 == 3   7 % 2 == 1   2 ** 10 == 1024",
+          "notes": ["-7 // 2 is -4: floor division rounds towards negative infinity."],
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "round-abs",
+          "name": "round(), abs(), min(), max(), sum()",
+          "summary": "round(x, n) rounds to n decimals using banker's rounding for exact halves; abs() gives the magnitude; min(), max() and sum() work on any iterable and accept a key where it makes sense.",
+          "syntax": "round(2.675, 2)  abs(-3)  min(items)  max(items, key=len)  sum(items)",
+          "notes": [
+            "round(2.5) is 2 and round(3.5) is 4.",
+            "divmod(17, 5) returns (3, 2), the quotient and remainder together."
+          ],
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "math-module",
+          "name": "math module",
+          "summary": "Square roots, rounding up and down, constants and float comparison: sqrt(), floor(), ceil(), pi, isclose().",
+          "syntax": "import math\nmath.sqrt(16)  math.floor(4.7)  math.ceil(4.2)  math.isclose(a, b)",
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "decimal",
+          "name": "decimal.Decimal",
+          "summary": "Exact decimal arithmetic for money. Build Decimals from strings, never from floats, to avoid copying binary rounding errors.",
+          "syntax": "from decimal import Decimal\nDecimal(\"0.1\") + Decimal(\"0.2\")",
+          "example": {
+            "language": "python",
+            "code": "from decimal import Decimal\nprint(Decimal(\"19.99\") * 3)   # 59.97"
+          },
+          "lessonSlug": "numbers"
+        },
+        {
+          "slug": "random-module",
+          "name": "random module",
+          "summary": "Pseudo-random numbers for games and sampling: randint() (both ends included), random(), choice(), shuffle(), sample(). seed() makes results repeatable.",
+          "syntax": "import random\nrandom.randint(1, 6)  random.choice(items)  random.seed(42)",
+          "notes": ["Use the secrets module, not random, for passwords and tokens."],
+          "lessonSlug": "numbers"
+        }
+      ]
+    },
+    {
+      "id": "control-flow",
+      "title": "Control flow",
+      "entries": [
+        {
+          "slug": "if-elif-else",
+          "name": "if / elif / else",
+          "summary": "Runs the first block whose condition is true; else catches the rest. The one-line form a if condition else b chooses between two values.",
+          "syntax": "if a > b:\n    ...\nelif a == b:\n    ...\nelse:\n    ...\n\nlabel = \"warm\" if temp > 20 else \"cold\"",
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "comparison-operators",
+          "name": "== != < <= > >= in is",
+          "summary": "Equality, inequality and ordering comparisons return booleans; in tests membership; is tests identity and is used with None. Comparisons can be chained: 0 <= x < 10.",
+          "syntax": "a == b  a != b  x in items  value is None  18 <= age < 65",
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "boolean-operators",
+          "name": "and / or / not",
+          "summary": "Combine conditions. and and or evaluate lazily and return the deciding operand, which gives the default-value idiom name or \"Anonymous\".",
+          "syntax": "a and b   a or b   not a",
+          "notes": ["x == 1 or 2 is always true; write x == 1 or x == 2, or x in (1, 2)."],
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "match",
+          "name": "match / case",
+          "summary": "Structural pattern matching (Python 3.10+): compares a value against several patterns, binds captured names, and uses _ as the catch-all.",
+          "syntax": "match value:\n    case 200:\n        ...\n    case [\"go\", direction]:\n        ...\n    case _:\n        ...",
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "for-while",
+          "name": "for and while",
+          "summary": "for iterates over the items of any iterable; while repeats as long as a condition stays true. Both accept an else block that runs when the loop was not ended by break.",
+          "syntax": "for item in items:\n    ...\n\nwhile condition:\n    ...",
+          "notes": [
+            "A while loop must change something its condition depends on, or reach a break, to avoid running forever."
+          ],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "range",
+          "name": "range()",
+          "summary": "A lazy sequence of integers from start (default 0) up to but excluding stop, in steps of step (default 1, may be negative).",
+          "syntax": "range(stop)  range(start, stop)  range(start, stop, step)",
+          "example": { "language": "python", "code": "print(list(range(1, 10, 3)))   # [1, 4, 7]" },
+          "notes": ["range(1, 10) stops at 9; use range(1, 11) for 1 to 10 inclusive."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "break-continue",
+          "name": "break and continue",
+          "summary": "break leaves the innermost loop immediately; continue skips the rest of the current iteration and moves on to the next.",
+          "syntax": "for x in items:\n    if skip(x):\n        continue\n    if done(x):\n        break",
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "enumerate-zip",
+          "name": "enumerate() and zip()",
+          "summary": "enumerate() yields (index, item) pairs, with an optional start; zip() walks several sequences in parallel and stops at the shortest.",
+          "syntax": "for i, item in enumerate(items, start=1):\nfor a, b in zip(list_a, list_b):",
+          "lessonSlug": "loops"
+        }
+      ]
+    },
+    {
+      "id": "collections",
+      "title": "Collections",
+      "entries": [
+        {
+          "slug": "list",
+          "name": "list",
+          "summary": "An ordered, mutable sequence written in square brackets. Supports indexing, slicing, in, len() and loops. Assigning a list to a second name creates an alias; copy() makes an independent copy.",
+          "syntax": "items = [1, 2, 3]\nitems[0]  items[-1]  items[1:3]  items.copy()",
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "list-methods",
+          "name": "append(), insert(), extend(), remove(), pop()",
+          "summary": "In-place list changes: add at the end, at a position or several at once; remove by value; remove and return by position. All return None except pop().",
+          "syntax": "items.append(x)  items.insert(0, x)  items.extend([a, b])  items.remove(x)  items.pop()",
+          "notes": ["numbers = numbers.sort() stores None; call sort() on its own line."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "sort-sorted",
+          "name": "sort() and sorted()",
+          "summary": "sort() reorders a list in place; sorted() returns a new sorted list from any iterable. Both accept reverse=True and a key function.",
+          "syntax": "items.sort()  sorted(items, key=len, reverse=True)",
+          "example": {
+            "language": "python",
+            "code": "names = [\"mina\", \"Ravi\"]\nprint(sorted(names, key=str.lower))   # ['mina', 'Ravi']"
+          },
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "tuple",
+          "name": "tuple",
+          "summary": "An ordered, immutable sequence; a one-item tuple needs a trailing comma. Tuples unpack into variables and can be dict keys.",
+          "syntax": "point = (3, 4)\nx, y = point\nsingle = (42,)",
+          "lessonSlug": "tuples-sets"
+        },
+        {
+          "slug": "set",
+          "name": "set",
+          "summary": "An unordered collection of unique, hashable items with fast membership tests and set algebra: | union, & intersection, - difference, ^ symmetric difference.",
+          "syntax": "tags = {\"a\", \"b\"}\ntags.add(x)  tags.discard(x)  a | b  a & b  a - b",
+          "notes": ["{} is an empty dict; use set() for an empty set."],
+          "lessonSlug": "tuples-sets"
+        },
+        {
+          "slug": "dict",
+          "name": "dict",
+          "summary": "Maps hashable keys to values and preserves insertion order. Reading a missing key with [] raises KeyError.",
+          "syntax": "user = {\"name\": \"Ada\"}\nuser[\"age\"] = 36\ndel user[\"name\"]\n\"age\" in user",
+          "lessonSlug": "dictionaries"
+        },
+        {
+          "slug": "dict-methods",
+          "name": "get(), setdefault(), pop(), items(), update()",
+          "summary": "Safe reads with a default, insert-if-missing, remove and return, (key, value) pairs for loops, and merging another mapping.",
+          "syntax": "d.get(k, default)  d.setdefault(k, [])  d.pop(k, default)  d.items()  d.update(other)",
+          "example": {
+            "language": "python",
+            "code": "counts = {}\nfor word in \"a b a\".split():\n    counts[word] = counts.get(word, 0) + 1   # {'a': 2, 'b': 1}"
+          },
+          "lessonSlug": "dictionaries"
+        },
+        {
+          "slug": "comprehensions",
+          "name": "Comprehensions and generator expressions",
+          "summary": "Build a list, set or dict from an iterable in one expression, with an optional if filter. Parentheses instead of brackets give a lazy generator, ideal inside sum(), max(), any() and all().",
+          "syntax": "[f(x) for x in items if cond]\n{k: v for k, v in pairs}\n{x for x in items}\nsum(x * x for x in range(10))",
+          "lessonSlug": "comprehensions"
+        }
+      ]
+    },
+    {
+      "id": "functions-modules",
+      "title": "Functions and modules",
+      "entries": [
+        {
+          "slug": "def-return",
+          "name": "def / return",
+          "summary": "Defines a function with parameters; return hands back a value and ends the call. Without return the function returns None.",
+          "syntax": "def name(param1, param2):\n    return value",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "default-keyword-arguments",
+          "name": "Default and keyword arguments",
+          "summary": "Parameters with a default are optional; arguments can be passed by name in any order. Never use a mutable default such as [] or {}; use None and create it inside.",
+          "syntax": "def book(guests, nights=1, breakfast=False):\nbook(2, breakfast=True)",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "args-kwargs",
+          "name": "*args and **kwargs",
+          "summary": "*name collects extra positional arguments into a tuple and **name collects extra keyword arguments into a dict. In a call, * and ** unpack sequences and dicts into arguments.",
+          "syntax": "def f(*args, **kwargs): ...\nf(*items, **options)",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "docstrings-type-hints",
+          "name": "Docstrings, type hints and lambda",
+          "summary": "A string as the first statement documents a function and is shown by help(); annotations describe intended types without run-time enforcement. lambda defines a one-expression function, mostly as a sort key.",
+          "syntax": "def area(w: float, h: float) -> float:\n    \"\"\"Return the area of a rectangle.\"\"\"\n    return w * h\n\nsorted(people, key=lambda p: p[\"age\"])",
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "import",
+          "name": "import / from / as",
+          "summary": "Loads a module once and exposes its names: import the whole module, specific names, or rename with as. Avoid from module import *.",
+          "syntax": "import math\nfrom datetime import date\nimport numpy as np",
+          "lessonSlug": "modules-packages"
+        },
+        {
+          "slug": "name-main",
+          "name": "if __name__ == \"__main__\":",
+          "summary": "True only when the file is run directly, not when it is imported. Put script behaviour under it so the module stays importable.",
+          "syntax": "if __name__ == \"__main__\":\n    main()",
+          "lessonSlug": "modules-packages"
+        },
+        {
+          "slug": "packages",
+          "name": "Packages",
+          "summary": "A folder of modules, conventionally with an __init__.py, imported with dotted names that follow the folder structure.",
+          "syntax": "from geometry import units\nfrom geometry.units import cm_to_inches",
+          "notes": [
+            "Never name a file or folder after a standard-library module such as random or json."
+          ],
+          "lessonSlug": "modules-packages"
+        }
+      ]
+    },
+    {
+      "id": "errors-classes",
+      "title": "Errors and classes",
+      "entries": [
+        {
+          "slug": "try-except",
+          "name": "try / except",
+          "summary": "Runs the try block and jumps to the matching except block when an exception of that type (or a subclass) is raised. A tuple catches several types; as binds the exception object.",
+          "syntax": "try:\n    ...\nexcept (ValueError, TypeError) as error:\n    ...",
+          "notes": [
+            "A bare except: catches everything, including KeyboardInterrupt; name the exceptions you expect."
+          ],
+          "lessonSlug": "errors-exceptions"
+        },
+        {
+          "slug": "else-finally",
+          "name": "else / finally",
+          "summary": "else runs only when the try block raised nothing; finally always runs, even after return or an unhandled exception, and is the place for clean-up.",
+          "syntax": "try:\n    ...\nexcept E:\n    ...\nelse:\n    ...\nfinally:\n    ...",
+          "lessonSlug": "errors-exceptions"
+        },
+        {
+          "slug": "raise",
+          "name": "raise and custom exceptions",
+          "summary": "Signals an error from your own code with a built-in exception type and a message; a class derived from Exception lets callers catch your error specifically. A bare raise inside except re-raises.",
+          "syntax": "raise ValueError(\"amount must be positive\")\n\nclass InsufficientFunds(Exception):\n    \"\"\"Withdrawal exceeds the balance.\"\"\"",
+          "lessonSlug": "errors-exceptions"
+        },
+        {
+          "slug": "class-init-self",
+          "name": "class, __init__ and self",
+          "summary": "class defines a type; __init__ initialises each new instance; self is the instance, passed automatically as the first argument of every method.",
+          "syntax": "class Account:\n    def __init__(self, owner):\n        self.owner = owner\n\n    def deposit(self, amount):\n        ...",
+          "example": {
+            "language": "python",
+            "code": "ada = Account(\"Ada\")\nada.deposit(50)   # same as Account.deposit(ada, 50)"
+          },
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "repr-str-eq",
+          "name": "__repr__, __str__ and __eq__",
+          "summary": "Dunder methods that control how an object is shown to developers, printed to users and compared with ==.",
+          "syntax": "def __repr__(self): return f\"Point({self.x}, {self.y})\"\ndef __str__(self): ...\ndef __eq__(self, other): ...",
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "inheritance-super",
+          "name": "Inheritance and super()",
+          "summary": "class Child(Parent) inherits the parent's methods and may override them; super().__init__() runs the parent's initialiser.",
+          "syntax": "class Cat(Animal):\n    def __init__(self, name):\n        super().__init__(name)",
+          "lessonSlug": "classes-objects"
+        },
+        {
+          "slug": "dataclass",
+          "name": "@dataclass",
+          "summary": "Generates __init__, __repr__ and __eq__ from annotated fields. Use field(default_factory=list) for mutable defaults.",
+          "syntax": "from dataclasses import dataclass, field\n\n@dataclass\nclass Book:\n    title: str\n    tags: list[str] = field(default_factory=list)",
+          "lessonSlug": "classes-objects"
+        }
+      ]
+    },
+    {
+      "id": "files-json-environments",
+      "title": "Files, JSON and environments",
+      "entries": [
+        {
+          "slug": "open-with",
+          "name": "open() and with",
+          "summary": "Opens a file in a mode with an explicit encoding; the with statement closes it automatically, even when an exception occurs. Loop over the file object to read it line by line.",
+          "syntax": "with open(\"notes.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"text\\n\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    for line in file:\n        print(line.rstrip())",
+          "lessonSlug": "file-handling"
+        },
+        {
+          "slug": "file-modes",
+          "name": "File modes",
+          "summary": "\"r\" read (default), \"w\" write and truncate, \"a\" append, \"x\" create only, \"rb\"/\"wb\" binary, \"r+\" read and write.",
+          "syntax": "open(path, \"r\")  open(path, \"a\")  open(path, \"rb\")",
+          "notes": ["\"w\" empties an existing file the moment it is opened."],
+          "lessonSlug": "file-handling"
+        },
+        {
+          "slug": "pathlib",
+          "name": "pathlib.Path",
+          "summary": "Object-oriented paths: join with /, test with exists(), create folders with mkdir(), list with glob(), and read or write text in one call.",
+          "syntax": "from pathlib import Path\np = Path(\"data\") / \"notes.txt\"\np.read_text(encoding=\"utf-8\")  p.write_text(\"...\", encoding=\"utf-8\")",
+          "lessonSlug": "file-handling"
+        },
+        {
+          "slug": "csv-module",
+          "name": "csv module",
+          "summary": "Reads and writes comma-separated files with correct quoting; DictReader and DictWriter map rows to dictionaries keyed by the header. Open CSV files with newline=\"\".",
+          "syntax": "import csv\nfor row in csv.DictReader(file):\n    print(row[\"name\"])",
+          "lessonSlug": "file-handling"
+        },
+        {
+          "slug": "json-dumps-loads",
+          "name": "json.dumps(), loads(), dump(), load()",
+          "summary": "Convert Python data to a JSON string and back; the versions without s work with an open file object or HTTP response instead of a string. indent and sort_keys make output readable and stable.",
+          "syntax": "json.dumps(data, indent=2)  json.loads(text)\njson.dump(data, file, indent=2)  json.load(file)",
+          "example": {
+            "language": "python",
+            "code": "import json\nprint(json.dumps({\"ok\": True, \"n\": None}))   # {\"ok\": true, \"n\": null}"
+          },
+          "notes": ["load() takes a file object, not a path; loads() takes a string."],
+          "lessonSlug": "json-and-apis"
+        },
+        {
+          "slug": "urllib-urlopen",
+          "name": "urllib.request.urlopen()",
+          "summary": "Fetches a URL from the standard library and returns a response object with status, headers and a readable body. Catch HTTPError before URLError and always pass a timeout.",
+          "syntax": "from urllib.request import urlopen\nwith urlopen(url, timeout=10) as response:\n    data = json.load(response)",
+          "lessonSlug": "json-and-apis"
+        },
+        {
+          "slug": "venv",
+          "name": "python -m venv",
+          "summary": "Creates an isolated environment in a folder; activate it with source .venv/bin/activate (macOS, Linux) or .venv\\Scripts\\Activate.ps1 (Windows PowerShell), leave with deactivate.",
+          "syntax": "python -m venv .venv",
+          "lessonSlug": "virtual-environments"
+        },
+        {
+          "slug": "pip",
+          "name": "pip",
+          "summary": "Installs packages from PyPI into the active environment. Run it as python -m pip; freeze writes the exact installed versions for requirements.txt.",
+          "syntax": "python -m pip install requests\npython -m pip freeze > requirements.txt\npython -m pip install -r requirements.txt",
+          "lessonSlug": "virtual-environments"
+        }
+      ]
+    }
+  ]
+}

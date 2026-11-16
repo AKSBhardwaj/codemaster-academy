@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "not-found",
+  "title": "Handle unmatched routes",
+  "summary": "Gin: Handle unmatched routes. Try another unknown path.",
+  "introduction": "NoRoute supplies a fallback handler. GET /missing has no normal route.",
+  "learningObjectives": ["Handle unmatched routes with Gin", "Try another unknown path"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle unmatched routes"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Handle unmatched routes",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{\"error\": \"Page not found\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "No regular route matched, so the NoRoute handler sends its controlled 404 reply."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Page not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try another unknown path."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Keep the 404 status even with a friendly body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-not-found-check"
+    }
+  ],
+  "exerciseIds": ["gin-not-found-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Handle unmatched routes",
+    "description": "Gin: Handle unmatched routes. Try another unknown path. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

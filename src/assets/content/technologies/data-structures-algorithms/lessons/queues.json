@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "slug": "queues",
+  "title": "Queues",
+  "summary": "Model a fair waiting line with a queue. Add two items, remove the oldest, and learn why the front and back have different jobs.",
+  "introduction": "At a lunch counter, the person who joins first is served first. A queue keeps that order for programs. It can hold print jobs, messages, or places waiting to be explored.",
+  "learningObjectives": [
+    "Explain first in, first out",
+    "Add at the back and remove from the front",
+    "Check whether a queue has an item to read"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **queue** has a front and a back. **Enqueue** means join at the back. **Dequeue** means remove and return the front item. Peek reads the front without removing it."
+    },
+    {
+      "type": "paragraph",
+      "text": "The rule is **first in, first out**, shortened to FIFO. This is different from the last-in-first-out rule of a stack."
+    },
+    {
+      "type": "paragraph",
+      "text": "In the array examples, head marks the next item to serve. Moving head forward avoids shifting every waiting item. The library versions provide the queue operations for us."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with an empty queue. Add 10 at the back.",
+        "Add 20 after 10. The front is still 10.",
+        "Check that an item is waiting. Remove and print the front, 10.",
+        "Peek at the new front and print 20."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Queues example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const queue = [];\nlet head = 0;\nqueue.push(10);\nqueue.push(20);\nif (head < queue.length) console.log(queue[head++]);\nif (head < queue.length) console.log(queue[head]);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int queue[3];\n    int head = 0;\n    int tail = 0;\n    if (tail < 3) queue[tail++] = 10;\n    if (tail < 3) queue[tail++] = 20;\n    if (head < tail) printf(\"%d\\n\", queue[head++]);\n    if (head < tail) printf(\"%d\\n\", queue[head]);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <queue>\n\nint main() {\n    std::queue<int> queue;\n    queue.push(10);\n    queue.push(20);\n    if (!queue.empty()) {\n        std::cout << queue.front() << '\\n';\n        queue.pop();\n    }\n    if (!queue.empty()) std::cout << queue.front() << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "from collections import deque\n\nqueue = deque()\nqueue.append(10)\nqueue.append(20)\nif queue:\n    print(queue.popleft())\nif queue:\n    print(queue[0])",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "var queue = new System.Collections.Generic.Queue<int>();\nqueue.Enqueue(10);\nqueue.Enqueue(20);\nif (queue.Count > 0) System.Console.WriteLine(queue.Dequeue());\nif (queue.Count > 0) System.Console.WriteLine(queue.Peek());",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.ArrayDeque;\n\npublic class Main {\n    public static void main(String[] args) {\n        ArrayDeque<Integer> queue = new ArrayDeque<>();\n        queue.addLast(10);\n        queue.addLast(20);\n        if (!queue.isEmpty()) System.out.println(queue.removeFirst());\n        if (!queue.isEmpty()) System.out.println(queue.peekFirst());\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "10\n20"
+    },
+    {
+      "type": "paragraph",
+      "text": "The oldest item leaves first. Peeking does not remove 20. In C, tail names the next free place, while head names the next waiting place. The queue is empty when head equals tail."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Always test for an empty queue before removing or reading the front. An empty queue is a normal state, not a reason to read a spare array place."
+    },
+    {
+      "type": "paragraph",
+      "text": "The short JavaScript and C examples leave old array places behind after serving them. They are enough for this one task. A long-running queue needs to reclaim space. A **circular queue** wraps around to reuse free places and tracks when it is full."
+    },
+    {
+      "type": "paragraph",
+      "text": "A queue can support O(1) removal without moving all its items. Removing index 0 from a plain array-backed list may shift the rest and take O(n) instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Add 30 at the back after adding 20. Leave the one removal and one peek unchanged.",
+        "The output stays 10 then 20. Item 30 waits behind 20. Joining later does not let it skip the line."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use pop from the back when serving a queue. That serves the newest item and turns the behavior into a stack."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-queues"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-queues"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "stacks"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "graphs-and-neighbours"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Queues in six languages",
+    "description": "Model a fair waiting line with a queue. Add two items, remove the oldest, and learn why the front and back have different jobs."
+  },
+  "updatedOn": "2026-11-16"
+}

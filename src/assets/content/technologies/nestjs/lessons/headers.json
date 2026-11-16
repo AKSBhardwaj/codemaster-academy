@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Add a response header",
+  "summary": "NestJS: Add a response header. Use curl -i to see Cache-Control: no-store.",
+  "introduction": "@Header adds metadata to a response. Open GET /note and inspect its Cache-Control header.",
+  "learningObjectives": [
+    "Add a response header with NestJS",
+    "Use curl -i to see Cache-Control: no-store"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Add a response header"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Add a response header",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"note\") @Header(\"Cache-Control\", \"no-store\") note() { return \"Private practice note\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Header decorator adds no-store before Nest sends the text."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Private practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use curl -i to see Cache-Control: no-store."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Headers must be set before a response is sent."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-headers-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "status"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Add a response header",
+    "description": "NestJS: Add a response header. Use curl -i to see Cache-Control: no-store. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

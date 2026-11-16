@@ -1,0 +1,126 @@
+{
+  "title": "Machine Learning Examples",
+  "description": "Small Machine Learning examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Learn from examples",
+      "description": "Machine learning uses examples to choose a rule or model. A model is a stored way to make predictions. A prediction is an estimate, not a known fact.",
+      "language": "python",
+      "code": "examples = [(1, 2), (2, 4), (3, 6)]\nfor pages, minutes in examples:\n    print(pages, minutes)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "inputs-and-known-answers",
+      "title": "Inputs and known answers",
+      "description": "A feature is an input used for a prediction. A label is the known answer in a teaching example. Keep each input paired with the right answer.",
+      "language": "python",
+      "code": "features = [[1], [2], [3]]\nlabels = [2, 4, 6]\nprint(features[1], labels[1])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "inputs-and-known-answers"
+    },
+    {
+      "id": "regression-predicts-numbers",
+      "title": "Regression predicts numbers",
+      "description": "Regression is a task that predicts a number. Here we supply a doubling rule ourselves so the calculation is easy to inspect.",
+      "language": "python",
+      "code": "def predict_minutes(pages):\n    return 2 * pages\nprint(predict_minutes(4))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "regression-predicts-numbers"
+    },
+    {
+      "id": "classification-chooses-a-group",
+      "title": "Classification chooses a group",
+      "description": "Classification predicts a group label. For this toy example, a threshold is the number where our choice changes.",
+      "language": "python",
+      "code": "def group(size):\n    return \"small\" if size < 5 else \"large\"\nprint(group(3), group(8))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "classification-chooses-a-group"
+    },
+    {
+      "id": "try-the-nearest-example",
+      "title": "Try the nearest example",
+      "description": "A nearest-neighbour rule uses the closest stored example. Distance tells us how far two values are apart. Here distance is the size of their difference.",
+      "language": "python",
+      "code": "examples = [(1, \"small\"), (3, \"small\"), (8, \"large\")]\nquery = 7\nnearest = min(examples, key=lambda row: abs(row[0] - query))\nprint(nearest[1])",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "try-the-nearest-example"
+    },
+    {
+      "id": "keep-a-test-set-aside",
+      "title": "Keep a test set aside",
+      "description": "Training examples help choose a model. Test examples are kept aside to check it later. Keeping them separate helps reveal mistakes on unseen data.",
+      "language": "python",
+      "code": "rows = [(1, 2), (2, 4), (3, 6), (4, 8)]\ntrain = rows[:3]\ntest = rows[3:]\nprint(len(train), len(test))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-a-test-set-aside"
+    },
+    {
+      "id": "compare-with-a-baseline",
+      "title": "Compare with a baseline",
+      "description": "A baseline is a simple prediction rule used for comparison. Always guessing the training average is one baseline for a number task.",
+      "language": "python",
+      "code": "training_answers = [2, 4, 6]\nbaseline = sum(training_answers) / len(training_answers)\nprint(baseline)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "compare-with-a-baseline"
+    },
+    {
+      "id": "measure-a-numeric-mistake",
+      "title": "Measure a numeric mistake",
+      "description": "Absolute error is the size of the difference between an answer and a prediction. It drops the minus sign so the size is always nonnegative.",
+      "language": "python",
+      "code": "answers = [4, 8]\npredictions = [5, 6]\nerrors = [abs(a - p) for a, p in zip(answers, predictions)]\nprint(errors, sum(errors) / len(errors))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "measure-a-numeric-mistake"
+    },
+    {
+      "id": "accuracy-needs-context",
+      "title": "Accuracy needs context",
+      "description": "Accuracy is the share of group guesses that are correct. It can hide poor performance on a rare group.",
+      "language": "python",
+      "code": "answers = [\"dry\", \"dry\", \"dry\", \"rain\"]\npredictions = [\"dry\"] * 4\ncorrect = sum(a == p for a, p in zip(answers, predictions))\nprint(correct / len(answers))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "accuracy-needs-context"
+    },
+    {
+      "id": "memorising-is-not-generalising",
+      "title": "Memorising is not generalising",
+      "description": "Overfitting happens when a model follows training details too closely and does poorly on new examples. Generalising means working on useful new cases.",
+      "language": "python",
+      "code": "memorised = {1: 2, 2: 4, 3: 6}\nprint(memorised.get(4, \"unknown\"))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "memorising-is-not-generalising"
+    },
+    {
+      "id": "group-without-answer-labels",
+      "title": "Group without answer labels",
+      "description": "Clustering groups similar inputs without known class labels. Here we check distance to two fixed centres; a real clustering method can learn its centres.",
+      "language": "python",
+      "code": "centres = [2, 8]\npoint = 7\ndistances = [abs(point - centre) for centre in centres]\nprint(distances.index(min(distances)))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-without-answer-labels"
+    },
+    {
+      "id": "write-an-honest-model-report",
+      "title": "Write an honest model report",
+      "description": "A useful model report explains the task, data, checks and limits. Readers need enough detail to know where the result may fail.",
+      "language": "text",
+      "code": "Task: estimate reading minutes\nData: fictional page-and-time pairs\nCheck: compare held-out errors with a simple baseline\nLimit: too little data for real learners\nDecision: keep this as a classroom demonstration",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-an-honest-model-report"
+    }
+  ]
+}

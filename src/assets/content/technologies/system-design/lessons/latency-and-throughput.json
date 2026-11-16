@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "slug": "latency-and-throughput",
+  "title": "Latency and throughput",
+  "summary": "Measure how long one request takes and how much work finishes. Use a small p95 example to notice slow replies that an average can hide.",
+  "introduction": "A lunch line may serve many meals each minute while one learner waits a long time. Both facts matter. A service also needs a measure of waiting time and a measure of completed work.",
+  "learningObjectives": [
+    "Distinguish latency from throughput",
+    "Read a simple p95 measurement",
+    "Keep measurement units and time windows clear"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Latency** is how long a request takes from the chosen start to the chosen finish. **Throughput** is how many requests finish in a time period. A millisecond, or ms, is one thousandth of a second."
+    },
+    {
+      "type": "paragraph",
+      "text": "Measure from the learner's point of view when the goal is page speed. Timing only a database query leaves out the network, waiting in a queue, and work done by the page."
+    },
+    {
+      "type": "paragraph",
+      "text": "An average can hide a few very slow replies. A **percentile** marks a place in a sorted list of measurements. p95 is the 95th-percentile value. It helps us look near the slow end of the list."
+    },
+    {
+      "type": "paragraph",
+      "text": "In this lesson we use the nearest-rank method: sort 20 times, multiply 20 by 0.95, and choose item 19. At least 19 of these 20 recorded times are no larger than that value. Other tools may calculate percentiles slightly differently."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the 20 recorded request times below. They are in milliseconds.",
+        "Sort a copy from smallest to largest so the original measurements stay unchanged.",
+        "The p95 rank is 19, so read index 18 because array indexes begin at zero.",
+        "Compare p95 with the slowest request. One request still took 600 ms.",
+        "For a separate workload test, divide 200 completed requests by 10 seconds to get 20 requests per second."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const times = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85,\n  90, 95, 100, 105, 110, 115, 120, 125, 130, 600];\nconst sorted = [...times].sort((a, b) => a - b);\nconst rank = Math.ceil(0.95 * sorted.length);\nconst p95 = sorted[rank - 1];\nconsole.log(\"p95: \" + p95 + \" ms\");\nconsole.log(\"slowest: \" + sorted[sorted.length - 1] + \" ms\");\nconst completed = 200;\nconst seconds = 10;\nconsole.log(\"throughput: \" + completed / seconds + \" requests/s\");",
+      "title": "Latency and throughput example",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "p95: 130 ms\nslowest: 600 ms\nthroughput: 20 requests/s"
+    },
+    {
+      "type": "paragraph",
+      "text": "This is a local calculation using supplied measurements. It does not send real requests or measure the website. The throughput calculation uses a separate 10-second workload, not the 20 latency samples."
+    },
+    {
+      "type": "paragraph",
+      "text": "A high throughput number does not prove every learner receives a quick reply. Report waiting times and completed work together, and count errors separately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A small sample cannot promise that future requests will behave the same way. Real checks need enough requests, a clear time window, and the expected busy workload."
+    },
+    {
+      "type": "paragraph",
+      "text": "For an empty list, there is no percentile to report. For one recorded request, this method gives that one time. Do not turn missing measurements into a claim that latency is zero."
+    },
+    {
+      "type": "paragraph",
+      "text": "If a service becomes too busy, waiting requests may build up. Throughput can stop growing while latency rises. Find the slow step instead of assuming that more waiting will solve it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the final 600 to 900. Predict p95 and the slowest value.",
+        "p95 stays 130 ms because item 19 is unchanged. The slowest value becomes 900 ms. This shows why even p95 does not describe every request."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not call requests per second a latency. Label waiting time in ms or seconds, and throughput in completed requests per time period."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-latency-and-throughput"
+    }
+  ],
+  "exerciseIds": ["system-design-latency-and-throughput"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "estimate-demand"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "observe-and-review-the-design"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Latency and throughput",
+    "description": "Measure how long one request takes and how much work finishes. Use a small p95 example to notice slow replies that an average can hide."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,152 @@
+{
+  "id": "plsql-quiz",
+  "title": "PL/SQL Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "plsql-review-1",
+      "lessonSlug": "first-message",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nBEGIN\n DBMS_OUTPUT.PUT_LINE('Hello, Asha!');\nEND;\n/",
+      "question": "An anonymous block has BEGIN and END. DBMS_OUTPUT.PUT_LINE writes a line for the client to show. What result does this example give after the setup steps?",
+      "explanation": "BEGIN starts the executable part. PUT_LINE adds the greeting to the server-output buffer. Enable server output or the client may hide the message.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "plsql-review-2",
+      "lessonSlug": "variables",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\npencils PLS_INTEGER := 3;\nBEGIN\nDBMS_OUTPUT.PUT_LINE(pencils + 2);\nEND;\n/\n",
+      "question": "DECLARE introduces local values. := assigns a value. What result does this example give after the setup steps?",
+      "explanation": "DECLARE gives pencils the value 3. PUT_LINE prints its sum with 2. Assignment uses :=, while = is a comparison.",
+      "options": ["5", "6", "4"],
+      "correctIndex": 0
+    },
+    {
+      "id": "plsql-review-3",
+      "lessonSlug": "strings",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nname VARCHAR2(20) := 'Ravi';\nBEGIN\nDBMS_OUTPUT.PUT_LINE('Hi, ' || name || '!');\nEND;\n/\n",
+      "question": "VARCHAR2 holds text. Two vertical bars join text. What result does this example give after the setup steps?",
+      "explanation": "The concatenation operators join the greeting, name and punctuation. Use single quotes for text literals.",
+      "options": ["Hi, Ravi!", "Hi, Asha!", "hi, ravi!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "plsql-review-4",
+      "lessonSlug": "choices",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nscore PLS_INTEGER := 8;\nBEGIN\nIF score >= 5 THEN\n DBMS_OUTPUT.PUT_LINE('Pass');\nELSE\n DBMS_OUTPUT.PUT_LINE('Try again');\nEND IF;\nEND;\n/\n",
+      "question": "IF checks a rule. END IF ends its branches. What result does this example give after the setup steps?",
+      "explanation": "The score test is true. The THEN part writes Pass. Close an IF with END IF, not only END.",
+      "options": ["pass", "Pass", "Try again"],
+      "correctIndex": 1
+    },
+    {
+      "id": "plsql-review-5",
+      "lessonSlug": "case",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nlight VARCHAR2(10) := 'green';\nBEGIN\nCASE light\n WHEN 'red' THEN DBMS_OUTPUT.PUT_LINE('Stop');\n WHEN 'green' THEN DBMS_OUTPUT.PUT_LINE('Go');\n ELSE DBMS_OUTPUT.PUT_LINE('Wait');\nEND CASE;\nEND;\n/\n",
+      "question": "CASE matches a value with labels. ELSE is a fallback. What result does this example give after the setup steps?",
+      "explanation": "The green string matches the second WHEN branch, which writes Go. Without an ELSE, an unmatched statement CASE can raise an error.",
+      "options": ["go", "Go", "Stop"],
+      "correctIndex": 1
+    },
+    {
+      "id": "plsql-review-6",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nBEGIN\n FOR n IN 1..3 LOOP\n  DBMS_OUTPUT.PUT_LINE(n);\n END LOOP;\nEND;\n/",
+      "question": "A numeric FOR loop creates a counter and includes both ends. What result does this example give after the setup steps?",
+      "explanation": "The numeric FOR loop creates n and includes values 1 through 3. Do not assign a new value to the FOR loop counter.",
+      "options": ["2\n2\n3", "3\n2\n1", "1\n2\n3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "plsql-review-7",
+      "lessonSlug": "while",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nn PLS_INTEGER := 1;\nBEGIN\nWHILE n <= 3 LOOP\n DBMS_OUTPUT.PUT_LINE(n);\n n := n + 1;\nEND LOOP;\nEND;\n/\n",
+      "question": "WHILE checks its rule before each repetition. What result does this example give after the setup steps?",
+      "explanation": "The loop writes n, then increases it. It stops once n becomes 4. Update the counter so the loop can stop.",
+      "options": ["3\n2\n1", "1\n2\n3", "2\n2\n3"],
+      "correctIndex": 1
+    },
+    {
+      "id": "plsql-review-8",
+      "lessonSlug": "records",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nTYPE book_type IS RECORD (title VARCHAR2(30), pages PLS_INTEGER);\nbook book_type;\nBEGIN\nbook.title := 'Moon Trip';\nbook.pages := 24;\nDBMS_OUTPUT.PUT_LINE(book.pages);\nEND;\n/\n",
+      "question": "A record groups related values into one local data item. What result does this example give after the setup steps?",
+      "explanation": "The local record receives a title and page count. Reading book.pages gives 24. Set a field before assuming it has a useful value.",
+      "options": ["24", "25", "23"],
+      "correctIndex": 0
+    },
+    {
+      "id": "plsql-review-9",
+      "lessonSlug": "collections",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nTYPE scores_type IS TABLE OF PLS_INTEGER INDEX BY VARCHAR2(20);\nscores scores_type;\nBEGIN\nscores('Asha') := 8;\nDBMS_OUTPUT.PUT_LINE(scores('Asha'));\nEND;\n/\n",
+      "question": "An associative array stores values by key. This one uses text keys. What result does this example give after the setup steps?",
+      "explanation": "The text key Asha is assigned the value 8, which the lookup reads. Use EXISTS before reading a key that may be absent.",
+      "options": ["9", "7", "8"],
+      "correctIndex": 2
+    },
+    {
+      "id": "plsql-review-10",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nFUNCTION twice(n PLS_INTEGER) RETURN PLS_INTEGER IS\nBEGIN\n RETURN n * 2;\nEND;\nBEGIN\nDBMS_OUTPUT.PUT_LINE(twice(4));\nEND;\n/\n",
+      "question": "A local function gives reusable steps a name and returns a typed value. What result does this example give after the setup steps?",
+      "explanation": "The local function returns n times 2. Input 4 produces 8. A function must return a value on its successful path.",
+      "options": ["8", "9", "7"],
+      "correctIndex": 0
+    },
+    {
+      "id": "plsql-review-11",
+      "lessonSlug": "exceptions",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nanswer NUMBER;\nBEGIN\nanswer := 1 / 0;\nEXCEPTION\n WHEN ZERO_DIVIDE THEN DBMS_OUTPUT.PUT_LINE('Cannot divide by zero');\nEND;\n/\n",
+      "question": "EXCEPTION handles a failure in the block. ZERO_DIVIDE is the name for division by zero. What result does this example give after the setup steps?",
+      "explanation": "Dividing by zero raises ZERO_DIVIDE. The named handler writes the explanation. Handle a named expected error rather than silently hiding all errors.",
+      "options": ["Cannot divide by zero", "CANNOT DIVIDE BY ZERO", "cannot divide by zero"],
+      "correctIndex": 0
+    },
+    {
+      "id": "plsql-review-12",
+      "lessonSlug": "null",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nname VARCHAR2(20);\nBEGIN\nDBMS_OUTPUT.PUT_LINE(NVL(name, 'Guest'));\nEND;\n/\n",
+      "question": "NULL means no value. NVL chooses a fallback when its first input is NULL. What result does this example give after the setup steps?",
+      "explanation": "The variable begins as NULL. NVL supplies the text Guest instead. Test missing values with IS NULL, not = NULL.",
+      "options": ["Guest", "Asha", "guest"],
+      "correctIndex": 0
+    }
+  ]
+}

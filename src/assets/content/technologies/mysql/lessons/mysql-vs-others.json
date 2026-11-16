@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "slug": "mysql-vs-others",
+  "title": "MySQL Compared with SQLite and PostgreSQL",
+  "summary": "Compare MySQL with SQLite and PostgreSQL: architecture, types, auto-increment ids, upserts, RETURNING, string handling, case sensitivity, JSON and concurrency, with the same tasks written three ways.",
+  "introduction": "Most developers meet more than one database: SQLite in tests and mobile apps, PostgreSQL on one project, MySQL on the next. The core SQL is shared, but each has a personality, and the differences hide in exactly the places where copied code fails silently. This closing lesson puts MySQL 8.4 and 9 side by side with SQLite 3 and current PostgreSQL, with the same tasks written three ways, so you know what to translate and when each database is the right choice.",
+  "learningObjectives": [
+    "Contrast the server model of MySQL and PostgreSQL with the embedded model of SQLite",
+    "Translate auto-increment ids, upserts, RETURNING and string concatenation between the three",
+    "Predict how case sensitivity, booleans and dates differ",
+    "Choose the right database for a project"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three architectures"
+    },
+    {
+      "type": "table",
+      "headers": ["Aspect", "MySQL", "PostgreSQL", "SQLite"],
+      "rows": [
+        [
+          "Runs as",
+          "Server process `mysqld`, TCP port 3306",
+          "Server process `postgres`, TCP port 5432",
+          "A library inside your program; the database is one file"
+        ],
+        ["Accounts", "user@host accounts and roles", "roles", "None; the file's permissions"],
+        [
+          "Concurrency",
+          "Many writers, row locks (InnoDB)",
+          "Many writers, MVCC",
+          "One writer at a time, many readers"
+        ],
+        [
+          "Typing",
+          "Fixed column types, strict mode by default",
+          "Fixed, rich types, strict",
+          "Flexible unless the table is declared `STRICT`"
+        ],
+        ["Default isolation", "`REPEATABLE READ`", "`READ COMMITTED`", "`SERIALIZABLE`"],
+        [
+          "Licence",
+          "GPL, plus commercial editions",
+          "PostgreSQL licence (permissive)",
+          "Public domain"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The architecture decides the first question: SQLite is for data that belongs to one program on one machine; MySQL and PostgreSQL are for data shared by many clients over a network, with accounts, backups and replication to match."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same table, three ways"
+    },
+    {
+      "type": "paragraph",
+      "text": "Auto-numbered keys, enumerations and money are where table definitions diverge most. `AUTO_INCREMENT` is MySQL's spelling; PostgreSQL uses identity columns; in SQLite an `INTEGER PRIMARY KEY` is an alias for the row id and numbers itself."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "MySQL",
+      "code": "CREATE TABLE coffees (\n  id    INT AUTO_INCREMENT PRIMARY KEY,\n  name  VARCHAR(80) NOT NULL,\n  roast ENUM('light', 'medium', 'dark') NOT NULL,\n  price DECIMAL(6,2) NOT NULL\n);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.03 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "PostgreSQL",
+      "code": "CREATE TABLE coffees (\n  id    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  name  VARCHAR(80) NOT NULL,\n  roast TEXT NOT NULL CHECK (roast IN ('light', 'medium', 'dark')),\n  price NUMERIC(6,2) NOT NULL\n);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "CREATE TABLE"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "SQLite",
+      "code": "CREATE TABLE coffees (\n  id    INTEGER PRIMARY KEY,\n  name  TEXT NOT NULL,\n  roast TEXT NOT NULL CHECK (roast IN ('light', 'medium', 'dark')),\n  price_cents INTEGER NOT NULL\n) STRICT;"
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite prints nothing on success. It has no decimal type, so money is best kept as integer cents, and `STRICT` (SQLite 3.37 and later) makes it reject a string in an integer column, which plain SQLite would happily store."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inserting and reading back the id"
+    },
+    {
+      "type": "paragraph",
+      "text": "PostgreSQL and SQLite return generated values from the `INSERT` itself with `RETURNING`. MySQL has no such clause: run the insert, then ask for `LAST_INSERT_ID()`, which is safe because it is tracked per connection. The customer below becomes id 7 in the roastery data, because id 6 was used and deleted in the [CRUD lesson](/tutorials/mysql/crud)."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "MySQL",
+      "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Noor Haddad', 'noor@example.com', 'Amman', '2026-11-01');\n\nSELECT LAST_INSERT_ID();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 1 row affected (0.01 sec)\n\n+------------------+\n| LAST_INSERT_ID() |\n+------------------+\n|                7 |\n+------------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "PostgreSQL and SQLite",
+      "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Noor Haddad', 'noor@example.com', 'Amman', '2026-11-01')\nRETURNING id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "psql",
+      "content": " id\n----\n  7\n(1 row)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Upserts"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL's `ON DUPLICATE KEY UPDATE` reacts to *any* unique key that conflicts; the standard-style `ON CONFLICT` used by PostgreSQL and SQLite names the columns and reads the attempted values as `excluded`. Both update Noor's city here; MySQL reports 2 affected rows for an update through this path."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "MySQL",
+      "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Noor Haddad', 'noor@example.com', 'Irbid', '2026-11-01') AS new\nON DUPLICATE KEY UPDATE city = new.city;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 2 rows affected (0.01 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "title": "PostgreSQL and SQLite",
+      "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Noor Haddad', 'noor@example.com', 'Irbid', '2026-11-01')\nON CONFLICT (email) DO UPDATE SET city = excluded.city;"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Strings and case"
+    },
+    {
+      "type": "paragraph",
+      "text": "String concatenation is the classic porting bug: `||` concatenates in PostgreSQL and SQLite but means OR in MySQL, as the [introduction](/tutorials/mysql/introduction) showed. Use `CONCAT`, which the other two also support, or turn on `PIPES_AS_CONCAT` for the session when you must run shared SQL."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT CONCAT('Mei', ' ', 'Chen') AS full_name;\n\nSET SESSION sql_mode = CONCAT(@@sql_mode, ',PIPES_AS_CONCAT');\nSELECT 'a' || 'b';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+-----------+\n| full_name |\n+-----------+\n| Mei Chen  |\n+-----------+\n1 row in set (0.00 sec)\n\nQuery OK, 0 rows affected (0.00 sec)\n\n+------------+\n| 'a' || 'b' |\n+------------+\n| ab         |\n+------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Case is the subtler difference. MySQL's default collation compares text case-insensitively, so two spellings are equal unless you ask for a binary collation; PostgreSQL compares exactly and offers `ILIKE` for case-insensitive patterns; SQLite's `=` is exact while its `LIKE` ignores case for ASCII letters only."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT 'Mei' = 'mei' AS same_letters,\n       'Mei' COLLATE utf8mb4_bin = 'mei' AS same_bytes;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------+------------+\n| same_letters | same_bytes |\n+--------------+------------+\n|            1 |          0 |\n+--------------+------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Identifier quoting differs too: MySQL uses backticks, the other two use double quotes. MySQL accepts double quotes for identifiers only when `sql_mode` includes `ANSI_QUOTES`; otherwise `\"name\"` is a string."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Testing on SQLite, deploying on MySQL",
+      "text": "Running the test suite against SQLite because it needs no server hides MySQL-specific bugs: a `UNIQUE` index that SQLite treats case-sensitively and MySQL does not, a `VARCHAR(50)` that SQLite never enforces, a `GROUP BY` that MySQL rejects under `ONLY_FULL_GROUP_BY`, a `||` that MySQL reads as OR. Run at least the integration tests against the same MySQL version as production, for example in the Docker container from the [installation lesson](/tutorials/mysql/installing-connecting)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Types and features that differ"
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "MySQL", "PostgreSQL", "SQLite"],
+      "rows": [
+        [
+          "Boolean",
+          "`BOOLEAN` is `TINYINT(1)`, values 0 and 1",
+          "`BOOLEAN`, `true` and `false`",
+          "`INTEGER` 0 and 1"
+        ],
+        ["Exact money", "`DECIMAL(10,2)`", "`NUMERIC(10,2)`", "`INTEGER` cents"],
+        [
+          "Date and time",
+          "`DATE`, `DATETIME`, `TIMESTAMP` (UTC-converted)",
+          "`DATE`, `TIMESTAMP`, `TIMESTAMPTZ`",
+          "`TEXT`, `REAL` or `INTEGER` plus date functions"
+        ],
+        [
+          "Enumeration",
+          "`ENUM('a','b')`",
+          "`CREATE TYPE ... AS ENUM` or a `CHECK`",
+          "`CHECK (col IN (...))`"
+        ],
+        ["JSON", "`JSON` (binary, validated)", "`JSONB`", "`TEXT` with the `json_*` functions"],
+        [
+          "List per group",
+          "`GROUP_CONCAT`",
+          "`STRING_AGG`",
+          "`GROUP_CONCAT`, `STRING_AGG` (3.44+)"
+        ],
+        [
+          "Full outer join",
+          "Emulate with `UNION`",
+          "`FULL OUTER JOIN`",
+          "`FULL OUTER JOIN` (3.39+)"
+        ],
+        [
+          "Pagination",
+          "`LIMIT n OFFSET m` or `LIMIT m, n`",
+          "`LIMIT`/`OFFSET`, `FETCH FIRST`",
+          "`LIMIT`/`OFFSET`"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which one should you use?"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**SQLite** when the data lives with one program: desktop and mobile apps, command-line tools, embedded devices, local caches and test fixtures. Zero administration, but one writer at a time.",
+        "**PostgreSQL** when you want the richest SQL: window functions and CTEs are shared with MySQL, but PostgreSQL adds arrays, range types, transactional DDL, extensions such as PostGIS, and the strictest standards compliance. Our [PostgreSQL tutorial](/tutorials/postgresql) starts there.",
+        "**MySQL** when you want the largest ecosystem of hosting, tooling and hiring, straightforward replication, and the engine behind WordPress, Drupal, Magento and most PHP and Rails hosting. MariaDB, a community fork, shares the client protocol but has diverged in features and syntax, so check the [MariaDB tutorial](/tutorials/mariadb) before assuming parity."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "compass",
+      "title": "Where to go next",
+      "text": "Practise standard SQL in the browser with the [SQL tutorial](/tutorials/sql), then compare the [SQLite](/tutorials/sqlite) and [PostgreSQL](/tutorials/postgresql) tutorials. The [MySQL reference](/references/mysql) and [examples](/examples/mysql) collect the syntax from these lessons for daily use."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-compare-returning"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mysql-vs-others-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "mysql-vs-others",
+          "difficulty": "beginner",
+          "question": "Which database runs inside your program as a library rather than as a server?",
+          "explanation": "SQLite is an embedded library that reads and writes a single file. MySQL and PostgreSQL are server processes that clients connect to over a network.",
+          "options": ["MySQL", "PostgreSQL", "SQLite", "All three"],
+          "correctIndex": 2
+        },
+        {
+          "id": "mysql-vs-others-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "mysql-vs-others",
+          "difficulty": "intermediate",
+          "question": "To make `||` concatenate strings in a MySQL session, add `___` to `sql_mode`.",
+          "explanation": "PIPES_AS_CONCAT changes || from logical OR to string concatenation. CONCAT() works regardless and is the portable choice.",
+          "answers": ["PIPES_AS_CONCAT"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-compare-returning"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "crud"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "MySQL vs SQLite vs PostgreSQL – Differences That Matter",
+    "description": "Compare MySQL with SQLite and PostgreSQL: architecture, auto-increment ids, upserts, RETURNING, concatenation, case sensitivity, JSON and when to choose each."
+  },
+  "updatedOn": "2026-11-15"
+}

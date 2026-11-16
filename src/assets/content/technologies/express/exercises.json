@@ -1,0 +1,162 @@
+{
+  "title": "Express.js Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "express-first-route-check",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/\", (req, res) => res.send(\"Hello, Asha!\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A route pairs a method and path with a function. Open GET / to receive this text. What result does this example give after the setup steps?",
+      "explanation": "The GET path matches /. Express passes request and response objects to the handler, which sends the greeting. The method and path must both match the route.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "express-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/book\", (req, res) => res.json({ title: \"Moon Trip\", pages: 24 }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "JSON is a text format for named data. GET /book returns a small object. What result does this example give after the setup steps?",
+      "explanation": "res.json serialises the title and pages fields and sets a JSON response type. Use res.json for data so Express sets the JSON content type.",
+      "options": [
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "express-path-inputs-check",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/hello/:name\", (req, res) => res.send(`Hi, ${req.params.name}!`));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A colon marks a path input. GET /hello/Ravi places Ravi in req.params.name. What result does this example give after the setup steps?",
+      "explanation": "The path segment Ravi is captured under name. The template string inserts that captured text. Path inputs arrive as text; do not trust them as numbers automatically.",
+      "options": ["Hi, Ravi!", "Hi, Asha!", "hi, ravi!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "express-query-inputs-check",
+      "lessonSlug": "query-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/search\", (req, res) => res.json({ term: typeof req.query.q === \"string\" ? req.query.q : \"\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "Query values follow ? in a URL. Visit GET /search?q=cat to read q. What result does this example give after the setup steps?",
+      "explanation": "The string check accepts cat as q. The handler puts it under the term field. A query value can have an unexpected shape; check it before use.",
+      "options": ["{\"term\":\"cat\"}", "{\"term\":\"dog\"}", "[\"cat\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "express-post-json-check",
+      "lessonSlug": "post-json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.post(\"/books\", (req, res) => {\n if (typeof req.body?.title !== \"string\") return res.status(400).json({ error: \"Title needed\" });\n return res.status(201).json({ title: req.body.title });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "POST can send a body. Send POST /books with Content-Type application/json and body {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "express.json has already parsed the body. The title check passes, so status 201 and that title are returned. express.json must run before routes that read a JSON body.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "express-validation-check",
+      "lessonSlug": "validation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/double/:n\", (req, res) => {\n const n = Number(req.params.n);\n if (!Number.isSafeInteger(n)) return res.status(400).send(\"Use a whole number\");\n return res.json({ answer: n * 2 });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A route value needs checks before maths. GET /double/4 returns a doubled whole number. What result does this example give after the setup steps?",
+      "explanation": "Number parses the text 4. The integer check passes, and the returned answer is twice 4. Number() can fail or produce decimals; check the allowed kind of value.",
+      "options": ["{\"answer\":9}", "[8]", "{\"answer\":8}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "express-middleware-check",
+      "lessonSlug": "middleware",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.use((req, res, next) => { res.locals.school = \"Oak School\"; next(); });\napp.get(\"/\", (req, res) => res.send(res.locals.school));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "Middleware runs before a later handler when it calls next. GET / shows the value this middleware placed in res.locals. What result does this example give after the setup steps?",
+      "explanation": "The shared middleware sets school on this response and calls next. The handler reads that value. Middleware must send a response or call next; otherwise the request waits.",
+      "options": ["Oak School", "Pine School", "oak school"],
+      "correctIndex": 0
+    },
+    {
+      "id": "express-routers-check",
+      "lessonSlug": "routers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\nconst api = express.Router();\napi.get(\"/books\", (req, res) => res.json([\"Moon Trip\"]));\napp.use(\"/api\", api);\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A Router groups routes under a shared prefix. GET /api/books uses both the prefix and inner path. What result does this example give after the setup steps?",
+      "explanation": "Mounting at /api combines with /books, creating /api/books. The mounted prefix is part of the final URL.",
+      "options": ["[\"Sun Trip\"]", "[]", "[\"Moon Trip\"]"],
+      "correctIndex": 2
+    },
+    {
+      "id": "express-status-codes-check",
+      "lessonSlug": "status-codes",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/books/:id\", (req, res) => res.status(404).json({ error: \"Book not found\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A status code tells the client what happened. GET /books/99 returns 404 because this practice item is absent. What result does this example give after the setup steps?",
+      "explanation": "The handler explicitly sets 404 before sending its one error field. Set the status before sending the response body.",
+      "options": [
+        "[\"Book not found\"]",
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "express-redirects-check",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/start\", (req, res) => res.redirect(302, \"/hello\"));\napp.get(\"/hello\", (req, res) => res.send(\"Welcome\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A redirect asks the client to visit another URL. GET /start points to /hello; a browser follows it. What result does this example give after the setup steps?",
+      "explanation": "The first handler sends Location: /hello. The following request receives Welcome. A redirect is a new request, not an internal function call.",
+      "options": ["Hello", "welcome", "Welcome"],
+      "correctIndex": 2
+    },
+    {
+      "id": "express-errors-check",
+      "lessonSlug": "errors",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/broken\", (req, res) => { throw new Error(\"Practice failure\"); });\napp.use((err, req, res, next) => res.status(500).json({ error: \"Try again later\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "An error handler has four inputs. GET /broken throws an error, which the last handler turns into a clear reply. What result does this example give after the setup steps?",
+      "explanation": "The thrown error skips normal routing and reaches the four-input error handler. Place error middleware after the routes and avoid exposing private error details.",
+      "options": [
+        "{\"error\":\"Try again later\"}",
+        "{\"error\":\"Book not found\"}",
+        "[\"Try again later\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "express-not-found-check",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/\", (req, res) => res.send(\"Home\"));\napp.use((req, res) => res.status(404).send(\"Page not found\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "question": "A final middleware can reply when no earlier route matched. GET /missing reaches this fallback. What result does this example give after the setup steps?",
+      "explanation": "No route matches /missing, so the final middleware supplies a 404 text reply. Put the fallback last so it does not hide real routes.",
+      "options": ["page not found", "Page not found", "Home"],
+      "correctIndex": 1
+    }
+  ]
+}

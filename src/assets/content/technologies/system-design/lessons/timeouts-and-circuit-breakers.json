@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "timeouts-and-circuit-breakers",
+  "title": "Timeouts and circuit breakers",
+  "summary": "Limit waiting with timeouts and pause calls to a failing service with a circuit breaker. Trace closed, open, and half-open states using a small model.",
+  "introduction": "If the library's label printer stops responding, the desk should not wait forever. It can stop waiting and pause new print attempts for a while. Timeouts and circuit breakers give software similar limits.",
+  "learningObjectives": [
+    "Explain a timeout and an overall deadline",
+    "Trace closed, open, and half-open breaker states",
+    "Choose an honest fallback when a dependency is unavailable"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **timeout** limits how long one operation waits. An **overall deadline** limits the whole job, including waits and retries. If a page has a two-second budget, three separate two-second waits will not fit it."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **circuit breaker** watches suitable failures from another service. In the **closed** state, calls are allowed. After enough failures, it becomes **open** and rejects new calls quickly for a while."
+    },
+    {
+      "type": "paragraph",
+      "text": "After a cooldown, the breaker becomes **half-open** and allows a limited test call. If recovery looks good under the chosen rule, it closes. If the test fails, it opens again. These names describe a switch, not whether a request is public or private."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "This model opens the breaker after two failures in a row.",
+        "Two failed calls change the state from closed to open. A new call is blocked.",
+        "A cooldown event moves it to half-open. One probe call is allowed.",
+        "A successful probe closes this simple breaker. Real policies may need several successful probes before normal traffic returns."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "let state = \"closed\";\nlet failures = 0;\nfunction result(ok) {\n  if (state === \"open\") return \"blocked\";\n  if (ok) {\n    failures = 0;\n    state = \"closed\";\n  } else {\n    failures++;\n    if (state === \"half-open\" || failures >= 2) state = \"open\";\n  }\n  return state;\n}\nconsole.log(result(false));\nconsole.log(result(false));\nconsole.log(result(true));\nstate = \"half-open\"; // pretend the cooldown has passed\nconsole.log(state);\nconsole.log(result(true));",
+      "title": "Timeouts and circuit breakers model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "closed\nopen\nblocked\nhalf-open\nclosed"
+    },
+    {
+      "type": "paragraph",
+      "text": "The third call is blocked even though its sample result is true. The open breaker does not contact the dependency. After the modeled cooldown, the probe gets a chance."
+    },
+    {
+      "type": "paragraph",
+      "text": "A real breaker needs clocks, a limited number of probes, and a policy for which failures count. Many designs use a rolling error-rate window rather than consecutive failures. The small model teaches states only."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Shorter timeout",
+          "Frees waiting resources sooner",
+          "Can reject a slow request that would have succeeded"
+        ],
+        [
+          "Circuit breaker",
+          "Avoids repeatedly calling a dependency likely to fail",
+          "Needs safe cooldown and recovery rules"
+        ],
+        [
+          "Fallback",
+          "Can keep a limited part of the app useful",
+          "Must be honest, such as showing an older cover rather than claiming a checkout succeeded"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Stopping the caller's wait does not prove the remote job stopped. Cancel work where supported, but still use safe rules if a write might have completed."
+    },
+    {
+      "type": "paragraph",
+      "text": "A timeout that is too long ties up resources; one that is too short creates needless errors and retries. Use measurements such as slow-end response times, then set a budget that fits the user's task."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the final probe result from true to false. What is the final state?",
+        "It is open. A failed half-open probe tells this model to pause calls again."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use a fallback that invents success for an important write. If a checkout could not be confirmed, say so and provide a safe next step."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-timeouts-and-circuit-breakers"
+    }
+  ],
+  "exerciseIds": ["system-design-timeouts-and-circuit-breakers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "observe-and-review-the-design"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Timeouts and circuit breakers",
+    "description": "Limit waiting with timeouts and pause calls to a failing service with a circuit breaker. Trace closed, open, and half-open states using a small model."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,126 @@
+{
+  "title": "Kubernetes Examples",
+  "description": "Small Kubernetes examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "A cluster and its tools",
+      "description": "A cluster is a group of machines managed together. kubectl is a command-line tool that asks the Kubernetes API about that cluster.",
+      "language": "bash",
+      "code": "kubectl version --client",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "check-the-current-context",
+      "title": "Check the current context",
+      "description": "A context chooses a cluster, user and sometimes namespace. Read it first so you know where a command would act.",
+      "language": "bash",
+      "code": "kubectl config current-context\nkubectl config get-contexts",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-the-current-context"
+    },
+    {
+      "id": "pods-hold-containers",
+      "title": "Pods hold containers",
+      "description": "A Pod is Kubernetes' smallest runnable unit. Containers in one Pod share some resources, such as the network address.",
+      "language": "text",
+      "code": "Pod: club-web\nContainer: web server\nPod network address: shared by containers in that Pod",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "pods-hold-containers"
+    },
+    {
+      "id": "deployments-manage-replicas",
+      "title": "Deployments manage replicas",
+      "description": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy.",
+      "language": "yaml",
+      "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: club-web\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: club-web\n  template:\n    metadata:\n      labels:\n        app: club-web\n    spec:\n      containers:\n        - name: web\n          image: nginx:stable",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "deployments-manage-replicas"
+    },
+    {
+      "id": "labels-group-resources",
+      "title": "Labels group resources",
+      "description": "A label is a key-value marker attached to a resource. Selectors find resources with matching labels.",
+      "language": "yaml",
+      "code": "labels:\n  app: club-web\n  purpose: practice",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "labels-group-resources"
+    },
+    {
+      "id": "inspect-resources",
+      "title": "Inspect resources",
+      "description": "get lists resources. describe gives a detailed human-readable view with events that can explain problems.",
+      "language": "bash",
+      "code": "kubectl get pods\nkubectl describe deployment club-web",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "inspect-resources"
+    },
+    {
+      "id": "services-give-a-stable-route",
+      "title": "Services give a stable route",
+      "description": "A Service gives a stable way to reach a selected group of Pods. This example is internal to the cluster.",
+      "language": "yaml",
+      "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: club-web\nspec:\n  selector:\n    app: club-web\n  ports:\n    - port: 80\n      targetPort: 80\n  type: ClusterIP",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "services-give-a-stable-route"
+    },
+    {
+      "id": "configmaps-hold-ordinary-settings",
+      "title": "ConfigMaps hold ordinary settings",
+      "description": "A ConfigMap stores non-secret configuration. An application may read selected values through environment variables or files.",
+      "language": "yaml",
+      "code": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: club-settings\ndata:\n  WELCOME_TEXT: \"Hello, club\"",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "configmaps-hold-ordinary-settings"
+    },
+    {
+      "id": "resource-requests-and-limits",
+      "title": "Resource requests and limits",
+      "description": "Requests help schedule a container. Limits bound some resource use. CPU m means one thousandth of a CPU unit.",
+      "language": "yaml",
+      "code": "resources:\n  requests:\n    cpu: \"100m\"\n    memory: \"64Mi\"\n  limits:\n    cpu: \"200m\"\n    memory: \"128Mi\"",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "resource-requests-and-limits"
+    },
+    {
+      "id": "readiness-and-liveness",
+      "title": "Readiness and liveness",
+      "description": "A readiness check asks whether a container should receive traffic. A liveness check asks whether Kubernetes should restart it.",
+      "language": "text",
+      "code": "Readiness fails -> stop sending Service traffic to that Pod\nLiveness fails repeatedly -> container may restart",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "readiness-and-liveness"
+    },
+    {
+      "id": "read-logs-and-rollout-state",
+      "title": "Read logs and rollout state",
+      "description": "Logs show the program's messages. Rollout status reports progress while a Deployment changes its Pods.",
+      "language": "bash",
+      "code": "kubectl logs deployment/club-web\nkubectl rollout status deployment/club-web",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-logs-and-rollout-state"
+    },
+    {
+      "id": "namespaces-organise-a-cluster",
+      "title": "Namespaces organise a cluster",
+      "description": "A namespace groups namespaced resources. It helps separate teams or practice work, but is not by itself a complete security boundary.",
+      "language": "text",
+      "code": "Namespace: club-practice\nDeployment: club-web inside club-practice\nService: club-web inside club-practice",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "namespaces-organise-a-cluster"
+    }
+  ]
+}

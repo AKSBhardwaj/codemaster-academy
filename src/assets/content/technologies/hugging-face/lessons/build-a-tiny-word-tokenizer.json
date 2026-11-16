@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "build-a-tiny-word-tokenizer",
+  "title": "Build a tiny word tokenizer",
+  "summary": "A tokenizer turns text into pieces and IDs. WordLevel uses whole pieces from a supplied vocabulary. Whitespace splits this simple sentence into words.",
+  "introduction": "A tokenizer turns text into pieces and IDs. WordLevel uses whole pieces from a supplied vocabulary. Whitespace splits this simple sentence into words. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain build a tiny word tokenizer",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A tokenizer turns text into pieces and IDs. WordLevel uses whole pieces from a supplied vocabulary. Whitespace splits this simple sentence into words."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\nencoded = tokenizer.encode(\"moon glows\")\nprint(encoded.tokens, encoded.ids)",
+      "title": "Build a tiny word tokenizer",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The output shows ['moon', 'glows'] and [2, 3]. The vocabulary assigns those IDs, and the pre-tokenizer separates the words before lookup."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Reverse the two words and inspect the ID order.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "This tiny fixed vocabulary is a teaching tool, not the tokenizer used by every real model."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "hugging-face-build-a-tiny-word-tokenizer"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Hugging Face further reading](https://huggingface.co/docs)."
+    }
+  ],
+  "exerciseIds": ["hugging-face-build-a-tiny-word-tokenizer"],
+  "relatedLessons": [
+    {
+      "technologySlug": "hugging-face",
+      "slug": "recognise-an-unknown-token"
+    }
+  ],
+  "seo": {
+    "title": "Hugging Face: Build a tiny word tokenizer",
+    "description": "Learn about build a tiny word tokenizer in Hugging Face. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

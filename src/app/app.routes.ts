@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import type { PageSeo } from './core/services/seo.service';
-import { authGuard } from './core/guards/auth.guard';
 
 const seo = (title: string, description: string, robots?: PageSeo['robots']): { seo: PageSeo } => ({
   seo: { title, description, robots },
@@ -13,12 +12,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then((m) => m.HomePage),
     data: {
       seo: {
-        title: 'CodeMaster Academy – Learn to code with clear, practical tutorials',
+        title: 'CodeMaster Academy – Learn to code, one small step at a time',
         description:
-          'Free, structured programming tutorials with runnable examples, exercises and quizzes covering 100+ languages, frameworks, databases and developer tools.',
+          'Learn to code with simple lessons, small examples and fun practice. Start with HTML, CSS and JavaScript. Free to use, with no account needed.',
         withBrandSuffix: false,
       } satisfies PageSeo,
     },
+  },
+  {
+    path: 'start',
+    loadComponent: () =>
+      import('./features/getting-started/getting-started').then((m) => m.GettingStartedPage),
+    data: seo(
+      'Start coding step by step',
+      'Learn what code is, try your first web page, and follow small steps through HTML, CSS and JavaScript. A free guide for complete beginners.',
+    ),
   },
   {
     path: 'tutorials',
@@ -67,30 +75,27 @@ export const routes: Routes = [
     data: seo('Search', 'Search tutorials, lessons, examples and categories.', 'noindex,follow'),
   },
   {
-    path: 'login',
-    loadComponent: () => import('./features/authentication/login').then((m) => m.LoginPage),
-    data: seo('Log in', 'Log in to track your learning progress and bookmarks.', 'noindex,follow'),
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./features/authentication/register').then((m) => m.RegisterPage),
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.DashboardPage),
     data: seo(
-      'Create account',
-      'Create an account to track your learning progress.',
-      'noindex,follow',
+      'My learning',
+      'See your lessons, saved pages and quiz scores in this browser.',
+      'noindex,nofollow',
     ),
   },
   {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.DashboardPage),
-    data: seo('Dashboard', 'Your learning dashboard.', 'noindex,nofollow'),
+    path: 'profile',
+    pathMatch: 'full',
+    redirectTo: 'settings',
   },
   {
-    path: 'profile',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/profile/profile').then((m) => m.ProfilePage),
-    data: seo('Profile', 'Manage your profile and local data.', 'noindex,nofollow'),
+    path: 'settings',
+    loadComponent: () => import('./features/settings/settings').then((m) => m.SettingsPage),
+    data: seo(
+      'Learning settings',
+      'Choose a nickname, save a copy of your progress or start again.',
+      'noindex,nofollow',
+    ),
   },
   {
     path: 'bookmarks',
@@ -109,8 +114,8 @@ export const routes: Routes = [
     path: 'contact',
     loadComponent: () => import('./features/static-pages/contact').then((m) => m.ContactPage),
     data: seo(
-      'Contact us',
-      'Get in touch about tutorials, corrections or partnerships. The form opens your email application; nothing is stored on a server.',
+      'Contact and feedback',
+      'Prepare a note about a lesson, then copy or download it. This frontend app does not send messages or store your feedback.',
     ),
   },
   {
@@ -118,7 +123,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/static-pages/privacy').then((m) => m.PrivacyPage),
     data: seo(
       'Privacy policy',
-      'How CodeMaster Academy handles your data: learning progress and demo accounts stay in your browser, with no analytics or tracking cookies.',
+      'How CodeMaster Academy handles your data: learning progress stays in your browser, with no accounts, analytics or tracking cookies.',
     ),
   },
   {

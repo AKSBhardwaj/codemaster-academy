@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "slug": "type-aliases-unions",
+  "title": "Type Aliases and Union Types",
+  "summary": "A type alias gives a type a name. A union says that a value can be one of several allowed types.",
+  "introduction": "A type alias gives a type a name. A union says that a value can be one of several allowed types. Name a useful shape once so you can reuse it. Then describe a value that may be text or a number, and check it before using it.",
+  "learningObjectives": [
+    "Create type aliases for primitives, unions, objects and function types",
+    "Explain why a union value only exposes the members shared by every alternative",
+    "Combine object types with an intersection and choose between type and interface"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Type aliases"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `type` keyword gives a name to any type: a primitive, a union, an object shape, a function signature or a tuple. The alias is purely a name; it creates no new type and no runtime code. Aliases shine when the same union would otherwise be repeated in ten signatures."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "alias.ts",
+      "code": "type Id = number | string;\ntype Size = \"small\" | \"medium\" | \"large\";\n\nfunction label(id: Id, size: Size): string {\n  return `${id}-${size}`;\n}\n\nconsole.log(label(7, \"small\"));\nconsole.log(label(\"x1\", \"large\"));\nconsole.log(label(\"x2\", \"huge\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc alias.ts",
+      "content": "alias.ts:10:25 - error TS2345: Argument of type '\"huge\"' is not assignable to parameter of type 'Size'.\n\n10 console.log(label(\"x2\", \"huge\"));\n                           ~~~~~~\n\n\nFound 1 error in alias.ts:10"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first two calls print `7-small` and `x1-large`. The third is caught because `\"huge\"` is not one of the three literals in `Size`. A union of string literals is the lightest way to model a fixed set of options; the [enums lesson](/tutorials/typescript/enums-literals) compares it with `enum`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Working with a union value"
+    },
+    {
+      "type": "paragraph",
+      "text": "A union says *one of these, but I do not know which*. The compiler therefore lets you use only what every member supports. `padStart` exists on strings but not on numbers, so calling it on a `string | number` is an error, and the message spells out which member lacks it."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "pad.ts",
+      "code": "function pad(value: string | number): string {\n  return value.padStart(4, \"0\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc pad.ts",
+      "content": "pad.ts:2:16 - error TS2339: Property 'padStart' does not exist on type 'string | number'.\n  Property 'padStart' does not exist on type 'number'.\n\n2   return value.padStart(4, \"0\");\n                 ~~~~~~~~\n\n\nFound 1 error in pad.ts:2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The fix is to check which member you have. A `typeof` test narrows `value` to `number` inside the `if` and to `string` after it, so each branch can use the right methods. This is the core move of the [narrowing lesson](/tutorials/typescript/narrowing); here is the simplest form."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "pad-fixed.ts",
+      "code": "function pad(value: string | number): string {\n  if (typeof value === \"number\") {\n    return String(value).padStart(4, \"0\");\n  }\n  return value.padStart(4, \"0\");\n}\n\nconsole.log(pad(7), pad(\"42\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx pad-fixed.ts",
+      "content": "0007 0042"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Intersections"
+    },
+    {
+      "type": "paragraph",
+      "text": "Where a union means *either*, an intersection (`&`) means *both*. Intersecting two object types produces a type that has every property of each, which is handy for mixing in shared fields such as timestamps. Aliases also work for function types and tuples, as `Handler` shows."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "intersection.ts",
+      "code": "type Timestamps = { createdAt: string; updatedAt: string };\ntype Post = { title: string; body: string } & Timestamps;\n\nconst post: Post = {\n  title: \"Unions\",\n  body: \"A value that can be one of several types.\",\n  createdAt: \"2026-02-01\",\n  updatedAt: \"2026-02-03\",\n};\n\ntype Handler = (event: string) => void;\nconst onSave: Handler = (event) => console.log(`saved after ${event}`);\n\nonSave(post.title);\n\ntype Impossible = string & number;\nconst nothing: Impossible = \"text\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc intersection.ts",
+      "content": "intersection.ts:17:7 - error TS2322: Type '\"text\"' is not assignable to type 'never'.\n\n17 const nothing: Impossible = \"text\";\n         ~~~~~~~\n\n\nFound 1 error in intersection.ts:17"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: intersecting types that cannot overlap",
+      "text": "`string & number` is not an error on the line that declares it. The compiler quietly reduces it to `never`, the type with no values, and the problem only surfaces later as `not assignable to type 'never'`. The same happens when two object types declare the same property with incompatible types. Intersections are for *combining* compatible shapes, not for narrowing; use a union plus a check for that."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "type or interface?"
+    },
+    {
+      "type": "paragraph",
+      "text": "For a plain object shape, the two are interchangeable, and consistency within a codebase matters more than the choice. The real differences are in what each one *can* do."
+    },
+    {
+      "type": "table",
+      "headers": ["Capability", "`interface`", "`type`"],
+      "rows": [
+        ["Object shapes", "Yes", "Yes"],
+        ["Unions, primitives, tuples, function types", "No", "Yes"],
+        ["Extend another shape", "`extends`", "`&` intersection"],
+        [
+          "Declaration merging (two declarations combine)",
+          "Yes",
+          "No; a duplicate name is an error"
+        ],
+        ["Implemented by a class", "Yes", "Yes, when it is an object type"],
+        ["Error messages show", "The interface name", "Often the expanded structure"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A practical rule: use `interface` for object shapes that other code will extend or implement, and `type` for everything else, especially unions. Angular, for instance, uses interfaces for component inputs and type aliases for state unions such as `\"loading\" | \"ready\" | \"error\"`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Unions of objects",
+      "text": "A union can also combine object types: `type Result = { ok: true; value: number } | { ok: false; error: string }`. The shared `ok` property with different literal types lets the compiler tell the members apart. This *discriminated union* pattern is one of the most useful ideas in TypeScript and gets its own section in the narrowing lesson."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-type-aliases-unions-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-unions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "type-aliases-unions",
+          "difficulty": "beginner",
+          "question": "Which method can be called directly on a value of type `string | string[]` without narrowing?",
+          "explanation": "Only members that exist on every union member are available. Both strings and arrays have length and slice; toUpperCase exists only on strings and push only on arrays.",
+          "options": ["`toUpperCase()`", "`push()`", "`slice()`", "`toFixed()`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "ts-unions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "type-aliases-unions",
+          "difficulty": "beginner",
+          "question": "A type alias can describe a union, but an interface cannot.",
+          "explanation": "Interfaces describe object shapes only. Unions, primitives, tuples and function types need the type keyword.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-type-aliases-unions-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "objects-interfaces"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "enums-literals"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Type Aliases and Union Types Explained",
+    "description": "Learn TypeScript type aliases, union and literal types, intersections and the difference between type and interface, with compiler errors and fixes."
+  },
+  "updatedOn": "2026-11-16"
+}

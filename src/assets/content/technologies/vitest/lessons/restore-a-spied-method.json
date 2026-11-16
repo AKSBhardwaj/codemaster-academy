@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "restore-a-spied-method",
+  "title": "Restore a spied method",
+  "summary": "vi.spyOn watches an existing method. Restore it after the test so later code sees the normal method again.",
+  "introduction": "vi.spyOn watches an existing method. Restore it after the test so later code sees the normal method again. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain restore a spied method",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "vi.spyOn watches an existing method. Restore it after the test so later code sees the normal method again."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\nafterEach(() => { vi.restoreAllMocks(); });\ntest(\"reads the total\", () => { const basket = { total: () => 4 }; vi.spyOn(basket, \"total\").mockReturnValue(9); expect(basket.total()).toBe(9); });",
+      "title": "Restore a spied method",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The spied method returns 9 during the test. Cleanup restores the original method."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Explain what total returned before the spy.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Clearing recorded calls is not the same as restoring an original method."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "vitest-restore-a-spied-method"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Vitest further reading](https://vitest.dev/guide/)."
+    }
+  ],
+  "exerciseIds": ["vitest-restore-a-spied-method"],
+  "relatedLessons": [
+    {
+      "technologySlug": "vitest",
+      "slug": "async-assertions"
+    }
+  ],
+  "seo": {
+    "title": "Vitest: Restore a spied method",
+    "description": "Learn about restore a spied method in Vitest. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

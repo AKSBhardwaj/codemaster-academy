@@ -1,0 +1,160 @@
+{
+  "id": "laravel-quiz",
+  "title": "Laravel Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "laravel-review-1",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/\", fn () => \"Hello, Asha!\");\n",
+      "question": "Route::get connects a URL to a function. Open GET /. What result does this example give after the setup steps?",
+      "explanation": "The GET facade registers a closure for /. Its returned string becomes the response. Use routes/web.php for these unprefixed web routes.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "laravel-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/book\", fn () => response()->json([\"title\" => \"Moon Trip\", \"pages\" => 24]));\n",
+      "question": "The response helper can make JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The response helper serialises the PHP array as a JSON object. Use a JSON response when sending data rather than HTML.",
+      "options": [
+        "[\"Moon Trip\",24]",
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "laravel-review-3",
+      "lessonSlug": "route-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/hello/{name}\", fn (string $name) => response(\"Hi, \" . $name . \"!\")->header(\"Content-Type\", \"text/plain\"));\n",
+      "question": "Curly braces mark a route input. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "The route captures Ravi as name. The response declares plain text so it displays the greeting literally. Do not place raw user input in HTML.",
+      "options": ["Hi, Ravi!", "Hi, Asha!", "hi, ravi!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "laravel-review-4",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/search\", fn (Request $request) => response()->json([\"term\" => $request->query(\"q\", \"\")]));\n",
+      "question": "Laravel can give the route a Request object. GET /search?q=cat reads the query value. What result does this example give after the setup steps?",
+      "explanation": "Laravel supplies the Request object. query reads q and finds cat. Query inputs should be checked before important use.",
+      "options": ["{\"term\":\"dog\"}", "[\"cat\"]", "{\"term\":\"cat\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "laravel-review-5",
+      "lessonSlug": "constraints",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/double/{n}\", fn (string $n) => response()->json([\"answer\" => (int) $n * 2]))->whereNumber(\"n\");\n",
+      "question": "whereNumber only matches numeric path text. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "whereNumber accepts the digits 4. Casting makes an integer before multiplication. A route rule checks matching; it does not set every business limit.",
+      "options": ["{\"answer\":9}", "[8]", "{\"answer\":8}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "laravel-review-6",
+      "lessonSlug": "named-routes",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/hello/{name}\", fn (string $name) => $name)->name(\"hello\");\nRoute::get(\"/link\", fn () => route(\"hello\", [\"name\" => \"Asha\"], false));\n",
+      "question": "name gives a route a reusable label. GET /link builds a relative URL to that named route. What result does this example give after the setup steps?",
+      "explanation": "The named route stores its path pattern. route fills in Asha and returns a relative path. The route input key must match the placeholder name.",
+      "options": ["/hello/asha", "/hello/Asha", "/hello/Ravi"],
+      "correctIndex": 1
+    },
+    {
+      "id": "laravel-review-7",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/start\", fn () => redirect(\"/hello\"));\nRoute::get(\"/hello\", fn () => \"Welcome\");\n",
+      "question": "redirect makes an HTTP redirect. A browser following GET /start reaches /hello. What result does this example give after the setup steps?",
+      "explanation": "The redirect contains /hello as its location. A browser follows it and reads Welcome. A redirect tells the client to make a new request.",
+      "options": ["Hello", "welcome", "Welcome"],
+      "correctIndex": 2
+    },
+    {
+      "id": "laravel-review-8",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/missing\", fn () => response()->json([\"error\" => \"Book not found\"], 404));\n",
+      "question": "A JSON response can include an error status. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "The JSON helper receives 404 as its second argument and sends that error status. An error message should use an appropriate error status.",
+      "options": [
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]",
+        "{\"error\":\"Book not found\"}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "laravel-review-9",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/note\", fn () => response(\"Practice note\")->header(\"Cache-Control\", \"no-store\"));\n",
+      "question": "The header method adds response metadata. GET /note has a no-store rule. What result does this example give after the setup steps?",
+      "explanation": "The response is built with text first, then its cache header is set. A header is separate from the response body.",
+      "options": ["Welcome", "practice note", "Practice note"],
+      "correctIndex": 2
+    },
+    {
+      "id": "laravel-review-10",
+      "lessonSlug": "collections",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/scores\", fn () => response()->json(collect([4, 8, 9])->filter(fn ($n) => $n >= 7)->values()->all()));\n",
+      "question": "A collection wraps values with useful methods. GET /scores filters scores and resets their numeric keys. What result does this example give after the setup steps?",
+      "explanation": "filter keeps 8 and 9. values resets keys before JSON serialisation makes an array. values resets keys so this result remains a JSON array.",
+      "options": ["[9,8]", "[8,9]", "[9,9]"],
+      "correctIndex": 1
+    },
+    {
+      "id": "laravel-review-11",
+      "lessonSlug": "mapping",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::get(\"/double\", fn () => response()->json(collect([2, 3])->map(fn ($n) => $n * 2)->all()));\n",
+      "question": "map makes a new value for every collection item. Open GET /double. What result does this example give after the setup steps?",
+      "explanation": "map doubles each of the two items. all extracts their array values for the response. map transforms values; filter chooses which values remain.",
+      "options": ["[6,4]", "[4,6]", "[5,6]"],
+      "correctIndex": 1
+    },
+    {
+      "id": "laravel-review-12",
+      "lessonSlug": "route-groups",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "php",
+      "code": "<?php\nuse Illuminate\\Support\\Facades\\Route;\nuse Illuminate\\Http\\Request;\nRoute::prefix(\"api\")->group(function () {\n Route::get(\"books\", fn () => response()->json([\"Moon Trip\"]));\n});\n",
+      "question": "A route group can share a prefix. Open GET /api/books. What result does this example give after the setup steps?",
+      "explanation": "The group prefix api and inner books path combine to /api/books. In this web.php example the api prefix is added explicitly.",
+      "options": ["[\"Moon Trip\"]", "[\"Sun Trip\"]", "[]"],
+      "correctIndex": 0
+    }
+  ]
+}

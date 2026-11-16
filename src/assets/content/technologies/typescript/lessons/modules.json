@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "slug": "modules",
+  "title": "Modules and Imports",
+  "summary": "Modules let you split TypeScript code into files and choose which names each file shares.",
+  "introduction": "Modules let you split TypeScript code into files and choose which names each file shares. Put a helper in one file and use it from another. Learn the difference between sharing a value and sharing only a type.",
+  "learningObjectives": [
+    "Export and import functions, values, interfaces and defaults between files",
+    "Explain why relative imports need a .js extension under module nodenext",
+    "Use import type and verbatimModuleSyntax and fix TS2835, TS2307 and TS1484"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Export and import"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mark anything you want to share with `export`: functions, constants, interfaces, type aliases, classes. One member per file may be the `default` export. The importing file lists the names it needs in braces; a default export is imported under any name without braces. Interfaces are imported exactly like values, optionally with the `type` keyword to make it clear that they vanish at runtime."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/math.ts",
+      "code": "export function add(a: number, b: number): number {\n  return a + b;\n}\n\nexport const PI = 3.14159;\n\nexport interface Vector {\n  x: number;\n  y: number;\n}\n\nexport default function length(v: Vector): number {\n  return Math.hypot(v.x, v.y);\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/main.ts",
+      "code": "import length, { add, PI, type Vector } from \"./math.js\";\n\nconst v: Vector = { x: 3, y: 4 };\n\nconsole.log(add(1, 2), PI, length(v));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc && node dist/main.js",
+      "content": "3 3.14159 5"
+    },
+    {
+      "type": "paragraph",
+      "text": "Look at what the compiler wrote to `dist/main.js`. The `type Vector` import is gone, because an interface has no runtime representation, and everything else is untouched, including the `./math.js` path."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "dist/main.js (emitted by tsc)",
+      "code": "import length, { add, PI } from \"./math.js\";\nconst v = { x: 3, y: 4 };\nconsole.log(add(1, 2), PI, length(v));"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why the import says .js when the file is .ts"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `\"module\": \"nodenext\"` and `\"type\": \"module\"` in `package.json`, the compiler follows Node's ES module rules, and Node requires the full file name in a relative import. The compiler never rewrites import paths, so you write the path *as it will exist after compilation*: `./math.js`, which resolves to `src/math.ts` while type-checking and to `dist/math.js` at runtime. Leave the extension off and you get one of the most searched TypeScript errors."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/no-extension.ts",
+      "code": "import { add } from \"./math\";\n\nconsole.log(add(1, 2));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc",
+      "content": "src/no-extension.ts:1:21 - error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './math.js'?\n\n1 import { add } from \"./math\";\n                      ~~~~~~~~\n\n\nFound 1 error in src/no-extension.ts:1"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: copying bundler-style imports into a Node project",
+      "text": "Tutorials written for webpack, Vite or Angular omit extensions because those tools resolve `./math` themselves, and their tsconfig uses `\"moduleResolution\": \"bundler\"`. In a project that Node runs directly, the extension is mandatory. Pick one setting per project: `nodenext` for code Node executes, `bundler` for code a bundler processes. If you prefer writing `./math.ts`, TypeScript 5.7 added `rewriteRelativeImportExtensions`, which rewrites `.ts` to `.js` in the output."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Modules that cannot be found"
+    },
+    {
+      "type": "paragraph",
+      "text": "A path that resolves to nothing, whether because of a typo or because the file was never created, is reported at the import. The same code, TS2307, appears when you import an npm package whose types are missing; the [declaration files lesson](/tutorials/typescript/declaration-files) covers that case."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/missing.ts",
+      "code": "import { shuffle } from \"./utils.js\";\n\nconsole.log(shuffle([1, 2, 3]));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc",
+      "content": "src/missing.ts:1:25 - error TS2307: Cannot find module './utils.js' or its corresponding type declarations.\n\n1 import { shuffle } from \"./utils.js\";\n                          ~~~~~~~~~~~~\n\n\nFound 1 error in src/missing.ts:1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Type-only imports and verbatimModuleSyntax"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a file imports only an interface, the compiler must decide whether to keep the import statement in the output. Dropping it is usually right, but keeping it can matter when the module has side effects, and tools that process one file at a time (esbuild, Node's type stripping, `tsx`) cannot know whether `Vector` is a type. `verbatimModuleSyntax`, enabled by the 5.9 `tsc --init` template, resolves the ambiguity by rule: anything imported without `type` is kept, so importing a type that way is an error."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/verbatim.ts",
+      "code": "import { Vector, add } from \"./math.js\";\n\nconst v: Vector = { x: 1, y: 1 };\nconsole.log(add(v.x, v.y));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc --verbatimModuleSyntax",
+      "content": "src/verbatim.ts:1:10 - error TS1484: 'Vector' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.\n\n1 import { Vector, add } from \"./math.js\";\n           ~~~~~~\n\n\nFound 1 error in src/verbatim.ts:1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write `import { type Vector, add }` to mix types and values in one statement, or `import type { Vector }` for a statement that is entirely erased. The same keyword works on exports: `export type { Vector }`. Get into the habit even without the option; it documents which imports exist only for the compiler."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ES modules, CommonJS and the type field"
+    },
+    {
+      "type": "table",
+      "headers": ["`package.json`", "`.ts` files are", "Emitted syntax", "Relative imports"],
+      "rows": [
+        ["`\"type\": \"module\"`", "ES modules", "`import` / `export`", "Need `.js`"],
+        ["No `type` field", "CommonJS", "`require` / `module.exports`", "Extension optional"],
+        ["Either", "`.mts` is always ESM, `.cts` is always CommonJS", "Per file", "Per file"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Under `nodenext` the compiler reads `package.json` to decide the format of each file, so the same `import` syntax in your source can compile to `require` calls in a CommonJS package. Importing a CommonJS package from ESM works, and since TypeScript 5.8 `require()` of an ES module is also understood where Node 22+ allows it. The `esModuleInterop` option, on by default under `nodenext`, makes `import fs from \"fs\"` behave like Node's own interop."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Barrel files",
+      "text": "An `index.ts` that only re-exports (`export * from \"./math.js\"`) lets callers import from a folder. Keep barrels small: a barrel that pulls in every file of a feature makes bundles bigger and creates circular imports that are hard to debug."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-modules-extension"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-modules-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "modules",
+          "difficulty": "intermediate",
+          "question": "In a `nodenext` ES module project, which import of a `src/format.ts` file compiles?",
+          "explanation": "Imports must use the path that exists after compilation. The compiler resolves ./format.js to format.ts while checking, and Node loads dist/format.js at runtime.",
+          "options": [
+            "`import { fmt } from \"./format\";`",
+            "`import { fmt } from \"./format.ts\";`",
+            "`import { fmt } from \"./format.js\";`",
+            "`import { fmt } from \"format\";`"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "ts-modules-qc-2",
+          "type": "true-false",
+          "lessonSlug": "modules",
+          "difficulty": "beginner",
+          "question": "`import type { User } from \"./user.js\";` produces no code in the emitted JavaScript.",
+          "explanation": "Type-only imports exist solely for the checker and are removed entirely from the output.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-modules-extension"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "declaration-files"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "strict-config"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Modules – import, export, nodenext and .js Paths",
+    "description": "TypeScript ES modules: export and import syntax, why nodenext needs .js extensions, type-only imports, verbatimModuleSyntax and the TS2835 and TS2307 errors."
+  },
+  "updatedOn": "2026-11-16"
+}

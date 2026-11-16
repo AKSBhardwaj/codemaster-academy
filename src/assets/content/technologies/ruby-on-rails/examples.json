@@ -1,0 +1,138 @@
+{
+  "title": "Ruby on Rails Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-action",
+      "title": "Make a controller action",
+      "description": "A route names a controller and action. GET /hello runs LessonController#hello.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hello, Asha!\"\nend\nend\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-action"
+    },
+    {
+      "id": "json",
+      "title": "Render JSON data",
+      "description": "render json turns a Ruby value into a JSON response. Open GET /book.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/book\", to: \"lesson#book\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef book\n render json: { title: \"Moon Trip\", pages: 24 }\nend\nend\n",
+      "output": "{\"title\":\"Moon Trip\",\"pages\":24}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "path-inputs",
+      "title": "Read a path input",
+      "description": "A colon marks a route value. GET /hello/Ravi places Ravi in params[:name].",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hi, #{params[:name]}!\"\nend\nend\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "path-inputs"
+    },
+    {
+      "id": "query-inputs",
+      "title": "Read query data",
+      "description": "params also contains query values. Open GET /search?q=cat.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/search\", to: \"lesson#search\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef search\n render json: { term: params[:q] || \"\" }\nend\nend\n",
+      "output": "{\"term\":\"cat\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query-inputs"
+    },
+    {
+      "id": "post-body",
+      "title": "Read a JSON request",
+      "description": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. Rails puts body values in params.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n if !params[:title].is_a?(String)\n  render json: { error: \"Title needed\" }, status: :bad_request\n  return\n end\n render json: { title: params[:title] }, status: :created\nend\nend\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "post-body"
+    },
+    {
+      "id": "strong-parameters",
+      "title": "Choose allowed inputs",
+      "description": "permit chooses allowed parameter keys. Send POST /books with title and an extra secret key; only title is returned.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n allowed = params.permit(:title)\n render json: allowed\nend\nend\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "strong-parameters"
+    },
+    {
+      "id": "status",
+      "title": "Report a missing item",
+      "description": "Rails status symbols name HTTP statuses. Open GET /missing.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/missing\", to: \"lesson#missing\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef missing\n render json: { error: \"Book not found\" }, status: :not_found\nend\nend\n",
+      "output": "{\"error\":\"Book not found\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "status"
+    },
+    {
+      "id": "named-routes",
+      "title": "Build a path from a route helper",
+      "description": "The as option names a route helper. Open GET /link to see the helper fill in a name.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\", as: :hello\nget \"/link\", to: \"lesson#link\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: params[:name]\nend\ndef link\n render plain: hello_path(name: \"Asha\")\nend\nend\n",
+      "output": "/hello/Asha",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "named-routes"
+    },
+    {
+      "id": "redirects",
+      "title": "Redirect a client",
+      "description": "redirect_to sends a Location header. A browser following GET /start reaches /hello.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/start\", to: \"lesson#start\"\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef start\n redirect_to \"/hello\"\nend\ndef hello\n render plain: \"Welcome\"\nend\nend\n",
+      "output": "Welcome",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "redirects"
+    },
+    {
+      "id": "headers",
+      "title": "Set response metadata",
+      "description": "response.headers holds reply headers. Open GET /note.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/note\", to: \"lesson#note\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef note\n response.headers[\"Cache-Control\"] = \"no-store\"\n render plain: \"Practice note\"\nend\nend\n",
+      "output": "Practice note",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "headers"
+    },
+    {
+      "id": "callbacks",
+      "title": "Run a shared step",
+      "description": "before_action runs before controller actions. GET /school reads the value set by the callback.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/school\", to: \"lesson#school\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\nbefore_action :set_school\ndef school\n render plain: @school\nend\nprivate\ndef set_school\n @school = \"Oak School\"\nend\nend\n",
+      "output": "Oak School",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "callbacks"
+    },
+    {
+      "id": "no-content",
+      "title": "Return an empty successful reply",
+      "description": "head sends a status and no body. DELETE /books/1 returns 204 in this practice-only action.",
+      "language": "ruby",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\ndelete \"/books/:id\", to: \"lesson#destroy\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef destroy\n head :no_content\nend\nend\n",
+      "output": "204 No Content; empty body",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "no-content"
+    }
+  ]
+}

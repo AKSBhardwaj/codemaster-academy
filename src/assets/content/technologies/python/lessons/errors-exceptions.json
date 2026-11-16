@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors-exceptions",
+  "title": "Errors and Exceptions",
+  "summary": "An exception is a signal that something went wrong while a program was running.",
+  "introduction": "An exception is a signal that something went wrong while a program was running. Read the message to find the problem. Then use try and except when your program can give a helpful response to that problem.",
+  "learningObjectives": [
+    "Read a traceback from the bottom up and locate the failing line",
+    "Catch specific exceptions with try and except and use the exception object",
+    "Run clean-up code with finally and success-only code with else",
+    "Raise built-in exceptions and define custom exception classes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Syntax errors versus exceptions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two kinds of problem stop a program. A **syntax error** means Python could not even parse the file, so nothing runs; fix the line it points at. An **exception** happens while the program runs, when an operation cannot complete. Both produce a traceback, and reading one is the first debugging skill."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "divide.py",
+      "code": "def divide(a, b):\n    return a / b\n\nprint(divide(10, 2))\nprint(divide(10, 0))\nprint(\"done\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python divide.py",
+      "content": "5.0\nTraceback (most recent call last):\n  File \"/home/ada/projects/divide.py\", line 5, in <module>\n    print(divide(10, 0))\n          ~~~~~~^^^^^^^\n  File \"/home/ada/projects/divide.py\", line 2, in divide\n    return a / b\n           ~~^~~\nZeroDivisionError: division by zero"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read it from the bottom: the last line gives the exception type and message. Above it, the frames show the path the program took to get there, most recent call last: line 5 called `divide`, and line 2 inside `divide` failed, with markers under the exact expression. Note that `done` was never printed; an unhandled exception ends the program."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "try and except"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "safe_divide.py",
+      "code": "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        print(\"Cannot divide by zero\")\n        return None\n\nprint(safe_divide(10, 2))\nprint(safe_divide(10, 0))\n\nvalues = [\"12\", \"x\", \"7.5\"]\nfor text in values:\n    try:\n        number = int(text)\n    except ValueError as error:\n        print(f\"Skipping {text!r}: {error}\")\n    else:\n        print(\"Parsed\", number)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python safe_divide.py",
+      "content": "5.0\nCannot divide by zero\nNone\nParsed 12\nSkipping 'x': invalid literal for int() with base 10: 'x'\nSkipping '7.5': invalid literal for int() with base 10: '7.5'"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python runs the `try` block; if the named exception occurs anywhere inside it, execution jumps to the matching `except` block and then continues after the whole statement. `as error` binds the exception object so you can print its message. The optional `else` block runs only when no exception occurred, which keeps the `try` block small and the success path obvious."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Catching several exceptions"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "several.py",
+      "code": "def total(record):\n    try:\n        return float(record[\"price\"]) * int(record[\"quantity\"])\n    except KeyError as error:\n        print(\"Missing field:\", error)\n    except (ValueError, TypeError) as error:\n        print(\"Bad value:\", error)\n    return 0\n\nprint(total({\"price\": \"19.99\", \"quantity\": \"two\"}))\nprint(total({\"price\": \"5\"}))\nprint(total({\"price\": \"5\", \"quantity\": \"3\"}))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python several.py",
+      "content": "Bad value: invalid literal for int() with base 10: 'two'\n0\nMissing field: 'quantity'\n0\n15.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "`except` clauses are tested in order, and a tuple catches several types with one handler. Exceptions form a hierarchy: `ValueError` and `KeyError` both derive from `Exception`, so `except Exception` would catch either. Catch the most specific type you actually know how to handle."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A bare except hides bugs",
+      "text": "`except:` with no type catches *everything*, including the `KeyboardInterrupt` that Ctrl+C sends, and `except Exception:` wrapped around a large block is nearly as bad: both also swallow typos in variable names (`NameError`) and every other bug inside the block. The program then limps on with wrong data and the real bug surfaces somewhere else. Name the exceptions you expect, keep `try` blocks short, and if you must catch everything, log the traceback and re-raise with a bare `raise`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "finally"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "cleanup.py",
+      "code": "def read_config(path):\n    print(\"Opening\", path)\n    try:\n        if path.endswith(\".yaml\"):\n            raise ValueError(\"YAML is not supported\")\n        return {\"debug\": True}\n    finally:\n        print(\"Closing\", path)\n\nprint(read_config(\"settings.json\"))\ntry:\n    read_config(\"settings.yaml\")\nexcept ValueError as error:\n    print(\"Error:\", error)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python cleanup.py",
+      "content": "Opening settings.json\nClosing settings.json\n{'debug': True}\nOpening settings.yaml\nClosing settings.yaml\nError: YAML is not supported"
+    },
+    {
+      "type": "paragraph",
+      "text": "`finally` runs no matter how the `try` block ends: normally, through `return`, or by an exception that is propagating upwards. It is the place for clean-up such as closing files and network connections; notice that `Closing` is printed before the returned dictionary. For files specifically, the `with` statement in [Reading and Writing Files](/tutorials/python/file-handling) does that clean-up automatically."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Raising exceptions"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "raising.py",
+      "code": "class InsufficientFunds(Exception):\n    \"\"\"Raised when a withdrawal exceeds the balance.\"\"\"\n\ndef withdraw(balance, amount):\n    if amount <= 0:\n        raise ValueError(\"amount must be positive\")\n    if amount > balance:\n        raise InsufficientFunds(f\"balance {balance} is less than {amount}\")\n    return balance - amount\n\nprint(withdraw(100, 30))\nfor amount in (-5, 500):\n    try:\n        withdraw(100, amount)\n    except InsufficientFunds as error:\n        print(\"Declined:\", error)\n    except ValueError as error:\n        print(\"Invalid:\", error)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python raising.py",
+      "content": "70\nInvalid: amount must be positive\nDeclined: balance 100 is less than 500"
+    },
+    {
+      "type": "paragraph",
+      "text": "`raise` signals that *your* function cannot continue; the caller decides what to do about it. Use the built-in types when they fit: `ValueError` for bad values, `TypeError` for wrong types, `KeyError` or `LookupError` for missing things. Define a custom class derived from `Exception` when callers need to tell your error apart from everything else; a class body holding only a docstring is enough, and [Classes and Objects](/tutorials/python/classes-objects) explains the syntax."
+    },
+    {
+      "type": "table",
+      "headers": ["Exception", "Raised when"],
+      "rows": [
+        ["`NameError`", "A variable or function name is not defined (often a typo)"],
+        ["`TypeError`", "An operation gets the wrong type, such as `\"3\" + 4`"],
+        ["`ValueError`", "The type is right but the value is not, such as `int(\"abc\")`"],
+        ["`KeyError`, `IndexError`", "A missing dictionary key or a list index out of range"],
+        ["`AttributeError`", "An object has no such attribute or method"],
+        ["`FileNotFoundError`", "A path does not exist when opening a file"],
+        ["`ZeroDivisionError`", "Division or modulo by zero"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Did you mean?",
+      "text": "Since Python 3.10 many tracebacks end with a suggestion, such as `NameError: name 'nme' is not defined. Did you mean: 'name'?`, and Python 3.13 colours tracebacks in the terminal. Read the whole last line before searching the web; the answer is often right there."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-errors-exceptions-finally"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-errors-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "errors-exceptions",
+          "difficulty": "intermediate",
+          "question": "What does this program print?",
+          "explanation": "`int(\"42\")` succeeds, so the `try` block prints 42, the `else` block runs because nothing was raised, and `finally` always runs last.",
+          "language": "python",
+          "code": "try:\n    print(int(\"42\"))\nexcept ValueError:\n    print(\"bad\")\nelse:\n    print(\"good\")\nfinally:\n    print(\"end\")",
+          "options": ["`42`, `good`, `end`", "`42`, `end`", "`bad`, `end`", "`42`, `good`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "py-errors-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "errors-exceptions",
+          "difficulty": "beginner",
+          "question": "Which `except` clause handles the error raised by `int(\"abc\")`?",
+          "explanation": "The argument has the right type (a string) but an unusable value, so Python raises `ValueError`.",
+          "options": [
+            "`except KeyError`",
+            "`except ValueError`",
+            "`except TypeError`",
+            "`except IndexError`"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-errors-exceptions-finally"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    }
+  ],
+  "seo": {
+    "title": "Python Exceptions – try, except, else, finally and raise",
+    "description": "Learn to read Python tracebacks, catch exceptions with try and except, use else and finally, raise built-in errors and define custom exception classes."
+  },
+  "updatedOn": "2026-11-16"
+}

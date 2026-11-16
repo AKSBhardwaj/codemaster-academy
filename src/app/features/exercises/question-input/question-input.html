@@ -1,8 +1,16 @@
-<fieldset class="cma-question" [disabled]="disabled()">
+<fieldset
+  class="cma-question"
+  [disabled]="disabled() || !interactive()"
+  [attr.aria-busy]="!interactive()"
+>
   <legend class="cma-question__text"><cma-inline [text]="displayQuestion()" /></legend>
 
   @if (code(); as code) {
-    <cma-code-block [code]="code.code" [language]="code.language" [showLineNumbers]="question().type === 'find-error'" />
+    <cma-code-block
+      [code]="code.code"
+      [language]="code.language"
+      [showLineNumbers]="question().type === 'find-error'"
+    />
   }
 
   @switch (question().type) {
@@ -13,9 +21,17 @@
             class="cma-question__option"
             [class.cma-question__option--selected]="selectedBoolean() === value"
             [class.cma-question__option--correct]="reveal() && correctBoolean() === value"
-            [class.cma-question__option--wrong]="reveal() && selectedBoolean() === value && correctBoolean() !== value"
+            [class.cma-question__option--wrong]="
+              reveal() && selectedBoolean() === value && correctBoolean() !== value
+            "
           >
-            <input type="radio" [name]="name" [checked]="selectedBoolean() === value" (change)="chooseBoolean(value)" [disabled]="disabled()" />
+            <input
+              type="radio"
+              [name]="name"
+              [checked]="selectedBoolean() === value"
+              (change)="chooseBoolean(value)"
+              [disabled]="disabled()"
+            />
             <span>{{ value ? 'True' : 'False' }}</span>
           </label>
         }
@@ -43,9 +59,17 @@
             class="cma-question__option"
             [class.cma-question__option--selected]="selectedIndex() === i"
             [class.cma-question__option--correct]="reveal() && correctIndex() === i"
-            [class.cma-question__option--wrong]="reveal() && selectedIndex() === i && correctIndex() !== i"
+            [class.cma-question__option--wrong]="
+              reveal() && selectedIndex() === i && correctIndex() !== i
+            "
           >
-            <input type="radio" [name]="name" [checked]="selectedIndex() === i" (change)="choose(i)" [disabled]="disabled()" />
+            <input
+              type="radio"
+              [name]="name"
+              [checked]="selectedIndex() === i"
+              (change)="choose(i)"
+              [disabled]="disabled()"
+            />
             <span><cma-inline [text]="option" /></span>
           </label>
         }

@@ -1,0 +1,158 @@
+{
+  "title": "ASP.NET Web API Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "controllers",
+          "name": "Make a controller action",
+          "summary": "A controller action handles a route. HttpGet maps GET /hello to the method.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"hello\")] public string Hello() => \"Hello, Asha!\";\n}\n\n"
+          },
+          "notes": ["AddControllers and MapControllers are both needed."],
+          "lessonSlug": "controllers"
+        },
+        {
+          "slug": "json-results",
+          "name": "Return a JSON object",
+          "summary": "Ok creates a successful response with data. Open GET /book.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"book\")] public IActionResult Book() => Ok(new { title = \"Moon Trip\", pages = 24 });\n}\n\n"
+          },
+          "notes": ["Return data objects so the framework serialises them."],
+          "lessonSlug": "json-results"
+        },
+        {
+          "slug": "route-binding",
+          "name": "Bind a route number",
+          "summary": "FromRoute reads a path value. Open GET /double/4.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"double/{n:int}\")] public IActionResult Twice([FromRoute] int n) => Ok(new { answer = n * 2 });\n}\n\n"
+          },
+          "notes": [
+            "A route constraint controls matching; it is not a full data validation policy."
+          ],
+          "lessonSlug": "route-binding"
+        },
+        {
+          "slug": "query-binding",
+          "name": "Read a query input",
+          "summary": "FromQuery makes the source of an input clear. GET /page with no n uses 1.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"page\")] public IActionResult Page([FromQuery] int n = 1) => Ok(new { page = n });\n}\n\n"
+          },
+          "notes": ["Inputs from clients still need suitable limits."],
+          "lessonSlug": "query-binding"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "body-binding",
+          "name": "Read a typed body",
+          "summary": "FromBody reads a JSON request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic record BookInput(string Title);\n"
+          },
+          "notes": ["Send the correct Content-Type so JSON can be parsed."],
+          "lessonSlug": "body-binding"
+        },
+        {
+          "slug": "validation",
+          "name": "Use a required field rule",
+          "summary": "ApiController checks validation attributes. A valid POST /books with {\"title\":\"Moon Trip\"} reaches this action.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic class BookInput { [Required] public string? Title { get; set; } }\n"
+          },
+          "notes": ["Required checks presence; add more rules for your actual needs."],
+          "lessonSlug": "validation"
+        },
+        {
+          "slug": "created-results",
+          "name": "Return a new item location",
+          "summary": "CreatedAtAction sends status 201 and a link to the new item. Send POST /books with {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"books/{id:int}\")] public IActionResult ById(int id) => Ok(new { id });\n[HttpPost(\"books\")] public IActionResult Create(BookInput book) => CreatedAtAction(nameof(ById), new { id = 1 }, book);\n}\npublic record BookInput(string Title);\n"
+          },
+          "notes": ["The named action and route values must identify a real route."],
+          "lessonSlug": "created-results"
+        },
+        {
+          "slug": "not-found",
+          "name": "Report a missing book",
+          "summary": "NotFound creates a 404 result. Open GET /missing.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"missing\")] public IActionResult Missing() => NotFound(new { error = \"Book not found\" });\n}\n\n"
+          },
+          "notes": ["A missing item should not look like a successful response."],
+          "lessonSlug": "not-found"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "lists",
+          "name": "Return a typed collection",
+          "summary": "A collection becomes a JSON array. Open GET /books.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"books\")] public ActionResult<string[]> Books() => new[] { \"Moon Trip\", \"Sun Trip\" };\n}\n\n"
+          },
+          "notes": ["Use a clear item shape for larger collections."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "headers",
+          "name": "Set a controller response header",
+          "summary": "A controller can set response metadata before returning a result. Open GET /note.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"note\")] public IActionResult Note() { Response.Headers[\"Cache-Control\"] = \"no-store\"; return Ok(new { note = \"Practice\" }); }\n}\n\n"
+          },
+          "notes": ["Headers must be set before the response starts."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "no-content",
+          "name": "Reply without a body",
+          "summary": "NoContent returns status 204. Send DELETE /books/1 for this practice response.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpDelete(\"books/{id:int}\")] public IActionResult Remove(int id) => NoContent();\n}\n\n"
+          },
+          "notes": ["This sample only shows the response; it has no stored book to delete."],
+          "lessonSlug": "no-content"
+        },
+        {
+          "slug": "action-results",
+          "name": "Choose between result kinds",
+          "summary": "IActionResult allows different outcomes. GET /score/8 returns a success; a negative score returns 400.",
+          "example": {
+            "language": "csharp",
+            "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"score/{n:int}\")] public IActionResult Score(int n) { if (n < 0) return BadRequest(new { error = \"Use zero or more\" }); return Ok(new { score = n }); }\n}\n\n"
+          },
+          "notes": ["Check invalid input before returning a success result."],
+          "lessonSlug": "action-results"
+        }
+      ]
+    }
+  ]
+}

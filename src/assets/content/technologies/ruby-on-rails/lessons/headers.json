@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set response metadata",
+  "summary": "Ruby on Rails: Set response metadata. Inspect the cache header.",
+  "introduction": "response.headers holds reply headers. Open GET /note. Read the example, then check the result.",
+  "learningObjectives": ["Set response metadata with Ruby on Rails", "Inspect the cache header"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with rails new school --api --skip-active-record. Enter it. Put each labelled section into its named file, then run bin/rails server -b 127.0.0.1 -p 8000. No database is needed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set response metadata"
+    },
+    {
+      "type": "code",
+      "language": "ruby",
+      "title": "Set response metadata",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/note\", to: \"lesson#note\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef note\n response.headers[\"Cache-Control\"] = \"no-store\"\n render plain: \"Practice note\"\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response header is assigned before render sends the plain text."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the cache header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Set headers before the response is completed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ruby-on-rails-headers-check"
+    }
+  ],
+  "exerciseIds": ["ruby-on-rails-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ruby-on-rails",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Ruby on Rails: Set response metadata",
+    "description": "Ruby on Rails: Set response metadata. Inspect the cache header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

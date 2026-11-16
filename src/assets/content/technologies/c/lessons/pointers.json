@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "slug": "pointers",
+  "title": "Pointers",
+  "summary": "What a pointer is, the address-of and dereference operators, passing addresses to functions, the link between pointers and arrays, NULL, and const pointers.",
+  "introduction": "A pointer is a variable that holds the address of another variable. Pointers give C its power and its reputation: they let functions modify their caller's data, let you walk through arrays and memory blocks efficiently, and underpin dynamic memory, strings and every data structure. They are also the source of most crashes. This lesson builds the mental model step by step: what an address is, how to take and follow one, why arrays and pointers are so closely linked, and the rules that keep pointer code safe.",
+  "learningObjectives": [
+    "Declare a pointer, take an address with & and read or write through it with *",
+    "Write functions that modify their caller's variables through pointers",
+    "Explain how array indexing and pointer arithmetic relate",
+    "Use NULL and const correctly with pointers"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Addresses and the two operators"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every variable lives at an address in memory. The unary `&` operator (*address-of*) produces that address, and a pointer variable stores it. The declaration `int *p;` reads as \"`p` is a pointer to `int`\": the `*` belongs to the declarator, and `int` says what kind of value lives at the address. The unary `*` operator (*dereference*) follows the pointer: `*p` is the `int` that `p` points to, and it works on both sides of an assignment."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "address.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int age = 30;\n    int *p = &age;                 /* p holds the address of age */\n\n    printf(\"age = %d\\n\", age);\n    printf(\"*p  = %d\\n\", *p);      /* read through the pointer */\n\n    *p = 31;                       /* write through the pointer */\n    printf(\"age = %d\\n\", age);\n\n    printf(\"same address: %d\\n\", p == &age);\n    printf(\"sizeof p = %zu bytes\\n\", sizeof p);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (64-bit system)",
+      "content": "$ gcc -Wall -Wextra -std=c17 address.c -o address\n$ ./address\nage = 30\n*p  = 30\nage = 31\nsame address: 1\nsizeof p = 8 bytes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pointer is the same size whatever it points to, 8 bytes on a 64-bit system, because it only stores an address. To see the address itself, print the pointer with `%p` after casting it to `void *`: `printf(\"%p\\n\", (void *)p);` shows something like `0x7ffee3b2c4ac`, a value that differs on every run and machine, which is why the example compares addresses instead of printing them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pointers as function parameters"
+    },
+    {
+      "type": "paragraph",
+      "text": "The [functions](/tutorials/c/functions) lesson showed that arguments are copied, so a function cannot change the caller's variable. Passing the variable's *address* solves this: the function receives a copy of the address, and writing through it modifies the original. This is how `swap` works, how a function returns more than one result, and why `scanf(\"%d\", &n)` needs the `&`."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "swap.c",
+      "code": "#include <stdio.h>\n\nvoid swap(int *a, int *b)\n{\n    int tmp = *a;\n    *a = *b;\n    *b = tmp;\n}\n\nvoid min_max(const int *values, size_t n, int *min, int *max)\n{\n    *min = *max = values[0];\n    for (size_t i = 1; i < n; i++) {\n        if (values[i] < *min) *min = values[i];\n        if (values[i] > *max) *max = values[i];\n    }\n}\n\nint main(void)\n{\n    int x = 1, y = 2;\n    swap(&x, &y);\n    printf(\"x = %d, y = %d\\n\", x, y);\n\n    int data[] = {7, -3, 12, 5};\n    int lo, hi;\n    min_max(data, 4, &lo, &hi);\n    printf(\"min = %d, max = %d\\n\", lo, hi);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "x = 2, y = 1\nmin = -3, max = 12"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pointers and arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "An array's name, used in an expression, converts to a pointer to its first element. That is why `int *p = data;` needs no `&`, why a parameter declared `int values[]` is really `int *values`, and why the length must be passed separately. Adding an integer to a pointer moves it by that many *elements*, not bytes, so `*(p + 2)` and `p[2]` mean exactly the same thing: indexing is pointer arithmetic in disguise."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "walk.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int data[] = {10, 20, 30, 40};\n    int *p = data;                /* same as &data[0] */\n\n    printf(\"%d %d\\n\", *p, p[2]);\n    printf(\"%d\\n\", *(p + 3));\n\n    p++;                          /* now points at data[1] */\n    printf(\"%d\\n\", *p);\n\n    for (int *q = data; q < data + 4; q++) {\n        printf(\"q -> %d\\n\", *q);\n    }\n    printf(\"sizeof data = %zu, sizeof p = %zu\\n\", sizeof data, sizeof p);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "10 30\n40\n20\nq -> 10\nq -> 20\nq -> 30\nq -> 40\nsizeof data = 16, sizeof p = 8"
+    },
+    {
+      "type": "paragraph",
+      "text": "The last line shows the trap: `sizeof data` is the whole array, but `sizeof p` is just a pointer. Inside a function, an array parameter *is* a pointer, so the `sizeof` length trick from the [arrays lesson](/tutorials/c/arrays-strings) silently gives 8 instead of the element count. Pointer arithmetic is only defined within an array and one position past its end; `data + 4` may be compared but never dereferenced."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "NULL and const"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NULL`, defined in `<stddef.h>`, `<stdio.h>` and other headers, is a pointer value that points to nothing. Functions such as `fopen` and `malloc` return it to signal failure, and dereferencing it crashes the program. C23 adds the keyword `nullptr` with the same meaning. Initialise pointers you cannot yet point anywhere to `NULL` and check before use. `const` placed before the pointed-to type protects the target: `const int *p` means \"`p` points to an `int` that this code will not modify\", which is how a function documents that it only reads an array."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "nullconst.c",
+      "code": "#include <stdio.h>\n\nsize_t count_positive(const int *values, size_t n)\n{\n    size_t count = 0;\n    for (size_t i = 0; i < n; i++) {\n        if (values[i] > 0) count++;\n    }\n    return count;\n}\n\nint main(void)\n{\n    int *maybe = NULL;\n    if (maybe == NULL) {\n        printf(\"maybe points nowhere yet\\n\");\n    }\n\n    int data[] = {3, -1, 0, 8};\n    printf(\"%zu positive\\n\", count_positive(data, 4));\n\n    const int *view = data;\n    printf(\"%d\\n\", view[3]);\n    /* view[3] = 9;  error: assignment of read-only location */\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "maybe points nowhere yet\n2 positive\n8"
+    },
+    {
+      "type": "table",
+      "caption": "Reading pointer declarations",
+      "headers": ["Declaration", "Meaning"],
+      "rows": [
+        ["`int *p`", "Pointer to `int`"],
+        ["`const int *p`", "Pointer to a constant `int`: the value cannot be changed through `p`"],
+        ["`int *const p`", "Constant pointer to `int`: `p` always points to the same place"],
+        ["`int **pp`", "Pointer to a pointer to `int`"],
+        ["`int *arr[3]`", "Array of three pointers to `int`"],
+        ["`char *s`", "Pointer to `char`, by convention the start of a string"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a pointer to a variable that no longer exists",
+      "text": "A function's local variables are destroyed when it returns, so `return &local;` hands the caller a **dangling pointer** into memory that will soon be reused. GCC warns \"function returns address of local variable\"; take the warning seriously. The same bug hides in pointers that were never initialised and in pointers to memory that has been freed. If you need a value to outlive the function, return it by value or allocate it dynamically, as the [next lesson](/tutorials/c/memory-management) shows."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Add a `void *` cast and `%p` to `address.c` to print `p` and `&age` on two lines and confirm that they match. Then write a `void increment(int *n)` function and call it three times on the same variable."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-pointers-address-of"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-pointers-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "pointers",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`p` holds the address of `a`, so `*p += 10` adds 10 to `a` itself. Printing `a` shows 15.",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 5;\n    int *p = &a;\n    *p += 10;\n    printf(\"%d\\n\", a);\n    return 0;\n}",
+          "options": ["`5`", "`10`", "`15`", "An address"],
+          "correctIndex": 2
+        },
+        {
+          "id": "c-pointers-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "pointers",
+          "difficulty": "intermediate",
+          "question": "Given `int arr[4]`, which expression is equivalent to `arr[2]`?",
+          "explanation": "Indexing is pointer arithmetic: `arr[2]` means `*(arr + 2)`. `*arr + 2` adds 2 to the first element, and `arr + 2` and `&arr[2]` are addresses, not values.",
+          "options": ["`*(arr + 2)`", "`*arr + 2`", "`&arr[2]`", "`arr + 2`"],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-pointers-address-of"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "arrays-strings"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "memory-management"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "structs"
+    }
+  ],
+  "seo": {
+    "title": "C Pointers – Addresses, Dereferencing and Arrays",
+    "description": "Learn C pointers: the & and * operators, functions that change caller variables, pointer arithmetic and arrays, NULL, const pointers and dangling pointers."
+  },
+  "updatedOn": "2026-11-15"
+}

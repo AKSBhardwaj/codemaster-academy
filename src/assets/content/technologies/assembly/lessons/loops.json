@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "loops",
+  "title": "Repeat with a counter",
+  "summary": "Assembly: Repeat with a counter. Start the counter at 4.",
+  "introduction": "A label names a place in the code. jnz repeats while the last result was not zero.",
+  "learningObjectives": ["Repeat with a counter with Assembly", "Start the counter at 4"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Repeat with a counter"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Repeat with a counter",
+      "code": "global _start\nsection .text\n_start:\n    mov rcx, 3\n    mov rdi, 0\n.again:\n    add rdi, 2\n    dec rcx\n    jnz .again\n    mov rax, 60\n    syscall\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The loop adds 2 three times. The decreasing counter eventually reaches zero."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "exit code: 6"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Start the counter at 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A loop needs a counter or rule that eventually stops."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-loops-check"
+    }
+  ],
+  "exerciseIds": ["assembly-loops-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "branches"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Repeat with a counter",
+    "description": "Assembly: Repeat with a counter. Start the counter at 4. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

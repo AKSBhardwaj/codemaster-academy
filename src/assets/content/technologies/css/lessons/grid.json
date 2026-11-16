@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "slug": "grid",
+  "title": "CSS Grid",
+  "summary": "CSS Grid arranges boxes in rows and columns at the same time.",
+  "introduction": "CSS Grid arranges boxes in rows and columns at the same time. Think of squares on a board game. Make a few columns, add a gap and choose how much space each box should use.",
+  "learningObjectives": [
+    "Define a grid with grid-template-columns, grid-template-rows and gap",
+    "Place items with line numbers, span and grid-template-areas",
+    "Build a responsive grid with repeat(), auto-fit and minmax()"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Rows, columns and the fr unit"
+    },
+    {
+      "type": "paragraph",
+      "text": "`display: grid` turns a container's direct children into grid items, and `grid-template-columns` defines the columns. Each value is a track size: a length, a percentage, `auto`, or the grid-only unit `fr`, a *fraction of the free space*. `120px 1fr 1fr` means a fixed first column and two equal columns sharing what is left. Rows are created automatically as items fill the columns, and `gap` spaces both rows and columns."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .grid {\n    display: grid;\n    grid-template-columns: 120px 1fr 1fr;\n    gap: 8px;\n  }\n  .grid div { background: #dbeafe; padding: 12px; text-align: center; }\n</style>\n<div class=\"grid\">\n  <div>1</div><div>2</div><div>3</div>\n  <div>4</div><div>5</div><div>6</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.grid{display:grid;grid-template-columns:120px 1fr 1fr;gap:8px}.grid div{background:#dbeafe;padding:12px;text-align:center}</style><div class=\"grid\"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "repeat(), minmax() and auto-fit"
+    },
+    {
+      "type": "paragraph",
+      "text": "`repeat(3, 1fr)` is shorthand for `1fr 1fr 1fr`. `minmax(150px, 1fr)` is a track that is never narrower than 150px and otherwise shares the free space. Put the two together with the `auto-fit` keyword and the browser creates as many columns as fit, each at least 150px wide, and stretches them to fill the row. That one line is a responsive gallery with no media query at all. (`auto-fill` is the same except that it keeps empty tracks when there are few items, instead of stretching the existing ones.)"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .gallery {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));\n    gap: 8px;\n  }\n  .gallery div { background: #c7d2fe; padding: 16px 8px; text-align: center; }\n</style>\n<div class=\"gallery\">\n  <div>Photo 1</div><div>Photo 2</div><div>Photo 3</div>\n  <div>Photo 4</div><div>Photo 5</div><div>Photo 6</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.gallery div{background:#c7d2fe;padding:12px 8px;text-align:center}</style><div class=\"gallery\"><div>Photo 1</div><div>Photo 2</div><div>Photo 3</div><div>Photo 4</div><div>Photo 5</div><div>Photo 6</div></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Resize the window after running it: the number of columns changes while every item keeps a sensible minimum width."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Placing items on lines"
+    },
+    {
+      "type": "paragraph",
+      "text": "Grid lines are numbered from 1 at the start edge; a three-column grid has four vertical lines. `grid-column: 1 / 3` places an item from line 1 to line 3, two columns wide; `span 2` says the same relative to wherever the item starts, and `-1` means the last line, so `grid-column: 1 / -1` always stretches across the full width. `grid-row` works the same way, and `grid-area: row-start / column-start / row-end / column-end` sets all four at once."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }\n  .grid div { background: #dbeafe; padding: 12px; text-align: center; }\n  .featured {\n    grid-column: 1 / 3;   /* two columns wide */\n    grid-row: span 2;     /* two rows tall */\n    background: #1d4ed8;\n    color: white;\n  }\n</style>\n<div class=\"grid\">\n  <div class=\"featured\">Featured</div>\n  <div>2</div><div>3</div><div>4</div><div>5</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid div{background:#dbeafe;padding:12px;text-align:center}.featured{grid-column:1/3;grid-row:span 2;background:#1d4ed8;color:#fff}</style><div class=\"grid\"><div class=\"featured\">Featured</div><div>2</div><div>3</div><div>4</div><div>5</div></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Named areas: a page layout"
+    },
+    {
+      "type": "paragraph",
+      "text": "For whole-page skeletons, `grid-template-areas` lets you *draw* the layout as strings: each string is a row, each word a cell, and repeating a name merges cells into one area. Items are assigned with `grid-area: name`. A dot (`.`) marks an empty cell. Because the drawing lives in the container's CSS, rearranging the page for a narrow screen is a matter of redrawing it inside a media query."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .page {\n    display: grid;\n    grid-template-columns: 140px 1fr;\n    grid-template-rows: auto 1fr auto;\n    grid-template-areas:\n      \"header  header\"\n      \"sidebar main\"\n      \"footer  footer\";\n    gap: 8px;\n    min-height: 220px;\n  }\n  header { grid-area: header; }\n  nav    { grid-area: sidebar; }\n  main   { grid-area: main; }\n  footer { grid-area: footer; }\n  .page > * { background: #e2e8f0; padding: 8px; }\n</style>\n<div class=\"page\">\n  <header>Header</header>\n  <nav>Sidebar</nav>\n  <main>Main content</main>\n  <footer>Footer</footer>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.page{display:grid;grid-template-columns:120px 1fr;grid-template-rows:auto 1fr auto;grid-template-areas:\"header header\" \"sidebar main\" \"footer footer\";gap:6px;min-height:130px}header{grid-area:header}nav{grid-area:sidebar}main{grid-area:main}footer{grid-area:footer}.page>*{background:#e2e8f0;padding:6px}</style><div class=\"page\"><header>Header</header><nav>Sidebar</nav><main>Main content</main><footer>Footer</footer></div>"
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Stack everything on narrow screens",
+      "code": "@media (width < 40rem) {\n  .page {\n    grid-template-columns: 1fr;\n    grid-template-areas:\n      \"header\"\n      \"main\"\n      \"sidebar\"\n      \"footer\";\n  }\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Alignment and implicit rows"
+    },
+    {
+      "type": "paragraph",
+      "text": "Items normally stretch to fill their cell. `justify-items` and `align-items` on the container (or `justify-self` and `align-self` on an item) change that, and `place-items: center` is the shorthand that centres content inside every cell. When the tracks together are smaller than the container, `justify-content` and `align-content` position the grid as a whole. Rows that you did not define, created when items overflow the template, are *implicit*; they are sized `auto` unless you set `grid-auto-rows`, and `grid-auto-flow: dense` lets later small items fill holes left by spanning ones."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));\n  grid-auto-rows: minmax(8rem, auto);  /* every implicit row at least 8rem tall */\n  gap: 1rem;\n  place-items: center;                 /* centre content inside each cell */\n}"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "1fr can still overflow",
+      "text": "`1fr` is really `minmax(auto, 1fr)`: a track can grow but cannot shrink below the minimum size of its content. A long unbroken word, a wide image or a `pre` block inside one cell therefore pushes the whole grid out of its container. Use `minmax(0, 1fr)` for the track, or `min-width: 0` on the items, when content might be wider than a column."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Subgrid",
+      "text": "A nested grid can adopt its parent's tracks with `grid-template-columns: subgrid` (or rows). It lines up the titles, text and buttons of cards in the same row even when their content lengths differ, and all current browsers support it."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: rearrange the grid",
+      "height": 240,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Grid</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .grid {\n      display: grid;\n      grid-template-columns: repeat(3, 1fr);   /* Try: repeat(auto-fit, minmax(100px, 1fr)) */\n      gap: 8px;\n    }\n    .grid div { background: #dbeafe; padding: 16px; text-align: center; }\n    .wide { grid-column: span 2; }           /* Try: 1 / -1 */\n  </style>\n</head>\n<body>\n  <div class=\"grid\">\n    <div class=\"wide\">Wide</div><div>2</div>\n    <div>3</div><div>4</div><div>5</div>\n  </div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-grid-columns"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-grid-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "grid",
+          "difficulty": "beginner",
+          "question": "What does `grid-column: 1 / -1` do to an item?",
+          "explanation": "Line 1 is the first vertical line and -1 is the last, so the item spans every column, however many there are.",
+          "options": [
+            "Places it in the first column only",
+            "Stretches it across all columns",
+            "Hides it",
+            "Moves it to the last column"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-grid-qc-2",
+          "type": "true-false",
+          "lessonSlug": "grid",
+          "difficulty": "intermediate",
+          "question": "`grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))` needs a media query to change the number of columns on narrow screens.",
+          "explanation": "The browser recomputes how many 200px-minimum columns fit every time the container's width changes, so the column count adapts without any media query.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-grid-columns"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "responsive-design"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "display"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "semantic-elements"
+    }
+  ],
+  "seo": {
+    "title": "CSS Grid – Columns, Rows, Areas and Responsive Layouts",
+    "description": "Learn CSS Grid: grid-template-columns and rows, the fr unit, gap, repeat() with auto-fit and minmax(), line-based placement, spans and grid-template-areas."
+  },
+  "updatedOn": "2026-11-16"
+}

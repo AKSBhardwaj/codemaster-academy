@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "remove-your-own-old-caches",
+  "title": "Remove your own old caches",
+  "summary": "The activate event can tidy old cache versions.",
+  "introduction": "The activate event can tidy old cache versions. Your task: Identify which cache names this filter would keep.",
+  "learningObjectives": [
+    "Identify which cache names this filter would keep.",
+    "Explain the example for remove your own old caches"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The activate event can tidy old cache versions. Use a clear prefix so your worker only removes caches it owns."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples belong in separate files on your own HTTPS or localhost site. Service workers need that trusted origin and cannot run in this site's sandbox. Use browser developer tools to inspect them."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "self.addEventListener(\"activate\", event => {\n  event.waitUntil(caches.keys().then(keys => Promise.all(\n    keys.filter(key => key.startsWith(\"reading-\") && ![\"reading-v1\", \"reading-assets-v1\"].includes(key)).map(key => caches.delete(key))\n  )));\n});",
+      "title": "Remove your own old caches",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`addEventListener` waits for the named event before calling the function you pass to it.",
+        "`waitUntil` tells the browser to keep this worker event active until the promise finishes."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Old reading-prefixed caches are removed. The two current names are kept."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not delete every cache on the origin. Another app on that origin may own a different cache."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Identify which cache names this filter would keep."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "progressive-web-apps-remove-your-own-old-caches-check"
+    }
+  ],
+  "exerciseIds": ["progressive-web-apps-remove-your-own-old-caches-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "progressive-web-apps",
+      "slug": "choose-a-cache-rule-for-a-purpose"
+    }
+  ],
+  "seo": {
+    "title": "Progressive Web Apps: Remove your own old caches",
+    "description": "The activate event can tidy old cache versions. Use a clear prefix so your worker only removes caches it owns."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "slug": "async",
+  "title": "Promises and async/await",
+  "summary": "Some jobs take time, such as loading a file. JavaScript can wait for a result without stopping every other job.",
+  "introduction": "Some jobs take time, such as loading a file. JavaScript can wait for a result without stopping every other job. Think of ordering a snack and doing something else while it is made. Meet promises and use await to read the steps clearly.",
+  "learningObjectives": [
+    "Explain why asynchronous code is needed and how the event loop orders it",
+    "Create promises and consume them with then, catch and finally",
+    "Write async functions and handle their errors with await and try/catch",
+    "Run independent tasks in parallel with Promise.all and Promise.allSettled"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Later, not now"
+    },
+    {
+      "type": "paragraph",
+      "text": "`setTimeout(fn, ms)` asks the browser to call `fn` after at least `ms` milliseconds. It does not wait; the script continues immediately, and the callback runs only when the current code has finished and the timer has expired. Even with a delay of `0` the callback comes after everything else in the script, because queued work can only start when the call stack is empty. That queueing mechanism is the **event loop**."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(\"1. start\");\n\nsetTimeout(() => {\n  console.log(\"3. timer finished\");\n}, 0);\n\nconsole.log(\"2. end of script\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1. start\n2. end of script\n3. timer finished"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Promises"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **promise** is an object that represents a value that is not available yet. It starts *pending* and later becomes either *fulfilled* with a value or *rejected* with an error, exactly once. You attach what should happen next with `.then(onFulfilled)`, handle failures with `.catch(onRejected)` and run cleanup with `.finally()`. Each `then` returns a new promise, so they chain, and a value returned from one handler becomes the input of the next. The example wraps `setTimeout` in a promise; `fetch` and most modern browser APIs return promises directly."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function wait(ms) {\n  return new Promise((resolve) => setTimeout(() => resolve(ms), ms));\n}\n\nwait(100)\n  .then((ms) => {\n    console.log(`waited ${ms} ms`);\n    return \"next\";                       // becomes the value for the next then\n  })\n  .then((value) => console.log(value))\n  .catch((error) => console.log(error.message))\n  .finally(() => console.log(\"done\"));\n\nconsole.log(\"promise created\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "promise created\nwaited 100 ms\nnext\ndone"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Promise callbacks run before timers"
+    },
+    {
+      "type": "paragraph",
+      "text": "The event loop has two queues. Promise reactions go into the **microtask** queue, which is drained completely as soon as the current script finishes. Timers, events and other callbacks wait in the **task** queue and run only after the microtasks. That is why a promise that is already resolved still logs *after* the synchronous code, but *before* a zero-delay timer."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(\"A\");\nsetTimeout(() => console.log(\"D (timer)\"), 0);\nPromise.resolve().then(() => console.log(\"C (promise)\"));\nconsole.log(\"B\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "A\nB\nC (promise)\nD (timer)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "async and await"
+    },
+    {
+      "type": "paragraph",
+      "text": "Marking a function `async` makes it return a promise, and inside it `await` pauses the function until a promise settles, giving you the fulfilled value or throwing the rejection as an ordinary error. The surrounding page is not blocked: only this function waits. Errors are handled with the same `try`/`catch` as synchronous code, which is the main reason async/await replaced long `then` chains."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function fetchUser(id) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (id === 1) resolve({ id: 1, name: \"Ada\" });\n      else reject(new Error(`No user with id ${id}`));\n    }, 50);\n  });\n}\n\nasync function show(id) {\n  try {\n    const user = await fetchUser(id);\n    console.log(`Found ${user.name}`);\n  } catch (error) {\n    console.log(`Error: ${error.message}`);\n  }\n}\n\nasync function main() {\n  await show(1);\n  await show(2);\n  console.log(\"finished\");\n}\nmain();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Found Ada\nError: No user with id 2\nfinished"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting await",
+      "text": "Calling an async function without `await` gives you the promise, not the value: `const user = fetchUser(1); console.log(user.name)` prints `undefined`. The same mistake inside `try` means a rejection is not caught, because the function returned before the promise failed. If a value looks like `Promise {<pending>}` in the browser's developer tools (this site's console panel prints a promise as `{}`), an `await` is missing."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "async function getNumber() {\n  return 42;                       // an async function always returns a promise\n}\n\nconst value = getNumber();\nconsole.log(typeof value.then);    // it is a promise, not 42\n\ngetNumber().then((n) => console.log(n));\n\n(async () => {\n  const n = await getNumber();     // await unwraps it\n  console.log(n + 1);\n})();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "function\n42\n43"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Running tasks in parallel"
+    },
+    {
+      "type": "paragraph",
+      "text": "`await` one after another runs tasks sequentially, so three 100 ms requests take 300 ms. When the tasks are independent, start them all and wait once with `Promise.all`, which resolves to an array of results in the original order and takes as long as the slowest task. It rejects as soon as any task rejects; `Promise.allSettled` instead waits for all of them and reports each outcome, which suits dashboards where one failed widget should not hide the others."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const wait = (ms, label) =>\n  new Promise((resolve) => setTimeout(() => resolve(label), ms));\n\nasync function run() {\n  const start = Date.now();\n  const results = await Promise.all([wait(300, \"A\"), wait(100, \"B\"), wait(200, \"C\")]);\n  console.log(results.join(\"\"));              // input order, not finishing order\n  console.log(Date.now() - start < 550);       // about 300 ms in total, not 600\n\n  const settled = await Promise.allSettled([wait(10, \"ok\"), Promise.reject(new Error(\"boom\"))]);\n  console.log(settled.map((r) => r.status).join(\", \"));\n\n  const fastest = await Promise.race([wait(50, \"slow\"), wait(10, \"fast\")]);\n  console.log(fastest);\n}\nrun();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ABC\ntrue\nfulfilled, rejected\nfast"
+    },
+    {
+      "type": "table",
+      "headers": ["Helper", "Resolves when", "Use it for"],
+      "rows": [
+        [
+          "`Promise.all(list)`",
+          "All fulfil (rejects on the first failure)",
+          "Several requests that are all required"
+        ],
+        [
+          "`Promise.allSettled(list)`",
+          "All settle, with `{ status, value | reason }` per item",
+          "Independent tasks where partial failure is acceptable"
+        ],
+        [
+          "`Promise.race(list)`",
+          "The first one settles, fulfilled or rejected",
+          "Timeouts: race a request against a timer"
+        ],
+        [
+          "`Promise.any(list)`",
+          "The first one fulfils",
+          "Trying several mirrors and taking whichever answers"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Where you will meet promises"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`fetch()` and `response.json()` from the [Fetch and JSON](/tutorials/javascript/fetch-json) lesson.",
+        "Dynamic `import()` of modules and most newer browser APIs such as `navigator.clipboard.writeText`.",
+        "Any library that talks to a database, a file system or a network, including the Node.js runtime outside the browser.",
+        "Your own code, whenever a result depends on a timer, an event or a user action."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Write `withTimeout(promise, ms)` that uses `Promise.race` to reject with `new Error(\"timeout\")` if the promise takes longer than `ms`. Test it with the `wait` helper and both a short and a long delay."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-async-order"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "async-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "async",
+          "difficulty": "intermediate",
+          "question": "Where can the await keyword be used?",
+          "explanation": "await works inside functions marked async and at the top level of ES modules. In a regular function or a classic script it is a syntax error.",
+          "options": [
+            "Anywhere in any script",
+            "Only inside async functions and at the top level of modules",
+            "Only inside then callbacks",
+            "Only inside setTimeout callbacks"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "async-qc-2",
+          "type": "true-false",
+          "lessonSlug": "async",
+          "difficulty": "intermediate",
+          "question": "`Promise.all` rejects as soon as one of the promises passed to it rejects.",
+          "explanation": "Yes: a single rejection makes Promise.all reject immediately with that reason. Use Promise.allSettled when you need every outcome regardless of failures.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-async-order"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "errors-debugging"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Promises and async/await – Asynchronous Code",
+    "description": "Learn asynchronous JavaScript: setTimeout and the event loop, creating and chaining promises, async/await with try/catch, and Promise.all, allSettled and race."
+  },
+  "updatedOn": "2026-11-16"
+}

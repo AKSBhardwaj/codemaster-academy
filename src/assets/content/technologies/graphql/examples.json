@@ -1,0 +1,138 @@
+{
+  "title": "GraphQL Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-query",
+      "title": "Ask for one field",
+      "description": "A schema names allowed fields. The resolver supplies a value for greeting.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { greeting: String! }\");\n\nconst rootValue = { greeting: () => \"Hello, Asha!\" };\nconst result = await graphql({ schema, rootValue, source: \"{ greeting }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"greeting\":\"Hello, Asha!\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-query"
+    },
+    {
+      "id": "selected-fields",
+      "title": "Choose part of an object",
+      "description": "The query picks title and leaves out pages. The resolver still holds both fields.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String!, pages: Int! } type Query { book: Book! }\");\n\nconst rootValue = { book: () => ({ title: \"Moon Trip\", pages: 24 }) };\nconst result = await graphql({ schema, rootValue, source: \"{ book { title } }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"book\":{\"title\":\"Moon Trip\"}}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "selected-fields"
+    },
+    {
+      "id": "arguments",
+      "title": "Give a field an input",
+      "description": "An argument supplies a value to a field. The resolver receives it in an object.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"{ twice(n: 4) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"twice\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "arguments"
+    },
+    {
+      "id": "variables",
+      "title": "Keep query text and values apart",
+      "description": "A variable lets one query be reused with different values. Its value is supplied separately.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"query Double($n: Int!) { twice(n: $n) }\", variableValues: { n: 4 } });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"twice\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "variables"
+    },
+    {
+      "id": "lists",
+      "title": "Read several objects",
+      "description": "Square brackets describe a list type. The query selects title for each book.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String! } type Query { books: [Book!]! }\");\n\nconst rootValue = { books: () => [{ title: \"Moon Trip\" }, { title: \"Sun Trip\" }] };\nconst result = await graphql({ schema, rootValue, source: \"{ books { title } }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"books\":[{\"title\":\"Moon Trip\"},{\"title\":\"Sun Trip\"}]}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "lists"
+    },
+    {
+      "id": "aliases",
+      "title": "Give results different names",
+      "description": "Aliases name two uses of the same field so both results can appear together.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"{ small: twice(n: 2) big: twice(n: 4) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"small\":4,\"big\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "aliases"
+    },
+    {
+      "id": "fragments",
+      "title": "Reuse a field selection",
+      "description": "A fragment gives a group of fields a name. The query spreads that group onto a Book.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String!, pages: Int! } type Query { book: Book! }\");\n\nconst rootValue = { book: () => ({ title: \"Moon Trip\", pages: 24 }) };\nconst result = await graphql({ schema, rootValue, source: \"{ book { ...BookCard } } fragment BookCard on Book { title pages }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"book\":{\"title\":\"Moon Trip\",\"pages\":24}}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "fragments"
+    },
+    {
+      "id": "enums",
+      "title": "Use a named set of choices",
+      "description": "An enum limits a value to named choices. GREEN is a schema label, not arbitrary text.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"enum Light { RED GREEN } type Query { light: Light! }\");\n\nconst rootValue = { light: () => \"GREEN\" };\nconst result = await graphql({ schema, rootValue, source: \"{ light }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"light\":\"GREEN\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "enums"
+    },
+    {
+      "id": "mutations",
+      "title": "Ask for a change",
+      "description": "A mutation names a write action. This local example changes one in-memory score.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { score: Int! } type Mutation { setScore(value: Int!): Int! }\");\nlet score = 3;\nconst rootValue = { score: () => score, setScore: ({ value }) => { score = value; return score; } };\nconst result = await graphql({ schema, rootValue, source: \"mutation { setScore(value: 8) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"setScore\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "mutations"
+    },
+    {
+      "id": "non-null",
+      "title": "Require a value",
+      "description": "The exclamation mark means a field must not be null. This resolver breaks that rule, so GraphQL reports an error.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { name: String! }\");\n\nconst rootValue = { name: () => null };\nconst result = await graphql({ schema, rootValue, source: \"{ name }\", variableValues: {} });\nconsole.log(result.errors[0].message);\n",
+      "output": "Cannot return null for non-nullable field Query.name.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "non-null"
+    },
+    {
+      "id": "directives",
+      "title": "Choose fields with a flag",
+      "description": "The include directive can choose whether a field is requested. The flag is false here.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { title: String!, pages: Int! }\");\n\nconst rootValue = { title: () => \"Moon Trip\", pages: () => 24 };\nconst result = await graphql({ schema, rootValue, source: \"query Card($details: Boolean!) { title pages @include(if: $details) }\", variableValues: { details: false } });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "directives"
+    },
+    {
+      "id": "input-objects",
+      "title": "Group several inputs",
+      "description": "An input type groups values sent into a mutation. It is separate from an output object type.",
+      "language": "javascript",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"input BookInput { title: String! } type Query { ready: Boolean! } type Mutation { createBook(book: BookInput!): String! }\");\n\nconst rootValue = { ready: () => true, createBook: ({ book }) => book.title };\nconst result = await graphql({ schema, rootValue, source: \"mutation { createBook(book: { title: \\\"Moon Trip\\\" }) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "output": "{\"createBook\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "input-objects"
+    }
+  ]
+}

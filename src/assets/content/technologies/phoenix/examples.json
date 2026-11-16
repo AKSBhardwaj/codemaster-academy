@@ -1,0 +1,138 @@
+{
+  "title": "Phoenix Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-route",
+      "title": "Make a controller reply",
+      "description": "The router maps GET /hello to a controller action. text sends a plain response.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, _params), do: text(conn, \"Hello, Asha!\")\nend\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-route"
+    },
+    {
+      "id": "json",
+      "title": "Send JSON data",
+      "description": "json turns an Elixir map into a JSON reply. Open GET /book.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/book\", LessonController, :book\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef book(conn, _params), do: json(conn, %{title: \"Moon Trip\"})\nend\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "path-inputs",
+      "title": "Read a path value",
+      "description": "A colon marks a router input. Pattern matching reads its string-keyed parameter. Open GET /hello/Ravi.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello/:name\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, %{\"name\" => name}), do: text(conn, \"Hi, #{name}!\")\nend\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "path-inputs"
+    },
+    {
+      "id": "query",
+      "title": "Read query data",
+      "description": "The params map includes query values. Open GET /search?q=cat.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/search\", LessonController, :search\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef search(conn, params), do: json(conn, %{term: Map.get(params, \"q\", \"\")})\nend\n",
+      "output": "{\"term\":\"cat\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query"
+    },
+    {
+      "id": "parse-number",
+      "title": "Check a path number",
+      "description": "Integer.parse reads a number and the unused text. Open GET /double/4.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/double/:n\", LessonController, :twice\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef twice(conn, %{\"n\" => raw}) do\n case Integer.parse(raw) do\n  {n, \"\"} -> json(conn, %{answer: n * 2})\n  _ -> conn |> put_status(400) |> json(%{error: \"Use a whole number\"})\n end\nend\nend\n",
+      "output": "{\"answer\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "parse-number"
+    },
+    {
+      "id": "post-body",
+      "title": "Read JSON parameters",
+      "description": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The endpoint parser puts the fields into params.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\npost \"/books\", LessonController, :create\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef create(conn, %{\"title\" => title}) when is_binary(title), do: conn |> put_status(201) |> json(%{title: title})\ndef create(conn, _params), do: conn |> put_status(400) |> json(%{error: \"Title needed\"})\nend\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "post-body"
+    },
+    {
+      "id": "status",
+      "title": "Report a missing item",
+      "description": "put_status returns an updated connection. Pass that value to json. Open GET /missing.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/missing\", LessonController, :missing\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef missing(conn, _params), do: conn |> put_status(404) |> json(%{error: \"Book not found\"})\nend\n",
+      "output": "{\"error\":\"Book not found\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "status"
+    },
+    {
+      "id": "headers",
+      "title": "Set response metadata",
+      "description": "put_resp_header adds a header to the connection. Open GET /note.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/note\", LessonController, :note\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef note(conn, _params), do: conn |> put_resp_header(\"cache-control\", \"no-store\") |> text(\"Practice note\")\nend\n",
+      "output": "Practice note",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "headers"
+    },
+    {
+      "id": "redirects",
+      "title": "Return a redirect",
+      "description": "redirect sends a location. A browser following GET /start reaches /hello.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/start\", LessonController, :start\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef start(conn, _params), do: redirect(conn, to: \"/hello\")\ndef hello(conn, _params), do: text(conn, \"Welcome\")\nend\n",
+      "output": "Welcome",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "redirects"
+    },
+    {
+      "id": "lists",
+      "title": "Return a JSON list",
+      "description": "A map can wrap a list under a clear key. Open GET /books.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/books\", LessonController, :books\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef books(conn, _params), do: json(conn, %{books: [\"Moon Trip\", \"Sun Trip\"]})\nend\n",
+      "output": "{\"books\":[\"Moon Trip\",\"Sun Trip\"]}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "lists"
+    },
+    {
+      "id": "halt",
+      "title": "Stop later processing",
+      "description": "halt marks the connection so later plugs stop. Open GET /closed.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/closed\", LessonController, :closed\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef closed(conn, _params), do: conn |> send_resp(403, \"Closed for practice\") |> halt()\nend\n",
+      "output": "Closed for practice",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "halt"
+    },
+    {
+      "id": "empty-response",
+      "title": "Return no content",
+      "description": "send_resp can send an empty body with status 204. Send DELETE /books/1.",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\ndelete \"/books/:id\", LessonController, :remove\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef remove(conn, _params), do: send_resp(conn, 204, \"\")\nend\n",
+      "output": "204 No Content; empty body",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "empty-response"
+    }
+  ]
+}

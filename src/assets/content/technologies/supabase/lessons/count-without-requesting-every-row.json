@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "count-without-requesting-every-row",
+  "title": "Count without requesting every row",
+  "summary": "A select can request a count while leaving the row body out.",
+  "introduction": "A select can request a count while leaving the row body out. Your task: Compare the returned count with the seed records.",
+  "learningObjectives": [
+    "Compare the returned count with the seed records.",
+    "Explain the example for count without requesting every row"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A select can request a count while leaving the row body out. This helps when the page only needs the total."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Supabase local CLI with its required container runtime, then run supabase init and supabase start in a practice project. Use the local URL and public key reported by its status command. SQL runs in the local database tools."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {count,error}=await supabase.from(\"cma_books\").select(\"*\",{count:\"exact\",head:true});\nconsole.log(error?error.message:count);",
+      "title": "Count without requesting every row",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`from` chooses the Supabase table. The following query methods choose fields, filters and ordering for that request.",
+        "`head: true` requests no row body. With a count option, the caller can read the total without fetching every row."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The count is 3 for the seeded sample table visible to this role."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "An exact count may cost work on large tables. Choose it because the feature needs it, not by habit."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Compare the returned count with the seed records."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "supabase-count-without-requesting-every-row-check"
+    }
+  ],
+  "exerciseIds": ["supabase-count-without-requesting-every-row-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "supabase",
+      "slug": "order-and-limit-the-result"
+    }
+  ],
+  "seo": {
+    "title": "Supabase: Count without requesting every row",
+    "description": "A select can request a count while leaving the row body out. This helps when the page only needs the total."
+  },
+  "updatedOn": "2026-11-16"
+}

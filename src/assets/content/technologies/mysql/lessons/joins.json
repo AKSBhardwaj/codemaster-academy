@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "slug": "joins",
+  "title": "Joins",
+  "summary": "Combine orders, customers and coffees with INNER JOIN and LEFT JOIN, find rows without a match, emulate the FULL OUTER JOIN MySQL lacks, avoid the accidental cross product and use MySQL's.",
+  "introduction": "Orders store a customer_id and a coffee_id rather than names and prices; that is what keeps the data consistent when a name changes. A JOIN puts the pieces back together for a report. This lesson joins two and three tables, uses LEFT JOIN to keep customers who have never ordered, shows the one join MySQL does not have, and ends with a MySQL extension that lets UPDATE and DELETE use joins too. The rows are the ones loaded in the CRUD lesson.",
+  "learningObjectives": [
+    "Join two and three tables with INNER JOIN and table aliases",
+    "Keep unmatched rows with LEFT JOIN and find them with IS NULL",
+    "Emulate FULL OUTER JOIN, which MySQL lacks, with UNION",
+    "Run a multi-table UPDATE safely inside a transaction"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "INNER JOIN"
+    },
+    {
+      "type": "paragraph",
+      "text": "`JOIN ... ON` pairs each order with the customer whose `id` equals the order's `customer_id`. Rows with no partner on either side are dropped, which is why it is called an *inner* join; `JOIN` and `INNER JOIN` are the same thing. Short aliases (`orders o`) keep the column references readable, and `ORDER BY` is still needed, because a join does not promise any row order."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT o.id, c.name, o.quantity, o.status\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nORDER BY o.id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+---------------+----------+-----------+\n| id | name          | quantity | status    |\n+----+---------------+----------+-----------+\n|  1 | Priya Nair    |        2 | shipped   |\n|  2 | Priya Nair    |        1 | shipped   |\n|  3 | Tomás Ribeiro |        3 | paid      |\n|  4 | Mei Chen      |        2 | pending   |\n|  5 | Yusuf Demir   |        1 | cancelled |\n|  6 | Tomás Ribeiro |        2 | paid      |\n|  7 | Priya Nair    |        1 | pending   |\n+----+---------------+----------+-----------+\n7 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three tables"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each extra table gets its own `JOIN ... ON`. Both `customers` and `coffees` have a `name` column, so every reference must be qualified with its alias, and aliases on the output columns keep the report readable. Multiplying a `DECIMAL(6,2)` price by an integer quantity gives an exact decimal line total."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT o.id, c.name AS customer, k.name AS coffee,\n       o.quantity, k.price * o.quantity AS line_total\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN coffees k ON k.id = o.coffee_id\nORDER BY o.id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+---------------+----------------+----------+------------+\n| id | customer      | coffee         | quantity | line_total |\n+----+---------------+----------------+----------+------------+\n|  1 | Priya Nair    | Morning Blend  |        2 |      25.00 |\n|  2 | Priya Nair    | Yirgacheffe    |        1 |      16.00 |\n|  3 | Tomás Ribeiro | Espresso Roast |        3 |      42.00 |\n|  4 | Mei Chen      | Yirgacheffe    |        2 |      32.00 |\n|  5 | Yusuf Demir   | Morning Blend  |        1 |      12.50 |\n|  6 | Tomás Ribeiro | Decaf Colombia |        2 |      27.50 |\n|  7 | Priya Nair    | Espresso Roast |        1 |      14.00 |\n+----+---------------+----------------+----------+------------+\n7 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the joined columns share a name on both sides you can write `JOIN coffees USING (coffee_id)` instead of `ON`. Our tables use `id` on one side and `coffee_id` on the other, so `ON` is required; it is also the form that works everywhere."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "LEFT JOIN"
+    },
+    {
+      "type": "paragraph",
+      "text": "An inner join hides Hannah, who has never ordered. `LEFT JOIN` keeps every row of the left table and fills the right-hand columns with NULL when nothing matches, which is what a report of *all customers* needs:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT c.name, o.id AS order_id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nORDER BY c.id, o.id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+----------+\n| name          | order_id |\n+---------------+----------+\n| Priya Nair    |        1 |\n| Priya Nair    |        2 |\n| Priya Nair    |        7 |\n| Tomás Ribeiro |        3 |\n| Tomás Ribeiro |        6 |\n| Mei Chen      |        4 |\n| Yusuf Demir   |        5 |\n| Hannah Weiss  |     NULL |\n+---------------+----------+\n8 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Testing that NULL is the standard way to find rows *without* a match. The same shape answers \"which coffees have never been ordered?\" by swapping the tables."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------+\n| name         |\n+--------------+\n| Hannah Weiss |\n+--------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A WHERE on the right table turns a LEFT JOIN back into an inner join",
+      "text": "`LEFT JOIN orders o ... WHERE o.status = 'paid'` drops Hannah again: her `o.status` is NULL, and NULL fails every comparison. Conditions on the optional table belong in the `ON` clause, as in `ON o.customer_id = c.id AND o.status = 'paid'`, which keeps every customer and attaches only paid orders."
+    },
+    {
+      "type": "paragraph",
+      "text": "`RIGHT JOIN` is the mirror image and keeps every row of the right table. Almost everyone writes outer joins as `LEFT JOIN` with the table to keep on the left, so you will rarely see it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "No FULL OUTER JOIN"
+    },
+    {
+      "type": "paragraph",
+      "text": "PostgreSQL and recent SQLite have `FULL OUTER JOIN`, which keeps unmatched rows from both sides. MySQL does not: `UNION` a `LEFT JOIN` with a `RIGHT JOIN` instead. `UNION` removes duplicate rows, so the matched pairs appear once; because every order here has a customer, the result equals the LEFT JOIN above, only sorted by name."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT c.name, o.id AS order_id\nFROM customers c LEFT JOIN orders o ON o.customer_id = c.id\nUNION\nSELECT c.name, o.id\nFROM customers c RIGHT JOIN orders o ON o.customer_id = c.id\nORDER BY name, order_id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+----------+\n| name          | order_id |\n+---------------+----------+\n| Hannah Weiss  |     NULL |\n| Mei Chen      |        4 |\n| Priya Nair    |        1 |\n| Priya Nair    |        2 |\n| Priya Nair    |        7 |\n| Tomás Ribeiro |        3 |\n| Tomás Ribeiro |        6 |\n| Yusuf Demir   |        5 |\n+---------------+----------+\n8 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The accidental cross product"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL accepts a `JOIN` without `ON` and treats it as a `CROSS JOIN`: every order paired with every customer, 7 × 5 = 35 rows. The symptom is a report with too many rows and inflated totals, never an error message."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT COUNT(*) FROM orders JOIN customers;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----------+\n| COUNT(*) |\n+----------+\n|       35 |\n+----------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Multi-table UPDATE and DELETE"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL lets `UPDATE` and `DELETE` join tables, so you can change orders based on a column of the customer. The statement below cancels pending orders from customers in Taipei. It is wrapped in a transaction and rolled back at the end, so the sample data is unchanged afterwards; the [Transactions lesson](/tutorials/mysql/transactions) explains the mechanism."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "START TRANSACTION;\n\nUPDATE orders o\nJOIN customers c ON c.id = o.customer_id\nSET o.status = 'cancelled'\nWHERE c.city = 'Taipei' AND o.status = 'pending';\n\nSELECT id, status FROM orders WHERE customer_id = 3;\n\nROLLBACK;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.00 sec)\n\nQuery OK, 1 row affected (0.01 sec)\nRows matched: 1  Changed: 1  Warnings: 0\n\n+----+-----------+\n| id | status    |\n+----+-----------+\n|  4 | cancelled |\n+----+-----------+\n1 row in set (0.00 sec)\n\nQuery OK, 0 rows affected (0.01 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The matching `DELETE` names the table to delete from before `FROM`: `DELETE o FROM orders o JOIN customers c ON c.id = o.customer_id WHERE c.city = 'Taipei';`. PostgreSQL spells the same idea `UPDATE ... FROM` and `DELETE ... USING`, and SQLite needs a subquery, so these statements are the first thing to rewrite when a project changes database."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-joins-customers-without-orders"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "joins-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "joins",
+          "difficulty": "beginner",
+          "question": "Which join lists every coffee, including those that have never been ordered?",
+          "explanation": "A LEFT JOIN keeps every row of the left table (coffees) and fills the order columns with NULL when no order matches.",
+          "options": [
+            "`coffees k JOIN orders o ON o.coffee_id = k.id`",
+            "`coffees k LEFT JOIN orders o ON o.coffee_id = k.id`",
+            "`orders o LEFT JOIN coffees k ON k.id = o.coffee_id`",
+            "`coffees k CROSS JOIN orders o`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "joins-qc-2",
+          "type": "true-false",
+          "lessonSlug": "joins",
+          "difficulty": "beginner",
+          "question": "Leaving out the ON clause of a JOIN is a syntax error in MySQL.",
+          "explanation": "MySQL silently treats it as a CROSS JOIN and returns every combination of rows, which is why an unexpected row count is the only symptom.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-joins-customers-without-orders", "mysql-joins-full-outer"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "aggregates"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "select-filtering"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Joins – INNER JOIN, LEFT JOIN and Multi-Table Updates",
+    "description": "Join MySQL tables with INNER JOIN and LEFT JOIN, find unmatched rows, emulate FULL OUTER JOIN with UNION, avoid cross products and run multi-table UPDATE statements."
+  },
+  "updatedOn": "2026-11-15"
+}

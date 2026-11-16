@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "slug": "array-positions",
+  "title": "Array positions",
+  "summary": "Find items by their numbered places in an array. Update one score, check a safe index, and compare the same task in six languages.",
+  "introduction": "Picture three numbered lockers holding scores. If you know the locker number, you can go straight to it. Arrays use the same idea, but their first position is numbered zero.",
+  "learningObjectives": [
+    "Read and update an array item by index",
+    "Find the last valid position from the length",
+    "Check a position before reading it"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **array** keeps items in order. An **index** is an item's position number. Index 0 means the first item, index 1 the second, and index 2 the third."
+    },
+    {
+      "type": "paragraph",
+      "text": "The **length** is the number of items. Three items have length 3, but their valid indexes are 0, 1, and 2. The last index is length minus 1."
+    },
+    {
+      "type": "paragraph",
+      "text": "A fixed-size array cannot grow in place. C, Java, and this C# example use fixed-size arrays. JavaScript arrays and Python lists can grow. We keep the length fixed in every example to practise the same task."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with scores 4, 7, and 2 at indexes 0, 1, and 2.",
+        "Choose index 1. Check that it is at least 0 and less than the length 3.",
+        "Replace the score at index 1 with 9. The array is now 4, 9, 2.",
+        "Read index 1 and print 9."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Array positions example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const scores = [4, 7, 2];\nconst index = 1;\nif (index >= 0 && index < scores.length) {\n  scores[index] = 9;\n  console.log(scores[index]);\n}",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int scores[] = {4, 7, 2};\n    int length = (int)(sizeof scores / sizeof scores[0]);\n    int index = 1;\n    if (index >= 0 && index < length) {\n        scores[index] = 9;\n        printf(\"%d\\n\", scores[index]);\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int scores[] = {4, 7, 2};\n    int length = 3;\n    int index = 1;\n    if (index >= 0 && index < length) {\n        scores[index] = 9;\n        std::cout << scores[index] << '\\n';\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "scores = [4, 7, 2]\nindex = 1\nif 0 <= index < len(scores):\n    scores[index] = 9\n    print(scores[index])",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "int[] scores = { 4, 7, 2 };\nint index = 1;\nif (index >= 0 && index < scores.Length)\n{\n    scores[index] = 9;\n    System.Console.WriteLine(scores[index]);\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        int[] scores = {4, 7, 2};\n        int index = 1;\n        if (index >= 0 && index < scores.length) {\n            scores[index] = 9;\n            System.out.println(scores[index]);\n        }\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "9"
+    },
+    {
+      "type": "paragraph",
+      "text": "Square brackets pick a position. The line with = stores a new value in that position. It replaces 7; it does not add another item. Reading or replacing a known array position takes O(1) work."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty array has no valid index. The same check rejects every index when length is 0. The C example uses a real three-item array; do not write a zero-length C array to test emptiness."
+    },
+    {
+      "type": "paragraph",
+      "text": "Out-of-range behavior differs. Java and C# report an error. JavaScript can give undefined. C and C++ can access memory they should not. Python allows some negative indexes. Our check accepts only the shared range 0 through length minus 1."
+    },
+    {
+      "type": "paragraph",
+      "text": "Inserting into the middle is different from replacing an item. In an array-backed list, insertion can require shifting many later items and take O(n) work."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change index from 1 to 2. Keep the replacement value 9.",
+        "The program still prints 9, but now the array becomes 4, 7, 9. The final item changed instead of the middle one."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use index <= length as the upper check. Index length is already one place too far. Use index < length."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-array-positions"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-array-positions"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "linked-lists"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "stacks"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Array positions in six languages",
+    "description": "Find items by their numbered places in an array. Update one score, check a safe index, and compare the same task in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "classes-objects",
+  "title": "Classes and Objects",
+  "summary": "Define classes with fields, constructors, methods and basic properties, create objects with new, protect state with access modifiers, and use static members.",
+  "introduction": "A class is a blueprint that bundles data and the operations on that data into one type, and an object is one concrete instance built from it. Almost everything in .NET, from strings to HTTP clients, is a class, and most of the code you write will live in classes. This lesson builds a BankAccount class step by step: fields that hold state, a constructor that sets it up, methods that change it safely, and the access modifiers that keep the outside world from breaking the rules. You also meet static members and primary constructors.",
+  "learningObjectives": [
+    "Declare a class with fields, a constructor and methods, and create objects from it",
+    "Use access modifiers to protect an object's state",
+    "Tell instance members from static members and use primary constructors"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why classes?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A bank account has a balance and an owner, and rules such as \"a withdrawal cannot exceed the balance\". If those were loose variables, every part of the program could break the rules. A class keeps the data **private** and exposes **methods** that enforce the rules. This is **encapsulation**, and it is the main reason object-oriented code stays correct as a program grows."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A first class"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var account = new BankAccount(\"Ada\", 100m);\naccount.Deposit(50m);\nbool ok = account.Withdraw(500m);\n\nConsole.WriteLine(ok);\nConsole.WriteLine(account.Balance);\nConsole.WriteLine(account.Owner);\n\nclass BankAccount\n{\n    private decimal _balance;\n\n    public string Owner { get; }\n    public decimal Balance => _balance;\n\n    public BankAccount(string owner, decimal openingBalance)\n    {\n        Owner = owner;\n        _balance = openingBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n        {\n            throw new ArgumentOutOfRangeException(nameof(amount), \"Deposit must be positive.\");\n        }\n        _balance += amount;\n    }\n\n    public bool Withdraw(decimal amount)\n    {\n        if (amount > _balance) return false;\n        _balance -= amount;\n        return true;\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "False\n150\nAda"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`private decimal _balance;` is a **field**: a variable that belongs to each object. It is private, so only code inside the class can touch it. Private fields are conventionally named with a leading underscore.",
+        "`public string Owner { get; }` is a read-only **property**: it can be set in the constructor and read from anywhere. `Balance` is a computed property that exposes the field without allowing changes. The [properties lesson](/tutorials/csharp/properties-records) covers properties in depth.",
+        "`public BankAccount(string owner, decimal openingBalance)` is the **constructor**: it has the class name, no return type, and runs when you write `new BankAccount(...)`.",
+        "`Deposit` and `Withdraw` are **instance methods**: they work on the object they are called on, so `account.Deposit(50m)` changes that account only."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`new` allocates the object and runs the constructor; `account` holds a reference to it. Because `_balance` is private, `account._balance = 1_000_000m;` does not compile, so every change goes through the two methods and their checks. The withdrawal of 500 was refused, which is why the balance is still 150."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Access modifiers"
+    },
+    {
+      "type": "table",
+      "headers": ["Modifier", "Visible to"],
+      "rows": [
+        ["`public`", "Everyone"],
+        ["`private`", "Only the same class (the default for members)"],
+        ["`protected`", "The same class and classes that inherit from it"],
+        ["`internal`", "Any code in the same project (the default for top-level classes)"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Start with `private` and open up only what callers need; it is much easier to make something public later than to take it back once other code depends on it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects are references"
+    },
+    {
+      "type": "paragraph",
+      "text": "As the [types lesson](/tutorials/csharp/types) showed, a class variable holds a reference. Two variables can refer to the same object, and each `new` creates a separate one. `ReferenceEquals` tells you whether two variables point at the same object."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var original = new Counter();\nvar alias = original;         // same object, two names\nvar separate = new Counter(); // a second object\n\noriginal.Increment();\noriginal.Increment();\nalias.Increment();\nseparate.Increment();\n\nConsole.WriteLine($\"original = {original.Count}, alias = {alias.Count}, separate = {separate.Count}\");\nConsole.WriteLine(ReferenceEquals(original, alias));\nConsole.WriteLine(ReferenceEquals(original, separate));\n\nclass Counter\n{\n    public int Count { get; private set; }\n\n    public void Increment() => Count++;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "original = 3, alias = 3, separate = 1\nTrue\nFalse"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Count` has a public getter and a `private set`, so outside code can read it but only `Increment` can change it. That is encapsulation again, expressed with a property instead of a field."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Static members"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **static** member belongs to the class itself rather than to any object: there is exactly one copy, shared by everyone. Use static for things that are the same for all instances (a count of how many were created, a conversion method, a constant) and access them through the class name. `Math.Sqrt` and `Console.WriteLine` are static methods; `Math` and `Console` are static classes that cannot be instantiated at all."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var a = new Ticket();\nvar b = new Ticket();\nvar c = new Ticket();\n\nConsole.WriteLine($\"{a.Number} {b.Number} {c.Number}\");\nConsole.WriteLine(Ticket.Issued);\nConsole.WriteLine(Ticket.Describe(b));\n\nclass Ticket\n{\n    private static int _nextNumber = 1;\n\n    public static int Issued { get; private set; }\n    public int Number { get; }\n\n    public Ticket()\n    {\n        Number = _nextNumber++;\n        Issued++;\n    }\n\n    public static string Describe(Ticket ticket) => $\"Ticket #{ticket.Number} of {Issued}\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1 2 3\n3\nTicket #2 of 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Number` is per ticket; `Issued` and `_nextNumber` are per class. A static method such as `Describe` cannot use `this` because there is no current object; it only sees static members and whatever is passed in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Primary constructors and object initializers"
+    },
+    {
+      "type": "paragraph",
+      "text": "Since C# 12 a class can declare its constructor parameters right after the name, which removes the boilerplate of copying parameters into fields; the parameters are available anywhere in the class body. An **object initializer** (`{ Pages = 412 }`) sets settable properties right after construction. Overriding `ToString()` controls what `Console.WriteLine(book)` prints; the default would print only the type name."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var book = new Book(\"Dune\", 1965) { Pages = 412 };\nConsole.WriteLine(book);\nConsole.WriteLine(book.IsClassic(2026));\n\nclass Book(string title, int year)\n{\n    public string Title { get; } = title;\n    public int Year { get; } = year;\n    public int Pages { get; set; }\n\n    public bool IsClassic(int currentYear) => currentYear - year >= 50;\n\n    public override string ToString() => $\"{Title} ({Year}), {Pages} pages\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Dune (1965), 412 pages\nTrue"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Files and namespaces"
+    },
+    {
+      "type": "paragraph",
+      "text": "Small examples keep classes in `Program.cs`, but real projects put each class in its own file named after it (`BankAccount.cs`) and group related classes in a **namespace**, usually matching the folder, with a `namespace Banking;` line at the top of the file. Code elsewhere reaches the class with `using Banking;`. The compiler does not care which file a class lives in; only the namespace matters."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "NullReferenceException",
+      "text": "Declaring a variable of a class type does not create an object: `BankAccount account;` holds nothing until you assign `new BankAccount(...)`. Calling a member on a reference that is `null` throws `NullReferenceException`, the most common runtime error in C#. With nullable reference types enabled the compiler warns (*CS8602: Dereference of a possibly null reference*) whenever it can see the risk; treat those warnings as errors in your head."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-classes-bank-account"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-classes-qc-1",
+          "type": "true-false",
+          "lessonSlug": "classes-objects",
+          "difficulty": "beginner",
+          "question": "A private field can be read by any code in the same project.",
+          "explanation": "`private` restricts access to the declaring class. Project-wide visibility is what `internal` provides.",
+          "correct": false
+        },
+        {
+          "id": "csharp-classes-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "classes-objects",
+          "difficulty": "beginner",
+          "question": "What does the static modifier mean on a class member?",
+          "explanation": "A static member has one copy shared by the whole class and is accessed through the class name, such as `Ticket.Issued`. Immutability is `readonly` or `const`; visibility is controlled by access modifiers.",
+          "options": [
+            "It cannot be changed after construction",
+            "It belongs to the class rather than to any instance",
+            "It is visible only inside the class",
+            "It is stored on the stack instead of the heap"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-classes-bank-account"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "inheritance-interfaces"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "types"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "modules-classes"
+    }
+  ],
+  "seo": {
+    "title": "C# Classes and Objects – Fields, Constructors, Methods",
+    "description": "Learn C# classes: fields, constructors, methods and properties, encapsulation with access modifiers, static members, primary constructors and object initializers."
+  },
+  "updatedOn": "2026-11-15"
+}

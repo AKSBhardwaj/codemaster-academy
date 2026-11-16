@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "slug": "objects-interfaces",
+  "title": "Objects and Interfaces",
+  "summary": "An interface describes the named parts an object should have and the type of each part.",
+  "introduction": "An interface describes the named parts an object should have and the type of each part. Design a small book record with a title and page count. Add a fact that is optional, then check it before using it.",
+  "learningObjectives": [
+    "Declare an interface with required, optional and readonly properties",
+    "Explain the missing-property and excess-property errors and fix both",
+    "Describe structural typing and why an object with extra properties can still match"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring an interface"
+    },
+    {
+      "type": "paragraph",
+      "text": "An interface lists property names and their types. A `?` after the name makes the property optional; `readonly` in front of it forbids assignment after the object is created. Methods are declared like functions without a body."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "product.ts",
+      "code": "interface Product {\n  id: number;\n  name: string;\n  price: number;\n  tags?: string[];\n  readonly sku: string;\n}\n\nconst pen: Product = { id: 1, name: \"Pen\", price: 1.5, sku: \"PEN-01\" };\n\npen.price = 1.75;\nconsole.log(pen.name, pen.price, pen.tags?.length ?? 0);\n\npen.sku = \"PEN-02\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc product.ts",
+      "content": "product.ts:14:5 - error TS2540: Cannot assign to 'sku' because it is a read-only property.\n\n14 pen.sku = \"PEN-02\";\n       ~~~\n\n\nFound 1 error in product.ts:14"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything before the last line is fine: `price` is a normal property and may change, `tags` was omitted because it is optional, and `pen.tags?.length ?? 0` handles the missing array. Run the file with `tsx` and it prints `Pen 1.75 0`. Only the assignment to `sku` is rejected. `readonly` is a compile-time promise, not a frozen object: the emitted JavaScript would happily perform the assignment, which is exactly why the compiler stops you first."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Missing and excess properties"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you assign an object literal to a typed variable, the compiler checks in both directions: every required property must be present, and no unknown property may appear. The second check, called the *excess property check*, exists because a misspelled key in a literal is almost always a bug."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "missing-excess.ts",
+      "code": "interface Product {\n  id: number;\n  name: string;\n  price: number;\n  readonly sku: string;\n}\n\nconst notebook: Product = { id: 2, name: \"Notebook\", sku: \"NB-01\" };\n\nconst stapler: Product = { id: 3, name: \"Stapler\", price: 8, sku: \"ST-01\", color: \"red\" };"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc missing-excess.ts",
+      "content": "missing-excess.ts:8:7 - error TS2741: Property 'price' is missing in type '{ id: number; name: string; sku: string; }' but required in type 'Product'.\n\n8 const notebook: Product = { id: 2, name: \"Notebook\", sku: \"NB-01\" };\n        ~~~~~~~~\n\n  missing-excess.ts:4:3\n    4   price: number;\n        ~~~~~\n    'price' is declared here.\n\nmissing-excess.ts:10:76 - error TS2353: Object literal may only specify known properties, and 'color' does not exist in type 'Product'.\n\n10 const stapler: Product = { id: 3, name: \"Stapler\", price: 8, sku: \"ST-01\", color: \"red\" };\n                                                                              ~~~~~\n\n\nFound 2 errors in the same file, starting at: missing-excess.ts:8"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read the first message carefully: the compiler prints the shape it inferred for the literal, names the missing property and points at its declaration. The second one is the excess property check. If `color` really belongs on products, add it to the interface (optional if not every product has one); if it was a typo, fix the key."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Structural typing"
+    },
+    {
+      "type": "paragraph",
+      "text": "TypeScript never asks whether a value was *declared* as a `Named`; it asks whether the value *has* what `Named` requires. This is called structural typing (or duck typing). An object with more properties than the interface lists is still acceptable when it arrives through a variable, because the extra properties are simply ignored."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "structural.ts",
+      "code": "interface Named {\n  name: string;\n}\n\nfunction hello(entity: Named): string {\n  return `Hello, ${entity.name}!`;\n}\n\nconst city = { name: \"Lisbon\", population: 545000 };\nconst robot = { model: \"RX-78\" };\n\nconsole.log(hello(city));\nconsole.log(hello(robot));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc structural.ts",
+      "content": "structural.ts:13:19 - error TS2345: Argument of type '{ model: string; }' is not assignable to parameter of type 'Named'.\n  Property 'name' is missing in type '{ model: string; }' but required in type 'Named'.\n\n13 console.log(hello(robot));\n                     ~~~~~\n\n  structural.ts:2:3\n    2   name: string;\n        ~~~~\n    'name' is declared here.\n\n\nFound 1 error in structural.ts:13"
+    },
+    {
+      "type": "paragraph",
+      "text": "`city` was never declared as a `Named`, yet `hello(city)` compiles and prints `Hello, Lisbon!`, because `city` has a `name` of type `string`. `robot` does not, so the call is rejected. Structural typing is why you can pass objects from one library to another as long as the shapes line up, and why interfaces in TypeScript are far lighter than in Java or C#."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: expecting the excess check everywhere",
+      "text": "The excess property check applies only to *fresh* object literals written directly where a type is expected. `hello({ name: \"Lisbon\", population: 545000 })` is an error, but `hello(city)` is not, because `city` is a variable and its extra property is allowed by structural typing. Do not rely on interfaces to strip or forbid unknown keys at runtime; they cannot."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Extending interfaces and index signatures"
+    },
+    {
+      "type": "paragraph",
+      "text": "`extends` copies the members of one or more interfaces into a new one, which keeps shared fields such as `id` and `createdAt` in one place. An *index signature* such as `[player: string]: number` describes a dictionary: any string key is allowed and every value is a number."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "extends.ts",
+      "code": "interface Entity {\n  id: number;\n  createdAt: string;\n}\n\ninterface Customer extends Entity {\n  email: string;\n  greet(): string;\n}\n\nconst customer: Customer = {\n  id: 7,\n  createdAt: \"2026-03-01\",\n  email: \"ada@example.com\",\n  greet() {\n    return `Customer #${this.id} <${this.email}>`;\n  },\n};\n\ninterface Scores {\n  [player: string]: number;\n}\n\nconst scores: Scores = { ada: 10 };\nscores[\"grace\"] = 12;\n\nconsole.log(customer.greet());\nconsole.log(scores);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx extends.ts",
+      "content": "Customer #7 <ada@example.com>\n{ ada: 10, grace: 12 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside the `greet` method, `this` is typed as `Customer`, so `this.id` and `this.email` are checked too. Interfaces also have a feature called *declaration merging*: two `interface Customer` blocks in the same scope are combined into one, which library authors use to let you add properties to existing types. The [next lesson](/tutorials/typescript/type-aliases-unions) compares interfaces with type aliases, which cannot merge."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Naming",
+      "text": "Use plain nouns (`Product`, `Customer`), not an `I` prefix. Keep interfaces next to the code that uses them, and export them from a module only once a second file needs the same shape."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-objects-interfaces-excess"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-objects-qc-1",
+          "type": "true-false",
+          "lessonSlug": "objects-interfaces",
+          "difficulty": "beginner",
+          "question": "A `readonly` property is frozen at runtime, so assigning to it in the emitted JavaScript throws an error.",
+          "explanation": "readonly exists only in the type system. The compiler rejects the assignment, but the emitted JavaScript contains no protection; use Object.freeze if you need a runtime guarantee.",
+          "correct": false
+        },
+        {
+          "id": "ts-objects-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "objects-interfaces",
+          "difficulty": "intermediate",
+          "question": "Given `interface Point { x: number; y: number }` and `const p = { x: 1, y: 2, z: 3 }`, which statement is true about `const q: Point = p;`?",
+          "explanation": "p is a variable, not a fresh literal, so the excess property check does not apply. p has everything Point requires, so the assignment is accepted by structural typing.",
+          "options": [
+            "It is an error because `z` is not in `Point`",
+            "It compiles because `p` has every property `Point` requires",
+            "It compiles only if `z` is marked optional in `Point`",
+            "It is an error because `p` was not declared as a `Point`"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-objects-interfaces-excess"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "type-aliases-unions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "utility-types"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Interfaces – Object Types, readonly and Shapes",
+    "description": "TypeScript interfaces: optional and readonly properties, missing and excess property errors, extends, index signatures and structural typing with examples."
+  },
+  "updatedOn": "2026-11-16"
+}

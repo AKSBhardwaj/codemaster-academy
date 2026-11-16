@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "slug": "transitions-animations",
+  "title": "Transitions and Animations",
+  "summary": "CSS can make a visual change happen over time. A transition moves between values, and an animation can use several steps.",
+  "introduction": "CSS can make a visual change happen over time. A transition moves between values, and an animation can use several steps. Try a gentle colour change. Learn how to respect people who prefer less movement on a screen.",
+  "learningObjectives": [
+    "Add transitions to state changes and tune duration, timing and delay",
+    "Define @keyframes and run them with the animation shorthand",
+    "Choose animatable, performant properties and respect prefers-reduced-motion"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Transitions: smoothing a change"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transition does nothing on its own. It waits for a property to change, because of `:hover`, `:focus`, a class added by JavaScript, or a media query flipping, and then animates from the old value to the new one instead of jumping. You declare which property to watch (`transition-property`), how long the change takes (`transition-duration`), the speed curve (`transition-timing-function`) and an optional `transition-delay`; the `transition` shorthand takes them in that order and accepts a comma-separated list for several properties. Declare it on the element's normal state so it runs in both directions."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "button {\n  background: #1d4ed8;\n  color: white;\n  border: none;\n  padding: 0.6rem 1.2rem;\n  border-radius: 6px;\n  transition: background-color 200ms ease-out, transform 200ms ease-out;\n}\n\nbutton:hover {\n  background: #1e3a8a;\n  transform: translateY(-2px);\n}\n\na {\n  transition: color 150ms;\n}\n\na:hover {\n  color: #dc2626;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run it and hover the button: it rises and darkens over 200 milliseconds, then settles back just as smoothly when the pointer leaves. Durations between 150 and 300 milliseconds feel responsive for hover effects; longer ones feel sluggish."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Timing functions"
+    },
+    {
+      "type": "table",
+      "headers": ["Function", "Feel", "Use for"],
+      "rows": [
+        ["`ease` (default)", "Slow start, fast middle, slow end", "General purpose"],
+        ["`linear`", "Constant speed", "Spinners, progress, colour fades"],
+        ["`ease-out`", "Fast start, slow end", "Things entering the screen"],
+        ["`ease-in`", "Slow start, fast end", "Things leaving the screen"],
+        ["`ease-in-out`", "Slow both ends", "Movement between two resting positions"],
+        ["`cubic-bezier(x1, y1, x2, y2)`", "Custom curve", "Branded motion, bounces"],
+        ["`steps(4)`", "Jumps in discrete steps", "Sprite animations, typewriter effects"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can be transitioned"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only values with something in between can be animated: lengths, percentages, colours, numbers, transforms and shadows. `display`, `font-family` and `height: auto` have no in-between values, so by default they flip instantly (newer browsers are adding an opt-in, `interpolate-size: allow-keywords`, for animating to `auto`, but it is not yet available everywhere). The classic workaround for an expanding panel is to animate `grid-template-rows` from `0fr` to `1fr`, which does not need to know the final height. Avoid `transition: all`: it animates properties you did not intend and makes the browser check every property on every change."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  body { font-family: system-ui, sans-serif; }\n  label { cursor: pointer; color: #1d4ed8; }\n  .panel {\n    display: grid;\n    grid-template-rows: 0fr;                          /* closed */\n    transition: grid-template-rows 300ms ease;\n  }\n  .panel > div { overflow: hidden; }\n  #toggle:checked ~ .panel { grid-template-rows: 1fr; }  /* open */\n</style>\n<input type=\"checkbox\" id=\"toggle\">\n<label for=\"toggle\">Show details</label>\n<div class=\"panel\">\n  <div><p>This panel animates from zero height to its natural height without knowing that height in advance.</p></div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>label{cursor:pointer;color:#1d4ed8}.panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows 300ms ease}.panel>div{overflow:hidden}#toggle:checked~.panel{grid-template-rows:1fr}p{margin:6px 0 0}</style><input type=\"checkbox\" id=\"toggle\"><label for=\"toggle\">Show details (tick the box)</label><div class=\"panel\"><div><p>This panel animates open to its natural height.</p></div></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A transition inside :hover only animates one way",
+      "text": "If `transition` is declared in the `button:hover` rule, the change animates when the pointer arrives but snaps back when it leaves: once the hover state ends, the hover rule and its transition no longer apply. Put the `transition` on the element's base rule and only the changed values in `:hover`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Animations with @keyframes"
+    },
+    {
+      "type": "paragraph",
+      "text": "An animation runs by itself as soon as it is applied, and can have as many steps as you like. `@keyframes` names the sequence and lists the values at each point, from `from` to `to` or as percentages. The `animation` shorthand then plays it: name, duration, timing function, delay, iteration count (`infinite` to loop), direction (`alternate` to play backwards every other time) and fill mode (`forwards` to keep the final values when it ends)."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  @keyframes spin {\n    to { transform: rotate(360deg); }\n  }\n  @keyframes pulse {\n    0%, 100% { opacity: 1; }\n    50%      { opacity: 0.4; }\n  }\n  .spinner {\n    width: 32px;\n    height: 32px;\n    border: 4px solid #dbeafe;\n    border-top-color: #1d4ed8;\n    border-radius: 50%;\n    animation: spin 1s linear infinite;\n  }\n  .loading {\n    font-family: system-ui, sans-serif;\n    animation: pulse 1.5s ease-in-out infinite;\n  }\n</style>\n<div class=\"spinner\"></div>\n<p class=\"loading\">Loading…</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}.spinner{width:32px;height:32px;border:4px solid #dbeafe;border-top-color:#1d4ed8;border-radius:50%;animation:spin 1s linear infinite}.loading{animation:pulse 1.5s ease-in-out infinite;margin:8px 0 0}</style><div class=\"spinner\"></div><p class=\"loading\">Loading…</p>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Example", "Meaning"],
+      "rows": [
+        ["`animation-name`", "`spin`", "Which `@keyframes` to play"],
+        ["`animation-duration`", "`1s`", "Length of one cycle"],
+        ["`animation-timing-function`", "`linear`", "Speed curve within each cycle"],
+        ["`animation-delay`", "`200ms`", "Wait before starting"],
+        ["`animation-iteration-count`", "`3`, `infinite`", "How many times to play"],
+        ["`animation-direction`", "`alternate`", "Reverse on every other cycle"],
+        ["`animation-fill-mode`", "`forwards`", "Keep the last keyframe's values after it ends"],
+        ["`animation-play-state`", "`paused`", "Pause and resume, often toggled by `:hover`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Performance: prefer transform and opacity"
+    },
+    {
+      "type": "paragraph",
+      "text": "Animating `width`, `height`, `top`, `left`, `margin` or `padding` forces the browser to recalculate layout on every frame, which stutters on phones. `transform` (`translate`, `scale`, `rotate`) and `opacity` can be handled by the compositor without touching layout, so they stay smooth even on weak hardware. Move things with `transform: translateX()` rather than `left`, and fade them with `opacity` rather than animating a colour's alpha where you can. `will-change: transform` hints the browser to prepare, but use it sparingly: every hint costs memory."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Respecting prefers-reduced-motion"
+    },
+    {
+      "type": "paragraph",
+      "text": "Some people get dizzy or nauseous from large movements, and every operating system has a \"reduce motion\" setting that CSS can read. The rule below shortens every animation and transition to practically nothing when that setting is on. Small, functional motion such as a 150ms colour fade is usually fine to keep; parallax, bouncing and sliding content are what the setting is for."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Turn motion off for users who ask for it",
+      "code": "@media (prefers-reduced-motion: reduce) {\n  *,\n  *::before,\n  *::after {\n    animation-duration: 0.01ms !important;\n    animation-iteration-count: 1 !important;\n    transition-duration: 0.01ms !important;\n  }\n}"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Test it",
+      "text": "Developer tools can emulate the setting without changing your system: in Chrome and Edge, open the *Rendering* panel and set *Emulate CSS media feature prefers-reduced-motion*; Firefox follows the operating system's setting, or you can set `ui.prefersReducedMotion` to `1` in `about:config`. Toggle it and make sure the page still makes sense without the motion."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: tune the motion",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Motion</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .card {\n      padding: 16px; background: #eff6ff; border-radius: 8px;\n      transition: transform 200ms ease-out, box-shadow 200ms ease-out;  /* Try: 1s, linear, steps(4) */\n    }\n    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgb(0 0 0 / 15%); }\n    @keyframes wave { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }\n    .hand { display: inline-block; animation: wave 400ms ease-in-out infinite alternate; }  /* Try: 3 instead of infinite */\n  </style>\n</head>\n<body>\n  <div class=\"card\"><span class=\"hand\">👋</span> Hover this card and change the transition values above.</div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-transitions-animations-transition"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-motion-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "transitions-animations",
+          "difficulty": "beginner",
+          "question": "Which declaration makes a keyframe animation repeat without end?",
+          "explanation": "`animation-iteration-count: infinite` loops the animation; the shorthand form is the `infinite` keyword inside `animation`.",
+          "options": [
+            "`animation-fill-mode: forwards`",
+            "`animation-iteration-count: infinite`",
+            "`animation-direction: alternate`",
+            "`animation-delay: 0s`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-motion-qc-2",
+          "type": "true-false",
+          "lessonSlug": "transitions-animations",
+          "difficulty": "intermediate",
+          "question": "`transition: display 300ms` smoothly fades an element from `display: none` to `display: block`.",
+          "explanation": "`display` has no in-between values, so it cannot be interpolated. Animate `opacity` or `transform` for the visual effect; newer tools such as `transition-behavior: allow-discrete` only control *when* the `display` switch happens.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-transitions-animations-transition"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "pseudo-classes-elements"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "positioning"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "responsive-design"
+    }
+  ],
+  "seo": {
+    "title": "CSS Transitions and Animations – transition, @keyframes",
+    "description": "Learn CSS motion: transition durations and timing functions, @keyframes and the animation shorthand, performant animatable properties and reduced motion."
+  },
+  "updatedOn": "2026-11-16"
+}

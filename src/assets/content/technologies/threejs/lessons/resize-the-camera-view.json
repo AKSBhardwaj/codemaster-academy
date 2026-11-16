@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "resize-the-camera-view",
+  "title": "Resize the camera view",
+  "summary": "A perspective camera needs the canvas aspect ratio.",
+  "introduction": "A perspective camera needs the canvas aspect ratio. Your task: Try a square width and height.",
+  "learningObjectives": [
+    "Try a square width and height.",
+    "Explain the example for resize the camera view"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A perspective camera needs the canvas aspect ratio. When the drawing size changes, update that ratio and its projection matrix."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a browser project with the three package installed and a module build tool. Each example creates its own canvas. Run one at a time. These library imports are not supported by this site's plain runner."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nconst width=480,height=240;\nrenderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();\nrenderer.render(scene,camera);",
+      "title": "Resize the camera view",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`updateProjectionMatrix` applies changed camera projection values such as its aspect ratio.",
+        "A perspective camera needs a field of view, aspect ratio, near distance and far distance to describe its view.",
+        "`MeshBasicMaterial` gives a visible surface without requiring lights. It is useful for a first shape example."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The canvas becomes wider while the camera uses the matching shape."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Changing only the canvas size can stretch the view. Keep the camera aspect ratio in step."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Try a square width and height."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "threejs-resize-the-camera-view-check"
+    }
+  ],
+  "exerciseIds": ["threejs-resize-the-camera-view-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "threejs",
+      "slug": "animate-using-time"
+    }
+  ],
+  "seo": {
+    "title": "Three.js: Resize the camera view",
+    "description": "A perspective camera needs the canvas aspect ratio. When the drawing size changes, update that ratio and its projection matrix."
+  },
+  "updatedOn": "2026-11-16"
+}

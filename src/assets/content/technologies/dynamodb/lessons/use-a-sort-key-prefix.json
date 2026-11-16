@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "use-a-sort-key-prefix",
+  "title": "Use a sort-key prefix",
+  "summary": "A sort key can support a range or prefix inside one partition.",
+  "introduction": "A sort key can support a range or prefix inside one partition. Your task: Change the prefix to garden.",
+  "learningObjectives": [
+    "Change the prefix to garden.",
+    "Explain the example for use a sort-key prefix"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A sort key can support a range or prefix inside one partition. begins_with keeps keys that start with the supplied text."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"KeyConditionExpression\":\"#reader=:reader AND begins_with(#book,:prefix)\",\"ExpressionAttributeNames\":{\"#reader\":\"reader\",\"#book\":\"book\"},\"ExpressionAttributeValues\":{\":reader\":{\"S\":\"mia\"},\":prefix\":{\"S\":\"moon\"}}}",
+      "title": "Use a sort-key prefix",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`KeyConditionExpression` uses the table or index keys to select a partition and, optionally, a sort-key range.",
+        "`ConditionExpression` checks the current item as part of the write, so a failed condition prevents the change.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mia's moon-trip item matches the moon prefix."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "The prefix test is on the sort key after choosing the partition. It is not a full-text title search."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the prefix to garden."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-use-a-sort-key-prefix-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-use-a-sort-key-prefix-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "query-one-partition"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Use a sort-key prefix",
+    "description": "A sort key can support a range or prefix inside one partition. begins_with keeps keys that start with the supplied text."
+  },
+  "updatedOn": "2026-11-16"
+}

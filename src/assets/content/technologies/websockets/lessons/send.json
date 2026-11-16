@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "send",
+  "title": "Send from the client",
+  "summary": "WebSockets: Send from the client. Send a different short message.",
+  "introduction": "The open event means the connection is ready. Sending before it is ready can fail.",
+  "learningObjectives": ["Send from the client with WebSockets", "Send a different short message"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send from the client"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Send from the client",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => socket.send(\"Received: \" + data.toString())));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"Hi\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The client waits for open before sending Hi. The server prefixes the received text and sends it back."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Received: Hi"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send a different short message."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Wait for open before calling send."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-send-check"
+    }
+  ],
+  "exerciseIds": ["websockets-send-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "connection"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Send from the client",
+    "description": "WebSockets: Send from the client. Send a different short message. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

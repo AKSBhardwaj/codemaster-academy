@@ -1,0 +1,152 @@
+{
+  "title": "Clean Code Reference",
+  "description": "A quick reminder of the ideas and examples in the Clean Code lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Write for the next reader",
+          "summary": "Code is read many times. A clear name explains the purpose of a value without making the reader solve a puzzle.",
+          "example": {
+            "language": "javascript",
+            "code": "const numberOfBooks = 4;\nconsole.log(numberOfBooks);"
+          },
+          "notes": ["A very short name is not always easier to understand."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "name-actions-with-verbs",
+          "name": "Name actions with verbs",
+          "summary": "Function names should explain what the action does. A reader should not need to inspect every line to understand a call.",
+          "example": {
+            "language": "javascript",
+            "code": "function addPrices(first, second) { return first + second; }\nconsole.log(addPrices(3, 4));"
+          },
+          "notes": ["Avoid names such as doStuff that hide the purpose."],
+          "lessonSlug": "name-actions-with-verbs"
+        },
+        {
+          "slug": "keep-one-job-in-a-function",
+          "name": "Keep one job in a function",
+          "summary": "A small function with one clear job is easier to test and reuse. Separate a calculation from drawing a page.",
+          "example": {
+            "language": "javascript",
+            "code": "const totalPrice = prices => prices.reduce((sum, price) => sum + price, 0);\nconsole.log(totalPrice([2, 3]));"
+          },
+          "notes": ["Do not mix a simple calculation with unrelated saving and navigation."],
+          "lessonSlug": "keep-one-job-in-a-function"
+        },
+        {
+          "slug": "replace-unexplained-numbers",
+          "name": "Replace unexplained numbers",
+          "summary": "A named constant explains why a special value appears. It also gives the rule one clear place to change.",
+          "example": {
+            "language": "javascript",
+            "code": "const MAX_BOOKS = 3;\nconst canBorrow = count => count < MAX_BOOKS;\nconsole.log(canBorrow(2));"
+          },
+          "notes": [
+            "Do not name every obvious arithmetic value; name values whose meaning needs explaining."
+          ],
+          "lessonSlug": "replace-unexplained-numbers"
+        },
+        {
+          "slug": "return-early-for-simple-cases",
+          "name": "Return early for simple cases",
+          "summary": "A guard clause handles a special case early. It can reduce deep nesting and make the main path easier to follow.",
+          "example": {
+            "language": "javascript",
+            "code": "function greet(name) {\n  if (!name) return \"Hello!\";\n  return \"Hi \" + name;\n}\nconsole.log(greet(\"\"));"
+          },
+          "notes": ["Make sure an early return does not skip work that must always happen."],
+          "lessonSlug": "return-early-for-simple-cases"
+        },
+        {
+          "slug": "avoid-needless-repeated-rules",
+          "name": "Avoid needless repeated rules",
+          "summary": "When the same rule appears in several places, changes can be missed. Put a shared rule in one clear function.",
+          "example": {
+            "language": "javascript",
+            "code": "const passes = score => score >= 5;\nconsole.log(passes(4), passes(7));"
+          },
+          "notes": [
+            "Two similar lines do not always represent the same rule; do not combine unrelated ideas."
+          ],
+          "lessonSlug": "avoid-needless-repeated-rules"
+        },
+        {
+          "slug": "comments-explain-reasons",
+          "name": "Comments explain reasons",
+          "summary": "A useful comment explains why a choice was made. The code should already explain ordinary steps through names.",
+          "example": {
+            "language": "javascript",
+            "code": "// Zero gives an empty basket a useful total.\nconst total = [].reduce((sum, price) => sum + price, 0);\nconsole.log(total);"
+          },
+          "notes": ["Update comments when the code changes; a wrong comment misleads readers."],
+          "lessonSlug": "comments-explain-reasons"
+        },
+        {
+          "slug": "make-errors-helpful",
+          "name": "Make errors helpful",
+          "summary": "An error should say what input was wrong or what action failed. It should not expose private details.",
+          "example": {
+            "language": "javascript",
+            "code": "function setAge(age) {\n  if (!Number.isInteger(age) || age < 0) throw new Error(\"Age must be a whole number of zero or more\");\n  return age;\n}\nconsole.log(setAge(10));"
+          },
+          "notes": ["Do not print secret values in error messages."],
+          "lessonSlug": "make-errors-helpful"
+        },
+        {
+          "slug": "prefer-clear-conditions",
+          "name": "Prefer clear conditions",
+          "summary": "A condition is easier to read when it states one clear question. Name a complicated condition if its purpose is not obvious.",
+          "example": {
+            "language": "javascript",
+            "code": "const isOpen = true;\nconst hasSpace = false;\nconst canJoin = isOpen && hasSpace;\nconsole.log(canJoin);"
+          },
+          "notes": ["Be careful with double negatives such as notNotReady."],
+          "lessonSlug": "prefer-clear-conditions"
+        },
+        {
+          "slug": "avoid-surprising-changes",
+          "name": "Avoid surprising changes",
+          "summary": "A function that returns a new value can be easier to reason about than one that changes its input. Make changes clear in the function name or contract.",
+          "example": {
+            "language": "javascript",
+            "code": "const original = [3, 1, 2];\nconst sorted = [...original].sort((a, b) => a - b);\nconsole.log(original.join(\",\"));\nconsole.log(sorted.join(\",\"));"
+          },
+          "notes": [
+            "sort changes its array, so copy first when the caller expects the original to stay."
+          ],
+          "lessonSlug": "avoid-surprising-changes"
+        },
+        {
+          "slug": "refactor-without-changing-behaviour",
+          "name": "Refactor without changing behaviour",
+          "summary": "Refactoring improves the code structure while keeping the same intended behaviour. Tests help check that the behaviour stayed the same.",
+          "example": {
+            "language": "javascript",
+            "code": "const before = n => n * 2 + 1;\nfunction after(n) { const doubled = n * 2; return doubled + 1; }\nconsole.log(before(3) === after(3));"
+          },
+          "notes": [
+            "Do not mix a large behaviour change with a readability-only change unless the scope is clear."
+          ],
+          "lessonSlug": "refactor-without-changing-behaviour"
+        },
+        {
+          "slug": "review-a-small-change",
+          "name": "Review a small change",
+          "summary": "A focused review checks whether a change solves its stated problem and keeps the code readable. Small changes are easier to inspect.",
+          "example": {
+            "language": "javascript",
+            "code": "const trimTitle = title => title.trim();\nconsole.log(trimTitle(\"  Moon  \") === \"Moon\");"
+          },
+          "notes": ["Avoid unrelated rewrites while fixing one small issue."],
+          "lessonSlug": "review-a-small-change"
+        }
+      ]
+    }
+  ]
+}

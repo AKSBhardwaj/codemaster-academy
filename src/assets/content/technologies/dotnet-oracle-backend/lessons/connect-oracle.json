@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "slug": "connect-oracle",
+  "title": "Connect C# to Oracle",
+  "summary": "Set a local connection string with .NET user-secrets. Learn how OracleConnection opens a database connection and releases it after use.",
+  "introduction": "Our C# program needs directions to Oracle and permission to enter. A connection string holds the host, service, username and password. We keep that string out of the source files and out of the browser page.",
+  "learningObjectives": [
+    "Set the local connection string without changing source code",
+    "Explain the jobs of the Oracle driver and connection",
+    "Release a database connection after each operation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set the development secret"
+    },
+    {
+      "type": "paragraph",
+      "text": "The sample includes a helper that asks for the reading_app password with hidden typing. Open PowerShell in the extracted dotnet-oracle-backend root and run it. The helper sets the ConnectionStrings:Oracle key for this project."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "./scripts/set-database-secret.ps1",
+      "title": "Run from the extracted sample root",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the password you chose in the database setup. The helper uses localhost:1521/FREEPDB1. If your database has another address, use the environment-variable steps in the README. Those steps also work if your computer blocks local PowerShell scripts. Follow your computer administrator's rules; do not switch off a managed computer's policy."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Local secrets are not an online vault",
+      "text": "User-secrets stores development settings outside the project folder. The file is not encrypted. Use only a local learning password, keep the machine account private, and use a managed secret store for a public deployment."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How the project reads the setting"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "builder.Configuration.GetConnectionString(\"Oracle\")",
+      "title": "The configuration lookup",
+      "runnable": false,
+      "caption": "This is an expression used inside Program.cs, not a complete file."
+    },
+    {
+      "type": "paragraph",
+      "text": "The full Program.cs passes this value to OracleOptions and checks that it is not blank. If it is missing, startup stops with a message telling you to set it. A value can also come from the environment variable ConnectionStrings__Oracle. The double underscore separates the two parts of the setting name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Open, use and release a connection"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "await using var connection = new OracleConnection(_connectionString);\nawait connection.OpenAsync(cancellationToken);\nawait using var command = connection.CreateCommand();\ncommand.BindByName = true;",
+      "title": "Inside a BookRepository method",
+      "runnable": false,
+      "caption": "The repository already has _connectionString and a cancellationToken argument. This is a short excerpt, not a separate program."
+    },
+    {
+      "type": "paragraph",
+      "text": "The **driver**, also called a provider, lets .NET talk to Oracle. OpenAsync waits for the connection without holding up the thread while it waits. await using releases the object when the method finishes, even after an error. ODP.NET can reuse underlying connections through pooling."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **cancellation token** lets a request say, \"I no longer need this work.\" The controller passes it to the repository, and the repository passes it to Oracle calls."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Keep passwords on the backend",
+      "text": "Never put this connection string in HTML, JavaScript, a screenshot or a Git commit. The browser talks to the API. Only the API talks to Oracle."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open appsettings.json and check that it has no database password. Then find GetConnectionString in Program.cs. Explain why the setting name can be public while its value must stay private."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-connect-oracle-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-connect-oracle-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "first-api"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "csharp-models"
+    }
+  ],
+  "seo": {
+    "title": "Connect C# to Oracle | C# .NET and Oracle",
+    "description": "Set a local connection string with .NET user-secrets. Learn how OracleConnection opens a database connection and releases it after use."
+  },
+  "updatedOn": "2026-11-16"
+}

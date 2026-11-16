@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "files-json",
+  "title": "Files and JSON",
+  "summary": "Read and write text files with File and StreamWriter, process lines asynchronously, build portable paths, and serialise objects to JSON and back with System.Text.Json.",
+  "introduction": "Programs need to remember things between runs and exchange data with other programs, and the two universal formats for that are plain text files and JSON. .NET's System.IO namespace handles files and folders with a few static methods, and System.Text.Json converts between your records and JSON without any extra packages. This lesson writes and reads text files, streams a file line by line, serialises a settings object to JSON and back, reads JSON of unknown shape, and explains the path mistake that makes a program work on your machine and fail on another.",
+  "learningObjectives": [
+    "Read and write text files with the File class, StreamWriter and ReadLinesAsync",
+    "Serialise records to JSON and deserialise JSON into records with JsonSerializer",
+    "Build file paths that work on every operating system"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading and writing text files"
+    },
+    {
+      "type": "paragraph",
+      "text": "The static `File` class covers most everyday needs in one call each: `WriteAllText` creates or overwrites a file, `AppendAllText` adds to the end, `ReadAllText` returns the whole content as one string and `ReadAllLines` as an array of lines. `File.Exists` checks before reading. All of these open and close the file for you."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string path = \"notes.txt\";\n\nFile.WriteAllText(path, \"First line\\n\");\nFile.AppendAllText(path, \"Second line\\n\");\n\nstring content = File.ReadAllText(path);\nConsole.WriteLine(content);\n\nstring[] lines = File.ReadAllLines(path);\nConsole.WriteLine($\"{lines.Length} lines; last = \\\"{lines[^1]}\\\"\");\nConsole.WriteLine(File.Exists(path));\n\nFile.Delete(path);\nConsole.WriteLine(File.Exists(path));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "First line\nSecond line\n\n2 lines; last = \"Second line\"\nTrue\nFalse"
+    },
+    {
+      "type": "paragraph",
+      "text": "The blank line appears because `content` already ends with a newline and `WriteLine` adds another. `ReadAllLines` does not produce an empty last element for that trailing newline, so the file has two lines."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Paths"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **relative** path such as `notes.txt` is resolved against the process's *current working directory*, which is wherever the program was started from, not where the source code lives. For files that belong to the app, build an absolute path from a known location, and always let `Path.Combine` insert the separator: `\\` on Windows, `/` elsewhere. `Directory` does for folders what `File` does for files."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string folder = Path.Combine(Path.GetTempPath(), \"csharp-tutorial\");\nDirectory.CreateDirectory(folder);          // no error if it already exists\n\nstring file = Path.Combine(folder, \"report.txt\");\nFile.WriteAllText(file, \"ok\");\n\nConsole.WriteLine(Path.GetFileName(file));\nConsole.WriteLine(Path.GetExtension(file));\nConsole.WriteLine(Path.GetFileNameWithoutExtension(file));\nConsole.WriteLine(Directory.GetFiles(folder).Length);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "report.txt\n.txt\nreport\n1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Streaming lines"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ReadAllText` loads the whole file into memory, which is fine for configuration and small data. For logs or large exports, process one line at a time: `File.ReadLines` returns lines lazily, and `File.ReadLinesAsync` does the same without blocking a thread, consumed with `await foreach`. A `StreamWriter` inside a `using` block writes incrementally and is closed, which flushes it to disk, when the block ends."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string[] rows = [\"Ada,92\", \"Grace,78\", \"Linus,85\"];\nawait File.WriteAllLinesAsync(\"scores.csv\", rows);\n\nint total = 0;\nawait foreach (string line in File.ReadLinesAsync(\"scores.csv\"))\n{\n    string[] parts = line.Split(',');\n    total += int.Parse(parts[1]);\n    Console.WriteLine($\"{parts[0],-6} {parts[1],3}\");\n}\nConsole.WriteLine($\"Total: {total}\");\n\nusing (var writer = new StreamWriter(\"scores.csv\", append: true))\n{\n    writer.WriteLine(\"Mei,70\");\n}\nConsole.WriteLine(File.ReadAllLines(\"scores.csv\").Length);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada     92\nGrace   78\nLinus   85\nTotal: 255\n4"
+    },
+    {
+      "type": "paragraph",
+      "text": "`{parts[0],-6}` pads the name to six characters, left-aligned, and `{parts[1],3}` right-aligns the score in three; alignment specifiers are handy for console tables. The `using` statement guarantees the writer is disposed even if an exception occurs inside the block; forgetting it can leave the last lines unwritten and the file locked."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "JSON with System.Text.Json"
+    },
+    {
+      "type": "paragraph",
+      "text": "JSON is the common language of web APIs and configuration files. `JsonSerializer.Serialize` turns an object into JSON text and `Deserialize<T>` parses JSON back into a `T`. Records are perfect for this: property names become JSON keys. `JsonSerializerOptions` controls details such as indentation and camelCase keys, and the serializer ignores JSON properties it does not know, so a server adding fields does not break your client."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using System.Text.Json;\n\nvar options = new JsonSerializerOptions\n{\n    WriteIndented = true,\n    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,\n};\nvar settings = new AppSettings(\"dark\", 14, [\"csharp\", \"json\"]);\n\nstring json = JsonSerializer.Serialize(settings, options);\nConsole.WriteLine(json);\nFile.WriteAllText(\"settings.json\", json);\n\nAppSettings? loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(\"settings.json\"), options);\nConsole.WriteLine(loaded?.FontSize);\nConsole.WriteLine(loaded?.Tags.Length);\nConsole.WriteLine(loaded?.Theme == settings.Theme);\n\nrecord AppSettings(string Theme, int FontSize, string[] Tags);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  \"theme\": \"dark\",\n  \"fontSize\": 14,\n  \"tags\": [\n    \"csharp\",\n    \"json\"\n  ]\n}\n14\n2\nTrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Deserialize<T>` returns `T?` because the JSON text `null` is valid input, hence the `?.` on the following lines. Pass the same options to both calls so that the camelCase names round-trip. Properties that the JSON does not contain keep their default values, which for a `string` property means `null` even if its type says otherwise, so validate what you load."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "JSON without a matching type"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you only need a few values, or the structure varies, `JsonNode.Parse` gives you a tree you can index with strings and integers. `JsonDocument` is the lower-level, read-only alternative for large documents. A raw string literal (three quotes) makes embedding JSON in C# painless because it needs no escaping."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using System.Text.Json.Nodes;\n\nstring payload = \"\"\"\n    { \"name\": \"Ada\", \"languages\": [\"C#\", \"F#\"], \"active\": true, \"age\": null }\n    \"\"\";\n\nJsonNode root = JsonNode.Parse(payload)!;\n\nConsole.WriteLine(root[\"name\"]!.GetValue<string>());\nConsole.WriteLine(root[\"languages\"]![1]!.GetValue<string>());\nConsole.WriteLine(root[\"active\"]!.GetValue<bool>());\nConsole.WriteLine(root[\"age\"] is null);\nConsole.WriteLine(root[\"languages\"]!.AsArray().Count);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada\nF#\nTrue\nTrue\n2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The indexer returns `null` for keys that are missing or hold JSON `null`, which is why the `!` null-forgiving operator appears where the shape is known. In production code check with `is JsonNode node` instead of `!` for anything that comes from outside."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Relative paths and the working directory",
+      "text": "`File.ReadAllText(\"data.txt\")` works when you run `dotnet run` in the project folder and fails with `FileNotFoundException` when the program is started from somewhere else, because the file is looked up in the *current directory*, not next to the executable. Use `Path.Combine(AppContext.BaseDirectory, \"data.txt\")` for files shipped with the app (and mark them *Copy to Output Directory* in the project file), or a folder such as `Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)` for user data."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Web defaults in one line",
+      "text": "`JsonSerializerOptions.Web` (available since .NET 9) preconfigures camelCase names and case-insensitive matching, the same settings ASP.NET Core uses, so a console tool and an API agree on the format without repeating the options."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-files-json-roundtrip"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-files-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "files-json",
+          "difficulty": "beginner",
+          "question": "Which call writes a string to a file, replacing any existing content?",
+          "explanation": "`File.WriteAllText` creates the file or overwrites it. `AppendAllText` keeps existing content, `ReadAllText` reads, and `File.Create` opens a stream rather than writing a string.",
+          "options": [
+            "`File.AppendAllText`",
+            "`File.WriteAllText`",
+            "`File.ReadAllText`",
+            "`File.Create`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-files-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "files-json",
+          "difficulty": "beginner",
+          "question": "`JsonSerializer.___<AppSettings>(json)` turns JSON text into an AppSettings object.",
+          "explanation": "`Deserialize<T>` parses JSON into a `T`; `Serialize` goes the other way.",
+          "answers": ["Deserialize"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-files-json-roundtrip"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "async-await"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "exceptions"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "json-and-apis"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    }
+  ],
+  "seo": {
+    "title": "C# Files and JSON – File, StreamWriter, System.Text.Json",
+    "description": "Learn to read and write files in C# with File and StreamWriter, build paths with Path.Combine, and serialise records to JSON and back with System.Text.Json and JsonNode."
+  },
+  "updatedOn": "2026-11-15"
+}

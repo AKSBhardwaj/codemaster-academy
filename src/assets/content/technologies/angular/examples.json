@@ -1,0 +1,165 @@
+{
+  "title": "Angular Examples",
+  "description": "Use these examples with the setup steps in their lessons. These technologies need tools on your computer and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "introduction-example",
+      "title": "Angular: Show a greeting",
+      "description": "The template holds a heading. The selector gives this part its HTML name. Add Greeting to the parent component imports, then put <app-greeting /> in its template.",
+      "language": "typescript",
+      "code": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-greeting',\n  template: '<h1>Hello, Asha!</h1>',\n})\nexport class Greeting {}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "introduction",
+      "output": "Hello, Asha!"
+    },
+    {
+      "id": "setup-cli-example",
+      "title": "Installing the Angular CLI and Creating an App",
+      "description": "Follow the installing the angular cli and creating an app lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "node --version\nnpm --version",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "setup-cli",
+      "output": "v24.11.1\n11.6.0"
+    },
+    {
+      "id": "components-example",
+      "title": "Components",
+      "description": "Follow the components lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, computed, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-user-card',\n  template: `\n    <article class=\"card\">\n      <h2>{{ name() }}</h2>\n      <p>{{ initials() }} \u00b7 joined {{ year }}</p>\n      <button (click)=\"toggle()\">{{ expanded() ? 'Less' : 'More' }}</button>\n    </article>\n  `,\n  styles: `\n    .card { border: 1px solid #ccc; padding: 1rem; border-radius: 8px; }\n    h2 { margin: 0 0 0.5rem; }\n  `,\n})\nexport class UserCard {\n  readonly name = signal('Ada Lovelace');\n  readonly year = 2024;\n  readonly expanded = signal(false);\n\n  readonly initials = computed(() =>\n    this.name()\n      .split(' ')\n      .map((part) => part[0])\n      .join(''),\n  );\n\n  toggle(): void {\n    this.expanded.update((open) => !open);\n  }\n}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "components",
+      "output": "Ada Lovelace\nAL \u00b7 joined 2024\n[ More ]\n\nAfter clicking the button:\nAda Lovelace\nAL \u00b7 joined 2024\n[ Less ]"
+    },
+    {
+      "id": "templates-control-flow-example",
+      "title": "Templates and Control Flow",
+      "description": "Follow the templates and control flow lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, signal } from '@angular/core';\n\ntype Status = 'pending' | 'shipped' | 'cancelled';\n\n@Component({\n  selector: 'app-order-status',\n  template: `\n    @if (status() === 'shipped') {\n      <p>Your order is on its way.</p>\n    } @else if (status() === 'cancelled') {\n      <p>This order was cancelled.</p>\n    } @else {\n      <p>We are preparing your order.</p>\n    }\n    <button (click)=\"ship()\">Mark as shipped</button>\n  `,\n})\nexport class OrderStatus {\n  readonly status = signal<Status>('pending');\n\n  ship(): void {\n    this.status.set('shipped');\n  }\n}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "templates-control-flow",
+      "output": "We are preparing your order.\n[ Mark as shipped ]\n\nAfter clicking the button:\nYour order is on its way.\n[ Mark as shipped ]"
+    },
+    {
+      "id": "bindings-events-example",
+      "title": "Property Bindings and Events",
+      "description": "Follow the property bindings and events lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-avatar',\n  template: `\n    <img [src]=\"photoUrl()\" [alt]=\"'Photo of ' + name()\" width=\"64\" height=\"64\">\n    <button\n      [disabled]=\"saving()\"\n      [class.busy]=\"saving()\"\n      [style.opacity]=\"saving() ? 0.5 : 1\"\n      [attr.aria-label]=\"'Save ' + name()\">\n      Save\n    </button>\n  `,\n})\nexport class Avatar {\n  readonly name = signal('Ada');\n  readonly photoUrl = signal('/assets/ada.png');\n  readonly saving = signal(true);\n}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "bindings-events",
+      "output": "<img src=\"/assets/ada.png\" alt=\"Photo of Ada\" width=\"64\" height=\"64\">\n<button disabled class=\"busy\" style=\"opacity: 0.5;\" aria-label=\"Save Ada\">Save</button>"
+    },
+    {
+      "id": "signals-example",
+      "title": "Signals and Computed State",
+      "description": "Follow the signals and computed state lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { signal } from '@angular/core';\n\nconst count = signal(0);\nconsole.log(count());\n\ncount.set(5);\ncount.update((n) => n * 2);\nconsole.log(count());\n\ncount.set(10);           // same value: nothing is notified\nconsole.log(count());",
+      "runnable": false,
+      "tags": ["state", "practice"],
+      "lessonSlug": "signals",
+      "output": "0\n10\n10"
+    },
+    {
+      "id": "inputs-outputs-example",
+      "title": "Component Inputs and Outputs",
+      "description": "Follow the component inputs and outputs lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, computed, input } from '@angular/core';\n\n@Component({\n  selector: 'app-user-card',\n  template: `\n    <article>\n      <h2>{{ name() }}</h2>\n      <p>{{ role() }} \u00b7 {{ initials() }}</p>\n    </article>\n  `,\n})\nexport class UserCard {\n  readonly name = input.required<string>();\n  readonly role = input('Member');\n\n  readonly initials = computed(() =>\n    this.name()\n      .split(' ')\n      .map((part) => part[0])\n      .join(''),\n  );\n}",
+      "runnable": false,
+      "tags": ["state", "practice"],
+      "lessonSlug": "inputs-outputs"
+    },
+    {
+      "id": "services-di-example",
+      "title": "Services and Dependency Injection",
+      "description": "Follow the services and dependency injection lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Injectable, computed, signal } from '@angular/core';\n\nexport interface CartItem {\n  id: number;\n  name: string;\n  price: number;\n}\n\n@Injectable({ providedIn: 'root' })\nexport class CartService {\n  private readonly items = signal<CartItem[]>([]);\n\n  readonly list = this.items.asReadonly();\n  readonly count = computed(() => this.items().length);\n  readonly total = computed(() => this.items().reduce((sum, item) => sum + item.price, 0));\n\n  add(item: CartItem): void {\n    this.items.update((list) => [...list, item]);\n  }\n\n  remove(id: number): void {\n    this.items.update((list) => list.filter((item) => item.id !== id));\n  }\n}",
+      "runnable": false,
+      "tags": ["state", "practice"],
+      "lessonSlug": "services-di"
+    },
+    {
+      "id": "routing-example",
+      "title": "Routing",
+      "description": "Follow the routing lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Routes } from '@angular/router';\nimport { Home } from './home/home';\n\nexport const routes: Routes = [\n  { path: '', component: Home, title: 'Home' },\n  {\n    path: 'products',\n    loadComponent: () => import('./products/products').then((m) => m.Products),\n    title: 'Products',\n  },\n  {\n    path: 'products/:id',\n    loadComponent: () => import('./product-detail/product-detail').then((m) => m.ProductDetail),\n    title: 'Product',\n  },\n  { path: 'about', redirectTo: '' },\n  {\n    path: '**',\n    loadComponent: () => import('./not-found/not-found').then((m) => m.NotFound),\n    title: 'Not found',\n  },\n];",
+      "runnable": false,
+      "tags": ["state", "practice"],
+      "lessonSlug": "routing"
+    },
+    {
+      "id": "http-resource-example",
+      "title": "Loading Data with HttpClient and httpResource",
+      "description": "Follow the loading data with httpclient and httpresource lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideHttpClient, withFetch } from '@angular/common/http';\nimport { provideRouter } from '@angular/router';\nimport { routes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes),\n    provideHttpClient(withFetch()),\n  ],\n};",
+      "runnable": false,
+      "tags": ["data", "practice"],
+      "lessonSlug": "http-resource"
+    },
+    {
+      "id": "forms-example",
+      "title": "Forms",
+      "description": "Follow the forms lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, computed, inject } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';\n\nfunction noSpaces(control: AbstractControl<string>): ValidationErrors | null {\n  return control.value.includes(' ') ? { spaces: true } : null;\n}\n\n@Component({\n  selector: 'app-signup',\n  imports: [ReactiveFormsModule],\n  templateUrl: './signup.html',\n})\nexport class Signup {\n  private readonly fb = inject(FormBuilder);\n\n  readonly form = this.fb.nonNullable.group({\n    username: ['', [Validators.required, Validators.minLength(3), noSpaces]],\n    email: ['', [Validators.required, Validators.email]],\n    newsletter: [false],\n  });\n\n  private readonly username = toSignal(this.form.controls.username.valueChanges, { initialValue: '' });\n  readonly remaining = computed(() => 20 - this.username().length);\n\n  submit(): void {\n    if (this.form.invalid) {\n      this.form.markAllAsTouched();\n      return;\n    }\n    console.log('submitted', this.form.getRawValue());\n    this.form.reset();\n  }\n}",
+      "runnable": false,
+      "tags": ["data", "practice"],
+      "lessonSlug": "forms"
+    },
+    {
+      "id": "pipes-directives-example",
+      "title": "Pipes and Directives",
+      "description": "Follow the pipes and directives lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, signal } from '@angular/core';\nimport { CurrencyPipe, DatePipe, DecimalPipe, PercentPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';\n\n@Component({\n  selector: 'app-invoice',\n  imports: [CurrencyPipe, DatePipe, DecimalPipe, PercentPipe, TitleCasePipe, UpperCasePipe],\n  template: `\n    <p>{{ customer() | titlecase }}</p>\n    <p>{{ status() | uppercase }}</p>\n    <p>{{ issued() | date:'longDate' }}</p>\n    <p>{{ issued() | date:'EEEE' }}</p>\n    <p>{{ amount() | currency:'EUR' }}</p>\n    <p>{{ amount() | number:'1.0-0' }}</p>\n    <p>{{ discount() | percent:'1.0-1' }}</p>\n  `,\n})\nexport class Invoice {\n  readonly customer = signal('ada lovelace');\n  readonly status = signal('paid');\n  readonly issued = signal(new Date(2026, 4, 28));\n  readonly amount = signal(1234.56);\n  readonly discount = signal(0.125);\n}",
+      "runnable": false,
+      "tags": ["data", "practice"],
+      "lessonSlug": "pipes-directives",
+      "output": "Ada Lovelace\nPAID\nMay 28, 2026\nThursday\n\u20ac1,234.56\n1,235\n12.5%"
+    },
+    {
+      "id": "testing-example",
+      "title": "Testing Components",
+      "description": "Follow the testing components lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "typescript",
+      "code": "import { Component, input, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-counter',\n  template: `\n    <p>{{ label() }}: {{ count() }}</p>\n    <button (click)=\"count.update((n) => n + 1)\">Add</button>\n  `,\n})\nexport class Counter {\n  readonly label = input('Count');\n  readonly count = signal(0);\n}",
+      "runnable": false,
+      "tags": ["quality", "practice"],
+      "lessonSlug": "testing"
+    },
+    {
+      "id": "performance-example",
+      "title": "Performance: Lazy Loading, Defer and Hydration",
+      "description": "Follow the performance: lazy loading, defer and hydration lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "ng build",
+      "runnable": false,
+      "tags": ["quality", "practice"],
+      "lessonSlug": "performance",
+      "output": "Initial chunk files   | Names          |  Raw size | Estimated transfer size\nmain-K7WQZ2VU.js      | main           | 212.90 kB |                58.45 kB\nstyles-5INURTSO.css   | styles         |   1.02 kB |               412 bytes\n\n                      | Initial total  | 213.92 kB |                58.86 kB\n\nLazy chunk files      | Names          |  Raw size | Estimated transfer size\nchunk-ZQ3EMDWA.js     | products       |  14.37 kB |                 3.98 kB\nchunk-7RVU6QPA.js     | product-detail |   6.21 kB |                 2.14 kB\n\nApplication bundle generation complete. [4.218 seconds]"
+    },
+    {
+      "id": "deployment-example",
+      "title": "Building and Deploying",
+      "description": "Follow the building and deploying lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "ng build",
+      "runnable": false,
+      "tags": ["quality", "practice"],
+      "lessonSlug": "deployment",
+      "output": "Initial chunk files   | Names         |  Raw size | Estimated transfer size\nmain-K7WQZ2VU.js      | main          | 212.90 kB |                58.45 kB\nstyles-5INURTSO.css   | styles        |   1.02 kB |               412 bytes\n\n                      | Initial total | 213.92 kB |                58.86 kB\n\nLazy chunk files      | Names         |  Raw size | Estimated transfer size\nchunk-ZQ3EMDWA.js     | products      |  14.37 kB |                 3.98 kB\n\nApplication bundle generation complete. [4.218 seconds]\n\nOutput location: C:\\projects\\my-app\\dist\\my-app"
+    }
+  ]
+}

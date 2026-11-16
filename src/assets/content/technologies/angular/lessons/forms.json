@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "slug": "forms",
+  "title": "Forms",
+  "summary": "Build a typed reactive form with FormBuilder, attach it to a template with formGroup and formControlName, validate with built-in and custom validators, show errors accessibly and read values as.",
+  "introduction": "Forms are where state, validation and accessibility meet, and where ad-hoc code gets messy fastest. Angular's reactive forms keep the form model in the class, typed and testable, and bind it to the template with two directives. This lesson builds a sign-up form from scratch: controls with validators, error messages that appear at the right moment, a custom validator, a live character counter driven by a signal, and the submit flow.",
+  "learningObjectives": [
+    "Create a typed form with FormBuilder.nonNullable and bind it with formGroup and formControlName",
+    "Validate fields with built-in and custom validators and show errors only after interaction",
+    "Read form values as signals and handle submission"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Two ways to build forms"
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular has **template-driven** forms, where `[(ngModel)]` bindings in the template create the model implicitly, and **reactive** forms, where you build the model in the class and the template binds to it. Template-driven forms are fine for a search box; anything with validation rules, dynamic fields or tests is easier with reactive forms, which is what this lesson uses. Angular is also developing **Signal Forms** in `@angular/forms/signals`, where the model is a signal and validation is declared in a schema; it arrived as experimental in Angular 21, so check the documentation for its status in your version before using it in production."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The form model"
+    },
+    {
+      "type": "paragraph",
+      "text": "`FormBuilder` creates a `FormGroup` of `FormControl`s from a plain object. Each entry is `[initialValue, validators]`. The `nonNullable` builder means `reset()` returns controls to their initial values instead of `null`, which keeps the types simple: `name` is a `string`, not `string | null`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/signup/signup.ts",
+      "code": "import { Component, computed, inject } from '@angular/core';\nimport { toSignal } from '@angular/core/rxjs-interop';\nimport { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';\n\nfunction noSpaces(control: AbstractControl<string>): ValidationErrors | null {\n  return control.value.includes(' ') ? { spaces: true } : null;\n}\n\n@Component({\n  selector: 'app-signup',\n  imports: [ReactiveFormsModule],\n  templateUrl: './signup.html',\n})\nexport class Signup {\n  private readonly fb = inject(FormBuilder);\n\n  readonly form = this.fb.nonNullable.group({\n    username: ['', [Validators.required, Validators.minLength(3), noSpaces]],\n    email: ['', [Validators.required, Validators.email]],\n    newsletter: [false],\n  });\n\n  private readonly username = toSignal(this.form.controls.username.valueChanges, { initialValue: '' });\n  readonly remaining = computed(() => 20 - this.username().length);\n\n  submit(): void {\n    if (this.form.invalid) {\n      this.form.markAllAsTouched();\n      return;\n    }\n    console.log('submitted', this.form.getRawValue());\n    this.form.reset();\n  }\n}"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`Validators.required`, `minLength(3)` and `email` are built in. `noSpaces` is a custom validator: a function that returns `null` when the value is valid or an object describing the error.",
+        "`this.form.controls.username` is fully typed, so `valueChanges` emits strings and `toSignal` turns the stream into a signal for the counter.",
+        "`markAllAsTouched()` makes every error message visible when the user submits an incomplete form.",
+        "`getRawValue()` returns the values including disabled controls, with the type `{ username: string; email: string; newsletter: boolean }`."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The template"
+    },
+    {
+      "type": "paragraph",
+      "text": "`[formGroup]` connects the `<form>` to the model and `formControlName` connects each field. Errors are shown only once a field is **touched** (the user has left it), so a fresh form is not covered in red. `aria-invalid` and `aria-describedby` tell screen readers about the error, and each `<label>` is connected to its input by `for` and `id`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "src/app/signup/signup.html",
+      "code": "<form [formGroup]=\"form\" (ngSubmit)=\"submit()\" novalidate>\n  @let user = form.controls.username;\n  <label for=\"username\">Username</label>\n  <input id=\"username\" formControlName=\"username\" autocomplete=\"username\"\n         [attr.aria-invalid]=\"user.touched && user.invalid\"\n         aria-describedby=\"username-help\">\n  <p id=\"username-help\">\n    @if (user.touched && user.hasError('required')) {\n      Username is required.\n    } @else if (user.touched && user.hasError('minlength')) {\n      Use at least 3 characters.\n    } @else if (user.touched && user.hasError('spaces')) {\n      Spaces are not allowed.\n    } @else {\n      {{ remaining() }} characters left\n    }\n  </p>\n\n  @let email = form.controls.email;\n  <label for=\"email\">Email</label>\n  <input id=\"email\" type=\"email\" formControlName=\"email\" autocomplete=\"email\"\n         [attr.aria-invalid]=\"email.touched && email.invalid\">\n  @if (email.touched && email.invalid) {\n    <p>Enter a valid email address.</p>\n  }\n\n  <label>\n    <input type=\"checkbox\" formControlName=\"newsletter\">\n    Send me the newsletter\n  </label>\n\n  <button type=\"submit\">Create account</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser, after typing \"ada\" as the username",
+      "content": "Username [ada]\n17 characters left\nEmail [ ]\n[ ] Send me the newsletter\n[ Create account ]"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After clearing the username and pressing Create account",
+      "content": "Username [ ]\nUsername is required.\nEmail [ ]\nEnter a valid email address.\n[ ] Send me the newsletter\n[ Create account ]"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "A common mistake",
+      "content": "submitted {username: 'ada', email: 'ada@example.com', newsletter: true}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`novalidate` switches off the browser's own bubbles so that Angular's messages are the only ones. `(ngSubmit)` fires for a click on the submit button and for Enter in a field, and it prevents the page reload a plain `<form>` would cause. After a successful submit, `reset()` returns the controls to their initial values and clears the touched state."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting ReactiveFormsModule",
+      "text": "Without `ReactiveFormsModule` in the component's `imports`, the build stops with `NG8002: Can't bind to 'formGroup' since it isn't a known property of 'form'`. The same message appears for `formControlName` on an input. Every component that uses reactive form directives needs the import; `FormsModule` is the separate module for `ngModel`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Validators and their error keys"
+    },
+    {
+      "type": "table",
+      "headers": ["Validator", "Error key", "Meaning"],
+      "rows": [
+        ["`Validators.required`", "`required`", "Value is empty"],
+        [
+          "`Validators.minLength(n)` / `maxLength(n)`",
+          "`minlength` / `maxlength`",
+          "String shorter or longer than allowed; the error object includes `requiredLength` and `actualLength`"
+        ],
+        ["`Validators.email`", "`email`", "Not shaped like an email address"],
+        ["`Validators.min(n)` / `max(n)`", "`min` / `max`", "Number out of range"],
+        ["`Validators.pattern(regex)`", "`pattern`", "Does not match the regular expression"],
+        [
+          "Custom function",
+          "Whatever the function returns",
+          "Any rule you can express in TypeScript"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`control.hasError('minlength')` checks one key; `control.errors` returns the whole object, for example `{ minlength: { requiredLength: 3, actualLength: 2 } }`. Validators that need a server, such as checking whether a username is taken, go in the third position as `AsyncValidatorFn` and set the control's status to `PENDING` while they run."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reacting to form state"
+    },
+    {
+      "type": "paragraph",
+      "text": "Besides `valueChanges`, every control has `statusChanges` (`VALID`, `INVALID`, `PENDING`, `DISABLED`) and the boolean properties `valid`, `dirty` (value changed) and `touched` (focus left the field). You can also change the model from code: `this.form.patchValue({ email: 'ada@example.com' })` sets some controls, `setValue` requires all of them, and `this.form.controls.email.disable()` greys a field out and excludes it from `value` but not from `getRawValue()`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Prefilling and reading state",
+      "code": "this.form.patchValue({ username: 'grace', email: 'grace@example.com' });\nconsole.log(this.form.valid, this.form.controls.username.errors);\n\nthis.form.controls.username.setValue('g');\nconsole.log(this.form.valid, this.form.controls.username.errors);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true null\nfalse {minlength: {requiredLength: 3, actualLength: 1}}"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Growing forms",
+      "text": "`FormArray` holds a variable number of controls, for example one row per phone number, and nested `group()` calls model an address inside the sign-up. The [HTML forms lesson](/tutorials/html/forms) explains the native elements and attributes that every Angular form still relies on."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-forms-import"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-forms-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "forms",
+          "difficulty": "beginner",
+          "question": "Which directive connects an `<input>` to a control inside a `[formGroup]`?",
+          "explanation": "`formControlName` looks up the control by name in the surrounding form group. `ngModel` belongs to template-driven forms.",
+          "options": ["`[(ngModel)]`", "`formControlName`", "`[value]`", "`name`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-forms-qc-2",
+          "type": "true-false",
+          "lessonSlug": "forms",
+          "difficulty": "intermediate",
+          "question": "A custom validator function returns `null` when the value is valid.",
+          "explanation": "Validators return `null` for valid values and an object such as `{ spaces: true }` to describe a failure.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-forms-import"],
+  "relatedLessons": [
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "input-types"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "bindings-events"
+    }
+  ],
+  "seo": {
+    "title": "Angular Forms – Reactive Forms, Validation, Errors",
+    "description": "Build typed reactive forms in Angular 22 with FormBuilder, formGroup and formControlName, built-in and custom validators, accessible error messages and signals."
+  },
+  "updatedOn": "2026-11-15"
+}

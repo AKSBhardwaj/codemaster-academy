@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "validation",
+  "title": "Check a number",
+  "summary": "Express.js: Check a number. Visit /double/cat and read the error.",
+  "introduction": "A route value needs checks before maths. GET /double/4 returns a doubled whole number.",
+  "learningObjectives": ["Check a number with Express.js", "Visit /double/cat and read the error"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check a number"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Check a number",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/double/:n\", (req, res) => {\n const n = Number(req.params.n);\n if (!Number.isSafeInteger(n)) return res.status(400).send(\"Use a whole number\");\n return res.json({ answer: n * 2 });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Number parses the text 4. The integer check passes, and the returned answer is twice 4."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /double/cat and read the error."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Number() can fail or produce decimals; check the allowed kind of value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-validation-check"
+    }
+  ],
+  "exerciseIds": ["express-validation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "post-json"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Check a number",
+    "description": "Express.js: Check a number. Visit /double/cat and read the error. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

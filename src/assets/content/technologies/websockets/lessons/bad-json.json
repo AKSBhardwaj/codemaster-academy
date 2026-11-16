@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "bad-json",
+  "title": "Handle unreadable JSON",
+  "summary": "WebSockets: Handle unreadable JSON. Send {} instead.",
+  "introduction": "JSON.parse can fail. A catch block sends a friendly reply instead of crashing this handler.",
+  "learningObjectives": ["Handle unreadable JSON with WebSockets", "Send {} instead"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle unreadable JSON"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Handle unreadable JSON",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { try { JSON.parse(data.toString()); socket.send(\"Valid JSON\"); } catch { socket.send(\"Use valid JSON\"); } }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"not json\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The invalid text makes JSON.parse throw. The catch branch sends the guide message."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Use valid JSON"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send {} instead."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Catch the parse failure and then check the parsed data shape separately."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-bad-json-check"
+    }
+  ],
+  "exerciseIds": ["websockets-bad-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "closing"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Handle unreadable JSON",
+    "description": "WebSockets: Handle unreadable JSON. Send {} instead. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

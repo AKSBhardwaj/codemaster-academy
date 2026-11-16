@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "undo-row-changes-in-a-transaction",
+  "title": "Undo row changes in a transaction",
+  "summary": "A transaction on InnoDB can undo row changes before they are committed.",
+  "introduction": "A transaction on InnoDB can undo row changes before they are committed. Your task: Compare this disposable example using COMMIT.",
+  "learningObjectives": [
+    "Compare this disposable example using COMMIT.",
+    "Explain the example for undo row changes in a transaction"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction on InnoDB can undo row changes before they are committed. Keep setup DDL outside the transaction you are testing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use MariaDB 10.11+ with its mariadb client in an empty practice database. These dialect-specific examples do not run in the site's SQLite playground. Keep the sample database separate from real records."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TEMPORARY TABLE cma_maria_points(points INT) ENGINE=InnoDB;\nSTART TRANSACTION;\nINSERT INTO cma_maria_points VALUES(5);\nROLLBACK;\nSELECT COUNT(*) AS rows_left FROM cma_maria_points;",
+      "title": "Undo row changes in a transaction",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ROLLBACK` cancels the applicable uncommitted changes. It cannot undo an earlier committed transaction.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The final count is 0 after the insert is rolled back."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Other storage engines can have different transaction support. This sample explicitly uses InnoDB."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Compare this disposable example using COMMIT."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mariadb-undo-row-changes-in-a-transaction-check"
+    }
+  ],
+  "exerciseIds": ["mariadb-undo-row-changes-in-a-transaction-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mariadb",
+      "slug": "handle-a-duplicate-key-deliberately"
+    }
+  ],
+  "seo": {
+    "title": "MariaDB: Undo row changes in a transaction",
+    "description": "A transaction on InnoDB can undo row changes before they are committed. Keep setup DDL outside the transaction you are testing."
+  },
+  "updatedOn": "2026-11-16"
+}

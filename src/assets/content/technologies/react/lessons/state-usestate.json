@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "slug": "state-usestate",
+  "title": "State with useState",
+  "summary": "State is a value a React component remembers between updates. useState gives you the value and a way to change it.",
+  "introduction": "State is a value a React component remembers between updates. useState gives you the value and a way to change it. Make a counter. Tell React the next number through the setter, and watch the page show the new value.",
+  "learningObjectives": [
+    "Declare state with useState and update it from an event handler",
+    "Explain why state behaves like a snapshot and when to use an updater function",
+    "Update objects and arrays in state without mutating them",
+    "Decide which component should own a piece of state"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why a plain variable does not work"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "A counter that never counts",
+      "code": "function Counter() {\n  let count = 0;\n\n  function handleClick() {\n    count += 1;\n    console.log('count is now', count);\n  }\n\n  return <button onClick={handleClick}>Clicked {count} times</button>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console after three clicks (the button still says \"Clicked 0 times\")",
+      "content": "count is now 1\ncount is now 2\ncount is now 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two things go wrong. Changing a local variable does not tell React that anything changed, so it never re-renders. And even if it did, `Counter` would run again from the top and `let count = 0` would reset the value. State solves both problems: it persists between renders, and changing it schedules a render."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "useState"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Counter.jsx",
+      "code": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <button onClick={() => setCount(count + 1)}>\n      Clicked {count} times\n    </button>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After three clicks",
+      "content": "<button>Clicked 3 times</button>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useState(0)` returns a pair: the current value and a function that updates it. The array destructuring is only a naming convention; `[count, setCount]` could be any two names. The argument is the **initial** value and is used only on the first render. Calling `setCount` stores the new value and asks React to render the component again, and on that next render `useState` returns the stored value instead of the initial one."
+    },
+    {
+      "type": "paragraph",
+      "text": "Hooks are called in the same order on every render, which is how React matches each `useState` call with its stored value. That is why hooks must be called at the top level of the component, never inside conditions or loops; the [custom hooks](/tutorials/react/custom-hooks) lesson covers the full rules."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "State is a snapshot"
+    },
+    {
+      "type": "paragraph",
+      "text": "Setting state does not change the variable in the running function. `count` is a constant captured when this render started; it will only be different in the *next* render. The classic surprise:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Three updates, one increment",
+      "code": "import { useState } from 'react';\n\nfunction TripleClick() {\n  const [count, setCount] = useState(0);\n\n  function handleClick() {\n    setCount(count + 1);\n    setCount(count + 1);\n    setCount(count + 1);\n    console.log('count in this render:', count);\n  }\n\n  return <button onClick={handleClick}>Count: {count}</button>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After one click",
+      "content": "console:  count in this render: 0\nbutton:   <button>Count: 1</button>"
+    },
+    {
+      "type": "paragraph",
+      "text": "All three calls see `count === 0` and ask for `1`. When the next value depends on the previous one, pass an **updater function** instead of a value. React queues the functions and runs them in order against the latest state:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "function handleClick() {\n  setCount((c) => c + 1);\n  setCount((c) => c + 1);\n  setCount((c) => c + 1);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After one click",
+      "content": "<button>Count: 3</button>"
+    },
+    {
+      "type": "paragraph",
+      "text": "React also **batches** updates: all the `setCount` calls inside one event handler cause a single re-render, not three. Since React 18 that applies to updates inside promises and timeouts as well."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects and arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useState` can hold any value, but React decides whether to re-render by comparing the old and new value with `Object.is`. Mutating an object keeps the same reference, so React sees no change. Treat state as **immutable**: create a new object or array that includes the change."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Profile.jsx",
+      "code": "import { useState } from 'react';\n\nfunction Profile() {\n  const [profile, setProfile] = useState({ name: 'Ada', theme: 'light' });\n\n  function toggleTheme() {\n    setProfile({ ...profile, theme: profile.theme === 'light' ? 'dark' : 'light' });\n  }\n\n  return (\n    <button onClick={toggleTheme}>\n      {profile.name} uses the {profile.theme} theme\n    </button>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After one click",
+      "content": "<button>Ada uses the dark theme</button>"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Tags.jsx",
+      "code": "import { useState } from 'react';\n\nfunction Tags() {\n  const [tags, setTags] = useState(['react']);\n\n  const add = (tag) => setTags([...tags, tag]);\n  const remove = (tag) => setTags(tags.filter((t) => t !== tag));\n\n  return (\n    <>\n      <ul>{tags.map((t) => <li key={t}>{t}</li>)}</ul>\n      <button onClick={() => add('vite')}>Add vite</button>\n      <button onClick={() => remove('react')}>Remove react</button>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "The list after clicking \"Add vite\" and then \"Remove react\"",
+      "content": "<ul><li>vite</li></ul>"
+    },
+    {
+      "type": "table",
+      "headers": ["Operation", "Mutating (wrong)", "Copying (right)"],
+      "rows": [
+        ["Change a field", "`obj.x = 1`", "`{ ...obj, x: 1 }`"],
+        ["Add to an array", "`arr.push(item)`", "`[...arr, item]`"],
+        ["Remove from an array", "`arr.splice(i, 1)`", "`arr.filter((_, j) => j !== i)`"],
+        ["Replace an item", "`arr[i] = item`", "`arr.map((old, j) => (j === i ? item : old))`"],
+        ["Sort", "`arr.sort()`", "`[...arr].sort()`"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: mutating, then setting",
+      "text": "`profile.theme = 'dark'; setProfile(profile);` does nothing visible. The object is the same reference as before, so React skips the render. Even when the component renders for another reason, mutation breaks features that compare old and new values, such as `memo`. Always build a new object or array."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lazy initial state"
+    },
+    {
+      "type": "paragraph",
+      "text": "If computing the initial value is expensive (parsing `localStorage`, building a large array), pass a function. React calls it only on the first render; `useState(compute())` would run `compute` on every render and throw the result away."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "const [draft, setDraft] = useState(() => localStorage.getItem('draft') ?? '');"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Where should state live?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each component instance has its own state: two `<Counter />` tags count independently. When two components need the **same** data, move the state up to their closest common parent and pass it down as props, together with a function to change it. This is called *lifting state up*, and it is the standard answer to \"how do siblings share data\"."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Converter.jsx",
+      "code": "import { useState } from 'react';\n\nfunction TemperatureInput({ value, onChange }) {\n  return <input value={value} onChange={(e) => onChange(e.target.value)} />;\n}\n\nfunction Converter() {\n  const [celsius, setCelsius] = useState('20');\n  const fahrenheit = (Number(celsius) * 9) / 5 + 32;\n\n  return (\n    <>\n      <TemperatureInput value={celsius} onChange={setCelsius} />\n      <p>{celsius} °C is {fahrenheit} °F</p>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Initial render, then after typing 25",
+      "content": "<input value=\"20\"><p>20 °C is 68 °F</p>\n<input value=\"25\"><p>25 °C is 77 °F</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fahrenheit` is not state. It is **derived** from `celsius`, so it is simply recomputed during render. Storing derived values in state creates two sources of truth that drift apart; compute them instead. The next lesson looks more closely at the `onChange` side: [events and forms](/tutorials/react/events-forms)."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-state-snapshot"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-state-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "state-usestate",
+          "difficulty": "beginner",
+          "question": "Why does calling `setItems(items)` right after `items.push(newItem)` not update the screen?",
+          "explanation": "`push` mutates the existing array, so the setter receives the same reference it already holds and React bails out of the render. Create a new array: `setItems([...items, newItem])`.",
+          "options": [
+            "`push` is not allowed inside React components",
+            "The array reference is unchanged, so React skips the re-render",
+            "`setItems` only accepts updater functions",
+            "State can only hold primitive values"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-state-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "state-usestate",
+          "difficulty": "beginner",
+          "question": "To compute the next value from the previous one safely, pass an ___ function to the setter, as in `setCount((c) => c + 1)`.",
+          "explanation": "An updater function receives the latest state, so several queued updates build on each other instead of all reading the same snapshot.",
+          "answers": ["updater", "updater function"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-state-snapshot", "react-state-counter"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "components-props"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "events-forms"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "custom-hooks"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    }
+  ],
+  "seo": {
+    "title": "React useState – State, Snapshots and Immutable Updates",
+    "description": "Learn useState in React 19: why state is a snapshot, updater functions, batching, immutable updates of objects and arrays, and lifting state up to share it."
+  },
+  "updatedOn": "2026-11-16"
+}

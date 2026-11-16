@@ -1,0 +1,138 @@
+{
+  "title": "Microsoft SQL Server Small Examples",
+  "description": "Use these small Microsoft SQL Server examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Calculate a named answer",
+      "description": "T-SQL SELECT can return a calculation. AS gives the output column a name that explains the answer.",
+      "language": "sql",
+      "code": "SELECT 3 + 4 AS total_books;",
+      "output": "The query returns total_books equal to 7.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "keep-a-local-variable",
+      "title": "Keep a local variable",
+      "description": "A T-SQL variable starts with @. DECLARE gives it a type and an optional starting value.",
+      "language": "sql",
+      "code": "DECLARE @name nvarchar(40)=N'Mia';\nSELECT N'Hello, '+@name AS greeting;",
+      "output": "The result is Hello, Mia. N marks a Unicode string literal.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-a-local-variable"
+    },
+    {
+      "id": "make-a-table-variable",
+      "title": "Make a table variable",
+      "description": "A table variable holds a small set of rows inside a batch.",
+      "language": "sql",
+      "code": "DECLARE @books table(id int,title nvarchar(80));\nINSERT INTO @books VALUES(1,N'Moon Trip'),(2,N'Garden Days');\nSELECT title FROM @books ORDER BY id;",
+      "output": "The two titles appear in id order.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-table-variable"
+    },
+    {
+      "id": "choose-top-rows-with-a-clear-order",
+      "title": "Choose top rows with a clear order",
+      "description": "TOP limits the returned rows. ORDER BY tells SQL Server which rows count as first.",
+      "language": "sql",
+      "code": "DECLARE @books table(title nvarchar(80),pages int);\nINSERT INTO @books VALUES(N'Moon Trip',60),(N'Tiny Seed',20);\nSELECT TOP (1) title FROM @books ORDER BY pages,title;",
+      "output": "Tiny Seed is returned because it has fewer pages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-top-rows-with-a-clear-order"
+    },
+    {
+      "id": "filter-rows-with-two-rules",
+      "title": "Filter rows with two rules",
+      "description": "WHERE can combine tests with AND. A row must pass both tests to be included.",
+      "language": "sql",
+      "code": "DECLARE @books table(title nvarchar(80),pages int,kind nvarchar(20));\nINSERT INTO @books VALUES(N'Moon Trip',60,N'story'),(N'Garden Facts',40,N'science');\nSELECT title FROM @books WHERE pages>=50 AND kind=N'story';",
+      "output": "Only Moon Trip passes both rules.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-rows-with-two-rules"
+    },
+    {
+      "id": "summarise-groups",
+      "title": "Summarise groups",
+      "description": "GROUP BY collects rows with the same category.",
+      "language": "sql",
+      "code": "DECLARE @reading table(team nvarchar(20),books int);\nINSERT INTO @reading VALUES(N'Blue',2),(N'Blue',3),(N'Green',4);\nSELECT team,SUM(books) AS total FROM @reading GROUP BY team ORDER BY team;",
+      "output": "Blue totals 5 books, and Green totals 4.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "summarise-groups"
+    },
+    {
+      "id": "read-related-tables",
+      "title": "Read related tables",
+      "description": "A join matches rows by keys. The relationship should be explicit instead of relying on row order.",
+      "language": "sql",
+      "code": "DECLARE @authors table(id int,name nvarchar(40));\nDECLARE @books table(title nvarchar(80),author_id int);\nINSERT INTO @authors VALUES(1,N'Mia');\nINSERT INTO @books VALUES(N'Moon Trip',1);\nSELECT b.title,a.name FROM @books AS b JOIN @authors AS a ON a.id=b.author_id;",
+      "output": "The result joins Moon Trip with author Mia.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-related-tables"
+    },
+    {
+      "id": "handle-a-conversion-that-may-fail",
+      "title": "Handle a conversion that may fail",
+      "description": "TRY_CAST attempts a type conversion. It returns NULL when an ordinary conversion fails, so code can handle the missing result.",
+      "language": "sql",
+      "code": "SELECT TRY_CAST(N'12' AS int) AS good_value,\n       TRY_CAST(N'twelve' AS int) AS missing_value;",
+      "output": "The first value is 12 and the second is NULL.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-a-conversion-that-may-fail"
+    },
+    {
+      "id": "number-a-sorted-result",
+      "title": "Number a sorted result",
+      "description": "ROW_NUMBER assigns a sequence based on its window order.",
+      "language": "sql",
+      "code": "DECLARE @books table(title nvarchar(80),pages int);\nINSERT INTO @books VALUES(N'Moon Trip',60),(N'Tiny Seed',20);\nSELECT title,ROW_NUMBER() OVER(ORDER BY pages,title) AS place FROM @books ORDER BY place;",
+      "output": "Tiny Seed is numbered 1, and Moon Trip is numbered 2.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "number-a-sorted-result"
+    },
+    {
+      "id": "undo-a-sample-transaction",
+      "title": "Undo a sample transaction",
+      "description": "A transaction can keep related changes together.",
+      "language": "sql",
+      "code": "DROP TABLE IF EXISTS #practice_scores;\nCREATE TABLE #practice_scores(points int);\nBEGIN TRANSACTION;\nINSERT INTO #practice_scores VALUES(5);\nROLLBACK TRANSACTION;\nSELECT COUNT(*) AS rows_left FROM #practice_scores;",
+      "output": "The temporary table remains, but rows_left is 0 because the insert was rolled back.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "undo-a-sample-transaction"
+    },
+    {
+      "id": "pass-a-query-parameter",
+      "title": "Pass a query parameter",
+      "description": "A parameter keeps a data value separate from the SQL command text.",
+      "language": "sql",
+      "code": "DECLARE @wanted int=4;\nEXEC sys.sp_executesql\n N'SELECT @number + 1 AS next_number;',\n N'@number int',\n @number=@wanted;",
+      "output": "The parameter value 4 produces next_number equal to 5.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "pass-a-query-parameter"
+    },
+    {
+      "id": "let-an-identity-column-make-an-id",
+      "title": "Let an identity column make an id",
+      "description": "An IDENTITY column generates numeric values for new rows.",
+      "language": "sql",
+      "code": "DROP TABLE IF EXISTS #new_books;\nCREATE TABLE #new_books(id int IDENTITY(1,1) PRIMARY KEY,title nvarchar(80));\nINSERT INTO #new_books(title) OUTPUT inserted.id,inserted.title VALUES(N'Moon Trip');",
+      "output": "The inserted sample row is returned with its generated id and title.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "let-an-identity-column-make-an-id"
+    }
+  ]
+}

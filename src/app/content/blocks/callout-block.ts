@@ -8,13 +8,13 @@ import { UI_ICONS, type UiIconName } from '../../shared/icons/ui-icons.generated
   selector: 'cma-callout-block',
   imports: [IconComponent, InlineMarkupComponent],
   template: `
-    <aside class="cma-callout" [attr.aria-label]="block().title">
+    <div class="cma-callout" role="note" [attr.aria-label]="block().title">
       <span class="cma-callout__icon"><cma-icon [name]="icon()" [size]="20" /></span>
       <div>
         <div class="cma-callout__title">{{ block().title }}</div>
         <div><cma-inline [text]="block().text" /></div>
       </div>
-    </aside>
+    </div>
   `,
 })
 export class CalloutBlockComponent {

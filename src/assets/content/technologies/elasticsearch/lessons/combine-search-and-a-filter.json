@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "combine-search-and-a-filter",
+  "title": "Combine search and a filter",
+  "summary": "A bool query can combine word search with exact conditions.",
+  "introduction": "A bool query can combine word search with exact conditions. Your task: Add a page-count filter to the query.",
+  "learningObjectives": [
+    "Add a page-count filter to the query.",
+    "Explain the example for combine search and a filter"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A bool query can combine word search with exact conditions. The word search can score relevance while filters restrict the allowed set."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Elasticsearch 8+ instance with Kibana Dev Tools. Paste the HTTP request examples into that console. Use only the cma-books practice index. This website does not connect to an Elasticsearch server."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"query\":{\"bool\":{\"must\":[{\"match\":{\"title\":\"moon\"}}],\"filter\":[{\"term\":{\"kind\":\"story\"}}]}}}",
+      "title": "Combine search and a filter",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A match query analyses search text using the field's text rules before finding matching documents.",
+        "A term query checks the exact indexed value. A keyword mapping is useful for exact category fields."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The sample must match the title search and also have kind story."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "must and filter have different scoring roles. Do not assume every clause adds a relevance score."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Add a page-count filter to the query."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "elasticsearch-combine-search-and-a-filter-check"
+    }
+  ],
+  "exerciseIds": ["elasticsearch-combine-search-and-a-filter-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "elasticsearch",
+      "slug": "filter-a-numeric-range"
+    }
+  ],
+  "seo": {
+    "title": "Elasticsearch: Combine search and a filter",
+    "description": "A bool query can combine word search with exact conditions. The word search can score relevance while filters restrict the allowed set."
+  },
+  "updatedOn": "2026-11-16"
+}

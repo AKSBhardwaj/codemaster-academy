@@ -11,13 +11,26 @@ import type { UiIconName } from '../../icons/ui-icons.generated';
     <article class="cma-path-card cma-card h-100">
       <span class="cma-path-card__icon"><cma-icon [name]="icon()" [size]="22" /></span>
       <h3 class="h6 mb-1">
-        <a class="stretched-link cma-path-card__link" [routerLink]="['/learning-paths', path().slug]">{{ path().title }}</a>
+        <a
+          class="stretched-link cma-path-card__link"
+          [routerLink]="['/learning-paths', path().slug]"
+          >{{ path().title }}</a
+        >
       </h3>
       <p class="cma-path-card__tagline mb-3">{{ path().tagline }}</p>
       <dl class="cma-path-card__meta">
-        <div><dt>Stages</dt><dd>{{ path().stageCount }}</dd></div>
-        <div><dt>Time</dt><dd>≈ {{ path().estimatedHours }} h</dd></div>
-        <div><dt>Level</dt><dd>{{ level() }}</dd></div>
+        <div>
+          <dt>Stages</dt>
+          <dd>{{ path().stageCount }}</dd>
+        </div>
+        <div>
+          <dt>Time</dt>
+          <dd>≈ {{ path().estimatedHours }} h</dd>
+        </div>
+        <div>
+          <dt>Level</dt>
+          <dd>{{ level() }}</dd>
+        </div>
       </dl>
     </article>
   `,

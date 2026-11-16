@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "first-bean",
+  "title": "Create a managed value",
+  "summary": "Spring Framework: Create a managed value. Change the message bean.",
+  "introduction": "@Bean marks a value that Spring creates. The context is a container that lets the program find that value.",
+  "learningObjectives": ["Create a managed value with Spring Framework", "Change the message bean"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create a managed value"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Create a managed value",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String message() { return \"Hello, Asha!\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(String.class));\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spring calls the @Bean method to create the String. getBean reads that managed value by its type."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hello, Asha!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the message bean."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Close the context when the program is finished."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-first-bean-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-first-bean-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "bean-names"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Create a managed value",
+    "description": "Spring Framework: Create a managed value. Change the message bean. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

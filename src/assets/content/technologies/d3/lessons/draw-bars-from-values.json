@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "draw-bars-from-values",
+  "title": "Draw bars from values",
+  "summary": "A bar chart uses height to show a number.",
+  "introduction": "A bar chart uses height to show a number. Your task: Change the middle value and predict its height.",
+  "learningObjectives": [
+    "Change the middle value and predict its height.",
+    "Explain the example for draw bars from values"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A bar chart uses height to show a number. SVG y positions grow downward, so a taller bar needs a smaller top y value."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a browser project with D3 7 installed. These module examples append an SVG to the page. Run one example at a time with a bundler; the plain playground does not include D3."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import * as d3 from \"d3\";\nconst svg=d3.select(\"body\").append(\"svg\").attr(\"width\",320).attr(\"height\",200).attr(\"viewBox\",\"0 0 320 200\");\nconst values=[30,60,90];\nconst y=d3.scaleLinear().domain([0,100]).range([180,20]);\nsvg.selectAll(\"rect\").data(values).join(\"rect\").attr(\"x\",(_d,i)=>30+i*90).attr(\"width\",50).attr(\"y\",d=>y(d)).attr(\"height\",d=>180-y(d)).attr(\"fill\",\"teal\");",
+      "title": "Draw bars from values",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`scaleLinear` maps numeric input values from its domain into output positions in its range.",
+        "`join` creates, updates and removes selected elements to match the bound data."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The bars grow upward from y=180 for values 30, 60 and 90."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not use the scaled y coordinate as the bar height. Subtract it from the baseline."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the middle value and predict its height."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "d3-draw-bars-from-values-check"
+    }
+  ],
+  "exerciseIds": ["d3-draw-bars-from-values-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "d3",
+      "slug": "give-categories-equal-spaces"
+    }
+  ],
+  "seo": {
+    "title": "D3.js: Draw bars from values",
+    "description": "A bar chart uses height to show a number. SVG y positions grow downward, so a taller bar needs a smaller top y value."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -5,29 +5,50 @@
   <div class="container-xxl py-4 py-lg-5">
     <div class="row g-4">
       <div class="col-lg-8">
-        <cma-quiz-runner [quizId]="quiz.id" [questions]="quiz.questions" [title]="quiz.title" [passPercent]="quiz.passPercent" />
+        <cma-quiz-runner
+          [quizId]="quiz.id"
+          [questions]="quiz.questions"
+          [title]="quiz.title"
+          [passPercent]="quiz.passPercent"
+        />
       </div>
       <aside class="col-lg-4">
         <div class="cma-card p-3">
           <h2 class="h6">Your history</h2>
           @if (history(); as history) {
-            <p class="mb-2">Best score: <strong>{{ history.best }}%</strong></p>
+            <p class="mb-2">
+              Best score: <strong>{{ history.best }}%</strong>
+            </p>
             <ol class="list-unstyled small mb-0">
               @for (attempt of history.attempts; track attempt.at) {
                 <li class="d-flex justify-content-between border-bottom py-1">
                   <span>{{ attempt.correct }}/{{ attempt.total }} · {{ attempt.percent }}%</span>
-                  <span [class.text-success]="attempt.passed" [class.text-danger]="!attempt.passed">{{ attempt.passed ? 'Passed' : 'Not passed' }}</span>
+                  <span
+                    [class.text-success]="attempt.passed"
+                    [class.text-danger]="!attempt.passed"
+                    >{{ attempt.passed ? 'Passed' : 'Not passed' }}</span
+                  >
                 </li>
               }
             </ol>
           } @else {
-            <p class="small cma-text-secondary mb-0">No attempts yet. Results are saved in this browser only.</p>
+            <p class="small cma-text-secondary mb-0">
+              No attempts yet. Results are saved in this browser only.
+            </p>
           }
         </div>
         <div class="cma-card p-3 mt-3">
           <h2 class="h6">Keep practising</h2>
-          <a class="btn btn-outline-secondary btn-sm w-100 mb-2" [routerLink]="['/exercises', quiz.technologySlug]">{{ quiz.technologyName }} exercises</a>
-          <a class="btn btn-outline-secondary btn-sm w-100" [routerLink]="['/tutorials', quiz.technologySlug]">Back to the tutorial</a>
+          <a
+            class="btn btn-outline-secondary btn-sm w-100 mb-2"
+            [routerLink]="['/exercises', quiz.technologySlug]"
+            >{{ quiz.technologyName }} exercises</a
+          >
+          <a
+            class="btn btn-outline-secondary btn-sm w-100"
+            [routerLink]="['/tutorials', quiz.technologySlug]"
+            >Back to the tutorial</a
+          >
         </div>
       </aside>
     </div>
@@ -35,11 +56,22 @@
 } @else if (missing()) {
   <cma-page-header eyebrow="Quiz" [title]="(entry()?.name ?? 'Technology') + ' quiz'" />
   <div class="container-xxl py-5">
-    <cma-empty-state icon="patch-check" title="This quiz is not published yet" text="Quizzes ship together with each tutorial's lessons. Check the tutorial page for its current status.">
-      <a class="btn btn-primary" [routerLink]="['/tutorials', tech()]">Go to the tutorial</a>
+    <cma-empty-state
+      icon="patch-check"
+      title="This quiz could not load"
+      text="Check your connection, then try again."
+    >
+      <button type="button" class="btn btn-primary" (click)="quizResource.reload()">
+        Try again
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/tutorials', tech()]"
+        >Go to the tutorial</a
+      >
       <a class="btn btn-outline-secondary" routerLink="/quizzes">All quizzes</a>
     </cma-empty-state>
   </div>
 } @else {
-  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 10rem"></div></div>
+  <div class="container-xxl py-5" aria-busy="true">
+    <div class="cma-skeleton" style="height: 10rem"></div>
+  </div>
 }

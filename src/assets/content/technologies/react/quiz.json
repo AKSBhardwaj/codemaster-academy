@@ -1,0 +1,191 @@
+{
+  "id": "react-quiz",
+  "title": "React Quiz",
+  "description": "Fourteen questions covering the whole React tutorial: JSX, components and props, state, events and forms, lists and keys, effects, context, custom hooks, refs, routing, data fetching and performance.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "react-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What is a React component?",
+      "explanation": "A component is a plain JavaScript function. It receives props, returns JSX describing the UI, and React calls it whenever its data changes.",
+      "options": [
+        "A CSS class that styles part of the page",
+        "A JavaScript function that takes props and returns a description of the UI",
+        "An HTML template file loaded by the browser",
+        "A server-side script that renders HTML"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-02",
+      "type": "multiple-choice",
+      "lessonSlug": "setup-vite",
+      "difficulty": "beginner",
+      "question": "Which command starts the Vite development server in a scaffolded project?",
+      "explanation": "`npm run dev` runs the `dev` script that create-vite adds to package.json. `npm run build` produces the production bundle in `dist/`.",
+      "options": ["`npm run build`", "`npm run dev`", "`npm start react`", "`vite serve --prod`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-03",
+      "type": "fill-blank",
+      "lessonSlug": "jsx",
+      "difficulty": "beginner",
+      "question": "In JSX, the HTML `class` attribute is written as `___`.",
+      "explanation": "`class` is a reserved word in JavaScript, so JSX uses `className`; the DOM still receives a normal `class` attribute.",
+      "answers": ["className"],
+      "caseSensitive": false
+    },
+    {
+      "id": "react-q-04",
+      "type": "true-false",
+      "lessonSlug": "components-props",
+      "difficulty": "beginner",
+      "question": "Component names must start with a capital letter so that JSX treats them as components rather than HTML tags.",
+      "explanation": "JSX compiles lowercase tags to DOM elements and capitalized tags to component references. `<card />` creates an unknown HTML element; `<Card />` calls your function.",
+      "correct": true
+    },
+    {
+      "id": "react-q-05",
+      "type": "predict-output",
+      "lessonSlug": "state-usestate",
+      "difficulty": "intermediate",
+      "question": "What is `n` after `bump` has been called once?",
+      "explanation": "Updater functions are queued and applied in order to the latest state: 10 doubled is 20, then plus one is 21.",
+      "language": "jsx",
+      "code": "const [n, setN] = useState(10);\n\nfunction bump() {\n  setN((v) => v * 2);\n  setN((v) => v + 1);\n}",
+      "options": ["20", "21", "11", "22"],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-06",
+      "type": "multiple-choice",
+      "lessonSlug": "events-forms",
+      "difficulty": "beginner",
+      "question": "In a submit handler, which call stops the browser from reloading the page?",
+      "explanation": "`preventDefault()` cancels the event's default action, which for a submit event is navigating to the form's action URL. `stopPropagation()` only affects bubbling.",
+      "options": [
+        "`e.stopPropagation()`",
+        "`e.preventDefault()`",
+        "`return false`",
+        "`e.cancel()`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-07",
+      "type": "multiple-choice",
+      "lessonSlug": "lists-keys",
+      "difficulty": "beginner",
+      "question": "Why is the array index a poor key for a list that can be reordered or filtered?",
+      "explanation": "Keys give items an identity across renders. When an item's index changes, React pairs its state and DOM node with whichever item now sits at that index.",
+      "options": [
+        "Index keys are slower for React to compare",
+        "The index of an item changes, so React matches state and DOM nodes to the wrong items",
+        "Indexes are not unique within one list",
+        "React does not accept numbers as keys"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-08",
+      "type": "multiple-choice",
+      "lessonSlug": "effects",
+      "difficulty": "intermediate",
+      "question": "In development, Strict Mode runs an effect, then its cleanup, then the effect again on mount. Why?",
+      "explanation": "Simulating an unmount and remount reveals effects that leak timers, listeners or requests because their cleanup is missing or wrong. Production builds run effects once.",
+      "options": [
+        "To measure how long the effect takes",
+        "To expose effects whose cleanup is missing or incorrect",
+        "Because effects always run twice in React",
+        "To warm up the browser cache"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-09",
+      "type": "fill-blank",
+      "lessonSlug": "context",
+      "difficulty": "beginner",
+      "question": "In React 19 you can provide a context by rendering the context object directly with a prop: `<ThemeContext ___={theme}>`.",
+      "explanation": "The provider prop is `value`. React 19 allows `<ThemeContext value={theme}>`; the older `<ThemeContext.Provider value={theme}>` still works.",
+      "answers": ["value"],
+      "caseSensitive": false
+    },
+    {
+      "id": "react-q-10",
+      "type": "true-false",
+      "lessonSlug": "custom-hooks",
+      "difficulty": "beginner",
+      "question": "A custom hook's name must start with `use` so that the lint rules can verify the rules of hooks inside it.",
+      "explanation": "React does not check the name at runtime, but `eslint-plugin-react-hooks` relies on the prefix, and the convention tells readers the function calls hooks.",
+      "correct": true
+    },
+    {
+      "id": "react-q-11",
+      "type": "find-error",
+      "lessonSlug": "refs",
+      "difficulty": "intermediate",
+      "question": "This component throws \"Cannot read properties of null (reading 'focus')\". Why?",
+      "explanation": "Refs are attached after React commits to the DOM. During the first render `inputRef.current` is still `null`. Move the focus call into `useEffect` or an event handler.",
+      "language": "jsx",
+      "code": "import { useRef } from 'react';\n\nfunction AutoFocus() {\n  const inputRef = useRef(null);\n  inputRef.current.focus();\n  return <input ref={inputRef} />;\n}",
+      "options": [
+        "`useRef` must be called with a DOM element",
+        "`inputRef.current` is `null` during render; the node exists only after commit, so focus it in an effect",
+        "The `ref` attribute must be set to `inputRef.current`",
+        "Inputs cannot receive focus programmatically"
+      ],
+      "correctIndex": 1,
+      "errorLine": 5
+    },
+    {
+      "id": "react-q-12",
+      "type": "multiple-choice",
+      "lessonSlug": "routing",
+      "difficulty": "beginner",
+      "question": "What does `<NavLink>` add that `<Link>` does not?",
+      "explanation": "`NavLink` knows whether its destination matches the current URL and adds the `active` class plus `aria-current=\"page\"`, which is what navigation menus need.",
+      "options": [
+        "Prefetching of the target page",
+        "An `active` class and `aria-current` when its route matches the URL",
+        "A full page reload on click",
+        "Support for external URLs"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-13",
+      "type": "multiple-choice",
+      "lessonSlug": "data-fetching",
+      "difficulty": "intermediate",
+      "question": "In TanStack Query, what is the role of `queryKey`?",
+      "explanation": "The key is the address of the data in the cache. Components using the same key share one request and one result, and `invalidateQueries` targets data by key.",
+      "options": [
+        "It is the URL that is fetched",
+        "It identifies the data in the cache so components can share it and invalidate it",
+        "It sets how often the query refetches",
+        "It names the React component that renders the data"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "react-q-14",
+      "type": "multiple-choice",
+      "lessonSlug": "performance-memo",
+      "difficulty": "intermediate",
+      "question": "`useMemo(() => compute(a), [a])` calls `compute` again when:",
+      "explanation": "`useMemo` returns the cached result until a dependency changes. Re-renders caused by other state or by the parent reuse the previous value.",
+      "options": [
+        "The component re-renders for any reason",
+        "`a` has changed since the previous render",
+        "Never; the value is computed once",
+        "A parent component re-renders"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

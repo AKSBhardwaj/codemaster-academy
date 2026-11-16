@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "slug": "sorting-limiting",
+  "title": "ORDER BY and LIMIT",
+  "summary": "ORDER BY sorts the answer rows. LIMIT asks for only a chosen number of rows.",
+  "introduction": "ORDER BY sorts the answer rows. LIMIT asks for only a chosen number of rows. Find the three cheapest items or put names in order. Use a clear sort rule so you know which rows come first.",
+  "learningObjectives": [
+    "Sort results ascending or descending with ORDER BY",
+    "Sort by several columns and by calculated values",
+    "Return the first N rows with LIMIT and skip rows with OFFSET",
+    "Write top-N and pagination queries that are deterministic"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ORDER BY"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ORDER BY` comes after `WHERE` (if present) and names the column to sort by. The default direction is ascending (`ASC`): smallest numbers first, text in alphabetical order, earlier dates first. `DESC` reverses it."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price FROM products ORDER BY price DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price\n--------------------+------\nMechanical keyboard | 89\nMonitor stand       | 39.5\nUSB cable           | 12\nMouse pad           | 8.99\nNotebook            | 4.5\nSticky notes        | 2.75"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sorting by several columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "List several columns to break ties: rows are sorted by the first column, and rows with the same value there are sorted by the second. Each column can have its own direction. Here products are grouped alphabetically by category and, within a category, most expensive first:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, category, price\nFROM products\nORDER BY category, price DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | category    | price\n--------------------+-------------+------\nMechanical keyboard | Electronics | 89\nUSB cable           | Electronics | 12\nMonitor stand       | Office      | 39.5\nMouse pad           | Office      | 8.99\nNotebook            | Stationery  | 4.5\nSticky notes        | Stationery  | 2.75"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "LIMIT and OFFSET"
+    },
+    {
+      "type": "paragraph",
+      "text": "`LIMIT n` keeps only the first *n* rows of the (sorted) result. Combined with `ORDER BY ... DESC` it answers \"top N\" questions:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price FROM products ORDER BY price DESC LIMIT 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price\n--------------------+------\nMechanical keyboard | 89\nMonitor stand       | 39.5\nUSB cable           | 12"
+    },
+    {
+      "type": "paragraph",
+      "text": "`OFFSET m` skips the first *m* rows before counting. Together they implement pagination: with a page size of 2, page one is `LIMIT 2 OFFSET 0`, page two is `LIMIT 2 OFFSET 2`, and so on."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price\nFROM products\nORDER BY price DESC\nLIMIT 2 OFFSET 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name      | price\n----------+------\nUSB cable | 12\nMouse pad | 8.99"
+    },
+    {
+      "type": "paragraph",
+      "text": "You can sort by a calculated value as well. Sorting by an alias defined in the SELECT list works in SQLite, MySQL and PostgreSQL:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, ROUND(price * 0.9, 2) AS sale_price\nFROM products\nORDER BY sale_price\nLIMIT 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name         | sale_price\n-------------+-----------\nSticky notes | 2.48\nNotebook     | 4.05\nMouse pad    | 8.09"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Clause order"
+    },
+    {
+      "type": "paragraph",
+      "text": "The clauses of a SELECT must appear in a fixed order: `SELECT`, `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT`. Writing `LIMIT` before `ORDER BY` is a syntax error. GROUP BY and HAVING are covered in [GROUP BY and HAVING](/tutorials/sql/group-by-having)."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "LIMIT without ORDER BY",
+      "text": "`SELECT * FROM products LIMIT 3` returns *some* three rows, not the first three in any meaningful sense, and a different index or a reloaded table can change which ones. Always pair `LIMIT` with `ORDER BY`, and for pagination make the sort unambiguous (add `id` as a final tie-breaker) so that pages do not overlap or skip rows."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dialect differences"
+    },
+    {
+      "type": "table",
+      "headers": ["Database", "Syntax for rows 21 to 30"],
+      "rows": [
+        ["SQLite, MySQL, PostgreSQL", "`LIMIT 10 OFFSET 20`"],
+        ["SQL standard, PostgreSQL, Oracle 12c+", "`OFFSET 20 ROWS FETCH FIRST 10 ROWS ONLY`"],
+        [
+          "SQL Server",
+          "`OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY` (requires ORDER BY); `SELECT TOP 10` for the first page"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "NULL values sort first in ascending order in SQLite and MySQL but last in PostgreSQL and Oracle. `NULLS FIRST` and `NULLS LAST` (supported by SQLite 3.30+, PostgreSQL and Oracle) make the choice explicit."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Show the two customers who joined most recently, then change the query to show page two of the customers sorted by name with a page size of 2."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT name, joined\nFROM customers\nORDER BY joined DESC\nLIMIT 2;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-sorting-limiting-top-two"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "sorting-limiting-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "sorting-limiting",
+          "difficulty": "beginner",
+          "question": "Which query reliably returns the cheapest product?",
+          "explanation": "Sorting ascending by price puts the cheapest product first, and LIMIT 1 keeps only that row. LIMIT without ORDER BY returns an arbitrary row, and DESC would give the most expensive one.",
+          "options": [
+            "`SELECT name FROM products LIMIT 1`",
+            "`SELECT name FROM products ORDER BY price LIMIT 1`",
+            "`SELECT name FROM products ORDER BY price DESC LIMIT 1`",
+            "`SELECT MIN(name) FROM products`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "sorting-limiting-qc-2",
+          "type": "true-false",
+          "lessonSlug": "sorting-limiting",
+          "difficulty": "beginner",
+          "question": "`ORDER BY category, price DESC` sorts both columns in descending order.",
+          "explanation": "A direction applies only to the column it follows. Here category is sorted ascending (the default) and only price is descending.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-sorting-limiting-clause-order", "sql-sorting-limiting-top-two"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "where"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "aggregates"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "views-indexes"
+    }
+  ],
+  "seo": {
+    "title": "SQL ORDER BY and LIMIT – Sorting and Top-N Queries",
+    "description": "Learn SQL ORDER BY and LIMIT: sort by one or more columns ascending or descending, pick the top N rows, paginate with OFFSET, and avoid unordered results."
+  },
+  "updatedOn": "2026-11-16"
+}

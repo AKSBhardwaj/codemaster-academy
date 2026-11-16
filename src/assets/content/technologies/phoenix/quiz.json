@@ -1,0 +1,164 @@
+{
+  "id": "phoenix-quiz",
+  "title": "Phoenix Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "phoenix-review-1",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, _params), do: text(conn, \"Hello, Asha!\")\nend\n",
+      "question": "The router maps GET /hello to a controller action. text sends a plain response. What result does this example give after the setup steps?",
+      "explanation": "The router names the controller action. text sends the greeting through the connection value. The SchoolWeb module prefix must match the app name school.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "phoenix-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/book\", LessonController, :book\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef book(conn, _params), do: json(conn, %{title: \"Moon Trip\"})\nend\n",
+      "question": "json turns an Elixir map into a JSON reply. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "json turns the atom-keyed map into a JSON object. A map holds named data; its field order is not important.",
+      "options": ["{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "phoenix-review-3",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello/:name\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, %{\"name\" => name}), do: text(conn, \"Hi, #{name}!\")\nend\n",
+      "question": "A colon marks a router input. Pattern matching reads its string-keyed parameter. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "The pattern reads the string key name from params. It binds Ravi for interpolation. HTTP parameter keys are strings, not atoms.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "phoenix-review-4",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/search\", LessonController, :search\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef search(conn, params), do: json(conn, %{term: Map.get(params, \"q\", \"\")})\nend\n",
+      "question": "The params map includes query values. Open GET /search?q=cat. What result does this example give after the setup steps?",
+      "explanation": "Map.get finds q in the parameter map and returns cat. Query values are untrusted text.",
+      "options": ["{\"term\":\"cat\"}", "{\"term\":\"dog\"}", "[\"cat\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "phoenix-review-5",
+      "lessonSlug": "parse-number",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/double/:n\", LessonController, :twice\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef twice(conn, %{\"n\" => raw}) do\n case Integer.parse(raw) do\n  {n, \"\"} -> json(conn, %{answer: n * 2})\n  _ -> conn |> put_status(400) |> json(%{error: \"Use a whole number\"})\n end\nend\nend\n",
+      "question": "Integer.parse reads a number and the unused text. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "Integer.parse returns both 4 and an empty remainder. That exact pattern accepts the input. Check that no trailing text remains after the parsed number.",
+      "options": ["[8]", "{\"answer\":8}", "{\"answer\":9}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "phoenix-review-6",
+      "lessonSlug": "post-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\npost \"/books\", LessonController, :create\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef create(conn, %{\"title\" => title}) when is_binary(title), do: conn |> put_status(201) |> json(%{title: title})\ndef create(conn, _params), do: conn |> put_status(400) |> json(%{error: \"Title needed\"})\nend\n",
+      "question": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The endpoint parser puts the fields into params. What result does this example give after the setup steps?",
+      "explanation": "The title pattern and is_binary guard match. The pipe sets 201 before sending JSON. Provide a fallback function clause for input that does not match.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "phoenix-review-7",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/missing\", LessonController, :missing\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef missing(conn, _params), do: conn |> put_status(404) |> json(%{error: \"Book not found\"})\nend\n",
+      "question": "put_status returns an updated connection. Pass that value to json. Open GET /missing. What result does this example give after the setup steps?",
+      "explanation": "put_status returns a changed connection. The next piped call sends its error map. Connection functions return a new value; keep using that returned value.",
+      "options": [
+        "{\"error\":\"Book not found\"}",
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "phoenix-review-8",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/note\", LessonController, :note\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef note(conn, _params), do: conn |> put_resp_header(\"cache-control\", \"no-store\") |> text(\"Practice note\")\nend\n",
+      "question": "put_resp_header adds a header to the connection. Open GET /note. What result does this example give after the setup steps?",
+      "explanation": "The header call returns a changed connection that text uses for the final reply. Use lower-case header names with Plug.",
+      "options": ["Practice note", "Welcome", "practice note"],
+      "correctIndex": 0
+    },
+    {
+      "id": "phoenix-review-9",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/start\", LessonController, :start\nget \"/hello\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef start(conn, _params), do: redirect(conn, to: \"/hello\")\ndef hello(conn, _params), do: text(conn, \"Welcome\")\nend\n",
+      "question": "redirect sends a location. A browser following GET /start reaches /hello. What result does this example give after the setup steps?",
+      "explanation": "redirect sets an internal location. The browser follows it to the hello action. Use an internal path for this example, not an unchecked outside destination.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "phoenix-review-10",
+      "lessonSlug": "lists",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/books\", LessonController, :books\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef books(conn, _params), do: json(conn, %{books: [\"Moon Trip\", \"Sun Trip\"]})\nend\n",
+      "question": "A map can wrap a list under a clear key. Open GET /books. What result does this example give after the setup steps?",
+      "explanation": "The response map wraps two titles under books. json serialises that list. Keep the response shape consistent for clients.",
+      "options": [
+        "{\"books\":[\"Sun Trip\",\"Sun Trip\"]}",
+        "[[\"Moon Trip\",\"Sun Trip\"]]",
+        "{\"books\":[\"Moon Trip\",\"Sun Trip\"]}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "phoenix-review-11",
+      "lessonSlug": "halt",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/closed\", LessonController, :closed\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef closed(conn, _params), do: conn |> send_resp(403, \"Closed for practice\") |> halt()\nend\n",
+      "question": "halt marks the connection so later plugs stop. Open GET /closed. What result does this example give after the setup steps?",
+      "explanation": "send_resp writes the 403 body. halt then marks the connection to stop later plugs. halt does not itself send a response; send it first.",
+      "options": ["Open for practice", "closed for practice", "Closed for practice"],
+      "correctIndex": 2
+    },
+    {
+      "id": "phoenix-review-12",
+      "lessonSlug": "empty-response",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "elixir",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\ndelete \"/books/:id\", LessonController, :remove\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef remove(conn, _params), do: send_resp(conn, 204, \"\")\nend\n",
+      "question": "send_resp can send an empty body with status 204. Send DELETE /books/1. What result does this example give after the setup steps?",
+      "explanation": "The action sends status 204 with an empty string body. This practice action has no database record to remove.",
+      "options": [
+        "200 OK; body: {\"removed\":true}",
+        "404 Not Found; empty body",
+        "204 No Content; empty body"
+      ],
+      "correctIndex": 2
+    }
+  ]
+}

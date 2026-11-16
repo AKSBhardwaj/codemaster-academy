@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-only-the-latest-waiting-job",
+  "title": "Keep only the latest waiting job",
+  "summary": "switchMap switches to a new inner stream and unsubscribes from the previous one.",
+  "introduction": "switchMap switches to a new inner stream and unsubscribes from the previous one. Your task: Explain why moon is not printed.",
+  "learningObjectives": [
+    "Explain why moon is not printed.",
+    "Explain the example for keep only the latest waiting job"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "switchMap switches to a new inner stream and unsubscribes from the previous one. It is useful when only the newest request matters."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a JavaScript or TypeScript project with RxJS 7 installed. Run imports through the project tool. Browser event examples need the stated HTML element. This site does not include RxJS in its runner."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {Subject,timer,switchMap,map} from \"rxjs\";\nconst search=new Subject();\nsearch.pipe(switchMap(word=>timer(100).pipe(map(()=>word)))).subscribe(console.log);\nsearch.next(\"moon\");\nsearch.next(\"garden\");",
+      "title": "Keep only the latest waiting job",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`map` transforms each RxJS emission and passes on the calculated result.",
+        "`switchMap` unsubscribes the previous inner stream when a new source value selects a newer one.",
+        "`subscribe` registers a listener. For a stream or store that stays active, keep and use its cleanup handle."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "After the wait, only garden is printed. The earlier timer was cancelled by the newer input."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Use switchMap only when cancelling the old work is suitable. Do not use it for writes that must all finish."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why moon is not printed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "rxjs-keep-only-the-latest-waiting-job-check"
+    }
+  ],
+  "exerciseIds": ["rxjs-keep-only-the-latest-waiting-job-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "rxjs",
+      "slug": "combine-the-latest-values"
+    }
+  ],
+  "seo": {
+    "title": "RxJS: Keep only the latest waiting job",
+    "description": "switchMap switches to a new inner stream and unsubscribes from the previous one. It is useful when only the newest request matters."
+  },
+  "updatedOn": "2026-11-16"
+}

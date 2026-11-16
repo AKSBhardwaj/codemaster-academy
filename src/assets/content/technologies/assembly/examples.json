@@ -1,0 +1,138 @@
+{
+  "title": "Assembly Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-result",
+      "title": "Return a small result",
+      "description": "rdi is a register: a tiny storage place in the processor. Linux exit reads its status from rdi.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-result"
+    },
+    {
+      "id": "copy-register",
+      "title": "Copy a register value",
+      "description": "mov copies a value. It does not erase the source register.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rbx, 3\n    mov rdi, rbx\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 3",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "copy-register"
+    },
+    {
+      "id": "addition",
+      "title": "Add two numbers",
+      "description": "add changes its first register by adding the second value.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    add rdi, 2\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "addition"
+    },
+    {
+      "id": "subtraction",
+      "title": "Subtract a number",
+      "description": "sub subtracts the second value from the first register.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 8\n    sub rdi, 3\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "subtraction"
+    },
+    {
+      "id": "multiplication",
+      "title": "Multiply a value",
+      "description": "imul multiplies signed integers. This form stores the result in its first register.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    imul rdi, rdi, 2\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 6",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "multiplication"
+    },
+    {
+      "id": "division",
+      "title": "Divide a whole number",
+      "description": "div divides rdx:rax by its input. For this small positive example, clear rdx first.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rax, 8\n    xor rdx, rdx\n    mov rbx, 3\n    div rbx\n    mov rdi, rax\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 2",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "division"
+    },
+    {
+      "id": "bit-tests",
+      "title": "Keep chosen bits",
+      "description": "and keeps only bits that are 1 in both inputs. A final bit of 1 marks an odd number.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    and rdi, 1\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 1",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "bit-tests"
+    },
+    {
+      "id": "branches",
+      "title": "Choose a path",
+      "description": "cmp compares values and sets flags. je jumps when the compared values are equal.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 0\n    mov rbx, 5\n    cmp rbx, 5\n    je .same\n    jmp .done\n.same:\n    mov rdi, 1\n.done:\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 1",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "branches"
+    },
+    {
+      "id": "loops",
+      "title": "Repeat with a counter",
+      "description": "A label names a place in the code. jnz repeats while the last result was not zero.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rcx, 3\n    mov rdi, 0\n.again:\n    add rdi, 2\n    dec rcx\n    jnz .again\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 6",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "loops"
+    },
+    {
+      "id": "stack",
+      "title": "Save and restore a value",
+      "description": "push places a value on the stack. pop takes the most recent value back.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    push 7\n    pop rdi\n    mov rax, 60\n    syscall\n",
+      "output": "exit code: 7",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "stack"
+    },
+    {
+      "id": "calls",
+      "title": "Call a small routine",
+      "description": "call saves a return address and jumps. ret returns to the instruction after call.",
+      "language": "asm",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 4\n    call twice\n    mov rax, 60\n    syscall\ntwice:\n    add rdi, rdi\n    ret\n",
+      "output": "exit code: 8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "calls"
+    },
+    {
+      "id": "write-text",
+      "title": "Ask Linux to write text",
+      "description": "The write system call uses rax=1, rdi=1 for standard output, an address in rsi and a length in rdx.",
+      "language": "asm",
+      "code": "global _start\nsection .data\nmessage: db \"Hi\", 10\nsection .text\n_start:\n    mov rax, 1\n    mov rdi, 1\n    lea rsi, [rel message]\n    mov rdx, 3\n    syscall\n    mov rdi, 0\n    mov rax, 60\n    syscall",
+      "output": "Hi\nexit code: 0",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "write-text"
+    }
+  ]
+}

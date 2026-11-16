@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "methods",
+  "title": "Allow only a chosen method",
+  "summary": "Django: Allow only a chosen method. Send a HEAD request and inspect the allowed-method header.",
+  "introduction": "A view can inspect request.method. A GET request to /check/ is accepted; another method gets 405.",
+  "learningObjectives": [
+    "Allow only a chosen method with Django",
+    "Send a HEAD request and inspect the allowed-method header"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Allow only a chosen method"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Allow only a chosen method",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef check(request):\n    if request.method != \"GET\":\n        return HttpResponseNotAllowed([\"GET\"])\n    return HttpResponse(\"Ready\")\nurlpatterns = [\npath(\"check/\", check),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "For GET the check passes and returns Ready. Other methods receive the allowed-method response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Ready"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send a HEAD request and inspect the allowed-method header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use 405 for an unsupported method, not 404."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-methods-check"
+    }
+  ],
+  "exerciseIds": ["django-methods-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Django: Allow only a chosen method",
+    "description": "Django: Allow only a chosen method. Send a HEAD request and inspect the allowed-method header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "non-null",
+  "title": "Require a value",
+  "summary": "GraphQL: Require a value. Return Asha instead and print result.data.",
+  "introduction": "The exclamation mark means a field must not be null. This resolver breaks that rule, so GraphQL reports an error.",
+  "learningObjectives": [
+    "Require a value with GraphQL",
+    "Return Asha instead and print result.data"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Require a value"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Require a value",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { name: String! }\");\n\nconst rootValue = { name: () => null };\nconst result = await graphql({ schema, rootValue, source: \"{ name }\", variableValues: {} });\nconsole.log(result.errors[0].message);\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The resolver returns null for a field marked non-null. GraphQL reports the schema-rule failure."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Cannot return null for non-nullable field Query.name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Return Asha instead and print result.data."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use non-null only when the resolver can honour that promise."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-non-null-check"
+    }
+  ],
+  "exerciseIds": ["graphql-non-null-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "mutations"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Require a value",
+    "description": "GraphQL: Require a value. Return Asha instead and print result.data. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

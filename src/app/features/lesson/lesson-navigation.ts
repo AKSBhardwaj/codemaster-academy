@@ -10,7 +10,11 @@ import { IconComponent } from '../../shared/components/icon/icon';
     <nav class="cma-lesson-nav" aria-label="Lesson navigation">
       <div>
         @if (previous(); as prev) {
-          <a class="cma-card cma-card--link cma-lesson-nav__link" [routerLink]="['/tutorials', prev.technologySlug, prev.slug]" rel="prev">
+          <a
+            class="cma-card cma-card--link cma-lesson-nav__link"
+            [routerLink]="['/tutorials', prev.technologySlug, prev.slug]"
+            rel="prev"
+          >
             <small><cma-icon name="arrow-left" [size]="12" /> Previous lesson</small>
             <strong>{{ prev.title }}</strong>
           </a>
@@ -18,12 +22,19 @@ import { IconComponent } from '../../shared/components/icon/icon';
       </div>
       <div>
         @if (next(); as nxt) {
-          <a class="cma-card cma-card--link cma-lesson-nav__link cma-lesson-nav__link--next" [routerLink]="['/tutorials', nxt.technologySlug, nxt.slug]" rel="next">
+          <a
+            class="cma-card cma-card--link cma-lesson-nav__link cma-lesson-nav__link--next"
+            [routerLink]="['/tutorials', nxt.technologySlug, nxt.slug]"
+            rel="next"
+          >
             <small>Next lesson <cma-icon name="arrow-right" [size]="12" /></small>
             <strong>{{ nxt.title }}</strong>
           </a>
         } @else if (finishPath()) {
-          <a class="cma-card cma-card--link cma-lesson-nav__link cma-lesson-nav__link--next" [routerLink]="finishPath()">
+          <a
+            class="cma-card cma-card--link cma-lesson-nav__link cma-lesson-nav__link--next"
+            [routerLink]="finishPath()"
+          >
             <small>You finished the lessons <cma-icon name="trophy" [size]="12" /></small>
             <strong>Back to the tutorial overview</strong>
           </a>

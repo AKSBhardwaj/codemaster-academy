@@ -1,0 +1,138 @@
+{
+  "title": "Fastify Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-route",
+      "title": "Return a greeting",
+      "description": "A Fastify handler can return a value directly. Open GET /.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/\", async () => \"Hello, Asha!\");\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-route"
+    },
+    {
+      "id": "json",
+      "title": "Return an object",
+      "description": "Fastify turns a returned object into JSON. Open GET /book.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/book\", async () => ({ title: \"Moon Trip\", pages: 24 }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"title\":\"Moon Trip\",\"pages\":24}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "params",
+      "title": "Read a route input",
+      "description": "A colon marks a path parameter. GET /hello/Ravi puts the name in request.params.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/hello/:name\", async request => `Hi, ${request.params.name}!`);\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "params"
+    },
+    {
+      "id": "query",
+      "title": "Read a query string",
+      "description": "Query input follows the question mark. GET /search?q=cat reads q.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/search\", async request => ({ term: typeof request.query.q === \"string\" ? request.query.q : \"\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"term\":\"cat\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query"
+    },
+    {
+      "id": "body",
+      "title": "Read a JSON body",
+      "description": "Fastify can parse JSON bodies. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.post(\"/books\", async (request, reply) => {\n if (typeof request.body?.title !== \"string\") return reply.code(400).send({ error: \"Title needed\" });\n return reply.code(201).send({ title: request.body.title });\n});\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "body"
+    },
+    {
+      "id": "schemas",
+      "title": "Validate a path value",
+      "description": "A schema describes allowed data. GET /books/3 converts and checks id as a positive integer.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/books/:id\", { schema: { params: { type: \"object\", required: [\"id\"], properties: { id: { type: \"integer\", minimum: 1 } } } } }, async request => ({ id: request.params.id }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"id\":3}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "schemas"
+    },
+    {
+      "id": "hooks",
+      "title": "Run a step before a handler",
+      "description": "A preHandler hook runs before the route handler. GET / uses the request field set by the hook.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.decorateRequest(\"school\", \"\");\napp.addHook(\"preHandler\", async request => { request.school = \"Oak School\"; });\napp.get(\"/\", async request => request.school);\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "Oak School",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "hooks"
+    },
+    {
+      "id": "decorators",
+      "title": "Share a helper",
+      "description": "decorate adds a named helper to the Fastify instance. GET / uses that helper.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.decorate(\"greet\", name => `Hi, ${name}!`);\napp.get(\"/\", async () => app.greet(\"Ravi\"));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "decorators"
+    },
+    {
+      "id": "plugins",
+      "title": "Group routes in a plugin",
+      "description": "register gives a plugin its own scope. A prefix puts its routes under /api. Open GET /api/books.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\nawait app.register(async api => { api.get(\"/books\", async () => [\"Moon Trip\"]); }, { prefix: \"/api\" });\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "[\"Moon Trip\"]",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "plugins"
+    },
+    {
+      "id": "response-schema",
+      "title": "Choose response fields",
+      "description": "A response schema can choose which fields are sent. GET /book keeps title and leaves out internalNote.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/book\", { schema: { response: { 200: { type: \"object\", properties: { title: { type: \"string\" } } } } } }, async () => ({ title: \"Moon Trip\", internalNote: \"draft\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "response-schema"
+    },
+    {
+      "id": "errors",
+      "title": "Give a clear error reply",
+      "description": "setErrorHandler handles errors from routes. GET /broken returns a simple public message.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.setErrorHandler((error, request, reply) => reply.code(500).send({ error: \"Try again later\" }));\napp.get(\"/broken\", async () => { throw new Error(\"Practice failure\"); });\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "output": "{\"error\":\"Try again later\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "errors"
+    },
+    {
+      "id": "injection-tests",
+      "title": "Test without an open port",
+      "description": "inject runs a request inside Fastify. This example prints the response body and closes the app without listening.",
+      "language": "javascript",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/score\", async () => ({ score: 8 }));\nconst response = await app.inject({ method: \"GET\", url: \"/score\" });\nconsole.log(response.body);\nawait app.close();",
+      "output": "{\"score\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "injection-tests"
+    }
+  ]
+}

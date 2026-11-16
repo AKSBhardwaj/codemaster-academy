@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "slug": "backup-restore",
+  "title": "Backup and Restore",
+  "summary": "Back up MySQL with mysqldump and MySQL Shell's dump utilities, restore and verify a database, understand logical versus physical backups and use binary logs for point-in-time recovery.",
+  "introduction": "A database you cannot restore is a database you do not have. Disks fail, but far more often someone runs DELETE without a WHERE or a migration goes wrong, and the only fix is a copy from before the mistake. This lesson shows the two logical backup tools that ship with MySQL, how to restore and verify a dump, what the binary log adds, and when a physical backup tool is the better choice. The commands run in a terminal, not inside the mysql client.",
+  "learningObjectives": [
+    "Create a consistent logical backup of one or all databases with mysqldump",
+    "Restore a dump into a new database and verify it",
+    "Use MySQL Shell's dumpSchemas and loadDump utilities for large databases",
+    "Explain binary logs, point-in-time recovery and physical backups"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Logical or physical"
+    },
+    {
+      "type": "paragraph",
+      "text": "A *logical* backup is a set of SQL statements or data files that recreate the database by running them; a *physical* backup is a copy of InnoDB's own data files. Logical backups are portable across versions and platforms and easy to inspect; physical backups are much faster to take and restore for large databases."
+    },
+    {
+      "type": "table",
+      "headers": ["Kind", "Tools", "Best for"],
+      "rows": [
+        [
+          "Logical",
+          "`mysqldump`; MySQL Shell `util.dumpSchemas`, `util.dumpInstance`, `util.loadDump`",
+          "Databases up to tens of gigabytes, version upgrades, copying a schema to another server"
+        ],
+        [
+          "Physical",
+          "MySQL Enterprise Backup (commercial), Percona XtraBackup (free), the Clone plugin, storage snapshots",
+          "Large databases, fast full restores, building replicas"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`mysqlpump`, a parallel alternative to `mysqldump`, was deprecated in 8.0.34 and removed in 8.4; MySQL Shell's utilities replace it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "mysqldump"
+    },
+    {
+      "type": "paragraph",
+      "text": "`mysqldump` connects like any client and writes `CREATE TABLE` and `INSERT` statements to standard output, so redirect it into a file. `--single-transaction` takes a consistent InnoDB snapshot without locking the tables; `--routines`, `--triggers` and `--events` include stored programs, which are otherwise left out. The first lines of the file identify the server that produced it."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "mysqldump --single-transaction --routines --triggers --events \\\n  -u root -p roastery > roastery.sql\n\nhead -n 5 roastery.sql"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Enter password:\n-- MySQL dump 10.13  Distrib 8.4.6, for Linux (x86_64)\n--\n-- Host: localhost    Database: roastery\n-- ------------------------------------------------------\n-- Server version\t8.4.6"
+    },
+    {
+      "type": "table",
+      "headers": ["Option", "Effect"],
+      "rows": [
+        [
+          "`--all-databases`",
+          "Every database on the server, including the `mysql` system database with its accounts"
+        ],
+        [
+          "`--databases a b`",
+          "Named databases, with `CREATE DATABASE` and `USE` statements included so the restore recreates them"
+        ],
+        ["`--no-data`", "Schema only; `--no-create-info` is the opposite"],
+        [
+          "`--result-file=roastery.sql`",
+          "Writes the file directly, which avoids line-ending surprises in PowerShell"
+        ],
+        [
+          "`--source-data=2`",
+          "Adds the binary log position of the snapshot as a comment, for point-in-time recovery or setting up a replica"
+        ],
+        [
+          "`--set-gtid-purged=OFF`",
+          "Omits GTID information when the dump will be loaded into an unrelated server"
+        ]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Without --single-transaction the dump blocks writers and may be inconsistent",
+      "text": "By default `mysqldump` locks each table while reading it, so a dump taken during business hours stalls the application, and tables dumped at different moments can disagree with each other: an order referencing a customer who was inserted after `customers` was dumped. Always add `--single-transaction` for InnoDB. MyISAM tables cannot be snapshotted and need `--lock-all-tables` instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Restoring"
+    },
+    {
+      "type": "paragraph",
+      "text": "A dump is restored by feeding it to the `mysql` client. Restoring into a fresh database lets you verify the result before touching the real one; then rename or point the application at it. `-e` runs a single statement and exits, printing the result in table form."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "mysql -u root -p -e \"CREATE DATABASE roastery_restore\"\nmysql -u root -p roastery_restore < roastery.sql\nmysql -u root -p -e \"SELECT COUNT(*) AS orders FROM roastery_restore.orders\""
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Enter password:\nEnter password:\nEnter password:\n+--------+\n| orders |\n+--------+\n|      8 |\n+--------+"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside the client, `source roastery.sql` does the same as the redirect. Large restores are faster with `SET autocommit = 0` and `SET unique_checks = 0` at the top of the session and a single `COMMIT` at the end; the dump already wraps each table's inserts this way. If you only need one table, dump it alone with `mysqldump roastery orders`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "MySQL Shell dump utilities"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL Shell (`mysqlsh`) dumps in parallel, compresses on the fly and splits large tables into chunks, so it is the tool for databases that take `mysqldump` hours. `util.dumpSchemas` and `util.dumpInstance` write a directory; `util.loadDump` reads it back, can resume after an interruption and needs `local_infile` enabled on the target server (`SET GLOBAL local_infile = ON;`)."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "mysqlsh root@localhost --js",
+      "code": "util.dumpSchemas([\"roastery\"], \"/backups/roastery\", { threads: 4 });\n\nutil.loadDump(\"/backups/roastery\", { threads: 4 });"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (abridged)",
+      "content": "Acquiring global read lock\nGlobal read lock acquired\nInitializing - done\n1 schemas will be dumped and within them 3 tables, 0 views.\nGathering information - done\nAll transactions have been started\nLocking instance for backup\nGlobal read lock has been released\nWriting global DDL files\nRunning data dump using 4 threads.\nSchemas dumped: 1\nTables dumped: 3\nRows written: 18"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Binary logs and point-in-time recovery"
+    },
+    {
+      "type": "paragraph",
+      "text": "Since 8.0 the server keeps a *binary log* by default: an append-only record of every change, used for replication and for recovery. A nightly dump plus the binary logs since that dump lets you restore the database to any second, including the one *before* a destructive statement. `SHOW BINARY LOG STATUS` is the 8.2 and later name of the old `SHOW MASTER STATUS`, which 8.4 no longer accepts."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SHOW BINARY LOGS;\n\nSHOW BINARY LOG STATUS;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+-----------+-----------+\n| Log_name      | File_size | Encrypted |\n+---------------+-----------+-----------+\n| binlog.000001 |   3451284 | No        |\n| binlog.000002 |       180 | No        |\n| binlog.000003 |      1573 | No        |\n+---------------+-----------+-----------+\n3 rows in set (0.00 sec)\n\n+---------------+----------+--------------+------------------+-------------------+\n| File          | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |\n+---------------+----------+--------------+------------------+-------------------+\n| binlog.000003 |     1573 |              |                  |                   |\n+---------------+----------+--------------+------------------+-------------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "File names, sizes and positions are specific to your server. To recover, restore the last dump, then replay the log from the position recorded by `--source-data` up to just before the bad statement; `mysqlbinlog` converts the binary format into SQL that the client can execute."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "mysqlbinlog --start-position=1573 --stop-datetime=\"2026-11-14 09:59:00\" \\\n  /var/lib/mysql/binlog.000003 | mysql -u root -p"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Enter password:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Binary logs are purged after `binlog_expire_logs_seconds` (30 days by default); keep that longer than the interval between full backups, or the chain has a gap."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Physical backups and the rules that matter"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a logical dump takes too long, copy the files instead. MySQL Enterprise Backup and Percona XtraBackup copy InnoDB data while the server runs and record the log position; the Clone plugin (`CLONE INSTANCE FROM ...`, 8.0.17 and later) copies a whole running server to another, which is the fastest way to build a replica. A file-system snapshot works only if the server is stopped or the data is flushed and locked first."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Schedule backups and keep at least one copy off the server, ideally off-site.",
+        "Test a restore on a schedule: a backup that has never been restored is an assumption.",
+        "Record how long the backup and the restore take; that number is your recovery time.",
+        "Protect dump files as you protect the database: they contain every row and, with `--all-databases`, every password hash.",
+        "Back up accounts too: either `--all-databases` or a separate dump of the `mysql` database."
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-backup-single-transaction"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "backup-restore-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "backup-restore",
+          "difficulty": "beginner",
+          "question": "How do you restore `roastery.sql` into the database `roastery_restore`?",
+          "explanation": "A dump is plain SQL, so the mysql client executes it. mysqldump only writes dumps; it does not read them.",
+          "options": [
+            "`mysqldump roastery_restore < roastery.sql`",
+            "`mysql -u root -p roastery_restore < roastery.sql`",
+            "`mysql --restore roastery.sql`",
+            "`mysqlbinlog roastery.sql | mysql`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "backup-restore-qc-2",
+          "type": "true-false",
+          "lessonSlug": "backup-restore",
+          "difficulty": "intermediate",
+          "question": "With a nightly mysqldump and the binary logs since that dump, you can restore the database to the moment just before a bad DELETE.",
+          "explanation": "That is point-in-time recovery: restore the dump, then replay the binary log with mysqlbinlog up to the statement you want to exclude.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-backup-single-transaction"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "transactions"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "users-privileges"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "installing-connecting"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Backup and Restore – mysqldump, Shell, Binary Logs",
+    "description": "Back up and restore MySQL with mysqldump and MySQL Shell dump utilities, verify restores, use binary logs for point-in-time recovery and know when to use physical."
+  },
+  "updatedOn": "2026-11-15"
+}

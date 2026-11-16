@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "load-data-in-the-browser",
+  "title": "Load data in the browser",
+  "summary": "clientLoader prepares route data in the browser.",
+  "introduction": "clientLoader prepares route data in the browser. Your task: Create two book records with unique ids.",
+  "learningObjectives": [
+    "Create two book records with unique ids.",
+    "Explain the example for load data in the browser"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "clientLoader prepares route data in the browser. It can read a local public JSON file and return the values a page needs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use React Router 7 framework mode, the continuation of Remix's framework approach. Save files at the shown app paths. Set ssr:false in react-router.config.ts for this browser-only course. React tooling is required."
+    },
+    {
+      "type": "code",
+      "language": "tsx",
+      "code": "// app/routes/books.tsx; also create public/books.json as a JSON array.\nimport {useLoaderData} from \"react-router\";\nexport async function clientLoader(){const response=await fetch(\"/books.json\");if(!response.ok)throw new Error(\"Books could not load\");return response.json();}\nexport default function Books(){const books=useLoaderData<typeof clientLoader>();return <ul>{books.map((book:{id:number;title:string})=><li key={book.id}>{book.title}</li>)}</ul>;}",
+      "title": "Load data in the browser",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`response.ok` checks for a successful HTTP status. A completed fetch can still contain a 404 or another error response.",
+        "`clientLoader` runs route data work in the browser. Return the values that the route component will read."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The route reads the real JSON file and shows one item per book."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Check failed responses. A public JSON file is readable by every visitor and should contain no secrets."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Create two book records with unique ids."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "remix-load-data-in-the-browser-check"
+    }
+  ],
+  "exerciseIds": ["remix-load-data-in-the-browser-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "remix",
+      "slug": "read-an-address-parameter"
+    }
+  ],
+  "seo": {
+    "title": "Remix: Load data in the browser",
+    "description": "clientLoader prepares route data in the browser. It can read a local public JSON file and return the values a page needs."
+  },
+  "updatedOn": "2026-11-16"
+}

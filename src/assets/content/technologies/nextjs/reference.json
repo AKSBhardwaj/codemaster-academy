@@ -1,0 +1,144 @@
+{
+  "title": "Next.js Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Next.js course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Make the home page",
+          "summary": "A page.tsx file defines what a route shows.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/page.tsx\nexport default function Home(){return <main><h1>Reading club</h1><p>Pick a story today.</p></main>;}"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "add-a-second-route",
+          "name": "Add a second route",
+          "summary": "A folder with its own page.tsx makes a route.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/books/page.tsx\nexport default function Books(){return <main><h1>Books</h1><ul><li>Moon Trip</li></ul></main>;}"
+          },
+          "lessonSlug": "add-a-second-route"
+        },
+        {
+          "slug": "move-between-pages-with-link",
+          "name": "Move between pages with Link",
+          "summary": "Next.js Link makes navigation between local routes.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/page.tsx\nimport Link from \"next/link\";\nexport default function Home(){return <main><h1>Reading club</h1><Link href=\"/books\">Read the book list</Link></main>;}"
+          },
+          "lessonSlug": "move-between-pages-with-link"
+        },
+        {
+          "slug": "share-a-root-layout",
+          "name": "Share a root layout",
+          "summary": "A layout wraps pages that belong under it.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/layout.tsx\nimport type { ReactNode } from \"react\";\nexport default function RootLayout({children}:{children:ReactNode}){return <html lang=\"en\"><body><header>Reading club</header>{children}<footer>Keep reading</footer></body></html>;}"
+          },
+          "lessonSlug": "share-a-root-layout"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "add-page-metadata",
+          "name": "Add page metadata",
+          "summary": "Metadata gives a page a browser title and search description.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/books/page.tsx\nexport const metadata={title:\"Books | Reading Club\",description:\"A short list of books for our club.\"};\nexport default function Books(){return <main><h1>Books</h1><p>Moon Trip</p></main>;}"
+          },
+          "lessonSlug": "add-page-metadata"
+        },
+        {
+          "slug": "create-a-browser-counter",
+          "name": "Create a browser counter",
+          "summary": "A Client Component can use browser state and click handlers.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/Counter.tsx\n\"use client\";\nimport {useState} from \"react\";\nexport default function Counter(){const [count,setCount]=useState(0);return <button onClick={()=>setCount(count+1)}>Books: {count}</button>;}"
+          },
+          "lessonSlug": "create-a-browser-counter"
+        },
+        {
+          "slug": "pass-data-to-a-client-part",
+          "name": "Pass data to a client part",
+          "summary": "A server page can pass simple serialisable values into a Client Component.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/Greeting.tsx\n\"use client\";\nexport default function Greeting({name}:{name:string}){return <button onClick={()=>alert(\"Hi, \"+name)}>Greet {name}</button>;}\n\n// app/page.tsx, separate file\nimport Greeting from \"./Greeting\";\nexport default function Home(){return <Greeting name=\"Mia\"/>;}"
+          },
+          "lessonSlug": "pass-data-to-a-client-part"
+        },
+        {
+          "slug": "use-a-local-public-file",
+          "name": "Use a local public file",
+          "summary": "Files in public are served from the site root.",
+          "example": {
+            "language": "tsx",
+            "code": "// Put a real club.svg file in public/club.svg.\n// app/page.tsx\nexport default function Home(){return <main><h1>Our club</h1><img src=\"/club.svg\" width=\"120\" height=\"120\" alt=\"Garden club badge\"/></main>;}"
+          },
+          "lessonSlug": "use-a-local-public-file"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "keep-component-styles-local",
+          "name": "Keep component styles local",
+          "summary": "A CSS module gives a component named classes that are scoped by the build.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/Card.module.css\n// .card { padding: 1rem; border: 1px solid navy; }\n\n// app/page.tsx\nimport styles from \"./Card.module.css\";\nexport default function Home(){return <article className={styles.card}><h1>Book of the week</h1></article>;}"
+          },
+          "lessonSlug": "keep-component-styles-local"
+        },
+        {
+          "slug": "generate-a-small-set-of-book-pages",
+          "name": "Generate a small set of book pages",
+          "summary": "A dynamic route folder uses a value from the address.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/books/[slug]/page.tsx\nexport function generateStaticParams(){return [{slug:\"moon-trip\"},{slug:\"garden-days\"}];}\nexport default async function Book({params}:{params:Promise<{slug:string}>}){const {slug}=await params;return <main><h1>{slug}</h1></main>;}"
+          },
+          "lessonSlug": "generate-a-small-set-of-book-pages"
+        },
+        {
+          "slug": "show-a-helpful-missing-page-message",
+          "name": "Show a helpful missing-page message",
+          "summary": "A not-found file supplies a useful message when the app reaches a missing page.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/not-found.tsx\nimport Link from \"next/link\";\nexport default function NotFound(){return <main><h1>Page not found</h1><p>Try the book list.</p><Link href=\"/books\">Open books</Link></main>;}"
+          },
+          "lessonSlug": "show-a-helpful-missing-page-message"
+        },
+        {
+          "slug": "export-static-site-files",
+          "name": "Export static site files",
+          "summary": "A static export builds files that a static host can serve.",
+          "example": {
+            "language": "typescript",
+            "code": "// next.config.ts\nimport type {NextConfig} from \"next\";\nconst config:NextConfig={output:\"export\"};\nexport default config;\n// Run npm run build. The exported site is written to out/."
+          },
+          "lessonSlug": "export-static-site-files"
+        }
+      ]
+    }
+  ]
+}

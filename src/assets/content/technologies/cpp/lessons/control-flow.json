@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "slug": "control-flow",
+  "title": "Control Flow",
+  "summary": "Make decisions with if/else and switch, repeat work with for, while, do-while and range-based for, and control loops with break and continue.",
+  "introduction": "Programs are interesting because they choose and repeat. C++ offers the same branching and looping statements as C, Java and JavaScript, plus two modern refinements: an `if` that declares its own variable and a range-based `for` that walks any container without index arithmetic. This lesson shows each statement with a small program, then uses them together for the classic FizzBuzz and a loop that needs an early exit.",
+  "learningObjectives": [
+    "Write if/else chains and the C++17 if-with-initialiser form",
+    "Use switch correctly, including break and intentional fallthrough",
+    "Choose between for, while, do-while and range-based for",
+    "Control a loop with break and continue"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "if, else if and else"
+    },
+    {
+      "type": "paragraph",
+      "text": "An `if` statement runs its block when the condition is `true`. Conditions are usually comparisons (`<`, `<=`, `==`, `!=`, `>`, `>=`) combined with `&&` (and), `||` (or) and `!` (not). Any numeric value also works as a condition: zero is false, everything else is true, which is why `if (count)` means \"if count is not zero\". Since C++17 an `if` can declare a variable in an initialiser section; the variable is visible in both branches and nowhere else, which keeps temporary names from leaking into the rest of the function."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "grade.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    int score{72};\n\n    if (score >= 90) {\n        std::cout << \"A\\n\";\n    } else if (score >= 70) {\n        std::cout << \"B\\n\";\n    } else {\n        std::cout << \"C or below\\n\";\n    }\n\n    if (int remainder = score % 10; remainder == 0) {\n        std::cout << \"round number\\n\";\n    } else {\n        std::cout << \"remainder \" << remainder << '\\n';\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra grade.cpp -o grade\n$ ./grade\nB\nremainder 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "Always write the braces, even for a single statement. `if (x) doThis(); doThat();` runs `doThat()` unconditionally, and the indentation will lie to you."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "switch"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you compare one integer or character against several constant values, `switch` reads better than a chain of `else if`. Execution jumps to the matching `case` label and then **keeps going** until it meets a `break`, so every case normally ends with one. `default` handles everything else."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "calculator.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    char op{'*'};\n    int a{6};\n    int b{7};\n\n    switch (op) {\n        case '+':\n            std::cout << a + b << '\\n';\n            break;\n        case '*':\n            std::cout << a * b << '\\n';\n            break;\n        case '/':\n            if (b == 0) {\n                std::cout << \"cannot divide by zero\\n\";\n                break;\n            }\n            std::cout << a / b << '\\n';\n            break;\n        default:\n            std::cout << \"unknown operator\\n\";\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra calculator.cpp -o calculator\n$ ./calculator\n42"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: the missing break",
+      "text": "Leave out the `break` after `case '+':` and a `+` would print the sum **and then** the product, because control falls through into the next case. Compilers warn about this with `-Wimplicit-fallthrough` (part of `-Wextra`). When you genuinely want two cases to share code, write the labels back to back (`case 'a': case 'A':`) or mark the fall-through with `[[fallthrough]];` so readers and the compiler know it is intentional. A related slip is `if (x = 5)` instead of `if (x == 5)`: the first assigns 5 and is always true; `-Wall` warns, and some teams write `if (5 == x)` to make the typo a compile error."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "for and range-based for"
+    },
+    {
+      "type": "paragraph",
+      "text": "The classic `for` loop has three parts: an initialiser, a condition checked before every iteration, and a step. The **range-based** `for` (`for (int t : temperatures)`) walks every element of a container, array or string without an index, which removes the off-by-one errors that indexed loops invite. Use the classic form when you need the index itself or a step other than one."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "fizzbuzz.cpp",
+      "code": "#include <iostream>\n#include <vector>\n\nint main() {\n    for (int i = 1; i <= 15; ++i) {\n        if (i % 15 == 0) {\n            std::cout << \"FizzBuzz\";\n        } else if (i % 3 == 0) {\n            std::cout << \"Fizz\";\n        } else if (i % 5 == 0) {\n            std::cout << \"Buzz\";\n        } else {\n            std::cout << i;\n        }\n        std::cout << (i < 15 ? ' ' : '\\n');\n    }\n\n    std::vector<int> temperatures{21, 25, 19, 30};\n    int sum{};\n    for (int t : temperatures) {\n        sum += t;\n    }\n    std::cout << \"average: \" << static_cast<double>(sum) / temperatures.size() << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra fizzbuzz.cpp -o fizzbuzz\n$ ./fizzbuzz\n1 2 Fizz 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz 13 14 FizzBuzz\naverage: 23.75"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two details: the test for 15 must come first, because a multiple of 15 is also a multiple of 3, and `condition ? a : b` is the conditional operator, an expression that picks one of two values; here it prints a space between numbers and a newline after the last one. `std::vector` is the standard growable array; the [containers lesson](/tutorials/cpp/stl-containers) covers it fully."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "while, do-while, break and continue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`while` repeats as long as its condition holds and is the right choice when you do not know the iteration count in advance. `do ... while` checks the condition *after* each pass, so the body always runs at least once, which suits \"ask until the input is valid\" loops. Inside any loop, `continue` skips to the next iteration and `break` leaves the loop entirely."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "loops.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    int n{27};\n    int steps{};\n    while (n != 1) {\n        n = (n % 2 == 0) ? n / 2 : 3 * n + 1;\n        ++steps;\n    }\n    std::cout << \"27 reaches 1 in \" << steps << \" steps\\n\";\n\n    for (int i = 0; i < 10; ++i) {\n        if (i % 2 == 0) continue;   // skip even numbers\n        if (i > 7) break;           // stop after 7\n        std::cout << i << '\\n';\n    }\n\n    int attempts{};\n    do {\n        ++attempts;\n    } while (attempts < 3);\n    std::cout << \"attempts: \" << attempts << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra loops.cpp -o loops\n$ ./loops\n27 reaches 1 in 111 steps\n1\n3\n5\n7\nattempts: 3"
+    },
+    {
+      "type": "table",
+      "headers": ["Statement", "Use it when"],
+      "rows": [
+        ["`for (init; cond; step)`", "You know the count or need the index"],
+        ["`for (auto x : range)`", "You want every element of a container, array or string"],
+        ["`while (cond)`", "The count is unknown; possibly zero iterations"],
+        ["`do { } while (cond);`", "The body must run at least once (input validation)"],
+        ["`switch`", "One integer or char compared against several constants"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Prefer ++i",
+      "text": "`++i` and `i++` both add one, but `i++` must keep a copy of the old value to return it. For `int` the compiler optimises the difference away; for iterators it may not, so C++ programmers write `++i` by habit when the old value is not used."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-control-switch-break"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-control-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "control-flow",
+          "difficulty": "beginner",
+          "question": "What does this loop print?",
+          "explanation": "`continue` skips the rest of the body when `i` is 2, so only 1, 3 and 4 are printed before the loop ends.",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    for (int i = 1; i <= 4; ++i) {\n        if (i == 2) continue;\n        std::cout << i;\n    }\n}",
+          "options": ["1234", "134", "1", "34"],
+          "correctIndex": 1
+        },
+        {
+          "id": "cpp-control-qc-2",
+          "type": "true-false",
+          "lessonSlug": "control-flow",
+          "difficulty": "beginner",
+          "question": "The body of a `do ... while` loop always executes at least once.",
+          "explanation": "The condition is evaluated after the body, so the first pass happens regardless of the condition's value.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-control-switch-break", "cpp-control-fizzbuzz"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "loops"
+    }
+  ],
+  "seo": {
+    "title": "C++ Control Flow – if, switch, for, while, range-for",
+    "description": "Branch and loop in C++ with if/else, if with initialiser, switch and break, for, while, do-while and range-based for loops, with a FizzBuzz walkthrough."
+  },
+  "updatedOn": "2026-11-15"
+}

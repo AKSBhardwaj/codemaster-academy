@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "give-navigation-an-offline-fallback",
+  "title": "Give navigation an offline fallback",
+  "summary": "A fetch handler can try the network first and use a saved page when that request fails.",
+  "introduction": "A fetch handler can try the network first and use a saved page when that request fails. Your task: Use the browser offline setting and reload a controlled page.",
+  "learningObjectives": [
+    "Use the browser offline setting and reload a controlled page.",
+    "Explain the example for give navigation an offline fallback"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A fetch handler can try the network first and use a saved page when that request fails. Limit the rule to the kind of request you intend to handle."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples belong in separate files on your own HTTPS or localhost site. Service workers need that trusted origin and cannot run in this site's sandbox. Use browser developer tools to inspect them."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// Add to sw.js after the install handler.\nself.addEventListener(\"fetch\", event => {\n  if (event.request.mode === \"navigate\") {\n    event.respondWith(fetch(event.request).catch(async () => {\n      return await caches.match(\"/offline.html\") || new Response(\"You are offline.\", {headers:{\"Content-Type\":\"text/plain\"}});\n    }));\n  }\n});",
+      "title": "Give navigation an offline fallback",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`addEventListener` waits for the named event before calling the function you pass to it.",
+        "`respondWith` supplies the response for an intercepted request. The promise must resolve to a usable Response."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Page navigation uses the network when available. If it fails, a cached offline page or a plain message is returned."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A fallback page does not make every page or every data request available offline."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Use the browser offline setting and reload a controlled page."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "progressive-web-apps-give-navigation-an-offline-fallback-check"
+    }
+  ],
+  "exerciseIds": ["progressive-web-apps-give-navigation-an-offline-fallback-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "progressive-web-apps",
+      "slug": "install-an-offline-page"
+    }
+  ],
+  "seo": {
+    "title": "Progressive Web Apps: Give navigation an offline fallback",
+    "description": "A fetch handler can try the network first and use a saved page when that request fails. Limit the rule to the kind of request you intend to handle."
+  },
+  "updatedOn": "2026-11-16"
+}

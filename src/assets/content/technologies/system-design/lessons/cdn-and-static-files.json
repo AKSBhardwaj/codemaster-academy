@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "slug": "cdn-and-static-files",
+  "title": "CDNs and static files",
+  "summary": "Use a content delivery network to bring public files closer to readers. Plan cache headers, versioned names, and safe rules for private responses.",
+  "introduction": "Imagine each town library keeps a copy of the same public poster. Visitors can read the nearest copy. A content delivery network uses a similar idea for files such as pictures, styles, and public web pages.",
+  "learningObjectives": [
+    "Explain the job of an origin and a CDN edge",
+    "Trace a public file on a cache miss and a cache hit",
+    "Use versioned file names without exposing private data"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **content delivery network**, or **CDN**, has servers in several locations. An **edge** is a server near some readers. The **origin** is the place the CDN asks for a file when it needs a copy."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Static files** are saved files sent as they are, such as a book-cover picture or a style sheet. They are good CDN candidates when the same public content can be shared by many readers."
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser also has a cache. Cache headers tell browsers and shared caches how an answer may be reused. Public caching is a choice for suitable content; it must not happen accidentally to a learner's private page."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The site links to a public cover named moon-cover-v1.webp.",
+        "The first reader's nearest edge has no copy. It fetches the file from the origin and keeps a copy according to the cache rules.",
+        "The next matching request can use the edge copy while it is fresh.",
+        "For a new cover, publish moon-cover-v2.webp and update the page link. Keep the old file for pages that still link to it."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "PUBLIC COVER\nPath: /covers/moon-cover-v1.webp\nCache-Control: public, max-age=86400\nFirst request: edge miss -> origin -> edge -> reader\nLater fresh request: edge hit -> reader\n\nUPDATED COVER\nPath: /covers/moon-cover-v2.webp\nUpdate the page to use the new path.\n\nPRIVATE BORROWING HISTORY\nCache-Control: private, no-store\nNever place the response in a shared public cache.",
+      "title": "CDNs and static files plan",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "86,400 seconds is one day. This example allows a fresh public cover to be reused for that time. It is a sample policy, not a rule for every file."
+    },
+    {
+      "type": "paragraph",
+      "text": "A versioned name gives changed bytes a new address. The page that points to the new address also needs a freshness rule. An old cached page can still point to the old file."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "CDN for public covers",
+          "Often reduces travel and origin work",
+          "The first miss may still need the origin"
+        ],
+        [
+          "Versioned file names",
+          "Makes changed file addresses clear",
+          "Old links must keep working during a rollout"
+        ],
+        [
+          "Short cache for the page",
+          "Helps readers discover new file links sooner",
+          "Adds more refresh work than a long cache"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the origin fails, a fresh edge copy may still be served. Missing or expired files need explicit failure or stale-serving rules. A CDN is not a promise that every page works during every outage."
+    },
+    {
+      "type": "paragraph",
+      "text": "A cache key decides which requests share an answer. Consider the path, query, language, and any allowed variation. Do not share a private response by mistake because its key forgot who may see it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A cover changes again. Pick its next versioned name and name one other thing to update.",
+        "Use moon-cover-v3.webp and update the page link. Keep older files while old pages may still request them."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not cache private borrowing history as a public answer. A fast leak is still a leak; access rules and cache rules must agree."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-cdn-and-static-files"
+    }
+  ],
+  "exerciseIds": ["system-design-cdn-and-static-files"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "caches-keep-useful-copies"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "follow-one-request"
+    }
+  ],
+  "seo": {
+    "title": "System Design: CDNs and static files",
+    "description": "Use a content delivery network to bring public files closer to readers. Plan cache headers, versioned names, and safe rules for private responses."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "slug": "data-types",
+  "title": "Data Types",
+  "summary": "C's integer, floating-point, character and boolean types: their sizes, limits, printf format specifiers, conversions, and the traps of integer division and signed/unsigned mixing.",
+  "introduction": "Every value in C has a type, and the type decides how many bytes it uses, which values it can hold and what arithmetic on it means. Unlike dynamic languages, C never guesses: 7 / 2 is 3 because both operands are integers, and an unsigned counter that drops below zero wraps around to a huge number. This lesson tours the built-in types, shows how to print each one, and explains the conversion rules behind most beginner surprises.",
+  "learningObjectives": [
+    "Choose between int, long, unsigned and fixed-width integer types",
+    "Explain why floating-point values are approximate and format them with printf",
+    "Treat char and bool as the small integers they are",
+    "Predict the result of integer division, casts and mixed signed/unsigned arithmetic"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Integer types"
+    },
+    {
+      "type": "paragraph",
+      "text": "C offers several integer types that differ in size, and the standard fixes only minimum ranges: `char` is at least 8 bits, `short` and `int` at least 16, `long` at least 32 and `long long` at least 64. On the 64-bit Linux and macOS systems most people use, `int` is 4 bytes and `long` is 8; on 64-bit Windows `long` is only 4 bytes. Each type has an `unsigned` variant that gives up negative numbers to double the positive range. The `sizeof` operator reports a size in bytes, and `<limits.h>` names the limits of every type."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "sizes.c",
+      "code": "#include <stdio.h>\n#include <limits.h>\n\nint main(void)\n{\n    printf(\"char      %zu byte(s)\\n\", sizeof(char));\n    printf(\"short     %zu byte(s)\\n\", sizeof(short));\n    printf(\"int       %zu byte(s)\\n\", sizeof(int));\n    printf(\"long      %zu byte(s)\\n\", sizeof(long));\n    printf(\"long long %zu byte(s)\\n\", sizeof(long long));\n    printf(\"INT_MAX   %d\\n\", INT_MAX);\n    printf(\"UINT_MAX  %u\\n\", UINT_MAX);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (x86-64 Linux; long is 4 bytes on Windows)",
+      "content": "char      1 byte(s)\nshort     2 byte(s)\nint       4 byte(s)\nlong      8 byte(s)\nlong long 8 byte(s)\nINT_MAX   2147483647\nUINT_MAX  4294967295"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the exact size matters, for example in file formats or network protocols, use the fixed-width types from `<stdint.h>`: `int8_t`, `uint8_t`, `int32_t`, `uint64_t` and friends. `size_t` is the unsigned type that `sizeof` produces and that can hold any array index; print it with `%zu`. Each type needs the matching `printf` conversion, and the compiler's `-Wall` warnings tell you when they disagree."
+    },
+    {
+      "type": "table",
+      "headers": ["Specifier", "Type", "Example output"],
+      "rows": [
+        ["`%d`", "`int`", "`-42`"],
+        ["`%u`", "`unsigned int`", "`42`"],
+        ["`%ld` / `%lld`", "`long` / `long long`", "`9000000000`"],
+        ["`%zu`", "`size_t`", "`8`"],
+        [
+          "`%f` / `%.2f`",
+          "`double` (a `float` argument is promoted to `double`)",
+          "`3.141593` / `3.14`"
+        ],
+        ["`%e`", "`double` in scientific notation", "`1.500000e+03`"],
+        ["`%c`", "`char` printed as a character", "`A`"],
+        ["`%s`", "string (a `char` array ending in zero)", "`hello`"],
+        ["`%x`", "unsigned value in hexadecimal", "`ff`"],
+        ["`%p`", "pointer (an address; the value varies per run)", "`0x7ffd5c3e2a4c`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Floating-point types"
+    },
+    {
+      "type": "paragraph",
+      "text": "`float` (usually 32 bits, about 7 significant digits) and `double` (64 bits, about 15 to 16 digits) store binary approximations of real numbers. Many decimal fractions, 0.1 among them, have no exact binary representation, so arithmetic accumulates tiny errors. Use `double` by default; `float` only pays off in large arrays. Never compare floating-point results with `==`; compare the difference against a small tolerance instead."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "floating.c",
+      "code": "#include <stdio.h>\n#include <math.h>\n\nint main(void)\n{\n    double a = 0.1 + 0.2;\n\n    printf(\"%.1f\\n\", a);                /* rounded for display */\n    printf(\"%.17f\\n\", a);               /* what is really stored */\n    printf(\"equal: %d\\n\", a == 0.3);    /* 1 would mean true */\n    printf(\"close: %d\\n\", fabs(a - 0.3) < 1e-9);\n\n    float f = 1.0f / 3.0f;\n    printf(\"float  %.10f\\n\", f);\n    printf(\"double %.10f\\n\", 1.0 / 3.0);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 floating.c -o floating -lm\n$ ./floating\n0.3\n0.30000000000000004\nequal: 0\nclose: 1\nfloat  0.3333333433\ndouble 0.3333333333"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `-lm` flag links the maths library, which some Linux systems need for `<math.h>` functions such as `fabs`, `sqrt` and `pow`. The literal `1.0f` is a `float`; without the suffix every decimal literal is a `double`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Characters and booleans"
+    },
+    {
+      "type": "paragraph",
+      "text": "`char` is a one-byte integer type that usually holds a character code. The literal `'A'` is simply the number 65 in ASCII, so arithmetic works on it: `'A' + 1` is 66, which prints as `B`. Whether plain `char` is signed or unsigned depends on the platform, so use `unsigned char` when you treat bytes as numbers from 0 to 255. The boolean type `_Bool` is spelled `bool` after `#include <stdbool.h>`, with the constants `true` and `false`; in C23 `bool`, `true` and `false` are keywords and the header is no longer required."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "chars.c",
+      "code": "#include <stdio.h>\n#include <stdbool.h>\n\nint main(void)\n{\n    char letter = 'A';\n    bool big = 10 > 3;\n\n    printf(\"%c is %d\\n\", letter, letter);\n    printf(\"next: %c\\n\", letter + 1);\n    printf(\"lower: %c\\n\", letter + ('a' - 'A'));\n    printf(\"big = %d\\n\", big);\n    printf(\"sizeof(bool) = %zu\\n\", sizeof(bool));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "A is 65\nnext: B\nlower: a\nbig = 1\nsizeof(bool) = 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Conversions and casts"
+    },
+    {
+      "type": "paragraph",
+      "text": "When an expression mixes types, C converts the operands to a common type before computing. Two rules cause most surprises. First, an operation on two integers is an integer operation: `7 / 2` is 3, and the remainder is available separately as `7 % 2`. Second, when a signed value meets an unsigned value of the same size, the signed one is converted to unsigned. A **cast**, written `(type)value`, converts explicitly, and the standard way to get a fractional result from two integers is to cast one operand *before* dividing. Converting a `double` to an integer truncates towards zero; it does not round."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "convert.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int a = 7, b = 2;\n\n    printf(\"%d\\n\", a / b);             /* integer division */\n    printf(\"%d\\n\", a % b);             /* remainder */\n    printf(\"%.1f\\n\", (double)a / b);   /* cast first: 3.5 */\n    printf(\"%.1f\\n\", (double)(a / b)); /* cast too late: 3.0 */\n\n    double d = 9.99;\n    int truncated = d;                 /* fraction dropped, not rounded */\n    printf(\"%d\\n\", truncated);\n\n    unsigned int u = 0;\n    u = u - 1;                         /* wraps around */\n    printf(\"%u\\n\", u);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "3\n1\n3.5\n3.0\n9\n4294967295"
+    },
+    {
+      "type": "paragraph",
+      "text": "Unsigned arithmetic wraps around by definition, which is well defined and occasionally useful. Signed overflow, such as adding 1 to `INT_MAX`, is **undefined behaviour**: the compiler may assume it never happens and optimise accordingly. The [common bugs](/tutorials/c/common-bugs) lesson shows how to check for it safely."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: comparing signed with unsigned",
+      "text": "In `if (n < limit)` where `n` is `int` and `limit` is `unsigned int`, a negative `n` is converted to unsigned first, so `-1` becomes 4294967295 and the comparison is false. Loops written as `for (int i = 0; i < strlen(s) - 1; i++)` fail the same way when the string is empty. `-Wextra` enables `-Wsign-compare`, which flags every such comparison; the fix is to make both sides the same type."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "signed.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int n = -1;\n    unsigned int limit = 1;\n\n    if (n < limit)\n        printf(\"n is smaller\\n\");\n    else\n        printf(\"n is NOT smaller: it became %u\\n\", n);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 signed.c -o signed\nsigned.c: In function 'main':\nsigned.c:8:11: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]\n    8 |     if (n < limit)\n      |           ^\n$ ./signed\nn is NOT smaller: it became 4294967295"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-types-integer-division"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-types-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "What does this statement print?",
+          "explanation": "`9 / 4` is integer division and gives 2; multiplying by 2 gives 4. The fraction is lost before the multiplication.",
+          "language": "c",
+          "code": "printf(\"%d\\n\", 9 / 4 * 2);",
+          "options": ["`4`", "`4.5`", "`2`", "`5`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "c-types-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "Which header provides the fixed-width types `int32_t` and `uint8_t`?",
+          "explanation": "`<stdint.h>` defines the exact-width integer types. `<limits.h>` holds limits such as `INT_MAX`, and `<stdbool.h>` defines `bool`.",
+          "options": ["`<limits.h>`", "`<stdint.h>`", "`<stdbool.h>`", "`<stdio.h>`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-types-integer-division", "c-types-sizeof-fixed"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "operators-control-flow"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "data-types"
+    }
+  ],
+  "seo": {
+    "title": "C Data Types – int, double, char, bool and Casts",
+    "description": "Learn C data types: integer sizes and limits, floating-point precision, char and bool, printf specifiers, casts, integer division and signed/unsigned traps."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "slug": "security-and-privacy",
+  "title": "Security and privacy in a design",
+  "summary": "Protect private facts at each boundary. Learn identity checks, permissions, safe inputs, and why a design should collect only the data it needs.",
+  "introduction": "A school noticeboard may show book titles, but it should not show every pupil's reading history. A good design decides which facts are public, who may use private facts, and how to protect them.",
+  "learningObjectives": [
+    "Distinguish identity checks from permission checks",
+    "Mark public and private data in a plan",
+    "Explain why checks belong in the service too"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Decide what needs protection"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Security** protects a system against misuse and mistakes. **Privacy** is about handling people's information with care. Start by listing the facts the service truly needs."
+    },
+    {
+      "type": "paragraph",
+      "text": "The library needs a book title to help people search. It does not need a reader's home address for that search. Collecting fewer private facts reduces both risk and work."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Identity and permission are different checks"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Authentication** asks, \"Who is making this request?\" **Authorization** asks, \"May this person do this action?\" Knowing someone's name does not mean they may read every other reader's loans."
+    },
+    {
+      "type": "paragraph",
+      "text": "These checks describe a possible library service. You do not need an account to read this tutorial or run its small browser models."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "Loan-history design boundary\nPublic: book titles and shelf locations\nPrivate: which reader borrowed which copy\n\nRequest: GET /readers/me/loans\n1. Use HTTPS for the connection.\n2. The service checks the caller's identity.\n3. The service checks permission to read these loans.\n4. Read only this reader's permitted loan records.\n5. Return only fields needed by the screen.\n\nLog: request r52, action=list-loans, result=allowed\nDo not log: password, access token, full loan history\nStorage rule: keep records only as long as the policy needs",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow the boundary"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Mark the boundary between the browser and the service. Treat requests crossing it as untrusted input.",
+        "Check the caller and the exact record they want. A different record ID must not bypass the permission check.",
+        "Check input type, length, and allowed values. For database queries, bind values as parameters instead of joining raw input into SQL text.",
+        "Return the smallest useful reply. Keep private fields out of public book-search results."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "**HTTPS** protects data while it travels. It does not decide who may read a record. Encryption and permission checks solve different parts of the problem."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use the smallest needed permission"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Least privilege** means giving each person or program only the access needed for its job. A book-search service may need to read public titles but should not be able to delete all loans."
+    },
+    {
+      "type": "paragraph",
+      "text": "Secret keys and database passwords belong in protected service settings, not in browser JavaScript or a public repository. Anything sent to a browser can be inspected by that browser's user."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a trusted identity system when a real app needs sign-in. Password storage, account recovery, and session protection need careful handling; they are not jobs for a made-up encryption trick."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Plan for mistakes and abuse"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Limit large or repeated requests so one caller cannot take all capacity.",
+        "Update dependencies and check security fixes.",
+        "Protect backups and logs, not only the main database.",
+        "Decide how readers can correct or remove their data, including how long backup copies remain."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A threat review asks simple questions: What could go wrong? Who could see this fact? What happens if this link is shared? Review both accidental exposure and deliberate misuse."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Imagine the browser hides the \"Delete loan\" button from ordinary readers. Is that enough?",
+        "No. Someone can send a request without using the button. The service must check the caller's permission before deleting the loan."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not treat a hidden button, a guessed record ID, or HTTPS as a replacement for checking permission on the service."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-security-and-privacy"
+    }
+  ],
+  "exerciseIds": ["system-design-security-and-privacy"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "rate-limits-and-backpressure"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "design-a-library"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Security and privacy in a design",
+    "description": "Protect private facts at each boundary. Learn identity checks, permissions, safe inputs, and why a design should collect only the data it needs."
+  },
+  "updatedOn": "2026-11-16"
+}

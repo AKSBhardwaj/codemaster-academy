@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read query data",
+  "summary": "Phoenix: Read query data. Leave out q. Try a small example and check what happens.",
+  "introduction": "The params map includes query values. Open GET /search?q=cat.",
+  "learningObjectives": ["Read query data with Phoenix", "Leave out q"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read query data"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Read query data",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/search\", LessonController, :search\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef search(conn, params), do: json(conn, %{term: Map.get(params, \"q\", \"\")})\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Map.get finds q in the parameter map and returns cat."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\":\"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Leave out q."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Query values are untrusted text."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-query-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "path-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Read query data",
+    "description": "Phoenix: Read query data. Leave out q. Try a small example and check what happens. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

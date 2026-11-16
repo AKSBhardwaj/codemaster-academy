@@ -1,0 +1,138 @@
+{
+  "title": "Firebase Firestore Small Examples",
+  "description": "Use these small Firebase Firestore examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Meet collections and documents",
+      "description": "A collection groups documents. Each document has an id and named fields, such as a book title and page count.",
+      "language": "json",
+      "code": "{\"collection\":\"books\",\"documentId\":\"moon-trip\",\"fields\":{\"title\":\"Moon Trip\",\"pages\":60}}",
+      "output": "This worked model describes the document at books/moon-trip. The wrapper is an explanation, not an SDK write command.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "start-a-local-emulator",
+      "title": "Start a local emulator",
+      "description": "An emulator imitates the service on your own computer.",
+      "language": "bash",
+      "code": "npx firebase-tools init emulators\nnpx firebase-tools emulators:start --only firestore --project demo-reading-club",
+      "output": "After choosing Firestore during setup, the local emulator starts. Configure its rules file for the sample books collection.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "start-a-local-emulator"
+    },
+    {
+      "id": "write-a-named-document",
+      "title": "Write a named document",
+      "description": "setDoc writes fields at a document path you choose.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,setDoc,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nawait setDoc(doc(db,\"books\",\"moon-trip\"),{title:\"Moon Trip\",pages:60});",
+      "output": "With local rules allowing the sample write, books/moon-trip contains the two fields.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-a-named-document"
+    },
+    {
+      "id": "read-one-document",
+      "title": "Read one document",
+      "description": "getDoc reads a document snapshot. Check exists before reading fields, because the requested document may not be there.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,getDoc,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst snapshot=await getDoc(doc(db,\"books\",\"moon-trip\"));\nconsole.log(snapshot.exists()?snapshot.data().title:\"No book at this path\");",
+      "output": "After the write lesson, this prints Moon Trip. A missing document prints the fallback.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-one-document"
+    },
+    {
+      "id": "let-firestore-choose-an-id",
+      "title": "Let Firestore choose an id",
+      "description": "addDoc adds a document to a collection with an automatically made id.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,addDoc,collection} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst reference=await addDoc(collection(db,\"books\"),{title:\"Garden Days\",pages:40});\nconsole.log(reference.id);",
+      "output": "A new local sample document is created, and its generated id is logged.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "let-firestore-choose-an-id"
+    },
+    {
+      "id": "change-selected-fields",
+      "title": "Change selected fields",
+      "description": "updateDoc changes named fields while leaving other fields alone.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,updateDoc,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nawait updateDoc(doc(db,\"books\",\"moon-trip\"),{pages:64});",
+      "output": "The existing moon-trip document keeps its title and changes pages to 64.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "change-selected-fields"
+    },
+    {
+      "id": "ask-for-matching-documents",
+      "title": "Ask for matching documents",
+      "description": "A query applies a rule to a collection. getDocs returns snapshots for documents that match that rule.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,query,collection,where,getDocs} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst request=query(collection(db,\"books\"),where(\"pages\",\">=\",50));\nconst result=await getDocs(request);\nresult.forEach(item=>console.log(item.id,item.data().title));",
+      "output": "Only local books with pages at least 50 are returned.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "ask-for-matching-documents"
+    },
+    {
+      "id": "sort-and-limit-a-query",
+      "title": "Sort and limit a query",
+      "description": "orderBy sorts query results by a field. limit caps how many documents are returned.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,query,collection,orderBy,limit,getDocs} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst request=query(collection(db,\"books\"),orderBy(\"pages\"),limit(2));\nconst result=await getDocs(request);\nresult.forEach(item=>console.log(item.data().pages));",
+      "output": "At most two documents are returned, from the smallest page counts upward.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "sort-and-limit-a-query"
+    },
+    {
+      "id": "listen-for-local-updates",
+      "title": "Listen for local updates",
+      "description": "onSnapshot sends the current result and later changes.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,onSnapshot,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst stop=onSnapshot(doc(db,\"books\",\"moon-trip\"),snapshot=>{console.log(snapshot.exists()?snapshot.data():\"Missing\");},error=>console.log(\"Could not listen:\",error.code));\n// Call stop() when this page part is removed.",
+      "output": "The callback receives the current document and later allowed updates while listening.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "listen-for-local-updates"
+    },
+    {
+      "id": "group-writes-in-a-batch",
+      "title": "Group writes in a batch",
+      "description": "A write batch applies several writes together.",
+      "language": "javascript",
+      "code": "import {initializeApp} from \"firebase/app\";\nimport {getFirestore,connectFirestoreEmulator,writeBatch,doc} from \"firebase/firestore\";\nconst app=initializeApp({projectId:\"demo-reading-club\"});\nconst db=getFirestore(app);connectFirestoreEmulator(db,\"127.0.0.1\",8080);\nconst batch=writeBatch(db);\nbatch.set(doc(db,\"books\",\"seed-story\"),{title:\"Seed Story\",pages:20});\nbatch.set(doc(db,\"books\",\"rain-story\"),{title:\"Rain Story\",pages:24});\nawait batch.commit();",
+      "output": "Both local sample books are written together when the rules allow both writes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "group-writes-in-a-batch"
+    },
+    {
+      "id": "keep-local-practice-rules-narrow",
+      "title": "Keep local practice rules narrow",
+      "description": "Security rules decide which client reads and writes are allowed.",
+      "language": "text",
+      "code": "rules_version = '2';\nservice cloud.firestore {\n match /databases/{database}/documents {\n  match /books/{bookId} {\n   allow read: if true;\n   allow create, update: if request.resource.data.keys().hasOnly(['title','pages']) && request.resource.data.title is string && request.resource.data.pages is int && request.resource.data.pages > 0;\n   allow delete: if false;\n  }\n }\n}",
+      "output": "In the emulator, anyone using this demo client can read the books and write valid sample fields. Other collection access remains denied.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-local-practice-rules-narrow"
+    },
+    {
+      "id": "treat-stored-data-as-input",
+      "title": "Treat stored data as input",
+      "description": "A database record can have a shape your UI does not expect.",
+      "language": "javascript",
+      "code": "function bookLabel(data){\n if(!data || typeof data.title!==\"string\" || typeof data.pages!==\"number\")return \"Book data is incomplete\";\n return `${data.title}: ${data.pages} pages`;\n}\nconsole.log(bookLabel({title:\"Moon Trip\",pages:60}));\nconsole.log(bookLabel({title:\"Missing pages\"}));",
+      "output": "The first line describes the book, and the second gives an incomplete-data message.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "treat-stored-data-as-input"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "group-commands-with-multi",
+  "title": "Group commands with MULTI",
+  "summary": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them.",
+  "introduction": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them. Your task: Explain the final value after EXEC.",
+  "learningObjectives": [
+    "Explain the final value after EXEC.",
+    "Explain the example for group commands with multi"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Redis server and redis-cli. Commands here use cma: practice keys only. Redis commands do not run in the site's SQLite playground. Do not connect these exercises to a production database."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "MULTI\nSET cma:points 2\nINCR cma:points\nEXEC",
+      "title": "Group commands with MULTI",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`INCR` adds one to an integer string value as a single Redis operation.",
+        "`MULTI` queues Redis commands for EXEC. It does not provide SQL-style rollback of all runtime failures."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "EXEC returns the results of setting the value and incrementing it to 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Redis transactions do not provide SQL-style rollback of commands that fail during execution. Validate the operations you queue."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain the final value after EXEC."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "redis-group-commands-with-multi-check"
+    }
+  ],
+  "exerciseIds": ["redis-group-commands-with-multi-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "redis",
+      "slug": "scan-keys-in-small-batches"
+    }
+  ],
+  "seo": {
+    "title": "Redis: Group commands with MULTI",
+    "description": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them."
+  },
+  "updatedOn": "2026-11-16"
+}

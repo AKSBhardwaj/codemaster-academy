@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "broadcast",
+  "title": "Send to connected clients",
+  "summary": "WebSockets: Send to connected clients. Change the message sent by the client.",
+  "introduction": "A broadcast visits each connected client. Only open sockets are ready to send.",
+  "learningObjectives": [
+    "Send to connected clients with WebSockets",
+    "Change the message sent by the client"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send to connected clients"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Send to connected clients",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => socket.on(\"message\", data => { for (const peer of server.clients) { if (peer.readyState === WebSocket.OPEN) peer.send(\"News: \" + data.toString()); } }));\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => client.send(\"Hello\"));\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The server loops over connected open peers and sends the news message to each, including this client."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "News: Hello"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the message sent by the client."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A disconnected socket is not ready for a send."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-broadcast-check"
+    }
+  ],
+  "exerciseIds": ["websockets-broadcast-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "field-checks"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Send to connected clients",
+    "description": "WebSockets: Send to connected clients. Change the message sent by the client. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-a-window-reference",
+  "title": "Keep a window reference",
+  "summary": "The main process can keep a reference to its window and clear it when the window is closed.",
+  "introduction": "The main process can keep a reference to its window and clear it when the window is closed. Your task: Identify when the reference is cleared.",
+  "learningObjectives": [
+    "Identify when the reference is cleared.",
+    "Explain the example for keep a window reference"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "The main process can keep a reference to its window and clear it when the window is closed. This helps manage the app lifecycle."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Electron project with electron installed as a dev dependency and main.cjs as its main file. Run with npx electron . after creating package.json and index.html. These APIs do not run in a web-page playground."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "let mainWindow;\nfunction createWindow(){\n  mainWindow=new BrowserWindow({webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});\n  mainWindow.loadFile(\"index.html\");\n  mainWindow.on(\"closed\",()=>{mainWindow=null;});\n}\n// Call createWindow after app.whenReady; import BrowserWindow in main.cjs.",
+      "title": "Keep a window reference",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`contextIsolation: true` separates preload context from page script context. Keep `nodeIntegration` off for the renderer."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The variable points to the open window and becomes null after that window closes."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Check that a window still exists before sending messages to it after asynchronous work."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Identify when the reference is cleared."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "electron-keep-a-window-reference-check"
+    }
+  ],
+  "exerciseIds": ["electron-keep-a-window-reference-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "electron",
+      "slug": "prevent-unexpected-navigation"
+    }
+  ],
+  "seo": {
+    "title": "Electron: Keep a window reference",
+    "description": "The main process can keep a reference to its window and clear it when the window is closed. This helps manage the app lifecycle."
+  },
+  "updatedOn": "2026-11-16"
+}

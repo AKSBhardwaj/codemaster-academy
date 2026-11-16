@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "slug": "methods",
+  "title": "Methods",
+  "summary": "Define methods with parameters and return values, call them, overload them, accept a variable number of arguments, write recursive methods and understand pass-by-value.",
+  "introduction": "A method is a named block of code that does one job: it takes inputs, does work and hands back a result. Methods let you reuse logic instead of copying it, give a readable name to a calculation, and test one piece of behaviour on its own. In this lesson you write static methods with parameters and return types, overload a method name for different inputs, accept any number of arguments, call a method from itself, and learn the rule that confuses most newcomers: Java always passes arguments by value, even when the value is a reference to an object.",
+  "learningObjectives": [
+    "Define and call methods with parameters and return values",
+    "Overload a method name and use varargs for flexible argument lists",
+    "Explain what happens to primitives and object references passed to a method",
+    "Write a simple recursive method with a base case"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Defining and calling a method"
+    },
+    {
+      "type": "paragraph",
+      "text": "A method declaration has a **return type** (or `void` when it returns nothing), a **name**, a parenthesised list of **parameters** with their types, and a body. Calling the method means writing its name with **arguments** in the same order as the parameters. The `static` keyword means the method belongs to the class rather than to an object; it is what lets `main`, which is itself static, call these methods directly. The [Classes and Objects](/tutorials/java/classes-objects) lesson introduces non-static methods."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Geometry.java",
+      "code": "public class Geometry {\n    static double circleArea(double radius) {\n        return Math.PI * radius * radius;\n    }\n\n    static void greet(String name) {\n        System.out.println(\"Hello, \" + name + \"!\");\n    }\n\n    public static void main(String[] args) {\n        greet(\"Ada\");\n        greet(\"Linus\");\n        double area = circleArea(2.0);\n        System.out.printf(\"Area of a circle with radius 2: %.2f%n\", area);\n        System.out.println(circleArea(1.0) > 3);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Geometry.java",
+      "content": "Hello, Ada!\nHello, Linus!\nArea of a circle with radius 2: 12.57\ntrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`return` ends the method and hands the value to the caller, where it can be stored in a variable, printed, or used directly inside a larger expression such as `circleArea(1.0) > 3`. A `void` method may also use a bare `return;` to leave early. The compiler checks that every path through a non-void method reaches a `return`; if one is missing you get `error: missing return statement`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Overloading and varargs"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several methods may share a name as long as their **parameter lists** differ in number or types; this is **overloading**, and the compiler picks the version that matches the arguments best. A parameter declared with `...` (**varargs**) accepts zero or more values of that type and arrives inside the method as an array; it must be the last parameter."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Sums.java",
+      "code": "public class Sums {\n    static int sum(int a, int b) {\n        return a + b;\n    }\n\n    static double sum(double a, double b) {\n        return a + b;\n    }\n\n    static int sum(int... numbers) {\n        int total = 0;\n        for (int n : numbers) {\n            total += n;\n        }\n        return total;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(sum(2, 3));\n        System.out.println(sum(2.5, 3));\n        System.out.println(sum(1, 2, 3, 4));\n        System.out.println(sum());\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Sums.java",
+      "content": "5\n5.5\n10\n0"
+    },
+    {
+      "type": "paragraph",
+      "text": "`sum(2, 3)` matches the two-`int` version exactly, so the varargs version is not used even though it could accept the call; `sum(2.5, 3)` widens the `3` to a `double`; the four-argument and zero-argument calls can only mean the varargs version. The return type is **not** part of the choice: two methods that differ only in return type are a compile error."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arguments are passed by value"
+    },
+    {
+      "type": "paragraph",
+      "text": "When you call a method, Java **copies** each argument into the parameter. For a primitive the copy is the number itself, so reassigning the parameter never affects the caller's variable. For an object or array the copied value is the **reference**, the address of the object: the method can change the object's contents through that reference, and the caller sees those changes, but reassigning the parameter to a new object changes only the copy."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ByValue.java",
+      "code": "import java.util.Arrays;\n\npublic class ByValue {\n    static void change(int value) {\n        value = 99;\n    }\n\n    static void fill(int[] values) {\n        values[0] = 99;\n    }\n\n    static void replace(int[] values) {\n        values = new int[] {7, 7, 7};\n    }\n\n    public static void main(String[] args) {\n        int x = 1;\n        int[] arr = {1, 2, 3};\n        change(x);\n        fill(arr);\n        replace(arr);\n        System.out.println(x);\n        System.out.println(Arrays.toString(arr));\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java ByValue.java",
+      "content": "1\n[99, 2, 3]"
+    },
+    {
+      "type": "paragraph",
+      "text": "`change` worked on a copy of `1`, so `x` is unchanged. `fill` followed the copied reference to the same array and overwrote slot 0, which the caller sees. `replace` pointed its own copy of the reference at a new array; the caller's `arr` still refers to the original. `Arrays.toString` from `java.util` is the convenient way to print an array's contents."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Recursion"
+    },
+    {
+      "type": "paragraph",
+      "text": "A method may call itself. Every recursive method needs a **base case** that returns without recursing, otherwise the calls never end and the JVM reports a `StackOverflowError`. Factorial is the classic example: `n!` is `n` times `(n - 1)!`, and `0!` and `1!` are `1`. The result type is `long` because factorials grow quickly; `20!` is the largest that fits."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Factorial.java",
+      "code": "public class Factorial {\n    static long factorial(int n) {\n        if (n <= 1) {\n            return 1;\n        }\n        return n * factorial(n - 1);\n    }\n\n    public static void main(String[] args) {\n        System.out.println(factorial(5));\n        System.out.println(factorial(20));\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Factorial.java",
+      "content": "120\n2432902008176640000"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scope and good habits"
+    },
+    {
+      "type": "paragraph",
+      "text": "Variables declared inside a method, including its parameters, are **local**: they exist only while that call runs and are invisible to other methods. That isolation is the point; a method should receive what it needs through parameters and return its result rather than reaching into shared variables. Keep methods short, give them verb names that say what they do (`calculateTax`, `isEmpty`, `printReport`), and let each one do one thing. A method you can describe in one sentence is a method you can test."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Calling with the wrong types",
+      "text": "Arguments must match the parameter types, and Java never guesses. Calling `circleArea(\"2\")` with a string fails with `error: incompatible types: String cannot be converted to double`, and calling `sum(2, 3, 4)` on a class that only defines `sum(int, int)` fails with `error: method sum in class Sums cannot be applied to given types`. Read the message: it lists what was required and what was found."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-methods-pass-by-value"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-methods-qc-1",
+          "type": "true-false",
+          "lessonSlug": "methods",
+          "difficulty": "beginner",
+          "question": "Assigning a new value to a parameter of type `int` inside a method changes the variable the caller passed in.",
+          "explanation": "Primitives are copied into the parameter. The method works on its own copy, so the caller's variable is untouched.",
+          "correct": false
+        },
+        {
+          "id": "java-methods-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "methods",
+          "difficulty": "beginner",
+          "question": "What does javac report when an `int` method can reach its closing brace without executing a `return`?",
+          "explanation": "The compiler proves that every path returns a value. If some path does not, compilation stops with `missing return statement`; nothing is guessed at run time.",
+          "options": [
+            "Nothing; the method returns 0",
+            "`error: missing return statement`",
+            "A warning, and the method returns null",
+            "A NullPointerException when the method is called"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-methods-pass-by-value", "java-methods-overloading"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "Java Methods – Parameters, Return, Overloading",
+    "description": "Define and call Java methods with parameters and return values, overload them, use varargs and recursion, and see why Java always passes arguments by value."
+  },
+  "updatedOn": "2026-11-15"
+}

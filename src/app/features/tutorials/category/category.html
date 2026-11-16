@@ -8,7 +8,9 @@
         </ol>
       </nav>
       <div class="d-flex align-items-center gap-3">
-        <span class="cma-category-hero__icon"><cma-icon [name]="icon(category.icon)" [size]="28" /></span>
+        <span class="cma-category-hero__icon"
+          ><cma-icon [name]="icon(category.icon)" [size]="28"
+        /></span>
         <div>
           <h1 class="mb-1">{{ category.name }}</h1>
           <p class="lead cma-text-secondary mb-0 cma-prose">{{ category.description }}</p>
@@ -18,10 +20,15 @@
   </div>
 
   <div class="container-xxl py-4 py-lg-5">
-    <p class="cma-text-secondary small mb-3">{{ technologies().length }} technologies in this category</p>
+    <h2 class="h4 mb-3">Topics in this category</h2>
+    <p class="cma-text-secondary small mb-3">
+      {{ technologies().length }} technologies in this category
+    </p>
     <div class="row g-3">
       @for (tech of technologies(); track tech.slug) {
-        <div class="col-12 col-sm-6 col-lg-4 col-xxl-3"><cma-technology-card [technology]="tech" /></div>
+        <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
+          <cma-technology-card [technology]="tech" />
+        </div>
       }
     </div>
 
@@ -29,17 +36,27 @@
     <ul class="list-inline">
       @for (other of otherCategories(); track other.slug) {
         <li class="list-inline-item mb-2">
-          <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/tutorials/category', other.slug]">{{ other.name }}</a>
+          <a
+            class="btn btn-outline-secondary btn-sm"
+            [routerLink]="['/tutorials/category', other.slug]"
+            >{{ other.name }}</a
+          >
         </li>
       }
     </ul>
   </div>
 } @else if (loaded()) {
   <div class="container-xxl py-5">
-    <cma-empty-state icon="question-circle" title="Category not found" text="This category does not exist. Browse the catalog to find what you are looking for.">
+    <cma-empty-state
+      icon="question-circle"
+      title="Category not found"
+      text="This category does not exist. Browse the catalog to find what you are looking for."
+    >
       <a class="btn btn-primary" routerLink="/tutorials">All tutorials</a>
     </cma-empty-state>
   </div>
 } @else {
-  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 6rem"></div></div>
+  <div class="container-xxl py-5" aria-busy="true">
+    <div class="cma-skeleton" style="height: 6rem"></div>
+  </div>
 }

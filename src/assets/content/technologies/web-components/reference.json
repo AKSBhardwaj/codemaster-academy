@@ -1,0 +1,144 @@
+{
+  "title": "Web Components Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Web Components course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Make your own HTML tag",
+          "summary": "A custom element is an HTML tag you define.",
+          "example": {
+            "language": "html",
+            "code": "<hello-reader></hello-reader>\n<script>\n  class HelloReader extends HTMLElement {\n    connectedCallback() { this.textContent = \"Hello, reader!\"; }\n  }\n  customElements.define(\"hello-reader\", HelloReader);\n</script>"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "know-when-an-element-connects",
+          "name": "Know when an element connects",
+          "summary": "connectedCallback runs when a custom element joins a document.",
+          "example": {
+            "language": "html",
+            "code": "<visit-note></visit-note>\n<script>\n  class VisitNote extends HTMLElement {\n    connectedCallback() { this.textContent = \"I am on the page.\"; }\n  }\n  customElements.define(\"visit-note\", VisitNote);\n</script>"
+          },
+          "lessonSlug": "know-when-an-element-connects"
+        },
+        {
+          "slug": "read-an-attribute",
+          "name": "Read an attribute",
+          "summary": "An attribute is an extra fact written in a tag.",
+          "example": {
+            "language": "html",
+            "code": "<reader-name name=\"Mia\"></reader-name>\n<script>\n  class ReaderName extends HTMLElement {\n    connectedCallback() { this.textContent = \"Hi, \" + (this.getAttribute(\"name\") || \"reader\"); }\n  }\n  customElements.define(\"reader-name\", ReaderName);\n</script>"
+          },
+          "lessonSlug": "read-an-attribute"
+        },
+        {
+          "slug": "watch-an-attribute-change",
+          "name": "Watch an attribute change",
+          "summary": "observedAttributes names the attributes a custom element watches.",
+          "example": {
+            "language": "html",
+            "code": "<score-note score=\"2\"></score-note>\n<script>\n  class ScoreNote extends HTMLElement {\n    static observedAttributes = [\"score\"];\n    attributeChangedCallback(name, oldValue, newValue) { this.textContent = \"Score: \" + newValue; }\n  }\n  customElements.define(\"score-note\", ScoreNote);\n  document.querySelector(\"score-note\").setAttribute(\"score\", \"5\");\n</script>"
+          },
+          "lessonSlug": "watch-an-attribute-change"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "create-a-shadow-tree",
+          "name": "Create a shadow tree",
+          "summary": "A shadow root is a separate group of page parts inside an element.",
+          "example": {
+            "language": "html",
+            "code": "<shadow-note></shadow-note>\n<script>\n  class ShadowNote extends HTMLElement {\n    constructor() {\n      super();\n      const root = this.attachShadow({ mode: \"open\" });\n      const paragraph = document.createElement(\"p\");\n      paragraph.textContent = \"Inside the component\";\n      root.append(paragraph);\n    }\n  }\n  customElements.define(\"shadow-note\", ShadowNote);\n</script>"
+          },
+          "lessonSlug": "create-a-shadow-tree"
+        },
+        {
+          "slug": "keep-component-styles-together",
+          "name": "Keep component styles together",
+          "summary": "Styles inside a shadow root usually apply to its internal elements.",
+          "example": {
+            "language": "html",
+            "code": "<p>Outside note</p><green-note></green-note>\n<script>\n  class GreenNote extends HTMLElement {\n    constructor() {\n      super();\n      this.attachShadow({ mode: \"open\" }).innerHTML = \"<style>p { color: green; }</style><p>Inside note</p>\";\n    }\n  }\n  customElements.define(\"green-note\", GreenNote);\n</script>"
+          },
+          "lessonSlug": "keep-component-styles-together"
+        },
+        {
+          "slug": "leave-a-slot-for-content",
+          "name": "Leave a slot for content",
+          "summary": "A slot is a place where the user of a component can supply content.",
+          "example": {
+            "language": "html",
+            "code": "<reader-card>A story about the moon</reader-card>\n<script>\n  class ReaderCard extends HTMLElement {\n    constructor() {\n      super();\n      this.attachShadow({ mode: \"open\" }).innerHTML = \"<article><h2>Reading card</h2><slot>No story yet</slot></article>\";\n    }\n  }\n  customElements.define(\"reader-card\", ReaderCard);\n</script>"
+          },
+          "lessonSlug": "leave-a-slot-for-content"
+        },
+        {
+          "slug": "give-slots-names",
+          "name": "Give slots names",
+          "summary": "Named slots let a component accept different pieces of content in different places.",
+          "example": {
+            "language": "html",
+            "code": "<book-panel><span slot=\"title\">Moon Trip</span><p>A space story.</p></book-panel>\n<script>\n  class BookPanel extends HTMLElement {\n    constructor() { super(); this.attachShadow({mode:\"open\"}).innerHTML = `<h2><slot name=\"title\">Book</slot></h2><slot></slot>`; }\n  }\n  customElements.define(\"book-panel\", BookPanel);\n</script>"
+          },
+          "lessonSlug": "give-slots-names"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "share-a-javascript-property",
+          "name": "Share a JavaScript property",
+          "summary": "A property can accept a JavaScript value on an element.",
+          "example": {
+            "language": "html",
+            "code": "<point-display></point-display>\n<script>\n  class PointDisplay extends HTMLElement {\n    set points(value) { this.textContent = \"Points: \" + Number(value); }\n  }\n  customElements.define(\"point-display\", PointDisplay);\n  document.querySelector(\"point-display\").points = 7;\n</script>"
+          },
+          "lessonSlug": "share-a-javascript-property"
+        },
+        {
+          "slug": "send-a-custom-event",
+          "name": "Send a custom event",
+          "summary": "A custom event lets a component tell its surroundings that something happened.",
+          "example": {
+            "language": "html",
+            "code": "<choice-button></choice-button><p id=\"result\"></p>\n<script>\n  class ChoiceButton extends HTMLElement {\n    connectedCallback() {\n      const button = document.createElement(\"button\"); button.textContent = \"Choose book\";\n      button.onclick = () => this.dispatchEvent(new CustomEvent(\"book-chosen\", { detail: \"Moon Trip\", bubbles: true }));\n      this.replaceChildren(button);\n    }\n  }\n  customElements.define(\"choice-button\", ChoiceButton);\n  document.addEventListener(\"book-chosen\", e => { document.querySelector(\"#result\").textContent = e.detail; });\n</script>"
+          },
+          "lessonSlug": "send-a-custom-event"
+        },
+        {
+          "slug": "clean-up-a-repeating-job",
+          "name": "Clean up a repeating job",
+          "summary": "disconnectedCallback runs when a custom element leaves the document.",
+          "example": {
+            "language": "html",
+            "code": "<tick-note></tick-note>\n<script>\n  class TickNote extends HTMLElement {\n    connectedCallback() { this.count = 0; this.timer = setInterval(() => { this.textContent = String(++this.count); }, 1000); }\n    disconnectedCallback() { clearInterval(this.timer); }\n  }\n  customElements.define(\"tick-note\", TickNote);\n</script>"
+          },
+          "lessonSlug": "clean-up-a-repeating-job"
+        },
+        {
+          "slug": "style-the-host-with-a-theme-value",
+          "name": "Style the host with a theme value",
+          "summary": "The :host selector styles the custom element itself.",
+          "example": {
+            "language": "html",
+            "code": "<style>themed-note { --note-colour: navy; }</style><themed-note></themed-note>\n<script>\n  class ThemedNote extends HTMLElement {\n    constructor() { super(); this.attachShadow({mode:\"open\"}).innerHTML = \"<style>:host { display:block; color:var(--note-colour, green); padding:1rem; }</style>Read a story today.\"; }\n  }\n  customElements.define(\"themed-note\", ThemedNote);\n</script>"
+          },
+          "lessonSlug": "style-the-host-with-a-theme-value"
+        }
+      ]
+    }
+  ]
+}

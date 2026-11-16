@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "slug": "control-flow",
+  "title": "Control Flow",
+  "summary": "Make decisions with if, else and switch, repeat work with for, foreach, while and do loops, and control loops with break and continue.",
+  "introduction": "Programs become useful when they react to data: charge shipping only above a threshold, retry until a download succeeds, print every item in a list. C# offers the familiar if/else and loops of the C family, a switch statement that refuses to fall through by accident, and a compact switch expression that returns a value. This lesson works through each construct with a small program and its output, so you can see exactly which branch runs and how many times a loop body executes.",
+  "learningObjectives": [
+    "Choose between if/else, a switch statement and a switch expression",
+    "Write for, foreach, while and do loops and know when each fits",
+    "Exit or skip loop iterations with break and continue"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "if, else if and else"
+    },
+    {
+      "type": "paragraph",
+      "text": "`if` tests a `bool` expression and runs its block when the expression is `true`. Unlike JavaScript or Python, C# does not treat numbers or strings as \"truthy\": the condition must be an actual `bool`, so `if (count)` is a compile error and you write `if (count > 0)`. Chain alternatives with `else if` and finish with `else` for the remaining cases."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int temperature = 23;\n\nif (temperature >= 30)\n{\n    Console.WriteLine(\"Hot\");\n}\nelse if (temperature >= 20)\n{\n    Console.WriteLine(\"Pleasant\");\n}\nelse\n{\n    Console.WriteLine(\"Cold\");\n}\n\nstring advice = temperature > 25 ? \"Bring water\" : \"Bring a jacket\";\nConsole.WriteLine(advice);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Pleasant\nBring a jacket"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only the first matching branch runs, which is why `Pleasant` is printed although 23 is also not below 20. The last two lines use the **conditional operator** `condition ? a : b`, a one-line `if`/`else` that produces a value. Combine conditions with the operators below; `&&` and `||` stop evaluating as soon as the answer is known, so `x != null && x.Length > 0` is safe."
+    },
+    {
+      "type": "table",
+      "headers": ["Operators", "Meaning"],
+      "rows": [
+        ["`==`, `!=`", "equal, not equal (for strings this compares the characters)"],
+        ["`<`, `<=`, `>`, `>=`", "ordering comparisons"],
+        ["`&&`, `||`, `!`", "logical and, or, not"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "switch"
+    },
+    {
+      "type": "paragraph",
+      "text": "When one value is compared against many constants, `switch` reads better than a ladder of `else if`. Each `case` section must end with `break` (or `return` or `throw`): C# does not let execution fall through into the next section by accident, although several labels may share one section, as `Saturday` and `Sunday` do here."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "string day = \"Saturday\";\n\nswitch (day)\n{\n    case \"Saturday\":\n    case \"Sunday\":\n        Console.WriteLine(\"Weekend\");\n        break;\n    case \"Friday\":\n        Console.WriteLine(\"Almost weekend\");\n        break;\n    default:\n        Console.WriteLine(\"Weekday\");\n        break;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Weekend"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Switch expressions"
+    },
+    {
+      "type": "paragraph",
+      "text": "Since C# 8 a `switch` can also be an **expression** that produces a value. There are no `case` or `break` keywords: each arm is `pattern => result`, `_` is the catch-all, and arms may use relational patterns such as `>= 500` or combine constants with `or`. Because it is an expression you can assign it, return it or pass it to a method directly."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int httpStatus = 404;\n\nstring message = httpStatus switch\n{\n    200 => \"OK\",\n    301 or 302 => \"Redirect\",\n    404 => \"Not found\",\n    >= 500 => \"Server error\",\n    _ => \"Something else\",\n};\nConsole.WriteLine(message);\n\nConsole.WriteLine(Grade(91));\nConsole.WriteLine(Grade(64));\n\nstring Grade(int score) => score switch\n{\n    >= 90 => \"A\",\n    >= 75 => \"B\",\n    >= 60 => \"C\",\n    _ => \"F\",\n};"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Not found\nA\nC"
+    },
+    {
+      "type": "paragraph",
+      "text": "Arms are tested top to bottom, so `Grade(91)` stops at the first arm. The compiler warns when the arms do not cover every possible value, and a value that no arm matches throws a `SwitchExpressionException` at runtime. The [pattern matching lesson](/tutorials/csharp/properties-records) shows the richer patterns these arms accept."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "C# has four loops. `for` is for counting, `foreach` walks through every element of a collection, `while` repeats while a condition holds (possibly zero times) and `do`/`while` runs its body at least once before checking."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "for (int i = 1; i <= 3; i++)\n{\n    Console.WriteLine($\"for: {i}\");\n}\n\nstring[] fruits = [\"apple\", \"kiwi\", \"plum\"];\nforeach (string fruit in fruits)\n{\n    Console.WriteLine($\"foreach: {fruit}\");\n}\n\nint countdown = 2;\nwhile (countdown > 0)\n{\n    Console.WriteLine($\"while: {countdown}\");\n    countdown--;\n}\n\nint attempts = 0;\ndo\n{\n    attempts++;\n    Console.WriteLine($\"do: attempt {attempts}\");\n} while (attempts < 1);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "for: 1\nfor: 2\nfor: 3\nforeach: apple\nforeach: kiwi\nforeach: plum\nwhile: 2\nwhile: 1\ndo: attempt 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `for` header has three parts separated by semicolons: initialise `i`, test `i <= 3` before each iteration, and update `i++` after each one. Prefer `foreach` whenever you only need the elements and do not care about the index; it works with arrays, lists, dictionaries, strings and anything else that is enumerable."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "break and continue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`break` leaves the loop immediately; `continue` skips the rest of the current iteration and moves on to the next one. Both apply to the innermost loop only."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "for (int n = 1; n <= 10; n++)\n{\n    if (n % 2 == 0) continue;   // skip even numbers\n    if (n > 7) break;           // stop entirely after 7\n    Console.WriteLine(n);\n}\nConsole.WriteLine(\"done\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1\n3\n5\n7\ndone"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Nested loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "Loops nest freely. The inner loop runs to completion for every single iteration of the outer loop, so two loops of three produce nine values. The `,3` inside the braces right-aligns each number in a field three characters wide."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "for (int row = 1; row <= 3; row++)\n{\n    string line = \"\";\n    for (int col = 1; col <= 3; col++)\n    {\n        line += $\"{row * col,3}\";\n    }\n    Console.WriteLine(line);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "  1  2  3\n  2  4  6\n  3  6  9"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Off-by-one and infinite loops",
+      "text": "`for (int i = 0; i <= items.Length; i++)` visits one index too many and throws `IndexOutOfRangeException` on the last iteration; arrays start at 0, so the test must be `i < items.Length`. A `while` loop whose body never changes the condition runs forever: make sure something inside the loop moves towards the exit."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Braces are optional, but safer",
+      "text": "`if (x > 0) Console.WriteLine(x);` is legal without braces, but only that one statement belongs to the `if`. Adding a second indented line later is a classic bug, because it runs unconditionally. Many teams always write the braces."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-control-flow-fizzbuzz"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-control-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "control-flow",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "The loop adds 0, 1 and 2 to `total`. When `i` reaches 3 the `break` leaves the loop before anything else is added, so the result is 3.",
+          "language": "csharp",
+          "code": "int total = 0;\nfor (int i = 0; i < 5; i++)\n{\n    if (i == 3) break;\n    total += i;\n}\nConsole.WriteLine(total);",
+          "options": ["10", "3", "6", "0"],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-control-qc-2",
+          "type": "true-false",
+          "lessonSlug": "control-flow",
+          "difficulty": "beginner",
+          "question": "In a C# switch statement, execution silently falls through from one case section to the next when you omit break.",
+          "explanation": "Omitting `break` is a compile error (CS0163), not silent fall-through. Only empty labels such as `case 1: case 2:` may stack on one section.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-control-flow-fizzbuzz", "csharp-control-flow-switch-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "loops"
+    }
+  ],
+  "seo": {
+    "title": "C# Control Flow – if, switch, for, foreach, while",
+    "description": "Learn C# control flow: if/else and the conditional operator, switch statements and switch expressions, for, foreach, while and do loops, plus break and continue."
+  },
+  "updatedOn": "2026-11-15"
+}

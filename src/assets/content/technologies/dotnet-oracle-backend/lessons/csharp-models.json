@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "slug": "csharp-models",
+  "title": "Describe a book with C#",
+  "summary": "Use C# models for book replies and incoming requests. Learn how validation stops empty or overlong titles before they reach Oracle.",
+  "introduction": "When two people exchange a form, both need to agree on its boxes. Our API needs the same kind of agreement. One C# type describes a saved book. A second type describes the values a visitor may send.",
+  "learningObjectives": [
+    "Read the Book reply model",
+    "Explain why a save request has no ID",
+    "Use title validation and boolean values"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A saved book"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "namespace ReadingListApi.Models;\n\n// ASP.NET Core sends these names as id, title and isRead in JSON.\npublic sealed record Book(long Id, string Title, bool IsRead);",
+      "title": "ReadingListApi/Models/Book.cs",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "A **record** is a short way to describe a group of values. Id is a long, a whole-number type large enough for our ten-digit Oracle IDs. Title is a string, or text. IsRead is a bool, which can be true or false."
+    },
+    {
+      "type": "paragraph",
+      "text": "C# uses names such as IsRead. The web API writes them as isRead in JSON. Oracle stores the same idea in the is_read column as 0 or 1. The repository translates between those forms."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The request a visitor may send"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using System.ComponentModel.DataAnnotations;\n\nnamespace ReadingListApi.Models;\n\npublic sealed class SaveBookRequest\n{\n  [Required(ErrorMessage = \"Give the book a title.\")]\n  [StringLength(120, MinimumLength = 1,\n      ErrorMessage = \"The title must contain between 1 and 120 characters.\")]\n  public string Title { get; init; } = \"\";\n\n  // Omitted isRead means false. Invalid JSON such as isRead: \"yes\" receives HTTP 400.\n  public bool IsRead { get; init; }\n}",
+      "title": "ReadingListApi/Models/SaveBookRequest.cs",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "**Required** checks that a title is present and is not only spaces. **StringLength** limits it to 120 characters. These marks above a property are called attributes. They give .NET instructions about the value."
+    },
+    {
+      "type": "paragraph",
+      "text": "The request has no Id. Oracle makes that number when a row is created. To edit a book, the caller puts the existing ID in the web address instead. The code trims spaces from a valid title before saving it."
+    },
+    {
+      "type": "table",
+      "headers": ["JSON value", "Accepted?", "Why"],
+      "rows": [
+        [
+          "{\"title\":\"The Moon Garden\",\"isRead\":false}",
+          "Yes",
+          "There is a title and a real boolean."
+        ],
+        ["{\"title\":\"   \",\"isRead\":false}", "No", "A title made only of spaces is missing."],
+        [
+          "{\"title\":\"Ocean Friends\",\"isRead\":\"yes\"}",
+          "No",
+          "The text yes is not a JSON boolean."
+        ],
+        [
+          "{\"title\":\"Ocean Friends\"}",
+          "Yes",
+          "Leaving out isRead gives its default value, false."
+        ]
+      ],
+      "caption": "Try valid and invalid requests"
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Check on the server too",
+      "text": "A browser can check a form, but a caller can send a request without using that form. Server validation is still needed. The database rules add another check."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write one valid JSON request for a made-up book. Then change isRead to the text \"yes\" and predict the response: HTTP 400 means the request is not valid."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-csharp-models-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-csharp-models-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "connect-oracle"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "create-books-table"
+    }
+  ],
+  "seo": {
+    "title": "Describe a book with C# | C# .NET and Oracle",
+    "description": "Use C# models for book replies and incoming requests. Learn how validation stops empty or overlong titles before they reach Oracle."
+  },
+  "updatedOn": "2026-11-16"
+}

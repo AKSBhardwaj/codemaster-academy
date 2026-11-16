@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "join-related-tables",
+  "title": "Join related tables",
+  "summary": "merge combines tables using shared keys. Check whether each key is unique before deciding how the join should behave.",
+  "introduction": "merge combines tables using shared keys. Check whether each key is unique before deciding how the join should behave. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain join related tables",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "merge combines tables using shared keys. Check whether each key is unique before deciding how the join should behave."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"name\": [\"Asha\", \"Ben\", \"Cara\"],\n    \"score\": [8, 6, 9],\n    \"team\": [\"red\", \"blue\", \"red\"]\n})\n\nteams = pd.DataFrame({\"team\": [\"red\", \"blue\"], \"room\": [\"A\", \"B\"]})\njoined = df.merge(teams, on=\"team\", validate=\"many_to_one\")\nprint(joined.loc[joined[\"name\"] == \"Ben\", \"room\"].iloc[0])",
+      "title": "Join related tables",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The output is B. Ben's blue team matches room B in the second table."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Find Cara's room.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Duplicate keys can multiply rows; validate the relationship you expect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "pandas-join-related-tables"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Pandas further reading](https://pandas.pydata.org/docs/getting_started/intro_tutorials/)."
+    }
+  ],
+  "exerciseIds": ["pandas-join-related-tables"],
+  "relatedLessons": [
+    {
+      "technologySlug": "pandas",
+      "slug": "read-a-tiny-csv"
+    }
+  ],
+  "seo": {
+    "title": "Pandas: Join related tables",
+    "description": "Learn about join related tables in Pandas. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

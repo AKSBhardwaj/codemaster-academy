@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "alerts-badges",
+  "title": "Alerts and Badges",
+  "summary": "An alert is a message box. A badge is a small label, often used for a count or a short status.",
+  "introduction": "An alert is a message box. A badge is a small label, often used for a count or a short status. Make a clear reminder and a book-count badge. Use words to explain the meaning, so colour is never the only clue.",
+  "learningObjectives": [
+    "Create alerts in every contextual colour with the right ARIA role",
+    "Add headings, links and a dismiss button that works with the bundle",
+    "Attach badges to headings, buttons and links for counts and statuses",
+    "Keep alerts and badges readable and accessible"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Alerts"
+    },
+    {
+      "type": "paragraph",
+      "text": "An alert is a `<div>` with `.alert` and one contextual class: `alert-primary`, `alert-secondary`, `alert-success`, `alert-danger`, `alert-warning`, `alert-info`, `alert-light` or `alert-dark`. Each gets a pale background, a matching border and dark text of the same hue; in 5.3 these come from the `*-bg-subtle`, `*-border-subtle` and `*-text-emphasis` variables, so they also adapt to dark mode. Add `role=\"alert\"` so screen readers announce the message as soon as it appears."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Four contextual alerts",
+      "code": "<div class=\"alert alert-primary\" role=\"alert\">Your profile has been updated.</div>\n<div class=\"alert alert-success\" role=\"alert\">Payment received. Thank you!</div>\n<div class=\"alert alert-warning\" role=\"alert\">Your subscription ends in 3 days.</div>\n<div class=\"alert alert-danger\" role=\"alert\">The file could not be uploaded.</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Four full-width rounded boxes, each with 1rem padding, a 1px border and 1rem space below it:\nPrimary: pale blue background, dark blue text\nSuccess: pale green background, dark green text\nWarning: pale yellow background, dark brown text\nDanger: pale red background, dark red text"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Headings, links and rules inside an alert"
+    },
+    {
+      "type": "paragraph",
+      "text": "Longer messages can hold a heading, several paragraphs and links. `alert-heading` makes a heading inherit the alert's colour, `alert-link` makes a link bold in the matching emphasis colour, and an `<hr>` inside an alert takes the same hue. Put `mb-0` on the last paragraph so the alert's own padding is the only space at the bottom."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A richer alert",
+      "code": "<div class=\"alert alert-success\" role=\"alert\">\n  <h2 class=\"alert-heading h4\">Order confirmed</h2>\n  <p>Your seeds will ship within two working days. You can track the parcel from <a href=\"/orders/1042\" class=\"alert-link\">your orders page</a>.</p>\n  <hr>\n  <p class=\"mb-0\">Questions? Reply to the confirmation email.</p>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A pale green box containing a 24px dark green heading, a paragraph in which \"your orders page\" is bold dark green, a thin green rule, and a final paragraph with no extra space below it"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dismissible alerts"
+    },
+    {
+      "type": "paragraph",
+      "text": "To let the user close an alert, add `alert-dismissible` (which reserves space on the right), the classes `fade show` (so it fades out instead of vanishing), and a `btn-close` button with `data-bs-dismiss=\"alert\"`. The close button is an empty element, so its `aria-label` is the only text a screen reader has. The bundle must be loaded: when the button is clicked, Bootstrap removes the `show` class, waits for the fade, then removes the alert from the DOM entirely."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "An alert with a close button",
+      "code": "<div class=\"alert alert-warning alert-dismissible fade show\" role=\"alert\">\n  <strong>Heads up!</strong> Your password expires tomorrow.\n  <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A pale yellow box with \"Heads up!\" in bold, extra padding on the right and a small × button in the top-right corner\nClicking × (bundle required) fades the alert out over 150ms and removes it from the page; it does not come back until the page reloads"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a close button that does nothing",
+      "text": "The × renders fine without JavaScript, which hides the real problem: the click only works when `bootstrap.bundle.min.js` is loaded **and** the button carries `data-bs-dismiss=\"alert\"`. The Bootstrap 4 spelling `data-dismiss` is ignored. A second trap is leaving out `alert-dismissible`: the alert still closes, but the message text runs underneath the button because no space was reserved for it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Badges"
+    },
+    {
+      "type": "paragraph",
+      "text": "A badge is an inline label: `.badge` sets small bold text (75% of the parent's font size), tight padding and rounded corners, and `text-bg-{colour}` gives it a background **and** a text colour that contrasts with it. Because the size is relative, the same badge is large in an `<h1>` and small in a paragraph. `rounded-pill` makes the ends fully round, the usual look for counts and statuses."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Badges in headings, text and buttons",
+      "code": "<h1>Inbox <span class=\"badge text-bg-secondary\">New</span></h1>\n<p>Status: <span class=\"badge rounded-pill text-bg-success\">Active</span></p>\n\n<button type=\"button\" class=\"btn btn-primary\">\n  Messages <span class=\"badge text-bg-light\">4</span>\n</button>\n\n<button type=\"button\" class=\"btn btn-primary position-relative ms-3\">\n  Alerts\n  <span class=\"position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger\">\n    9+\n    <span class=\"visually-hidden\">unread alerts</span>\n  </span>\n</button>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "\"Inbox\" with a grey rounded label \"New\" beside it, three quarters of the heading's size (30px on wide screens)\n\"Status:\" followed by a small green pill reading \"Active\"\nA blue button \"Messages\" with a small light grey label \"4\" inside it\nA blue button \"Alerts\" with a red pill \"9+\" overlapping its top-right corner; a screen reader reads \"Alerts 9+ unread alerts\""
+    },
+    {
+      "type": "paragraph",
+      "text": "The last badge shows the positioning recipe: `position-relative` on the button, then `position-absolute top-0 start-100 translate-middle` on the badge, which puts the badge's centre exactly on the button's top-right corner. The `visually-hidden` span matters: \"9+\" alone means nothing to someone who cannot see where the badge sits."
+    },
+    {
+      "type": "paragraph",
+      "text": "Prefer `text-bg-*` over the older `bg-*` on badges. `badge bg-warning` or `badge bg-light` keeps the badge's default white text, which is unreadable on yellow or near-white; `text-bg-warning` switches the text to black automatically, just as the button variants do."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing between the two"
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "Use", "Why"],
+      "rows": [
+        [
+          "Tell the user the result of an action",
+          "Alert with `role=\"alert\"`",
+          "Announced immediately, large enough to notice"
+        ],
+        [
+          "Label a status next to an item",
+          "Badge, usually `rounded-pill`",
+          "Compact, scales with the surrounding text"
+        ],
+        [
+          "Show a count on a button or tab",
+          "Badge inside the button, with hidden text",
+          "Visually attached to the control it describes"
+        ],
+        [
+          "A short message that disappears on its own",
+          "Toast component (not covered here)",
+          "Alerts stay until dismissed; toasts time out"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Colour is not enough",
+      "text": "Red and green alone do not tell a colour-blind user which alert is good news. Start the message with a word that says so (\"Saved\", \"Error\") or add an icon; Bootstrap Icons is a separate package you can include for that."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-alerts-dismiss"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-alerts-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "alerts-badges",
+          "difficulty": "beginner",
+          "question": "Which attribute makes a screen reader announce an alert as soon as it appears?",
+          "explanation": "role=\"alert\" marks the element as a live region with assertive politeness, so its content is read out immediately. The other attributes are not valid for this purpose.",
+          "options": [
+            "`aria-live=\"off\"`",
+            "`role=\"alert\"`",
+            "`data-bs-toggle=\"alert\"`",
+            "`aria-label=\"alert\"`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "bs-alerts-qc-2",
+          "type": "true-false",
+          "lessonSlug": "alerts-badges",
+          "difficulty": "beginner",
+          "question": "A `.badge` inside an `<h1>` is rendered larger than the same badge inside a paragraph.",
+          "explanation": "Badges use a font-size of .75em, so they scale with their parent: 75% of the heading size in an h1, 75% of 16px in a paragraph.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-alerts-dismiss"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "buttons"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "modals-offcanvas"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "utilities-spacing-flex"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Alerts and Badges – Feedback Messages and Labels",
+    "description": "Learn Bootstrap 5.3 alerts and badges: contextual colours, alert links and headings, dismissible alerts with btn-close, pill badges and button counts."
+  },
+  "updatedOn": "2026-11-16"
+}

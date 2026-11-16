@@ -1,0 +1,138 @@
+{
+  "title": "SQL Examples",
+  "description": "Copy-ready SQL snippets for everyday tasks: filtering and sorting, pattern search, inserting and updating, creating tables, joins, grouped reports, subqueries, date grouping, views and transactions. Every example runs against the sample shop database.",
+  "examples": [
+    {
+      "id": "select-filter-sort",
+      "title": "Filter and sort products",
+      "description": "Select three columns, keep the rows under a price limit and sort them, the shape of most everyday queries.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["select", "where", "order-by"],
+      "lessonSlug": "select",
+      "code": "SELECT name, category, price\nFROM products\nWHERE price < 20\nORDER BY price;",
+      "output": "name         | category    | price\n-------------+-------------+------\nSticky notes | Stationery  | 2.75\nNotebook     | Stationery  | 4.5\nMouse pad    | Office      | 8.99\nUSB cable    | Electronics | 12"
+    },
+    {
+      "id": "search-pattern",
+      "title": "Search with LIKE and IN",
+      "description": "Find customers whose name contains a letter and who live in one of several countries, combining a pattern with a list.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["like", "in", "where"],
+      "lessonSlug": "filtering-operators",
+      "code": "SELECT name, country\nFROM customers\nWHERE name LIKE '%a%' AND country IN ('UK', 'US')\nORDER BY name;",
+      "output": "name              | country\n------------------+--------\nAda Lovelace      | UK\nGrace Hopper      | US\nMargaret Hamilton | US"
+    },
+    {
+      "id": "insert-returning",
+      "title": "Insert several rows and get their ids",
+      "description": "A multi-row INSERT with RETURNING, which hands back the generated ids without a second query (SQLite 3.35+, PostgreSQL, MariaDB).",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["insert", "returning"],
+      "lessonSlug": "insert",
+      "code": "INSERT INTO products (name, category, price) VALUES\n  ('Desk lamp', 'Office', 24.90),\n  ('Pen set', 'Stationery', 6.25)\nRETURNING id, name, price;",
+      "output": "id | name      | price\n---+-----------+------\n7  | Desk lamp | 24.9\n8  | Pen set   | 6.25"
+    },
+    {
+      "id": "update-category",
+      "title": "Discount one category",
+      "description": "Apply a 15 per cent discount to every product in a category with an expression in SET, then read the rows back.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["update", "round"],
+      "lessonSlug": "update-delete",
+      "code": "UPDATE products\nSET price = ROUND(price * 0.85, 2)\nWHERE category = 'Electronics';\nSELECT name, price FROM products WHERE category = 'Electronics';",
+      "output": "OK: UPDATE products\n\nname                | price\n--------------------+------\nUSB cable           | 10.2\nMechanical keyboard | 75.65"
+    },
+    {
+      "id": "create-tasks-table",
+      "title": "Create a table with defaults and a CHECK",
+      "description": "A task list table with an auto-numbered id, a default priority limited to 1 to 5 by CHECK, and a done flag stored as 0 or 1.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["create-table", "check", "default"],
+      "lessonSlug": "create-table",
+      "code": "CREATE TABLE tasks (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  priority INTEGER NOT NULL DEFAULT 3 CHECK (priority BETWEEN 1 AND 5),\n  done INTEGER NOT NULL DEFAULT 0\n);\nINSERT INTO tasks (title, priority) VALUES ('Write lesson', 1), ('Review quiz', 2);\nINSERT INTO tasks (title) VALUES ('Tidy desk');\nUPDATE tasks SET done = 1 WHERE id = 1;\nSELECT * FROM tasks ORDER BY priority;",
+      "output": "OK: CREATE TABLE tasks (\nOK: INSERT INTO tasks (title, priority) VALUES ('Write lesson', 1), ('Review quiz', \nOK: INSERT INTO tasks (title) VALUES ('Tidy desk')\nOK: UPDATE tasks SET done = 1 WHERE id = 1\n\nid | title        | priority | done\n---+--------------+----------+-----\n1  | Write lesson | 1        | 1\n2  | Review quiz  | 2        | 0\n3  | Tidy desk    | 3        | 0"
+    },
+    {
+      "id": "order-details",
+      "title": "Order details across three tables",
+      "description": "Join orders to customers and products and compute a rounded line total, the query behind almost every invoice or order screen.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["join", "expressions"],
+      "lessonSlug": "joins",
+      "code": "SELECT o.id, c.name AS customer, p.name AS product, o.quantity,\n       ROUND(p.price * o.quantity, 2) AS line_total\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id\nORDER BY o.id;",
+      "output": "id | customer          | product             | quantity | line_total\n---+-------------------+---------------------+----------+-----------\n1  | Ada Lovelace      | Mechanical keyboard | 1        | 89\n2  | Ada Lovelace      | Notebook            | 3        | 13.5\n3  | Grace Hopper      | USB cable           | 2        | 24\n4  | Linus Torvalds    | Monitor stand       | 1        | 39.5\n5  | Linus Torvalds    | Mouse pad           | 2        | 17.98\n6  | Margaret Hamilton | Sticky notes        | 10       | 27.5\n7  | Guido van Rossum  | Mechanical keyboard | 1        | 89\n8  | Grace Hopper      | Notebook            | 1        | 4.5"
+    },
+    {
+      "id": "customers-without-orders",
+      "title": "Customers who never ordered",
+      "description": "The LEFT JOIN plus IS NULL pattern that finds rows with no match in another table; a customer is inserted first so there is something to find.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["left-join", "null"],
+      "lessonSlug": "joins",
+      "code": "INSERT INTO customers (name, country, joined) VALUES ('Barbara Liskov', 'US', '2025-06-14');\nSELECT c.id, c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;",
+      "output": "OK: INSERT INTO customers (name, country, joined) VALUES ('Barbara Liskov', 'US', '2\n\nid | name\n---+---------------\n6  | Barbara Liskov"
+    },
+    {
+      "id": "revenue-by-category",
+      "title": "Revenue per category",
+      "description": "A grouped report with two aggregates, a HAVING filter on the total and a sort by the computed revenue.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["group-by", "having", "sum"],
+      "lessonSlug": "group-by-having",
+      "code": "SELECT p.category,\n       SUM(o.quantity) AS items,\n       ROUND(SUM(p.price * o.quantity), 2) AS revenue\nFROM orders o\nJOIN products p ON p.id = o.product_id\nGROUP BY p.category\nHAVING SUM(p.price * o.quantity) > 30\nORDER BY revenue DESC;",
+      "output": "category    | items | revenue\n------------+-------+--------\nElectronics | 4     | 202\nOffice      | 3     | 57.48\nStationery  | 14    | 45.5"
+    },
+    {
+      "id": "above-average",
+      "title": "Products above the average price",
+      "description": "A scalar subquery computes the average once; the outer query compares every product against it.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["subquery", "avg"],
+      "lessonSlug": "subqueries",
+      "code": "SELECT name, price\nFROM products\nWHERE price > (SELECT AVG(price) FROM products)\nORDER BY price DESC;",
+      "output": "name                | price\n--------------------+------\nMechanical keyboard | 89\nMonitor stand       | 39.5"
+    },
+    {
+      "id": "monthly-orders",
+      "title": "Orders per month",
+      "description": "Group by a formatted date to produce a monthly summary; strftime extracts the year and month from ISO dates.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["strftime", "group-by", "dates"],
+      "lessonSlug": "functions",
+      "code": "SELECT strftime('%Y-%m', ordered_on) AS month,\n       COUNT(*) AS orders,\n       SUM(quantity) AS items\nFROM orders\nGROUP BY month\nORDER BY month;",
+      "output": "month   | orders | items\n--------+--------+------\n2025-01 | 2      | 4\n2025-02 | 2      | 3\n2025-03 | 1      | 2\n2025-04 | 2      | 11\n2025-05 | 1      | 1"
+    },
+    {
+      "id": "report-view",
+      "title": "A reusable report view",
+      "description": "Wrap a three-table aggregate in a view so the spending report becomes a one-line SELECT for everyone.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["view", "group-by"],
+      "lessonSlug": "views-indexes",
+      "code": "CREATE VIEW customer_totals AS\nSELECT c.name, c.country, ROUND(SUM(p.price * o.quantity), 2) AS spent\nFROM orders o\nJOIN customers c ON c.id = o.customer_id\nJOIN products p ON p.id = o.product_id\nGROUP BY c.id;\nSELECT * FROM customer_totals ORDER BY spent DESC;",
+      "output": "OK: CREATE VIEW customer_totals AS\n\nname              | country     | spent\n------------------+-------------+------\nAda Lovelace      | UK          | 102.5\nGuido van Rossum  | Netherlands | 89\nLinus Torvalds    | Finland     | 57.48\nGrace Hopper      | US          | 28.5\nMargaret Hamilton | US          | 27.5"
+    },
+    {
+      "id": "transfer-transaction",
+      "title": "Money transfer in a transaction",
+      "description": "Two updates wrapped in BEGIN and COMMIT so the transfer is applied completely or not at all; a CHECK constraint guards against overdrafts.",
+      "language": "sql",
+      "runnable": true,
+      "tags": ["transaction", "commit", "check"],
+      "lessonSlug": "transactions",
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  owner TEXT NOT NULL,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50);\nBEGIN;\nUPDATE accounts SET balance = balance - 25 WHERE owner = 'Ada';\nUPDATE accounts SET balance = balance + 25 WHERE owner = 'Grace';\nCOMMIT;\nSELECT owner, balance FROM accounts;",
+      "output": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50)\nOK: BEGIN\nOK: UPDATE accounts SET balance = balance - 25 WHERE owner = 'Ada'\nOK: UPDATE accounts SET balance = balance + 25 WHERE owner = 'Grace'\nOK: COMMIT\n\nowner | balance\n------+--------\nAda   | 75\nGrace | 75"
+    }
+  ]
+}

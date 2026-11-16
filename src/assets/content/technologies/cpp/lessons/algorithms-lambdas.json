@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "slug": "algorithms-lambdas",
+  "title": "Algorithms and Small Functions",
+  "summary": "An algorithm is a set of steps for a job. C++ has ready-made steps for sorting and counting. A lambda is a small function written where you need it.",
+  "introduction": "An algorithm is a set of steps for a job. C++ has ready-made steps for sorting and counting. A lambda is a small function written where you need it. Read one example at a time. Save it in a .cpp file and use the compiler from the setup lesson to run it.",
+  "learningObjectives": [
+    "Sort a list from smallest to largest",
+    "Count values that fit a rule",
+    "Write a small function with a lambda"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sort a list"
+    },
+    {
+      "type": "paragraph",
+      "text": "std::sort puts values in order. begin() points to the first item. end() marks the place just after the last item."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "algorithms-lambdas.cpp",
+      "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> scores{8, 3, 5};\n    std::sort(scores.begin(), scores.end());\n    for (int score : scores) {\n        std::cout << score << \"\\n\";\n    }\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\n5\n8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Count values that fit a rule"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lambda [](int n) { return n > 5; } answers yes or no for each number. count_if counts the yes answers."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "algorithms-lambdas.cpp",
+      "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nint main() {\n    std::vector<int> scores{3, 8, 9};\n    auto count = std::count_if(scores.begin(), scores.end(), [](int n) { return n > 5; });\n    std::cout << count << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Use a value from nearby code"
+    },
+    {
+      "type": "paragraph",
+      "text": "The name in [limit] lets the lambda use a copy of limit. This is called a capture. It is like putting a note inside the small function."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "algorithms-lambdas.cpp",
+      "code": "#include <iostream>\n\nint main() {\n    int limit = 7;\n    auto passed = [limit](int score) { return score >= limit; };\n    std::cout << std::boolalpha << passed(8) << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not guess which values a lambda can use. Put names it needs inside the square brackets."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the counting rule to n > 8. Work out the new answer."
+    }
+  ],
+  "exerciseIds": ["cpp-algorithms-lambdas-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C++ Algorithms and Small Functions",
+    "description": "An algorithm is a set of steps for a job. C++ has ready-made steps for sorting and counting. A lambda is a small function written where you need it."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Astro Small Examples",
+  "description": "Use these small Astro examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Make an Astro page",
+      "description": "An .astro page combines a frontmatter script with HTML-like markup.",
+      "language": "astro",
+      "code": "---\nconst club = \"Reading club\";\n---\n<h1>{club}</h1>\n<p>Pick a story today.</p>\n<!-- Save as src/pages/index.astro. -->",
+      "output": "The home page contains the club heading and paragraph as HTML.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "make-a-second-page",
+      "title": "Make a second page",
+      "description": "Astro uses the pages folder to create routes.",
+      "language": "astro",
+      "code": "<!-- src/pages/books.astro -->\n<h1>Our books</h1><ul><li>Moon Trip</li></ul>",
+      "output": "The /books route contains a simple book list.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-second-page"
+    },
+    {
+      "id": "use-normal-page-links",
+      "title": "Use normal page links",
+      "description": "Astro pages can use ordinary HTML links.",
+      "language": "astro",
+      "code": "<!-- src/pages/index.astro -->\n<nav aria-label=\"Main\"><a href=\"/books\">Book list</a><a href=\"/about\">About the club</a></nav>",
+      "output": "The links open the corresponding pages when those pages exist.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-normal-page-links"
+    },
+    {
+      "id": "reuse-a-component-with-props",
+      "title": "Reuse a component with props",
+      "description": "An Astro component can read values from Astro.props.",
+      "language": "astro",
+      "code": "---\n// src/components/BookCard.astro\nconst {title} = Astro.props;\n---\n<article><h2>{title}</h2></article>",
+      "output": "Import BookCard into a page and use <BookCard title=\"Moon Trip\" /> to show the title.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "reuse-a-component-with-props"
+    },
+    {
+      "id": "wrap-content-with-a-layout",
+      "title": "Wrap content with a layout",
+      "description": "A layout component can provide the outer page structure.",
+      "language": "astro",
+      "code": "---\n// src/layouts/Base.astro\nconst {title=\"Reading club\"}=Astro.props;\n---\n<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>{title}</title></head><body><slot/></body></html>",
+      "output": "A page that imports Base and wraps its content in <Base> gets the shared document structure.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "wrap-content-with-a-layout"
+    },
+    {
+      "id": "make-a-list-at-build-time",
+      "title": "Make a list at build time",
+      "description": "A static data array can become HTML during the Astro build.",
+      "language": "astro",
+      "code": "---\nconst books=[\"Moon Trip\",\"Garden Days\"];\n---\n<ul>{books.map(title=><li>{title}</li>)}</ul>",
+      "output": "The output HTML has one list item for each title.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-list-at-build-time"
+    },
+    {
+      "id": "keep-component-css-nearby",
+      "title": "Keep component CSS nearby",
+      "description": "Styles in an Astro component are scoped by default.",
+      "language": "astro",
+      "code": "<article><h2>Moon Trip</h2><p>A short story.</p></article>\n<style>article{border:1px solid navy;padding:1rem;}h2{color:navy;}</style>",
+      "output": "The article has a navy border and its heading is navy.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-component-css-nearby"
+    },
+    {
+      "id": "add-a-browser-script",
+      "title": "Add a browser script",
+      "description": "A script tag can run client-side JavaScript on an Astro page.",
+      "language": "astro",
+      "code": "<button id=\"greet\">Say hello</button><p id=\"reply\"></p>\n<script>document.querySelector(\"#greet\")?.addEventListener(\"click\",()=>{const reply=document.querySelector(\"#reply\");if(reply)reply.textContent=\"Hello, reader!\";});</script>",
+      "output": "The button updates the paragraph in the browser.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-a-browser-script"
+    },
+    {
+      "id": "use-a-real-public-asset",
+      "title": "Use a real public asset",
+      "description": "The public folder holds files copied without processing.",
+      "language": "astro",
+      "code": "<!-- Save a real file at public/club.svg. -->\n<img src=\"/club.svg\" width=\"120\" height=\"120\" alt=\"Reading club badge\">",
+      "output": "The browser loads the local badge and can reserve its dimensions.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-real-public-asset"
+    },
+    {
+      "id": "build-known-dynamic-routes",
+      "title": "Build known dynamic routes",
+      "description": "A bracketed page can use a route value. For static output, getStaticPaths lists the pages Astro should create.",
+      "language": "astro",
+      "code": "---\n// src/pages/books/[slug].astro\nexport function getStaticPaths(){return [{params:{slug:\"moon-trip\"},props:{title:\"Moon Trip\"}},{params:{slug:\"garden-days\"},props:{title:\"Garden Days\"}}];}\nconst {title}=Astro.props;\n---\n<h1>{title}</h1>",
+      "output": "The build creates two book pages with their own titles.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-known-dynamic-routes"
+    },
+    {
+      "id": "add-one-interactive-island",
+      "title": "Add one interactive island",
+      "description": "An island is a component that receives browser JavaScript only when a client directive asks for it.",
+      "language": "astro",
+      "code": "---\n// After adding the official React integration and a real Counter.jsx component:\nimport Counter from \"../components/Counter.jsx\";\n---\n<h1>Reading club</h1><Counter client:load />",
+      "output": "The React counter becomes interactive when its JavaScript loads. The heading stays ordinary static HTML.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "add-one-interactive-island"
+    },
+    {
+      "id": "build-and-inspect-the-output",
+      "title": "Build and inspect the output",
+      "description": "A static build produces HTML and assets that a static host can serve.",
+      "language": "bash",
+      "code": "npm run build\nnpm run preview",
+      "output": "Astro builds the site to dist and starts a local preview using the project's preview command.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-and-inspect-the-output"
+    }
+  ]
+}

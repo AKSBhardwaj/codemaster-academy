@@ -1,0 +1,144 @@
+{
+  "title": "GSAP Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the GSAP course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Move to a new position",
+          "summary": "A tween changes values over time. gsap.to starts from the current value and moves toward the value you give it.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:120,duration:1});"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "start-from-a-chosen-value",
+          "name": "Start from a chosen value",
+          "summary": "gsap.from starts with the supplied values and moves to the element's current values.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.from(box,{opacity:0,y:20,duration:0.5});"
+          },
+          "lessonSlug": "start-from-a-chosen-value"
+        },
+        {
+          "slug": "set-both-ends-explicitly",
+          "name": "Set both ends explicitly",
+          "summary": "fromTo names both the starting and ending values.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.fromTo(box,{x:0,opacity:0.3},{x:100,opacity:1,duration:1});"
+          },
+          "lessonSlug": "set-both-ends-explicitly"
+        },
+        {
+          "slug": "choose-an-easing-curve",
+          "name": "Choose an easing curve",
+          "summary": "Easing changes the speed during a tween.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:160,duration:1,ease:\"power2.out\"});"
+          },
+          "lessonSlug": "choose-an-easing-curve"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "repeat-and-return",
+          "name": "Repeat and return",
+          "summary": "repeat adds more plays after the first. yoyo reverses the direction on alternate plays.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:120,duration:0.6,repeat:1,yoyo:true});"
+          },
+          "lessonSlug": "repeat-and-return"
+        },
+        {
+          "slug": "sequence-steps-on-a-timeline",
+          "name": "Sequence steps on a timeline",
+          "summary": "A timeline groups tweens in order. By default, a new tween begins after the previous one finishes.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst timeline=gsap.timeline();\ntimeline.to(box,{x:120,duration:0.5}).to(box,{rotation:20,duration:0.5}).to(box,{opacity:0.5,duration:0.5});"
+          },
+          "lessonSlug": "sequence-steps-on-a-timeline"
+        },
+        {
+          "slug": "overlap-timeline-steps",
+          "name": "Overlap timeline steps",
+          "summary": "A timeline position can make two tweens overlap.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst timeline=gsap.timeline();\ntimeline.to(box,{x:120,duration:1});\ntimeline.to(box,{rotation:45,duration:1},\"<\");"
+          },
+          "lessonSlug": "overlap-timeline-steps"
+        },
+        {
+          "slug": "stagger-a-group",
+          "name": "Stagger a group",
+          "summary": "Stagger starts similar tweens at slightly different times.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst boxes=[\"One\",\"Two\",\"Three\"].map(text=>{const node=document.createElement(\"p\");node.textContent=text;document.body.append(node);return node;});\ngsap.from(boxes,{opacity:0,y:10,duration:0.4,stagger:0.15});"
+          },
+          "lessonSlug": "stagger-a-group"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "control-playback",
+          "name": "Control playback",
+          "summary": "A tween object has methods to play, pause and reverse.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst tween=gsap.to(box,{x:160,duration:2,paused:true});\nconst button=document.createElement(\"button\");button.textContent=\"Play movement\";button.onclick=()=>tween.play();document.body.append(button);"
+          },
+          "lessonSlug": "control-playback"
+        },
+        {
+          "slug": "respect-reduced-motion",
+          "name": "Respect reduced motion",
+          "summary": "GSAP matchMedia can choose different motion based on a media query.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst media=gsap.matchMedia();\nmedia.add(\"(prefers-reduced-motion: no-preference)\",()=>{gsap.from(box,{x:-20,opacity:0,duration:0.4});});\n// With reduced motion, the normal visible box stays in place."
+          },
+          "lessonSlug": "respect-reduced-motion"
+        },
+        {
+          "slug": "clean-up-a-component-animation",
+          "name": "Clean up a component animation",
+          "summary": "A GSAP context can collect animations created for a component.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst context=gsap.context(()=>{gsap.to(box,{x:120,duration:1});});\nfunction removeFeature(){context.revert();box.remove();}\n// Call removeFeature when this component is removed."
+          },
+          "lessonSlug": "clean-up-a-component-animation"
+        },
+        {
+          "slug": "animate-transforms-with-a-purpose",
+          "name": "Animate transforms with a purpose",
+          "summary": "Transform and opacity animations often avoid redoing page layout.",
+          "example": {
+            "language": "javascript",
+            "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{scale:1.05,duration:0.2,yoyo:true,repeat:1,ease:\"power1.out\"});"
+          },
+          "lessonSlug": "animate-transforms-with-a-purpose"
+        }
+      ]
+    }
+  ]
+}

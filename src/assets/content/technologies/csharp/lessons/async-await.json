@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "slug": "async-await",
+  "title": "async and await",
+  "summary": "Write non-blocking code with async methods, Task and await, run work concurrently with Task.WhenAll, call HTTP APIs with HttpClient and cancel with CancellationToken.",
+  "introduction": "Waiting is the most common thing programs do: for a web response, a database query, a file on a slow disk. A thread that blocks while waiting wastes a core on a server and freezes the window in a desktop app. C#'s async and await let you write code that reads like ordinary sequential code but gives the thread back while waiting. This lesson explains what a Task is, how await works, how to run several operations at once, how to call a web API with HttpClient, and how to cancel work that takes too long.",
+  "learningObjectives": [
+    "Declare async methods that return Task and Task<T> and await them",
+    "Run independent operations concurrently with Task.WhenAll",
+    "Use HttpClient and CancellationToken in async code"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Tasks and await"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `Task` represents work that will finish in the future; `Task<T>` is work that will produce a `T`. Methods that return tasks are conventionally named with an `Async` suffix. Inside a method marked `async`, the `await` keyword pauses the method until the task completes *without blocking the thread*: the method returns to its caller and resumes later, right where it left off, with the result unwrapped. Top-level statements may use `await` directly."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(\"Putting the kettle on...\");\nstring drink = await BrewAsync(\"tea\");\nConsole.WriteLine(drink);\n\nasync Task<string> BrewAsync(string what)\n{\n    await Task.Delay(1000);          // stands in for a slow operation\n    return $\"Your {what} is ready\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Putting the kettle on...\nYour tea is ready"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Task.Delay(1000)` is an asynchronous one-second timer: unlike `Thread.Sleep`, it does not occupy a thread while waiting. The `async` modifier lets the compiler rewrite the method into a state machine, and `return` inside it provides the `T` of the `Task<T>`. The output order is exactly what sequential code would give; `await` only changes *how* the waiting happens."
+    },
+    {
+      "type": "table",
+      "headers": ["Return type", "Use for"],
+      "rows": [
+        ["`Task`", "An async method with no result (the async equivalent of `void`)"],
+        ["`Task<T>`", "An async method that produces a value"],
+        [
+          "`ValueTask<T>`",
+          "Hot paths where the result is usually already available; otherwise prefer `Task<T>`"
+        ],
+        ["`void`", "Event handlers only; exceptions escape and nobody can await the method"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sequential versus concurrent"
+    },
+    {
+      "type": "paragraph",
+      "text": "Awaiting one task after another runs them one at a time. When operations do not depend on each other, start them all first and then `await Task.WhenAll(...)`, which completes when every task has finished and returns their results as an array. The program measures both approaches with a `Stopwatch`."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using System.Diagnostics;\n\nvar clock = Stopwatch.StartNew();\n\nstring tea = await BoilAsync(\"tea\", 2000);\nstring toast = await ToastAsync(1500);\nConsole.WriteLine($\"Sequential: {tea}, {toast} in about {Math.Round(clock.Elapsed.TotalSeconds)} s\");\n\nclock.Restart();\nTask<string> teaTask = BoilAsync(\"tea\", 2000);      // starts immediately\nTask<string> toastTask = ToastAsync(1500);          // starts immediately too\nstring[] results = await Task.WhenAll(teaTask, toastTask);\nConsole.WriteLine($\"Concurrent: {string.Join(\", \", results)} in about {Math.Round(clock.Elapsed.TotalSeconds)} s\");\n\nasync Task<string> BoilAsync(string drink, int milliseconds)\n{\n    await Task.Delay(milliseconds);\n    return $\"{drink} done\";\n}\n\nasync Task<string> ToastAsync(int milliseconds)\n{\n    await Task.Delay(milliseconds);\n    return \"toast done\";\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (timings are approximate)",
+      "content": "Sequential: tea done, toast done in about 4 s\nConcurrent: tea done, toast done in about 2 s"
+    },
+    {
+      "type": "paragraph",
+      "text": "The concurrency comes from overlapping *waits*, not from extra threads: both delays tick at the same time without occupying any thread. For CPU-heavy work (image processing, big calculations) use `Task.Run` to move it to a thread-pool thread so that the caller stays responsive."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Calling a web API"
+    },
+    {
+      "type": "paragraph",
+      "text": "The most common real use of `await` is I/O. `HttpClient` sends HTTP requests, and all its methods are asynchronous. `GetAsync` returns the response with its status and headers; `ReadAsStringAsync` downloads the body. One `HttpClient` should be created once and reused; the `using` declaration disposes it when the program ends."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using var http = new HttpClient();\n\nHttpResponseMessage response = await http.GetAsync(\"https://example.com/\");\nConsole.WriteLine((int)response.StatusCode);\nConsole.WriteLine(response.Content.Headers.ContentType?.MediaType);\n\nstring html = await response.Content.ReadAsStringAsync();\nConsole.WriteLine(html.Contains(\"<title>\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "200\ntext/html\nTrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "For JSON APIs, `http.GetFromJsonAsync<T>(url)` from the `System.Net.Http.Json` namespace downloads and deserialises the body into your own record type in one awaited call; the [files and JSON lesson](/tutorials/csharp/files-json) covers the serializer it uses."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Errors and cancellation"
+    },
+    {
+      "type": "paragraph",
+      "text": "An exception thrown inside an async method is stored in its task and rethrown when the task is awaited, so an ordinary `try`/`catch` around an `await` works. Long operations should accept a `CancellationToken` and pass it to every async call they make; when the source is cancelled, those calls throw `OperationCanceledException` and the work stops at the next await."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));\n\ntry\n{\n    await DownloadAsync(cts.Token);\n    Console.WriteLine(\"Finished\");\n}\ncatch (OperationCanceledException)\n{\n    Console.WriteLine(\"Cancelled after 500 ms\");\n}\n\nasync Task DownloadAsync(CancellationToken token)\n{\n    for (int chunk = 1; chunk <= 5; chunk++)\n    {\n        await Task.Delay(200, token);\n        Console.WriteLine($\"chunk {chunk}\");\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "chunk 1\nchunk 2\nCancelled after 500 ms"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Async all the way"
+    },
+    {
+      "type": "paragraph",
+      "text": "Once a method awaits, its callers should await it too, all the way up to the entry point. Mixing in blocking calls defeats the purpose and can deadlock, which is the subject of the warning below. In ASP.NET Core and most libraries every I/O API already has an async version; use it, and let the `Async` suffix remind you to `await`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Never block on a task with .Result or .Wait()",
+      "text": "`string s = GetAsync().Result;` blocks the current thread until the task finishes. In UI apps and older ASP.NET it deadlocks, because the task needs that very thread to resume on; everywhere else it wastes a thread and wraps exceptions in an `AggregateException`. Make the calling method `async` and `await` instead. Likewise avoid `async void` (except for event handlers): its exceptions cannot be caught by the caller and nobody can await it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-async-await-blank"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-async-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "async-await",
+          "difficulty": "intermediate",
+          "question": "What does await do when the task it is waiting for has not finished yet?",
+          "explanation": "`await` suspends the async method and returns control to the caller; the method resumes when the task completes. No thread is blocked and no new thread is created for the wait.",
+          "options": [
+            "Blocks the current thread until the task finishes",
+            "Returns control to the caller and resumes the method when the task completes",
+            "Creates a new thread to run the task",
+            "Cancels the task"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "csharp-async-qc-2",
+          "type": "true-false",
+          "lessonSlug": "async-await",
+          "difficulty": "intermediate",
+          "question": "Task.WhenAll starts the given tasks one after another and returns when the last one finishes.",
+          "explanation": "The tasks are already running when they are passed in; `WhenAll` only produces a task that completes once all of them have completed, so their waits overlap.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-async-await-blank"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "exceptions"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "files-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "async-types"
+    }
+  ],
+  "seo": {
+    "title": "C# async and await – Task, Task.WhenAll, HttpClient",
+    "description": "Learn C# asynchronous programming: async methods, Task and Task<T>, await, running work concurrently with Task.WhenAll, HttpClient calls and CancellationToken."
+  },
+  "updatedOn": "2026-11-15"
+}

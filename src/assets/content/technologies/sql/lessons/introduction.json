@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "slug": "introduction",
+  "title": "SQL Introduction",
+  "summary": "SQL asks questions about information in tables. Read rows and columns, and try a tiny table of books.",
+  "introduction": "A class list has rows and columns. A database can store information in tables like that list. SQL is a language for asking the database questions. A question written in SQL is called a query. You can try SQL on this site without making an account or setting up a server.",
+  "learningObjectives": [
+    "Explain a table, a row and a column",
+    "Read a simple SELECT query",
+    "Run a small query that finds one book"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A table is an organised list"
+    },
+    {
+      "type": "table",
+      "headers": ["New word", "What it means"],
+      "rows": [
+        ["Database", "A place that stores information."],
+        ["Table", "Information arranged in rows and columns."],
+        ["Row", "One item, such as one book."],
+        ["Column", "One kind of fact, such as a book title."],
+        ["Query", "A question or instruction written in SQL."]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 1: Ask for a number"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT 2 + 3 AS total;",
+      "title": "Use SQL as a calculator",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "content": "total\n5",
+      "kind": "text"
+    },
+    {
+      "type": "paragraph",
+      "text": "`SELECT` asks for an answer. `AS total` names the answer column `total`. A semicolon ends the instruction."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 2: Read a small table"
+    },
+    {
+      "type": "paragraph",
+      "text": "This example makes a tiny list inside the query. `WITH` gives the list a name for this query only. You can run the example more than once."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "WITH books (title, pages) AS (\n  VALUES ('Garden Days', 40), ('Moon Trip', 60)\n)\nSELECT title, pages FROM books;",
+      "title": "Two books",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "content": "title | pages\nGarden Days | 40\nMoon Trip | 60",
+      "kind": "text"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`books` is the table name for this query.",
+        "`title` and `pages` are the two column names.",
+        "Each pair inside `VALUES` is one row.",
+        "`FROM books` tells SQL which table to read."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 3: Choose one book"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "WITH books (title, pages) AS (\n  VALUES ('Garden Days', 40), ('Moon Trip', 60)\n)\nSELECT title FROM books WHERE pages > 50;",
+      "title": "Find a book with more than 50 pages",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "content": "title\nMoon Trip",
+      "kind": "text"
+    },
+    {
+      "type": "paragraph",
+      "text": "`WHERE` gives a rule for the rows we want. `pages > 50` means \"more than 50 pages.\" Only Moon Trip fits. We asked for `title`, so the answer shows that column."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "SQL text uses single quotes, like `'Moon Trip'`. Numbers such as 60 do not need quotes. SQL tools have small differences. The Run button here uses SQLite."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your turn",
+      "text": "Change `50` to `30` in the last example. Guess which books will appear, then run it. Can you choose a number that gives no rows?"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-introduction-purpose"
+    }
+  ],
+  "exerciseIds": ["sql-introduction-purpose"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "select"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "create-table"
+    }
+  ],
+  "seo": {
+    "title": "SQL Introduction – Tables, Queries and Dialects",
+    "description": "Learn what SQL is, how relational databases organise data in tables, and run your first SELECT statements in a browser-based SQLite playground."
+  },
+  "updatedOn": "2026-11-16"
+}

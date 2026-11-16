@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "slug": "flexbox",
+  "title": "Flexbox",
+  "summary": "Flexbox arranges a group of boxes in a row or a column. It can share space and line up the boxes.",
+  "introduction": "Flexbox arranges a group of boxes in a row or a column. It can share space and line up the boxes. Picture a row of cards on a desk. Use flexbox to give them a gap, centre them or let them wrap to the next row.",
+  "learningObjectives": [
+    "Create a flex container and control its direction and wrapping",
+    "Align and distribute items with justify-content, align-items and gap",
+    "Size items with flex-grow, flex-shrink and flex-basis"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A flex container and its two axes"
+    },
+    {
+      "type": "paragraph",
+      "text": "`display: flex` on a parent turns its direct children into **flex items** and lays them out along the **main axis**, horizontal by default. The perpendicular direction is the **cross axis**. Three things change immediately: the items sit side by side, they shrink to fit their content instead of stretching across the container, and their margins stop collapsing. Everything else in flexbox is a way of distributing space along one of the two axes."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .row { display: flex; gap: 8px; background: #f1f5f9; padding: 8px; }\n  .row div { background: #1d4ed8; color: white; padding: 12px; }\n</style>\n<div class=\"row\">\n  <div>One</div>\n  <div>Two</div>\n  <div>Three</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.row{display:flex;gap:8px;background:#f1f5f9;padding:8px}.row div{background:#1d4ed8;color:#fff;padding:12px}</style><div class=\"row\"><div>One</div><div>Two</div><div>Three</div></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Distributing items along the main axis: justify-content"
+    },
+    {
+      "type": "paragraph",
+      "text": "`justify-content` decides what happens to the free space along the main axis. `flex-start` (the default) packs items at the start, `center` in the middle, `flex-end` at the end; `space-between` puts the first and last items at the edges and spreads the rest; `space-around` and `space-evenly` add space around every item. A navigation bar is `space-between` in one line."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .nav {\n    display: flex;\n    justify-content: space-between;  /* logo left, links right */\n    align-items: center;             /* vertically centred */\n    padding: 8px 16px;\n    background: #0f172a;\n    color: white;\n  }\n  .nav ul { display: flex; gap: 16px; list-style: none; margin: 0; padding: 0; }\n  .nav a { color: white; text-decoration: none; }\n</style>\n<nav class=\"nav\">\n  <strong>Logo</strong>\n  <ul>\n    <li><a href=\"#\">Docs</a></li>\n    <li><a href=\"#\">Blog</a></li>\n    <li><a href=\"#\">About</a></li>\n  </ul>\n</nav>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.nav{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:#0f172a;color:#fff}.nav ul{display:flex;gap:16px;list-style:none;margin:0;padding:0}.nav a{color:#fff;text-decoration:none}</style><nav class=\"nav\"><strong>Logo</strong><ul><li><a href=\"#\">Docs</a></li><li><a href=\"#\">Blog</a></li><li><a href=\"#\">About</a></li></ul></nav>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Aligning on the cross axis: align-items and align-self"
+    },
+    {
+      "type": "paragraph",
+      "text": "`align-items` positions items on the cross axis. The default `stretch` makes every item as tall as the tallest one, which gives you equal-height columns for free. `center`, `flex-start`, `flex-end` and `baseline` do what their names say, and `align-self` overrides the value for a single item. Combine `justify-content: center` with `align-items: center` and you have the famous one-rule centring recipe."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .hero {\n    display: flex;\n    justify-content: center;   /* main axis */\n    align-items: center;       /* cross axis */\n    height: 140px;\n    background: #eff6ff;\n  }\n  .hero p { margin: 0; font-size: 1.25rem; }\n</style>\n<div class=\"hero\"><p>Centred both ways</p></div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.hero{display:flex;justify-content:center;align-items:center;height:120px;background:#eff6ff}.hero p{margin:0;font-size:1.25rem}</style><div class=\"hero\"><p>Centred both ways</p></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "gap, wrapping and direction"
+    },
+    {
+      "type": "paragraph",
+      "text": "`gap` puts space *between* items only, with no stray margin at the edges; prefer it to margins on the items. By default all items stay on one line and shrink to fit; `flex-wrap: wrap` lets them move onto new lines instead. `flex-direction: column` switches the main axis to vertical, after which `justify-content` works vertically and `align-items` horizontally. `flex-flow` is the shorthand for direction and wrap together."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .tags { display: flex; flex-wrap: wrap; gap: 8px; max-width: 260px; }\n  .tags span { background: #dbeafe; padding: 4px 10px; border-radius: 9999px; }\n</style>\n<div class=\"tags\">\n  <span>flexbox</span><span>layout</span><span>alignment</span>\n  <span>wrapping</span><span>gap</span><span>direction</span>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.tags{display:flex;flex-wrap:wrap;gap:8px;max-width:260px}.tags span{background:#dbeafe;padding:4px 10px;border-radius:9999px}</style><div class=\"tags\"><span>flexbox</span><span>layout</span><span>alignment</span><span>wrapping</span><span>gap</span><span>direction</span></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How items grow and shrink"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three properties per item control sizing. `flex-basis` is the starting size (`auto` means \"use the width, or the content\"). `flex-grow` is the item's share of any *free* space: with `flex-grow: 1` on every item they share it equally, with `2` on one item it gets twice as much. `flex-shrink` (default `1`) is the share of the *overflow* taken away when items do not fit. The `flex` shorthand sets all three, and its keywords are what you will actually write."
+    },
+    {
+      "type": "table",
+      "headers": ["Shorthand", "Expands to", "Meaning"],
+      "rows": [
+        ["`flex: 1`", "`1 1 0`", "Grow equally from zero: equal columns regardless of content"],
+        ["`flex: auto`", "`1 1 auto`", "Start from the content size, then share the free space"],
+        ["`flex: none`", "`0 0 auto`", "Fixed: never grows or shrinks"],
+        ["`flex: 0 0 200px`", "`0 0 200px`", "Exactly 200px along the main axis"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .layout { display: flex; gap: 12px; }\n  .sidebar { flex: none; width: 120px; background: #e2e8f0; padding: 8px; }\n  .main    { flex: 1; min-width: 0; background: #f8fafc; padding: 8px; }\n</style>\n<div class=\"layout\">\n  <aside class=\"sidebar\">Sidebar, fixed at 120px</aside>\n  <main class=\"main\">The main area takes whatever space is left, however wide the window is.</main>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.layout{display:flex;gap:12px}.sidebar{flex:none;width:120px;background:#e2e8f0;padding:8px}.main{flex:1;min-width:0;background:#f8fafc;padding:8px}</style><div class=\"layout\"><aside class=\"sidebar\">Sidebar, fixed at 120px</aside><main class=\"main\">The main area takes whatever space is left, however wide the window is.</main></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`min-width: 0` on the growing item matters more than it looks: flex items refuse to shrink below their minimum content size, so a long URL or a wide table inside `.main` would otherwise push the layout out of its container. Setting the minimum to zero lets the item shrink and its content wrap or scroll."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Items shrink unless you tell them not to",
+      "text": "Giving a flex item `width: 300px` and finding it narrower is not a bug: `flex-shrink` defaults to `1`, so when the items do not fit, every one gives up some width. Use `flex: none` (or `flex-shrink: 0`) on items that must keep their size, and let one item with `flex: 1` absorb the difference."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Flexbox or grid?",
+      "text": "Flexbox distributes items along one line (that may wrap); the items decide the sizes. Grid defines rows *and* columns first and places items into them. Navigation bars, button groups and centring are flexbox jobs; page layouts and galleries are [Grid](/tutorials/css/grid) jobs. Most pages use both."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: a card row",
+      "height": 240,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Flexbox</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .cards {\n      display: flex;\n      gap: 12px;\n      /* Try: flex-wrap: wrap; justify-content: center; flex-direction: column; */\n    }\n    .card {\n      flex: 1;            /* Try: flex: none; or flex: 2 on one card */\n      padding: 12px;\n      background: #eff6ff;\n      border-radius: 8px;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"cards\">\n    <div class=\"card\">Short</div>\n    <div class=\"card\">A card with a bit more text inside it.</div>\n    <div class=\"card\">Medium length</div>\n  </div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-flexbox-center"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-flexbox-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "flexbox",
+          "difficulty": "beginner",
+          "question": "In a row flex container, which property centres the items vertically?",
+          "explanation": "The cross axis of a row container is vertical, and `align-items` aligns items on the cross axis. `justify-content` works along the main (horizontal) axis.",
+          "options": [
+            "`justify-content: center`",
+            "`align-items: center`",
+            "`text-align: center`",
+            "`vertical-align: middle`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-flexbox-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "flexbox",
+          "difficulty": "beginner",
+          "question": "`flex-___: wrap;` lets flex items move onto additional lines when they do not fit.",
+          "explanation": "`flex-wrap: wrap` allows multiple lines; the default `nowrap` keeps everything on one line and shrinks the items instead.",
+          "answers": ["wrap"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-flexbox-center"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "grid"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "display"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "responsive-design"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    }
+  ],
+  "seo": {
+    "title": "CSS Flexbox – Align, Justify, Grow, Shrink and Wrap Items",
+    "description": "Learn CSS flexbox: flex containers and axes, justify-content, align-items and gap, flex-wrap and direction, and flex-grow, shrink and basis, with examples."
+  },
+  "updatedOn": "2026-11-16"
+}

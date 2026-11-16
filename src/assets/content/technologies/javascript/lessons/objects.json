@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "objects",
+  "title": "Objects",
+  "summary": "An object groups related values under names. One object could store a book's title, author and page count.",
+  "introduction": "An object groups related values under names. One object could store a book's title, author and page count. Make a small book record. Read a named value, change it and add a new fact without mixing up the labels.",
+  "learningObjectives": [
+    "Create an object literal and read properties with dot and bracket notation",
+    "Add, change and delete properties and handle missing ones safely",
+    "Write methods that use this to access the object's own data",
+    "Loop over keys, values and entries and copy an object without sharing it"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Object literals"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **object literal** is a list of `key: value` pairs in braces. Keys are strings (quotes are optional when the key is a valid identifier) and values can be anything, including other objects, arrays and functions. Read a property with a dot when you know its name while writing the code, and with square brackets when the name is stored in a variable or contains characters such as spaces or hyphens."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const book = {\n  title: \"Eloquent JavaScript\",\n  pages: 472,\n  available: true,\n};\n\nconsole.log(book.title);\nconsole.log(book[\"pages\"]);\n\nconst key = \"available\";\nconsole.log(book[key]);        // the key comes from a variable\n\nbook.year = 2024;              // add a property\nbook.pages = 480;              // change one\ndelete book.available;         // remove one\nconsole.log(Object.keys(book).join(\", \"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Eloquent JavaScript\n472\ntrue\ntitle, pages, year"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "book.key is not book[key]",
+      "text": "`book.key` looks for a property literally called `key`; it does not read the variable. When the property name is in a variable, you must use brackets: `book[key]`. This is the most common mistake with objects and it fails silently, returning `undefined`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested objects and missing properties"
+    },
+    {
+      "type": "paragraph",
+      "text": "Properties can hold objects and arrays, so you chain accesses: `order.customer.address.city`. Reading a property that does not exist gives `undefined`, but reading a property *of* `undefined` throws a `TypeError`. **Optional chaining** `?.` stops the chain and returns `undefined` as soon as it meets `null` or `undefined`, and the nullish coalescing operator `??` supplies a fallback. The `in` operator checks whether a key exists at all."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const order = {\n  id: 1001,\n  customer: { name: \"Grace\", address: { city: \"Paris\" } },\n  items: [\"keyboard\", \"mouse\"],\n};\n\nconsole.log(order.customer.address.city);\nconsole.log(order.items[1]);\nconsole.log(order.customer.phone);\nconsole.log(order.customer.phone?.number);\nconsole.log(order.customer.phone?.number ?? \"no phone on file\");\nconsole.log(\"customer\" in order);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Paris\nmouse\nundefined\nundefined\nno phone on file\ntrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Methods and this"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function stored in a property is a **method**. Inside a method, `this` refers to the object the method was called on, which is how one method can work for any object that has the same shape. The shorthand `deposit(amount) {...}` is the modern way to write a method inside a literal."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const account = {\n  owner: \"Ada\",\n  balance: 100,\n  deposit(amount) {\n    this.balance += amount;\n    return this.balance;\n  },\n  describe() {\n    return `${this.owner} has ${this.balance} credits`;\n  },\n};\n\naccount.deposit(50);\nconsole.log(account.describe());\nconsole.log(typeof account.deposit);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada has 150 credits\nfunction"
+    },
+    {
+      "type": "paragraph",
+      "text": "`this` is decided by *how* a function is called, not where it is written: `account.describe()` sets it to `account`. Arrow functions do not have their own `this`, so do not use them for methods in a literal; the [Modern Syntax](/tutorials/javascript/es6-features) lesson explains when that behaviour is useful instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keys, values and entries"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Object.keys`, `Object.values` and `Object.entries` turn an object into arrays, which means every array method from the previous lesson becomes available. `Object.entries` gives `[key, value]` pairs that you can unpack directly in a `for...of` loop."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const stock = { apples: 3, pears: 0, plums: 12 };\n\nconsole.log(Object.keys(stock).join(\", \"));\nconsole.log(Object.values(stock).join(\", \"));\n\nfor (const [name, count] of Object.entries(stock)) {\n  if (count === 0) continue;\n  console.log(`${name}: ${count}`);\n}\n\nconst total = Object.values(stock).reduce((sum, n) => sum + n, 0);\nconsole.log(total);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "apples, pears, plums\n3, 0, 12\napples: 3\nplums: 12\n15"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Copying and comparing"
+    },
+    {
+      "type": "paragraph",
+      "text": "Assigning an object to another variable creates an **alias**, not a copy: both names point at the same object. To get an independent copy, spread the object into a new literal (`{ ...original }`). That copy is **shallow**, meaning nested objects are still shared; `structuredClone(original)` makes a deep copy. Comparing with `===` asks 'is this the same object?', never 'do these have the same contents?'."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const original = { theme: \"dark\", fontSize: 14 };\nconst alias = original;\nconst copy = { ...original };\n\nalias.fontSize = 16;\nconsole.log(original.fontSize);   // changed through the alias\nconsole.log(copy.fontSize);       // the copy is independent\n\nconsole.log(original === alias);  // same object\nconsole.log(original === copy);   // different objects, even if contents matched\nconsole.log(JSON.stringify(copy));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "16\n14\ntrue\nfalse\n{\"theme\":\"dark\",\"fontSize\":14}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`JSON.stringify` converts an object into text, which is useful for printing it on one line or comparing contents. The [Fetch and JSON](/tutorials/javascript/fetch-json) lesson covers it in depth."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects as function parameters"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a function needs several settings, accept one object instead of a long list of parameters. Callers then name each value, can pass them in any order and can leave out the ones with defaults."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function createButton(options) {\n  const settings = { label: \"OK\", size: \"medium\", disabled: false, ...options };\n  return `${settings.label} (${settings.size}${settings.disabled ? \", disabled\" : \"\"})`;\n}\n\nconsole.log(createButton({ label: \"Save\" }));\nconsole.log(createButton({ size: \"large\", disabled: true }));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Save (medium)\nOK (large, disabled)"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Add a `withdraw(amount)` method to the account object that refuses to go below zero and returns a message either way. Then write a loop over `Object.entries` that prints every property of `book` as `key = value`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-objects-keys"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "objects-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "objects",
+          "difficulty": "beginner",
+          "question": "The variable `field` holds the string `\"email\"`. Which expression reads the email property of `user`?",
+          "explanation": "Bracket notation evaluates the expression inside the brackets, so user[field] reads user.email. user.field would look for a property literally named field.",
+          "options": ["`user.field`", "`user[field]`", "`user.\"field\"`", "`user->field`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "objects-qc-2",
+          "type": "true-false",
+          "lessonSlug": "objects",
+          "difficulty": "beginner",
+          "question": "`{ a: 1 } === { a: 1 }` evaluates to true because both objects have the same contents.",
+          "explanation": "=== compares references. Two separate object literals are two different objects, so the result is false even though they look the same.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-objects-keys"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "modules-classes"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Objects – Properties, Methods, this and Copies",
+    "description": "Learn JavaScript objects: object literals, dot and bracket access, optional chaining, methods and this, Object.keys and entries, and spread copies."
+  },
+  "updatedOn": "2026-11-16"
+}

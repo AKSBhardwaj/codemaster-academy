@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "clean-up-a-repeating-job",
+  "title": "Clean up a repeating job",
+  "summary": "disconnectedCallback runs when a custom element leaves the document.",
+  "introduction": "disconnectedCallback runs when a custom element leaves the document. Your task: Remove the element after a few seconds and explain the cleanup.",
+  "learningObjectives": [
+    "Remove the element after a few seconds and explain the cleanup.",
+    "Explain the example for clean up a repeating job"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "disconnectedCallback runs when a custom element leaves the document. Use it to stop repeating work that should no longer run."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run these HTML examples in this site's HTML playground. Each example defines its own custom element in a fresh page. No extra JavaScript library is needed."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<tick-note></tick-note>\n<script>\n  class TickNote extends HTMLElement {\n    connectedCallback() { this.count = 0; this.timer = setInterval(() => { this.textContent = String(++this.count); }, 1000); }\n    disconnectedCallback() { clearInterval(this.timer); }\n  }\n  customElements.define(\"tick-note\", TickNote);\n</script>",
+      "title": "Clean up a repeating job",
+      "runnable": true
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`textContent` reads or replaces plain text inside an element. It does not interpret the supplied words as HTML.",
+        "`customElements.define` registers a hyphenated tag name with its class. Register a given name only once per document.",
+        "`connectedCallback` runs when the element joins the document. It can run again after a removal and reconnection."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The number grows once per second. Removing the element stops its timer."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Leaving a timer running after removal wastes work. Reconnection should start a fresh timer without leaving an old one behind."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Remove the element after a few seconds and explain the cleanup."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-components-clean-up-a-repeating-job-check"
+    }
+  ],
+  "exerciseIds": ["web-components-clean-up-a-repeating-job-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-components",
+      "slug": "send-a-custom-event"
+    }
+  ],
+  "seo": {
+    "title": "Web Components: Clean up a repeating job",
+    "description": "disconnectedCallback runs when a custom element leaves the document. Use it to stop repeating work that should no longer run."
+  },
+  "updatedOn": "2026-11-16"
+}

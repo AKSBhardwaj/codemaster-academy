@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "path-inputs",
+  "title": "Read a path value",
+  "summary": "Phoenix: Read a path value. Visit /hello/Asha.",
+  "introduction": "A colon marks a router input. Pattern matching reads its string-keyed parameter. Open GET /hello/Ravi.",
+  "learningObjectives": ["Read a path value with Phoenix", "Visit /hello/Asha"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a path value"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Read a path value",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/hello/:name\", LessonController, :hello\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef hello(conn, %{\"name\" => name}), do: text(conn, \"Hi, #{name}!\")\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The pattern reads the string key name from params. It binds Ravi for interpolation."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hi, Ravi!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /hello/Asha."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "HTTP parameter keys are strings, not atoms."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-path-inputs-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-path-inputs-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Read a path value",
+    "description": "Phoenix: Read a path value. Visit /hello/Asha. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

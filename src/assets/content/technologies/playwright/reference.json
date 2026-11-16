@@ -1,0 +1,146 @@
+{
+  "title": "Playwright Reference",
+  "description": "A quick reminder of the ideas and examples in the Playwright lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "A browser test",
+          "summary": "A browser test opens a page and checks what a person can do. setContent gives this test a tiny page without a website server.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"a browser test\", async ({ page }) => {\n  await page.setContent(\"<h1>Library</h1>\");\n  await expect(page.getByRole(\"heading\", { name: \"Library\" })).toBeVisible();\n});"
+          },
+          "notes": [
+            "Install Playwright and its browser with the official setup guide before running a test file."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "find-by-role",
+          "name": "Find by role",
+          "summary": "A role describes what an element does. A button role and its name make a locator that resembles how a person finds the control.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"find by role\", async ({ page }) => {\n  await page.setContent(\"<button>Borrow</button>\");\n  await expect(page.getByRole(\"button\", { name: \"Borrow\" })).toBeVisible();\n});"
+          },
+          "notes": ["A button with no useful name is hard for both people and tests to find."],
+          "lessonSlug": "find-by-role"
+        },
+        {
+          "slug": "labels-identify-inputs",
+          "name": "Labels identify inputs",
+          "summary": "A label tells a person what an input is for. getByLabel uses that relationship.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"labels identify inputs\", async ({ page }) => {\n  await page.setContent('<label for=\"title\">Book title</label><input id=\"title\">');\n  await page.getByLabel(\"Book title\").fill(\"Moon\");\n  await expect(page.getByLabel(\"Book title\")).toHaveValue(\"Moon\");\n});"
+          },
+          "notes": ["Placeholder text is not a substitute for a persistent label."],
+          "lessonSlug": "labels-identify-inputs"
+        },
+        {
+          "slug": "click-an-action",
+          "name": "Click an action",
+          "summary": "click asks Playwright to perform a real user-like click. Check the visible result, not only that the click method returned.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"click an action\", async ({ page }) => {\n  await page.setContent('<button onclick=\"this.textContent=\\\"Done\\\"\">Save</button>');\n  await page.getByRole(\"button\", { name: \"Save\" }).click();\n  await expect(page.getByRole(\"button\", { name: \"Done\" })).toBeVisible();\n});"
+          },
+          "notes": ["A successful click alone does not prove the intended action happened."],
+          "lessonSlug": "click-an-action"
+        },
+        {
+          "slug": "assertions-wait-for-a-result",
+          "name": "Assertions wait for a result",
+          "summary": "Playwright locator assertions retry for a short time. This helps when a visible change happens after the action.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"assertions wait for a result\", async ({ page }) => {\n  await page.setContent(\"<p>Ready</p>\");\n  await expect(page.getByText(\"Ready\", { exact: true })).toBeVisible();\n});"
+          },
+          "notes": ["Avoid fixed sleeps when you can wait for a real condition."],
+          "lessonSlug": "assertions-wait-for-a-result"
+        },
+        {
+          "slug": "count-repeated-items",
+          "name": "Count repeated items",
+          "summary": "A locator can match several elements. toHaveCount checks how many matches exist.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"count repeated items\", async ({ page }) => {\n  await page.setContent(\"<ul><li>Moon</li><li>Ocean</li></ul>\");\n  await expect(page.getByRole(\"listitem\")).toHaveCount(2);\n});"
+          },
+          "notes": ["A count alone does not check the text of every item."],
+          "lessonSlug": "count-repeated-items"
+        },
+        {
+          "slug": "check-a-checkbox",
+          "name": "Check a checkbox",
+          "summary": "check sets a checkbox to checked. It is clearer than clicking when the desired state is known.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"check a checkbox\", async ({ page }) => {\n  await page.setContent('<label><input type=\"checkbox\">Remember this book</label>');\n  const box = page.getByLabel(\"Remember this book\");\n  await box.check();\n  await expect(box).toBeChecked();\n});"
+          },
+          "notes": ["Clicking a box twice can return it to the original state."],
+          "lessonSlug": "check-a-checkbox"
+        },
+        {
+          "slug": "select-an-option",
+          "name": "Select an option",
+          "summary": "A select input stores an option value. The label shown to people can differ from that value.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"select an option\", async ({ page }) => {\n  await page.setContent('<label>Size<select><option value=\"s\">Small</option><option value=\"l\">Large</option></select></label>');\n  await page.getByLabel(\"Size\").selectOption(\"l\");\n  await expect(page.getByLabel(\"Size\")).toHaveValue(\"l\");\n});"
+          },
+          "notes": ["Use selectOption for a native select, not for every custom menu."],
+          "lessonSlug": "select-an-option"
+        },
+        {
+          "slug": "test-keyboard-access",
+          "name": "Test keyboard access",
+          "summary": "A keyboard test checks focus and key actions. It can reveal a control that works only with a mouse.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"test keyboard access\", async ({ page }) => {\n  await page.setContent(\"<button>First</button><button>Second</button>\");\n  await page.getByRole(\"button\", { name: \"First\" }).focus();\n  await page.keyboard.press(\"Tab\");\n  await expect(page.getByRole(\"button\", { name: \"Second\" })).toBeFocused();\n});"
+          },
+          "notes": ["Visible focus should remain easy to see on the real page."],
+          "lessonSlug": "test-keyboard-access"
+        },
+        {
+          "slug": "mock-a-page-response",
+          "name": "Mock a page response",
+          "summary": "A route handler can provide a known response. The test controls the content without calling a real external service.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"mock a page response\", async ({ page }) => {\n  await page.route(\"https://books.test/\", route => route.fulfill({ contentType: \"text/html\", body: \"<h1>Book list</h1>\" }));\n  await page.goto(\"https://books.test/\");\n  await expect(page.getByRole(\"heading\", { name: \"Book list\" })).toBeVisible();\n});"
+          },
+          "notes": ["Register the route before the request it must catch."],
+          "lessonSlug": "mock-a-page-response"
+        },
+        {
+          "slug": "isolate-test-state",
+          "name": "Isolate test state",
+          "summary": "Each Playwright test normally gets a fresh browser context. A context separates saved state such as cookies between tests.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"isolate test state\", async ({ page }) => {\n  await page.setContent(\"<p>Fresh test</p>\");\n  await expect(page.getByText(\"Fresh test\", { exact: true })).toBeVisible();\n});"
+          },
+          "notes": ["Do not rely on test order to create the state a test needs."],
+          "lessonSlug": "isolate-test-state"
+        },
+        {
+          "slug": "capture-useful-evidence",
+          "name": "Capture useful evidence",
+          "summary": "A screenshot records visible state. It helps explain a failure but is not a replacement for a precise behaviour check.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect } from \"@playwright/test\";\n\ntest(\"capture useful evidence\", async ({ page }) => {\n  await page.setContent(\"<h1>Library</h1>\");\n  await expect(page.getByRole(\"heading\")).toHaveText(\"Library\");\n  await page.screenshot({ path: \"library.png\", fullPage: true });\n});"
+          },
+          "notes": ["Do not approve changed visual snapshots without looking at the changes."],
+          "lessonSlug": "capture-useful-evidence"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "cleanup",
+  "title": "Run cleanup when closing",
+  "summary": "Spring Framework: Run cleanup when closing. Add a print before the context closes and compare order.",
+  "introduction": "destroyMethod names cleanup. Closing the context runs it for this singleton bean.",
+  "learningObjectives": [
+    "Run cleanup when closing with Spring Framework",
+    "Add a print before the context closes and compare order"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run cleanup when closing"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Run cleanup when closing",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nstatic class Note { public void close() { System.out.println(\"Closed\"); } }\n@Configuration\nstatic class Config {\n@Bean(destroyMethod=\"close\") Note note() { return new Note(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\n\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The try-with-resources block closes the context. Spring then calls the bean cleanup method once."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Closed"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a print before the context closes and compare order."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Cleanup needs the context to close; an abrupt process stop may skip it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-cleanup-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-cleanup-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "initialisation"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Run cleanup when closing",
+    "description": "Spring Framework: Run cleanup when closing. Add a print before the context closes and compare order. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

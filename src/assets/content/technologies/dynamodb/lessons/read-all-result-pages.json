@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "read-all-result-pages",
+  "title": "Read all result pages",
+  "summary": "A Query response can be only one page of data.",
+  "introduction": "A Query response can be only one page of data. Your task: Find the continuation key after querying a multi-item partition.",
+  "learningObjectives": [
+    "Find the continuation key after querying a multi-item partition.",
+    "Explain the example for read all result pages"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A Query response can be only one page of data. LastEvaluatedKey tells the caller where to continue."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"KeyConditionExpression\":\"#reader=:reader\",\"ExpressionAttributeNames\":{\"#reader\":\"reader\"},\"ExpressionAttributeValues\":{\":reader\":{\"S\":\"mia\"}},\"Limit\":1}",
+      "title": "Read all result pages",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`KeyConditionExpression` uses the table or index keys to select a partition and, optionally, a sort-key range.",
+        "`ConditionExpression` checks the current item as part of the write, so a failed condition prevents the change.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "With several sample items, the response may include LastEvaluatedKey. Pass it as ExclusiveStartKey in the next request."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Limit is not a promise that you have read the whole partition. Continue until no LastEvaluatedKey remains."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Find the continuation key after querying a multi-item partition."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-read-all-result-pages-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-read-all-result-pages-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "use-a-sort-key-prefix"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Read all result pages",
+    "description": "A Query response can be only one page of data. LastEvaluatedKey tells the caller where to continue."
+  },
+  "updatedOn": "2026-11-16"
+}

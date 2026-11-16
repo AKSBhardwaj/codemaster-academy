@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors",
+  "title": "Handle a route error",
+  "summary": "Express.js: Handle a route error. Change the public error message.",
+  "introduction": "An error handler has four inputs. GET /broken throws an error, which the last handler turns into a clear reply.",
+  "learningObjectives": ["Handle a route error with Express.js", "Change the public error message"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle a route error"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Handle a route error",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/broken\", (req, res) => { throw new Error(\"Practice failure\"); });\napp.use((err, req, res, next) => res.status(500).json({ error: \"Try again later\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The thrown error skips normal routing and reaches the four-input error handler."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Try again later\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the public error message."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Place error middleware after the routes and avoid exposing private error details."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-errors-check"
+    }
+  ],
+  "exerciseIds": ["express-errors-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Handle a route error",
+    "description": "Express.js: Handle a route error. Change the public error message. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -11,7 +11,13 @@ import { QuestionInputComponent } from '../question-input/question-input';
 /** One exercise with answer controls, grading, feedback and explanation. Attempts are saved in the browser. */
 @Component({
   selector: 'cma-exercise-card',
-  imports: [RouterLink, IconComponent, InlineMarkupComponent, QuestionInputComponent, CodingTaskComponent],
+  imports: [
+    RouterLink,
+    IconComponent,
+    InlineMarkupComponent,
+    QuestionInputComponent,
+    CodingTaskComponent,
+  ],
   templateUrl: './exercise-card.html',
   styleUrl: './exercise-card.scss',
 })
@@ -27,7 +33,9 @@ export class ExerciseCardComponent {
   protected readonly typeLabel = computed(() => EXERCISE_TYPE_LABEL[this.exercise().type]);
   protected readonly difficultyLabel = computed(() => DIFFICULTY_LABEL[this.exercise().difficulty]);
   protected readonly coding = computed(() => isCodingTask(this.exercise()));
-  protected readonly question = computed(() => (isCodingTask(this.exercise()) ? null : (this.exercise() as QuizQuestion)));
+  protected readonly question = computed(() =>
+    isCodingTask(this.exercise()) ? null : (this.exercise() as QuizQuestion),
+  );
   protected readonly correct = computed(() => {
     const question = this.question();
     return question ? this.checked() && gradeAnswer(question, this.answer()) : false;

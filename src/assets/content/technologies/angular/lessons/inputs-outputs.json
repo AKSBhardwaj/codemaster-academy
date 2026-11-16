@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "slug": "inputs-outputs",
+  "title": "Component Inputs and Outputs",
+  "summary": "Pass data into a component with input() and input.required(), send events out with output(), and offer two-way binding with model(), all as signals.",
+  "introduction": "Components become useful when a parent can configure them and hear back from them. In Angular 22 both directions are signal-based: input() exposes a value the parent binds to, output() emits events the parent listens for, and model() does both at once so the parent can use the [( )] syntax. This lesson builds a small task list from a parent and a child component and shows the compile-time errors Angular raises when a required input is missing.",
+  "learningObjectives": [
+    "Declare inputs with input() and input.required() and read them as signals",
+    "Emit events with output() and handle them in the parent with $event",
+    "Create a two-way bindable property with model()"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Data down: input()"
+    },
+    {
+      "type": "paragraph",
+      "text": "`input()` declares a property the parent can bind to. It returns a read-only signal, so the component reads it with a call, `name()`, and can derive values from it with `computed()`. `input.required<T>()` has no default and must be bound by every parent; `input(defaultValue)` is optional."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/user-card/user-card.ts",
+      "code": "import { Component, computed, input } from '@angular/core';\n\n@Component({\n  selector: 'app-user-card',\n  template: `\n    <article>\n      <h2>{{ name() }}</h2>\n      <p>{{ role() }} · {{ initials() }}</p>\n    </article>\n  `,\n})\nexport class UserCard {\n  readonly name = input.required<string>();\n  readonly role = input('Member');\n\n  readonly initials = computed(() =>\n    this.name()\n      .split(' ')\n      .map((part) => part[0])\n      .join(''),\n  );\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/team/team.ts",
+      "code": "import { Component, signal } from '@angular/core';\nimport { UserCard } from '../user-card/user-card';\n\n@Component({\n  selector: 'app-team',\n  imports: [UserCard],\n  template: `\n    <app-user-card name=\"Ada Lovelace\" role=\"Founder\" />\n    <app-user-card [name]=\"second()\" />\n  `,\n})\nexport class Team {\n  readonly second = signal('Grace Hopper');\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "Ada Lovelace\nFounder · AL\n\nGrace Hopper\nMember · GH"
+    },
+    {
+      "type": "paragraph",
+      "text": "A fixed string can be passed as a plain attribute (`name=\"Ada Lovelace\"`); anything dynamic uses property binding (`[name]=\"second()\"`). When `second` changes, the child's `name` signal changes with it and `initials` recalculates, with no lifecycle hook needed."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: reading a required input too early",
+      "text": "Leaving out a required input fails the build: `NG8008: Required input 'name' from component UserCard must be specified.` Reading one in the constructor or a field initialiser fails at runtime instead, with `NG0950: Input is required but no value is available yet`, because inputs are set after construction. Read inputs from `computed()`, templates, `ngOnInit` or later."
+    },
+    {
+      "type": "paragraph",
+      "text": "Two options are worth knowing. `transform` converts the bound value before it is stored, which is how `<app-card disabled>` can set a boolean: `readonly disabled = input(false, { transform: booleanAttribute });`. `alias` lets the template attribute differ from the property name: `input('', { alias: 'label' })`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Events up: output()"
+    },
+    {
+      "type": "paragraph",
+      "text": "A child should not reach into its parent to change things. Instead it declares an `output()` and calls `emit()`; the parent listens with the same parentheses syntax as a DOM event and receives the emitted value as `$event`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/task-item/task-item.ts",
+      "code": "import { Component, input, output } from '@angular/core';\n\n@Component({\n  selector: 'app-task-item',\n  template: `\n    <li>\n      {{ title() }}\n      <button (click)=\"remove.emit(id())\">Remove</button>\n    </li>\n  `,\n})\nexport class TaskItem {\n  readonly id = input.required<number>();\n  readonly title = input.required<string>();\n  readonly remove = output<number>();\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/task-list/task-list.ts",
+      "code": "import { Component, signal } from '@angular/core';\nimport { TaskItem } from '../task-item/task-item';\n\n@Component({\n  selector: 'app-task-list',\n  imports: [TaskItem],\n  template: `\n    <ul>\n      @for (task of tasks(); track task.id) {\n        <app-task-item [id]=\"task.id\" [title]=\"task.title\" (remove)=\"removeTask($event)\" />\n      }\n    </ul>\n    <p>{{ tasks().length }} left</p>\n  `,\n})\nexport class TaskList {\n  readonly tasks = signal([\n    { id: 1, title: 'Buy milk' },\n    { id: 2, title: 'Call Grace' },\n  ]);\n\n  removeTask(id: number): void {\n    this.tasks.update((list) => list.filter((task) => task.id !== id));\n    console.log(`removed task ${id}`);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After clicking Remove next to \"Buy milk\"",
+      "content": "Call Grace [ Remove ]\n1 left\n\nBrowser console:\nremoved task 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The child knows nothing about the list; it only announces that *its* task should go. That separation is what makes `TaskItem` reusable in any list and easy to test on its own. `output<void>()` is fine for events that carry no value, and `emit()` is then called with no argument."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Both ways: model()"
+    },
+    {
+      "type": "paragraph",
+      "text": "`model()` creates a writable signal that is both an input and an output: the parent can bind it with `[(checked)]`, the child can call `set()` or `update()`, and each side sees the other's changes. Angular wires the `checkedChange` event for you."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/toggle/toggle.ts",
+      "code": "import { Component, model } from '@angular/core';\n\n@Component({\n  selector: 'app-toggle',\n  template: `\n    <button role=\"switch\" [attr.aria-checked]=\"checked()\" (click)=\"checked.update((on) => !on)\">\n      {{ checked() ? 'On' : 'Off' }}\n    </button>\n  `,\n})\nexport class Toggle {\n  readonly checked = model(false);\n}"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "In the parent template (darkMode is a signal)",
+      "code": "<app-toggle [(checked)]=\"darkMode\" />\n<p>Dark mode is {{ darkMode() ? 'on' : 'off' }}</p>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "[ Off ]\nDark mode is off\n\nAfter clicking the switch:\n[ On ]\nDark mode is on"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which one to use"
+    },
+    {
+      "type": "table",
+      "headers": ["API", "Direction", "Type in the class", "Old decorator form"],
+      "rows": [
+        ["`input<T>()`", "Parent to child", "`InputSignal<T>` (read-only)", "`@Input() name: T`"],
+        [
+          "`input.required<T>()`",
+          "Parent to child, mandatory",
+          "`InputSignal<T>`",
+          "`@Input({ required: true })`"
+        ],
+        [
+          "`output<T>()`",
+          "Child to parent",
+          "`OutputEmitterRef<T>`",
+          "`@Output() x = new EventEmitter<T>()`"
+        ],
+        [
+          "`model<T>()`",
+          "Both",
+          "`ModelSignal<T>` (writable)",
+          "`@Input()` plus `@Output() xChange`"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The decorator forms still compile and you will see them in older code, but the signal versions integrate with `computed()` and `effect()`, need no `OnChanges` hook and are what new Angular 22 code uses. The CLI migration `ng generate @angular/core:signal-input-migration` converts a project."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Smart and presentational components",
+      "text": "A common structure: a few *container* components inject services and own the data, and many small *presentational* components receive everything through inputs and report through outputs. Presentational components are trivial to test and reuse because they depend on nothing but their inputs."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-inputs-required"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-inputs-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "inputs-outputs",
+          "difficulty": "beginner",
+          "question": "To send the value `42` to the parent through `readonly selected = output<number>();` the child calls `this.selected.___(42)`.",
+          "explanation": "`emit()` fires the output; the parent receives the value as `$event` in `(selected)=\"onSelect($event)\"`.",
+          "answers": ["emit"],
+          "caseSensitive": false
+        },
+        {
+          "id": "angular-inputs-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "inputs-outputs",
+          "difficulty": "intermediate",
+          "question": "Which declaration lets a parent write `<app-rating [(value)]=\"score\" />`?",
+          "explanation": "Two-way binding needs a `model()`. A plain `input()` has no matching change event, and an `output()` alone cannot receive a value.",
+          "options": [
+            "`readonly value = input(0);`",
+            "`readonly value = output<number>();`",
+            "`readonly value = model(0);`",
+            "`readonly value = signal(0);`"
+          ],
+          "correctIndex": 2
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-inputs-required"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "components"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "signals"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "bindings-events"
+    }
+  ],
+  "seo": {
+    "title": "Angular Inputs and Outputs – input(), output(), model()",
+    "description": "Learn Angular 22 component communication: signal inputs with input() and input.required(), events with output() and emit(), and two-way binding with model()."
+  },
+  "updatedOn": "2026-11-15"
+}

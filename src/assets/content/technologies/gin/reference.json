@@ -1,0 +1,156 @@
+{
+  "title": "Gin Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Send a text reply",
+          "summary": "GET /hello calls this handler. Context.String sends formatted text with a status.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/hello\", func(c *gin.Context) { c.String(http.StatusOK, \"Hello, Asha!\") })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Use a matching HTTP method and path."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Send a JSON object",
+          "summary": "gin.H is a short map type for named data. Open GET /book.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/book\", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{\"title\": \"Moon Trip\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Use c.JSON so the response has the right content type."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-inputs",
+          "name": "Read a path parameter",
+          "summary": "A colon marks a route value. GET /hello/Ravi puts Ravi in the name parameter.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/hello/:name\", func(c *gin.Context) { c.String(http.StatusOK, \"Hi, %s!\", c.Param(\"name\")) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["A route value is text until it is parsed and checked."],
+          "lessonSlug": "path-inputs"
+        },
+        {
+          "slug": "query",
+          "name": "Read a query value",
+          "summary": "DefaultQuery reads a query parameter and supplies a fallback. GET /page uses the text fallback 1.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/page\", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{\"page\": c.DefaultQuery(\"n\", \"1\")}) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Query values are strings, even when they look like numbers."],
+          "lessonSlug": "query"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "number-checks",
+          "name": "Parse a number",
+          "summary": "strconv.Atoi turns text into an int or reports an error. Open GET /double/4.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n\"strconv\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/double/:n\", func(c *gin.Context) {\n n, err := strconv.Atoi(c.Param(\"n\"))\n if err != nil { c.String(http.StatusBadRequest, \"Use a whole number\"); return }\n c.JSON(http.StatusOK, gin.H{\"answer\": n * 2})\n})\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Always check the parse error before using the number."],
+          "lessonSlug": "number-checks"
+        },
+        {
+          "slug": "json-body",
+          "name": "Read a JSON body",
+          "summary": "ShouldBindJSON reads and checks JSON fields. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\ntype Book struct { Title string `json:\"title\" binding:\"required\"` }\nr.POST(\"/books\", func(c *gin.Context) {\n var book Book\n if err := c.ShouldBindJSON(&book); err != nil { c.JSON(http.StatusBadRequest, gin.H{\"error\": \"Title needed\"}); return }\n c.JSON(http.StatusCreated, book)\n})\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Pass a pointer so the binder can fill the struct."],
+          "lessonSlug": "json-body"
+        },
+        {
+          "slug": "groups",
+          "name": "Share a route prefix",
+          "summary": "A group gives related handlers a common path prefix. Open GET /api/books.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\napi := r.Group(\"/api\")\napi.GET(\"/books\", func(c *gin.Context) { c.JSON(http.StatusOK, []string{\"Moon Trip\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["The group prefix belongs in the requested URL."],
+          "lessonSlug": "groups"
+        },
+        {
+          "slug": "middleware",
+          "name": "Run a shared request step",
+          "summary": "Middleware can set request values before calling the next handler. Open GET /school.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.Use(func(c *gin.Context) { c.Set(\"school\", \"Oak School\"); c.Next() })\nr.GET(\"/school\", func(c *gin.Context) { c.String(http.StatusOK, c.GetString(\"school\")) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Request context values belong to the current request."],
+          "lessonSlug": "middleware"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "headers",
+          "name": "Add response metadata",
+          "summary": "Header sets a response header. Open GET /note and inspect Cache-Control.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/note\", func(c *gin.Context) { c.Header(\"Cache-Control\", \"no-store\"); c.String(http.StatusOK, \"Practice note\") })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Set headers before writing the response body."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "redirects",
+          "name": "Return a redirect",
+          "summary": "Redirect asks the client to visit a new URL. GET /start ends at /hello in a browser.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/start\", func(c *gin.Context) { c.Redirect(http.StatusFound, \"/hello\") })\nr.GET(\"/hello\", func(c *gin.Context) { c.String(http.StatusOK, \"Welcome\") })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["A redirect is a second client request."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "not-found",
+          "name": "Handle unmatched routes",
+          "summary": "NoRoute supplies a fallback handler. GET /missing has no normal route.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{\"error\": \"Page not found\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Keep the 404 status even with a friendly body."],
+          "lessonSlug": "not-found"
+        },
+        {
+          "slug": "abort",
+          "name": "Stop a handler chain",
+          "summary": "AbortWithStatusJSON stops later handlers in the chain. GET /closed receives this practice block message.",
+          "example": {
+            "language": "go",
+            "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/closed\", func(c *gin.Context) { c.AbortWithStatusJSON(http.StatusForbidden, gin.H{\"error\": \"Closed for practice\"}) }, func(c *gin.Context) { c.String(http.StatusOK, \"This is skipped\") })\nr.Run(\"127.0.0.1:3000\")\n}\n"
+          },
+          "notes": ["Abort stops later handlers but does not return from the current Go function."],
+          "lessonSlug": "abort"
+        }
+      ]
+    }
+  ]
+}

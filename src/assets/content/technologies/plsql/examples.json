@@ -1,0 +1,138 @@
+{
+  "title": "PL/SQL Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-message",
+      "title": "Write a message",
+      "description": "An anonymous block has BEGIN and END. DBMS_OUTPUT.PUT_LINE writes a line for the client to show.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nBEGIN\n DBMS_OUTPUT.PUT_LINE('Hello, Asha!');\nEND;\n/",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-message"
+    },
+    {
+      "id": "variables",
+      "title": "Name a number",
+      "description": "DECLARE introduces local values. := assigns a value.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\npencils PLS_INTEGER := 3;\nBEGIN\nDBMS_OUTPUT.PUT_LINE(pencils + 2);\nEND;\n/\n",
+      "output": "5",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "variables"
+    },
+    {
+      "id": "strings",
+      "title": "Join pieces of text",
+      "description": "VARCHAR2 holds text. Two vertical bars join text.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nname VARCHAR2(20) := 'Ravi';\nBEGIN\nDBMS_OUTPUT.PUT_LINE('Hi, ' || name || '!');\nEND;\n/\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "strings"
+    },
+    {
+      "id": "choices",
+      "title": "Choose an action",
+      "description": "IF checks a rule. END IF ends its branches.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nscore PLS_INTEGER := 8;\nBEGIN\nIF score >= 5 THEN\n DBMS_OUTPUT.PUT_LINE('Pass');\nELSE\n DBMS_OUTPUT.PUT_LINE('Try again');\nEND IF;\nEND;\n/\n",
+      "output": "Pass",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "choices"
+    },
+    {
+      "id": "case",
+      "title": "Choose from labels",
+      "description": "CASE matches a value with labels. ELSE is a fallback.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nlight VARCHAR2(10) := 'green';\nBEGIN\nCASE light\n WHEN 'red' THEN DBMS_OUTPUT.PUT_LINE('Stop');\n WHEN 'green' THEN DBMS_OUTPUT.PUT_LINE('Go');\n ELSE DBMS_OUTPUT.PUT_LINE('Wait');\nEND CASE;\nEND;\n/\n",
+      "output": "Go",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "case"
+    },
+    {
+      "id": "loops",
+      "title": "Count with a FOR loop",
+      "description": "A numeric FOR loop creates a counter and includes both ends.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nBEGIN\n FOR n IN 1..3 LOOP\n  DBMS_OUTPUT.PUT_LINE(n);\n END LOOP;\nEND;\n/",
+      "output": "1\n2\n3",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "loops"
+    },
+    {
+      "id": "while",
+      "title": "Repeat while a rule is true",
+      "description": "WHILE checks its rule before each repetition.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nn PLS_INTEGER := 1;\nBEGIN\nWHILE n <= 3 LOOP\n DBMS_OUTPUT.PUT_LINE(n);\n n := n + 1;\nEND LOOP;\nEND;\n/\n",
+      "output": "1\n2\n3",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "while"
+    },
+    {
+      "id": "records",
+      "title": "Group named fields",
+      "description": "A record groups related values into one local data item.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nTYPE book_type IS RECORD (title VARCHAR2(30), pages PLS_INTEGER);\nbook book_type;\nBEGIN\nbook.title := 'Moon Trip';\nbook.pages := 24;\nDBMS_OUTPUT.PUT_LINE(book.pages);\nEND;\n/\n",
+      "output": "24",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "records"
+    },
+    {
+      "id": "collections",
+      "title": "Use a named lookup",
+      "description": "An associative array stores values by key. This one uses text keys.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nTYPE scores_type IS TABLE OF PLS_INTEGER INDEX BY VARCHAR2(20);\nscores scores_type;\nBEGIN\nscores('Asha') := 8;\nDBMS_OUTPUT.PUT_LINE(scores('Asha'));\nEND;\n/\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "collections"
+    },
+    {
+      "id": "functions",
+      "title": "Return a result",
+      "description": "A local function gives reusable steps a name and returns a typed value.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nFUNCTION twice(n PLS_INTEGER) RETURN PLS_INTEGER IS\nBEGIN\n RETURN n * 2;\nEND;\nBEGIN\nDBMS_OUTPUT.PUT_LINE(twice(4));\nEND;\n/\n",
+      "output": "8",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "functions"
+    },
+    {
+      "id": "exceptions",
+      "title": "Handle a known error",
+      "description": "EXCEPTION handles a failure in the block. ZERO_DIVIDE is the name for division by zero.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nanswer NUMBER;\nBEGIN\nanswer := 1 / 0;\nEXCEPTION\n WHEN ZERO_DIVIDE THEN DBMS_OUTPUT.PUT_LINE('Cannot divide by zero');\nEND;\n/\n",
+      "output": "Cannot divide by zero",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "exceptions"
+    },
+    {
+      "id": "null",
+      "title": "Use a fallback for NULL",
+      "description": "NULL means no value. NVL chooses a fallback when its first input is NULL.",
+      "language": "sql",
+      "code": "SET SERVEROUTPUT ON\nDECLARE\nname VARCHAR2(20);\nBEGIN\nDBMS_OUTPUT.PUT_LINE(NVL(name, 'Guest'));\nEND;\n/\n",
+      "output": "Guest",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "null"
+    }
+  ]
+}

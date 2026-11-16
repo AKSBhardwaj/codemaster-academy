@@ -1,14 +1,9 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { debounceTime, map } from 'rxjs';
-import {
-  DIFFICULTY_LABEL,
-  STATUS_LABEL,
-  type Difficulty,
-  type TechnologyStatus,
-} from '../../../core/models/content';
+import { DIFFICULTY_LABEL, type Difficulty } from '../../../core/models/content';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { SeoService, type PageSeo } from '../../../core/services/seo.service';
 import { itemList } from '../../../core/seo/json-ld';
@@ -17,7 +12,6 @@ import { IconComponent } from '../../../shared/components/icon/icon';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 import { TechnologyCardComponent } from '../../../shared/components/technology-card/technology-card';
 
-const STATUSES: TechnologyStatus[] = ['complete', 'in-progress', 'planned'];
 const DIFFICULTIES: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
 
 @Component({
@@ -37,13 +31,11 @@ export class CatalogPage {
   protected readonly catalog = inject(CatalogService);
   private readonly seo = inject(SeoService);
   private readonly routeSeo = inject(ActivatedRoute).snapshot.data['seo'] as PageSeo | undefined;
-  protected readonly search = new FormControl('', { nonNullable: true });
+  protected readonly interactive = signal(false);
+  protected readonly search = new FormControl({ value: '', disabled: true }, { nonNullable: true });
   protected readonly category = signal<string>('all');
-  protected readonly statuses = signal<ReadonlySet<TechnologyStatus>>(new Set(STATUSES));
   protected readonly difficulties = signal<ReadonlySet<Difficulty>>(new Set(DIFFICULTIES));
-  protected readonly statusOptions = STATUSES;
   protected readonly difficultyOptions = DIFFICULTIES;
-  protected readonly statusLabel = STATUS_LABEL;
   protected readonly difficultyLabel = DIFFICULTY_LABEL;
   private readonly query = toSignal(
     this.search.valueChanges.pipe(
@@ -54,6 +46,11 @@ export class CatalogPage {
   );
 
   constructor() {
+    // Keep prerendered controls disabled until their input handlers are attached.
+    afterNextRender(() => {
+      this.search.enable({ emitEvent: false });
+      this.interactive.set(true);
+    });
     // ItemList structured data for every published tutorial, applied once the catalog has loaded.
     effect(() => {
       const published = this.catalog.published();
@@ -76,14 +73,12 @@ export class CatalogPage {
   protected readonly filtered = computed(() => {
     const query = this.query();
     const category = this.category();
-    const statuses = this.statuses();
     const difficulties = this.difficulties();
     return this.catalog
       .technologies()
       .filter(
         (t) =>
           (category === 'all' || t.categorySlug === category) &&
-          statuses.has(t.status) &&
           difficulties.has(t.difficulty) &&
           (!query ||
             t.name.toLowerCase().includes(query) ||
@@ -106,13 +101,8 @@ export class CatalogPage {
     () =>
       this.query() !== '' ||
       this.category() !== 'all' ||
-      this.statuses().size !== STATUSES.length ||
       this.difficulties().size !== DIFFICULTIES.length,
   );
-
-  protected toggleStatus(status: TechnologyStatus): void {
-    this.statuses.update((set) => toggle(set, status));
-  }
 
   protected toggleDifficulty(difficulty: Difficulty): void {
     this.difficulties.update((set) => toggle(set, difficulty));
@@ -121,7 +111,6 @@ export class CatalogPage {
   protected reset(): void {
     this.search.setValue('');
     this.category.set('all');
-    this.statuses.set(new Set(STATUSES));
     this.difficulties.set(new Set(DIFFICULTIES));
   }
 }

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "slug": "selectors",
+  "title": "CSS Selectors",
+  "summary": "A CSS selector chooses which page parts a rule should change.",
+  "introduction": "A CSS selector chooses which page parts a rule should change. Think of calling out a team name in class. A selector can choose all paragraphs, one class of boxes or one element with an id.",
+  "learningObjectives": [
+    "Select elements by type, class, id and attribute",
+    "Combine selectors with descendant, child and sibling combinators",
+    "Simplify selector lists with :is(), :not() and :has()"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Simple selectors"
+    },
+    {
+      "type": "table",
+      "headers": ["Selector", "Matches", "Example"],
+      "rows": [
+        ["Type", "Every element with that tag name", "`p`, `h1`, `button`"],
+        ["Class", "Elements whose `class` attribute contains the name", "`.card`, `.is-active`"],
+        ["Id", "The single element with that `id`", "`#main-nav`"],
+        [
+          "Attribute",
+          "Elements that have an attribute, or one with a given value",
+          "`[disabled]`, `[type=\"email\"]`"
+        ],
+        ["Universal", "Every element", "`*`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Simple selectors can be chained without spaces to require all of them at once: `button.primary` matches buttons that have the class `primary`, and `.card.featured` matches elements that have both classes. Classes are the workhorse of CSS because you can put the same class on any number of elements and combine several on one element. Ids must be unique on the page and carry a lot of weight in the cascade, so most teams reserve them for fragment links and JavaScript and style with classes."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  color: #1d4ed8;            /* type */\n}\n\n.card {\n  background-color: #eff6ff; /* class */\n  padding: 1rem;\n}\n\na[href] {\n  color: #be123c;            /* attribute: links that have an href */\n}\n\nbutton[type=\"button\"] {\n  font-weight: 700;          /* attribute with a value */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{color:#1d4ed8;font-size:1.5em}.card{background:#eff6ff;padding:10px}a{color:#be123c}button{font-weight:700}</style><h1>Sample heading</h1><p>It has a <a href=\"#\">link</a>.</p><div class=\"card\"><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Combinators: describing relationships"
+    },
+    {
+      "type": "paragraph",
+      "text": "A combinator joins two selectors and describes how the matched elements relate in the tree. The difference between a descendant and a child combinator is the one that matters most in practice: `.menu a` reaches *every* link anywhere inside the menu, including links inside nested sub-menus, while `.menu > a` only reaches links that are direct children."
+    },
+    {
+      "type": "table",
+      "headers": ["Combinator", "Written as", "Meaning"],
+      "rows": [
+        ["Descendant", "`A B`", "B anywhere inside A"],
+        ["Child", "`A > B`", "B directly inside A"],
+        ["Next sibling", "`A + B`", "B immediately after A, same parent"],
+        ["Subsequent sibling", "`A ~ B`", "Any B after A, same parent"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Descendant versus child",
+      "runnable": true,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Combinators</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .menu a { color: #1d4ed8; }           /* every link inside .menu, nested or not */\n    .menu > li > a { font-weight: 700; }  /* only links directly inside top-level items */\n  </style>\n</head>\n<body>\n  <ul class=\"menu\">\n    <li><a href=\"#\">Products</a>\n      <ul>\n        <li><a href=\"#\">Laptops</a></li>\n        <li><a href=\"#\">Phones</a></li>\n      </ul>\n    </li>\n    <li><a href=\"#\">About</a></li>\n  </ul>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.menu a{color:#1d4ed8}.menu>li>a{font-weight:700}ul{margin:0}</style><ul class=\"menu\"><li><a href=\"#\">Products</a><ul><li><a href=\"#\">Laptops</a></li><li><a href=\"#\">Phones</a></li></ul></li><li><a href=\"#\">About</a></li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every link is blue because the descendant combinator reaches into the nested list, but only *Products* and *About* are bold: the child combinator stops at direct children, and the nested links sit inside a second `ul` and `li`, so `.menu > li > a` never reaches them. Whenever a rule applies to more elements than you expected, check whether a descendant combinator should have been a child combinator."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Sibling combinators",
+      "runnable": true,
+      "code": "/* The paragraph that directly follows the card heading */\nh2 + p {\n  margin-top: 0;\n  font-style: italic;\n}\n\n/* Every list item after the first one */\nli + li {\n  border-top: 1px solid #e2e8f0;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Attribute selectors in detail"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`[href]` has the attribute, any value",
+        "`[type=\"email\"]` the value is exactly `email`",
+        "`[href^=\"https\"]` the value starts with `https`",
+        "`[href$=\".pdf\"]` the value ends with `.pdf`",
+        "`[class*=\"btn-\"]` the value contains `btn-`",
+        "`[lang|=\"en\"]` the value is `en` or starts with `en-`"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Marking external links and PDF downloads",
+      "code": "a[href^=\"http\"]::after {\n  content: \" (external)\";\n  font-size: 0.8em;\n}\n\na[href$=\".pdf\"] {\n  font-weight: 700;\n}\n\ninput[type=\"checkbox\"] {\n  accent-color: #1d4ed8;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Grouping and the selector functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "A comma groups selectors that share declarations. Three functions make such lists shorter and safer. `:is()` matches if any selector inside it matches, so `article :is(h1, h2, h3)` replaces three descendant selectors. `:not()` excludes elements. `:where()` works like `:is()` but adds no specificity, which makes it ideal for base styles that components should be able to override. And `:has()` selects an element based on what is *inside* it, the \"parent selector\" that CSS lacked for twenty years and that all major browsers support."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "/* Before: h1, h2 share a font */\n/* h1, h2 { font-family: Georgia, serif; } */\n\n/* After, with :is() */\n:is(h1, h2) {\n  font-family: Georgia, serif;\n}\n\n/* Every list item except the last */\nli:not(:last-child) {\n  border-bottom: 1px solid #e2e8f0;\n}\n\n/* A card that contains a button gets a stronger border */\n.card:has(button) {\n  border: 2px solid #1d4ed8;\n  padding: 1rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1,h2{font-family:Georgia,serif;font-size:1.3em}li:not(:last-child){border-bottom:1px solid #e2e8f0}.card{border:2px solid #1d4ed8;padding:8px}ul{margin:0 0 8px}</style><h1>Sample heading</h1><ul><li>First item</li><li>Second item</li><li>Third item</li></ul><div class=\"card\"><h2>Card title</h2><button type=\"button\">Button</button></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Over-specific selectors",
+      "text": "Selectors like `div#main .content ul li a` are fragile (any change to the markup breaks them) and extremely specific, so a plain `.link` class written later cannot override them and you end up reaching for `!important`. Give the element a class and select it with that alone; keep selectors as short as the design allows."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Naming classes",
+      "text": "Name classes after what the element *is* or *does*, not how it looks: `.alert-danger` still makes sense when the design changes from red to orange, `.red-text` does not. Use lowercase words joined by hyphens, and keep a class to one component or one purpose."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: write the selectors",
+      "height": 240,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Selector practice</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    /* 1. Make only the links inside the nav bold.        */\n    /* 2. Give the paragraph that follows the h2 a grey colour (#64748b). */\n    /* 3. Underline links whose href starts with \"https\". */\n  </style>\n</head>\n<body>\n  <nav>\n    <a href=\"/\">Home</a>\n    <a href=\"/about\">About</a>\n  </nav>\n  <h2>Welcome</h2>\n  <p>This paragraph comes right after the heading.</p>\n  <p>Read the <a href=\"https://developer.mozilla.org/en-US/docs/Web/CSS\">MDN CSS docs</a> or the <a href=\"/tutorials/css\">tutorial</a>.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-selectors-combinators"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-selectors-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "selectors",
+          "difficulty": "beginner",
+          "question": "Which selector matches a paragraph that comes *immediately after* an `h2` with the same parent?",
+          "explanation": "`+` is the next-sibling combinator. `h2 p` would need the paragraph inside the heading, `h2 > p` directly inside it, and `h2 ~ p` matches any later sibling, not only the immediate one.",
+          "options": ["`h2 p`", "`h2 > p`", "`h2 + p`", "`h2 ~ p`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "css-selectors-qc-2",
+          "type": "true-false",
+          "lessonSlug": "selectors",
+          "difficulty": "intermediate",
+          "question": "`.card:has(img)` selects the images inside cards.",
+          "explanation": "`:has()` selects the element *before* it, the card, when something inside matches. To select the images you would write `.card img`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-selectors-combinators"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "pseudo-classes-elements"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "specificity-cascade"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "elements"
+    }
+  ],
+  "seo": {
+    "title": "CSS Selectors – Class, ID, Attribute and Combinators",
+    "description": "Master CSS selectors: type, class, id and attribute selectors, descendant, child and sibling combinators, and the :is(), :not(), :where() and :has() functions."
+  },
+  "updatedOn": "2026-11-16"
+}

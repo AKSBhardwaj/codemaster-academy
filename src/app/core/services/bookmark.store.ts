@@ -33,7 +33,10 @@ export class BookmarkStore {
       afterNextRender(
         () => {
           const stored = this.persistence.read<Partial<BookmarkState>>(KEY, {});
-          this.state.set({ technologies: stored.technologies ?? [], lessons: stored.lessons ?? [] });
+          this.state.set({
+            technologies: stored.technologies ?? [],
+            lessons: stored.lessons ?? [],
+          });
           this.hydrated.set(true);
         },
         { injector },
@@ -52,7 +55,9 @@ export class BookmarkStore {
   toggleTechnology(slug: string): void {
     this.state.update((s) => ({
       ...s,
-      technologies: s.technologies.includes(slug) ? s.technologies.filter((t) => t !== slug) : [...s.technologies, slug],
+      technologies: s.technologies.includes(slug)
+        ? s.technologies.filter((t) => t !== slug)
+        : [...s.technologies, slug],
     }));
     this.save();
   }

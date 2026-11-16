@@ -1,0 +1,138 @@
+{
+  "title": "Express.js Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-route",
+      "title": "Reply to a request",
+      "description": "A route pairs a method and path with a function. Open GET / to receive this text.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/\", (req, res) => res.send(\"Hello, Asha!\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-route"
+    },
+    {
+      "id": "json",
+      "title": "Send structured data",
+      "description": "JSON is a text format for named data. GET /book returns a small object.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/book\", (req, res) => res.json({ title: \"Moon Trip\", pages: 24 }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"title\":\"Moon Trip\",\"pages\":24}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "path-inputs",
+      "title": "Read part of a path",
+      "description": "A colon marks a path input. GET /hello/Ravi places Ravi in req.params.name.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/hello/:name\", (req, res) => res.send(`Hi, ${req.params.name}!`));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "path-inputs"
+    },
+    {
+      "id": "query-inputs",
+      "title": "Read a query value",
+      "description": "Query values follow ? in a URL. Visit GET /search?q=cat to read q.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/search\", (req, res) => res.json({ term: typeof req.query.q === \"string\" ? req.query.q : \"\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"term\":\"cat\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query-inputs"
+    },
+    {
+      "id": "post-json",
+      "title": "Read a JSON body",
+      "description": "POST can send a body. Send POST /books with Content-Type application/json and body {\"title\":\"Moon Trip\"}.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.post(\"/books\", (req, res) => {\n if (typeof req.body?.title !== \"string\") return res.status(400).json({ error: \"Title needed\" });\n return res.status(201).json({ title: req.body.title });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "post-json"
+    },
+    {
+      "id": "validation",
+      "title": "Check a number",
+      "description": "A route value needs checks before maths. GET /double/4 returns a doubled whole number.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/double/:n\", (req, res) => {\n const n = Number(req.params.n);\n if (!Number.isSafeInteger(n)) return res.status(400).send(\"Use a whole number\");\n return res.json({ answer: n * 2 });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"answer\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "validation"
+    },
+    {
+      "id": "middleware",
+      "title": "Run a shared step",
+      "description": "Middleware runs before a later handler when it calls next. GET / shows the value this middleware placed in res.locals.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.use((req, res, next) => { res.locals.school = \"Oak School\"; next(); });\napp.get(\"/\", (req, res) => res.send(res.locals.school));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "Oak School",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "middleware"
+    },
+    {
+      "id": "routers",
+      "title": "Group related routes",
+      "description": "A Router groups routes under a shared prefix. GET /api/books uses both the prefix and inner path.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\nconst api = express.Router();\napi.get(\"/books\", (req, res) => res.json([\"Moon Trip\"]));\napp.use(\"/api\", api);\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "[\"Moon Trip\"]",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "routers"
+    },
+    {
+      "id": "status-codes",
+      "title": "Say when an item is missing",
+      "description": "A status code tells the client what happened. GET /books/99 returns 404 because this practice item is absent.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/books/:id\", (req, res) => res.status(404).json({ error: \"Book not found\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"error\":\"Book not found\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "status-codes"
+    },
+    {
+      "id": "redirects",
+      "title": "Point to another route",
+      "description": "A redirect asks the client to visit another URL. GET /start points to /hello; a browser follows it.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/start\", (req, res) => res.redirect(302, \"/hello\"));\napp.get(\"/hello\", (req, res) => res.send(\"Welcome\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "Welcome",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "redirects"
+    },
+    {
+      "id": "errors",
+      "title": "Handle a route error",
+      "description": "An error handler has four inputs. GET /broken throws an error, which the last handler turns into a clear reply.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/broken\", (req, res) => { throw new Error(\"Practice failure\"); });\napp.use((err, req, res, next) => res.status(500).json({ error: \"Try again later\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "{\"error\":\"Try again later\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "errors"
+    },
+    {
+      "id": "not-found",
+      "title": "Handle an unknown path",
+      "description": "A final middleware can reply when no earlier route matched. GET /missing reaches this fallback.",
+      "language": "javascript",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/\", (req, res) => res.send(\"Home\"));\napp.use((req, res) => res.status(404).send(\"Page not found\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "output": "Page not found",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "not-found"
+    }
+  ]
+}

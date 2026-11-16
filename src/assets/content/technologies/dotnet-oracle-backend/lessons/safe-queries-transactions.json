@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "slug": "safe-queries-transactions",
+  "title": "Keep SQL values and changes safe",
+  "summary": "Use named Oracle parameters instead of joining input into SQL. Learn how a transaction saves changes together or rolls them back after a failure.",
+  "introduction": "A book title is data, even if it contains a quote or words that look like SQL. We must keep that data separate from our instructions. We also need a clear point where a database change becomes saved.",
+  "learningObjectives": [
+    "Bind values to Oracle parameter names",
+    "Explain why quotes in a title must stay data",
+    "Describe begin, commit and rollback in a transaction"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give values their own spaces"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "command.BindByName = true;\ncommand.CommandText = \"SELECT id, title, is_read FROM reading_list_books WHERE id = :id\";\ncommand.Parameters.Add(\"id\", OracleDbType.Int64).Value = id;",
+      "title": "A named parameter",
+      "runnable": false,
+      "caption": "Excerpt from BookRepository.FindAsync. connection, command and id are defined in that method."
+    },
+    {
+      "type": "paragraph",
+      "text": "The SQL contains :id. The parameter collection uses the name id without the colon. BindByName tells Oracle to match values by name, not by the order we added them. The parameter type says that this value is a whole number."
+    },
+    {
+      "type": "paragraph",
+      "text": "For titles, the sample binds OracleDbType.Varchar2 with size 120. A title such as Asha's Book stays a title. We do not build SQL by joining the title into a quoted SQL string. This helps prevent **SQL injection**, where input changes the meaning of a query."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Save changes as a group"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **transaction** is a group of changes treated as one piece of work. Our C# code calls BeginTransactionAsync to start it. COMMIT makes the changes permanent. ROLLBACK gives up the changes that have not been committed. It is like choosing Save or Cancel for that group."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "await using var transaction = await connection.BeginTransactionAsync(cancellationToken);\nawait using var command = connection.CreateCommand();\ncommand.Transaction = (OracleTransaction)transaction;\n// Set the SQL and parameters here, as in CreateAsync.\nawait command.ExecuteNonQueryAsync(cancellationToken);\nawait transaction.CommitAsync(cancellationToken);",
+      "title": "The write-operation pattern",
+      "runnable": false,
+      "caption": "A shortened excerpt: the full working methods in BookRepository.cs include the SQL and parameters before execution."
+    },
+    {
+      "type": "paragraph",
+      "text": "The sample opens a transaction for each create, update and delete operation. If a call fails before commit, leaving the method disposes the uncommitted transaction and rolls it back. The API should report success only after the commit succeeds."
+    },
+    {
+      "type": "paragraph",
+      "text": "A one-row change can already be one transaction. The same pattern becomes even more useful when one action needs several related row changes. Do not assume several separate HTTP requests are one transaction; each request is separate in our API."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "A rollback is not an undo button for everything",
+      "text": "A rollback does not undo an earlier commit. Oracle DDL such as CREATE TABLE also commits. Keep setup scripts separate from normal book requests."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add a book named Asha's Book through the API. Check that the quote is saved normally. Find every SQL parameter name in CreateAsync and match it to a Parameters.Add call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-safe-queries-transactions-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-safe-queries-transactions-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "test-api"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "update-delete-books"
+    }
+  ],
+  "seo": {
+    "title": "Keep SQL values and changes safe | C# .NET and Oracle",
+    "description": "Use named Oracle parameters instead of joining input into SQL. Learn how a transaction saves changes together or rolls them back after a failure."
+  },
+  "updatedOn": "2026-11-16"
+}

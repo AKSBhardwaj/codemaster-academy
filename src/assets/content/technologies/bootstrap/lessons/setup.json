@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup",
+  "title": "Adding Bootstrap to a Page",
+  "summary": "Bootstrap styles work after your page loads the Bootstrap CSS file. Some controls also need its JavaScript file.",
+  "introduction": "Bootstrap styles work after your page loads the Bootstrap CSS file. Some controls also need its JavaScript file. Start with a small HTML page. Add the right files for Bootstrap 5, then check a simple button before trying a moving menu.",
+  "learningObjectives": [
+    "Write the Bootstrap 5.3 starter template with the CDN stylesheet and script",
+    "Decide whether a page needs bootstrap.bundle.min.js at all",
+    "Verify in the browser console that Bootstrap loaded and which version it is",
+    "Install Bootstrap with npm and reference it from a project"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The starter template"
+    },
+    {
+      "type": "paragraph",
+      "text": "Bootstrap asks three things of your HTML. The page must start with the HTML5 doctype, because Reboot's styles assume standards mode. It must contain the viewport `<meta>` tag, because the responsive grid is measured against the real device width. And the stylesheet must be linked in the `<head>` so the browser styles content as it arrives instead of showing unstyled text first. Save the following as `index.html` and open it in a browser."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "index.html",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Bootstrap starter</title>\n  <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n</head>\n<body>\n  <main class=\"container py-5\">\n    <h1>Hello, Bootstrap!</h1>\n    <p>If this text is in a sans-serif font, the stylesheet loaded.</p>\n    <button type=\"button\" class=\"btn btn-primary\" data-bs-toggle=\"collapse\" data-bs-target=\"#more\">Show more</button>\n    <div class=\"collapse mt-3\" id=\"more\">\n      <p>If this paragraph appeared when you clicked, the JavaScript loaded too.</p>\n    </div>\n  </main>\n  <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Heading and paragraph in the system sans-serif font, inside a centred container with 3rem padding top and bottom\nA blue \"Show more\" button; the second paragraph is hidden\nClicking the button slides the second paragraph open 1rem below the button; clicking again closes it"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "The two CDN lines"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`bootstrap.min.css` is the whole framework's CSS, minified, about 230 KB uncompressed. It is the only file that is strictly required.",
+        "`bootstrap.bundle.min.js` is Bootstrap's JavaScript **plus Popper**, the positioning library that dropdowns, tooltips and popovers depend on. The bundle means you load one script instead of two.",
+        "`@5.3.3` pins the version. jsDelivr serves every published release, so you can replace it with any newer 5.3 patch version listed on getbootstrap.com; the class names in this tutorial are the same across the 5.3 line."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The snippet on the official site also carries `integrity` and `crossorigin` attributes. The integrity value is a hash of that exact file, so if you change the version number you must copy the matching hash too, or the browser refuses to load the file and the page appears unstyled. Either copy the complete tag from the documentation or leave both attributes off, as this lesson does."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Stylesheet first, script last"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `<link>` goes in the head so styles apply before anything is painted. The `<script>` goes at the end of `<body>`, after your content, so that any code of your own that calls Bootstrap (for example `new bootstrap.Modal('#signup')`) runs after both the elements and the library exist. Putting the script in the head is fine as long as you add the `defer` attribute, which delays it until the document is parsed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Do you need the JavaScript at all?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Much of Bootstrap is pure CSS. If a page only uses the grid, typography, buttons, cards, tables, badges and form styling, leave the script out and save the download. Load it when you use a component that opens, closes, moves or reacts to clicks."
+    },
+    {
+      "type": "table",
+      "headers": ["Needs JavaScript", "CSS only"],
+      "rows": [
+        [
+          "Collapse (including the navbar toggler), dropdowns, modal, offcanvas",
+          "Grid, containers, typography, spacing and colour utilities"
+        ],
+        [
+          "Dismissable alerts, toasts, tooltips, popovers",
+          "Buttons, button groups, cards, badges, list groups, tables"
+        ],
+        [
+          "Tabs and pills, carousel, scrollspy, toggle buttons",
+          "Forms and validation styles, progress bars, spinners, pagination, breadcrumbs"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Dropdowns, tooltips and popovers additionally need Popper, which is why the bundle exists. If you load `bootstrap.min.js` instead of the bundle, you must load `popper.min.js` before it yourself."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check that it loaded"
+    },
+    {
+      "type": "paragraph",
+      "text": "A sans-serif heading is a good sign, but you can be certain. Every Bootstrap component class exposes the version it was built from, and the stylesheet defines CSS variables on the root element. Add this script after the bundle and open the console (F12)."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Add after the bundle script",
+      "code": "<script>\n  console.log(bootstrap.Modal.VERSION);\n  console.log(getComputedStyle(document.body).getPropertyValue('--bs-primary'));\n</script>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "5.3.3\n#0d6efd"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the first line throws `bootstrap is not defined`, the script tag is missing, misspelled or placed before this snippet. If the second line prints an empty string, the stylesheet did not load: open the Network tab, reload, and look for a red status next to `bootstrap.min.css`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Installing with npm"
+    },
+    {
+      "type": "paragraph",
+      "text": "Projects with a build tool such as Vite, or frameworks like [Angular](/tutorials/angular) and [React](/tutorials/react), install Bootstrap as a package. This also unlocks the Sass source files used in the customisation lessons. Popper is a dependency of the package, so npm installs it automatically."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "npm install bootstrap@5.3.3"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a bundled project you import the CSS and, when needed, the JavaScript from your entry file. The second import gives you the same `bootstrap` object the CDN exposes globally."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "main.js",
+      "code": "import 'bootstrap/dist/css/bootstrap.min.css';\nimport * as bootstrap from 'bootstrap';\n\nconst modal = new bootstrap.Modal('#signup');"
+    },
+    {
+      "type": "paragraph",
+      "text": "For a plain static site without a bundler, copy `node_modules/bootstrap/dist/css/bootstrap.min.css` and `node_modules/bootstrap/dist/js/bootstrap.bundle.min.js` into your project and link them with relative paths exactly as you would the CDN files. Never link straight into `node_modules`: that folder is not deployed."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: leaving out the viewport tag",
+      "text": "Without `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">`, phones lay the page out at a virtual width of about 980px and shrink it to fit. Bootstrap's breakpoints then see a wide screen: nothing stacks, text is tiny and the page looks zoomed out. The classes are not broken; the browser was never told the real screen width."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "About the runners on this site",
+      "text": "The inline runners and the [playground](/playground) load pages in a sandbox that blocks external stylesheets and scripts, so Bootstrap classes have no effect there. Every example in this tutorial is meant to be saved as a local `.html` file that includes the CDN `<link>` and `<script>`; the output blocks describe what you will see in the browser."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Delete the `<script>` line from `index.html`, reload and click the button: the styling stays but nothing opens. Put it back, then remove the `<link>`: the button becomes a plain grey button but still toggles the paragraph. Seeing each file fail separately teaches you which one to suspect later."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-setup-find-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "Which file contains both Bootstrap's JavaScript and Popper?",
+          "explanation": "The bundle build includes Popper so that dropdowns, tooltips and popovers work with a single script tag. The plain bootstrap.min.js needs popper.min.js loaded first.",
+          "options": [
+            "bootstrap.min.css",
+            "bootstrap.min.js",
+            "bootstrap.bundle.min.js",
+            "popper.min.js"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "bs-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "A page that only uses the grid, cards and button styles must load bootstrap.bundle.min.js.",
+          "explanation": "Those parts are pure CSS. The script is only required for components that toggle or move: collapse, dropdowns, modals, offcanvas, tooltips, toasts, tabs and carousel.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-setup-find-error", "bootstrap-setup-viewport"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "containers-grid"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "adding-css"
+    }
+  ],
+  "seo": {
+    "title": "Adding Bootstrap to a Page – CDN, npm and the Bundle",
+    "description": "Add Bootstrap 5.3 to an HTML page with the CDN link and script or with npm, learn which components need the JavaScript bundle, and verify that it loaded."
+  },
+  "updatedOn": "2026-11-16"
+}

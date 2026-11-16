@@ -1,0 +1,144 @@
+{
+  "title": "Microsoft SQL Server Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Microsoft SQL Server course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Calculate a named answer",
+          "summary": "T-SQL SELECT can return a calculation. AS gives the output column a name that explains the answer.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT 3 + 4 AS total_books;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "keep-a-local-variable",
+          "name": "Keep a local variable",
+          "summary": "A T-SQL variable starts with @. DECLARE gives it a type and an optional starting value.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @name nvarchar(40)=N'Mia';\nSELECT N'Hello, '+@name AS greeting;"
+          },
+          "lessonSlug": "keep-a-local-variable"
+        },
+        {
+          "slug": "make-a-table-variable",
+          "name": "Make a table variable",
+          "summary": "A table variable holds a small set of rows inside a batch.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @books table(id int,title nvarchar(80));\nINSERT INTO @books VALUES(1,N'Moon Trip'),(2,N'Garden Days');\nSELECT title FROM @books ORDER BY id;"
+          },
+          "lessonSlug": "make-a-table-variable"
+        },
+        {
+          "slug": "choose-top-rows-with-a-clear-order",
+          "name": "Choose top rows with a clear order",
+          "summary": "TOP limits the returned rows. ORDER BY tells SQL Server which rows count as first.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @books table(title nvarchar(80),pages int);\nINSERT INTO @books VALUES(N'Moon Trip',60),(N'Tiny Seed',20);\nSELECT TOP (1) title FROM @books ORDER BY pages,title;"
+          },
+          "lessonSlug": "choose-top-rows-with-a-clear-order"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "filter-rows-with-two-rules",
+          "name": "Filter rows with two rules",
+          "summary": "WHERE can combine tests with AND. A row must pass both tests to be included.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @books table(title nvarchar(80),pages int,kind nvarchar(20));\nINSERT INTO @books VALUES(N'Moon Trip',60,N'story'),(N'Garden Facts',40,N'science');\nSELECT title FROM @books WHERE pages>=50 AND kind=N'story';"
+          },
+          "lessonSlug": "filter-rows-with-two-rules"
+        },
+        {
+          "slug": "summarise-groups",
+          "name": "Summarise groups",
+          "summary": "GROUP BY collects rows with the same category.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @reading table(team nvarchar(20),books int);\nINSERT INTO @reading VALUES(N'Blue',2),(N'Blue',3),(N'Green',4);\nSELECT team,SUM(books) AS total FROM @reading GROUP BY team ORDER BY team;"
+          },
+          "lessonSlug": "summarise-groups"
+        },
+        {
+          "slug": "read-related-tables",
+          "name": "Read related tables",
+          "summary": "A join matches rows by keys. The relationship should be explicit instead of relying on row order.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @authors table(id int,name nvarchar(40));\nDECLARE @books table(title nvarchar(80),author_id int);\nINSERT INTO @authors VALUES(1,N'Mia');\nINSERT INTO @books VALUES(N'Moon Trip',1);\nSELECT b.title,a.name FROM @books AS b JOIN @authors AS a ON a.id=b.author_id;"
+          },
+          "lessonSlug": "read-related-tables"
+        },
+        {
+          "slug": "handle-a-conversion-that-may-fail",
+          "name": "Handle a conversion that may fail",
+          "summary": "TRY_CAST attempts a type conversion. It returns NULL when an ordinary conversion fails, so code can handle the missing result.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT TRY_CAST(N'12' AS int) AS good_value,\n       TRY_CAST(N'twelve' AS int) AS missing_value;"
+          },
+          "lessonSlug": "handle-a-conversion-that-may-fail"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "number-a-sorted-result",
+          "name": "Number a sorted result",
+          "summary": "ROW_NUMBER assigns a sequence based on its window order.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @books table(title nvarchar(80),pages int);\nINSERT INTO @books VALUES(N'Moon Trip',60),(N'Tiny Seed',20);\nSELECT title,ROW_NUMBER() OVER(ORDER BY pages,title) AS place FROM @books ORDER BY place;"
+          },
+          "lessonSlug": "number-a-sorted-result"
+        },
+        {
+          "slug": "undo-a-sample-transaction",
+          "name": "Undo a sample transaction",
+          "summary": "A transaction can keep related changes together.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS #practice_scores;\nCREATE TABLE #practice_scores(points int);\nBEGIN TRANSACTION;\nINSERT INTO #practice_scores VALUES(5);\nROLLBACK TRANSACTION;\nSELECT COUNT(*) AS rows_left FROM #practice_scores;"
+          },
+          "lessonSlug": "undo-a-sample-transaction"
+        },
+        {
+          "slug": "pass-a-query-parameter",
+          "name": "Pass a query parameter",
+          "summary": "A parameter keeps a data value separate from the SQL command text.",
+          "example": {
+            "language": "sql",
+            "code": "DECLARE @wanted int=4;\nEXEC sys.sp_executesql\n N'SELECT @number + 1 AS next_number;',\n N'@number int',\n @number=@wanted;"
+          },
+          "lessonSlug": "pass-a-query-parameter"
+        },
+        {
+          "slug": "let-an-identity-column-make-an-id",
+          "name": "Let an identity column make an id",
+          "summary": "An IDENTITY column generates numeric values for new rows.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS #new_books;\nCREATE TABLE #new_books(id int IDENTITY(1,1) PRIMARY KEY,title nvarchar(80));\nINSERT INTO #new_books(title) OUTPUT inserted.id,inserted.title VALUES(N'Moon Trip');"
+          },
+          "lessonSlug": "let-an-identity-column-make-an-id"
+        }
+      ]
+    }
+  ]
+}

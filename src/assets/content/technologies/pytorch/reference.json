@@ -1,0 +1,144 @@
+{
+  "title": "PyTorch Reference",
+  "description": "A quick reminder of the ideas and examples in the PyTorch lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Create a tensor",
+          "summary": "A PyTorch tensor stores numbers with a shape and a data type. torch.tensor makes one from a small Python list.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor([2, 4, 6])\nprint(x.tolist())"
+          },
+          "notes": ["A tensor is a data container, not a trained model by itself."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "inspect-shape-and-dimensions",
+          "name": "Inspect shape and dimensions",
+          "summary": "Shape gives the size of each dimension. ndim tells you how many dimensions there are.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor([[1, 2], [3, 4]])\nprint(tuple(x.shape), x.ndim)"
+          },
+          "notes": ["Two dimensions do not mean only two total values."],
+          "lessonSlug": "inspect-shape-and-dimensions"
+        },
+        {
+          "slug": "set-a-dtype",
+          "name": "Set a dtype",
+          "summary": "A dtype specifies how numbers are represented. Floating-point tensors are commonly used for model calculations and gradients.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor([1, 2], dtype=torch.float32)\nprint(x.dtype)"
+          },
+          "notes": ["Integer tensors cannot be used for every gradient calculation."],
+          "lessonSlug": "set-a-dtype"
+        },
+        {
+          "slug": "add-matching-values",
+          "name": "Add matching values",
+          "summary": "Tensor arithmetic can combine matching positions. Shapes must match or follow broadcasting rules.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\na = torch.tensor([1, 2])\nb = torch.tensor([3, 4])\nprint((a + b).tolist())"
+          },
+          "notes": ["Adding tensors is different from joining two Python lists."],
+          "lessonSlug": "add-matching-values"
+        },
+        {
+          "slug": "use-matrix-multiplication",
+          "name": "Use matrix multiplication",
+          "summary": "Matrix multiplication combines rows with columns. The inner dimensions must match. It is different from element-wise multiplication.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\na = torch.tensor([[1., 2.]])\nb = torch.tensor([[3.], [4.]])\nprint((a @ b).item())"
+          },
+          "notes": ["Use * for element-wise multiplication and @ for matrix multiplication."],
+          "lessonSlug": "use-matrix-multiplication"
+        },
+        {
+          "slug": "reshape-values",
+          "name": "Reshape values",
+          "summary": "reshape changes the layout of a tensor while keeping the same number of values.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor([1, 2, 3, 4, 5, 6])\nprint(x.reshape(2, 3).tolist())"
+          },
+          "notes": ["A new shape must contain the same total number of values."],
+          "lessonSlug": "reshape-values"
+        },
+        {
+          "slug": "track-a-gradient",
+          "name": "Track a gradient",
+          "summary": "requires_grad asks PyTorch to track operations for automatic differentiation. backward fills the gradient of the scalar result with respect to the input.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor(3.0, requires_grad=True)\ny = x * x\ny.backward()\nprint(x.grad.item())"
+          },
+          "notes": ["Gradients accumulate by default; clear them between training steps."],
+          "lessonSlug": "track-a-gradient"
+        },
+        {
+          "slug": "disable-tracking-for-a-calculation",
+          "name": "Disable tracking for a calculation",
+          "summary": "torch.no_grad runs operations without building a gradient-tracking graph. This is useful when you only need predictions.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nx = torch.tensor(3.0, requires_grad=True)\nwith torch.no_grad():\n    y = x * 2\nprint(y.requires_grad)"
+          },
+          "notes": ["no_grad and model.eval do different jobs; one does not replace the other."],
+          "lessonSlug": "disable-tracking-for-a-calculation"
+        },
+        {
+          "slug": "a-linear-layer-learns-weights",
+          "name": "A linear layer learns weights",
+          "summary": "nn.Linear combines input features into output values using learned weights and a bias. Two inputs can produce one output.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nlayer = torch.nn.Linear(2, 1)\nx = torch.tensor([[1.0, 2.0]])\nprint(tuple(layer(x).shape))"
+          },
+          "notes": ["Running an untrained layer does not make its predictions meaningful."],
+          "lessonSlug": "a-linear-layer-learns-weights"
+        },
+        {
+          "slug": "build-a-small-sequential-model",
+          "name": "Build a small sequential model",
+          "summary": "A sequential model applies layers in order. An activation such as ReLU keeps positive values and changes negative values to zero.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nmodel = torch.nn.Sequential(torch.nn.Linear(2, 3), torch.nn.ReLU(), torch.nn.Linear(3, 1))\nprint(tuple(model(torch.tensor([[1.0, 2.0]])).shape))"
+          },
+          "notes": ["Adjacent layers must have compatible sizes."],
+          "lessonSlug": "build-a-small-sequential-model"
+        },
+        {
+          "slug": "one-training-step",
+          "name": "One training step",
+          "summary": "A training step clears old gradients, computes loss, finds new gradients and updates weights. Each step has a separate job.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nmodel = torch.nn.Linear(1, 1)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.01)\nx = torch.tensor([[1.], [2.]])\ny = torch.tensor([[2.], [4.]])\noptimizer.zero_grad()\nloss = torch.nn.functional.mse_loss(model(x), y)\nloss.backward()\noptimizer.step()\nprint(loss.item() >= 0)"
+          },
+          "notes": ["Forgetting zero_grad can mix gradients from multiple steps unintentionally."],
+          "lessonSlug": "one-training-step"
+        },
+        {
+          "slug": "evaluation-mode-and-checking",
+          "name": "Evaluation mode and checking",
+          "summary": "model.eval switches training-sensitive layers to evaluation behaviour. Use it with no_grad when making ordinary evaluation predictions.",
+          "example": {
+            "language": "python",
+            "code": "import torch\n\nmodel = torch.nn.Sequential(torch.nn.Linear(1, 1))\nmodel.eval()\nwith torch.no_grad():\n    result = model(torch.tensor([[3.0]]))\nprint(tuple(result.shape))"
+          },
+          "notes": ["eval does not train a model and does not by itself disable gradients."],
+          "lessonSlug": "evaluation-mode-and-checking"
+        }
+      ]
+    }
+  ]
+}

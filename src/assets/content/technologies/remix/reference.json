@@ -1,0 +1,144 @@
+{
+  "title": "Remix Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Remix course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Choose browser rendering",
+          "summary": "A single-page app loads a browser shell and lets routes choose its content.",
+          "example": {
+            "language": "typescript",
+            "code": "// react-router.config.ts\nimport type {Config} from \"@react-router/dev/config\";\nexport default {ssr:false} satisfies Config;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "declare-route-files",
+          "name": "Declare route files",
+          "summary": "A route config maps addresses to route modules.",
+          "example": {
+            "language": "typescript",
+            "code": "// app/routes.ts\nimport {type RouteConfig,index,route} from \"@react-router/dev/routes\";\nexport default [index(\"routes/home.tsx\"),route(\"books\",\"routes/books.tsx\")] satisfies RouteConfig;"
+          },
+          "lessonSlug": "declare-route-files"
+        },
+        {
+          "slug": "write-a-route-page",
+          "name": "Write a route page",
+          "summary": "A route module exports a component to show for its address.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/routes/home.tsx\nexport default function Home(){return <main><h1>Reading club</h1><p>Choose a book today.</p></main>;}"
+          },
+          "lessonSlug": "write-a-route-page"
+        },
+        {
+          "slug": "use-links-for-navigation",
+          "name": "Use links for navigation",
+          "summary": "Link changes the route while keeping the useful meaning of a link.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/routes/home.tsx\nimport {Link} from \"react-router\";\nexport default function Home(){return <main><h1>Reading club</h1><Link to=\"/books\">Open the book list</Link></main>;}"
+          },
+          "lessonSlug": "use-links-for-navigation"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "show-a-nested-route",
+          "name": "Show a nested route",
+          "summary": "A parent route can wrap child routes. Outlet is the place where the matched child appears.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/routes/books-layout.tsx\nimport {Outlet} from \"react-router\";\nexport default function BooksLayout(){return <section><h1>Our books</h1><Outlet/></section>;}\n// Configure this module as a parent with child routes in app/routes.ts."
+          },
+          "lessonSlug": "show-a-nested-route"
+        },
+        {
+          "slug": "read-an-address-parameter",
+          "name": "Read an address parameter",
+          "summary": "A route parameter captures a value from an address.",
+          "example": {
+            "language": "tsx",
+            "code": "// Configure route(\"books/:slug\", \"routes/book.tsx\") first.\n// app/routes/book.tsx\nimport {useParams} from \"react-router\";\nexport default function Book(){const {slug}=useParams();return <h1>Book: {slug}</h1>;}"
+          },
+          "lessonSlug": "read-an-address-parameter"
+        },
+        {
+          "slug": "load-data-in-the-browser",
+          "name": "Load data in the browser",
+          "summary": "clientLoader prepares route data in the browser.",
+          "example": {
+            "language": "tsx",
+            "code": "// app/routes/books.tsx; also create public/books.json as a JSON array.\nimport {useLoaderData} from \"react-router\";\nexport async function clientLoader(){const response=await fetch(\"/books.json\");if(!response.ok)throw new Error(\"Books could not load\");return response.json();}\nexport default function Books(){const books=useLoaderData<typeof clientLoader>();return <ul>{books.map((book:{id:number;title:string})=><li key={book.id}>{book.title}</li>)}</ul>;}"
+          },
+          "lessonSlug": "load-data-in-the-browser"
+        },
+        {
+          "slug": "show-a-first-load-fallback",
+          "name": "Show a first-load fallback",
+          "summary": "A HydrateFallback can show a simple message while route data needed during initial hydration is loading.",
+          "example": {
+            "language": "tsx",
+            "code": "// Add these exports to a route module that has clientLoader.\nexport function HydrateFallback(){return <p>Loading the book list...</p>;}\n// To require client loading during hydration for this route:\n// clientLoader.hydrate = true as const;"
+          },
+          "lessonSlug": "show-a-first-load-fallback"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "give-the-active-link-a-clear-style",
+          "name": "Give the active link a clear style",
+          "summary": "NavLink knows whether its destination is the active route.",
+          "example": {
+            "language": "tsx",
+            "code": "import {NavLink} from \"react-router\";\nexport default function Menu(){return <nav aria-label=\"Main\"><NavLink to=\"/books\" className={({isActive})=>isActive?\"current\":\"\"}>Books</NavLink></nav>;}"
+          },
+          "lessonSlug": "give-the-active-link-a-clear-style"
+        },
+        {
+          "slug": "use-search-values-in-the-address",
+          "name": "Use search values in the address",
+          "summary": "Search parameters let a page keep small filter choices in the URL.",
+          "example": {
+            "language": "tsx",
+            "code": "import {useSearchParams} from \"react-router\";\nexport default function Filter(){const [params,setParams]=useSearchParams();return <label>Topic <input value={params.get(\"topic\")||\"\"} onChange={e=>setParams({topic:e.target.value})}/></label>;}"
+          },
+          "lessonSlug": "use-search-values-in-the-address"
+        },
+        {
+          "slug": "explain-a-route-error",
+          "name": "Explain a route error",
+          "summary": "A route ErrorBoundary can show a useful message when loading or rendering fails.",
+          "example": {
+            "language": "tsx",
+            "code": "// Export from the route module.\nimport {useRouteError,isRouteErrorResponse,Link} from \"react-router\";\nexport function ErrorBoundary(){const error=useRouteError();return <main><h1>We could not open this page</h1><p>{isRouteErrorResponse(error)?`Status ${error.status}`:\"Please try again.\"}</p><Link to=\"/\">Go home</Link></main>;}"
+          },
+          "lessonSlug": "explain-a-route-error"
+        },
+        {
+          "slug": "serve-the-browser-build",
+          "name": "Serve the browser build",
+          "summary": "A browser route app needs its static host to return the app shell for supported client-side addresses.",
+          "example": {
+            "language": "text",
+            "code": "Run the project build command.\nServe the generated build/client files.\nConfigure the static host fallback to index.html for client routes.\nOpen /books directly in a new tab.\nCheck that real asset requests still return their actual files."
+          },
+          "lessonSlug": "serve-the-browser-build"
+        }
+      ]
+    }
+  ]
+}

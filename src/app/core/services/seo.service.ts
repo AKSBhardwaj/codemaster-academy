@@ -3,6 +3,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { SITE_CONFIG } from '../config/site-config';
+import { absoluteSiteUrl } from '../../../content-schema/site-constants';
 
 export type RobotsDirective = 'index,follow' | 'noindex,follow' | 'noindex,nofollow';
 
@@ -60,10 +61,15 @@ export class SeoService {
     this.setProperty('og:description', seo.description);
     this.setProperty('og:url', canonical);
     this.setProperty('og:image', image);
+    this.setProperty('og:image:width', '1200');
+    this.setProperty('og:image:height', '630');
+    this.setProperty('og:image:alt', `${this.site.name}: simple coding lessons for beginners`);
+    this.setProperty('og:locale', 'en_US');
     this.setMeta('twitter:card', 'summary_large_image');
     this.setMeta('twitter:title', fullTitle);
     this.setMeta('twitter:description', seo.description);
     this.setMeta('twitter:image', image);
+    this.setMeta('twitter:image:alt', `${this.site.name}: simple coding lessons for beginners`);
     this.setCanonical(canonical);
     this.setJsonLd(seo.jsonLd ?? []);
   }
@@ -80,9 +86,7 @@ export class SeoService {
   }
 
   absoluteUrl(path: string): string {
-    if (/^https?:\/\//.test(path)) return path;
-    const normalised = path.startsWith('/') ? path : `/${path}`;
-    return `${this.site.siteUrl}${normalised === '/' ? '' : normalised.replace(/\/+$/, '')}`;
+    return absoluteSiteUrl(path);
   }
 
   private currentPath(): string {

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "bind-a-value-from-python",
+  "title": "Bind a value from Python",
+  "summary": "An application should pass a value separately from SQL text.",
+  "introduction": "An application should pass a value separately from SQL text. Your task: Insert a title containing an apostrophe through the bound value.",
+  "learningObjectives": [
+    "Insert a title containing an apostrophe through the bound value.",
+    "Explain the example for bind a value from python"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An application should pass a value separately from SQL text. Python's SQLite driver binds a value where the question-mark placeholder appears."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the SQL Run button for examples marked runnable. They use this site's in-browser SQLite database and sample-only table names. A Python example needs Python on your own computer instead."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "import sqlite3\nwith sqlite3.connect(\":memory:\") as connection:\n    connection.execute(\"CREATE TABLE books(title TEXT)\")\n    connection.execute(\"INSERT INTO books VALUES (?)\", (\"Moon Trip\",))\n    print(connection.execute(\"SELECT title FROM books\").fetchone()[0])",
+      "title": "Bind a value from Python",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run with Python 3 to print Moon Trip from a temporary in-memory database."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Keep the comma in the one-item tuple. Never join untrusted text into a SQL command instead of binding it."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Insert a title containing an apostrophe through the bound value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sqlite-bind-a-value-from-python-check"
+    }
+  ],
+  "exerciseIds": ["sqlite-bind-a-value-from-python-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sqlite",
+      "slug": "inspect-a-table-definition"
+    }
+  ],
+  "seo": {
+    "title": "SQLite: Bind a value from Python",
+    "description": "An application should pass a value separately from SQL text. Python's SQLite driver binds a value where the question-mark placeholder appears."
+  },
+  "updatedOn": "2026-11-16"
+}

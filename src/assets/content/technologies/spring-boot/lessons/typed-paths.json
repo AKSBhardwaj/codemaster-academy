@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "typed-paths",
+  "title": "Parse a whole number",
+  "summary": "Spring Boot: Parse a whole number. Try /double/cat.",
+  "introduction": "An int path input is parsed by Spring. Open GET /double/4. Read the example, then check the result.",
+  "learningObjectives": ["Parse a whole number with Spring Boot", "Try /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parse a whole number"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Parse a whole number",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/double/{n}\") Map<String, Integer> twice(@PathVariable(\"n\") int n) { return Map.of(\"answer\", n * 2); }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spring converts the path text 4 to an int before invoking the method. The product is 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A type checks the shape, not whether the number fits your business rule."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-typed-paths-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-typed-paths-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "query-defaults"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Parse a whole number",
+    "description": "Spring Boot: Parse a whole number. Try /double/cat. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

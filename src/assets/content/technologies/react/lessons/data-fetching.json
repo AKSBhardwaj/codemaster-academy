@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "data-fetching",
+  "title": "Fetching and Caching Data",
+  "summary": "A React page can ask for data and show it when the answer arrives.",
+  "introduction": "A React page can ask for data and show it when the answer arrives. Show a loading message while you wait and a helpful message if the request fails. Learn why an old answer should not replace a newer one.",
+  "learningObjectives": [
+    "Cancel stale requests with AbortController in an effect",
+    "Fetch data with useQuery and render loading, error and success states",
+    "Update server data with useMutation and invalidate cached queries",
+    "Read a promise with use inside a Suspense boundary and know its limits"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What the manual approach is missing"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**No cache.** Navigating away and back fetches again, even if the data is seconds old.",
+        "**Duplicate requests.** Two components that need the same data send two requests.",
+        "**Boilerplate.** Every fetch repeats the status, error and ignore-flag code.",
+        "**No retries, no background refresh, no pagination helpers.**"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "None of this is a problem for a page with one request. It becomes one as soon as the same data appears in several places."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hardening the manual approach"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `ignore` flag from the [effects lesson](/tutorials/react/effects) discards stale responses but still lets the request complete. `AbortController` cancels it, which saves bandwidth and matters for search boxes that fire a request per keystroke."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Search.jsx",
+      "code": "import { useEffect, useState } from 'react';\n\nfunction Search() {\n  const [query, setQuery] = useState('');\n  const [results, setResults] = useState([]);\n\n  useEffect(() => {\n    if (query === '') {\n      setResults([]);\n      return;\n    }\n    const controller = new AbortController();\n\n    fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal })\n      .then((res) => res.json())\n      .then(setResults)\n      .catch((err) => {\n        if (err.name !== 'AbortError') console.error(err);\n      });\n\n    return () => controller.abort();\n  }, [query]);\n\n  return (\n    <>\n      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder=\"Search\" />\n      <ul>\n        {results.map((r) => (\n          <li key={r.id}>{r.title}</li>\n        ))}\n      </ul>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Network panel after typing \"rea\" quickly",
+      "content": "GET /api/search?q=r     (canceled)\nGET /api/search?q=re    (canceled)\nGET /api/search?q=rea   200"
+    },
+    {
+      "type": "paragraph",
+      "text": "Aborting rejects the fetch promise with an `AbortError`, so the catch must ignore that name; everything else is a real error. The `signal` option is also accepted by most other HTTP clients."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "TanStack Query"
+    },
+    {
+      "type": "paragraph",
+      "text": "TanStack Query (formerly React Query) keeps a cache of server data keyed by **query keys** and gives components hooks to read it. Install it and create one client at the root:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install @tanstack/react-query"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "src/main.jsx",
+      "code": "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport { QueryClient, QueryClientProvider } from '@tanstack/react-query';\nimport App from './App.jsx';\n\nconst queryClient = new QueryClient();\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <QueryClientProvider client={queryClient}>\n      <App />\n    </QueryClientProvider>\n  </StrictMode>,\n);"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "useQuery"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Users.jsx",
+      "code": "import { useQuery } from '@tanstack/react-query';\n\nasync function fetchUsers() {\n  const res = await fetch('https://jsonplaceholder.typicode.com/users?_limit=3');\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return res.json();\n}\n\nfunction Users() {\n  const { data, isPending, isError, error } = useQuery({\n    queryKey: ['users'],\n    queryFn: fetchUsers,\n    staleTime: 60_000,\n  });\n\n  if (isPending) return <p>Loading…</p>;\n  if (isError) return <p>Error: {error.message}</p>;\n\n  return (\n    <ul>\n      {data.map((user) => (\n        <li key={user.id}>{user.name}</li>\n      ))}\n    </ul>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "first render:    <p>Loading…</p>\nafter response:  <ul><li>Leanne Graham</li><li>Ervin Howell</li><li>Clementine Bauch</li></ul>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`queryKey` identifies the data in the cache; `queryFn` knows how to fetch it. Any component that calls `useQuery` with the key `['users']` shares the cached result, and only one request is sent even if several components mount at once. `staleTime` says how long a result counts as fresh; after that, mounting a component or refocusing the window triggers a background refetch while the old data stays on screen. `isPending` is true only while there is no data at all; `isFetching` is true during any request, including background ones."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keys are arrays so that they can include variables. A query for one user should use `['users', id]`: changing `id` changes the key, which fetches and caches the new user separately and keeps the old one for an instant back navigation."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "const { data: user } = useQuery({\n  queryKey: ['users', id],\n  queryFn: () => fetch(`/api/users/${id}`).then((res) => res.json()),\n});"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Mutations"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "AddTodo.jsx",
+      "code": "import { useMutation, useQueryClient } from '@tanstack/react-query';\n\nasync function createTodo(title) {\n  const res = await fetch('/api/todos', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ title }),\n  });\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return res.json();\n}\n\nfunction AddTodo() {\n  const queryClient = useQueryClient();\n  const mutation = useMutation({\n    mutationFn: createTodo,\n    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),\n  });\n\n  function handleSubmit(e) {\n    e.preventDefault();\n    const form = e.currentTarget;\n    mutation.mutate(new FormData(form).get('title'));\n    form.reset();\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"title\" required />\n      <button disabled={mutation.isPending}>{mutation.isPending ? 'Adding…' : 'Add'}</button>\n      {mutation.isError && <p role=\"alert\">{mutation.error.message}</p>}\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Network panel after submitting",
+      "content": "POST /api/todos   201\nGET  /api/todos   200   ← refetched by invalidateQueries; the todo list re-renders with the new item"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useMutation` wraps a write. `invalidateQueries` marks every query whose key starts with `['todos']` as stale, which refetches the ones currently on screen, so the list updates without you touching its state."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Suspense and the use hook"
+    },
+    {
+      "type": "paragraph",
+      "text": "React 19's `use` can read a promise: while it is pending React suspends the component and shows the nearest `<Suspense>` fallback; when it resolves the component renders with the value. The promise must be **stable**, created outside render or cached by a library, because a new promise on every render would suspend forever."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Quote.jsx",
+      "code": "import { Suspense, use } from 'react';\n\nconst quotePromise = fetch('/api/quote').then((res) => res.json());\n\nfunction Quote() {\n  const quote = use(quotePromise);\n  return <blockquote>{quote.text}</blockquote>;\n}\n\nexport default function App() {\n  return (\n    <Suspense fallback={<p>Loading quote…</p>}>\n      <Quote />\n    </Suspense>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered (the API returns a JSON object with a text field)",
+      "content": "API response:   { \"text\": \"Make it work, make it right, make it fast.\" }\nwhile pending:  <p>Loading quote…</p>\nresolved:       <blockquote>Make it work, make it right, make it fast.</blockquote>"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a plain Vite app this pattern is mostly used through libraries: TanStack Query offers `useSuspenseQuery`, and React Router's data mode passes promises from loaders. Frameworks with Server Components go further and pass promises from the server. Knowing the primitive helps you read those APIs; writing the promise cache yourself is rarely worth it."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: creating the promise inside the component",
+      "text": "`const data = use(fetch('/api/quote'))` starts a new request on every render. Each render creates a new promise, `use` suspends on it, the fallback shows, React retries the render, and a new promise appears again. Create the promise once, outside the component or in a cache, and pass it in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which approach when?"
+    },
+    {
+      "type": "table",
+      "headers": ["Situation", "Use"],
+      "rows": [
+        [
+          "One request on one page, no reuse",
+          "`useEffect` with `AbortController`, or a `useFetch` hook"
+        ],
+        [
+          "Data shown in several places, paginated lists, anything that benefits from caching",
+          "TanStack Query"
+        ],
+        [
+          "Routes that should not render until their data is ready",
+          "React Router data-mode loaders or `useSuspenseQuery`"
+        ],
+        ["Writes that must update a list afterwards", "`useMutation` with `invalidateQueries`"]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-fetch-race"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-data-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "data-fetching",
+          "difficulty": "intermediate",
+          "question": "What does `queryKey: ['users', id]` achieve compared with `queryKey: ['users']`?",
+          "explanation": "The key is the cache address. Including `id` gives every user a separate entry, so switching ids fetches the new user and keeps the previous one cached.",
+          "options": [
+            "Nothing; extra key elements are ignored",
+            "Each id gets its own cache entry, so changing id fetches and caches that user separately",
+            "It disables caching for that query",
+            "It makes the query run only once"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-data-qc-2",
+          "type": "true-false",
+          "lessonSlug": "data-fetching",
+          "difficulty": "intermediate",
+          "question": "`invalidateQueries({ queryKey: ['todos'] })` deletes the cached todos immediately, so the list goes blank until the refetch finishes.",
+          "explanation": "Invalidation marks the data stale and refetches active queries in the background. The old data stays on screen until the new response replaces it.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-fetch-race"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "effects"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "custom-hooks"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "routing"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    }
+  ],
+  "seo": {
+    "title": "React Data Fetching – TanStack Query and use",
+    "description": "Fetch data in React 19: cancel requests with AbortController, cache with TanStack Query's useQuery and useMutation, and read promises with use and Suspense."
+  },
+  "updatedOn": "2026-11-16"
+}

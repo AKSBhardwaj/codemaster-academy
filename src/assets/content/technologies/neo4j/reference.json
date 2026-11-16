@@ -1,0 +1,144 @@
+{
+  "title": "Neo4j Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Neo4j course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Create a node with a label",
+          "summary": "A node represents one thing. A label says what kind of thing it is, and properties hold its named facts.",
+          "example": {
+            "language": "cypher",
+            "code": "CREATE (b:Book {id:'cma-b1',title:'Moon Trip',pages:60}) RETURN b.title;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "find-a-node-by-a-property",
+          "name": "Find a node by a property",
+          "summary": "MATCH finds graph patterns. A property condition can choose the node with a known id.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (b:Book {id:'cma-b1'}) RETURN b.title,b.pages;"
+          },
+          "lessonSlug": "find-a-node-by-a-property"
+        },
+        {
+          "slug": "add-a-uniqueness-rule",
+          "name": "Add a uniqueness rule",
+          "summary": "A uniqueness constraint prevents two nodes with a label from sharing the same chosen property value.",
+          "example": {
+            "language": "cypher",
+            "code": "CREATE CONSTRAINT cma_book_id IF NOT EXISTS FOR (b:Book) REQUIRE b.id IS UNIQUE;"
+          },
+          "lessonSlug": "add-a-uniqueness-rule"
+        },
+        {
+          "slug": "match-or-create-with-merge",
+          "name": "Match or create with MERGE",
+          "summary": "MERGE finds a pattern or creates it if missing.",
+          "example": {
+            "language": "cypher",
+            "code": "MERGE (b:Book {id:'cma-b2'}) SET b.title='Garden Days',b.pages=40 RETURN b.title;"
+          },
+          "lessonSlug": "match-or-create-with-merge"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "connect-a-reader-to-a-book",
+          "name": "Connect a reader to a book",
+          "summary": "A relationship gives two nodes a named connection and direction.",
+          "example": {
+            "language": "cypher",
+            "code": "MERGE (r:Reader {id:'cma-r1'}) SET r.name='Mia'\nWITH r MATCH (b:Book {id:'cma-b1'}) MERGE (r)-[:READ]->(b) RETURN r.name,b.title;"
+          },
+          "lessonSlug": "connect-a-reader-to-a-book"
+        },
+        {
+          "slug": "follow-a-relationship",
+          "name": "Follow a relationship",
+          "summary": "A pattern can follow a known relationship to related nodes.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (r:Reader {id:'cma-r1'})-[:READ]->(b:Book) RETURN r.name,b.title;"
+          },
+          "lessonSlug": "follow-a-relationship"
+        },
+        {
+          "slug": "filter-nodes-with-where",
+          "name": "Filter nodes with WHERE",
+          "summary": "WHERE adds a condition to a matched pattern.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (b:Book) WHERE b.id STARTS WITH \"cma-\" AND b.pages>=50 RETURN b.title,b.pages;"
+          },
+          "lessonSlug": "filter-nodes-with-where"
+        },
+        {
+          "slug": "sort-and-limit-graph-results",
+          "name": "Sort and limit graph results",
+          "summary": "ORDER BY sorts returned rows from a graph query.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (b:Book) WHERE b.id STARTS WITH 'cma-' RETURN b.title,b.pages ORDER BY b.pages,b.title LIMIT 1;"
+          },
+          "lessonSlug": "sort-and-limit-graph-results"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "count-connected-books",
+          "name": "Count connected books",
+          "summary": "An aggregate can summarise matched relationships.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (r:Reader {id:'cma-r1'})-[:READ]->(b:Book) RETURN r.name,count(b) AS books_read;"
+          },
+          "lessonSlug": "count-connected-books"
+        },
+        {
+          "slug": "keep-a-reader-with-no-match",
+          "name": "Keep a reader with no match",
+          "summary": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing.",
+          "example": {
+            "language": "cypher",
+            "code": "MERGE (r:Reader {id:'cma-r2'}) SET r.name='Sam'\nWITH r OPTIONAL MATCH (r)-[:READ]->(b:Book) RETURN r.name,b.title;"
+          },
+          "lessonSlug": "keep-a-reader-with-no-match"
+        },
+        {
+          "slug": "change-a-relationship-fact",
+          "name": "Change a relationship fact",
+          "summary": "Relationships can hold properties too. A property can describe the connection itself, such as when a reader finished a book.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (:Reader {id:'cma-r1'})-[read:READ]->(:Book {id:'cma-b1'})\nSET read.finishedOn=date('2026-11-16') RETURN read.finishedOn;"
+          },
+          "lessonSlug": "change-a-relationship-fact"
+        },
+        {
+          "slug": "remove-one-practice-node-carefully",
+          "name": "Remove one practice node carefully",
+          "summary": "A connected node cannot be deleted normally while its relationships remain.",
+          "example": {
+            "language": "cypher",
+            "code": "MATCH (r:Reader {id:'cma-r2'}) DETACH DELETE r;"
+          },
+          "lessonSlug": "remove-one-practice-node-carefully"
+        }
+      ]
+    }
+  ]
+}

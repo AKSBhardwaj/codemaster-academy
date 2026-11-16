@@ -3,6 +3,7 @@ import { NgOptimizedImage } from '@angular/common';
 import type { IconRef } from '../../../core/models/content';
 import { IconComponent } from '../icon/icon';
 import type { UiIconName } from '../../icons/ui-icons.generated';
+import { publicPath } from '../../../../content-schema/site-constants';
 
 /**
  * Technology logo tile. Logos (SVG files copied from devicon) render as images on a light tile so dark
@@ -12,9 +13,14 @@ import type { UiIconName } from '../../icons/ui-icons.generated';
   selector: 'cma-tech-icon',
   imports: [NgOptimizedImage, IconComponent],
   template: `
-    <span class="cma-tech-icon" [class.cma-tech-icon--glyph]="icon().kind === 'glyph'" [style.--tile]="size() + 'px'" [style.--accent]="accent() || null">
+    <span
+      class="cma-tech-icon"
+      [class.cma-tech-icon--glyph]="icon().kind === 'glyph'"
+      [style.--tile]="size() + 'px'"
+      [style.--accent]="accent() || null"
+    >
       @if (icon().kind === 'logo') {
-        <img [ngSrc]="'/assets/icons/tech/' + icon().src + '.svg'" [width]="imageSize()" [height]="imageSize()" [alt]="alt()" />
+        <img [ngSrc]="imagePath()" [width]="imageSize()" [height]="imageSize()" [alt]="alt()" />
       } @else {
         <cma-icon [name]="glyph()" [size]="imageSize()" [label]="alt()" />
       }
@@ -54,6 +60,9 @@ export class TechIconComponent {
   /** Category accent colour used for glyph tiles. */
   readonly accent = input<string | undefined>(undefined);
   protected readonly imageSize = computed(() => Math.round(this.size() * 0.6));
+  protected readonly imagePath = computed(() =>
+    publicPath('/assets/icons/tech/' + this.icon().src + '.svg'),
+  );
   protected readonly alt = computed(() => (this.name() ? `${this.name()} logo` : ''));
   protected readonly glyph = computed(() => this.icon().src as UiIconName);
 }

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-inputs",
+  "title": "Read a query value",
+  "summary": "Express.js: Read a query value. Visit /search with no query.",
+  "introduction": "Query values follow ? in a URL. Visit GET /search?q=cat to read q.",
+  "learningObjectives": ["Read a query value with Express.js", "Visit /search with no query"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query value"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Read a query value",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/search\", (req, res) => res.json({ term: typeof req.query.q === \"string\" ? req.query.q : \"\" }));\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The string check accepts cat as q. The handler puts it under the term field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\":\"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /search with no query."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A query value can have an unexpected shape; check it before use."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-query-inputs-check"
+    }
+  ],
+  "exerciseIds": ["express-query-inputs-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "path-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Read a query value",
+    "description": "Express.js: Read a query value. Visit /search with no query. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

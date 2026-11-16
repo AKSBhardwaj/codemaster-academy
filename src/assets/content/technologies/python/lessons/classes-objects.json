@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "slug": "classes-objects",
+  "title": "Classes and Objects",
+  "summary": "A class describes a kind of object. Each object can hold its own values and use actions defined by the class.",
+  "introduction": "A class describes a kind of object. Each object can hold its own values and use actions defined by the class. Think of a blank book record that can be filled in for many books. Make two objects and check that each keeps its own facts.",
+  "learningObjectives": [
+    "Define a class with __init__, instance attributes and methods that use self",
+    "Control how objects print and compare with __str__, __repr__ and __eq__",
+    "Distinguish class attributes from instance attributes",
+    "Reuse behaviour with inheritance and super(), and generate boilerplate with dataclasses"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A class and its objects"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "account.py",
+      "code": "class BankAccount:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        self.balance += amount\n        return self.balance\n\n    def withdraw(self, amount):\n        if amount > self.balance:\n            raise ValueError(\"insufficient funds\")\n        self.balance -= amount\n        return self.balance\n\nada = BankAccount(\"Ada\", 100)\nbob = BankAccount(\"Bob\")\n\nada.deposit(50)\nbob.deposit(20)\nprint(ada.owner, ada.balance)\nprint(bob.owner, bob.balance)\nprint(ada.withdraw(30))\nprint(type(ada).__name__, isinstance(ada, BankAccount))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python account.py",
+      "content": "Ada 150\nBob 20\n120\nBankAccount True"
+    },
+    {
+      "type": "paragraph",
+      "text": "`class` defines a new type, and `BankAccount(\"Ada\", 100)` creates an **instance** (an object) of it. Python immediately calls `__init__` on the new object to set it up, passing the object itself as the first parameter, conventionally named `self`. Every method receives `self` the same way, which is how `ada.deposit(50)` knows which account to change: it is really `BankAccount.deposit(ada, 50)`. Attributes attached to `self` belong to that one object, so Ada's and Bob's balances are independent."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Forgetting self",
+      "text": "A method defined as `def deposit(amount):` fails at call time with `TypeError: BankAccount.deposit() takes 1 positional argument but 2 were given`, because Python passes the object as the first argument whether you named it or not. Every instance method starts with `self`, and inside the method every attribute is read and written through `self.`; a bare `balance += amount` would create a local variable and leave the account untouched."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Printing and comparing objects"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "point.py",
+      "code": "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __repr__(self):\n        return f\"Point(x={self.x}, y={self.y})\"\n\n    def __str__(self):\n        return f\"({self.x}, {self.y})\"\n\n    def __eq__(self, other):\n        return isinstance(other, Point) and (self.x, self.y) == (other.x, other.y)\n\np = Point(3, 4)\nprint(p)\nprint(repr(p))\nprint([p, Point(0, 0)])\nprint(p == Point(3, 4), p == Point(4, 3))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python point.py",
+      "content": "(3, 4)\nPoint(x=3, y=4)\n[Point(x=3, y=4), Point(x=0, y=0)]\nTrue False"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without these methods, `print(p)` shows something like `<__main__.Point object at 0x7f3a...>`. `__str__` is the friendly text that `print` and f-strings use; `__repr__` is the developer view shown in the REPL, inside lists and in debuggers, and ideally looks like the code that recreates the object. Define `__repr__` first: if `__str__` is missing, Python falls back to it. `__eq__` decides what `==` means, because by default two objects are equal only if they are the very same object. These double-underscore methods are called **dunder** methods, and there is one for nearly every operator and built-in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Class attributes and instance attributes"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "class_attrs.py",
+      "code": "class Dog:\n    species = \"Canis familiaris\"     # shared by every Dog\n    count = 0\n\n    def __init__(self, name):\n        self.name = name             # unique to this dog\n        Dog.count += 1\n\n    def speak(self, sound=\"Woof\"):\n        return f\"{self.name} says {sound}\"\n\nrex = Dog(\"Rex\")\nfido = Dog(\"Fido\")\nprint(rex.species, fido.species)\nprint(Dog.count)\nprint(rex.speak(), fido.speak(\"Grr\"))\nrex.species = \"Wolf\"                 # creates an instance attribute on rex only\nprint(rex.species, fido.species, Dog.species)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python class_attrs.py",
+      "content": "Canis familiaris Canis familiaris\n2\nRex says Woof Fido says Grr\nWolf Canis familiaris Canis familiaris"
+    },
+    {
+      "type": "paragraph",
+      "text": "Attributes assigned in the class body belong to the class and are shared; attributes assigned through `self` belong to one instance. Reading `rex.species` looks on the instance first, then on the class, which is why the class value shows through until `rex.species = ...` creates an instance attribute that shadows it. Use class attributes for constants and counters, never for mutable defaults such as a shared list, for the same reason as with [function defaults](/tutorials/python/functions)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inheritance"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "inheritance.py",
+      "code": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return \"...\"\n\n    def introduce(self):\n        return f\"I am {self.name} and I say {self.speak()}\"\n\nclass Dog(Animal):\n    def speak(self):\n        return \"Woof\"\n\nclass Cat(Animal):\n    def __init__(self, name, indoor=True):\n        super().__init__(name)\n        self.indoor = indoor\n\n    def speak(self):\n        return \"Meow\"\n\nfor animal in [Dog(\"Rex\"), Cat(\"Tom\", indoor=False), Animal(\"Thing\")]:\n    print(animal.introduce())\n\ntom = Cat(\"Tom\")\nprint(isinstance(tom, Animal), isinstance(tom, Dog), tom.indoor)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python inheritance.py",
+      "content": "I am Rex and I say Woof\nI am Tom and I say Meow\nI am Thing and I say ...\nTrue False True"
+    },
+    {
+      "type": "paragraph",
+      "text": "`class Dog(Animal)` makes `Dog` a **subclass** that inherits every method of `Animal` and may **override** some. `introduce()` is written once in `Animal`, yet it calls whichever `speak()` the actual object has; that late choice is what *polymorphism* means in practice. `super().__init__(name)` runs the parent's initialiser before `Cat` adds its own attribute, so the parent's set-up code is never duplicated. Keep hierarchies shallow: one or two levels is normal, five is a maintenance problem."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dataclasses"
+    },
+    {
+      "type": "paragraph",
+      "text": "Many classes exist mainly to hold a few named fields. Writing `__init__`, `__repr__` and `__eq__` for each of them by hand is tedious and error-prone, so the standard library generates them from type-annotated fields."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "books.py",
+      "code": "from dataclasses import dataclass, field\n\n@dataclass\nclass Book:\n    title: str\n    author: str\n    year: int\n    tags: list[str] = field(default_factory=list)\n\n    def age(self, current_year=2026):\n        return current_year - self.year\n\ndune = Book(\"Dune\", \"Frank Herbert\", 1965, [\"sci-fi\"])\nemma = Book(\"Emma\", \"Jane Austen\", 1815)\nprint(dune)\nprint(emma.tags, emma.age())\nprint(dune == Book(\"Dune\", \"Frank Herbert\", 1965, [\"sci-fi\"]))\nprint(sorted([dune, emma], key=lambda book: book.year)[0].title)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python books.py",
+      "content": "Book(title='Dune', author='Frank Herbert', year=1965, tags=['sci-fi'])\n[] 211\nTrue\nEmma"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `@dataclass` decorator generates `__init__`, `__repr__` and `__eq__` from the annotated fields, in the order they are declared. `field(default_factory=list)` gives each instance its *own* empty list, the same fix as for mutable default arguments. Dataclasses are ordinary classes: add methods, inherit from them, and pass `order=True` to get comparison operators for sorting."
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "Properties",
+      "text": "A `@property` turns a method into a read-only attribute, so callers write `account.balance_in_euros` without parentheses, and a matching setter lets you validate assignments later without changing any caller. Reach for it when a value is derived from others or must be checked on assignment."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-classes-objects-bank-account"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-classes-qc-1",
+          "type": "true-false",
+          "lessonSlug": "classes-objects",
+          "difficulty": "beginner",
+          "question": "`__init__` runs automatically each time you create an instance of a class.",
+          "explanation": "Calling the class, as in `BankAccount(\"Ada\")`, creates the object and immediately runs `__init__` with it as `self`, which is where instance attributes are set.",
+          "correct": true
+        },
+        {
+          "id": "py-classes-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "classes-objects",
+          "difficulty": "intermediate",
+          "question": "Inside `class Cat(Animal):`, what does `super().__init__(name)` do?",
+          "explanation": "`super()` refers to the parent class, so the call runs `Animal.__init__` for this cat, setting up the attributes the parent expects before `Cat` adds its own.",
+          "options": [
+            "Creates a second Cat object",
+            "Runs the parent class's __init__ so Animal's set-up applies to this cat",
+            "Turns name into a class attribute shared by all cats",
+            "Deletes the attributes defined by the parent class"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-classes-objects-bank-account"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "errors-exceptions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "modules-packages"
+    }
+  ],
+  "seo": {
+    "title": "Python Classes and Objects – __init__, self, Inheritance",
+    "description": "Learn Python classes: __init__ and self, methods, __str__ and __repr__, class versus instance attributes, inheritance with super() and dataclasses."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "slug": "select-filtering",
+  "title": "Filtering and Sorting",
+  "summary": "Filter rows with WHERE, IN, BETWEEN, LIKE and IS NULL, understand MySQL's case-insensitive comparisons and ENUM ordering, sort with ORDER BY and paginate with LIMIT and OFFSET.",
+  "introduction": "Reading data is most of what a database does, and almost every read has a WHERE clause, an ORDER BY and often a LIMIT. The syntax is standard SQL, but MySQL adds behaviour you must know: text comparisons ignore case and accents under the default collation, ENUM columns sort by position, LIMIT has a second spelling, and NULL never equals anything. This lesson works through the roastery data one clause at a time and shows the output of every query.",
+  "learningObjectives": [
+    "Filter with comparison operators, AND, OR, IN, BETWEEN and IS NULL",
+    "Explain why LIKE and = ignore case under utf8mb4_0900_ai_ci and how to force exact matches",
+    "Sort by several columns and paginate with ORDER BY, LIMIT and OFFSET",
+    "Format dates and build strings with DATE_FORMAT and CONCAT"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "WHERE"
+    },
+    {
+      "type": "paragraph",
+      "text": "`WHERE` keeps the rows for which the condition is true. Comparisons work on numbers, strings and dates alike; `AND` binds more tightly than `OR`, so use parentheses whenever both appear. `IN` is shorthand for a list of `OR` equalities and `BETWEEN` includes both ends."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name, roast, price FROM coffees\nWHERE roast = 'dark' AND price > 14.50;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------------+-------+-------+\n| name               | roast | price |\n+--------------------+-------+-------+\n| Sumatra Mandheling | dark  | 15.25 |\n+--------------------+-------+-------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name, origin FROM coffees\nWHERE origin IN ('Brazil', 'Colombia')\nORDER BY name;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----------------+----------+\n| name           | origin   |\n+----------------+----------+\n| Decaf Colombia | Colombia |\n| Espresso Roast | Brazil   |\n| Morning Blend  | Brazil   |\n+----------------+----------+\n3 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Date and time columns compare as strings in ISO format, so a range of days reads naturally. Remember that `'2025-05-15'` as a `DATETIME` means midnight, which is why the upper bound below spells out the last second of the day; the alternative is `ordered_at < '2025-05-16'`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, ordered_at FROM orders\nWHERE ordered_at BETWEEN '2025-05-10 00:00:00' AND '2025-05-15 23:59:59'\nORDER BY id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+---------------------+\n| id | ordered_at          |\n+----+---------------------+\n|  3 | 2025-05-10 14:02:00 |\n|  4 | 2025-05-11 18:30:00 |\n|  5 | 2025-05-15 08:45:00 |\n+----+---------------------+\n3 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Text matching is case-insensitive"
+    },
+    {
+      "type": "paragraph",
+      "text": "`LIKE` matches patterns: `%` stands for any run of characters and `_` for exactly one. Under the default collation `utf8mb4_0900_ai_ci`, both `LIKE` and `=` ignore case *and* accents, so a lower-case, unaccented pattern finds Tomás:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name FROM customers WHERE name LIKE 'tomas%';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+\n| name          |\n+---------------+\n| Tomás Ribeiro |\n+---------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "To compare exactly, attach a binary collation to the comparison. Now neither the case nor the accent matches and the result is empty:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name FROM customers\nWHERE name LIKE 'tomas%' COLLATE utf8mb4_bin;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Empty set (0.00 sec)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Case-insensitivity also decides what is a duplicate",
+      "text": "Because `=` ignores case, a `UNIQUE` index on `email` treats `Priya@Example.com` and `priya@example.com` as the same value. That is right for emails but wrong for case-sensitive tokens, usernames or file names. Declare such columns with `COLLATE utf8mb4_bin` (or the case-sensitive `utf8mb4_0900_as_cs`) when you create the table, rather than remembering to add `COLLATE` to every query."
+    },
+    {
+      "type": "paragraph",
+      "text": "For patterns beyond `LIKE`, `REGEXP` accepts regular expressions: `WHERE email REGEXP '^(mei|yusuf)@'`. It is convenient but can never use an index, so keep it for small result sets."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "NULL"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NULL` means *no value*, and comparing it with `=` yields NULL rather than true, so `WHERE shipped_at = NULL` returns an empty set every time. Use `IS NULL` and `IS NOT NULL`. MySQL also offers the null-safe operator `<=>`, which treats two NULLs as equal, and `IFNULL(shipped_at, 'not yet')` to substitute a value for display."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, status FROM orders WHERE shipped_at IS NULL ORDER BY id;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-----------+\n| id | status    |\n+----+-----------+\n|  3 | paid      |\n|  4 | pending   |\n|  5 | cancelled |\n|  6 | paid      |\n|  7 | pending   |\n+----+-----------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ORDER BY"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without `ORDER BY` the row order is whatever was cheapest for the server and may change after an index is added. Sort by as many columns as you need, each with `ASC` (the default) or `DESC`. Watch the `roast` column: it is an `ENUM('light', 'medium', 'dark')`, and ENUMs sort by their position in the definition, not alphabetically."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name, roast, price FROM coffees\nORDER BY roast, price DESC;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------------+--------+-------+\n| name               | roast  | price |\n+--------------------+--------+-------+\n| Yirgacheffe        | light  | 16.00 |\n| Decaf Colombia     | medium | 13.75 |\n| Morning Blend      | medium | 12.50 |\n| Sumatra Mandheling | dark   | 15.25 |\n| Espresso Roast     | dark   | 14.00 |\n+--------------------+--------+-------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "That positional order is usually what you want for a status column (pending before paid before shipped). To sort an ENUM alphabetically, cast it: `ORDER BY CAST(roast AS CHAR)`. NULLs sort first in ascending order and last in descending order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "LIMIT and OFFSET"
+    },
+    {
+      "type": "paragraph",
+      "text": "`LIMIT` caps the number of rows and only makes sense together with `ORDER BY`; without it the *top three* are three arbitrary rows. `OFFSET` skips rows, which is how pages are built."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT name, price FROM coffees ORDER BY price DESC LIMIT 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+--------------------+-------+\n| name               | price |\n+--------------------+-------+\n| Yirgacheffe        | 16.00 |\n| Sumatra Mandheling | 15.25 |\n| Espresso Roast     | 14.00 |\n+--------------------+-------+\n3 rows in set (0.00 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, name FROM coffees ORDER BY id LIMIT 2 OFFSET 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+--------------------+\n| id | name               |\n+----+--------------------+\n|  3 | Sumatra Mandheling |\n|  4 | Decaf Colombia     |\n+----+--------------------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL also accepts the short form `LIMIT 2, 2`, where the **offset comes first** and the count second, the reverse of the long form; many pagination bugs come from swapping them. Large offsets are slow because the server still reads and discards every skipped row, so for infinite scrolling prefer *keyset pagination*: `WHERE id > 4 ORDER BY id LIMIT 2`, passing the last id seen."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Expressions, strings and dates"
+    },
+    {
+      "type": "paragraph",
+      "text": "Any column list may contain expressions, and `AS` names the result. `CONCAT` joins strings (never `||`, as the [introduction](/tutorials/mysql/introduction) showed), and `DATE_FORMAT` renders a date with the same `%` codes you may know from `strftime`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT CONCAT(name, ' (', city, ')') AS customer\nFROM customers WHERE id <= 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+------------------------+\n| customer               |\n+------------------------+\n| Priya Nair (Bengaluru) |\n| Tomás Ribeiro (Lisbon) |\n+------------------------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, DATE_FORMAT(ordered_at, '%d %b %Y') AS placed\nFROM orders WHERE ordered_at >= '2025-06-01';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----+-------------+\n| id | placed      |\n+----+-------------+\n|  7 | 01 Jun 2025 |\n+----+-------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Dates: `CURDATE()`, `NOW()`, `DATE(ordered_at)`, `YEAR(ordered_at)`, `DATE_ADD(ordered_at, INTERVAL 7 DAY)`, `DATEDIFF(NOW(), ordered_at)`.",
+        "Strings: `UPPER`, `LOWER`, `TRIM`, `SUBSTRING(name, 1, 3)`, `REPLACE`, `CHAR_LENGTH`.",
+        "Numbers: `ROUND(price * 1.2, 2)`, `FLOOR`, `CEIL`, `ABS`.",
+        "Conditions: `IF(stock = 0, 'sold out', 'in stock')` and the standard `CASE WHEN ... THEN ... ELSE ... END`.",
+        "`SELECT DISTINCT origin FROM coffees` removes duplicate rows from the result."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Practise the standard parts",
+      "text": "Everything in this lesson except the collation behaviour and the short LIMIT form is standard SQL. The [SQL tutorial's WHERE lesson](/tutorials/sql/where) and [sorting lesson](/tutorials/sql/sorting-limiting) let you run similar queries in the browser."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-filter-like-case"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "select-filtering-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "select-filtering",
+          "difficulty": "beginner",
+          "question": "Which clause returns the orders that have not shipped?",
+          "explanation": "NULL is never equal to anything, including NULL, so `= NULL` matches no rows. `IS NULL` is the test for a missing value.",
+          "options": [
+            "`WHERE shipped_at = NULL`",
+            "`WHERE shipped_at IS NULL`",
+            "`WHERE shipped_at == NULL`",
+            "`WHERE NOT shipped_at`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "select-filtering-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "select-filtering",
+          "difficulty": "intermediate",
+          "question": "How many rows does this return on the coffees table (ids 1 to 5)?",
+          "explanation": "In the short form the first number is the offset and the second the count: skip 3 rows, return up to 1. Only id 4 is returned.",
+          "language": "sql",
+          "code": "SELECT id FROM coffees ORDER BY id LIMIT 3, 1;",
+          "options": ["3", "1", "2", "4"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-filter-like-case", "mysql-filter-offset"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "crud"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "joins"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "where"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "sorting-limiting"
+    }
+  ],
+  "seo": {
+    "title": "MySQL WHERE, LIKE, ORDER BY and LIMIT – Filter and Sort",
+    "description": "Filter MySQL rows with WHERE, IN, BETWEEN, LIKE and IS NULL, understand case-insensitive collations and ENUM ordering, and paginate with ORDER BY, LIMIT and OFFSET."
+  },
+  "updatedOn": "2026-11-15"
+}

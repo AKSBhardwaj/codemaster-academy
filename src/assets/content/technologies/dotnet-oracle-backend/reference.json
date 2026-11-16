@@ -1,0 +1,245 @@
+{
+  "title": "C# .NET and Oracle Backend Quick Guide",
+  "description": "Find the key commands, model rules, SQL patterns and reply codes for the Reading List API. Short notes tell you where each piece runs and which mistakes to check.",
+  "groups": [
+    {
+      "id": "set-up-the-project",
+      "title": "Set up the project",
+      "entries": [
+        {
+          "slug": "api-request-and-reply",
+          "name": "Request and reply",
+          "summary": "A request asks the API to do one job. A reply has a status code and may contain data. The browser talks to the API; the API talks to Oracle.",
+          "syntax": "HTTP method + address",
+          "example": {
+            "language": "http",
+            "code": "GET http://localhost:5080/api/books"
+          },
+          "notes": [
+            "GET reads data. POST adds data. PUT changes a known book. DELETE removes a known book.",
+            "The site where you read this course is a frontend. You run the teaching API separately."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "dotnet-sdk",
+          "name": "The .NET SDK",
+          "summary": "The SDK is the tool kit used to create, build and run C# projects. This sample targets .NET 10 and uses Oracle.ManagedDataAccess.Core version 23.26.400.",
+          "syntax": "dotnet build",
+          "example": {
+            "language": "bash",
+            "code": "dotnet --list-sdks\ndotnet restore\ndotnet build"
+          },
+          "notes": [
+            "Run restore and build from the ReadingListApi folder.",
+            "A successful build checks code. It does not prove the database is ready."
+          ],
+          "lessonSlug": "setup-dotnet"
+        },
+        {
+          "slug": "private-connection-setting",
+          "name": "Oracle connection setting",
+          "summary": "A connection string tells the API which account and Oracle service to use. Keep it in server-side development settings. The browser does not need this value.",
+          "syntax": "ConnectionStrings:Oracle",
+          "example": {
+            "language": "powershell",
+            "code": "./scripts/set-database-secret.ps1"
+          },
+          "notes": [
+            "Run from the extracted sample root. The helper asks for the local reading_app password with hidden typing. Use the README environment steps for another database address.",
+            "The sample project has a UserSecretsId. User secrets stay outside the project, but are not an encrypted password vault.",
+            "The environment-variable form of the key is ConnectionStrings__Oracle."
+          ],
+          "lessonSlug": "oracle-setup"
+        },
+        {
+          "slug": "book-table-shape",
+          "name": "Book table shape",
+          "summary": "Each row is one book. id is a unique numeric label, title is required text, and is_read is 0 or 1. Oracle creates the identity id.",
+          "syntax": "reading_list_books(id, title, is_read)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT id, title, is_read\nFROM reading_list_books\nORDER BY id;"
+          },
+          "notes": [
+            "Title allows at most 120 characters in the table.",
+            "0 means unread. 1 means read.",
+            "Do not assume ids start at 1 or have no gaps."
+          ],
+          "lessonSlug": "create-books-table"
+        },
+        {
+          "slug": "request-validation",
+          "name": "Request model rules",
+          "summary": "A request model describes the JSON input. Required and StringLength check the title. [ApiController] returns 400 for model validation errors.",
+          "syntax": "[Required] and [StringLength(120)]",
+          "example": {
+            "language": "csharp",
+            "code": "[Required]\n[StringLength(120)]\npublic string? Title { get; init; }\n\npublic bool IsRead { get; init; }"
+          },
+          "notes": [
+            "Import System.ComponentModel.DataAnnotations.",
+            "A valid request still needs database work before it becomes a saved book.",
+            "The API maps C# bool true/false to the table's 1/0 values."
+          ],
+          "lessonSlug": "csharp-models"
+        }
+      ]
+    },
+    {
+      "id": "connect-and-handle-requests",
+      "title": "Connect and handle requests",
+      "entries": [
+        {
+          "slug": "short-lived-connection",
+          "name": "Open and release a connection",
+          "summary": "OracleConnection is the link used for one piece of database work. Open it before a command runs and release it with using when the work ends.",
+          "syntax": "new OracleConnection(connectionString)",
+          "example": {
+            "language": "csharp",
+            "code": "using var connection = new OracleConnection(connectionString);\nawait connection.OpenAsync();"
+          },
+          "notes": [
+            "Import Oracle.ManagedDataAccess.Client and get the setting from the API configuration.",
+            "Do not share one open connection across all requests.",
+            "The sample's /health endpoint checks the API process, not Oracle."
+          ],
+          "lessonSlug": "connect-oracle"
+        },
+        {
+          "slug": "controller-route",
+          "name": "Controller route attributes",
+          "summary": "A controller route gives actions a shared address. HttpGet, HttpPost, HttpPut and HttpDelete pick the request method and may add an id part.",
+          "syntax": "[Route(\"api/books\")]",
+          "example": {
+            "language": "csharp",
+            "code": "[ApiController]\n[Route(\"api/books\")]\npublic sealed class BooksController : ControllerBase\n{\n    // The sample's book actions go inside this class.\n}"
+          },
+          "notes": [
+            "Program.cs needs AddControllers before Build and MapControllers after Build.",
+            "Use the complete controller from the sample when running the app; this short shape only shows its route attributes."
+          ],
+          "lessonSlug": "first-api"
+        },
+        {
+          "slug": "select-and-reader",
+          "name": "Read rows with SELECT",
+          "summary": "SELECT chooses columns. ExecuteReaderAsync gives a reader that moves through matching rows. ReadAsync returning false means there is no next row.",
+          "syntax": "SELECT id, title, is_read FROM reading_list_books",
+          "example": {
+            "language": "sql",
+            "code": "SELECT id, title, is_read\nFROM reading_list_books\nWHERE id = :id;"
+          },
+          "notes": [
+            "The API binds a positive long id to the named :id parameter.",
+            "GetInt64(0) reads id, GetString(1) reads title, and GetInt32(2) reads the 0/1 flag.",
+            "GET list returns 200 with an array. GET one absent book returns 404."
+          ],
+          "lessonSlug": "read-books"
+        },
+        {
+          "slug": "created-reply",
+          "name": "Reply after adding a book",
+          "summary": "POST saves a new book. A successful reply uses 201 and includes the saved id. Location tells the reader where that new book can be read.",
+          "syntax": "201 Created + Location",
+          "example": {
+            "language": "http",
+            "code": "POST http://localhost:5080/api/books\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"isRead\":false}"
+          },
+          "notes": [
+            "The request supplies title and isRead. Oracle supplies id.",
+            "Use the returned id in later requests.",
+            "A whitespace-only or overlong title gets 400 instead of creating a row."
+          ],
+          "lessonSlug": "add-books"
+        },
+        {
+          "slug": "write-one-id",
+          "name": "Change or remove one id",
+          "summary": "Use a WHERE id = :id rule so a write targets one row. ExecuteNonQueryAsync returns the number of changed rows for this UPDATE or DELETE.",
+          "syntax": "UPDATE ... WHERE id = :id",
+          "example": {
+            "language": "sql",
+            "code": "UPDATE reading_list_books\nSET title = :title, is_read = :is_read\nWHERE id = :id;\n\nDELETE FROM reading_list_books\nWHERE id = :id;"
+          },
+          "notes": [
+            "Bind every placeholder before running the command.",
+            "This sample returns 204 after a successful PUT or DELETE, and 404 when no row has that id.",
+            "A nonpositive id gets 400. Omitting WHERE could affect the whole table."
+          ],
+          "lessonSlug": "update-delete-books"
+        }
+      ]
+    },
+    {
+      "id": "check-and-finish",
+      "title": "Check and finish",
+      "entries": [
+        {
+          "slug": "parameters-and-transactions",
+          "name": "Parameters and transactions",
+          "summary": "A parameter keeps a value separate from SQL instructions. BindByName matches placeholder names. A transaction groups writes so Commit saves them together and Rollback undoes them.",
+          "syntax": "command.BindByName = true",
+          "example": {
+            "language": "csharp",
+            "code": "command.BindByName = true;\ncommand.CommandText = \"DELETE FROM reading_list_books WHERE id = :id\";\ncommand.Parameters.Add(\"id\", OracleDbType.Int64).Value = bookId;"
+          },
+          "notes": [
+            "Never join a title or id into SQL text from a request.",
+            "Start a transaction on the open connection before the writes it should cover.",
+            "Rollback cancels that transaction's row changes. Identity numbers can still have gaps."
+          ],
+          "lessonSlug": "safe-queries-transactions"
+        },
+        {
+          "slug": "status-checks",
+          "name": "Useful status checks",
+          "summary": "Test saved data and mistakes. A status code is a short label for the result. Check the body too, so a 200 reply does not hide a wrong title.",
+          "syntax": "200 read | 201 added | 204 changed/removed | 400 invalid | 404 absent",
+          "example": {
+            "language": "http",
+            "code": "GET http://localhost:5080/api/books/0"
+          },
+          "notes": [
+            "The example id 0 should receive 400 because ids must be positive.",
+            "Create a fresh test book; use its returned id for GET, PUT and DELETE.",
+            "After deleting your test book, GET for that same id should receive 404."
+          ],
+          "lessonSlug": "test-api"
+        },
+        {
+          "slug": "origin-and-cors",
+          "name": "Origin and CORS",
+          "summary": "An origin is the scheme, host and port of a web page. CORS tells a browser whether this page may read a reply from a different origin.",
+          "syntax": "http://localhost:5500 \u2192 http://localhost:5080",
+          "example": {
+            "language": "javascript",
+            "code": "const reply = await fetch('http://localhost:5080/api/books');\nif (!reply.ok) throw new Error(`HTTP ${reply.status}`);\nconst books = await reply.json();"
+          },
+          "notes": [
+            "The sample allows http://localhost:5500 only when Development:CorsEnabled is true in Development.",
+            "Changing the host to 127.0.0.1 or choosing another port changes the origin.",
+            "CORS does not log people in or stop a non-browser program from sending requests."
+          ],
+          "lessonSlug": "browser-client"
+        },
+        {
+          "slug": "local-project-checklist",
+          "name": "Finish a local working copy",
+          "summary": "Build the sample, run it locally, then test a complete book flow and invalid inputs. Check that your shared files contain no real passwords.",
+          "syntax": "build \u2192 run \u2192 create \u2192 read \u2192 change \u2192 delete \u2192 check errors",
+          "example": {
+            "language": "powershell",
+            "code": "dotnet build --configuration Release"
+          },
+          "notes": [
+            "Build success and /health success do not replace a test that writes to and reads from Oracle.",
+            "Use only practice book data while learning.",
+            "A real shared service needs access rules, HTTPS, suitable error handling, backups and more tests."
+          ],
+          "lessonSlug": "finish-project"
+        }
+      ]
+    }
+  ]
+}

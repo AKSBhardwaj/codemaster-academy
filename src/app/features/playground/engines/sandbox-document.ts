@@ -48,8 +48,10 @@ export function createSandboxDocument(language: string, code: string, nonce: str
       return `<!doctype html><html><head>${head}<style>body{font-family:system-ui,sans-serif;padding:1rem;color:#172033}</style><style>\n${code}\n</style></head><body>${CSS_SAMPLE_PAGE}</body></html>`;
     default: {
       // Full HTML documents: inject the policy and bootstrap as early as possible.
-      if (/<head[^>]*>/i.test(code)) return code.replace(/<head[^>]*>/i, (match) => `${match}${head}`);
-      if (/<html[^>]*>/i.test(code)) return code.replace(/<html[^>]*>/i, (match) => `${match}<head>${head}</head>`);
+      if (/<head[^>]*>/i.test(code))
+        return code.replace(/<head[^>]*>/i, (match) => `${match}${head}`);
+      if (/<html[^>]*>/i.test(code))
+        return code.replace(/<html[^>]*>/i, (match) => `${match}<head>${head}</head>`);
       return `<!doctype html><html><head>${head}</head><body>${code}</body></html>`;
     }
   }
@@ -72,5 +74,11 @@ export function isTrustedSandboxMessage(
 ): event is { source: unknown; origin: string; data: SandboxMessage } {
   if (event.source !== frameWindow || event.origin !== 'null') return false;
   const data = event.data as Partial<SandboxMessage> | null;
-  return !!data && typeof data === 'object' && data.v === 1 && data.nonce === nonce && typeof data.type === 'string';
+  return (
+    !!data &&
+    typeof data === 'object' &&
+    data.v === 1 &&
+    data.nonce === nonce &&
+    typeof data.type === 'string'
+  );
 }

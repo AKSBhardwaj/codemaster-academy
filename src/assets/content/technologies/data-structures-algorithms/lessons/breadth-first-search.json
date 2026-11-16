@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "slug": "breadth-first-search",
+  "title": "Breadth-First Search",
+  "summary": "Visit nearby graph nodes before farther ones using a queue. Trace breadth-first search around a cycle in six complete programs.",
+  "introduction": "Imagine checking rooms that connect by doors. First check the starting room, then all rooms one door away, then rooms two doors away. Breadth-first search, or BFS, explores in these layers.",
+  "learningObjectives": [
+    "Use a queue to visit nearby nodes first",
+    "Mark discovered nodes so a cycle does not cause repeats"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A graph has nodes and links between them. A neighbour is a node joined by one link. An adjacency list stores the neighbours of each node. In our example, graph[0] is [1, 2], so node 0 links to nodes 1 and 2."
+    },
+    {
+      "type": "paragraph",
+      "text": "A queue serves the earliest waiting item first, like a lunch line. BFS adds newly found nodes at the back and takes the next node from the front. The head position moves forward without shifting the list."
+    },
+    {
+      "type": "paragraph",
+      "text": "Our links go both ways: 0-1, 0-2, 1-3, and 2-3. They form a cycle, a route that can return to its start. seen remembers discovered nodes so they join the queue only once."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start at node 0. Mark it seen and put it in the queue: [0].",
+        "Take 0. Its neighbours are 1 and 2. Mark both seen as you add them: the waiting nodes are [1, 2].",
+        "Take 1. Skip its seen neighbour 0, then mark and add 3. The waiting nodes are [2, 3].",
+        "Take 2. Both 0 and 3 are already seen, so add nothing. Take 3 and also add nothing. The visit order is 0, 1, 2, 3."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Breadth-First Search example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const graph = [[1, 2], [0, 3], [0, 3], [1, 2]];\nconst seen = new Array(graph.length).fill(false);\nconst queue = [0];\nseen[0] = true;\nlet head = 0;\nwhile (head < queue.length) {\n  const current = queue[head++];\n  for (const next of graph[current]) {\n    if (!seen[next]) {\n      seen[next] = true;\n      queue.push(next);\n    }\n  }\n}\nconsole.log(queue.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int graph[4][2] = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n    int seen[4] = {0};\n    int queue[4];\n    int head = 0, tail = 0;\n    queue[tail++] = 0;\n    seen[0] = 1;\n    while (head < tail) {\n        int current = queue[head++];\n        for (int i = 0; i < 2; i++) {\n            int next = graph[current][i];\n            if (!seen[next]) {\n                seen[next] = 1;\n                queue[tail++] = next;\n            }\n        }\n    }\n    for (int i = 0; i < tail; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", queue[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<std::vector<int>> graph = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n    std::vector<bool> seen(graph.size(), false);\n    std::vector<int> queue = {0};\n    seen[0] = true;\n    int head = 0;\n    while (head < static_cast<int>(queue.size())) {\n        int current = queue[head++];\n        for (int next : graph[current]) {\n            if (!seen[next]) {\n                seen[next] = true;\n                queue.push_back(next);\n            }\n        }\n    }\n    for (int i = 0; i < static_cast<int>(queue.size()); i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << queue[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "graph = [[1, 2], [0, 3], [0, 3], [1, 2]]\nseen = [False] * len(graph)\nqueue = [0]\nseen[0] = True\nhead = 0\nwhile head < len(queue):\n    current = queue[head]\n    head += 1\n    for next_node in graph[current]:\n        if not seen[next_node]:\n            seen[next_node] = True\n            queue.append(next_node)\nprint(*queue)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[][] graph = {\n    new int[] {1, 2}, new int[] {0, 3},\n    new int[] {0, 3}, new int[] {1, 2}\n};\nbool[] seen = new bool[graph.Length];\nList<int> queue = new List<int> {0};\nseen[0] = true;\nint head = 0;\nwhile (head < queue.Count) {\n    int current = queue[head++];\n    foreach (int next in graph[current]) {\n        if (!seen[next]) {\n            seen[next] = true;\n            queue.Add(next);\n        }\n    }\n}\nConsole.WriteLine(string.Join(\" \", queue));",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[][] graph = {{1, 2}, {0, 3}, {0, 3}, {1, 2}};\n        boolean[] seen = new boolean[graph.length];\n        List<Integer> queue = new ArrayList<>();\n        queue.add(0);\n        seen[0] = true;\n        int head = 0;\n        while (head < queue.size()) {\n            int current = queue.get(head++);\n            for (int next : graph[current]) {\n                if (!seen[next]) {\n                    seen[next] = true;\n                    queue.add(next);\n                }\n            }\n        }\n        for (int i = 0; i < queue.size(); i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(queue.get(i));\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "0 1 2 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "The program keeps the queue entries after visiting them and moves head forward. That retained list also shows the visit order. Node 3 appears once even though both 1 and 2 lead to it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Start node 0 must exist, and every neighbour number must be a valid node position. This example has four nodes. The C arrays have four queue spaces and two neighbours per node, matching this particular graph; a general graph needs lengths for each neighbour list."
+    },
+    {
+      "type": "paragraph",
+      "text": "A disconnected graph has groups with no links between them. Starting from 0 visits only its reachable group. To visit every group, start BFS at each still-unseen node and keep the seen marks."
+    },
+    {
+      "type": "paragraph",
+      "text": "With unweighted links, where every link counts as one step, BFS reaches nodes by the fewest links from the start. Different neighbour ordering can change the order within a layer. Weighted links need a different shortest-path method."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Let V be the number of nodes and E the number of links. With adjacency lists, each reachable node is queued once and each of its neighbour entries is checked once. Including the seen array setup, time is O(V + E) for the whole connected graph."
+    },
+    {
+      "type": "paragraph",
+      "text": "The queue and seen marks each need at most one place per node, so extra space is O(V). Moving head avoids the repeated item shifts caused by removing the first element of an array."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Swap node 0's neighbour order from [1, 2] to [2, 1], leaving all other lists alone. The result should become 0 2 1 3. Nodes 1 and 2 still appear before node 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Mark a node seen when adding it to the queue, not only when taking it out. Otherwise two earlier neighbours can add the same waiting node twice. Without seen at all, cycles can keep the search going forever."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-breadth-first-search"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-breadth-first-search"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "queues"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "graphs-and-neighbours"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "depth-first-search"
+    }
+  ],
+  "seo": {
+    "title": "Breadth-First Search in Six Languages | DSA",
+    "description": "Visit nearby graph nodes before farther ones using a queue. Trace breadth-first search around a cycle in six complete programs."
+  },
+  "updatedOn": "2026-11-16"
+}

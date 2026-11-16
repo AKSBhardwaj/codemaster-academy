@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "response-models",
+  "title": "Choose returned fields",
+  "summary": "FastAPI: Choose returned fields. Add pages to the model and returned data.",
+  "introduction": "A response model describes the public data. GET /book leaves out the internal note.",
+  "learningObjectives": [
+    "Choose returned fields with FastAPI",
+    "Add pages to the model and returned data"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose returned fields"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Choose returned fields",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass PublicBook(BaseModel):\n    title: str\n@app.get(\"/book\", response_model=PublicBook)\ndef book():\n    return {\"title\": \"Moon Trip\", \"internal_note\": \"draft\"}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The public model names only title. The internal_note field is omitted from the response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add pages to the model and returned data."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Only return data the client should receive, even when filtering is available."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-response-models-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-response-models-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "request-models"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Choose returned fields",
+    "description": "FastAPI: Choose returned fields. Add pages to the model and returned data. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

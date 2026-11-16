@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "animate-using-time",
+  "title": "Animate using time",
+  "summary": "An animation loop draws new frames. Using elapsed time makes motion less dependent on how many frames the device can draw.",
+  "introduction": "An animation loop draws new frames. Using elapsed time makes motion less dependent on how many frames the device can draw. Your task: Reduce the time multiplier to slow the turn.",
+  "learningObjectives": [
+    "Reduce the time multiplier to slow the turn.",
+    "Explain the example for animate using time"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An animation loop draws new frames. Using elapsed time makes motion less dependent on how many frames the device can draw."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a browser project with the three package installed and a module build tool. Each example creates its own canvas. Run one at a time. These library imports are not supported by this site's plain runner."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import * as THREE from \"three\";\nconst scene=new THREE.Scene();\nconst camera=new THREE.PerspectiveCamera(60,320/200,0.1,100);camera.position.z=4;\nconst renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(320,200);\ndocument.body.append(renderer.domElement);\nconst geometry=new THREE.BoxGeometry(1,1,1);\nconst material=new THREE.MeshBasicMaterial({color:0x174a8b});\nconst cube=new THREE.Mesh(geometry,material);scene.add(cube);\nrenderer.setAnimationLoop(time=>{cube.rotation.y=time*0.001;renderer.render(scene,camera);});",
+      "title": "Animate using time",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Three.js rotation values use radians. `Math.PI / 2` is a quarter turn.",
+        "`setAnimationLoop` repeats rendering through the renderer's animation system. Pass null when the scene should stop.",
+        "A perspective camera needs a field of view, aspect ratio, near distance and far distance to describe its view."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The cube turns continuously around its y axis."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not add a fixed angle per frame if you need a consistent speed. Also respect reduced-motion preferences in a real interface."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Reduce the time multiplier to slow the turn."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "threejs-animate-using-time-check"
+    }
+  ],
+  "exerciseIds": ["threejs-animate-using-time-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "threejs",
+      "slug": "light-a-shaded-material"
+    }
+  ],
+  "seo": {
+    "title": "Three.js: Animate using time",
+    "description": "An animation loop draws new frames. Using elapsed time makes motion less dependent on how many frames the device can draw."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax-variables",
+  "title": "Syntax and Variables",
+  "summary": "The rules every Java file follows: classes, the main method, statements, blocks and comments, plus how to declare, initialise and name variables, including final and var.",
+  "introduction": "Java's syntax is strict, and that strictness is a feature: the compiler points at the exact line where something is wrong before anyone runs the program. This lesson covers the structure of a Java file, statements and blocks, comments, and variables: how to declare them with a type, when to use final and var, and the naming conventions every Java developer follows. You also meet the compiler messages you will see most often in your first week and learn how to read them.",
+  "learningObjectives": [
+    "Describe the structure of a Java source file and the role of the main method",
+    "Declare, initialise and reassign variables with explicit types and with var",
+    "Apply Java naming conventions for classes, variables and constants",
+    "Read a compiler error message and fix the line it points to"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The shape of a Java program"
+    },
+    {
+      "type": "paragraph",
+      "text": "A Java file holds a class, a class holds methods, and methods hold **statements**: the individual instructions the program executes, one after another. Here is a small program that computes a total; read it, then run it."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Shop.java",
+      "code": "public class Shop {\n    public static void main(String[] args) {\n        // A statement ends with a semicolon\n        String item = \"Notebook\";\n        double price = 4.5;\n        int quantity = 3;\n        double total = price * quantity;\n        System.out.println(item + \" x\" + quantity + \" = \" + total);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Shop.java",
+      "content": "Notebook x3 = 13.5"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Every statement ends with a **semicolon**. Forgetting one produces `error: ';' expected` on the line where the compiler noticed.",
+        "**Blocks** are wrapped in braces `{ }`. The class body, the method body and later the bodies of `if` and loops are all blocks.",
+        "Whitespace is free-form: line breaks and indentation never change the meaning. Indent by four spaces per level anyway, because readers rely on it.",
+        "Java is **case-sensitive**: `total`, `Total` and `TOTAL` are three different names.",
+        "A file may contain one `public` class, and the file name must equal that class name plus `.java`."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comments"
+    },
+    {
+      "type": "paragraph",
+      "text": "Comments are ignored by the compiler and exist for the next person reading the code, who is often you in six months. Java has three forms."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "code": "// A single-line comment runs to the end of the line\nint count = 3; // it may follow code on the same line\n\n/* A block comment\n   can span several lines */\n\n/**\n * A documentation comment describes a class or method.\n * The javadoc tool turns these into reference pages.\n */"
+    },
+    {
+      "type": "paragraph",
+      "text": "Good comments explain *why* something is done; the code already shows *what* is done. `// add one to count` above `count++` is noise, while `// the API counts from 1, not 0` is useful."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable is a named slot for a value, and in Java every slot has a **type** written before the name. The type is fixed for the life of the variable: an `int` holds whole numbers and nothing else. You may declare a variable first and assign later, or do both in one statement, and you may reassign a new value as often as you like."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int score;                 // declared, holds nothing usable yet\nscore = 10;                // assigned\nint bonus = 5;             // declared and initialised in one step\nscore = score + bonus;     // reassigned using the old value\nscore += 5;                // shorthand for score = score + 5\nSystem.out.println(score);\n\nfinal int MAX_SCORE = 100; // a constant: assigned exactly once\nSystem.out.println(MAX_SCORE);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "20\n100"
+    },
+    {
+      "type": "paragraph",
+      "text": "`final` marks a variable that must not change after its first assignment. Use it for values that are fixed by nature, such as limits and conversion factors; the compiler then guarantees nobody overwrites them by accident."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Limits.java",
+      "code": "public class Limits {\n    public static void main(String[] args) {\n        final int MAX_SCORE = 100;\n        MAX_SCORE = 200;\n        System.out.println(MAX_SCORE);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "javac Limits.java",
+      "content": "Limits.java:4: error: cannot assign a value to final variable MAX_SCORE\n        MAX_SCORE = 200;\n        ^\n1 error"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Type inference with var"
+    },
+    {
+      "type": "paragraph",
+      "text": "Since Java 10 a **local** variable may be declared with `var` when it is initialised on the same line. The compiler infers the type from the value; the variable is still statically typed and still cannot change type. `var` shortens long type names such as `ArrayList<String>`, but for a plain `int` or `String` the explicit type often reads better."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "var name = \"Ada\";                           // String\nvar age = 36;                               // int\nvar ratio = 2.5;                            // double\nvar items = new java.util.ArrayList<String>();\nSystem.out.println(name + \" is \" + age + \"; ratio \" + ratio + \"; items \" + items.size());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada is 36; ratio 2.5; items 0"
+    },
+    {
+      "type": "paragraph",
+      "text": "`var` is not allowed for fields, method parameters or a variable without an initialiser, and `age = \"old\";` would still be a compile error because `age` is an `int`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Naming conventions"
+    },
+    {
+      "type": "paragraph",
+      "text": "An identifier may contain letters, digits, `_` and `$`, must not start with a digit and must not be a keyword such as `class`, `int` or `new`. Beyond the rules, Java has conventions that every library and every team follows; code that ignores them looks wrong to experienced readers."
+    },
+    {
+      "type": "table",
+      "headers": ["Kind", "Convention", "Example"],
+      "rows": [
+        [
+          "Class, interface, record, enum",
+          "PascalCase (UpperCamelCase)",
+          "`BankAccount`, `HttpClient`"
+        ],
+        ["Variable, method, parameter", "camelCase", "`totalPrice`, `calculateTax()`"],
+        ["Constant (`static final`)", "UPPER_SNAKE_CASE", "`MAX_RETRIES`, `DEFAULT_TIMEOUT`"],
+        ["Package", "all lowercase, dot-separated", "`com.example.shop`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Printing values"
+    },
+    {
+      "type": "paragraph",
+      "text": "`System.out.println` prints its argument and ends the line; `print` prints without a line break; `printf` fills placeholders in a format string, which is the tidiest way to mix text and numbers. `%s` inserts a string, `%d` a whole number, `%.1f` a decimal with one digit after the point, `%%` a literal percent sign and `%n` a line break."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "System.out.print(\"Hello, \");\nSystem.out.print(\"world\");\nSystem.out.println();\nSystem.out.println(\"Line two\");\nSystem.out.printf(\"%s scored %d points (%.1f%%)%n\", \"Ada\", 42, 87.5);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, world\nLine two\nAda scored 42 points (87.5%)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading compiler errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java refuses to compile a program that reads a variable which might not have a value yet. The message tells you the file, the line, what is wrong, and marks the exact spot with a caret."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Totals.java",
+      "code": "public class Totals {\n    public static void main(String[] args) {\n        int total;\n        System.out.println(total);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "javac Totals.java",
+      "content": "Totals.java:4: error: variable total might not have been initialized\n        System.out.println(total);\n                           ^\n1 error"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read errors from the top: the first one is usually the real cause and later ones are often side effects of it. `Totals.java:4` names the line, the text after `error:` says what is wrong, and the caret points at `total`. Give the variable a value (`int total = 0;`) and compile again."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "string is not String",
+      "text": "Java is case-sensitive, so `String` and `string` are different names, and only `String` exists. Writing `string name = \"Ada\";` produces `error: cannot find symbol` pointing at `string`. The same applies to `System` (capital S), `println` (lowercase) and your own names: `total` and `Total` are two unrelated variables."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-syntax-find-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-syntax-qc-1",
+          "type": "true-false",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "A variable declared with `var` can later be assigned a value of a different type.",
+          "explanation": "`var` only lets the compiler infer the type from the initial value. The type is then fixed, exactly as if you had written it out.",
+          "correct": false
+        },
+        {
+          "id": "java-syntax-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "Which name follows Java's convention for a constant?",
+          "explanation": "Constants (`static final` fields and final locals used as fixed values) use UPPER_SNAKE_CASE. camelCase is for variables and methods, PascalCase for classes.",
+          "options": ["`maxRetries`", "`MaxRetries`", "`MAX_RETRIES`", "`max_retries`"],
+          "correctIndex": 2
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-syntax-find-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "operators-conditionals"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "variables"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    }
+  ],
+  "seo": {
+    "title": "Java Syntax and Variables – Types, final and var",
+    "description": "Learn Java's file structure, statements and comments, then declare and name variables with explicit types, final and var, and read javac error messages."
+  },
+  "updatedOn": "2026-11-15"
+}

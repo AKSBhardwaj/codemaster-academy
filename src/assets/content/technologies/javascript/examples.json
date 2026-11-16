@@ -1,0 +1,134 @@
+{
+  "title": "JavaScript Examples",
+  "description": "Copy-ready JavaScript snippets and small pages for common tasks: converters, loops, string and array processing, classes, error handling, async timing, and DOM pages that react to the user.",
+  "examples": [
+    {
+      "id": "temperature-converter",
+      "title": "Temperature converter",
+      "description": "Two small functions that convert between Celsius and Fahrenheit, called in a loop and formatted with toFixed.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["functions", "numbers"],
+      "lessonSlug": "functions",
+      "code": "function celsiusToFahrenheit(celsius) {\n  return celsius * 9 / 5 + 32;\n}\n\nfunction fahrenheitToCelsius(fahrenheit) {\n  return (fahrenheit - 32) * 5 / 9;\n}\n\nfor (const c of [0, 25, 100]) {\n  console.log(`${c} °C = ${celsiusToFahrenheit(c)} °F`);\n}\nconsole.log(`98.6 °F = ${fahrenheitToCelsius(98.6).toFixed(1)} °C`);",
+      "output": "0 °C = 32 °F\n25 °C = 77 °F\n100 °C = 212 °F\n98.6 °F = 37.0 °C"
+    },
+    {
+      "id": "fizzbuzz",
+      "title": "FizzBuzz",
+      "description": "The classic loop exercise: numbers divisible by 3 print Fizz, by 5 print Buzz, by both print FizzBuzz. Uses the remainder operator and a falsy-string fallback.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["loops", "conditionals"],
+      "lessonSlug": "loops",
+      "code": "for (let n = 1; n <= 15; n++) {\n  let label = \"\";\n  if (n % 3 === 0) label += \"Fizz\";\n  if (n % 5 === 0) label += \"Buzz\";\n  console.log(label || n);\n}",
+      "output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"
+    },
+    {
+      "id": "slugify-title",
+      "title": "Slugify a title",
+      "description": "Turns a heading into a URL-friendly slug by chaining string methods: trim, lower-case, replace symbols (with a small regular expression), split on whitespace and join with hyphens.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["strings", "regex"],
+      "lessonSlug": "strings",
+      "code": "function slugify(title) {\n  return title\n    .trim()\n    .toLowerCase()\n    .replaceAll(\"&\", \"and\")\n    .replace(/[^a-z0-9\\s-]/g, \"\")   // drop anything that is not a letter, digit, space or hyphen\n    .split(/\\s+/)\n    .filter(Boolean)\n    .join(\"-\");\n}\n\nconsole.log(slugify(\"  Hello Wide World  \"));\nconsole.log(slugify(\"Tips & Tricks: Arrays 101!\"));",
+      "output": "hello-wide-world\ntips-and-tricks-arrays-101"
+    },
+    {
+      "id": "cart-total",
+      "title": "Shopping cart total",
+      "description": "Prices stored as integer cents to avoid floating-point errors, line totals printed in a loop, and a subtotal computed with reduce plus a conditional shipping fee.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["arrays", "reduce", "numbers"],
+      "lessonSlug": "arrays",
+      "code": "const cart = [\n  { name: \"Keyboard\", price: 4999, qty: 1 },\n  { name: \"Mouse\", price: 1999, qty: 2 },\n  { name: \"USB cable\", price: 599, qty: 3 },\n];\n\nconst formatPrice = (cents) => `$${(cents / 100).toFixed(2)}`;\n\nfor (const line of cart) {\n  console.log(`${line.qty} x ${line.name}: ${formatPrice(line.price * line.qty)}`);\n}\n\nconst subtotal = cart.reduce((sum, line) => sum + line.price * line.qty, 0);\nconst shipping = subtotal >= 5000 ? 0 : 499;\nconsole.log(`Subtotal: ${formatPrice(subtotal)}`);\nconsole.log(`Shipping: ${formatPrice(shipping)}`);\nconsole.log(`Total: ${formatPrice(subtotal + shipping)}`);",
+      "output": "1 x Keyboard: $49.99\n2 x Mouse: $39.98\n3 x USB cable: $17.97\nSubtotal: $107.94\nShipping: $0.00\nTotal: $107.94"
+    },
+    {
+      "id": "word-frequency",
+      "title": "Word frequency counter",
+      "description": "Counts how often each word appears using an object as a map, then ranks the entries with toSorted and prints the top three.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["objects", "strings", "sorting"],
+      "lessonSlug": "objects",
+      "code": "const text = \"the quick brown fox jumps over the lazy dog the end\";\n\nconst counts = {};\nfor (const word of text.split(\" \")) {\n  counts[word] = (counts[word] ?? 0) + 1;\n}\n\nconst ranked = Object.entries(counts).toSorted((a, b) => b[1] - a[1]);\nfor (const [word, count] of ranked.slice(0, 3)) {\n  console.log(`${word}: ${count}`);\n}\nconsole.log(`${Object.keys(counts).length} distinct words`);",
+      "output": "the: 3\nquick: 1\nbrown: 1\n9 distinct words"
+    },
+    {
+      "id": "bank-account-class",
+      "title": "Bank account class",
+      "description": "A class with private fields, a getter, chainable methods that validate their input by throwing, and a statement built from the transaction history.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["classes", "errors"],
+      "lessonSlug": "modules-classes",
+      "code": "class BankAccount {\n  #balance = 0;\n  #history = [];\n\n  constructor(owner) {\n    this.owner = owner;\n  }\n\n  get balance() {\n    return this.#balance;\n  }\n\n  deposit(amount) {\n    if (amount <= 0) throw new RangeError(\"Deposit must be positive\");\n    this.#balance += amount;\n    this.#history.push(`+${amount}`);\n    return this;\n  }\n\n  withdraw(amount) {\n    if (amount > this.#balance) throw new RangeError(\"Insufficient funds\");\n    this.#balance -= amount;\n    this.#history.push(`-${amount}`);\n    return this;\n  }\n\n  statement() {\n    return `${this.owner}: ${this.#history.join(\", \")} = ${this.#balance}`;\n  }\n}\n\nconst account = new BankAccount(\"Ada\");\naccount.deposit(100).withdraw(30).deposit(5);\nconsole.log(account.balance);\nconsole.log(account.statement());\n\ntry {\n  account.withdraw(500);\n} catch (error) {\n  console.log(`${error.name}: ${error.message}`);\n}",
+      "output": "75\nAda: +100, -30, +5 = 75\nRangeError: Insufficient funds"
+    },
+    {
+      "id": "safe-json-parse",
+      "title": "Safe JSON parsing with a fallback",
+      "description": "Wraps JSON.parse in try/catch so invalid input (for example a corrupted localStorage entry) falls back to defaults instead of crashing the script.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["json", "errors"],
+      "lessonSlug": "errors-debugging",
+      "code": "function parseJsonOr(text, fallback) {\n  try {\n    return JSON.parse(text);\n  } catch (error) {\n    console.warn(`Ignoring invalid JSON (${error.name})`);\n    return fallback;\n  }\n}\n\nconst saved = parseJsonOr('{\"theme\":\"dark\",\"fontSize\":16}', {});\nconsole.log(saved.theme);\n\nconst broken = parseJsonOr(\"{theme: dark}\", { theme: \"light\" });\nconsole.log(broken.theme);",
+      "output": "dark\nIgnoring invalid JSON (SyntaxError)\nlight"
+    },
+    {
+      "id": "countdown-async",
+      "title": "Countdown with async/await",
+      "description": "A sleep helper built on setTimeout and a promise, used by an async function to count down without blocking the rest of the script.",
+      "language": "javascript",
+      "runnable": true,
+      "tags": ["async", "promises", "timers"],
+      "lessonSlug": "async",
+      "code": "const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));\n\nasync function countdown(from) {\n  for (let n = from; n > 0; n--) {\n    console.log(n);\n    await sleep(300);\n  }\n  console.log(\"Lift-off!\");\n}\n\ncountdown(3);\nconsole.log(\"Counting in the background...\");",
+      "output": "3\nCounting in the background...\n2\n1\nLift-off!"
+    },
+    {
+      "id": "todo-list",
+      "title": "To-do list",
+      "description": "A form that adds tasks to a list, checkboxes that mark them done through event delegation, and a live summary. Uses preventDefault, createElement and classList.",
+      "language": "html",
+      "runnable": true,
+      "tags": ["dom", "events", "forms"],
+      "lessonSlug": "dom",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>To-do list</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 1rem; }\n    .done { text-decoration: line-through; color: #6b7280; }\n  </style>\n</head>\n<body>\n  <form id=\"todo-form\">\n    <label for=\"task\">New task</label>\n    <input id=\"task\" name=\"task\" required>\n    <button type=\"submit\">Add</button>\n  </form>\n  <ul id=\"list\"></ul>\n  <p id=\"summary\">0 tasks</p>\n\n  <script>\n    const form = document.getElementById(\"todo-form\");\n    const input = document.getElementById(\"task\");\n    const list = document.getElementById(\"list\");\n    const summary = document.getElementById(\"summary\");\n\n    function updateSummary() {\n      const total = list.children.length;\n      const done = list.querySelectorAll(\".done\").length;\n      summary.textContent = `${total} tasks, ${done} done`;\n    }\n\n    form.addEventListener(\"submit\", (event) => {\n      event.preventDefault();\n      const item = document.createElement(\"li\");\n      const label = document.createElement(\"label\");\n      const checkbox = document.createElement(\"input\");\n      checkbox.type = \"checkbox\";\n      label.append(checkbox, ` ${input.value.trim()}`);\n      item.append(label);\n      list.append(item);\n      input.value = \"\";\n      input.focus();\n      updateSummary();\n    });\n\n    list.addEventListener(\"change\", (event) => {\n      const item = event.target.closest(\"li\");\n      item.classList.toggle(\"done\", event.target.checked);\n      updateSummary();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "id": "character-counter",
+      "title": "Live character counter",
+      "description": "A textarea with a maximum length and a counter that updates on every keystroke, turning red when fewer than ten characters remain. The counter is announced to screen readers with aria-live.",
+      "language": "html",
+      "runnable": true,
+      "tags": ["events", "forms", "accessibility"],
+      "lessonSlug": "events",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Character counter</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 1rem; }\n    .warn { color: #b91c1c; font-weight: bold; }\n  </style>\n</head>\n<body>\n  <label for=\"message\">Message (max 100 characters)</label><br>\n  <textarea id=\"message\" rows=\"4\" cols=\"40\" maxlength=\"100\"></textarea>\n  <p id=\"counter\" aria-live=\"polite\">100 characters left</p>\n\n  <script>\n    const field = document.getElementById(\"message\");\n    const counter = document.getElementById(\"counter\");\n    const limit = Number(field.getAttribute(\"maxlength\"));\n\n    field.addEventListener(\"input\", () => {\n      const left = limit - field.value.length;\n      counter.textContent = `${left} character${left === 1 ? \"\" : \"s\"} left`;\n      counter.classList.toggle(\"warn\", left <= 10);\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "id": "theme-toggle",
+      "title": "Dark mode toggle",
+      "description": "A button that switches the page between light and dark by toggling a class on body, updating its own label and aria-pressed state.",
+      "language": "html",
+      "runnable": true,
+      "tags": ["dom", "classList", "accessibility"],
+      "lessonSlug": "dom",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Theme toggle</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 1rem; transition: background 0.3s, color 0.3s; }\n    body.dark { background: #111827; color: #f9fafb; }\n    button { padding: 0.5rem 1rem; }\n  </style>\n</head>\n<body>\n  <h1>Theme toggle</h1>\n  <p>Click the button to switch between light and dark mode.</p>\n  <button id=\"toggle\" type=\"button\" aria-pressed=\"false\">Switch to dark mode</button>\n\n  <script>\n    const button = document.getElementById(\"toggle\");\n\n    button.addEventListener(\"click\", () => {\n      const dark = document.body.classList.toggle(\"dark\");\n      button.textContent = dark ? \"Switch to light mode\" : \"Switch to dark mode\";\n      button.setAttribute(\"aria-pressed\", String(dark));\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "id": "render-json-table",
+      "title": "Render JSON as a table",
+      "description": "Parses a JSON string (the same text a fetch call would return) and builds table rows with createElement and textContent, so the data is never injected as markup.",
+      "language": "html",
+      "runnable": true,
+      "tags": ["json", "dom", "tables"],
+      "lessonSlug": "fetch-json",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>JSON to table</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 1rem; }\n    table { border-collapse: collapse; }\n    th, td { border: 1px solid #9ca3af; padding: 4px 8px; text-align: left; }\n  </style>\n</head>\n<body>\n  <table>\n    <caption>Team members</caption>\n    <thead>\n      <tr><th scope=\"col\">Name</th><th scope=\"col\">Role</th><th scope=\"col\">Languages</th></tr>\n    </thead>\n    <tbody id=\"rows\"></tbody>\n  </table>\n\n  <script>\n    // In a real app this text would come from: const json = await (await fetch(url)).text();\n    const json = `[\n      { \"name\": \"Ada\", \"role\": \"Engineer\", \"languages\": [\"JavaScript\", \"Python\"] },\n      { \"name\": \"Grace\", \"role\": \"Architect\", \"languages\": [\"COBOL\"] },\n      { \"name\": \"Linus\", \"role\": \"Maintainer\", \"languages\": [\"C\"] }\n    ]`;\n\n    const people = JSON.parse(json);\n    const tbody = document.getElementById(\"rows\");\n\n    for (const person of people) {\n      const row = document.createElement(\"tr\");\n      for (const value of [person.name, person.role, person.languages.join(\", \")]) {\n        const cell = document.createElement(\"td\");\n        cell.textContent = value;\n        row.append(cell);\n      }\n      tbody.append(row);\n    }\n  </script>\n</body>\n</html>"
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "title": "Node.js Exercises",
+  "description": "Practice every Node.js lesson with multiple-choice and true/false questions, output prediction, find-the-error tasks and coding tasks for the runtime, Express 5, node:sqlite and node:test.",
+  "exercises": [
+    {
+      "id": "nodejs-introduction-runtime",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which statement about Node.js is correct?",
+      "explanation": "Node.js is a runtime: it embeds the V8 engine and libuv so that ordinary JavaScript can run outside a browser, with access to files, networks and processes. It is neither a language, nor a UI framework, nor a database.",
+      "options": [
+        "Node.js is a JavaScript framework for building user interfaces",
+        "Node.js is a runtime that executes JavaScript outside the browser using the V8 engine",
+        "Node.js is a new programming language with JavaScript-like syntax",
+        "Node.js is a database that stores JSON documents"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-introduction-browser-apis",
+      "type": "true-false",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "A Node.js script can use `document.querySelector` to read an HTML file from the disk.",
+      "explanation": "There is no DOM in Node: `document` is not defined. A script reads the file as text with `node:fs` and, if it needs to query the markup, parses it with a package such as jsdom or cheerio.",
+      "correct": false
+    },
+    {
+      "id": "nodejs-setup-npm-scripts",
+      "type": "fill-blank",
+      "lessonSlug": "setup-npm",
+      "difficulty": "beginner",
+      "question": "On a CI server you want an install that uses exactly the versions recorded in package-lock.json and fails if the lockfile is out of date. The command is `npm ___`.",
+      "explanation": "npm ci performs a clean install from the lockfile: it deletes node_modules, installs the exact locked versions and refuses to run when package.json and package-lock.json disagree, which makes builds reproducible.",
+      "answers": ["ci"],
+      "caseSensitive": false
+    },
+    {
+      "id": "nodejs-modules-named-export",
+      "type": "predict-output",
+      "lessonSlug": "modules",
+      "difficulty": "beginner",
+      "question": "Both files are ES modules. What does `node main.js` print?",
+      "explanation": "A default export can be imported under any name, so `label` refers to the `name` function. Named exports must be imported by their exact name, which `sides` is. The template literal therefore produces `square has 4 sides`.",
+      "language": "javascript",
+      "code": "// shapes.js\nexport const sides = 4;\nexport default function name() {\n  return 'square';\n}\n\n// main.js\nimport label, { sides } from './shapes.js';\nconsole.log(`${label()} has ${sides} sides`);",
+      "options": [
+        "square has 4 sides",
+        "name has 4 sides",
+        "SyntaxError: The requested module './shapes.js' does not provide an export named 'label'",
+        "undefined has 4 sides"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "nodejs-modules-find-error",
+      "type": "find-error",
+      "lessonSlug": "modules",
+      "difficulty": "beginner",
+      "question": "This file lives in a project whose package.json contains `\"type\": \"module\"`. Running it throws `ReferenceError: __dirname is not defined`. Which line is wrong, and what is the fix?",
+      "explanation": "`__dirname` and `__filename` are CommonJS-only variables. In an ES module use `import.meta.dirname` (Node 20.11+) or derive the path from `import.meta.url`. The other lines are valid: `readFileSync` comes from `node:fs`, `join` from `node:path`, and synchronous functions need no `await`.",
+      "language": "javascript",
+      "code": "import { readFileSync } from 'node:fs';\nimport { join } from 'node:path';\n\nconst file = join(__dirname, 'data.txt');\nconsole.log(readFileSync(file, 'utf8'));",
+      "options": [
+        "Line 1: `readFileSync` must be imported from `node:fs/promises`",
+        "Line 4: `__dirname` does not exist in ES modules; use `import.meta.dirname`",
+        "Line 2: `join` is not exported by `node:path`",
+        "Line 5: `readFileSync` must be awaited"
+      ],
+      "correctIndex": 1,
+      "errorLine": 4
+    },
+    {
+      "id": "nodejs-file-system-write-json",
+      "type": "coding-task",
+      "lessonSlug": "file-system",
+      "difficulty": "intermediate",
+      "question": "Write `add-task.js`: it reads `tasks.json` next to the script (an array of strings; treat a missing file as an empty array), appends the task given as the first command-line argument (or `Untitled task` when none is given), writes the array back with two-space indentation and prints `Saved N task(s)` where N is the new length.",
+      "explanation": "The pattern is read, modify, write. readFile rejects with code ENOENT when the file is missing, which is the one error to treat as 'start empty'; any other error should propagate. Anchoring the path to import.meta.dirname keeps the file next to the script no matter where node was started.",
+      "language": "javascript",
+      "starterCode": "import { readFile, writeFile } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst file = join(import.meta.dirname, 'tasks.json');\n\nasync function loadTasks() {\n  // TODO: read and parse the file; return [] when it does not exist (error.code === 'ENOENT')\n}\n\nconst tasks = await loadTasks();\n// TODO: add process.argv[2] (or 'Untitled task'), save the file and print `Saved N task(s)`",
+      "solutionCode": "import { readFile, writeFile } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst file = join(import.meta.dirname, 'tasks.json');\n\nasync function loadTasks() {\n  try {\n    return JSON.parse(await readFile(file, 'utf8'));\n  } catch (error) {\n    if (error.code === 'ENOENT') return [];\n    throw error;\n  }\n}\n\nconst tasks = await loadTasks();\ntasks.push(process.argv[2] ?? 'Untitled task');\nawait writeFile(file, JSON.stringify(tasks, null, 2) + '\\n');\nconsole.log(`Saved ${tasks.length} task(s)`);",
+      "checklist": [
+        "Reads the file with readFile and the utf8 encoding, then parses it with JSON.parse",
+        "Returns an empty array when error.code is ENOENT and rethrows any other error",
+        "Appends process.argv[2], falling back to 'Untitled task' when no argument was given",
+        "Writes JSON.stringify(tasks, null, 2) back to the same path",
+        "Prints Saved N task(s) using the array's new length"
+      ]
+    },
+    {
+      "id": "nodejs-events-streams-error-event",
+      "type": "true-false",
+      "lessonSlug": "events-streams",
+      "difficulty": "intermediate",
+      "question": "If an EventEmitter emits `'error'` and no listener is registered for that event, Node throws the error, and if nothing catches it the process exits.",
+      "explanation": "The error event is special-cased: without a listener, emit throws the error object (or an Error wrapping the value). Streams, servers and sockets all emit error, which is why each one needs an error listener or should run inside pipeline.",
+      "correct": true
+    },
+    {
+      "id": "nodejs-http-server-health",
+      "type": "coding-task",
+      "lessonSlug": "http-server",
+      "difficulty": "beginner",
+      "question": "Using only `node:http`, write a server on port 3000 that answers `GET /health` with status 200, the header `Content-Type: application/json` and the body `{\"status\":\"ok\"}`, and answers every other request with status 404 and the plain-text body `Not found`.",
+      "explanation": "Check req.method and req.url, set the status and headers with writeHead, and finish each branch with res.end. The return after the health response guarantees that exactly one response is sent per request; JSON.stringify produces the compact body the task asks for.",
+      "language": "javascript",
+      "starterCode": "import { createServer } from 'node:http';\n\nconst server = createServer((req, res) => {\n  // TODO: check req.method and req.url, then respond\n});\n\nserver.listen(3000, () => {\n  console.log('Listening on http://localhost:3000');\n});",
+      "solutionCode": "import { createServer } from 'node:http';\n\nconst server = createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok' }));\n    return;\n  }\n  res.writeHead(404, { 'Content-Type': 'text/plain' });\n  res.end('Not found');\n});\n\nserver.listen(3000, () => {\n  console.log('Listening on http://localhost:3000');\n});",
+      "checklist": [
+        "Matches both the method GET and the path /health",
+        "Sends status 200 with Content-Type application/json for the health route",
+        "The health body is exactly {\"status\":\"ok\"}",
+        "Every other request gets status 404 and the body Not found",
+        "Every branch calls res.end exactly once"
+      ]
+    },
+    {
+      "id": "nodejs-express-basics-helpers",
+      "type": "multiple-choice",
+      "lessonSlug": "express-basics",
+      "difficulty": "beginner",
+      "question": "Which line sends a JSON body with status code 404 in Express 5?",
+      "explanation": "res.status(code) sets the status and returns the response object, so it chains with res.json. The forms res.json(status, body) and res.send(status) were removed in Express 5, and writeHead sends the headers immediately without returning the Express response helpers.",
+      "options": [
+        "`res.json(404, { error: 'Not found' })`",
+        "`res.status(404).json({ error: 'Not found' })`",
+        "`res.send(404).json({ error: 'Not found' })`",
+        "`res.writeHead(404).json({ error: 'Not found' })`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-routing-middleware-next",
+      "type": "find-error",
+      "lessonSlug": "routing-middleware",
+      "difficulty": "intermediate",
+      "question": "Every request to this server hangs and the route handler never runs. Why?",
+      "explanation": "A middleware must either send a response or call next(). The logger does neither, so Express waits forever for it to finish. Adding next() after the console.log fixes it. Order is fine (loggers go first), console.log is allowed anywhere, and res.json ends the response by itself.",
+      "language": "javascript",
+      "code": "import express from 'express';\n\nconst app = express();\n\napp.use((req, res, next) => {\n  console.log(`${req.method} ${req.url}`);\n});\n\napp.get('/api/books', (req, res) => {\n  res.json([{ id: 1, title: 'Dune' }]);\n});\n\napp.listen(3000);",
+      "options": [
+        "`app.use` must be registered after the routes",
+        "The logging middleware never calls `next()`, so the request stops there",
+        "`console.log` is not allowed inside middleware",
+        "`res.json` must be followed by `res.end()`"
+      ],
+      "correctIndex": 1,
+      "errorLine": 6
+    },
+    {
+      "id": "nodejs-json-apis-crud",
+      "type": "coding-task",
+      "lessonSlug": "json-apis",
+      "difficulty": "intermediate",
+      "question": "Add a `PATCH /api/books/:id` route to the bookshelf API (an in-memory `books` array, `express.json()` already registered). Respond 404 with `{ \"error\": \"Book not found\" }` for an unknown id; respond 400 with `{ \"error\": \"title must be a non-empty string\" }` when a `title` is present but is not a non-empty string; otherwise update only the fields `title`, `author` and `year` that were sent and respond 200 with the updated book.",
+      "explanation": "PATCH means partial update, so only fields that are present in the body change; checking `!== undefined` distinguishes 'not sent' from 'sent as null'. Validation happens before any mutation so that a rejected request leaves the book untouched, and the responses reuse the API's single error shape.",
+      "language": "javascript",
+      "starterCode": "app.patch('/api/books/:id', (req, res) => {\n  const book = books.find((b) => b.id === Number(req.params.id));\n  // TODO: 404 when missing, validate title if present, apply title/author/year, respond with the book\n});",
+      "solutionCode": "app.patch('/api/books/:id', (req, res) => {\n  const book = books.find((b) => b.id === Number(req.params.id));\n  if (!book) return res.status(404).json({ error: 'Book not found' });\n\n  const { title, author, year } = req.body ?? {};\n  if (title !== undefined && (typeof title !== 'string' || title.trim() === '')) {\n    return res.status(400).json({ error: 'title must be a non-empty string' });\n  }\n\n  if (title !== undefined) book.title = title.trim();\n  if (author !== undefined) book.author = author;\n  if (year !== undefined) book.year = year;\n\n  res.json(book);\n});",
+      "checklist": [
+        "Converts req.params.id with Number before comparing it to book ids",
+        "Returns 404 with the error shape when no book matches",
+        "Returns 400 when title is present but not a non-empty string, before changing anything",
+        "Reads from req.body ?? {} so a missing body cannot throw",
+        "Updates only the fields that were sent and responds with the updated book"
+      ]
+    },
+    {
+      "id": "nodejs-environment-config-strings",
+      "type": "predict-output",
+      "lessonSlug": "environment-config",
+      "difficulty": "beginner",
+      "question": "The script is started with `PORT=8080 node ports.js` and the variable `RETRIES` is not set. What is printed?",
+      "explanation": "Every environment variable is a string, so '8080' + 1 concatenates to '80801'. Number(port) + 1 is real arithmetic, 8081. A variable that is not set reads as undefined, and typeof undefined is 'undefined'.",
+      "language": "javascript",
+      "code": "const port = process.env.PORT;\n\nconsole.log(port + 1);\nconsole.log(Number(port) + 1);\nconsole.log(typeof process.env.RETRIES);",
+      "options": [
+        "8081, 8081, number",
+        "80801, 8081, undefined",
+        "80801, 8081, string",
+        "8081, 8081, undefined"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "nodejs-async-patterns-order",
+      "type": "predict-output",
+      "lessonSlug": "async-patterns",
+      "difficulty": "intermediate",
+      "question": "In which order are the letters printed?",
+      "explanation": "Synchronous code runs first: A, then D (the body of an async function runs synchronously until its first await), then F. The microtask queue then runs in the order callbacks were queued: C was queued by .then before the await queued E. The zero-delay timer B runs last, on the next turn of the event loop.",
+      "language": "javascript",
+      "code": "console.log('A');\n\nsetTimeout(() => console.log('B'), 0);\n\nPromise.resolve().then(() => console.log('C'));\n\n(async () => {\n  console.log('D');\n  await null;\n  console.log('E');\n})();\n\nconsole.log('F');",
+      "options": ["A D F C E B", "A F D C E B", "A D F B C E", "A D E F C B"],
+      "correctIndex": 0
+    },
+    {
+      "id": "nodejs-databases-prepare",
+      "type": "fill-blank",
+      "lessonSlug": "databases",
+      "difficulty": "beginner",
+      "question": "To compile an SQL statement once and execute it many times with different values, call `db.___('INSERT INTO books (title) VALUES (?)')` and then `.run(title)` on the result.",
+      "explanation": "prepare compiles the statement and returns a StatementSync object. Its run, get and all methods bind the placeholder values on every call, so the same compiled statement serves every insert, which is faster and immune to SQL injection.",
+      "answers": ["prepare"],
+      "caseSensitive": false
+    },
+    {
+      "id": "nodejs-testing-cart",
+      "type": "coding-task",
+      "lessonSlug": "testing",
+      "difficulty": "intermediate",
+      "question": "`slugify(title)` lower-cases a title, replaces every run of characters that are not letters or digits with a single hyphen and removes hyphens from both ends, so `slugify('  Dune: Part Two! ')` returns `'dune-part-two'`; for a non-string argument it throws a TypeError. Using node:test and node:assert/strict, write tests that cover a simple title, repeated separators, leading and trailing separators, and the TypeError.",
+      "explanation": "Each test checks one behaviour with one clear name, so a failure points straight at the broken rule. assert.equal from the strict module compares with ===, and assert.throws takes a function (not the call itself) plus the expected error class.",
+      "language": "javascript",
+      "starterCode": "import { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { slugify } from './slugify.js';\n\ntest('lower-cases and joins words with hyphens', () => {\n  // TODO\n});\n\n// TODO: repeated separators, leading and trailing separators, non-string input",
+      "solutionCode": "// slugify.js, for reference:\n// export function slugify(title) {\n//   if (typeof title !== 'string') throw new TypeError('title must be a string');\n//   return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');\n// }\n\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { slugify } from './slugify.js';\n\ntest('lower-cases and joins words with hyphens', () => {\n  assert.equal(slugify('Snow Crash'), 'snow-crash');\n});\n\ntest('collapses runs of separators into one hyphen', () => {\n  assert.equal(slugify('Dune:  Part   Two!'), 'dune-part-two');\n});\n\ntest('trims separators from both ends', () => {\n  assert.equal(slugify('  Dune: Part Two! '), 'dune-part-two');\n});\n\ntest('throws a TypeError for non-string input', () => {\n  assert.throws(() => slugify(42), TypeError);\n});",
+      "checklist": [
+        "Imports test from node:test and assert from node:assert/strict",
+        "One test checks a plain two-word title becomes lower-case words joined by a hyphen",
+        "One test checks that several separators in a row produce a single hyphen",
+        "One test checks that leading and trailing separators are removed",
+        "One test uses assert.throws with a function wrapper and TypeError",
+        "node --test runs the file and reports every test as passing"
+      ]
+    },
+    {
+      "id": "nodejs-deployment-sigterm",
+      "type": "multiple-choice",
+      "lessonSlug": "deployment",
+      "difficulty": "intermediate",
+      "question": "A container platform sends SIGTERM to your Node process a few seconds before stopping it. What should the SIGTERM handler do?",
+      "explanation": "Graceful shutdown means stop accepting new connections, let in-flight requests complete, then exit. server.close does the first two and calls back when done; a fallback timer with unref guarantees the process still exits if a connection never ends.",
+      "options": [
+        "Ignore the signal so the server keeps running",
+        "Call `server.close()` so open requests finish, then exit, with a timeout as a fallback",
+        "Call `process.exit(0)` immediately to stop as fast as possible",
+        "Restart the server on a different port"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

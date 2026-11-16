@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "select",
+  "title": "SELECT: Reading Data",
+  "summary": "SELECT chooses which columns to show from a table. FROM tells SQL which table to read.",
+  "introduction": "SELECT chooses which columns to show from a table. FROM tells SQL which table to read. Start by reading every column, then ask for only the two you need. Give an answer column a clear name.",
+  "learningObjectives": [
+    "Select specific columns instead of every column",
+    "Compute new values with arithmetic expressions",
+    "Rename result columns with aliases",
+    "Remove duplicate rows with DISTINCT"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "SELECT and FROM"
+    },
+    {
+      "type": "paragraph",
+      "text": "`SELECT` lists what you want in the result and `FROM` names the table. Column names are separated by commas, and the order in which you list them is the order of the result columns."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, country FROM customers;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | country\n------------------+------------\nAda Lovelace      | UK\nGrace Hopper      | US\nLinus Torvalds    | Finland\nMargaret Hamilton | US\nGuido van Rossum  | Netherlands"
+    },
+    {
+      "type": "paragraph",
+      "text": "`SELECT *` is shorthand for every column in the table's defined order. It is convenient while exploring, but in application code it is better to name the columns you need: the result stays stable when someone adds a column later, and the database transfers less data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Expressions and calculated columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "Anything that produces a value can be a result column: a column, a number, an arithmetic expression, a function call. The expression is evaluated for every row. Here `ROUND(price * 1.2, 2)` adds 20% tax and rounds to two decimals:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price, ROUND(price * 1.2, 2) AS price_with_tax\nFROM products;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price | price_with_tax\n--------------------+-------+---------------\nNotebook            | 4.5   | 5.4\nMouse pad           | 8.99  | 10.79\nUSB cable           | 12    | 14.4\nMechanical keyboard | 89    | 106.8\nMonitor stand       | 39.5  | 47.4\nSticky notes        | 2.75  | 3.3"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice that `4.50` is shown as `4.5` and `12.00` as `12`: SQLite stores the prices as floating-point `REAL` values, and the playground prints such numbers without trailing zeros (the `sqlite3` command-line shell would print `12.0`). Databases with a `DECIMAL(10,2)` type keep the two decimals; the [data types lesson](/tutorials/sql/create-table) comes back to this."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Aliases with AS"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without an alias, a calculated column is named after its expression, which is awkward to read and to reference from code. `AS` gives the column a name of your choice. The keyword is optional in most databases (`price * 1.2 tax` also works) but writing it makes the intent obvious. A name containing spaces or punctuation must be wrapped in double quotes:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name AS \"Product name\", price AS \"Price (EUR)\"\nFROM products\nWHERE id <= 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Product name | Price (EUR)\n-------------+------------\nNotebook     | 4.5\nMouse pad    | 8.99"
+    },
+    {
+      "type": "paragraph",
+      "text": "Aliases can also shorten table names (`FROM customers AS c`), which becomes essential when joining tables in [JOINs](/tutorials/sql/joins)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "DISTINCT: unique values"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two customers live in the US, so selecting `country` returns `US` twice. `SELECT DISTINCT` removes duplicate rows from the result. With several columns, DISTINCT keeps each distinct *combination* of values."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT DISTINCT country FROM customers;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "country\n-----------\nUK\nUS\nFinland\nNetherlands"
+    },
+    {
+      "type": "paragraph",
+      "text": "The rows come back in the order in which the database happened to find them; nothing guarantees it. The next lesson introduces `ORDER BY`, the only way to ask for a specific order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "SELECT without a table"
+    },
+    {
+      "type": "paragraph",
+      "text": "A SELECT does not need a FROM clause: it can evaluate expressions directly, which is handy for testing a function or a calculation. SQLite, PostgreSQL, MySQL and SQL Server all accept this; Oracle traditionally requires `FROM DUAL`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT 7 * 6 AS answer, 'SQL' AS language;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "answer | language\n-------+---------\n42     | SQL"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Double quotes are for names, single quotes for text",
+      "text": "In standard SQL `'SQL'` is a text value and `\"SQL\"` is an identifier (a column or table name). SQLite tolerates `\"SQL\"` as a string when no such column exists, but PostgreSQL reports *column \"SQL\" does not exist*. Use single quotes for values and double quotes only for names that need them, such as the aliases with spaces above."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "In the runner, add a column `doubled` that holds twice the price, then write a second query that lists each category once with `DISTINCT`."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 240,
+      "code": "SELECT name, price\nFROM products;\n\n-- Add a calculated column with an alias, then a DISTINCT query"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-select-products"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "select-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "select",
+          "difficulty": "beginner",
+          "question": "What does `SELECT DISTINCT category FROM products` return?",
+          "explanation": "DISTINCT removes duplicate rows, so each of the three category names appears exactly once.",
+          "options": [
+            "Every product with its category",
+            "Each category name once",
+            "The number of categories",
+            "The first product of each category"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "select-qc-2",
+          "type": "true-false",
+          "lessonSlug": "select",
+          "difficulty": "beginner",
+          "question": "`SELECT *` is the recommended way to read data in application code because it always returns every column.",
+          "explanation": "Returning every column is exactly the problem: the result changes whenever the table changes and more data is transferred than needed. Name the columns you use.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-select-products"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "where"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "sorting-limiting"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "SQL SELECT – Columns, Expressions, Aliases, DISTINCT",
+    "description": "Learn the SQL SELECT statement: choose columns, compute values with expressions, rename results with AS and remove duplicate rows with DISTINCT."
+  },
+  "updatedOn": "2026-11-16"
+}

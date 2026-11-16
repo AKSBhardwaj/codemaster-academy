@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "slug": "http-server",
+  "title": "Building an HTTP Server",
+  "summary": "Create a web server with node:http, inspect requests, send status codes, headers and JSON, route by method and path, and read a POST body with no framework at all.",
+  "introduction": "Node ships a complete HTTP server in the `node:http` module; Express and every other framework is a layer on top of it. Writing a small server by hand first means you will always know what those frameworks are doing for you: parsing the URL, reading the body, setting headers and finishing the response. In this lesson you build a tiny book API with nothing but the core module, test it with curl, and learn the one rule that explains most hanging requests: every response must be ended.",
+  "learningObjectives": [
+    "Start a server with createServer and listen and test it with curl",
+    "Read the method, URL and headers of a request and send status codes, headers and JSON",
+    "Route requests by method and path and read a JSON request body"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A minimal server"
+    },
+    {
+      "type": "paragraph",
+      "text": "`createServer` takes a function that Node calls once per request with two objects: `req`, a readable stream describing the incoming request, and `res`, a writable stream for your reply. `listen` binds a port and starts accepting connections; the process keeps running until you stop it with Ctrl+C."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "server.js",
+      "code": "import { createServer } from 'node:http';\n\nconst server = createServer((req, res) => {\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('Hello from Node.js\\n');\n});\n\nserver.listen(3000, () => {\n  console.log('Listening on http://localhost:3000');\n});"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run `node server.js` in one terminal and talk to it from a second one with `curl`. The `-i` flag prints the response headers as well as the body:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -i http://localhost:3000/"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (the Date header shows the moment of the request)",
+      "content": "HTTP/1.1 200 OK\nContent-Type: text/plain\nDate: Sun, 15 Nov 2026 10:12:08 GMT\nConnection: keep-alive\nKeep-Alive: timeout=5\nContent-Length: 19\n\nHello from Node.js"
+    },
+    {
+      "type": "paragraph",
+      "text": "You wrote one header; Node added the rest. `Date` is required by the HTTP specification, `Connection` and `Keep-Alive` let the client reuse the connection for its next request, and `Content-Length` was computed from the string passed to `end`. Opening `http://localhost:3000` in a browser shows the same text."
+    },
+    {
+      "type": "callout",
+      "icon": "terminal",
+      "title": "curl on Windows",
+      "text": "In Windows PowerShell 5, `curl` is an alias for `Invoke-WebRequest`, which has different flags. Type `curl.exe` instead, or run the examples in Git Bash or WSL, where the quoting used in this tutorial works unchanged."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What a request and a response contain"
+    },
+    {
+      "type": "table",
+      "headers": ["Property or method", "Meaning"],
+      "rows": [
+        ["`req.method`", "`'GET'`, `'POST'`, `'PUT'`, `'DELETE'` and so on, always upper case"],
+        [
+          "`req.url`",
+          "Path and query string as sent by the client, for example `'/api/books?q=dune'`; it does not include the host"
+        ],
+        ["`req.headers`", "An object with lower-case header names: `req.headers['content-type']`"],
+        [
+          "`res.statusCode`, `res.setHeader(name, value)`",
+          "Set the status and headers one at a time before anything is written"
+        ],
+        ["`res.writeHead(status, headers)`", "Set status and several headers in one call"],
+        ["`res.write(chunk)`", "Send part of the body; the response stays open"],
+        [
+          "`res.end([data])`",
+          "Send the last chunk (if any) and finish the response. Required for every request"
+        ]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The request that never finishes",
+      "text": "If a code path forgets `res.end()`, the client waits forever: no error, no log line, just a spinner until it gives up. Every branch of your handler, including error branches, must end the response exactly once. Sending a second response is the mirror-image bug: `writeHead` after the headers have gone out throws `ERR_HTTP_HEADERS_SENT`, so `return` as soon as you have sent a response."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Routing by method and path"
+    },
+    {
+      "type": "paragraph",
+      "text": "`req.url` is just a string, so parse it with the standard `URL` class. The second argument supplies a base, because `req.url` has no host. The resulting object gives you `pathname` and `searchParams` separately. With that, routing is an `if` chain over method and path, and a small helper keeps the JSON responses consistent:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "api.js",
+      "code": "import { createServer } from 'node:http';\n\nconst books = [\n  { id: 1, title: 'Dune' },\n  { id: 2, title: 'Neuromancer' },\n];\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify(data));\n}\n\nasync function readJsonBody(req) {\n  let raw = '';\n  for await (const chunk of req) raw += chunk;\n  return raw ? JSON.parse(raw) : {};\n}\n\nconst server = createServer(async (req, res) => {\n  const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host}`);\n\n  if (req.method === 'GET' && pathname === '/api/books') {\n    const q = searchParams.get('q')?.toLowerCase();\n    const result = q ? books.filter((b) => b.title.toLowerCase().includes(q)) : books;\n    return sendJson(res, 200, result);\n  }\n\n  if (req.method === 'POST' && pathname === '/api/books') {\n    try {\n      const body = await readJsonBody(req);\n      if (typeof body.title !== 'string') return sendJson(res, 400, { error: 'title is required' });\n      const book = { id: books.length + 1, title: body.title };\n      books.push(book);\n      return sendJson(res, 201, book);\n    } catch {\n      return sendJson(res, 400, { error: 'Body is not valid JSON' });\n    }\n  }\n\n  sendJson(res, 404, { error: `No route for ${req.method} ${pathname}` });\n});\n\nserver.listen(3000, () => console.log('API listening on http://localhost:3000'));"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s \"http://localhost:3000/api/books?q=neu\"\ncurl -s -X POST -H \"Content-Type: application/json\" -d '{\"title\":\"Snow Crash\"}' http://localhost:3000/api/books\ncurl -s http://localhost:3000/nope"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (one line per curl command)",
+      "content": "[{\"id\":2,\"title\":\"Neuromancer\"}]\n{\"id\":3,\"title\":\"Snow Crash\"}\n{\"error\":\"No route for GET /nope\"}"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`-s` silences curl's progress meter, `-X` sets the method, `-H` adds a header and `-d` sends a body.",
+        "Query parameters come back as strings or `null`; `searchParams.get('q')?.toLowerCase()` copes with a missing `q`.",
+        "Each `return` after `sendJson` guarantees that exactly one response goes out per request.",
+        "`201 Created` is the right status for a successful POST that made a new resource; `400 Bad Request` for input the client can fix; `404 Not Found` for an unknown route."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading the request body"
+    },
+    {
+      "type": "paragraph",
+      "text": "The body is not parsed for you and does not arrive in one piece. Because `req` is a readable stream (see the [previous lesson](/tutorials/nodejs/events-streams)), `for await (const chunk of req)` collects it chunk by chunk; the loop ends when the client has sent everything. `readJsonBody` then parses the text, and the `try`/`catch` around it turns malformed JSON into a `400` instead of a crash. The handler is `async` only so that it can `await` the body; Node does not care what the handler returns."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Restarting during development",
+      "text": "Changing `api.js` does not affect the running server. Start it with `node --watch api.js` and Node restarts it automatically whenever a file it loaded changes. If a restart fails with `EADDRINUSE: address already in use`, an older copy is still holding port 3000: stop it with Ctrl+C."
+    },
+    {
+      "type": "paragraph",
+      "text": "You now have everything a framework provides, written by hand: routing, JSON responses, body parsing and status codes. It took about forty lines for two routes, and the `if` chain grows with every endpoint. The next lesson introduces [Express](/tutorials/nodejs/express-basics), which packages exactly these patterns into a few method calls."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-http-server-health"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-http-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "http-server",
+          "difficulty": "beginner",
+          "question": "A handler sets `res.statusCode = 404` and a header but the client keeps waiting. What is missing?",
+          "explanation": "Setting the status and headers does not send anything; the response is only sent and finished when res.end() is called.",
+          "options": ["`res.send()`", "`res.end()`", "`server.listen()`", "`req.end()`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-http-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "http-server",
+          "difficulty": "beginner",
+          "question": "To split `req.url` into a path and query parameters, create `new ___(req.url, 'http://localhost')`.",
+          "explanation": "The standard URL class parses the path and query string; the base argument is needed because req.url contains no host.",
+          "answers": ["URL"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-http-server-health"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "events-streams"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "express-basics"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    }
+  ],
+  "seo": {
+    "title": "Node.js HTTP Server – createServer, Routing and JSON",
+    "description": "Build a web server with node:http: createServer and listen, request and response objects, status codes, routing by method and path and reading a JSON body."
+  },
+  "updatedOn": "2026-11-15"
+}

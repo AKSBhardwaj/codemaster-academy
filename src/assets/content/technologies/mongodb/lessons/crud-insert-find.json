@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "crud-insert-find",
+  "title": "Inserting and Finding Documents",
+  "summary": "Create documents with insertOne and insertMany, read them back with find and findOne, shape results with projections, and sort, limit and count them.",
+  "introduction": "Create and Read are the two halves of CRUD you use most, and in MongoDB they are four methods: insertOne, insertMany, find and findOne. This lesson builds the product catalogue that the rest of the tutorial queries, then reads it back in every way an application needs: filtered, projected to a few fields, sorted, limited to a page and counted. Along the way you learn what a cursor is and what the shell is really doing when it prints results.",
+  "learningObjectives": [
+    "Insert one or many documents and read the result the server returns",
+    "Filter documents with find and findOne and choose fields with a projection",
+    "Sort, limit, skip and count results, and iterate a cursor"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create: insertOne and insertMany"
+    },
+    {
+      "type": "paragraph",
+      "text": "`insertOne` takes a document; `insertMany` takes an array of documents and sends them in one round trip, which is much faster than inserting in a loop. Start with a clean `products` collection so that your results match the outputs below. Explicit numeric `_id` values keep the examples predictable; in real applications you usually let MongoDB generate an `ObjectId`, as shown at the end of the lesson."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.products.drop()\ndb.products.insertMany([\n  { _id: 1, name: 'Mechanical keyboard', price: 89.5, category: 'peripherals', stock: 12, tags: ['usb', 'backlit'], rating: 4.6 },\n  { _id: 2, name: 'Wireless mouse', price: 24.99, category: 'peripherals', stock: 0, tags: ['wireless', 'usb'], rating: 4.1 },\n  { _id: 3, name: '27-inch monitor', price: 219, category: 'displays', stock: 5, tags: ['4k', 'hdmi'], rating: 4.8 },\n  { _id: 4, name: 'Desk lamp', price: 24.5, category: 'office', stock: 40, tags: ['led'] },\n  { _id: 5, name: 'USB-C hub', price: 39, category: 'peripherals', stock: 8, tags: ['usb'], rating: 3.9 },\n  { _id: 6, name: 'Webcam', price: 59, category: 'peripherals', stock: 3, tags: ['usb', 'video'], rating: 4.3, discontinued: true }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\ntrue\n{\n  acknowledged: true,\n  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5, '5': 6 }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`drop()` returns `true` when the collection existed (and `false` when it did not). The insert result lists the `_id` of every new document by its position in the array. Notice that the lamp has no `rating` and only the webcam has `discontinued`: documents in one collection do not need identical fields, and the next lesson shows how to query for that."
+    },
+    {
+      "type": "paragraph",
+      "text": "By default `insertMany` is **ordered**: documents are written in array order and the operation stops at the first failure, leaving the earlier documents in place. Pass `{ ordered: false }` to insert everything that can be inserted and report the failures afterwards. Each document is written atomically, but a multi-document insert as a whole is not; the [Transactions](/tutorials/mongodb/transactions) lesson covers all-or-nothing writes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read: find and findOne"
+    },
+    {
+      "type": "paragraph",
+      "text": "`find(filter, projection)` returns every document matching the filter; `findOne` returns the first match or `null`. A filter is a document whose fields must equal the given values. A **projection** chooses which fields come back: `1` includes a field and `0` excludes it. `_id` is always included unless you exclude it explicitly, and sending fewer fields over the network is one of the cheapest optimisations there is."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ category: 'peripherals' }, { _id: 0, name: 1, price: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { name: 'Mechanical keyboard', price: 89.5 },\n  { name: 'Wireless mouse', price: 24.99 },\n  { name: 'USB-C hub', price: 39 },\n  { name: 'Webcam', price: 59 }\n]"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.findOne({ stock: 0 })\ndb.products.findOne({ name: 'Headphones' })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  _id: 2,\n  name: 'Wireless mouse',\n  price: 24.99,\n  category: 'peripherals',\n  stock: 0,\n  tags: [ 'wireless', 'usb' ],\n  rating: 4.1\n}\nnull"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `findOne` with no match returns `null` rather than throwing, so application code must check for it. A `find` with no match prints nothing at all in mongosh and yields an empty array in a driver. An empty filter, `find({})` or simply `find()`, matches every document."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Types are part of the match. `find({ price: '219' })` returns nothing, because the stored price is the number `219` and the filter has the string `'219'`. The same applies to ids: `find({ _id: '3' })` does not find `_id: 3`, and a string copied from a URL does not match an `ObjectId` until you wrap it in `ObjectId(...)`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sorting, limiting and counting"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without a sort, documents come back in *natural order*, which is usually insertion order but is not guaranteed and can change after updates. Whenever order matters, say so with `sort`, where `1` is ascending and `-1` descending. `limit` caps the number of results and `skip` jumps past the first ones, which together give you paging:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({}, { _id: 0, name: 1, price: 1 }).sort({ price: -1 }).limit(2)\ndb.products.countDocuments({ category: 'peripherals' })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { name: '27-inch monitor', price: 219 },\n  { name: 'Mechanical keyboard', price: 89.5 }\n]\n4"
+    },
+    {
+      "type": "paragraph",
+      "text": "`countDocuments(filter)` counts exactly, scanning whatever the filter needs. `estimatedDocumentCount()` returns the collection's metadata count instantly, with no filter, which is ideal for dashboards where an approximation is fine."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What find really returns"
+    },
+    {
+      "type": "paragraph",
+      "text": "`find` does not return documents; it returns a **cursor**, an object that fetches documents from the server in batches as you consume them. That is why `sort`, `limit` and `skip` chain after `find`: they configure the cursor before the first batch is requested. mongosh automatically iterates a cursor you do not assign and prints the first 20 documents; type `it` to see the next 20. In code, you iterate explicitly:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find().sort({ price: 1 }).forEach(p => print(`${p.name}: ${p.price}`))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Desk lamp: 24.5\nWireless mouse: 24.99\nUSB-C hub: 39\nWebcam: 59\nMechanical keyboard: 89.5\n27-inch monitor: 219"
+    },
+    {
+      "type": "paragraph",
+      "text": "`toArray()` pulls every remaining document into memory, which is convenient for small result sets and dangerous for large ones. In the Node.js driver the same cursor supports `for await` loops, as the [Node.js driver](/tutorials/mongodb/node-driver) lesson shows."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Letting MongoDB generate the id"
+    },
+    {
+      "type": "paragraph",
+      "text": "Leave out `_id` and the shell generates an `ObjectId` before sending the document. The result tells you which value was used; yours will differ from the one shown here."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.insertOne({ name: 'Ann Lee', email: 'ann@example.com', city: 'Lisbon' })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: ObjectId('69a3a800f1e2d3c4b5a69711')\n}"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Page through the catalogue two products at a time with `.sort({ name: 1 }).skip(2).limit(2)`, then change the skip to 4. Then count how many products cost less than 50 by combining `countDocuments` with the `$lt` operator from the next lesson."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-crud-insert-find-task"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-crud-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "crud-insert-find",
+          "difficulty": "beginner",
+          "question": "What does `db.products.findOne({ name: 'Nothing' })` return when no document matches?",
+          "explanation": "`findOne` returns `null` when nothing matches. It never throws for a missing document, so application code has to check the result.",
+          "options": [
+            "An empty document `{}`",
+            "`null`",
+            "An empty array `[]`",
+            "It throws an error"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-crud-qc-2",
+          "type": "true-false",
+          "lessonSlug": "crud-insert-find",
+          "difficulty": "beginner",
+          "question": "The projection `{ name: 1, price: 1 }` returns only the `name` and `price` fields.",
+          "explanation": "`_id` is included by default even when the projection does not mention it. Add `_id: 0` to leave it out.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-crud-insert-find-task", "mongodb-crud-find-vs-findone"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "query-operators"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "update-delete"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "select"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB insertOne, insertMany, find and findOne",
+    "description": "Insert documents with insertOne and insertMany, query them with find and findOne, use projections, sort, limit, skip and countDocuments, and understand cursors."
+  },
+  "updatedOn": "2026-11-15"
+}

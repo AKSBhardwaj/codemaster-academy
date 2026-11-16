@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "services",
+  "title": "Receive a shared helper",
+  "summary": "ASP.NET Core: Receive a shared helper. Change the registered school name.",
+  "introduction": "A registered service can be an input to a handler. Open GET /school.",
+  "learningObjectives": [
+    "Receive a shared helper with ASP.NET Core",
+    "Change the registered school name"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n School, enter School, and replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. Stop the app before changing examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Receive a shared helper"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Receive a shared helper",
+      "code": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddSingleton(new SchoolName(\"Oak School\"));\nvar app = builder.Build();\napp.MapGet(\"/school\", (SchoolName school) => school.Value);\napp.Run();\nrecord SchoolName(string Value);\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The service is registered before Build. Handler injection supplies its SchoolName instance."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the registered school name."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Register services before building the app."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-core-services-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-core-services-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-core",
+      "slug": "route-groups"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Core: Receive a shared helper",
+    "description": "ASP.NET Core: Receive a shared helper. Change the registered school name. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

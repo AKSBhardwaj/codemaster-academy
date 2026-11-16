@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "events",
+  "title": "Events",
+  "summary": "An event is something that happens on a page, such as a click or a key press.",
+  "introduction": "An event is something that happens on a page, such as a click or a key press. Tell a button what to do after a click. Then learn how the event tells your code which part of the page was used.",
+  "learningObjectives": [
+    "Register and remove event listeners with addEventListener",
+    "Read the event object to find the target, the typed value or the pressed key",
+    "Prevent default actions such as form submission and link navigation",
+    "Handle events on many elements with one listener using delegation"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Listening for an event"
+    },
+    {
+      "type": "paragraph",
+      "text": "`element.addEventListener(type, handler)` tells the browser to call `handler` every time an event of that `type` happens on the element. The handler is a function you pass *by reference*; the browser calls it later. You can add as many listeners as you like, to the same or different events. The example creates a button, listens for `click`, then calls `button.click()` twice to simulate a user so the output appears in the console."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const button = document.createElement(\"button\");\nbutton.textContent = \"Like\";\ndocument.body.append(button);\n\nlet likes = 0;\nbutton.addEventListener(\"click\", () => {\n  likes++;\n  button.textContent = `Like (${likes})`;\n  console.log(`Clicked ${likes} time(s)`);\n});\n\nbutton.click();   // simulate two clicks\nbutton.click();\nconsole.log(button.textContent);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Clicked 1 time(s)\nClicked 2 time(s)\nLike (2)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Passing the call instead of the function",
+      "text": "`button.addEventListener(\"click\", showMenu())` runs `showMenu` immediately, once, while the listener is being registered, and registers its return value (usually `undefined`) as the handler. Pass the function itself: `showMenu`, or wrap it in an arrow when it needs arguments: `() => showMenu(\"main\")`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The event object"
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser passes an **event object** to the handler. `event.type` is the event name, `event.target` is the element where it happened, and specific events add their own properties: `input` events let you read `event.target.value`, keyboard events have `event.key`, mouse events have `clientX` and `clientY`. Here the events are dispatched from code with `dispatchEvent`, which is also how tests simulate users."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const input = document.createElement(\"input\");\ndocument.body.append(input);\n\ninput.addEventListener(\"input\", (event) => {\n  console.log(`type: ${event.type}, value: ${event.target.value}`);\n});\n\ninput.value = \"hi\";\ninput.dispatchEvent(new Event(\"input\"));\n\ndocument.addEventListener(\"keydown\", (event) => {\n  console.log(`key: ${event.key}`);\n});\ndocument.dispatchEvent(new KeyboardEvent(\"keydown\", { key: \"Enter\" }));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "type: input, value: hi\nkey: Enter"
+    },
+    {
+      "type": "table",
+      "headers": ["Event", "Fires when", "Useful properties"],
+      "rows": [
+        [
+          "`click`",
+          "A button, link or any element is clicked or activated with the keyboard",
+          "`target`"
+        ],
+        ["`input`", "The value of a field changes, on every keystroke", "`target.value`"],
+        [
+          "`change`",
+          "A field's value is committed (checkbox toggled, select chosen, text field blurred)",
+          "`target.value`, `target.checked`"
+        ],
+        ["`submit`", "A form is submitted; fires on the `<form>`", "`preventDefault()`"],
+        ["`keydown`", "A key is pressed anywhere in the element", "`key`, `ctrlKey`, `shiftKey`"],
+        ["`DOMContentLoaded`", "The HTML has been fully parsed; fires on `document`", "none needed"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Preventing the default action"
+    },
+    {
+      "type": "paragraph",
+      "text": "Many events have a built-in consequence: submitting a form sends it and reloads the page, clicking a link navigates. `event.preventDefault()` cancels that behaviour so your code can take over, which is how single-page apps submit forms without a reload. The `{ once: true }` option removes a listener automatically after its first call, and `removeEventListener` removes one by hand (it needs the same function reference you added)."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const form = document.createElement(\"form\");\nform.innerHTML = '<input name=\"q\" value=\"dom\"><button>Search</button>';\ndocument.body.append(form);\n\nform.addEventListener(\"submit\", (event) => {\n  event.preventDefault();                 // stop the page from reloading\n  const data = new FormData(form);\n  console.log(`Searching for ${data.get(\"q\")}`);\n});\nform.requestSubmit();\n\nconst once = document.createElement(\"button\");\nonce.addEventListener(\"click\", () => console.log(\"only once\"), { once: true });\nonce.click();\nonce.click();\n\nfunction report() {\n  console.log(\"reported\");\n}\nonce.addEventListener(\"click\", report);\nonce.removeEventListener(\"click\", report);\nonce.click();\nconsole.log(\"end\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Searching for dom\nonly once\nend"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Bubbling and delegation"
+    },
+    {
+      "type": "paragraph",
+      "text": "After an event fires on an element it **bubbles**: it travels up through every ancestor, and listeners on those ancestors run too. That makes **event delegation** possible: instead of attaching a listener to each of a hundred list items, attach one to the list and use `event.target.closest(\"li\")` to find which item was clicked. Items added later are handled automatically, because the listener lives on the parent."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const list = document.createElement(\"ul\");\nlist.innerHTML = \"<li>Apples</li><li>Pears</li>\";\ndocument.body.append(list);\n\nlist.addEventListener(\"click\", (event) => {\n  const item = event.target.closest(\"li\");\n  if (!item) return;                        // click on the list itself, not an item\n  console.log(`You picked ${item.textContent}`);\n});\n\nlist.querySelectorAll(\"li\")[1].click();\nlist.querySelector(\"li\").click();\n\nconst plums = document.createElement(\"li\");\nplums.textContent = \"Plums\";\nlist.append(plums);                         // added after the listener\nplums.click();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "You picked Pears\nYou picked Apples\nYou picked Plums"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try it: a page that reacts to you"
+    },
+    {
+      "type": "paragraph",
+      "text": "This page has a counter with two buttons and a text field that updates a greeting as you type. Click and type in the result panel. Then edit the script: make the counter refuse to go below zero, or react to `keydown` and clear the field when Escape is pressed."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Counter and live greeting",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Events practice</title>\n</head>\n<body>\n  <p>\n    <button id=\"minus\" type=\"button\">-</button>\n    <strong id=\"count\">0</strong>\n    <button id=\"plus\" type=\"button\">+</button>\n  </p>\n  <p>\n    <label for=\"name\">Your name</label>\n    <input id=\"name\" type=\"text\">\n  </p>\n  <p id=\"greeting\">Hello, stranger!</p>\n  <script>\n    let count = 0;\n    const countEl = document.getElementById(\"count\");\n\n    document.getElementById(\"plus\").addEventListener(\"click\", () => {\n      count++;\n      countEl.textContent = count;\n    });\n    document.getElementById(\"minus\").addEventListener(\"click\", () => {\n      count--;\n      countEl.textContent = count;\n    });\n\n    document.getElementById(\"name\").addEventListener(\"input\", (event) => {\n      const name = event.target.value.trim() || \"stranger\";\n      document.getElementById(\"greeting\").textContent = `Hello, ${name}!`;\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice that the buttons have `type=\"button\"`. Inside a form a button submits by default, so the attribute matters whenever a button should only run JavaScript; the [HTML forms](/tutorials/html/forms) lesson covers the three button types."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keyboard users",
+      "text": "A `click` listener on a `<button>` also fires when the user presses Enter or Space on it, so buttons are accessible for free. Avoid attaching click handlers to `<div>` or `<span>`: they cannot receive keyboard focus, so keyboard and screen-reader users cannot activate them."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-events-handler-reference"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "events-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "events",
+          "difficulty": "beginner",
+          "question": "Which call stops a submitted form from reloading the page?",
+          "explanation": "preventDefault cancels the browser's built-in action for the event. stopPropagation only stops bubbling to ancestors; it does not affect the default action.",
+          "options": [
+            "`event.stopPropagation()`",
+            "`event.preventDefault()`",
+            "`event.cancel()`",
+            "`return true`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "events-qc-2",
+          "type": "true-false",
+          "lessonSlug": "events",
+          "difficulty": "intermediate",
+          "question": "A click listener on a `<ul>` also runs when one of its `<li>` children is clicked.",
+          "explanation": "Events bubble from the target up through its ancestors, so the list's listener runs for clicks on its items. That is what makes event delegation work.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-events-handler-reference"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "dom"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "input-types"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Events – addEventListener and Delegation",
+    "description": "Learn JavaScript events: addEventListener, the event object and target, input and keyboard events, preventDefault on forms, bubbling and event delegation."
+  },
+  "updatedOn": "2026-11-16"
+}

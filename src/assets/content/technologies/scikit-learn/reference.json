@@ -1,0 +1,154 @@
+{
+  "title": "Scikit-learn Reference",
+  "description": "A quick reminder of the ideas and examples in the Scikit-learn lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Features and labels",
+          "summary": "A feature is an input measurement. A label is the known answer in a teaching example. Scikit-learn usually expects a table of feature rows.",
+          "example": {
+            "language": "python",
+            "code": "X = [[1], [2], [8], [9]]\ny = [0, 0, 1, 1]\nprint(len(X), len(y))"
+          },
+          "notes": ["Do not give a different number of feature rows and labels."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "fit-a-simple-classifier",
+          "name": "Fit a simple classifier",
+          "summary": "A classifier chooses a group label. fit lets the model learn from examples. A decision tree splits inputs using learned thresholds.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.tree import DecisionTreeClassifier\nX = [[1], [2], [8], [9]]\ny = [0, 0, 1, 1]\nmodel = DecisionTreeClassifier(max_depth=1, random_state=0)\nmodel.fit(X, y)\nprint(model.predict([[1.5], [8.5]]).tolist())"
+          },
+          "notes": ["A toy split does not prove a model will work on a real-world problem."],
+          "lessonSlug": "fit-a-simple-classifier"
+        },
+        {
+          "slug": "keep-test-data-separate",
+          "name": "Keep test data separate",
+          "summary": "A test set holds examples kept out of model fitting. It gives a better check than only asking about examples the model already saw.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.model_selection import train_test_split\nX = [[n] for n in range(10)]\ny = [0] * 5 + [1] * 5\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, stratify=y)\nprint(len(X_train), len(X_test))"
+          },
+          "notes": [
+            "Repeatedly choosing changes based on test results can leak information from the test set."
+          ],
+          "lessonSlug": "keep-test-data-separate"
+        },
+        {
+          "slug": "use-a-simple-baseline",
+          "name": "Use a simple baseline",
+          "summary": "A baseline is a simple result to compare against. DummyClassifier can always choose the most frequent training class.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.dummy import DummyClassifier\nmodel = DummyClassifier(strategy=\"most_frequent\")\nmodel.fit([[1], [2], [3]], [0, 0, 1])\nprint(model.predict([[8], [9]]).tolist())"
+          },
+          "notes": [
+            "Beating no comparison at all is not strong evidence; start with a simple baseline."
+          ],
+          "lessonSlug": "use-a-simple-baseline"
+        },
+        {
+          "slug": "measure-accuracy",
+          "name": "Measure accuracy",
+          "summary": "Accuracy is the fraction of labels predicted correctly. It can be misleading when one class is much more common than another.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.metrics import accuracy_score\nprint(accuracy_score([0, 1, 1, 0], [0, 1, 0, 0]))"
+          },
+          "notes": ["Do not rely only on accuracy for rare but important outcomes."],
+          "lessonSlug": "measure-accuracy"
+        },
+        {
+          "slug": "read-a-confusion-matrix",
+          "name": "Read a confusion matrix",
+          "summary": "A confusion matrix counts correct and incorrect class choices. With labels [0, 1], rows are true labels and columns are predicted labels.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.metrics import confusion_matrix\nprint(confusion_matrix([0, 0, 1, 1], [0, 1, 1, 1], labels=[0, 1]).tolist())"
+          },
+          "notes": ["Check row and column meanings before interpreting a matrix."],
+          "lessonSlug": "read-a-confusion-matrix"
+        },
+        {
+          "slug": "scale-using-training-data",
+          "name": "Scale using training data",
+          "summary": "Scaling puts features on a chosen numeric scale. Fit the scaler on training data, then use that fitted scaler on other data.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nscaled = scaler.fit_transform([[1.0], [2.0], [3.0]])\nprint(round(float(scaled[1, 0]), 6))"
+          },
+          "notes": ["Fitting the scaler on all data before splitting leaks test information."],
+          "lessonSlug": "scale-using-training-data"
+        },
+        {
+          "slug": "pipelines-keep-steps-together",
+          "name": "Pipelines keep steps together",
+          "summary": "A pipeline applies preparation and a model in the intended order. It helps use the same preparation for fitting and prediction.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.neighbors import KNeighborsClassifier\nmodel = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=1))\nmodel.fit([[1], [2], [8], [9]], [0, 0, 1, 1])\nprint(model.predict([[1.5], [8.5]]).tolist())"
+          },
+          "notes": ["Do not manually apply a second, different scaling step to predictions."],
+          "lessonSlug": "pipelines-keep-steps-together"
+        },
+        {
+          "slug": "predict-a-number-with-regression",
+          "name": "Predict a number with regression",
+          "summary": "Regression predicts a number instead of a class. LinearRegression fits a straight-line relationship to the examples.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression().fit([[1], [2], [3]], [2, 4, 6])\nprint(round(float(model.predict([[4]])[0]), 2))"
+          },
+          "notes": ["A real dataset may not follow a perfect straight line."],
+          "lessonSlug": "predict-a-number-with-regression"
+        },
+        {
+          "slug": "measure-numeric-error",
+          "name": "Measure numeric error",
+          "summary": "Mean absolute error averages the size of prediction mistakes without keeping their plus or minus signs.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.metrics import mean_absolute_error\nprint(mean_absolute_error([2, 4], [3, 4]))"
+          },
+          "notes": [
+            "The error is in the target's units; do not compare unrelated tasks without context."
+          ],
+          "lessonSlug": "measure-numeric-error"
+        },
+        {
+          "slug": "cross-validation-repeats-a-check",
+          "name": "Cross-validation repeats a check",
+          "summary": "Cross-validation trains and evaluates on several train/validation splits. It gives more than one estimate, but still needs careful data grouping.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.datasets import load_iris\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import cross_val_score\nX, y = load_iris(return_X_y=True)\nscores = cross_val_score(DecisionTreeClassifier(max_depth=2, random_state=0), X, y, cv=3)\nprint(len(scores))"
+          },
+          "notes": [
+            "Related records from the same person or future time must not leak across splits."
+          ],
+          "lessonSlug": "cross-validation-repeats-a-check"
+        },
+        {
+          "slug": "inspect-the-model-limit",
+          "name": "Inspect the model limit",
+          "summary": "A model setting chosen before fitting is a hyperparameter. max_depth limits how many splits a tree can make along a path.",
+          "example": {
+            "language": "python",
+            "code": "from sklearn.tree import DecisionTreeClassifier\nmodel = DecisionTreeClassifier(max_depth=1, random_state=0)\nmodel.fit([[1], [2], [8], [9]], [0, 0, 1, 1])\nprint(model.get_depth())"
+          },
+          "notes": [
+            "More complex models can memorise training details instead of learning useful patterns."
+          ],
+          "lessonSlug": "inspect-the-model-limit"
+        }
+      ]
+    }
+  ]
+}

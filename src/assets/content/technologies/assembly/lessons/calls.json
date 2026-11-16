@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "calls",
+  "title": "Call a small routine",
+  "summary": "Assembly: Call a small routine. Start with 3.",
+  "introduction": "call saves a return address and jumps. ret returns to the instruction after call.",
+  "learningObjectives": ["Call a small routine with Assembly", "Start with 3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "On x86-64 Linux, save lesson.asm. Run nasm -f elf64 lesson.asm -o lesson.o, then ld lesson.o -o lesson. Run ./lesson, then printf 'exit code: %s\\n' \"$?\" immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Call a small routine"
+    },
+    {
+      "type": "code",
+      "language": "asm",
+      "title": "Call a small routine",
+      "code": "global _start\nsection .text\n_start:\n    mov rdi, 4\n    call twice\n    mov rax, 60\n    syscall\ntwice:\n    add rdi, rdi\n    ret\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "call enters twice with 4. The routine doubles rdi and ret returns with 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "exit code: 8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Start with 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A routine reached by call should return with ret, not fall into unrelated code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "assembly-calls-check"
+    }
+  ],
+  "exerciseIds": ["assembly-calls-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "assembly",
+      "slug": "stack"
+    }
+  ],
+  "seo": {
+    "title": "Assembly: Call a small routine",
+    "description": "Assembly: Call a small routine. Start with 3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

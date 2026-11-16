@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "listen-and-then-unsubscribe",
+  "title": "Listen and then unsubscribe",
+  "summary": "subscribe runs a listener after store changes.",
+  "introduction": "subscribe runs a listener after store changes. Your task: Find the cleanup call in the example.",
+  "learningObjectives": [
+    "Find the cleanup call in the example.",
+    "Explain the example for listen and then unsubscribe"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "subscribe runs a listener after store changes. It returns a function that removes that listener."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a React project with Zustand 5 installed. Hook examples belong in React components; vanilla examples use zustand/vanilla. These package imports require your own build tool."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {createStore} from \"zustand/vanilla\";\nconst store=createStore(()=>({count:0}));\nconst stop=store.subscribe(state=>console.log(state.count));\nstore.setState({count:1});\nstop();\nstore.setState({count:2});",
+      "title": "Listen and then unsubscribe",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The vanilla Zustand entry point creates a store object without a React hook. Use its getState, setState and subscribe methods.",
+        "`subscribe` registers a listener. For a stream or store that stays active, keep and use its cleanup handle."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The listener prints 1. It does not print 2 after stop is called."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Remove listeners that belong to a removed page part. Otherwise they can keep doing work."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Find the cleanup call in the example."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "zustand-listen-and-then-unsubscribe-check"
+    }
+  ],
+  "exerciseIds": ["zustand-listen-and-then-unsubscribe-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "zustand",
+      "slug": "use-a-store-without-react"
+    }
+  ],
+  "seo": {
+    "title": "Zustand: Listen and then unsubscribe",
+    "description": "subscribe runs a listener after store changes. It returns a function that removes that listener."
+  },
+  "updatedOn": "2026-11-16"
+}

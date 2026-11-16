@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-npm",
+  "title": "Installing Node.js and Using npm",
+  "summary": "Install Node.js 24 LTS, verify the installation, create a project with npm init, understand package.json and the lockfile, and install and run packages.",
+  "introduction": "Every Node project starts the same way: install the runtime, create a package.json and pull in packages from the npm registry. npm is both the registry (over three million packages) and the command-line tool that ships with Node. This lesson sets up the bookshelf project that later lessons build on, and explains the files npm creates so that they never feel like magic: package.json, package-lock.json and node_modules.",
+  "learningObjectives": [
+    "Install Node.js 24 LTS and verify the node and npm commands",
+    "Create a project with npm init and read every field of package.json",
+    "Install, lock and update dependencies and run scripts with npm"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Installing Node.js"
+    },
+    {
+      "type": "paragraph",
+      "text": "The simplest route is the installer from [nodejs.org](https://nodejs.org); pick the **LTS** download. On Windows you can also run `winget install OpenJS.NodeJS.LTS`, and on macOS `brew install node@24`. Developers who switch between Node versions use a *version manager* instead: `nvm` on macOS and Linux, `nvm-windows`, or the cross-platform `fnm` and Volta. Whichever route you choose, the installer puts two commands on your path: `node` and `npm`."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node --version\nnpm --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "v24.11.0\n11.6.1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node publishes a new major version every April and October. Even-numbered lines (20, 22, 24) become **Long Term Support** releases in the October after they appear and are maintained for about 30 months; odd-numbered lines are short-lived previews. For anything you intend to keep running, use the current LTS line. Node 24 ships npm 11, so your minor versions will differ from the output above but the major versions should match."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating a project"
+    },
+    {
+      "type": "paragraph",
+      "text": "A Node project is a folder with a `package.json` file. The file names the project, lists its dependencies and defines the commands you run. `npm init -y` creates one with sensible defaults (`-y` accepts every default instead of asking questions):"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "mkdir bookshelf\ncd bookshelf\nnpm init -y"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "Wrote to /home/ada/bookshelf/package.json:\n\n{\n  \"name\": \"bookshelf\",\n  \"version\": \"1.0.0\",\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"\n  },\n  \"keywords\": [],\n  \"author\": \"\",\n  \"license\": \"ISC\",\n  \"description\": \"\"\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open the file and make two changes. Add `\"type\": \"module\"` so that every `.js` file uses modern `import`/`export` syntax, and replace the placeholder scripts with commands you will actually use:"
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "title": "package.json",
+      "code": "{\n  \"name\": \"bookshelf\",\n  \"version\": \"1.0.0\",\n  \"description\": \"A small book API built while learning Node.js\",\n  \"type\": \"module\",\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"start\": \"node index.js\",\n    \"dev\": \"node --watch index.js\",\n    \"test\": \"node --test\"\n  },\n  \"license\": \"ISC\"\n}"
+    },
+    {
+      "type": "table",
+      "headers": ["Field", "Meaning"],
+      "rows": [
+        [
+          "`name`, `version`",
+          "Identify the package. Only matter to other people if you publish it, but `version` must follow `major.minor.patch`."
+        ],
+        [
+          "`type`",
+          "`\"module\"` makes `.js` files ES modules; without it they are CommonJS. The next lesson explains both."
+        ],
+        ["`main`", "The entry file other packages load if they import yours."],
+        [
+          "`scripts`",
+          "Named commands. `npm run dev` runs the `dev` script; `start` and `test` can be run without `run`."
+        ],
+        [
+          "`dependencies`",
+          "Packages your code imports at runtime. npm adds this field when you install the first one."
+        ],
+        [
+          "`devDependencies`",
+          "Packages needed only while developing: linters, formatters, test helpers."
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Installing packages"
+    },
+    {
+      "type": "paragraph",
+      "text": "`npm install <name>` downloads a package and everything it depends on into `node_modules`, records the version range in `package.json`, and writes the exact versions it resolved into `package-lock.json`. The Web section of this tutorial uses Express, so install it now:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install express"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (package counts depend on the Express release)",
+      "content": "added 69 packages, and audited 70 packages in 2s\n\n15 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities"
+    },
+    {
+      "type": "paragraph",
+      "text": "`package.json` now contains `\"dependencies\": { \"express\": \"^5.1.0\" }` (your minor version may be newer). The caret is a **semver range**: npm may install any 5.x version equal to or above 5.1.0, but never 6.0.0, because a new major version is allowed to break things. Tools used only during development go into `devDependencies` with `npm install --save-dev prettier`, and `npm uninstall <name>` removes a package again."
+    },
+    {
+      "type": "table",
+      "headers": ["Range", "Allows", "Typical use"],
+      "rows": [
+        [
+          "`^5.1.0`",
+          "5.1.0 up to, but not including, 6.0.0",
+          "The default; new features and fixes, no breaking changes"
+        ],
+        ["`~5.1.0`", "5.1.0 up to, but not including, 5.2.0", "Patch releases only"],
+        ["`5.1.0`", "Exactly 5.1.0", "When a package has broken you before"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Why the lockfile matters",
+      "text": "A range such as `^5.1.0` could resolve to different versions on different days. `package-lock.json` pins the exact version of every package in the tree, so a teammate (or a server) running `npm ci` gets precisely what you tested. Commit the lockfile; add `node_modules/` to `.gitignore`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Never edit node_modules",
+      "text": "A tempting fix for a bug in a dependency is to patch the file inside `node_modules`. The change disappears at the next `npm install` and never reaches your teammates. Update the package, pin a working version, or report the bug upstream instead. For the same reason, never commit `node_modules`: it is large, platform-specific and fully reproducible from the lockfile."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Running scripts"
+    },
+    {
+      "type": "paragraph",
+      "text": "Scripts turn long commands into short, shareable names and run with `node_modules/.bin` on the path, so locally installed tools work without a global install. Create `index.js` with one line and run the `start` script:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "index.js",
+      "code": "console.log('Bookshelf starting with Node', process.version);"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm start"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "\n> bookshelf@1.0.0 start\n> node index.js\n\nBookshelf starting with Node v24.11.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "npm echoes the script it is about to run, then the program's own output follows. The `dev` script uses `node --watch`, which restarts the program whenever a file it loaded changes, so you do not have to stop and start the server by hand while developing."
+    },
+    {
+      "type": "table",
+      "headers": ["Command", "What it does"],
+      "rows": [
+        [
+          "`npm install`",
+          "Installs everything listed in `package.json`, updating the lockfile if needed"
+        ],
+        [
+          "`npm ci`",
+          "Clean install from the lockfile only; fails if `package.json` and the lockfile disagree. Use it on servers and in CI"
+        ],
+        ["`npm update`", "Moves packages to the newest versions their ranges allow"],
+        [
+          "`npm outdated`",
+          "Lists packages with newer versions, including majors outside the range"
+        ],
+        ["`npm audit`", "Reports known vulnerabilities in the installed tree"],
+        [
+          "`npx <tool>`",
+          "Runs a package's command, downloading it temporarily if it is not installed"
+        ]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-setup-npm-scripts"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-npm",
+          "difficulty": "beginner",
+          "question": "Which versions of a package does the range `^2.3.1` allow npm to install?",
+          "explanation": "The caret permits any version with the same major number at or above the one listed: 2.3.1 up to, but not including, 3.0.0.",
+          "options": ["Only 2.3.1", "2.3.1 up to 2.4.0", "2.3.1 up to 3.0.0", "Any version at all"],
+          "correctIndex": 2
+        },
+        {
+          "id": "nodejs-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup-npm",
+          "difficulty": "beginner",
+          "question": "`node_modules` should be committed to version control so that teammates do not have to run `npm install`.",
+          "explanation": "The folder is reproducible from package-lock.json with npm ci, so it stays out of version control; only package.json and the lockfile are committed.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-setup-npm-scripts"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "modules"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "deployment"
+    }
+  ],
+  "seo": {
+    "title": "Install Node.js 24 and Use npm – package.json and Scripts",
+    "description": "Install Node.js 24 LTS, create a project with npm init, understand package.json, semver ranges and package-lock.json, and install packages and run npm scripts."
+  },
+  "updatedOn": "2026-11-15"
+}

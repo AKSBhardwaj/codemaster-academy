@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-partitions-a-manageable-size",
+  "title": "Keep partitions a manageable size",
+  "summary": "A partition should not grow without a useful bound.",
+  "introduction": "A partition should not grow without a useful bound. Your task: Name the partition values for Mia in November 2026.",
+  "learningObjectives": [
+    "Name the partition values for Mia in November 2026.",
+    "Explain the example for keep partitions a manageable size"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A partition should not grow without a useful bound. A time bucket can split a long history into smaller groups."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE IF NOT EXISTS reading_by_month(reader_id text,month text,day date,title text,PRIMARY KEY((reader_id,month),day));",
+      "title": "Keep partitions a manageable size",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key.",
+        "In this CQL primary key, the inner parentheses name the partition key. Remaining key fields are clustering columns."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The partition key now combines a reader and a month, such as mia with 2026-11."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "The right bucket depends on real data size and queries. A month label is a modelling choice, not an automatic Cassandra feature."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Name the partition values for Mia in November 2026."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-keep-partitions-a-manageable-size-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-keep-partitions-a-manageable-size-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "read-a-range-inside-a-partition"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Keep partitions a manageable size",
+    "description": "A partition should not grow without a useful bound. A time bucket can split a long history into smaller groups."
+  },
+  "updatedOn": "2026-11-16"
+}

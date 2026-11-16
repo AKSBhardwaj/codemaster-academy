@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "json-body",
+  "title": "Read a JSON body",
+  "summary": "Gin: Read a JSON body. Send an empty object.",
+  "introduction": "ShouldBindJSON reads and checks JSON fields. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a JSON body with Gin", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Read a JSON body",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\ntype Book struct { Title string `json:\"title\" binding:\"required\"` }\nr.POST(\"/books\", func(c *gin.Context) {\n var book Book\n if err := c.ShouldBindJSON(&book); err != nil { c.JSON(http.StatusBadRequest, gin.H{\"error\": \"Title needed\"}); return }\n c.JSON(http.StatusCreated, book)\n})\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "ShouldBindJSON fills the struct through its pointer and checks required Title. The valid result is returned with 201."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Pass a pointer so the binder can fill the struct."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-json-body-check"
+    }
+  ],
+  "exerciseIds": ["gin-json-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "number-checks"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Read a JSON body",
+    "description": "Gin: Read a JSON body. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

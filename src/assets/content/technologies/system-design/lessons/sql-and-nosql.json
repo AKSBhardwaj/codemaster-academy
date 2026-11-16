@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "slug": "sql-and-nosql",
+  "title": "SQL and NoSQL choices",
+  "summary": "Compare tables, documents, and key-value storage using library tasks. Choose by needed reads, writes, and rules instead of a label.",
+  "introduction": "A timetable fits neatly into rows and columns. A book review may have a title, tags, and a list of comments. Different data jobs can call for different storage shapes.",
+  "learningObjectives": [
+    "Compare relational tables with document and key-value shapes",
+    "Choose storage by the tasks and rules it must support",
+    "Avoid claims that one database family always wins"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **relational database** organizes data in tables and connects records with keys. SQL is a common language used to ask questions and change that data. Tables suit our Book, Copy, and Loan records well."
+    },
+    {
+      "type": "paragraph",
+      "text": "**NoSQL** is a broad name for several database styles. A document database keeps records shaped like nested objects. A key-value store finds a value by its key. A graph database focuses on records and the links between them."
+    },
+    {
+      "type": "paragraph",
+      "text": "These are broad groups, not strict walls. Some relational databases store JSON documents. Some document databases support transactions and indexes. Read the actual product's rules instead of guessing from the group name."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **query pattern** is a kind of question the app often asks. Examples include finding a copy by ID, listing current loans, or opening one book's review summary. Start from these questions."
+    },
+    {
+      "type": "table",
+      "headers": ["Storage shape", "A task it can fit", "Question to check"],
+      "rows": [
+        [
+          "Relational tables",
+          "Loans linked to copies and books",
+          "Can the required constraints and transaction stay together?"
+        ],
+        [
+          "Document",
+          "Read a bounded book summary as one record",
+          "How are repeated facts updated?"
+        ],
+        [
+          "Key-value",
+          "Look up a cached summary by book ID",
+          "What happens when the value expires?"
+        ],
+        [
+          "Graph",
+          "Follow several kinds of connections",
+          "Are link-traversal queries central to the task?"
+        ]
+      ],
+      "caption": "Shapes are starting points, not promises"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "For borrowing, list the rules: each copy has one identity and no more than one active loan.",
+        "For a book review page, list the fields it needs to read together.",
+        "Sketch a document holding one book's public review summary. This JSON is a data example, not a database connection.",
+        "Decide which data is the main record and how any extra summary will be updated."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\n  \"bookId\": 17,\n  \"title\": \"Moon\",\n  \"tags\": [\"space\", \"beginner\"],\n  \"reviewSummary\": {\n    \"count\": 12,\n    \"averageStars\": 4.5\n  }\n}",
+      "title": "SQL and NoSQL choices example",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "A document can keep the fields needed by one page together. The shape makes that read easy to describe, but it does not choose a product for us. The same JSON might be stored in several different database systems."
+    },
+    {
+      "type": "paragraph",
+      "text": "Our small library can start with relational tables for loans and books. A later cache might use keys such as book-summary:17. That is a separate decision with a reason; it is not a rule that every app needs several databases."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A flexible document shape still needs validation. If averageStars sometimes contains words and sometimes a number, the page may not know how to use it."
+    },
+    {
+      "type": "paragraph",
+      "text": "Embedding a growing list of every review in one book record may make the record too large or busy. Keeping reviews separately with pages of results may fit better."
+    },
+    {
+      "type": "paragraph",
+      "text": "If you copy a book title into many documents, plan how edits reach those copies. If a write touches several records, check the exact transaction and consistency rules of the chosen database."
+    },
+    {
+      "type": "paragraph",
+      "text": "A database label does not prove that a system is fast, cheap, or able to grow. Data size, indexes, queries, network layout, and running the system well all matter."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A page only needs the latest 10 reviews, but a book has 100,000 reviews. Should the reply contain all of them?",
+        "No. Store and query reviews in a way that can return a bounded page. Keep a small summary for the page if it has a clear update rule."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not choose SQL or NoSQL because one sounds newer. Compare the queries, updates, correctness rules, team skills, and actual product features."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-sql-and-nosql"
+    }
+  ],
+  "exerciseIds": ["system-design-sql-and-nosql"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "transactions-and-safe-updates"
+    }
+  ],
+  "seo": {
+    "title": "System Design: SQL and NoSQL choices",
+    "description": "Compare tables, documents, and key-value storage using library tasks. Choose by needed reads, writes, and rules instead of a label."
+  },
+  "updatedOn": "2026-11-16"
+}

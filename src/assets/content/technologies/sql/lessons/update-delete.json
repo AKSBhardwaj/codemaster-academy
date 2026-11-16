@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "update-delete",
+  "title": "UPDATE and DELETE",
+  "summary": "UPDATE changes values in rows. DELETE removes rows. WHERE chooses which rows those commands affect.",
+  "introduction": "UPDATE changes values in rows. DELETE removes rows. WHERE chooses which rows those commands affect. Practise on sample data. First use SELECT with the same rule to check the rows you are about to change or remove.",
+  "learningObjectives": [
+    "Change one or more columns of selected rows with UPDATE",
+    "Use expressions that refer to the current value",
+    "Remove rows with DELETE and count affected rows",
+    "Protect yourself against updates and deletes without WHERE"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "UPDATE ... SET ... WHERE"
+    },
+    {
+      "type": "paragraph",
+      "text": "`UPDATE` names the table, `SET` lists `column = value` pairs and `WHERE` selects the rows. Only the listed columns change; everything else stays as it is."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "UPDATE products SET price = 9.99 WHERE name = 'Mouse pad';\nSELECT name, price FROM products WHERE name = 'Mouse pad';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: UPDATE products SET price = 9.99 WHERE name = 'Mouse pad'\n\nname      | price\n----------+------\nMouse pad | 9.99"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Expressions and several columns"
+    },
+    {
+      "type": "paragraph",
+      "text": "The new value can be an expression, and it may refer to the column's current value: `price * 1.1` raises the price by ten per cent. The database reads the old value of each row and writes the new one in a single pass."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "UPDATE products\nSET price = ROUND(price * 1.1, 2)\nWHERE category = 'Stationery';\nSELECT name, price FROM products WHERE category = 'Stationery';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: UPDATE products\n\nname         | price\n-------------+------\nNotebook     | 4.95\nSticky notes | 3.03"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several assignments are separated by commas. Updating two columns of one customer:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "UPDATE customers\nSET country = 'Canada', joined = '2025-08-01'\nWHERE id = 5;\nSELECT * FROM customers WHERE id = 5;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: UPDATE customers\n\nid | name             | country | joined\n---+------------------+---------+-----------\n5  | Guido van Rossum | Canada  | 2025-08-01"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "DELETE FROM ... WHERE"
+    },
+    {
+      "type": "paragraph",
+      "text": "`DELETE` removes whole rows; there is no column list because you cannot delete part of a row (that would be an UPDATE to NULL). After removing order 8, Grace has only one order left:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "DELETE FROM orders WHERE id = 8;\nSELECT id, customer_id, product_id FROM orders WHERE customer_id = 2;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: DELETE FROM orders WHERE id = 8\n\nid | customer_id | product_id\n---+-------------+-----------\n3  | 2           | 3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How many rows changed?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Databases report the number of affected rows to the client, and applications use it to detect \"nothing matched\". In SQLite the function `changes()` returns the count for the most recent statement; MySQL has `ROW_COUNT()`, PostgreSQL clients read it from the command tag, and SQL Server uses `@@ROWCOUNT`."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "DELETE FROM orders WHERE quantity >= 2;\nSELECT changes() AS deleted_rows;\nSELECT id, quantity FROM orders;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: DELETE FROM orders WHERE quantity >= 2\n\ndeleted_rows\n------------\n4\n\nid | quantity\n---+---------\n1  | 1\n4  | 1\n7  | 1\n8  | 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The missing WHERE"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both statements are valid without WHERE, and then they apply to **every row**. Run the example to watch all six prices disappear:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "UPDATE products SET price = 0;\nSELECT name, price FROM products;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: UPDATE products SET price = 0\n\nname                | price\n--------------------+------\nNotebook            | 0\nMouse pad           | 0\nUSB cable           | 0\nMechanical keyboard | 0\nMonitor stand       | 0\nSticky notes        | 0"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "UPDATE or DELETE without WHERE",
+      "text": "This is the classic production accident: a statement meant for one row rewrites or deletes an entire table, and there is no confirmation prompt. Two habits prevent it. First run `SELECT ... WHERE ...` with the same condition and check the rows it returns, then replace the `SELECT ...` part with `UPDATE`/`DELETE`. And wrap risky changes in a transaction (see [Transactions](/tutorials/sql/transactions)) so a mistake can be rolled back."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Related rows and dialect notes"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Deleting a customer who still has orders leaves *orphan* rows unless a foreign key stops it. SQLite does not enforce foreign keys unless `PRAGMA foreign_keys = ON` is set; PostgreSQL and MySQL (InnoDB) refuse the delete by default. [Keys and Constraints](/tutorials/sql/constraints) covers this.",
+        "`TRUNCATE TABLE t` (PostgreSQL, MySQL, SQL Server) empties a table faster than `DELETE` and in MySQL cannot be rolled back. SQLite has no TRUNCATE; `DELETE FROM t` without WHERE uses an internal fast path instead.",
+        "MySQL allows `UPDATE ... JOIN`; SQL Server, PostgreSQL and SQLite (3.33+) use `UPDATE ... FROM` for the same purpose.",
+        "`DELETE ... RETURNING` (PostgreSQL, SQLite 3.35+) shows the rows that were removed."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Give every customer from the US the country `USA`, then delete the order with id 6 and confirm with a SELECT that it is gone."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT * FROM customers WHERE country = 'US';\n\n-- Once the rows look right, turn the SELECT into an UPDATE with the same WHERE"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-update-delete-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "update-delete-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "update-delete",
+          "difficulty": "beginner",
+          "question": "What does `UPDATE products SET price = price + 1` do?",
+          "explanation": "Without WHERE the assignment applies to every row, so each product's price grows by 1. The statement is valid and runs without warning.",
+          "options": [
+            "Adds 1 to the price of the first product",
+            "Adds 1 to every product's price",
+            "Fails because WHERE is missing",
+            "Sets every price to 1"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "update-delete-qc-2",
+          "type": "true-false",
+          "lessonSlug": "update-delete",
+          "difficulty": "beginner",
+          "question": "`DELETE FROM orders WHERE quantity > 100` is an error when no row matches.",
+          "explanation": "A DELETE or UPDATE that matches nothing succeeds and reports zero affected rows; it is not an error.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-update-delete-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "insert"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "transactions"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    }
+  ],
+  "seo": {
+    "title": "SQL UPDATE and DELETE – Change and Remove Rows Safely",
+    "description": "Learn SQL UPDATE and DELETE: change columns with expressions, remove rows, count affected rows and avoid the missing WHERE mistake that changes every row."
+  },
+  "updatedOn": "2026-11-16"
+}

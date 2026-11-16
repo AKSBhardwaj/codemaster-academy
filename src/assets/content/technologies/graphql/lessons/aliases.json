@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "aliases",
+  "title": "Give results different names",
+  "summary": "GraphQL: Give results different names. Add an alias called larger for input 5.",
+  "introduction": "Aliases name two uses of the same field so both results can appear together.",
+  "learningObjectives": [
+    "Give results different names with GraphQL",
+    "Add an alias called larger for input 5"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give results different names"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Give results different names",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"{ small: twice(n: 2) big: twice(n: 4) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "small and big are response aliases. Their different inputs produce 4 and 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"small\":4,\"big\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add an alias called larger for input 5."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Two different arguments on one field need distinct response names."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-aliases-check"
+    }
+  ],
+  "exerciseIds": ["graphql-aliases-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Give results different names",
+    "description": "GraphQL: Give results different names. Add an alias called larger for input 5. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "slug": "smart-pointers",
+  "title": "Smart Pointers: Tidy Up Memory",
+  "summary": "Some objects need a place in memory while your program runs. A smart pointer helps look after that place and cleans it up when it is no longer needed.",
+  "introduction": "Some objects need a place in memory while your program runs. A smart pointer helps look after that place and cleans it up when it is no longer needed. Read one example at a time. Save it in a .cpp file and use the compiler from the setup lesson to run it.",
+  "learningObjectives": [
+    "Make an object with one owner",
+    "Pass ownership to another smart pointer",
+    "Explain when an owned object is removed"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "One owner"
+    },
+    {
+      "type": "paragraph",
+      "text": "A unique_ptr owns one object. make_unique creates it. The object is removed when its owner leaves the block."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "smart-pointers.cpp",
+      "code": "#include <iostream>\n#include <memory>\n\nint main() {\n    auto score = std::make_unique<int>(8);\n    std::cout << *score << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pass ownership on"
+    },
+    {
+      "type": "paragraph",
+      "text": "std::move lets C++ move from first. Making second from that value transfers ownership. The old pointer becomes empty. Check it before you use it."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "smart-pointers.cpp",
+      "code": "#include <iostream>\n#include <memory>\n#include <utility>\n\nint main() {\n    auto first = std::make_unique<int>(6);\n    auto second = std::move(first);\n    std::cout << *second << \"\\n\";\n    std::cout << std::boolalpha << (first == nullptr) << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "6\ntrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Share only when needed"
+    },
+    {
+      "type": "paragraph",
+      "text": "A shared_ptr lets several owners share an object. The object is removed after the last owner lets go. Prefer unique_ptr when one owner is enough."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "smart-pointers.cpp",
+      "code": "#include <iostream>\n#include <memory>\n\nint main() {\n    auto first = std::make_shared<int>(4);\n    auto second = first;\n    *second = 9;\n    std::cout << *first << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "9"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not call delete on an object owned by a smart pointer. The smart pointer will do that job. Also avoid shared_ptr links that keep each other alive."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change 8 to 12 in the first program. Explain why no delete line is needed."
+    }
+  ],
+  "exerciseIds": ["cpp-smart-pointers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C++ Smart Pointers: Tidy Up Memory",
+    "description": "Some objects need a place in memory while your program runs. A smart pointer helps look after that place and cleans it up when it is no longer needed."
+  },
+  "updatedOn": "2026-11-16"
+}

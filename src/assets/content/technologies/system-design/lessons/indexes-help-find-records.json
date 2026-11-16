@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "slug": "indexes-help-find-records",
+  "title": "Indexes help find records",
+  "summary": "Use a book index to understand database indexes. Create a small SQLite title index and learn why faster reads can cost space and write work.",
+  "introduction": "A book index tells you which page has a topic. You can jump to that page instead of reading the whole book. A database index is an extra structure that helps find matching records.",
+  "learningObjectives": [
+    "Explain what an index helps a database find",
+    "Create a simple index on a lookup field",
+    "Describe the storage and write cost of an index"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without a useful index, a database may scan many records to find matches. An **index** keeps selected values in a structure that can help it locate records more quickly."
+    },
+    {
+      "type": "paragraph",
+      "text": "An index on title can help with certain title lookups. It does not change the stored meaning of the books. The database still needs to return the right records whether it uses the index or a scan."
+    },
+    {
+      "type": "paragraph",
+      "text": "Many common database indexes use a tree that keeps values in order. An index is not the same thing as a cache. A cache keeps reusable answers or data copies; an index helps locate stored records."
+    },
+    {
+      "type": "paragraph",
+      "text": "The example uses SQLite, which runs in this site's SQL playground. It creates a small lesson table separate from the sample tables. The same SQL can run in a fresh local SQLite database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Create a table containing three fictional book records.",
+        "Create an index on the title field because exact-title lookup is a planned query.",
+        "Ask for records whose title is Moon.",
+        "Sort the reply by ID to make the displayed order clear. The matching records are 17 and 18."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This tiny example uses one shelf location per book. If a title has copies on several shelves, return those locations separately. The full model keeps the shelf on each physical copy, as shown in [Choose the data](/tutorials/system-design/choose-the-data)."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TABLE sd_index_books (\n  id INTEGER PRIMARY KEY,\n  title TEXT NOT NULL,\n  shelf TEXT NOT NULL\n);\nINSERT INTO sd_index_books VALUES\n  (17, 'Moon', 'B2'),\n  (18, 'Moon', 'C1'),\n  (42, 'Rivers', 'A3');\nCREATE INDEX sd_books_title_idx ON sd_index_books(title);\nSELECT id, title, shelf\nFROM sd_index_books\nWHERE title = 'Moon'\nORDER BY id;",
+      "title": "Indexes help find records example",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "id | title | shelf\n17 | Moon | B2\n18 | Moon | C1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The result contains the two matching books. The index does not make title unique; repeated titles are still allowed. A unique constraint would be a different rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "On this tiny table, scanning all three rows may be cheap. A query planner, the database part that chooses a way to answer, may choose a scan. Creating an index does not promise that every query will use it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexes take extra storage. Each insert, delete, or change to an indexed value may also need an index update. Adding an index to every field can slow writes and waste space."
+    },
+    {
+      "type": "paragraph",
+      "text": "Different searches need different help. An exact title lookup is not the same as finding a word anywhere inside a title. A leading-wildcard search such as LIKE '%moon%' often cannot use an ordinary title index in the same way."
+    },
+    {
+      "type": "paragraph",
+      "text": "Check realistic data and query plans before calling an index useful. In SQLite, EXPLAIN QUERY PLAN placed before a SELECT shows the chosen approach; its wording can differ by version."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the requested title from Moon to Rivers and predict the rows.",
+        "The result becomes one row: 42, Rivers, A3. The result should be correct whether the database uses the index or a scan."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not claim an index makes every query fast. Choose indexes for real query patterns, then measure both reads and writes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-indexes-help-find-records"
+    }
+  ],
+  "exerciseIds": ["system-design-indexes-help-find-records"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "sql-and-nosql"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Indexes help find records",
+    "description": "Use a book index to understand database indexes. Create a small SQLite title index and learn why faster reads can cost space and write work."
+  },
+  "updatedOn": "2026-11-16"
+}

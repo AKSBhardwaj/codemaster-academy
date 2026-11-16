@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "fallback",
+  "title": "Handle an unknown URL",
+  "summary": "Fiber: Handle an unknown URL. Visit / to compare.",
+  "introduction": "A final Use handler can reply when no earlier route handled the request. Open GET /unknown.",
+  "learningObjectives": ["Handle an unknown URL with Fiber", "Visit / to compare"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle an unknown URL"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Handle an unknown URL",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/\", func(c *fiber.Ctx) error { return c.SendString(\"Home\") })\napp.Use(func(c *fiber.Ctx) error { return c.Status(404).SendString(\"Page not found\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "No earlier route handles /unknown, so the last middleware returns a 404 text response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Page not found"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit / to compare."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Put a catch-all handler after the real routes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-fallback-check"
+    }
+  ],
+  "exerciseIds": ["fiber-fallback-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "status"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Handle an unknown URL",
+    "description": "Fiber: Handle an unknown URL. Visit / to compare. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,146 @@
+{
+  "title": "Vitest Reference",
+  "description": "A quick reminder of the ideas and examples in the Vitest lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Your first Vitest check",
+          "summary": "Vitest runs named tests and reports mismatched expectations. It works with JavaScript and TypeScript projects.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"counts apples\", () => { expect(3 + 2).toBe(5); });"
+          },
+          "notes": ["These imports belong in a Vitest test file, not a plain browser script."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "object-equality",
+          "name": "Object equality",
+          "summary": "toEqual compares the values inside an object. It is useful when a function returns a new object.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"returns a point\", () => { const point = { x: 2, y: 4 }; expect(point).toEqual({ x: 2, y: 4 }); });"
+          },
+          "notes": ["Do not confuse equal fields with the same object identity."],
+          "lessonSlug": "object-equality"
+        },
+        {
+          "slug": "partial-object-checks",
+          "name": "Partial object checks",
+          "summary": "objectContaining checks selected fields when other fields are not part of the current test.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"has a title\", () => { expect({ title: \"Moon\", pages: 24 }).toEqual(expect.objectContaining({ title: \"Moon\" })); });"
+          },
+          "notes": ["A partial match does not prove unmentioned fields are correct."],
+          "lessonSlug": "partial-object-checks"
+        },
+        {
+          "slug": "parameterized-tests",
+          "name": "Parameterized tests",
+          "summary": "test.each repeats one rule for a table of examples. This reduces repeated test code while keeping cases visible.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest.each([[1, 1], [2, 4], [3, 9]])(\"square %i\", (input, expected) => { expect(input * input).toBe(expected); });"
+          },
+          "notes": [
+            "A test table should include useful edge cases, not only easy positive inputs."
+          ],
+          "lessonSlug": "parameterized-tests"
+        },
+        {
+          "slug": "fresh-fixtures",
+          "name": "Fresh fixtures",
+          "summary": "A fixture is prepared data used by a test. beforeEach can give each test a new fixture.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\nlet names;\nbeforeEach(() => { names = [\"Asha\"]; });\ntest(\"one learner\", () => { expect(names).toHaveLength(1); });"
+          },
+          "notes": ["Sharing changed fixture data can make test order matter."],
+          "lessonSlug": "fresh-fixtures"
+        },
+        {
+          "slug": "function-spies",
+          "name": "Function spies",
+          "summary": "vi.fn creates a spy that records its calls. You can check the arguments as well as the count.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"notifies with score\", () => { const notify = vi.fn(); notify(7); expect(notify).toHaveBeenCalledWith(7); });"
+          },
+          "notes": ["A spy should replace a clear boundary, not every line of your own function."],
+          "lessonSlug": "function-spies"
+        },
+        {
+          "slug": "restore-a-spied-method",
+          "name": "Restore a spied method",
+          "summary": "vi.spyOn watches an existing method. Restore it after the test so later code sees the normal method again.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\nafterEach(() => { vi.restoreAllMocks(); });\ntest(\"reads the total\", () => { const basket = { total: () => 4 }; vi.spyOn(basket, \"total\").mockReturnValue(9); expect(basket.total()).toBe(9); });"
+          },
+          "notes": ["Clearing recorded calls is not the same as restoring an original method."],
+          "lessonSlug": "restore-a-spied-method"
+        },
+        {
+          "slug": "async-assertions",
+          "name": "Async assertions",
+          "summary": "Use await when checking a promise. The test must stay active until the check is finished.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"reads a label\", async () => { const load = async () => \"ready\"; await expect(load()).resolves.toBe(\"ready\"); });"
+          },
+          "notes": ["An unawaited promise can hide a failure after the test finishes."],
+          "lessonSlug": "async-assertions"
+        },
+        {
+          "slug": "expected-rejected-work",
+          "name": "Expected rejected work",
+          "summary": "A failing promise can be the correct result for invalid input. rejects tests that case explicitly.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"missing book\", async () => { await expect(Promise.reject(new Error(\"No book\"))).rejects.toThrow(\"No book\"); });"
+          },
+          "notes": ["Do not turn all errors into success just to make a test pass."],
+          "lessonSlug": "expected-rejected-work"
+        },
+        {
+          "slug": "fake-time",
+          "name": "Fake time",
+          "summary": "Vitest can replace timers with a controlled clock. This makes a timer test quick and repeatable.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"waits for reminder\", () => { vi.useFakeTimers(); try { const remind = vi.fn(); setTimeout(remind, 500); vi.advanceTimersByTime(500); expect(remind).toHaveBeenCalledTimes(1); } finally { vi.useRealTimers(); } });"
+          },
+          "notes": ["Fake timers should be restored even when an assertion throws."],
+          "lessonSlug": "fake-time"
+        },
+        {
+          "slug": "dom-tests-need-an-environment",
+          "name": "DOM tests need an environment",
+          "summary": "A Node test has no real browser page. Choose a DOM test environment or browser mode when the behaviour needs page elements.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\n// Run in a Vitest DOM environment, such as jsdom.\ntest(\"button text\", () => { const button = document.createElement(\"button\"); button.textContent = \"Save\"; expect(button.textContent).toBe(\"Save\"); });"
+          },
+          "notes": ["A DOM simulation does not prove visual layout in a real browser."],
+          "lessonSlug": "dom-tests-need-an-environment"
+        },
+        {
+          "slug": "use-coverage-as-a-clue",
+          "name": "Use coverage as a clue",
+          "summary": "Coverage reports which code was reached by tests. Reaching a line does not prove its result was checked well.",
+          "example": {
+            "language": "typescript",
+            "code": "import { test, expect, vi, beforeEach, afterEach } from \"vitest\";\ntest(\"both signs\", () => { const positive = n => n > 0; expect(positive(2)).toBe(true); expect(positive(-1)).toBe(false); });"
+          },
+          "notes": ["High coverage is not a guarantee of correct behaviour."],
+          "lessonSlug": "use-coverage-as-a-clue"
+        }
+      ]
+    }
+  ]
+}

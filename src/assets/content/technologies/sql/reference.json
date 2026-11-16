@@ -1,0 +1,706 @@
+{
+  "title": "SQL Reference",
+  "description": "A compact reference of the SQL statements, clauses, operators and functions covered in the tutorial, grouped by purpose, with syntax, a short example and the lesson that explains each one.",
+  "groups": [
+    {
+      "id": "querying",
+      "title": "Querying",
+      "entries": [
+        {
+          "slug": "select",
+          "name": "SELECT",
+          "summary": "Reads rows from a table and returns the listed columns or expressions; * means every column.",
+          "syntax": "SELECT column1, column2 FROM table;",
+          "example": { "language": "sql", "code": "SELECT name, price FROM products;" },
+          "notes": [
+            "Columns appear in the order listed",
+            "Prefer explicit columns over * in application code"
+          ],
+          "lessonSlug": "select"
+        },
+        {
+          "slug": "select-distinct",
+          "name": "SELECT DISTINCT",
+          "summary": "Removes duplicate rows from the result; with several columns, keeps each distinct combination.",
+          "syntax": "SELECT DISTINCT column FROM table;",
+          "example": { "language": "sql", "code": "SELECT DISTINCT country FROM customers;" },
+          "lessonSlug": "select"
+        },
+        {
+          "slug": "column-alias",
+          "name": "AS (alias)",
+          "summary": "Renames a result column or a table for the duration of the query; names with spaces need double quotes.",
+          "syntax": "expression AS alias",
+          "example": {
+            "language": "sql",
+            "code": "SELECT price * 1.2 AS price_with_tax FROM products AS p;"
+          },
+          "notes": ["The keyword AS is optional in most databases but improves readability"],
+          "lessonSlug": "select"
+        },
+        {
+          "slug": "from",
+          "name": "FROM",
+          "summary": "Names the table (or tables, views and subqueries) the query reads from.",
+          "syntax": "SELECT ... FROM table [AS alias]",
+          "lessonSlug": "select"
+        },
+        {
+          "slug": "where",
+          "name": "WHERE",
+          "summary": "Keeps only the rows for which the condition is true; runs before grouping and aggregation.",
+          "syntax": "SELECT ... FROM table WHERE condition;",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM products WHERE price > 10 AND category = 'Office';"
+          },
+          "notes": [
+            "Comparisons with NULL are never true; use IS NULL",
+            "AND binds tighter than OR; add parentheses"
+          ],
+          "lessonSlug": "where"
+        },
+        {
+          "slug": "order-by",
+          "name": "ORDER BY",
+          "summary": "Sorts the result by one or more columns or expressions, ascending by default or descending with DESC.",
+          "syntax": "ORDER BY column [ASC | DESC], column2 [ASC | DESC]",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name, price FROM products ORDER BY category, price DESC;"
+          },
+          "notes": [
+            "Without ORDER BY the row order is undefined",
+            "NULLS FIRST / NULLS LAST is available in SQLite 3.30+, PostgreSQL and Oracle"
+          ],
+          "lessonSlug": "sorting-limiting"
+        },
+        {
+          "slug": "limit-offset",
+          "name": "LIMIT and OFFSET",
+          "summary": "Returns at most n rows, optionally skipping the first m rows, for top-N queries and pagination.",
+          "syntax": "LIMIT n [OFFSET m]",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM products ORDER BY price DESC LIMIT 2 OFFSET 2;"
+          },
+          "notes": [
+            "SQL Server uses TOP n or OFFSET ... FETCH; the standard form is FETCH FIRST n ROWS ONLY",
+            "Always combine with ORDER BY"
+          ],
+          "lessonSlug": "sorting-limiting"
+        }
+      ]
+    },
+    {
+      "id": "operators",
+      "title": "Operators",
+      "entries": [
+        {
+          "slug": "comparison",
+          "name": "=, <>, <, >, <=, >=",
+          "summary": "Compare two values; <> (or !=) means not equal. Text and ISO dates compare alphabetically.",
+          "syntax": "column operator value",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM customers WHERE joined >= '2025-01-01';"
+          },
+          "lessonSlug": "where"
+        },
+        {
+          "slug": "and-or-not",
+          "name": "AND, OR, NOT",
+          "summary": "Combine or negate conditions. AND is evaluated before OR, so use parentheses when mixing them.",
+          "syntax": "condition AND condition | condition OR condition | NOT condition",
+          "example": {
+            "language": "sql",
+            "code": "WHERE (category = 'Office' OR category = 'Stationery') AND price < 10"
+          },
+          "lessonSlug": "where"
+        },
+        {
+          "slug": "like",
+          "name": "LIKE",
+          "summary": "Matches text against a pattern: % stands for any sequence of characters and _ for exactly one.",
+          "syntax": "column LIKE 'pattern'",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM customers WHERE name LIKE 'G%';"
+          },
+          "notes": [
+            "Case-insensitive for ASCII letters in SQLite, collation-dependent (usually case-insensitive) in MySQL, case-sensitive in PostgreSQL (use ILIKE)"
+          ],
+          "lessonSlug": "filtering-operators"
+        },
+        {
+          "slug": "in",
+          "name": "IN",
+          "summary": "True when the value appears in a list of values or in the result of a subquery.",
+          "syntax": "column IN (value1, value2) | column IN (SELECT ...)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM customers WHERE country IN ('US', 'UK');"
+          },
+          "notes": ["NOT IN returns nothing if the list contains a NULL; prefer NOT EXISTS"],
+          "lessonSlug": "filtering-operators"
+        },
+        {
+          "slug": "between",
+          "name": "BETWEEN",
+          "summary": "Tests an inclusive range; both boundary values match.",
+          "syntax": "column BETWEEN low AND high",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM products WHERE price BETWEEN 5 AND 40;"
+          },
+          "lessonSlug": "filtering-operators"
+        },
+        {
+          "slug": "is-null",
+          "name": "IS NULL / IS NOT NULL",
+          "summary": "The only correct tests for a missing value; = NULL never matches anything.",
+          "syntax": "column IS NULL | column IS NOT NULL",
+          "example": {
+            "language": "sql",
+            "code": "SELECT title FROM tickets WHERE assignee IS NULL;"
+          },
+          "lessonSlug": "filtering-operators"
+        },
+        {
+          "slug": "concatenation",
+          "name": "|| (concatenation)",
+          "summary": "Joins text values into one string in standard SQL, SQLite and PostgreSQL; MySQL and SQL Server use CONCAT().",
+          "syntax": "text1 || text2",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name || ' (' || country || ')' AS label FROM customers;"
+          },
+          "notes": ["Any NULL operand makes the whole result NULL; wrap with COALESCE"],
+          "lessonSlug": "functions"
+        }
+      ]
+    },
+    {
+      "id": "data-modification",
+      "title": "Changing data",
+      "entries": [
+        {
+          "slug": "insert-values",
+          "name": "INSERT INTO ... VALUES",
+          "summary": "Adds one or more rows; omitted columns receive their default, NULL, or an auto-generated id.",
+          "syntax": "INSERT INTO table (col1, col2) VALUES (v1, v2), (v3, v4);",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO products (name, category, price) VALUES ('Desk lamp', 'Office', 24.90);"
+          },
+          "notes": ["Double a single quote inside text: 'O''Brien'", "Always list the columns"],
+          "lessonSlug": "insert"
+        },
+        {
+          "slug": "insert-select",
+          "name": "INSERT INTO ... SELECT",
+          "summary": "Inserts every row returned by a query, for copying, archiving or seeding tables.",
+          "syntax": "INSERT INTO target (cols) SELECT cols FROM source WHERE ...;",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO archived_orders SELECT * FROM orders WHERE ordered_on < '2025-03-01';"
+          },
+          "lessonSlug": "insert"
+        },
+        {
+          "slug": "update",
+          "name": "UPDATE",
+          "summary": "Changes columns of the rows selected by WHERE; without WHERE every row changes.",
+          "syntax": "UPDATE table SET col1 = value1, col2 = value2 WHERE condition;",
+          "example": {
+            "language": "sql",
+            "code": "UPDATE products SET price = ROUND(price * 1.1, 2) WHERE category = 'Stationery';"
+          },
+          "notes": [
+            "Run the same WHERE as a SELECT first",
+            "Expressions may refer to the current value"
+          ],
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "delete",
+          "name": "DELETE",
+          "summary": "Removes the rows selected by WHERE; without WHERE the table is emptied.",
+          "syntax": "DELETE FROM table WHERE condition;",
+          "example": { "language": "sql", "code": "DELETE FROM orders WHERE id = 8;" },
+          "notes": [
+            "SQLite's changes() returns the number of affected rows",
+            "TRUNCATE TABLE exists in PostgreSQL, MySQL and SQL Server, not in SQLite"
+          ],
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "returning",
+          "name": "RETURNING",
+          "summary": "Returns columns of the inserted, updated or deleted rows, such as a generated id, in the same statement.",
+          "syntax": "INSERT ... RETURNING col1, col2;",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO products (name, category, price) VALUES ('Webcam', 'Electronics', 45) RETURNING id;"
+          },
+          "notes": [
+            "PostgreSQL, SQLite 3.35+ and MariaDB; MySQL uses LAST_INSERT_ID(), SQL Server uses OUTPUT"
+          ],
+          "lessonSlug": "insert"
+        }
+      ]
+    },
+    {
+      "id": "tables",
+      "title": "Tables and constraints",
+      "entries": [
+        {
+          "slug": "create-table",
+          "name": "CREATE TABLE",
+          "summary": "Defines a new table with named, typed columns and optional constraints.",
+          "syntax": "CREATE TABLE name (col type [constraints], ...);",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE notes (\n  id INTEGER PRIMARY KEY,\n  body TEXT NOT NULL,\n  status TEXT NOT NULL DEFAULT 'draft'\n);"
+          },
+          "notes": ["IF NOT EXISTS skips the statement when the table already exists"],
+          "lessonSlug": "create-table"
+        },
+        {
+          "slug": "data-types",
+          "name": "Data types",
+          "summary": "SQLite uses INTEGER, REAL, TEXT, BLOB and NUMERIC with flexible type affinity; PostgreSQL and MySQL enforce declared types such as INT, DECIMAL(p,s), VARCHAR(n), DATE and BOOLEAN.",
+          "notes": [
+            "Store money as DECIMAL/NUMERIC or integer cents, never as floating point",
+            "SQLite stores dates as ISO 8601 text and booleans as 0/1",
+            "SQLite STRICT tables (3.37+) enforce declared types"
+          ],
+          "lessonSlug": "create-table"
+        },
+        {
+          "slug": "primary-key",
+          "name": "PRIMARY KEY",
+          "summary": "Uniquely identifies each row; implies NOT NULL and UNIQUE. Several columns form a composite key.",
+          "syntax": "id INTEGER PRIMARY KEY | PRIMARY KEY (col1, col2)",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE enrollments (\n  student_id INTEGER NOT NULL,\n  course_id INTEGER NOT NULL,\n  PRIMARY KEY (student_id, course_id)\n);"
+          },
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "autoincrement",
+          "name": "Auto-generated ids",
+          "summary": "SQLite auto-numbers an INTEGER PRIMARY KEY column; AUTOINCREMENT prevents reuse of deleted ids. Other databases use IDENTITY, SERIAL or AUTO_INCREMENT.",
+          "syntax": "id INTEGER PRIMARY KEY AUTOINCREMENT",
+          "notes": [
+            "PostgreSQL: GENERATED ALWAYS AS IDENTITY",
+            "MySQL: INT AUTO_INCREMENT PRIMARY KEY",
+            "SQL Server: INT IDENTITY(1,1)"
+          ],
+          "lessonSlug": "create-table"
+        },
+        {
+          "slug": "not-null-default",
+          "name": "NOT NULL and DEFAULT",
+          "summary": "NOT NULL requires a value for the column; DEFAULT supplies one when an insert omits it.",
+          "syntax": "col type NOT NULL DEFAULT value",
+          "example": { "language": "sql", "code": "remote INTEGER NOT NULL DEFAULT 0" },
+          "lessonSlug": "create-table"
+        },
+        {
+          "slug": "unique",
+          "name": "UNIQUE",
+          "summary": "Rejects a second row with the same value in the column (or combination of columns).",
+          "syntax": "col type UNIQUE | UNIQUE (col1, col2)",
+          "example": { "language": "sql", "code": "email TEXT NOT NULL UNIQUE" },
+          "notes": ["Creates an index automatically"],
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "check",
+          "name": "CHECK",
+          "summary": "Requires a condition to be true for every row, such as a non-negative balance or a limited set of statuses.",
+          "syntax": "CHECK (condition)",
+          "example": {
+            "language": "sql",
+            "code": "balance REAL NOT NULL DEFAULT 0 CHECK (balance >= 0)"
+          },
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "foreign-key",
+          "name": "FOREIGN KEY / REFERENCES",
+          "summary": "Requires the column to hold a value that exists in another table's key; ON DELETE chooses what happens to child rows.",
+          "syntax": "col INTEGER REFERENCES parent(id) [ON DELETE CASCADE | SET NULL | RESTRICT]",
+          "example": {
+            "language": "sql",
+            "code": "team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE"
+          },
+          "notes": [
+            "SQLite enforces it only after PRAGMA foreign_keys = ON",
+            "PostgreSQL always enforces; MySQL with InnoDB"
+          ],
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "alter-table",
+          "name": "ALTER TABLE",
+          "summary": "Changes an existing table: add, rename or drop a column, or rename the table.",
+          "syntax": "ALTER TABLE t ADD COLUMN col type; ALTER TABLE t RENAME COLUMN a TO b; ALTER TABLE t DROP COLUMN col;",
+          "example": {
+            "language": "sql",
+            "code": "ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0;"
+          },
+          "notes": [
+            "SQLite cannot add or drop constraints with ALTER TABLE; rebuild the table instead"
+          ],
+          "lessonSlug": "create-table"
+        },
+        {
+          "slug": "drop-table",
+          "name": "DROP TABLE",
+          "summary": "Deletes a table together with all of its rows and indexes; IF EXISTS avoids an error when it is missing.",
+          "syntax": "DROP TABLE [IF EXISTS] table;",
+          "example": { "language": "sql", "code": "DROP TABLE IF EXISTS temp_list;" },
+          "lessonSlug": "create-table"
+        }
+      ]
+    },
+    {
+      "id": "joins-grouping",
+      "title": "Joins, grouping and subqueries",
+      "entries": [
+        {
+          "slug": "inner-join",
+          "name": "JOIN (INNER JOIN)",
+          "summary": "Pairs rows of two tables whose ON condition matches; rows without a partner are left out.",
+          "syntax": "FROM a JOIN b ON b.col = a.col",
+          "example": {
+            "language": "sql",
+            "code": "SELECT o.id, c.name\nFROM orders o\nJOIN customers c ON c.id = o.customer_id;"
+          },
+          "notes": ["Without ON every row is paired with every row (cross product)"],
+          "lessonSlug": "joins"
+        },
+        {
+          "slug": "left-join",
+          "name": "LEFT JOIN",
+          "summary": "Keeps every row of the left table and fills the right table's columns with NULL when nothing matches.",
+          "syntax": "FROM a LEFT JOIN b ON b.col = a.col",
+          "example": {
+            "language": "sql",
+            "code": "SELECT c.name, o.id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;"
+          },
+          "notes": [
+            "A WHERE condition on the right table turns it back into an inner join",
+            "RIGHT and FULL OUTER JOIN exist in SQLite 3.39+ and PostgreSQL; MySQL lacks FULL JOIN"
+          ],
+          "lessonSlug": "joins"
+        },
+        {
+          "slug": "self-join",
+          "name": "Self join",
+          "summary": "Joins a table with itself using two aliases, for example to pair rows that share a value.",
+          "syntax": "FROM t a JOIN t b ON a.col = b.col AND a.id < b.id",
+          "example": {
+            "language": "sql",
+            "code": "SELECT a.name, b.name\nFROM customers a\nJOIN customers b ON a.country = b.country AND a.id < b.id;"
+          },
+          "lessonSlug": "joins"
+        },
+        {
+          "slug": "group-by",
+          "name": "GROUP BY",
+          "summary": "Forms one group per distinct value (or expression) and computes aggregates per group.",
+          "syntax": "SELECT col, aggregate(...) FROM table GROUP BY col",
+          "example": {
+            "language": "sql",
+            "code": "SELECT category, COUNT(*) AS products FROM products GROUP BY category;"
+          },
+          "notes": [
+            "Select only grouped columns and aggregates; other columns have no defined value"
+          ],
+          "lessonSlug": "group-by-having"
+        },
+        {
+          "slug": "having",
+          "name": "HAVING",
+          "summary": "Filters groups after aggregation, which WHERE cannot do.",
+          "syntax": "GROUP BY col HAVING aggregate_condition",
+          "example": {
+            "language": "sql",
+            "code": "SELECT country, COUNT(*) FROM customers GROUP BY country HAVING COUNT(*) > 1;"
+          },
+          "lessonSlug": "group-by-having"
+        },
+        {
+          "slug": "subquery",
+          "name": "Subquery",
+          "summary": "A SELECT nested inside another statement: as a single value, as a list for IN, or as a derived table in FROM.",
+          "syntax": "WHERE col > (SELECT ...) | WHERE col IN (SELECT ...) | FROM (SELECT ...) AS alias",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM products WHERE price > (SELECT AVG(price) FROM products);"
+          },
+          "notes": [
+            "A scalar subquery returning several rows errors in PostgreSQL and MySQL; SQLite uses the first row"
+          ],
+          "lessonSlug": "subqueries"
+        },
+        {
+          "slug": "exists",
+          "name": "EXISTS / NOT EXISTS",
+          "summary": "True when the correlated subquery returns at least one row; safe with NULLs, unlike NOT IN.",
+          "syntax": "WHERE [NOT] EXISTS (SELECT 1 FROM t WHERE t.col = outer.col)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT p.name FROM products p\nWHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.product_id = p.id);"
+          },
+          "lessonSlug": "subqueries"
+        },
+        {
+          "slug": "with-cte",
+          "name": "WITH (common table expression)",
+          "summary": "Names a subquery so the main query can use it like a table, possibly several times; WITH RECURSIVE handles hierarchies.",
+          "syntax": "WITH name AS (SELECT ...) SELECT ... FROM name;",
+          "example": {
+            "language": "sql",
+            "code": "WITH totals AS (\n  SELECT customer_id, SUM(quantity) AS items FROM orders GROUP BY customer_id\n)\nSELECT * FROM totals WHERE items > 2;"
+          },
+          "lessonSlug": "subqueries"
+        }
+      ]
+    },
+    {
+      "id": "functions",
+      "title": "Functions",
+      "entries": [
+        {
+          "slug": "count",
+          "name": "COUNT",
+          "summary": "COUNT(*) counts rows, COUNT(col) counts non-NULL values and COUNT(DISTINCT col) counts different values.",
+          "syntax": "COUNT(*) | COUNT(col) | COUNT(DISTINCT col)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT COUNT(*) AS orders, COUNT(DISTINCT customer_id) AS buyers FROM orders;"
+          },
+          "lessonSlug": "aggregates"
+        },
+        {
+          "slug": "sum-avg",
+          "name": "SUM and AVG",
+          "summary": "Total and arithmetic mean of a column or expression, skipping NULL values; AVG always returns a floating-point number.",
+          "syntax": "SUM(expr) | AVG(expr)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT SUM(quantity) AS items, ROUND(AVG(quantity), 2) AS avg_items FROM orders;"
+          },
+          "lessonSlug": "aggregates"
+        },
+        {
+          "slug": "min-max",
+          "name": "MIN and MAX",
+          "summary": "Smallest and largest value of a column (numbers, text or dates). With several arguments, SQLite compares values within one row.",
+          "syntax": "MIN(col) | MAX(col) | MAX(a, b, c)",
+          "example": { "language": "sql", "code": "SELECT MIN(price), MAX(price) FROM products;" },
+          "notes": ["Row-wise comparison is GREATEST/LEAST in PostgreSQL and MySQL"],
+          "lessonSlug": "aggregates"
+        },
+        {
+          "slug": "round",
+          "name": "ROUND, ABS, %",
+          "summary": "ROUND(x, n) rounds to n decimals, ABS removes the sign and % returns the remainder of an integer division.",
+          "syntax": "ROUND(x, n) | ABS(x) | a % b",
+          "example": { "language": "sql", "code": "SELECT ROUND(8.99 * 3, 2), ABS(-7), 17 % 5;" },
+          "notes": [
+            "Integer / integer is integer division in SQLite, PostgreSQL and SQL Server",
+            "MOD(a, b) in PostgreSQL and MySQL"
+          ],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "upper-lower",
+          "name": "UPPER, LOWER, LENGTH",
+          "summary": "Change the case of text or count its characters.",
+          "syntax": "UPPER(text) | LOWER(text) | LENGTH(text)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT UPPER(name), LENGTH(name) FROM customers;"
+          },
+          "notes": ["MySQL uses CHAR_LENGTH for characters; LENGTH counts bytes there"],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "substr",
+          "name": "SUBSTR, INSTR, TRIM, REPLACE",
+          "summary": "Extract part of a string, find a position, strip surrounding spaces or replace text.",
+          "syntax": "SUBSTR(s, start, length) | INSTR(s, 'x') | TRIM(s) | REPLACE(s, 'old', 'new')",
+          "example": {
+            "language": "sql",
+            "code": "SELECT SUBSTR(name, 1, 3), REPLACE(joined, '-', '/') FROM customers;"
+          },
+          "notes": [
+            "Positions count from 1",
+            "PostgreSQL and MySQL spell it SUBSTRING; position is POSITION / LOCATE"
+          ],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "coalesce",
+          "name": "COALESCE / IFNULL",
+          "summary": "Returns the first non-NULL argument, the standard way to substitute a default for missing data.",
+          "syntax": "COALESCE(value, fallback, ...)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT COALESCE(assignee, 'unassigned') FROM tickets;"
+          },
+          "notes": ["IFNULL (SQLite, MySQL) and ISNULL (SQL Server) take exactly two arguments"],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "case",
+          "name": "CASE",
+          "summary": "Returns one of several values depending on conditions, like an if/else chain inside a query.",
+          "syntax": "CASE WHEN condition THEN value [WHEN ...] ELSE value END",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name, CASE WHEN price >= 50 THEN 'premium' ELSE 'standard' END AS tier FROM products;"
+          },
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "date-functions",
+          "name": "date(), datetime(), julianday()",
+          "summary": "SQLite date functions that parse ISO 8601 text, apply modifiers such as '+1 year', and convert dates to day numbers for arithmetic.",
+          "syntax": "date(value, modifier, ...) | julianday(value)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT date(joined, '+1 year'), julianday('2025-05-05') - julianday('2025-01-15') FROM customers;"
+          },
+          "notes": [
+            "Only ISO formats are understood; date('15/01/2025') is NULL",
+            "PostgreSQL uses INTERVAL arithmetic, MySQL DATE_ADD and DATEDIFF"
+          ],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "strftime",
+          "name": "strftime()",
+          "summary": "Formats a date or time with C-style codes such as %Y, %m, %d; useful for extracting the year or month.",
+          "syntax": "strftime('format', value)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT strftime('%Y-%m', ordered_on) AS month, COUNT(*) FROM orders GROUP BY month;"
+          },
+          "notes": ["PostgreSQL: TO_CHAR and EXTRACT; MySQL: DATE_FORMAT and YEAR()"],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "cast-typeof",
+          "name": "CAST and typeof()",
+          "summary": "CAST converts a value to another type; SQLite's typeof() reports the storage class actually used.",
+          "syntax": "CAST(expr AS INTEGER | REAL | TEXT) | typeof(expr)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT CAST('42' AS INTEGER) + 1, typeof(4.5), 7 / CAST(2 AS REAL);"
+          },
+          "lessonSlug": "create-table"
+        }
+      ]
+    },
+    {
+      "id": "views-indexes-transactions",
+      "title": "Views, indexes and transactions",
+      "entries": [
+        {
+          "slug": "create-view",
+          "name": "CREATE VIEW",
+          "summary": "Stores a query under a name so it can be used like a table; the query runs again on every access.",
+          "syntax": "CREATE VIEW name AS SELECT ...; DROP VIEW name;",
+          "example": {
+            "language": "sql",
+            "code": "CREATE VIEW cheap_products AS\nSELECT name, price FROM products WHERE price < 10;"
+          },
+          "notes": [
+            "SQLite views are read-only; materialized views exist in PostgreSQL and Oracle"
+          ],
+          "lessonSlug": "views-indexes"
+        },
+        {
+          "slug": "create-index",
+          "name": "CREATE INDEX",
+          "summary": "Builds a sorted structure on one or more columns so lookups, joins and sorts on them avoid a full scan; UNIQUE enforces uniqueness.",
+          "syntax": "CREATE [UNIQUE] INDEX name ON table (col1, col2); DROP INDEX name;",
+          "example": {
+            "language": "sql",
+            "code": "CREATE INDEX idx_orders_customer ON orders (customer_id);"
+          },
+          "notes": [
+            "Every write must maintain the index",
+            "A function applied to the column in WHERE prevents index use"
+          ],
+          "lessonSlug": "views-indexes"
+        },
+        {
+          "slug": "explain-query-plan",
+          "name": "EXPLAIN QUERY PLAN",
+          "summary": "Shows how SQLite will execute a statement: SCAN reads the whole table, SEARCH ... USING INDEX uses an index.",
+          "syntax": "EXPLAIN QUERY PLAN statement;",
+          "example": {
+            "language": "sql",
+            "code": "EXPLAIN QUERY PLAN SELECT * FROM orders WHERE customer_id = 2;"
+          },
+          "notes": ["PostgreSQL and MySQL use EXPLAIN"],
+          "lessonSlug": "views-indexes"
+        },
+        {
+          "slug": "begin-commit",
+          "name": "BEGIN and COMMIT",
+          "summary": "BEGIN starts a transaction in which changes are provisional; COMMIT makes them permanent together.",
+          "syntax": "BEGIN; ... COMMIT;",
+          "example": {
+            "language": "sql",
+            "code": "BEGIN;\nUPDATE accounts SET balance = balance - 30 WHERE owner = 'Ada';\nUPDATE accounts SET balance = balance + 30 WHERE owner = 'Grace';\nCOMMIT;"
+          },
+          "notes": [
+            "MySQL also accepts START TRANSACTION",
+            "Outside a transaction every statement autocommits"
+          ],
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "rollback",
+          "name": "ROLLBACK",
+          "summary": "Discards every change made since BEGIN (or since a savepoint) and ends the transaction.",
+          "syntax": "ROLLBACK;",
+          "example": { "language": "sql", "code": "BEGIN;\nDELETE FROM orders;\nROLLBACK;" },
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "savepoint",
+          "name": "SAVEPOINT",
+          "summary": "Marks a point inside a transaction so that ROLLBACK TO can undo only the statements after it.",
+          "syntax": "SAVEPOINT name; ... ROLLBACK TO name; RELEASE name;",
+          "example": {
+            "language": "sql",
+            "code": "SAVEPOINT before_bonus;\nUPDATE accounts SET balance = balance + 999 WHERE owner = 'Grace';\nROLLBACK TO before_bonus;"
+          },
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "pragma-foreign-keys",
+          "name": "PRAGMA foreign_keys",
+          "summary": "SQLite setting that turns foreign key enforcement on for the current connection; off by default.",
+          "syntax": "PRAGMA foreign_keys = ON;",
+          "example": {
+            "language": "sql",
+            "code": "PRAGMA foreign_keys = ON;\nINSERT INTO orders (customer_id, product_id, quantity, ordered_on) VALUES (99, 1, 1, '2025-09-01');"
+          },
+          "notes": ["Must be set on every new connection; put it first in playground scripts"],
+          "lessonSlug": "constraints"
+        }
+      ]
+    }
+  ]
+}

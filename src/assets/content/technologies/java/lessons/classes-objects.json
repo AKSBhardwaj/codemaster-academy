@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "slug": "classes-objects",
+  "title": "Classes and Objects",
+  "summary": "Write your own class with private fields, a constructor, methods and toString, create objects with new, and understand references, encapsulation and static members.",
+  "introduction": "So far every program was one class with static methods. Real Java programs model the things they deal with, accounts, orders, players, as classes: a class bundles data (fields) with the operations allowed on that data (methods), and each object created from it carries its own state. In this lesson you write a BankAccount class, create accounts with new, protect the balance behind methods, learn why two variables can point at one object, and see what static really means.",
+  "learningObjectives": [
+    "Declare a class with fields, a constructor and methods, and create objects with new",
+    "Hide state behind private fields and expose behaviour through public methods",
+    "Explain how object references behave when assigned or compared",
+    "Use static fields and methods for data shared by all objects"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why classes?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A bank account has an owner and a balance, and a few things may happen to it: deposits, withdrawals, statements. Scattering those as loose variables and methods works for one account and falls apart for a thousand. A **class** describes the data and the behaviour once; an **object** (also called an instance) is one concrete account created from that description with `new`. The class is the blueprint, the objects are the houses, and every house has its own rooms."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your first class"
+    },
+    {
+      "type": "paragraph",
+      "text": "Put the class in its own file, `BankAccount.java`. **Fields** hold the state of each object. The **constructor** has the class name and no return type; it runs when `new` creates an object and sets the fields. Inside the class, `this` refers to the object the method was called on, which is needed when a parameter has the same name as a field. The **methods** are the only way code outside the class can change the balance."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "BankAccount.java",
+      "code": "public class BankAccount {\n    private final String owner;\n    private double balance;\n\n    public BankAccount(String owner, double openingBalance) {\n        this.owner = owner;\n        this.balance = openingBalance;\n    }\n\n    public void deposit(double amount) {\n        if (amount <= 0) {\n            System.out.println(\"Deposit must be positive\");\n            return;\n        }\n        balance += amount;\n    }\n\n    public boolean withdraw(double amount) {\n        if (amount > balance) {\n            return false;\n        }\n        balance -= amount;\n        return true;\n    }\n\n    public double getBalance() {\n        return balance;\n    }\n\n    @Override\n    public String toString() {\n        return owner + \": \" + balance;\n    }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "A second file holds the program that uses the class. Since Java 22 the source launcher compiles both files when you run `java Main.java` in that folder; with `javac` you would compile both: `javac Main.java BankAccount.java`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Main.java",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        BankAccount account = new BankAccount(\"Ada\", 100);\n        account.deposit(50);\n        boolean ok = account.withdraw(500);\n        System.out.println(ok);\n        System.out.println(account.getBalance());\n        System.out.println(account);\n        account.deposit(-20);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Main.java",
+      "content": "false\n150.0\nAda: 150.0\nDeposit must be positive"
+    },
+    {
+      "type": "paragraph",
+      "text": "`new BankAccount(\"Ada\", 100)` allocates an object, runs the constructor, and returns a reference that is stored in `account`. The dot calls a method on that particular object, so `account.deposit(50)` changes this account's balance and nobody else's. `System.out.println(account)` calls `toString` automatically; without your own `toString` Java prints the class name, an `@` and a hexadecimal hash code, which is rarely what you want."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Encapsulation"
+    },
+    {
+      "type": "paragraph",
+      "text": "The fields are `private`, so `account.balance = 1000000;` does not compile outside the class. Every change goes through `deposit` and `withdraw`, which is where the rules live: no negative deposits, no overdrafts. This is **encapsulation**: hide the data, expose behaviour. Add a getter such as `getBalance` only when other code genuinely needs to read the value, and add a setter only when free changes are really allowed. Here `owner` is also `final`, so it is set once in the constructor and never changes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects are references"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable of a class type does not hold the object; it holds a **reference** to it. Assigning one variable to another copies the reference, so both names point at the same object and a change through one is visible through the other. `==` compares references, which is why two separately created accounts with identical data are not `==`. A reference that points at nothing holds `null`, and calling a method on `null` throws a `NullPointerException`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "BankAccount a = new BankAccount(\"Ada\", 10);\nBankAccount b = a;            // same object, second name\nb.deposit(5);\nSystem.out.println(a.getBalance());\n\nBankAccount c = new BankAccount(\"Ada\", 15);\nSystem.out.println(a == c);\nSystem.out.println(a.getBalance() == c.getBalance());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "15.0\nfalse\ntrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Static members"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `static` field belongs to the class, not to any object: there is exactly one copy, shared by every instance. A `static` method likewise runs without an object and is called on the class name. Use static for counters, caches and utility methods such as `Math.max`, and for constants declared `static final`. `main` is static precisely because no object exists yet when the program starts."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Ticket.java",
+      "code": "public class Ticket {\n    private static int nextNumber = 1;   // shared by all tickets\n    private final int number;            // one per ticket\n\n    public Ticket() {\n        number = nextNumber++;\n    }\n\n    public int getNumber() {\n        return number;\n    }\n\n    public static int issued() {\n        return nextNumber - 1;\n    }\n\n    public static void main(String[] args) {\n        Ticket first = new Ticket();\n        Ticket second = new Ticket();\n        System.out.println(first.getNumber() + \" \" + second.getNumber());\n        System.out.println(\"Issued: \" + Ticket.issued());\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Ticket.java",
+      "content": "1 2\nIssued: 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "A static method cannot use `this` or touch instance fields, because there is no particular object to read them from; `error: non-static variable number cannot be referenced from a static context` is the message when you try."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Default values"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fields you do not initialise get a default value, unlike local variables, which must be assigned before use. Relying on defaults is fine for counters that start at zero; for references, remember that the default is `null`."
+    },
+    {
+      "type": "table",
+      "headers": ["Field type", "Default value"],
+      "rows": [
+        ["`int`, `long`, `short`, `byte`", "`0`"],
+        ["`double`, `float`", "`0.0`"],
+        ["`boolean`", "`false`"],
+        ["`char`", "the character with code 0"],
+        ["Any reference: `String`, arrays, your classes", "`null`"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The parameter that shadows the field",
+      "text": "In a constructor `BankAccount(String owner) { owner = owner; }` compiles without complaint but does nothing: both names refer to the parameter, and the field stays `null`. Write `this.owner = owner;` whenever a parameter and a field share a name. A `NullPointerException` from a field you were sure you had set is the usual symptom."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "One class, one file, one job",
+      "text": "Keep each public class in its own file named after it, and keep the class focused: an account knows about money, not about printing reports or talking to databases. Small classes with clear responsibilities are the heart of readable Java; the [Object-Oriented Programming](/tutorials/object-oriented-programming) tutorial goes deeper into design."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-classes-bank-account"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-classes-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "classes-objects",
+          "difficulty": "beginner",
+          "question": "What is the value of an `int` field that no constructor or method has assigned?",
+          "explanation": "Fields get default values: numeric types are 0, booleans are false and references are null. Only local variables must be assigned explicitly before use.",
+          "options": ["`0`", "`null`", "It is undefined", "The program does not compile"],
+          "correctIndex": 0
+        },
+        {
+          "id": "java-classes-qc-2",
+          "type": "true-false",
+          "lessonSlug": "classes-objects",
+          "difficulty": "beginner",
+          "question": "`BankAccount b = a;` creates a second, independent copy of the account object.",
+          "explanation": "The assignment copies the reference, not the object. Both variables point at the same account, and a deposit through `b` is visible through `a`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-classes-bank-account"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "inheritance-interfaces"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "records-streams"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    }
+  ],
+  "seo": {
+    "title": "Java Classes and Objects – Fields, Constructors, this",
+    "description": "Write your first Java class with private fields, a constructor, methods and toString, then learn how object references, static members and encapsulation work."
+  },
+  "updatedOn": "2026-11-15"
+}

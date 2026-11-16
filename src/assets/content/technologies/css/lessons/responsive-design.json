@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "slug": "responsive-design",
+  "title": "Responsive Design and Media Queries",
+  "summary": "A responsive page changes its layout to fit the screen. It should work on both a phone and a wide screen.",
+  "introduction": "A responsive page changes its layout to fit the screen. It should work on both a phone and a wide screen. Try making a row of cards become a stack on a small screen. Keep words readable and buttons easy to use.",
+  "learningObjectives": [
+    "Set up the viewport and write mobile-first media queries",
+    "Use the range syntax, preference queries and fluid values to reduce breakpoints",
+    "Apply container queries to components that live in different contexts"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The viewport meta tag"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mobile browsers were built when every site assumed a desktop, so by default they lay the page out about 980px wide and zoom out to fit, which makes text tiny and media queries useless. The viewport meta tag tells the browser to use the device's real width instead and to start at normal zoom. It goes in the `<head>` of every page, before any CSS."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "code": "<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Responsive page</title>\n  <link rel=\"stylesheet\" href=\"css/styles.css\">\n</head>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Never add `user-scalable=no` or a `maximum-scale`: people with low vision rely on pinch zoom, and blocking it fails accessibility checks."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Media queries"
+    },
+    {
+      "type": "paragraph",
+      "text": "A media query wraps rules in a condition. The condition most often used is the viewport width: `(min-width: 48em)` means \"at least 48em wide\". Modern browsers also accept the clearer **range syntax**, `(width >= 48em)`, which can express an interval in one expression. Write the styles for the smallest screen as the default, outside any query, and add complexity as space grows; this **mobile-first** approach produces shorter stylesheets because small screens need the least layout."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": "/* Default: one column, every screen */\n.layout {\n  display: grid;\n  gap: 1rem;\n}\n\n/* From 48em (768px at the default font size): two columns */\n@media (min-width: 48em) {\n  .layout {\n    grid-template-columns: 1fr 2fr;\n  }\n}\n\n/* The same condition in range syntax */\n@media (width >= 48em) {\n  .layout {\n    grid-template-columns: 1fr 2fr;\n  }\n}\n\n/* Only between two widths */\n@media (48em <= width < 80em) {\n  .layout {\n    gap: 2rem;\n  }\n}"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Resize the window to see the layout change",
+      "runnable": true,
+      "code": "<style>\n  .cards { display: grid; gap: 8px; }\n  .cards div { background: #dbeafe; padding: 12px; }\n  @media (width >= 500px) {\n    .cards { grid-template-columns: 1fr 1fr 1fr; }\n  }\n</style>\n<div class=\"cards\">\n  <div>Stacked below 500px</div>\n  <div>Three columns from 500px</div>\n  <div>Try resizing the preview</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "title": "Rendered output: one column below 500px, three columns from 500px",
+      "content": "<style>.cards{display:grid;gap:6px}.cards div{background:#dbeafe;padding:8px}@media (width >= 500px){.cards{grid-template-columns:1fr 1fr 1fr}}</style><div class=\"cards\"><div>Stacked below 500px</div><div>Three columns from 500px</div><div>Try resizing the preview</div></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Desktop-first means undoing your own CSS",
+      "text": "Writing the wide layout first and then using `max-width` queries to take it apart for phones leads to rules that set a property and other rules that reset it, and the two drift out of sync. Make the single-column layout the default and add columns, sidebars and larger type in `min-width` (or `width >=`) queries."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Where to put breakpoints"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose breakpoints where *your content* starts to look wrong (a line gets too long, a sidebar too cramped), not at the sizes of particular devices, which change every year. Writing them in `em` makes them scale when a user enlarges the default font size; in a media query `1em` is the browser's default of 16px, so `48em` is 768px. Three or four breakpoints are enough for most sites, and fluid techniques (below) reduce the need further."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Preference queries"
+    },
+    {
+      "type": "paragraph",
+      "text": "Media queries can also ask about the user's settings. `prefers-color-scheme: dark` is true when the operating system is in dark mode, `prefers-reduced-motion: reduce` when the user has asked for less animation, and `prefers-contrast: more` when they want higher contrast. Combined with custom properties, a dark theme is a few lines."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": ":root {\n  --bg: #ffffff;\n  --text: #172033;\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n    --bg: #0f172a;\n    --text: #e2e8f0;\n  }\n}\n\nbody {\n  background: var(--bg);\n  color: var(--text);\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fluid before fixed"
+    },
+    {
+      "type": "paragraph",
+      "text": "Many layouts need no breakpoint at all if the values flex on their own. A container with `width: min(100% - 2rem, 70rem)` fills small screens and caps itself on large ones; `flex-wrap` and `repeat(auto-fit, minmax())` reflow items as space changes; `clamp()` scales headings smoothly. Images need two declarations so they never overflow their column while keeping their proportions (the `width` and `height` attributes in the HTML provide the aspect ratio, so keep them)."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": "img,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n.container {\n  width: min(100% - 2rem, 70rem);\n  margin-inline: auto;\n}\n\nh1 {\n  font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Container queries"
+    },
+    {
+      "type": "paragraph",
+      "text": "A media query asks how wide the *viewport* is, but a card in a narrow sidebar and the same card in the main column see the same viewport. **Container queries** ask about the size of the component's parent instead. Declare the parent a container with `container-type: inline-size`, then write `@container` rules that react to its width. Give containers a `container-name` when several are nested, and use the `cqi` unit (1% of the container's inline size) for sizes that scale with the container. Every current browser supports this."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .wrapper { container-type: inline-size; margin-bottom: 8px; }\n  .narrow  { width: 220px; }\n  .card { display: grid; gap: 8px; padding: 8px; border: 1px solid #cbd5e1; }\n  .card .thumb { background: #93c5fd; height: 40px; }\n  .card p { margin: 0; }\n  @container (width > 300px) {\n    .card { grid-template-columns: 80px 1fr; align-items: center; }\n  }\n</style>\n<div class=\"wrapper narrow\">\n  <div class=\"card\"><div class=\"thumb\"></div><p>Narrow container: stacked.</p></div>\n</div>\n<div class=\"wrapper\">\n  <div class=\"card\"><div class=\"thumb\"></div><p>Wide container: side by side.</p></div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.wrapper{container-type:inline-size;margin-bottom:6px}.narrow{width:200px}.card{display:grid;gap:6px;padding:6px;border:1px solid #cbd5e1}.card .thumb{background:#93c5fd;height:24px}.card p{margin:0}@container (width > 300px){.card{grid-template-columns:60px 1fr;align-items:center}}</style><div class=\"wrapper narrow\"><div class=\"card\"><div class=\"thumb\"></div><p>Narrow container: stacked.</p></div></div><div class=\"wrapper\"><div class=\"card\"><div class=\"thumb\"></div><p>Wide container: side by side.</p></div></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both cards use the same CSS; only the width of their wrapper differs. That is what makes container queries the right tool for reusable components, and media queries the right tool for the page-level layout around them."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: add a breakpoint",
+      "height": 240,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Responsive</title>\n  <style>\n    body { font-family: system-ui, sans-serif; margin: 0; padding: 12px; }\n    h1 { font-size: clamp(1.25rem, 1rem + 2vw, 2rem); }\n    .layout { display: grid; gap: 8px; }\n    .layout > * { background: #eff6ff; padding: 12px; }\n    /* Add: @media (width >= 600px) { .layout { grid-template-columns: 200px 1fr; } } */\n  </style>\n</head>\n<body>\n  <h1>Fluid heading</h1>\n  <div class=\"layout\">\n    <nav>Sidebar</nav>\n    <main>Main content. Resize the preview after adding the media query.</main>\n  </div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-responsive-design-media-query"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-responsive-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "responsive-design",
+          "difficulty": "beginner",
+          "question": "Which query applies its rules only when the viewport is at least 600px wide?",
+          "explanation": "`min-width: 600px` means 600px or wider; the range form `(width >= 600px)` is equivalent. `max-width` would mean 600px or narrower.",
+          "options": [
+            "`@media (max-width: 600px)`",
+            "`@media (min-width: 600px)`",
+            "`@media (width: 600px)`",
+            "`@media screen and (orientation: landscape)`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-responsive-qc-2",
+          "type": "true-false",
+          "lessonSlug": "responsive-design",
+          "difficulty": "intermediate",
+          "question": "A container query responds to the size of an ancestor element rather than to the viewport.",
+          "explanation": "That is the point of `@container`: the parent declared with `container-type` is measured, so the same component can adapt differently in a sidebar and in the main column.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-responsive-design-media-query"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "units"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "grid"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    }
+  ],
+  "seo": {
+    "title": "Responsive CSS – Media Queries, Fluid Layouts, Containers",
+    "description": "Build responsive pages with CSS: the viewport meta tag, mobile-first media queries and range syntax, preference queries, fluid sizes and container queries."
+  },
+  "updatedOn": "2026-11-16"
+}

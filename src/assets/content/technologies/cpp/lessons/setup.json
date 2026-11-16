@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup",
+  "title": "Installing a Compiler and Building a Program",
+  "summary": "Install GCC, Clang or Visual Studio, compile a program split across several files, understand the common compiler flags, and build with CMake.",
+  "introduction": "You cannot learn C++ without a compiler, and most build problems beginners hit are not C++ problems at all: a missing file on the command line, a wrong flag, or an executable that was never rebuilt. This lesson gets a compiler onto Windows, macOS or Linux, then builds a program split across three files by hand and with CMake, so that the error messages you meet later make sense.",
+  "learningObjectives": [
+    "Install a C++20-capable compiler on your operating system and verify it works",
+    "Compile and link a program that spans a header and two source files",
+    "Choose the compiler flags that catch bugs early",
+    "Build the same program with a minimal CMake project"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing and installing a compiler"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three compilers matter in practice and all three support C++20 well: **GCC** (`g++`), **Clang** (`clang++`) and Microsoft's **MSVC** (`cl.exe`). They accept the same language, so the choice depends on your platform. The commands in this tutorial use `g++`; `clang++` takes the same flags."
+    },
+    {
+      "type": "table",
+      "headers": ["Platform", "Recommended install", "Compiler you get"],
+      "rows": [
+        [
+          "Windows",
+          "Visual Studio 2022 Community with the *Desktop development with C++* workload, or MSYS2 and `pacman -S mingw-w64-ucrt-x86_64-gcc`",
+          "MSVC (`cl`) or GCC (`g++`)"
+        ],
+        [
+          "macOS",
+          "`xcode-select --install` in the Terminal",
+          "Apple Clang (`clang++`, also answers to `g++`)"
+        ],
+        ["Ubuntu / Debian", "`sudo apt install build-essential`", "GCC (`g++`)"],
+        ["Fedora", "`sudo dnf install gcc-c++`", "GCC (`g++`)"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Verify the install from a terminal. The version line differs by system; what matters is that the command is found and the major version is 13 or newer for GCC, 16 or newer for Clang."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ --version\ng++ (Ubuntu 13.2.0-23ubuntu4) 13.2.0\nCopyright (C) 2023 Free Software Foundation, Inc."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A program in three files"
+    },
+    {
+      "type": "paragraph",
+      "text": "Real programs are split into files. A **header** (`.hpp` or `.h`) declares what exists; a **source file** (`.cpp`) defines it; other source files include the header to use it. Declaring in one place and defining in another is what lets the compiler check every call without seeing the function body."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "greet.hpp",
+      "code": "#pragma once\n#include <string>\n\nstd::string greet(const std::string& name);"
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "greet.cpp",
+      "code": "#include \"greet.hpp\"\n\nstd::string greet(const std::string& name) {\n    return \"Hello, \" + name + \"!\";\n}"
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "main.cpp",
+      "code": "#include <iostream>\n#include \"greet.hpp\"\n\nint main() {\n    std::cout << greet(\"Ada\") << '\\n';\n    std::cout << greet(\"Linus\") << '\\n';\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`#pragma once` stops the header being pasted twice into the same file. Angle brackets (`<string>`) look in the standard library; quotes (`\"greet.hpp\"`) look next to the current file first. Compile both source files together and the compiler produces one executable."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra main.cpp greet.cpp -o app\n$ ./app\nHello, Ada!\nHello, Linus!"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Compiling and linking separately"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `-c` flag stops after compiling and writes an object file. Large projects do this so that editing one file only recompiles that file; the final step links the object files together."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra -c greet.cpp -o greet.o\n$ g++ -std=c++20 -Wall -Wextra -c main.cpp -o main.o\n$ g++ main.o greet.o -o app\n$ ./app\nHello, Ada!\nHello, Linus!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The flags worth memorising"
+    },
+    {
+      "type": "table",
+      "headers": ["Flag", "Meaning"],
+      "rows": [
+        [
+          "`-std=c++20`",
+          "Compile as C++20. Use `-std=c++23` for the C++23 examples in this tutorial"
+        ],
+        [
+          "`-Wall -Wextra`",
+          "Enable the warnings that catch most real bugs (unused variables, missing returns, uninitialised reads)"
+        ],
+        ["`-Wpedantic`", "Warn about compiler extensions that other compilers may reject"],
+        [
+          "`-O2`",
+          "Optimise for speed; leave it off while learning so the debugger follows your source"
+        ],
+        ["`-g`", "Include debug information for `gdb` or `lldb`"],
+        [
+          "`-fsanitize=address,undefined`",
+          "Build with runtime checks that report memory errors and undefined behaviour as they happen (GCC and Clang)"
+        ],
+        ["`-o name`", "Name the output file; without it you get `a.out` (or `a.exe` on Windows)"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "On Windows with MSVC, open a *Developer Command Prompt* and the equivalent build is `cl /std:c++20 /EHsc /W4 main.cpp greet.cpp /Fe:app.exe`, then run `app.exe`. MSVC spells C++23 as `/std:c++latest`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting a source file",
+      "text": "Running `g++ -std=c++20 main.cpp -o app` without `greet.cpp` compiles fine but fails at the link stage with a message like `undefined reference to 'greet(std::string const&)'`. The compiler saw the declaration in the header, so it trusted the function exists; only the linker discovers that nobody defined it. The fix is to list every `.cpp` file, never to `#include \"greet.cpp\"`, which would define the function twice as soon as both files are compiled."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Building with CMake"
+    },
+    {
+      "type": "paragraph",
+      "text": "Typing every file on the command line does not scale. **CMake** is the de facto standard build tool for C++: you describe the program once in `CMakeLists.txt` and CMake generates the right build for GCC, Clang or Visual Studio. Install it from cmake.org or your package manager, then put this file next to the three sources."
+    },
+    {
+      "type": "code",
+      "language": "cmake",
+      "title": "CMakeLists.txt",
+      "code": "cmake_minimum_required(VERSION 3.20)\nproject(greeter CXX)\n\nset(CMAKE_CXX_STANDARD 20)\nset(CMAKE_CXX_STANDARD_REQUIRED ON)\nset(CMAKE_CXX_EXTENSIONS OFF)\n\nadd_executable(app main.cpp greet.cpp)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Configure once into a `build` directory, then build. CMake prints its own progress lines (compiler detection, percentages) between the commands shown here; the program's output is what you should compare."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ cmake -S . -B build\n$ cmake --build build\n$ ./build/app\nHello, Ada!\nHello, Linus!"
+    },
+    {
+      "type": "paragraph",
+      "text": "`add_executable` lists the sources, `CMAKE_CXX_STANDARD` replaces `-std=c++20`, and `CMAKE_CXX_EXTENSIONS OFF` keeps the code portable. Editors such as VS Code (with the C/C++ and CMake Tools extensions), CLion and Visual Studio all understand this file directly."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Turn warnings on from day one",
+      "text": "A warning is a bug the compiler could not quite prove. Treat `-Wall -Wextra` as mandatory and, once your project compiles cleanly, add `-Werror` so that new warnings fail the build instead of scrolling past."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-setup-flags"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "You compile `main.cpp` alone, and the build stops with `undefined reference to 'greet(...)'`. Which stage reported the problem?",
+          "explanation": "An undefined reference is a linker error: compilation succeeded because the header declared the function, but no object file defines it.",
+          "options": [
+            "The preprocessor",
+            "The compiler",
+            "The linker",
+            "The operating system when the program starts"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "cpp-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup",
+          "difficulty": "beginner",
+          "question": "`#include \"greet.hpp\"` searches the directory of the current file before the standard library directories.",
+          "explanation": "Quoted includes look in the including file's directory first; angle-bracket includes go straight to the system and library paths.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-setup-flags"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    }
+  ],
+  "seo": {
+    "title": "Installing a C++ Compiler and Building a Program",
+    "description": "Install GCC, Clang or Visual Studio, compile a multi-file C++20 program with g++ and CMake, learn the flags that catch bugs early and fix linker errors."
+  },
+  "updatedOn": "2026-11-15"
+}

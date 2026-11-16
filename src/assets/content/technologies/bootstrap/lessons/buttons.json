@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "slug": "buttons",
+  "title": "Buttons",
+  "summary": "Bootstrap button classes add a shape, colour and spacing to a button or link.",
+  "introduction": "Bootstrap button classes add a shape, colour and spacing to a button or link. Pick a main button and a quieter second button. Use a button for an action and a link for going to an address.",
+  "learningObjectives": [
+    "Apply btn with a colour or outline variant to buttons, links and inputs",
+    "Change a button's size and make it fill its container",
+    "Disable buttons and links in a way that works for keyboard and screen reader users",
+    "Combine buttons in button groups and toolbars"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The btn class and its variants"
+    },
+    {
+      "type": "paragraph",
+      "text": "`.btn` gives an element the shape of a button: `.375rem .75rem` padding, a 1px border, `.375rem` rounded corners, a 1rem font and no underline. On its own it is transparent. The **variant** class, one of `btn-primary`, `btn-secondary`, `btn-success`, `btn-danger`, `btn-warning`, `btn-info`, `btn-light`, `btn-dark` or `btn-link`, supplies the background, border and text colours, including their hover, focus and active shades. The classes work identically on `<button>`, `<a>` and `<input type=\"submit\">`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Every theme variant",
+      "code": "<button type=\"button\" class=\"btn btn-primary\">Primary</button>\n<button type=\"button\" class=\"btn btn-secondary\">Secondary</button>\n<button type=\"button\" class=\"btn btn-success\">Success</button>\n<button type=\"button\" class=\"btn btn-danger\">Danger</button>\n<button type=\"button\" class=\"btn btn-warning\">Warning</button>\n<button type=\"button\" class=\"btn btn-info\">Info</button>\n<button type=\"button\" class=\"btn btn-light\">Light</button>\n<button type=\"button\" class=\"btn btn-dark\">Dark</button>\n<button type=\"button\" class=\"btn btn-link\">Link</button>\n<a href=\"/pricing\" class=\"btn btn-primary\">A link that looks like a button</a>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Primary: blue #0d6efd background, white text\nSecondary: grey #6c757d, white text\nSuccess: green #198754, white text\nDanger: red #dc3545, white text\nWarning: yellow #ffc107, black text\nInfo: cyan #0dcaf0, black text\nLight: near-white #f8f9fa, black text\nDark: #212529, white text\nLink: no background or border, blue underlined text with button padding\nThe <a> renders exactly like the first Primary button, on the same line as the others"
+    },
+    {
+      "type": "paragraph",
+      "text": "Warning, info and light use black text because white would not meet the contrast ratio on those bright backgrounds; Bootstrap picks the text colour automatically for each variant. Always give a `<button>` an explicit `type`: inside a `<form>` the default is `submit`, so a button meant to open a dialog would also submit the form."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Outline buttons"
+    },
+    {
+      "type": "paragraph",
+      "text": "Replace `btn-*` with `btn-outline-*` for a lighter look: transparent background, coloured border and coloured text, which fill with the solid colour on hover. Outline buttons suit secondary actions placed next to a solid primary one."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Primary action with an outlined alternative",
+      "code": "<button type=\"button\" class=\"btn btn-primary\">Save changes</button>\n<button type=\"button\" class=\"btn btn-outline-secondary\">Cancel</button>\n<button type=\"button\" class=\"btn btn-outline-danger\">Delete</button>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Save changes: solid blue button with white text\nCancel: transparent button with a grey border and grey text; on hover it becomes solid grey with white text\nDelete: transparent button with a red border and red text; on hover it becomes solid red with white text"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sizes and full-width buttons"
+    },
+    {
+      "type": "paragraph",
+      "text": "`btn-lg` enlarges the padding to `.5rem 1rem` and the font to 1.25rem; `btn-sm` shrinks them to `.25rem .5rem` and .875rem. Buttons are `inline-block`, so to stretch one across its container either add `w-100` or wrap a stack of buttons in `d-grid gap-2`, which also spaces them evenly."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Three sizes and a full-width stack",
+      "code": "<button type=\"button\" class=\"btn btn-primary btn-lg\">Large</button>\n<button type=\"button\" class=\"btn btn-primary\">Default</button>\n<button type=\"button\" class=\"btn btn-primary btn-sm\">Small</button>\n\n<div class=\"d-grid gap-2 mt-3\" style=\"max-width: 320px;\">\n  <button type=\"button\" class=\"btn btn-primary\">Sign in</button>\n  <button type=\"button\" class=\"btn btn-outline-primary\">Create an account</button>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Large: 20px text with 8px vertical and 16px horizontal padding\nDefault: 16px text with 6px vertical and 12px horizontal padding\nSmall: 14px text with 4px vertical and 8px horizontal padding\nBelow them, two buttons each 320px wide, stacked with an 8px gap"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Disabled and active states"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `<button>` is disabled with the native `disabled` attribute: it turns 65% opaque, ignores the pointer and leaves the tab order. Links have no `disabled` attribute, so a link styled as a button needs three things: the `.disabled` class for the look, `aria-disabled=\"true\"` so assistive technology announces the state, and `tabindex=\"-1\"` to remove it from the tab order. `.active` with `aria-pressed=\"true\"` shows a button as pressed, which is what the toggle behaviour `data-bs-toggle=\"button\"` switches on and off when the JavaScript bundle is loaded."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Disabled button, disabled link and a toggle",
+      "code": "<button type=\"button\" class=\"btn btn-primary\" disabled>Disabled button</button>\n<a href=\"/next\" class=\"btn btn-primary disabled\" aria-disabled=\"true\" tabindex=\"-1\">Disabled link</a>\n<button type=\"button\" class=\"btn btn-outline-primary\" data-bs-toggle=\"button\" aria-pressed=\"false\">Follow</button>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Both disabled controls appear faded (65% opacity) and do not change on hover; pressing Tab skips both\nFollow: an outlined button; each click toggles it between outlined (not pressed) and solid blue (pressed) and flips aria-pressed"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a variant without the base class",
+      "text": "`class=\"btn-primary\"` on its own renders a plain, unstyled browser button. Since Bootstrap 5.2 the variant classes only *define* CSS variables such as `--bs-btn-bg`; it is `.btn` that actually uses them. The same applies to outlines and sizes: `btn-outline-danger` and `btn-lg` do nothing without `btn` beside them. When a button looks wrong, check that the base class is present before anything else."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Button groups and toolbars"
+    },
+    {
+      "type": "paragraph",
+      "text": "`.btn-group` joins a series of buttons into one bar: the inner borders overlap and only the outer corners stay rounded. Give the group `role=\"group\"` and an `aria-label` so screen readers describe it as one control. `.btn-group-vertical` stacks the buttons, `.btn-group-lg` and `.btn-group-sm` resize the whole group, and `.btn-toolbar` lines several groups up with spacing between them."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A segmented control and a toolbar",
+      "code": "<div class=\"btn-group\" role=\"group\" aria-label=\"View\">\n  <button type=\"button\" class=\"btn btn-outline-primary active\" aria-pressed=\"true\">Day</button>\n  <button type=\"button\" class=\"btn btn-outline-primary\">Week</button>\n  <button type=\"button\" class=\"btn btn-outline-primary\">Month</button>\n</div>\n\n<div class=\"btn-toolbar mt-3 gap-2\" role=\"toolbar\" aria-label=\"Editing\">\n  <div class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"Clipboard\">\n    <button type=\"button\" class=\"btn btn-secondary\">Cut</button>\n    <button type=\"button\" class=\"btn btn-secondary\">Copy</button>\n    <button type=\"button\" class=\"btn btn-secondary\">Paste</button>\n  </div>\n  <div class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"History\">\n    <button type=\"button\" class=\"btn btn-secondary\">Undo</button>\n    <button type=\"button\" class=\"btn btn-secondary\">Redo</button>\n  </div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Day / Week / Month: one joined bar with a single blue outline; Day is filled solid blue (active), the others are transparent with blue text\nBelow it, two small grey bars, \"Cut Copy Paste\" and \"Undo Redo\", 8px apart; within each bar the buttons share borders and only the outer corners are rounded"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Links versus buttons",
+      "text": "Use `<a class=\"btn\">` when the action navigates to another page and `<button>` when it does something on the current page (opens a dialog, submits, toggles). When a link must act like a button, add `role=\"button\"` so assistive technology announces it correctly."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-buttons-group"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-btn-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "buttons",
+          "difficulty": "beginner",
+          "question": "Which variant renders black text instead of white?",
+          "explanation": "warning, info and light have bright backgrounds, so Bootstrap gives them black text to keep enough contrast. primary, success, danger, secondary and dark use white text.",
+          "options": ["`btn-primary`", "`btn-warning`", "`btn-success`", "`btn-dark`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "bs-btn-qc-2",
+          "type": "true-false",
+          "lessonSlug": "buttons",
+          "difficulty": "beginner",
+          "question": "Adding the `disabled` attribute to `<a class=\"btn btn-primary\">` disables the link.",
+          "explanation": "Links do not support the disabled attribute. Use the .disabled class together with aria-disabled=\"true\" and tabindex=\"-1\".",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-buttons-find-error", "bootstrap-buttons-group"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "utilities-spacing-flex"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Buttons – Variants, Outlines, Sizes and Groups",
+    "description": "Learn Bootstrap 5.3 buttons: the btn base class, colour and outline variants, sizes, full-width buttons, disabled and active states, button groups and toolbars."
+  },
+  "updatedOn": "2026-11-16"
+}

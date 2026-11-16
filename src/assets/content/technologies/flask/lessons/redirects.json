@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Follow a named route",
+  "summary": "Flask: Follow a named route. Inspect the first response Location header.",
+  "introduction": "url_for builds a URL from a function endpoint name. GET /start redirects a browser to /hello.",
+  "learningObjectives": [
+    "Follow a named route with Flask",
+    "Inspect the first response Location header"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow a named route"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Follow a named route",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/start\")\ndef start():\n    return redirect(url_for(\"hello\"))\n@app.get(\"/hello\")\ndef hello():\n    return \"Welcome\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "url_for finds the hello endpoint. The redirect tells the browser to request that URL."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first response Location header."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The endpoint name here is the Python function name, not the URL text."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-redirects-check"
+    }
+  ],
+  "exerciseIds": ["flask-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "status"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Follow a named route",
+    "description": "Flask: Follow a named route. Inspect the first response Location header. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

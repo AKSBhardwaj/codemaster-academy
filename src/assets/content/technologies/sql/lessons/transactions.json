@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "slug": "transactions",
+  "title": "Transactions",
+  "summary": "A transaction groups database changes into one job. You can keep all its changes or undo the group.",
+  "introduction": "A transaction groups database changes into one job. You can keep all its changes or undo the group. Imagine moving a point from one team to another. Both changes must work together, so the points do not disappear halfway through.",
+  "learningObjectives": [
+    "Group changes with BEGIN and COMMIT",
+    "Undo changes with ROLLBACK and ROLLBACK TO a savepoint",
+    "Explain the ACID properties in practical terms",
+    "Describe autocommit and dialect differences"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A transfer in one transaction"
+    },
+    {
+      "type": "paragraph",
+      "text": "`BEGIN` starts a transaction, the statements inside it are provisional, and `COMMIT` makes them permanent together. Here Ada sends Grace 30:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  owner TEXT NOT NULL,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50);\nBEGIN;\nUPDATE accounts SET balance = balance - 30 WHERE owner = 'Ada';\nUPDATE accounts SET balance = balance + 30 WHERE owner = 'Grace';\nCOMMIT;\nSELECT * FROM accounts;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50)\nOK: BEGIN\nOK: UPDATE accounts SET balance = balance - 30 WHERE owner = 'Ada'\nOK: UPDATE accounts SET balance = balance + 30 WHERE owner = 'Grace'\nOK: COMMIT\n\nid | owner | balance\n---+-------+--------\n1  | Ada   | 70\n2  | Grace | 80"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ROLLBACK: undoing"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ROLLBACK` discards everything since `BEGIN`. The first SELECT below runs inside the transaction and sees the provisional change; after the rollback the balance is back to 100:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  owner TEXT NOT NULL,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50);\nBEGIN;\nUPDATE accounts SET balance = balance - 30 WHERE owner = 'Ada';\nSELECT owner, balance FROM accounts;\nROLLBACK;\nSELECT owner, balance FROM accounts;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50)\nOK: BEGIN\nOK: UPDATE accounts SET balance = balance - 30 WHERE owner = 'Ada'\n\nowner | balance\n------+--------\nAda   | 70\nGrace | 50\n\nOK: ROLLBACK\n\nowner | balance\n------+--------\nAda   | 100\nGrace | 50"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When a statement fails"
+    },
+    {
+      "type": "paragraph",
+      "text": "The real protection shows when something goes wrong. Grace receives 500 first; then Ada's balance would drop below zero and the CHECK constraint rejects the update. The playground stops at the error, so `COMMIT` never runs, and the open transaction is rolled back when the connection closes: Grace does not keep money that was never taken from Ada."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  owner TEXT NOT NULL,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50);\nBEGIN;\nUPDATE accounts SET balance = balance + 500 WHERE owner = 'Grace';\nUPDATE accounts SET balance = balance - 500 WHERE owner = 'Ada';\nCOMMIT;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50)\nOK: BEGIN\nOK: UPDATE accounts SET balance = balance + 500 WHERE owner = 'Grace'\nCHECK constraint failed: balance >= 0 — in: UPDATE accounts SET balance = balance - 500 WHERE owner = 'Ada'"
+    },
+    {
+      "type": "paragraph",
+      "text": "Application code follows the same pattern: catch the error, issue `ROLLBACK`, and report the failure. Never ignore an error inside a transaction and commit anyway."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "SAVEPOINT: partial undo"
+    },
+    {
+      "type": "paragraph",
+      "text": "A savepoint marks a position inside a transaction. `ROLLBACK TO name` undoes only the statements after the mark and keeps the transaction open, which is useful for optional steps:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  owner TEXT NOT NULL,\n  balance REAL NOT NULL CHECK (balance >= 0)\n);\nINSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50);\nBEGIN;\nUPDATE accounts SET balance = balance - 10 WHERE owner = 'Ada';\nSAVEPOINT before_bonus;\nUPDATE accounts SET balance = balance + 999 WHERE owner = 'Grace';\nROLLBACK TO before_bonus;\nCOMMIT;\nSELECT owner, balance FROM accounts;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: CREATE TABLE accounts (\nOK: INSERT INTO accounts (owner, balance) VALUES ('Ada', 100), ('Grace', 50)\nOK: BEGIN\nOK: UPDATE accounts SET balance = balance - 10 WHERE owner = 'Ada'\nOK: SAVEPOINT before_bonus\nOK: UPDATE accounts SET balance = balance + 999 WHERE owner = 'Grace'\nOK: ROLLBACK TO before_bonus\nOK: COMMIT\n\nowner | balance\n------+--------\nAda   | 90\nGrace | 50"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ACID"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Meaning"],
+      "rows": [
+        ["Atomicity", "All statements of the transaction apply, or none of them do"],
+        [
+          "Consistency",
+          "Constraints hold before and after; a transaction that would break one is rolled back"
+        ],
+        [
+          "Isolation",
+          "Concurrent transactions do not see each other's uncommitted changes (the exact level is configurable)"
+        ],
+        ["Durability", "Once COMMIT returns, the change survives a crash or power loss"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Autocommit and dialect notes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Outside an explicit transaction, every statement is its own transaction and commits immediately (*autocommit*). That is why a `DELETE` without WHERE is permanent the moment it runs. Starting a transaction: `BEGIN` (or `BEGIN TRANSACTION`) in SQLite and PostgreSQL, `BEGIN TRANSACTION` in SQL Server, and `START TRANSACTION` (or `BEGIN`) in MySQL. PostgreSQL and SQLite can roll back schema changes such as `CREATE TABLE`; in MySQL and Oracle a DDL statement commits the current transaction implicitly."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Open transactions hold locks",
+      "text": "A transaction that is started and never committed keeps its changes invisible to everyone else and, in most databases, blocks other writers to the same rows until it ends. Keep transactions short, never wait for user input inside one, and make sure every code path ends in COMMIT or ROLLBACK."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Run the script, then replace ROLLBACK with COMMIT and compare the second count."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 240,
+      "code": "BEGIN;\nDELETE FROM orders;\nSELECT COUNT(*) AS during FROM orders;\nROLLBACK;\nSELECT COUNT(*) AS after FROM orders;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-transactions-rollback"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "transactions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "transactions",
+          "difficulty": "beginner",
+          "question": "Which statement makes the changes of a transaction permanent?",
+          "explanation": "COMMIT ends the transaction and saves its changes. BEGIN starts one, SAVEPOINT marks a point inside it and ROLLBACK discards changes.",
+          "options": ["`BEGIN`", "`SAVEPOINT`", "`COMMIT`", "`ROLLBACK`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "transactions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "transactions",
+          "difficulty": "beginner",
+          "question": "Without BEGIN, each statement is committed as soon as it finishes.",
+          "explanation": "That is autocommit mode, the default in every major database. Only an explicit BEGIN groups several statements into one transaction.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-transactions-rollback"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "update-delete"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "insert"
+    }
+  ],
+  "seo": {
+    "title": "SQL Transactions – BEGIN, COMMIT, ROLLBACK and SAVEPOINT",
+    "description": "Learn SQL transactions: group statements with BEGIN and COMMIT, undo with ROLLBACK, use SAVEPOINT for partial undo, and understand ACID and autocommit."
+  },
+  "updatedOn": "2026-11-16"
+}

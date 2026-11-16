@@ -1,0 +1,158 @@
+{
+  "title": "FastAPI Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Return a greeting",
+          "summary": "A route decorator maps GET / to a function. PlainTextResponse makes a plain text reply.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/\", response_class=PlainTextResponse)\ndef hello():\n    return \"Hello, Asha!\"\n"
+          },
+          "notes": ["Without a text response class, a returned string is sent as JSON text."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Return a data object",
+          "summary": "A Python dictionary becomes JSON. Open GET /book.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/book\")\ndef book():\n    return {\"title\": \"Moon Trip\", \"pages\": 24}\n"
+          },
+          "notes": ["Return Python data instead of manually joining JSON strings."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-types",
+          "name": "Check a path number",
+          "summary": "The n: int type lets FastAPI parse and check a route input. Open GET /double/4.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/double/{n}\")\ndef twice(n: int):\n    return {\"answer\": n * 2}\n"
+          },
+          "notes": ["Invalid input is rejected before the function body runs."],
+          "lessonSlug": "path-types"
+        },
+        {
+          "slug": "query-defaults",
+          "name": "Supply a query default",
+          "summary": "An input not in the path is read from the query. GET /page with no n uses its default.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/page\")\ndef page(n: int = 1):\n    return {\"page\": n}\n"
+          },
+          "notes": ["A default makes the query input optional."],
+          "lessonSlug": "query-defaults"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "query-limits",
+          "name": "Limit an input range",
+          "summary": "Query can add rules such as a minimum and maximum. Open GET /page?n=3.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/page\")\ndef page(n: int = Query(default=1, ge=1, le=10)):\n    return {\"page\": n}\n"
+          },
+          "notes": ["Type checks alone do not enforce a useful range."],
+          "lessonSlug": "query-limits"
+        },
+        {
+          "slug": "request-models",
+          "name": "Check a JSON body",
+          "summary": "A Pydantic model describes body fields. Send POST /books with application/json and {\"title\":\"Moon Trip\",\"pages\":24}.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass Book(BaseModel):\n    title: str\n    pages: int = Field(gt=0)\n@app.post(\"/books\", status_code=201)\ndef create(book: Book):\n    return book\n"
+          },
+          "notes": ["Positive page counts need a rule such as gt=0."],
+          "lessonSlug": "request-models"
+        },
+        {
+          "slug": "response-models",
+          "name": "Choose returned fields",
+          "summary": "A response model describes the public data. GET /book leaves out the internal note.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass PublicBook(BaseModel):\n    title: str\n@app.get(\"/book\", response_model=PublicBook)\ndef book():\n    return {\"title\": \"Moon Trip\", \"internal_note\": \"draft\"}\n"
+          },
+          "notes": [
+            "Only return data the client should receive, even when filtering is available."
+          ],
+          "lessonSlug": "response-models"
+        },
+        {
+          "slug": "errors",
+          "name": "Report a missing item",
+          "summary": "HTTPException stops normal handling with an error reply. Open GET /missing.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/missing\")\ndef missing():\n    raise HTTPException(status_code=404, detail=\"Book not found\")\n"
+          },
+          "notes": ["Raise HTTPException; returning it is not the same action."],
+          "lessonSlug": "errors"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "headers",
+          "name": "Add response metadata",
+          "summary": "The Response input lets a function set headers. Open GET /note.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/note\")\ndef note(response: Response):\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return {\"note\": \"Practice\"}\n"
+          },
+          "notes": ["A header changes metadata, not the JSON field values."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "redirects",
+          "name": "Point to another URL",
+          "summary": "RedirectResponse sends a Location header. A browser following GET /start reaches /hello.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/start\")\ndef start():\n    return RedirectResponse(\"/hello\", status_code=302)\n@app.get(\"/hello\", response_class=PlainTextResponse)\ndef hello():\n    return \"Welcome\"\n"
+          },
+          "notes": ["Choose the redirect status deliberately, especially for non-GET methods."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "lists",
+          "name": "Return a typed list",
+          "summary": "A list response can contain several small data objects. Open GET /books.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass Book(BaseModel):\n    title: str\n@app.get(\"/books\", response_model=list[Book])\ndef books():\n    return [{\"title\": \"Moon Trip\"}, {\"title\": \"Sun Trip\"}]\n"
+          },
+          "notes": ["Every list item must fit the response model."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "async-routes",
+          "name": "Wait without blocking",
+          "summary": "An async route can await an async operation. GET /score waits for a completed coroutine and returns its result.",
+          "example": {
+            "language": "python",
+            "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nasync def read_score():\n    return 8\n@app.get(\"/score\")\nasync def score():\n    value = await read_score()\n    return {\"score\": value}\n"
+          },
+          "notes": ["Do not put blocking work in async routes and assume async makes it faster."],
+          "lessonSlug": "async-routes"
+        }
+      ]
+    }
+  ]
+}

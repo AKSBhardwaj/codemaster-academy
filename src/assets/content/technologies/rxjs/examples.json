@@ -1,0 +1,138 @@
+{
+  "title": "RxJS Small Examples",
+  "description": "Use these small RxJS examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Listen to a small stream",
+      "description": "An observable sends values to a subscriber.",
+      "language": "javascript",
+      "code": "import {of} from \"rxjs\";\nof(2,4,6).subscribe(value=>console.log(value));",
+      "output": "The console prints 2, then 4, then 6. This stream then completes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "transform-each-value",
+      "title": "Transform each value",
+      "description": "map changes each emitted value into a new value.",
+      "language": "javascript",
+      "code": "import {of,map} from \"rxjs\";\nof(1,2,3).pipe(map(value=>value*10)).subscribe(console.log);",
+      "output": "The outputs are 10, 20 and 30.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "transform-each-value"
+    },
+    {
+      "id": "keep-values-that-pass-a-rule",
+      "title": "Keep values that pass a rule",
+      "description": "filter allows values through only when its test is true.",
+      "language": "javascript",
+      "code": "import {of,filter} from \"rxjs\";\nof(2,7,4,9).pipe(filter(value=>value>5)).subscribe(console.log);",
+      "output": "Only 7 and 9 are printed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-values-that-pass-a-rule"
+    },
+    {
+      "id": "take-only-a-few-values",
+      "title": "Take only a few values",
+      "description": "take limits how many values a subscriber receives.",
+      "language": "javascript",
+      "code": "import {of,take} from \"rxjs\";\nof(\"A\",\"B\",\"C\").pipe(take(2)).subscribe(console.log);",
+      "output": "The outputs are A and B, then the subscription completes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "take-only-a-few-values"
+    },
+    {
+      "id": "watch-a-timed-stream",
+      "title": "Watch a timed stream",
+      "description": "interval emits a growing count at a chosen time gap.",
+      "language": "javascript",
+      "code": "import {interval,take} from \"rxjs\";\ninterval(1000).pipe(take(3)).subscribe(console.log);",
+      "output": "About one second apart, the outputs are 0, 1 and 2, then it stops.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "watch-a-timed-stream"
+    },
+    {
+      "id": "turn-clicks-into-a-stream",
+      "title": "Turn clicks into a stream",
+      "description": "fromEvent listens to events from a target.",
+      "language": "javascript",
+      "code": "// Page needs a button with id choose.\nimport {fromEvent,take} from \"rxjs\";\nconst button=document.querySelector(\"#choose\");\nif(button)fromEvent(button,\"click\").pipe(take(2)).subscribe(()=>console.log(\"Chosen\"));",
+      "output": "The first two clicks log Chosen. The stream then stops listening.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "turn-clicks-into-a-stream"
+    },
+    {
+      "id": "stop-listening-when-finished",
+      "title": "Stop listening when finished",
+      "description": "A subscription has an unsubscribe method.",
+      "language": "javascript",
+      "code": "import {interval} from \"rxjs\";\nconst subscription=interval(1000).subscribe(console.log);\nsetTimeout(()=>subscription.unsubscribe(),2500);",
+      "output": "Normally 0 and 1 appear before the subscription is stopped around 2.5 seconds.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "stop-listening-when-finished"
+    },
+    {
+      "id": "send-values-with-a-subject",
+      "title": "Send values with a Subject",
+      "description": "A Subject is both something you can subscribe to and something you can send values into.",
+      "language": "javascript",
+      "code": "import {Subject} from \"rxjs\";\nconst choices=new Subject();\nchoices.subscribe(value=>console.log(\"A\",value));\nchoices.subscribe(value=>console.log(\"B\",value));\nchoices.next(\"Moon Trip\");",
+      "output": "Both current subscribers receive Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "send-values-with-a-subject"
+    },
+    {
+      "id": "keep-the-latest-value",
+      "title": "Keep the latest value",
+      "description": "A BehaviorSubject starts with one value and gives the latest value to each new subscriber.",
+      "language": "javascript",
+      "code": "import {BehaviorSubject} from \"rxjs\";\nconst score=new BehaviorSubject(0);\nscore.next(5);\nscore.subscribe(console.log);",
+      "output": "The new subscriber immediately receives 5.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-the-latest-value"
+    },
+    {
+      "id": "combine-the-latest-values",
+      "title": "Combine the latest values",
+      "description": "combineLatest waits until each input has a value, then emits their latest values together when either changes.",
+      "language": "javascript",
+      "code": "import {BehaviorSubject,combineLatest} from \"rxjs\";\nconst books=new BehaviorSubject(2);\nconst pages=new BehaviorSubject(10);\ncombineLatest([books,pages]).subscribe(([b,p])=>console.log(b*p));\nbooks.next(3);",
+      "output": "The output is 20, then 30 after books changes.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "combine-the-latest-values"
+    },
+    {
+      "id": "keep-only-the-latest-waiting-job",
+      "title": "Keep only the latest waiting job",
+      "description": "switchMap switches to a new inner stream and unsubscribes from the previous one.",
+      "language": "javascript",
+      "code": "import {Subject,timer,switchMap,map} from \"rxjs\";\nconst search=new Subject();\nsearch.pipe(switchMap(word=>timer(100).pipe(map(()=>word)))).subscribe(console.log);\nsearch.next(\"moon\");\nsearch.next(\"garden\");",
+      "output": "After the wait, only garden is printed. The earlier timer was cancelled by the newer input.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-only-the-latest-waiting-job"
+    },
+    {
+      "id": "handle-a-stream-error",
+      "title": "Handle a stream error",
+      "description": "catchError can replace a failed stream with another observable.",
+      "language": "javascript",
+      "code": "import {throwError,catchError,of} from \"rxjs\";\nthrowError(()=>new Error(\"No books\"))\n .pipe(catchError(()=>of([])))\n .subscribe(books=>console.log(books.length));",
+      "output": "The fallback emits an empty list, so the console shows 0.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "handle-a-stream-error"
+    }
+  ]
+}

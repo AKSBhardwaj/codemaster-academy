@@ -1,0 +1,158 @@
+{
+  "title": "Assembly Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-result",
+          "name": "Return a small result",
+          "summary": "rdi is a register: a tiny storage place in the processor. Linux exit reads its status from rdi.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Exit codes are only 0 to 255; use small values in these lessons."],
+          "lessonSlug": "first-result"
+        },
+        {
+          "slug": "copy-register",
+          "name": "Copy a register value",
+          "summary": "mov copies a value. It does not erase the source register.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rbx, 3\n    mov rdi, rbx\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["The destination comes first in NASM syntax."],
+          "lessonSlug": "copy-register"
+        },
+        {
+          "slug": "addition",
+          "name": "Add two numbers",
+          "summary": "add changes its first register by adding the second value.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    add rdi, 2\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["The add instruction changes the destination register."],
+          "lessonSlug": "addition"
+        },
+        {
+          "slug": "subtraction",
+          "name": "Subtract a number",
+          "summary": "sub subtracts the second value from the first register.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 8\n    sub rdi, 3\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Keep the result within a small positive range for exit codes."],
+          "lessonSlug": "subtraction"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "multiplication",
+          "name": "Multiply a value",
+          "summary": "imul multiplies signed integers. This form stores the result in its first register.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 3\n    imul rdi, rdi, 2\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Large results can overflow a register."],
+          "lessonSlug": "multiplication"
+        },
+        {
+          "slug": "division",
+          "name": "Divide a whole number",
+          "summary": "div divides rdx:rax by its input. For this small positive example, clear rdx first.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rax, 8\n    xor rdx, rdx\n    mov rbx, 3\n    div rbx\n    mov rdi, rax\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Never divide by zero. The remainder is in rdx, not rax."],
+          "lessonSlug": "division"
+        },
+        {
+          "slug": "bit-tests",
+          "name": "Keep chosen bits",
+          "summary": "and keeps only bits that are 1 in both inputs. A final bit of 1 marks an odd number.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 5\n    and rdi, 1\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Bitwise and is an operation on bits, not a high-level if statement."],
+          "lessonSlug": "bit-tests"
+        },
+        {
+          "slug": "branches",
+          "name": "Choose a path",
+          "summary": "cmp compares values and sets flags. je jumps when the compared values are equal.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 0\n    mov rbx, 5\n    cmp rbx, 5\n    je .same\n    jmp .done\n.same:\n    mov rdi, 1\n.done:\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["A jump uses flags from the previous comparison; avoid changing them first."],
+          "lessonSlug": "branches"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "loops",
+          "name": "Repeat with a counter",
+          "summary": "A label names a place in the code. jnz repeats while the last result was not zero.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rcx, 3\n    mov rdi, 0\n.again:\n    add rdi, 2\n    dec rcx\n    jnz .again\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["A loop needs a counter or rule that eventually stops."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "stack",
+          "name": "Save and restore a value",
+          "summary": "push places a value on the stack. pop takes the most recent value back.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    push 7\n    pop rdi\n    mov rax, 60\n    syscall\n"
+          },
+          "notes": ["Keep pushes and pops balanced."],
+          "lessonSlug": "stack"
+        },
+        {
+          "slug": "calls",
+          "name": "Call a small routine",
+          "summary": "call saves a return address and jumps. ret returns to the instruction after call.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .text\n_start:\n    mov rdi, 4\n    call twice\n    mov rax, 60\n    syscall\ntwice:\n    add rdi, rdi\n    ret\n"
+          },
+          "notes": [
+            "A routine reached by call should return with ret, not fall into unrelated code."
+          ],
+          "lessonSlug": "calls"
+        },
+        {
+          "slug": "write-text",
+          "name": "Ask Linux to write text",
+          "summary": "The write system call uses rax=1, rdi=1 for standard output, an address in rsi and a length in rdx.",
+          "example": {
+            "language": "asm",
+            "code": "global _start\nsection .data\nmessage: db \"Hi\", 10\nsection .text\n_start:\n    mov rax, 1\n    mov rdi, 1\n    lea rsi, [rel message]\n    mov rdx, 3\n    syscall\n    mov rdi, 0\n    mov rax, 60\n    syscall"
+          },
+          "notes": ["The length counts bytes, including the newline byte."],
+          "lessonSlug": "write-text"
+        }
+      ]
+    }
+  ]
+}

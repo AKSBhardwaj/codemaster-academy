@@ -1,0 +1,144 @@
+{
+  "title": "RxJS Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the RxJS course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Listen to a small stream",
+          "summary": "An observable sends values to a subscriber.",
+          "example": {
+            "language": "javascript",
+            "code": "import {of} from \"rxjs\";\nof(2,4,6).subscribe(value=>console.log(value));"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "transform-each-value",
+          "name": "Transform each value",
+          "summary": "map changes each emitted value into a new value.",
+          "example": {
+            "language": "javascript",
+            "code": "import {of,map} from \"rxjs\";\nof(1,2,3).pipe(map(value=>value*10)).subscribe(console.log);"
+          },
+          "lessonSlug": "transform-each-value"
+        },
+        {
+          "slug": "keep-values-that-pass-a-rule",
+          "name": "Keep values that pass a rule",
+          "summary": "filter allows values through only when its test is true.",
+          "example": {
+            "language": "javascript",
+            "code": "import {of,filter} from \"rxjs\";\nof(2,7,4,9).pipe(filter(value=>value>5)).subscribe(console.log);"
+          },
+          "lessonSlug": "keep-values-that-pass-a-rule"
+        },
+        {
+          "slug": "take-only-a-few-values",
+          "name": "Take only a few values",
+          "summary": "take limits how many values a subscriber receives.",
+          "example": {
+            "language": "javascript",
+            "code": "import {of,take} from \"rxjs\";\nof(\"A\",\"B\",\"C\").pipe(take(2)).subscribe(console.log);"
+          },
+          "lessonSlug": "take-only-a-few-values"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "watch-a-timed-stream",
+          "name": "Watch a timed stream",
+          "summary": "interval emits a growing count at a chosen time gap.",
+          "example": {
+            "language": "javascript",
+            "code": "import {interval,take} from \"rxjs\";\ninterval(1000).pipe(take(3)).subscribe(console.log);"
+          },
+          "lessonSlug": "watch-a-timed-stream"
+        },
+        {
+          "slug": "turn-clicks-into-a-stream",
+          "name": "Turn clicks into a stream",
+          "summary": "fromEvent listens to events from a target.",
+          "example": {
+            "language": "javascript",
+            "code": "// Page needs a button with id choose.\nimport {fromEvent,take} from \"rxjs\";\nconst button=document.querySelector(\"#choose\");\nif(button)fromEvent(button,\"click\").pipe(take(2)).subscribe(()=>console.log(\"Chosen\"));"
+          },
+          "lessonSlug": "turn-clicks-into-a-stream"
+        },
+        {
+          "slug": "stop-listening-when-finished",
+          "name": "Stop listening when finished",
+          "summary": "A subscription has an unsubscribe method.",
+          "example": {
+            "language": "javascript",
+            "code": "import {interval} from \"rxjs\";\nconst subscription=interval(1000).subscribe(console.log);\nsetTimeout(()=>subscription.unsubscribe(),2500);"
+          },
+          "lessonSlug": "stop-listening-when-finished"
+        },
+        {
+          "slug": "send-values-with-a-subject",
+          "name": "Send values with a Subject",
+          "summary": "A Subject is both something you can subscribe to and something you can send values into.",
+          "example": {
+            "language": "javascript",
+            "code": "import {Subject} from \"rxjs\";\nconst choices=new Subject();\nchoices.subscribe(value=>console.log(\"A\",value));\nchoices.subscribe(value=>console.log(\"B\",value));\nchoices.next(\"Moon Trip\");"
+          },
+          "lessonSlug": "send-values-with-a-subject"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "keep-the-latest-value",
+          "name": "Keep the latest value",
+          "summary": "A BehaviorSubject starts with one value and gives the latest value to each new subscriber.",
+          "example": {
+            "language": "javascript",
+            "code": "import {BehaviorSubject} from \"rxjs\";\nconst score=new BehaviorSubject(0);\nscore.next(5);\nscore.subscribe(console.log);"
+          },
+          "lessonSlug": "keep-the-latest-value"
+        },
+        {
+          "slug": "combine-the-latest-values",
+          "name": "Combine the latest values",
+          "summary": "combineLatest waits until each input has a value, then emits their latest values together when either changes.",
+          "example": {
+            "language": "javascript",
+            "code": "import {BehaviorSubject,combineLatest} from \"rxjs\";\nconst books=new BehaviorSubject(2);\nconst pages=new BehaviorSubject(10);\ncombineLatest([books,pages]).subscribe(([b,p])=>console.log(b*p));\nbooks.next(3);"
+          },
+          "lessonSlug": "combine-the-latest-values"
+        },
+        {
+          "slug": "keep-only-the-latest-waiting-job",
+          "name": "Keep only the latest waiting job",
+          "summary": "switchMap switches to a new inner stream and unsubscribes from the previous one.",
+          "example": {
+            "language": "javascript",
+            "code": "import {Subject,timer,switchMap,map} from \"rxjs\";\nconst search=new Subject();\nsearch.pipe(switchMap(word=>timer(100).pipe(map(()=>word)))).subscribe(console.log);\nsearch.next(\"moon\");\nsearch.next(\"garden\");"
+          },
+          "lessonSlug": "keep-only-the-latest-waiting-job"
+        },
+        {
+          "slug": "handle-a-stream-error",
+          "name": "Handle a stream error",
+          "summary": "catchError can replace a failed stream with another observable.",
+          "example": {
+            "language": "javascript",
+            "code": "import {throwError,catchError,of} from \"rxjs\";\nthrowError(()=>new Error(\"No books\"))\n .pipe(catchError(()=>of([])))\n .subscribe(books=>console.log(books.length));"
+          },
+          "lessonSlug": "handle-a-stream-error"
+        }
+      ]
+    }
+  ]
+}

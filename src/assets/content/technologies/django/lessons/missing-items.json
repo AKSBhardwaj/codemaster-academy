@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "missing-items",
+  "title": "Return an error status",
+  "summary": "Django: Return an error status. Inspect the 404 status too.",
+  "introduction": "The response status describes the result. Open GET /missing/ to see a 404 reply.",
+  "learningObjectives": ["Return an error status with Django", "Inspect the 404 status too"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return an error status"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Return an error status",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef missing(request):\n    return JsonResponse({\"error\": \"Book not found\"}, status=404)\nurlpatterns = [\npath(\"missing/\", missing),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The status keyword sets 404 while the dictionary supplies the error body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\": \"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the 404 status too."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Returning error text with status 200 can mislead clients."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-missing-items-check"
+    }
+  ],
+  "exerciseIds": ["django-missing-items-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Django: Return an error status",
+    "description": "Django: Return an error status. Inspect the 404 status too. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

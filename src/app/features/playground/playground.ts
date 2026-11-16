@@ -1,6 +1,20 @@
-import { Component, computed, effect, inject, input, resource, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import type { PlaygroundConfig, PlaygroundLanguage, PlaygroundTemplate } from '../../../content-schema/playground';
+import type {
+  PlaygroundConfig,
+  PlaygroundLanguage,
+  PlaygroundTemplate,
+} from '../../../content-schema/playground';
 import { ContentService } from '../../core/services/content.service';
 import { PersistenceService } from '../../core/services/persistence.service';
 import { PlatformService } from '../../core/services/platform.service';
@@ -20,7 +34,10 @@ const DRAFT_KEY = 'playground:drafts';
   imports: [RouterLink, CodeEditorComponent, OutputPanelComponent, IconComponent],
   templateUrl: './playground.html',
   styleUrl: './playground.scss',
-  host: { '[class.cma-playground-host--fullscreen]': 'fullscreen()', '(document:keydown)': 'onKeydown($event)' },
+  host: {
+    '[class.cma-playground-host--fullscreen]': 'fullscreen()',
+    '(document:keydown)': 'onKeydown($event)',
+  },
 })
 export class PlaygroundPage {
   /** Query parameters bound by the router. */
@@ -36,6 +53,7 @@ export class PlaygroundPage {
   protected readonly fullscreen = signal(false);
   protected readonly copied = signal(false);
   protected readonly showSchema = signal(false);
+  protected readonly interactive = signal(false);
 
   private readonly content = inject(ContentService);
   private readonly persistence = inject(PersistenceService);
@@ -48,17 +66,37 @@ export class PlaygroundPage {
   private drafts: Record<string, string> = {};
   private initialised = false;
 
-  protected readonly configResource = resource({ loader: () => this.content.load<PlaygroundConfig>('site/playground.json') });
-  protected readonly config = computed(() => (this.configResource.hasValue() ? this.configResource.value() : undefined));
-  protected readonly languages = computed<PlaygroundLanguage[]>(() => this.config()?.languages ?? []);
-  protected readonly language = computed(() => this.languages().find((l) => l.id === this.languageId()));
-  protected readonly templates = computed<PlaygroundTemplate[]>(() => this.language()?.templates ?? []);
-  protected readonly capability = computed(() => this.language()?.capability ?? this.execution.capabilityFor(this.languageId()));
-  protected readonly canRun = computed(() => this.capability() === 'browser' || this.capability() === 'wasm');
-  protected readonly showPreview = computed(() => this.languageId() !== 'sql' && this.capability() === 'browser');
+  protected readonly configResource = resource({
+    loader: () => this.content.load<PlaygroundConfig>('site/playground.json'),
+  });
+  protected readonly config = computed(() =>
+    this.configResource.hasValue()
+      ? this.configResource.value()
+      : this.content.peek<PlaygroundConfig>('site/playground.json'),
+  );
+  protected readonly languages = computed<PlaygroundLanguage[]>(
+    () => this.config()?.languages ?? [],
+  );
+  protected readonly language = computed(() =>
+    this.languages().find((l) => l.id === this.languageId()),
+  );
+  protected readonly templates = computed<PlaygroundTemplate[]>(
+    () => this.language()?.templates ?? [],
+  );
+  protected readonly capability = computed(
+    () => this.language()?.capability ?? this.execution.capabilityFor(this.languageId()),
+  );
+  protected readonly canRun = computed(
+    () => this.capability() === 'browser' || this.capability() === 'wasm',
+  );
+  protected readonly showPreview = computed(
+    () => this.languageId() !== 'sql' && this.capability() === 'browser',
+  );
   protected readonly schema = computed(() => this.config()?.sqlSchemaSummary ?? []);
 
   constructor() {
+    // Native select changes must wait until their handlers are attached.
+    afterNextRender(() => this.interactive.set(true));
     effect(() => {
       const config = this.config();
       if (!config || this.initialised || !this.platform.isBrowser) return;
@@ -73,7 +111,8 @@ export class PlaygroundPage {
         this.code.set(handoff.code);
         this.templateId.set('');
       } else {
-        const template = language.templates.find((t) => t.id === this.template()) ?? language.templates[0];
+        const template =
+          language.templates.find((t) => t.id === this.template()) ?? language.templates[0];
         this.templateId.set(template.id);
         this.code.set(this.drafts[language.id] ?? template.code);
       }
@@ -120,7 +159,8 @@ export class PlaygroundPage {
   }
 
   protected reset(): void {
-    const template = this.templates().find((t) => t.id === this.templateId()) ?? this.templates()[0];
+    const template =
+      this.templates().find((t) => t.id === this.templateId()) ?? this.templates()[0];
     if (template) this.code.set(template.code);
     this.session.reset();
     this.editor()?.focus();

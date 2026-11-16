@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "slug": "file-handling",
+  "title": "Reading and Writing Files",
+  "summary": "Python can read text from a file and write text into a file. The file can keep information after the program ends.",
+  "introduction": "Python can read text from a file and write text into a file. The file can keep information after the program ends. Try this with a new practice file. Learn which mode reads, which adds more text and which replaces old text.",
+  "learningObjectives": [
+    "Read and write text files with open() inside a with statement",
+    "Choose between the r, w, a and x modes and always specify an encoding",
+    "Process a file line by line without loading all of it into memory",
+    "Work with paths, folders and CSV files using pathlib and csv"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing a file"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "write.py",
+      "code": "with open(\"notes.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"Buy milk\\n\")\n    file.write(\"Call Grace\\n\")\n    file.writelines([\"Fix the bike\\n\", \"Read a chapter\\n\"])\n\nprint(\"Saved notes.txt\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python write.py",
+      "content": "Saved notes.txt"
+    },
+    {
+      "type": "paragraph",
+      "text": "`open()` returns a file object. `\"w\"` means write, creating the file or emptying an existing one, and `encoding=\"utf-8\"` makes the file readable on every operating system; in Python 3.13 the default encoding still depends on the platform (Windows often uses a legacy code page), so always state it; Python 3.15 finally makes UTF-8 the default, but stating it costs nothing and works everywhere. The `with` statement guarantees that the file is closed when the block ends, even if an exception is raised inside it; without it, text can sit in a buffer and never reach the disk. `write()` does not add line breaks, so you include `\\n` yourself."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading a file"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "read.py",
+      "code": "with open(\"notes.txt\", encoding=\"utf-8\") as file:\n    content = file.read()\nprint(repr(content))\nprint(len(content.splitlines()), \"lines\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    for number, line in enumerate(file, start=1):\n        print(f\"{number}: {line.rstrip()}\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    lines = file.readlines()\nprint(lines[0].strip(), \"|\", lines[-1].strip())"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python read.py",
+      "content": "'Buy milk\\nCall Grace\\nFix the bike\\nRead a chapter\\n'\n4 lines\n1: Buy milk\n2: Call Grace\n3: Fix the bike\n4: Read a chapter\nBuy milk | Read a chapter"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mode `\"r\"` (read) is the default. `read()` returns the whole file as one string, which is fine for small files. Looping over the file object yields one line at a time, including its trailing `\\n` (hence the `rstrip()`), and never holds more than one line in memory, so it works for files of any size. `readlines()` gives a list of lines for when you need indexing. The file position moves as you read, which is why each example reopens the file."
+    },
+    {
+      "type": "table",
+      "headers": ["Mode", "Meaning"],
+      "rows": [
+        ["`\"r\"`", "Read (the default); `FileNotFoundError` if the file is missing"],
+        ["`\"w\"`", "Write; creates the file or empties an existing one"],
+        ["`\"a\"`", "Append at the end; creates the file if missing"],
+        ["`\"x\"`", "Create a new file; `FileExistsError` if it already exists"],
+        [
+          "`\"rb\"`, `\"wb\"`",
+          "Binary read or write (images, archives): `bytes` instead of `str`, no encoding"
+        ],
+        ["`\"r+\"`", "Read and write the same file"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "\"w\" erases the file immediately",
+      "text": "Opening an existing file with `\"w\"` empties it the moment `open()` returns, before you write anything, and there is no undo. To add to a file use `\"a\"`; to refuse to overwrite use `\"x\"`. When a script must rewrite a file it also reads, read everything first, close the file, then open it again for writing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Appending and missing files"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "append.py",
+      "code": "with open(\"notes.txt\", \"a\", encoding=\"utf-8\") as file:\n    file.write(\"Water the plants\\n\")\n\nwith open(\"notes.txt\", encoding=\"utf-8\") as file:\n    print(file.read().count(\"\\n\"), \"lines now\")\n\ntry:\n    with open(\"missing.txt\", encoding=\"utf-8\") as file:\n        print(file.read())\nexcept FileNotFoundError as error:\n    print(\"Error:\", error)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python append.py",
+      "content": "5 lines now\nError: [Errno 2] No such file or directory: 'missing.txt'"
+    },
+    {
+      "type": "paragraph",
+      "text": "Opening a file that does not exist for reading raises `FileNotFoundError`, one of the most common exceptions in real programs; catch it where you can do something useful, such as creating a default configuration, and let it propagate otherwise (see [Errors and Exceptions](/tutorials/python/errors-exceptions))."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Paths and folders with pathlib"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "paths.py",
+      "code": "from pathlib import Path\n\nfolder = Path(\"archive\")\nfolder.mkdir(exist_ok=True)\n\ntarget = folder / \"2026-11-15.txt\"\ntarget.write_text(\"First entry\\n\", encoding=\"utf-8\")\nprint(target.name, target.exists(), target.suffix)\nprint(target.read_text(encoding=\"utf-8\").strip())\nprint(target.stem, target.parent.name)\n\n(folder / \"2026-11-16.txt\").write_text(\"Second entry\\n\", encoding=\"utf-8\")\nprint(sorted(p.name for p in folder.glob(\"*.txt\")))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python paths.py",
+      "content": "2026-11-15.txt True .txt\nFirst entry\n2026-11-15 archive\n['2026-11-15.txt', '2026-11-16.txt']"
+    },
+    {
+      "type": "paragraph",
+      "text": "`pathlib.Path` represents a path as an object. The `/` operator joins parts with the right separator for the operating system (a backslash on Windows, a slash elsewhere), `mkdir`, `exists`, `glob`, `read_text` and `write_text` cover the daily file operations, and `.name`, `.stem`, `.suffix` and `.parent` take a path apart without string surgery. `Path.home()` and `Path.cwd()` give the home folder and the current working directory. Prefer `pathlib` over the older `os.path` functions in new code."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "CSV files"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spreadsheets and databases export comma-separated values. The `csv` module handles quoting and commas inside values, which a naive `split(\",\")` gets wrong, and its `DictWriter` and `DictReader` map each row to a dictionary keyed by the header line."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "scores.py",
+      "code": "import csv\nfrom pathlib import Path\n\nrows = [\n    {\"name\": \"Mina\", \"city\": \"Lisbon\", \"score\": 82},\n    {\"name\": \"Ravi\", \"city\": \"Nairobi\", \"score\": 91},\n]\nwith open(\"scores.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as file:\n    writer = csv.DictWriter(file, fieldnames=[\"name\", \"city\", \"score\"])\n    writer.writeheader()\n    writer.writerows(rows)\n\nwith open(\"scores.csv\", newline=\"\", encoding=\"utf-8\") as file:\n    for row in csv.DictReader(file):\n        print(row[\"name\"], int(row[\"score\"]) + 5)\n\nprint(Path(\"scores.csv\").read_text(encoding=\"utf-8\").strip())"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python scores.py",
+      "content": "Mina 87\nRavi 96\nname,city,score\nMina,Lisbon,82\nRavi,Nairobi,91"
+    },
+    {
+      "type": "paragraph",
+      "text": "Pass `newline=\"\"` when opening CSV files, as the documentation requires; otherwise Windows gets a blank line between rows. Every value read from a CSV file is a string, so convert numbers yourself, as `int(row[\"score\"])` does. For large or complex tables, [pandas](/tutorials/pandas) reads a CSV file into a typed table with a single call."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Write a script that appends one line with the current date to `journal.txt` every time it runs (`from datetime import date` and `date.today()`), then prints how many entries the journal has."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-file-handling-count"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-files-qc-1",
+          "type": "true-false",
+          "lessonSlug": "file-handling",
+          "difficulty": "beginner",
+          "question": "`with open(...) as file:` closes the file automatically when the block ends, even if an exception is raised inside it.",
+          "explanation": "That is the whole point of the `with` statement: the file object's clean-up runs on every exit from the block, normal or not.",
+          "correct": true
+        },
+        {
+          "id": "py-files-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "file-handling",
+          "difficulty": "beginner",
+          "question": "Which mode adds text at the end of an existing file without deleting its current content?",
+          "explanation": "`\"a\"` appends. `\"w\"` truncates the file first, `\"x\"` refuses to open an existing file, and `\"r+\"` starts writing at the beginning, overwriting what is there.",
+          "options": ["`\"w\"`", "`\"a\"`", "`\"x\"`", "`\"r+\"`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-file-handling-count"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "strings"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "errors-exceptions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "json-and-apis"
+    }
+  ],
+  "seo": {
+    "title": "Python File Handling – open, with, read, write, pathlib",
+    "description": "Read, write and append text files in Python with open() and with, pick the right mode and encoding, process files line by line, use pathlib and handle CSV data."
+  },
+  "updatedOn": "2026-11-16"
+}

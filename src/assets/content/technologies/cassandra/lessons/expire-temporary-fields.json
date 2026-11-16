@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "expire-temporary-fields",
+  "title": "Expire temporary fields",
+  "summary": "A TTL gives written values a time to live.",
+  "introduction": "A TTL gives written values a time to live. Your task: Read the TTL twice a few seconds apart.",
+  "learningObjectives": [
+    "Read the TTL twice a few seconds apart.",
+    "Explain the example for expire temporary fields"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A TTL gives written values a time to live. Cassandra removes them from ordinary reads after they expire."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "INSERT INTO reading_by_reader(reader_id,day,title,pages) VALUES('temporary-reader','2026-11-16','Practice',1) USING TTL 60;\nSELECT TTL(title) FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';",
+      "title": "Expire temporary fields",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`TTL` reports remaining life in seconds. Its result changes as time passes and uses special values for missing or non-expiring keys.",
+        "`USING TTL` gives written CQL values a lifetime measured in seconds.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The TTL value is near 60 seconds when read immediately and decreases with time."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Expiration creates deletion work that is cleaned up later. A TTL is not a free way to ignore data-lifecycle planning."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Read the TTL twice a few seconds apart."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-expire-temporary-fields-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-expire-temporary-fields-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "keep-partitions-a-manageable-size"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Expire temporary fields",
+    "description": "A TTL gives written values a time to live. Cassandra removes them from ordinary reads after they expire."
+  },
+  "updatedOn": "2026-11-16"
+}

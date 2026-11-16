@@ -1,0 +1,211 @@
+{
+  "title": "MongoDB Quick Reference",
+  "description": "Find a word or command you have seen in a lesson. Each short note tells you what it does. Open the linked lesson for the full example.",
+  "groups": [
+    {
+      "id": "basics",
+      "title": "Basics",
+      "entries": [
+        {
+          "slug": "item-1",
+          "name": "Document",
+          "summary": "One record that keeps named values together.",
+          "syntax": "{ title: \"Moon Trip\", pages: 24 }",
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "item-2",
+          "name": "Collection",
+          "summary": "A named group of documents in a database.",
+          "syntax": "db.lessonBooks",
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "item-3",
+          "name": "_id",
+          "summary": "The unique label for a document in its collection.",
+          "syntax": "{ _id: 1, title: \"Moon Trip\" }",
+          "lessonSlug": "documents-collections"
+        },
+        {
+          "slug": "item-4",
+          "name": "mongosh",
+          "summary": "The shell used to type MongoDB commands.",
+          "syntax": "mongosh",
+          "lessonSlug": "setup-atlas-shell"
+        },
+        {
+          "slug": "item-5",
+          "name": "Array",
+          "summary": "Keep a list inside a document field.",
+          "syntax": "{ colours: [\"red\", \"blue\"] }",
+          "lessonSlug": "documents-collections"
+        }
+      ]
+    },
+    {
+      "id": "read",
+      "title": "Read",
+      "entries": [
+        {
+          "slug": "item-6",
+          "name": "insertOne",
+          "summary": "Add one new document to a collection.",
+          "syntax": "db.lessonBooks.insertOne({ title: \"Moon Trip\" })",
+          "lessonSlug": "crud-insert-find"
+        },
+        {
+          "slug": "item-7",
+          "name": "findOne",
+          "summary": "Read one matching document, or null if none match.",
+          "syntax": "db.lessonBooks.findOne({ title: \"Moon Trip\" })",
+          "lessonSlug": "crud-insert-find"
+        },
+        {
+          "slug": "item-8",
+          "name": "find",
+          "summary": "Read matching documents through a cursor.",
+          "syntax": "db.lessonBooks.find({ pages: 24 })",
+          "lessonSlug": "crud-insert-find"
+        },
+        {
+          "slug": "item-9",
+          "name": "$gt",
+          "summary": "Match a value greater than the given value.",
+          "syntax": "{ pages: { $gt: 20 } }",
+          "lessonSlug": "query-operators"
+        },
+        {
+          "slug": "item-10",
+          "name": "$in",
+          "summary": "Match any value in a supplied list.",
+          "syntax": "{ colour: { $in: [\"red\", \"blue\"] } }",
+          "lessonSlug": "query-operators"
+        }
+      ]
+    },
+    {
+      "id": "change",
+      "title": "Change",
+      "entries": [
+        {
+          "slug": "item-11",
+          "name": "updateOne",
+          "summary": "Change the first document matching a filter.",
+          "syntax": "db.lessonBooks.updateOne({ _id: 1 }, { $set: { pages: 30 } })",
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "item-12",
+          "name": "$set",
+          "summary": "Set a named field to a new value.",
+          "syntax": "{ $set: { pages: 30 } }",
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "item-13",
+          "name": "$inc",
+          "summary": "Add a number to an existing numeric field.",
+          "syntax": "{ $inc: { score: 2 } }",
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "item-14",
+          "name": "deleteOne",
+          "summary": "Remove the first document matching a filter.",
+          "syntax": "db.lessonBooks.deleteOne({ _id: 1 })",
+          "lessonSlug": "update-delete"
+        },
+        {
+          "slug": "item-15",
+          "name": "Validation rule",
+          "summary": "Check a document shape before accepting a write.",
+          "syntax": "validator: { $jsonSchema: { bsonType: \"object\" } }",
+          "lessonSlug": "schema-design"
+        }
+      ]
+    },
+    {
+      "id": "totals",
+      "title": "Totals",
+      "entries": [
+        {
+          "slug": "item-16",
+          "name": "aggregate",
+          "summary": "Run a list of data-processing steps.",
+          "syntax": "db.lessonSales.aggregate([{ $match: { coins: { $gt: 0 } } }])",
+          "lessonSlug": "aggregation"
+        },
+        {
+          "slug": "item-17",
+          "name": "$match",
+          "summary": "Keep documents that pass a filter in a pipeline.",
+          "syntax": "{ $match: { colour: \"red\" } }",
+          "lessonSlug": "aggregation"
+        },
+        {
+          "slug": "item-18",
+          "name": "$group",
+          "summary": "Put matching values into groups for a result.",
+          "syntax": "{ $group: { _id: \"$name\", count: { $sum: 1 } } }",
+          "lessonSlug": "aggregation"
+        },
+        {
+          "slug": "item-19",
+          "name": "$sum",
+          "summary": "Add values together inside a group.",
+          "syntax": "{ $sum: \"$coins\" }",
+          "lessonSlug": "aggregation"
+        },
+        {
+          "slug": "item-20",
+          "name": "$lookup",
+          "summary": "Join matching documents from another collection.",
+          "syntax": "{ $lookup: { from: \"authors\", localField: \"authorId\", foreignField: \"_id\", as: \"author\" } }",
+          "lessonSlug": "relationships"
+        }
+      ]
+    },
+    {
+      "id": "care",
+      "title": "Care",
+      "entries": [
+        {
+          "slug": "item-21",
+          "name": "createIndex",
+          "summary": "Build a guide that can speed up matching searches.",
+          "syntax": "db.lessonBooks.createIndex({ title: 1 })",
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "item-22",
+          "name": "explain",
+          "summary": "See how MongoDB plans to read the data.",
+          "syntax": "db.lessonBooks.find({ title: \"Moon Trip\" }).explain()",
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "item-23",
+          "name": "Transaction",
+          "summary": "Make several changes work as one all-or-nothing job.",
+          "syntax": "await session.withTransaction(async () => { /* writes with this session */ });",
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "item-24",
+          "name": "MongoClient",
+          "summary": "Connect a Node.js program to MongoDB.",
+          "syntax": "const client = new MongoClient(uri);",
+          "lessonSlug": "node-driver"
+        },
+        {
+          "slug": "item-25",
+          "name": "read role",
+          "summary": "Allow a tool to read a database without changing it.",
+          "syntax": "{ role: \"read\", db: \"practice\" }",
+          "lessonSlug": "security-basics"
+        }
+      ]
+    }
+  ]
+}

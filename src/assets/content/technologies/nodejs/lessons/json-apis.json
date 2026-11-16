@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "slug": "json-apis",
+  "title": "Building JSON APIs",
+  "summary": "Design a REST-style resource with the right methods and status codes, parse and validate JSON bodies, return consistent error shapes and call the API from Node with fetch.",
+  "introduction": "Most Node servers exist to serve JSON to a front end, a mobile app or another service. The conventions that make such an API pleasant are small in number: resources named by URL, HTTP methods for the action, status codes that mean what they say, and one shape for every error. In this lesson you turn the bookshelf into a complete create-read-delete API with Express 5, validate what clients send, handle malformed JSON gracefully, and write a client with Node's built-in `fetch`.",
+  "learningObjectives": [
+    "Map resources to URLs and actions to HTTP methods and status codes",
+    "Parse JSON bodies with express.json and validate the fields you receive",
+    "Return a consistent error shape and call the API from a Node script with fetch"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Resources, methods and status codes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **resource** is a thing your API manages, named by a plural noun in the URL: `/api/books`, `/api/books/3`. The HTTP method says what to do with it, and the status code tells the client how it went, before it even reads the body."
+    },
+    {
+      "type": "table",
+      "headers": ["Request", "Meaning", "Success status"],
+      "rows": [
+        ["`GET /api/books`", "List books (filters go in the query string)", "`200 OK`"],
+        ["`GET /api/books/3`", "Fetch one book", "`200 OK`, or `404 Not Found`"],
+        [
+          "`POST /api/books`",
+          "Create a book from the JSON body",
+          "`201 Created` with the new book"
+        ],
+        [
+          "`PUT` or `PATCH /api/books/3`",
+          "Replace or partially update a book",
+          "`200 OK` with the updated book"
+        ],
+        ["`DELETE /api/books/3`", "Remove a book", "`204 No Content`, empty body"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Two more codes cover the client's mistakes: `400 Bad Request` when the body is missing or invalid, and `409 Conflict` when the request is valid but clashes with current state (a duplicate ISBN, for instance). Everything that is *your* fault is `500`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The bookshelf API"
+    },
+    {
+      "type": "paragraph",
+      "text": "`express.json()` is the middleware that reads a JSON body and puts the parsed object in `req.body`. It must be registered before the routes. The rest is the pattern from the previous lessons, applied to each row of the table above:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "api.js",
+      "code": "import express from 'express';\n\nconst app = express();\napp.use(express.json());\n\nconst books = [\n  { id: 1, title: 'Dune', author: 'Frank Herbert', year: 1965 },\n  { id: 2, title: 'Neuromancer', author: 'William Gibson', year: 1984 },\n];\nlet nextId = 3;\n\napp.get('/api/books', (req, res) => {\n  res.json(books);\n});\n\napp.get('/api/books/:id', (req, res) => {\n  const book = books.find((b) => b.id === Number(req.params.id));\n  if (!book) return res.status(404).json({ error: 'Book not found' });\n  res.json(book);\n});\n\napp.post('/api/books', (req, res) => {\n  const { title, author, year } = req.body ?? {};\n  if (typeof title !== 'string' || title.trim() === '') {\n    return res.status(400).json({ error: 'title is required' });\n  }\n  const book = { id: nextId++, title: title.trim(), author: author ?? 'Unknown', year: year ?? null };\n  books.push(book);\n  res.status(201).json(book);\n});\n\napp.delete('/api/books/:id', (req, res) => {\n  const index = books.findIndex((b) => b.id === Number(req.params.id));\n  if (index === -1) return res.status(404).json({ error: 'Book not found' });\n  books.splice(index, 1);\n  res.status(204).end();\n});\n\napp.use((err, req, res, next) => {\n  if (err.type === 'entity.parse.failed') {\n    return res.status(400).json({ error: 'Request body is not valid JSON' });\n  }\n  console.error(err);\n  res.status(500).json({ error: 'Internal server error' });\n});\n\napp.listen(3000, () => console.log('Bookshelf API on http://localhost:3000'));"
+    },
+    {
+      "type": "paragraph",
+      "text": "Start it with `node --watch api.js` and exercise every route. `-d` sends a body, `-H` sets the content type that `express.json()` looks for, and the `-w` format prints the status code of the `DELETE`, whose body is empty (on Windows, replace `/dev/null` with `NUL`):"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s -X POST -H \"Content-Type: application/json\" \\\n  -d '{\"title\":\"Snow Crash\",\"author\":\"Neal Stephenson\",\"year\":1992}' http://localhost:3000/api/books\ncurl -s -X POST -H \"Content-Type: application/json\" -d '{\"author\":\"Nobody\"}' http://localhost:3000/api/books\ncurl -s -o /dev/null -w \"%{http_code}\\n\" -X DELETE http://localhost:3000/api/books/2\ncurl -s http://localhost:3000/api/books"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (one line per command)",
+      "content": "{\"id\":3,\"title\":\"Snow Crash\",\"author\":\"Neal Stephenson\",\"year\":1992}\n{\"error\":\"title is required\"}\n204\n[{\"id\":1,\"title\":\"Dune\",\"author\":\"Frank Herbert\",\"year\":1965},{\"id\":3,\"title\":\"Snow Crash\",\"author\":\"Neal Stephenson\",\"year\":1992}]"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Validating input"
+    },
+    {
+      "type": "paragraph",
+      "text": "Never assume the body has the shape you documented. The `POST` route checks that `title` is a non-empty string, supplies defaults for optional fields and ignores anything else the client sent, which also stops a client from choosing its own `id`. For bigger payloads, a schema library such as `zod` or `ajv` replaces the hand-written checks, but the response is the same: `400` with a message that tells the client what to fix."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "req.body may be undefined",
+      "text": "If the client forgets the `Content-Type: application/json` header, or sends no body at all, `express.json()` leaves `req.body` undefined in Express 5, and `const { title } = req.body` throws a `TypeError` that becomes a `500`. Destructure from `req.body ?? {}` so that a missing body turns into a clean `400` from your own validation instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "One shape for every error"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every error response above is `{ \"error\": \"message\" }`, so a client can handle them with one code path. The error middleware at the end extends this to failures you did not write a route for. When the body is not valid JSON, `express.json()` passes an error with `type === 'entity.parse.failed'` to the error handler; without that handler Express would reply with an HTML page, which breaks any client expecting JSON."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "curl -s -X POST -H \"Content-Type: application/json\" -d '{\"title\": }' http://localhost:3000/api/books"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "{\"error\":\"Request body is not valid JSON\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Calling the API from Node"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node has the same `fetch` as the browser, so a script, a test or another service can talk to the API without extra packages. `response.json()` parses the body; check `response.status` or `response.ok` first, because `fetch` only rejects on network failure, never on a `4xx` or `5xx` status:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "client.js",
+      "code": "const response = await fetch('http://localhost:3000/api/books', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'Hyperion', author: 'Dan Simmons', year: 1989 }),\n});\n\nconsole.log(response.status, response.headers.get('content-type'));\n\nif (!response.ok) {\n  const { error } = await response.json();\n  throw new Error(`Request failed: ${error}`);\n}\n\nconst created = await response.json();\nconsole.log(created);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node client.js, against a freshly started api.js",
+      "content": "201 application/json; charset=utf-8\n{ id: 3, title: 'Hyperion', author: 'Dan Simmons', year: 1989 }"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Data that survives a restart",
+      "text": "The `books` array lives in memory, so every restart resets it and two server processes would disagree. The [databases lesson](/tutorials/nodejs/databases) swaps the array for an SQLite table with the same routes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-json-apis-crud"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-json-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "json-apis",
+          "difficulty": "beginner",
+          "question": "A client sends `POST /api/books` with a valid body and the server stores a new book. Which status code should the response use?",
+          "explanation": "201 Created signals that a new resource now exists; the response body conventionally contains the created resource with its id.",
+          "options": ["`200 OK`", "`201 Created`", "`204 No Content`", "`302 Found`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-json-qc-2",
+          "type": "true-false",
+          "lessonSlug": "json-apis",
+          "difficulty": "intermediate",
+          "question": "`await fetch(url)` rejects with an error when the server responds with status 404.",
+          "explanation": "fetch resolves for any HTTP response, including 4xx and 5xx; it only rejects on network-level failures. Check response.ok or response.status yourself.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-json-apis-crud"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "routing-middleware"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "databases"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    }
+  ],
+  "seo": {
+    "title": "Build a JSON REST API with Node.js and Express 5",
+    "description": "Build a JSON API with Express 5: resources, HTTP methods and status codes, express.json, input validation, consistent error responses and a fetch client."
+  },
+  "updatedOn": "2026-11-15"
+}

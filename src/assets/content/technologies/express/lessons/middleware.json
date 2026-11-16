@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "middleware",
+  "title": "Run a shared step",
+  "summary": "Express.js: Run a shared step. Change the school name.",
+  "introduction": "Middleware runs before a later handler when it calls next. GET / shows the value this middleware placed in res.locals.",
+  "learningObjectives": ["Run a shared step with Express.js", "Change the school name"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a shared step"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Run a shared step",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.use((req, res, next) => { res.locals.school = \"Oak School\"; next(); });\napp.get(\"/\", (req, res) => res.send(res.locals.school));\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The shared middleware sets school on this response and calls next. The handler reads that value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the school name."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Middleware must send a response or call next; otherwise the request waits."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-middleware-check"
+    }
+  ],
+  "exerciseIds": ["express-middleware-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "validation"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Run a shared step",
+    "description": "Express.js: Run a shared step. Change the school name. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

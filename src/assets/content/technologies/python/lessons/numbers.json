@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "numbers",
+  "title": "Numbers and Math",
+  "summary": "Python can add, subtract, multiply and divide. It has whole numbers and numbers with decimal parts.",
+  "introduction": "Python can add, subtract, multiply and divide. It has whole numbers and numbers with decimal parts. Use small examples to count points and share items into groups. Compare normal division with division that keeps only the whole part.",
+  "learningObjectives": [
+    "Use the arithmetic operators, including floor division, modulo and power",
+    "Explain when Python returns an int and when it returns a float",
+    "Round numbers correctly and describe why floats are inexact",
+    "Apply the math, decimal and random modules to everyday problems"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Integers and floats"
+    },
+    {
+      "type": "paragraph",
+      "text": "`int` values are whole numbers of unlimited size: Python switches to big-number arithmetic automatically, so `2 ** 100` is simply computed. `float` values have a decimal point and are stored as 64-bit binary fractions, which makes them fast but, as you will see, slightly inexact. Underscores may be used inside literals to group digits."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "arithmetic.py",
+      "code": "print(7 + 3, 7 - 3, 7 * 3)\nprint(7 / 2)        # true division always gives a float\nprint(7 // 2)       # floor division drops the remainder\nprint(7 % 2)        # modulo: the remainder\nprint(2 ** 10)      # power\nprint(-7 // 2, -7 % 2)\nprint(2 ** 100)\nprint(1_000_000 + 1)\nprint(10 / 2, 3 + 1.5)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python arithmetic.py",
+      "content": "10 4 21\n3.5\n3\n1\n1024\n-4 1\n1267650600228229401496703205376\n1000001\n5.0 4.5"
+    },
+    {
+      "type": "paragraph",
+      "text": "`/` always returns a float, even when the division is exact, which is why `10 / 2` prints `5.0`. `//` rounds *down* towards negative infinity, so `-7 // 2` is `-4`, and `%` is defined so that `(a // b) * b + a % b` equals `a`; the remainder takes the sign of the divisor. Mixing an int with a float gives a float."
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Name", "Example", "Result"],
+      "rows": [
+        ["`+`, `-`, `*`", "Add, subtract, multiply", "`7 * 3`", "`21`"],
+        ["`/`", "True division", "`7 / 2`", "`3.5`"],
+        ["`//`", "Floor division", "`7 // 2`", "`3`"],
+        ["`%`", "Modulo (remainder)", "`7 % 2`", "`1`"],
+        ["`**`", "Power", "`2 ** 10`", "`1024`"],
+        ["`+=`, `-=`, `*=`, `/=`", "Update in place", "`total += 5`", "`total` grows by 5"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Precedence"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python follows the usual mathematical order: `**` first, then unary minus, then `*`, `/`, `//` and `%`, then `+` and `-`. Powers group from the right, and parentheses override everything, so use them whenever the intent is not obvious at a glance."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "precedence.py",
+      "code": "print(2 + 3 * 4)\nprint((2 + 3) * 4)\nprint(2 ** 3 ** 2)   # powers group from the right: 2 ** 9\nprint(-2 ** 2)       # the power binds tighter than the minus sign\nprint((-2) ** 2)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python precedence.py",
+      "content": "14\n20\n512\n-4\n4"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Floats are not exact"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "floats.py",
+      "code": "print(0.1 + 0.2)\nprint(0.1 + 0.2 == 0.3)\nprint(round(0.1 + 0.2, 2) == 0.3)\nprint(round(3.14159, 2), round(2.5), round(3.5), round(2.675, 2))\nprint(abs(-4.2), int(4.8), 4.8 // 1)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python floats.py",
+      "content": "0.30000000000000004\nFalse\nTrue\n3.14 2 4 2.67\n4.2 4 4.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Binary floats cannot represent most decimal fractions exactly, just as decimal notation cannot write one third exactly. The error is tiny, but it means you should never compare floats with `==`; compare rounded values or use `math.isclose()`. `round()` also uses *banker's rounding*: a value exactly halfway rounds to the nearest even number, so `round(2.5)` is `2` while `round(3.5)` is `4`. And `round(2.675, 2)` gives `2.67` because the float nearest to 2.675 is actually a little below it."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not store money in floats",
+      "text": "Adding prices with floats accumulates rounding errors; after enough operations the cents are wrong and totals no longer match the receipt. Use the `decimal` module, which does exact decimal arithmetic, or keep amounts as integer cents and divide by 100 only when displaying."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "money.py",
+      "code": "from decimal import Decimal\n\nprint(0.1 + 0.2)\nprint(Decimal(\"0.1\") + Decimal(\"0.2\"))\n\nprice = Decimal(\"19.99\")\ntotal = price * 3\nprint(total, type(total).__name__)\nprint(f\"Total: {total:.2f}\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python money.py",
+      "content": "0.30000000000000004\n0.3\n59.97 Decimal\nTotal: 59.97"
+    },
+    {
+      "type": "paragraph",
+      "text": "Build a `Decimal` from a *string*: `Decimal(0.1)` would faithfully copy the float's tiny error, while `Decimal(\"0.1\")` means exactly one tenth. Decimals work with the same operators and f-string formats as floats."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Built-in helpers and the math module"
+    },
+    {
+      "type": "paragraph",
+      "text": "A few numeric functions are built in and need no import: `abs()`, `round()`, `min()`, `max()`, `sum()`, `pow()` and `divmod()`, which returns the quotient and remainder together. Everything else lives in the `math` module."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "helpers.py",
+      "code": "import math\n\nscores = [72, 95, 88, 61]\nprint(min(scores), max(scores), sum(scores))\nprint(sum(scores) / len(scores))\nprint(divmod(17, 5), pow(2, 8))\n\nprint(math.sqrt(16), math.pi)\nprint(math.floor(4.7), math.ceil(4.2))\nprint(math.isclose(0.1 + 0.2, 0.3))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python helpers.py",
+      "content": "61 95 316\n79.0\n(3, 2) 256\n4.0 3.141592653589793\n4 5\nTrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`math.sqrt()` returns a float even for perfect squares, `math.floor()` and `math.ceil()` return ints, and `math.isclose()` is the right way to ask whether two floats are equal for practical purposes. The `statistics` module adds `mean()`, `median()` and `stdev()` when you need them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Random numbers"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `random` module generates pseudo-random numbers for games, sampling and tests. Calling `random.seed()` with a fixed value makes the sequence reproducible, which is why the output below is always the same; leave the seed out in a real game to get different numbers on every run."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "dice.py",
+      "code": "import random\n\nrandom.seed(42)      # fixed seed: the same \"random\" numbers every run\nprint(random.randint(1, 6))\nprint(random.choice([\"rock\", \"paper\", \"scissors\"]))\nprint(round(random.random(), 3))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python dice.py",
+      "content": "6\nrock\n0.025"
+    },
+    {
+      "type": "paragraph",
+      "text": "`randint(a, b)` includes both ends, unlike `range()`. `random.random()` returns a float from `0.0` up to but excluding `1.0`, `choice()` picks one item from a sequence, and `shuffle()` and `sample()` cover decks and lotteries. Do not use this module for passwords or tokens; the `secrets` module exists for that."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Compute how many seconds are in a week with `**` and `*`, then use `divmod()` to turn 100,000 seconds back into days, hours, minutes and seconds."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-numbers-division-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-numbers-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "numbers",
+          "difficulty": "beginner",
+          "question": "What is the value of `10 / 2`?",
+          "explanation": "True division with `/` always produces a float, so the result is `5.0`. Use `10 // 2` to get the integer `5`.",
+          "options": ["`5`", "`5.0`", "`5.5`", "`2`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "py-numbers-qc-2",
+          "type": "true-false",
+          "lessonSlug": "numbers",
+          "difficulty": "intermediate",
+          "question": "`round(2.5)` returns `3`.",
+          "explanation": "Python rounds exact halves to the nearest even number, so `round(2.5)` is `2` and `round(3.5)` is `4`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-numbers-division-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "strings"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "modules-packages"
+    }
+  ],
+  "seo": {
+    "title": "Python Numbers and Math – Operators, Rounding, Decimal",
+    "description": "Learn Python arithmetic: int and float, true and floor division, modulo and power, precedence, rounding rules, float precision, Decimal, math and random."
+  },
+  "updatedOn": "2026-11-16"
+}

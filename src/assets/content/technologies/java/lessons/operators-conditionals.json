@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "slug": "operators-conditionals",
+  "title": "Operators and Conditionals",
+  "summary": "Arithmetic, comparison and logical operators, increment and compound assignment, string equality done right, if/else chains, the ternary operator and modern switch expressions.",
+  "introduction": "Programs become useful when they calculate and decide. This lesson covers Java's operators, including the ones that trip up beginners such as integer remainder, post-increment and == on strings, and then the statements that choose a path: if/else chains, the compact ternary operator, and switch, both the modern expression form with arrows and the classic statement with its fall-through behaviour. Every example prints its exact output so you can check your prediction.",
+  "learningObjectives": [
+    "Evaluate arithmetic expressions with the correct precedence and remainder rules",
+    "Combine comparisons with logical operators and rely on short-circuit evaluation",
+    "Compare strings with equals instead of ==",
+    "Write if/else chains, ternary expressions and switch expressions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arithmetic operators and precedence"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java has the five arithmetic operators you expect: `+`, `-`, `*`, `/` and `%` (remainder). Multiplication, division and remainder bind tighter than addition and subtraction, operators of equal precedence are evaluated left to right, and parentheses override everything. The remainder takes the sign of the left operand, so `-7 % 3` is `-1`, not `2`."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int a = 10, b = 3;\nSystem.out.println(a + b * 2);\nSystem.out.println((a + b) * 2);\nSystem.out.println(a / b + \" remainder \" + a % b);\nSystem.out.println(-7 % 3);\nSystem.out.println(10 - 4 - 3);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "16\n26\n3 remainder 1\n-1\n3"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Increment, decrement and compound assignment"
+    },
+    {
+      "type": "paragraph",
+      "text": "`n++` and `++n` both add one to `n`, but as part of a larger expression they differ: the **post-increment** `n++` yields the old value and then increments, while the **pre-increment** `++n` increments first. Compound assignments such as `+=` and `*=` apply an operator and store the result in one step."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int n = 5;\nint post = n++;   // use 5, then n becomes 6\nint pre = ++n;    // n becomes 7, then use 7\nSystem.out.println(post + \" \" + pre + \" \" + n);\n\nint total = 10;\ntotal += 5;       // 15\ntotal *= 2;       // 30\ntotal -= 4;       // 26\ntotal /= 2;       // 13\nSystem.out.println(total);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "5 7 7\n13"
+    },
+    {
+      "type": "paragraph",
+      "text": "Mixing `++` into bigger expressions is legal but hard to read. Prefer a plain `i++;` on its own line and keep the clever forms for loop headers."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparison and logical operators"
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Meaning", "Example (result)"],
+      "rows": [
+        [
+          "`==`, `!=`",
+          "equal, not equal (numbers, chars, booleans, references)",
+          "`5 == 5.0` (true)"
+        ],
+        ["`<`, `<=`, `>`, `>=`", "ordering of numbers and chars", "`'a' < 'b'` (true)"],
+        [
+          "`&&`",
+          "logical AND; the right side is skipped when the left is false",
+          "`age >= 18 && hasTicket`"
+        ],
+        [
+          "`||`",
+          "logical OR; the right side is skipped when the left is true",
+          "`isAdmin || isOwner`"
+        ],
+        ["`!`", "logical NOT", "`!done`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Comparisons produce a `boolean`, and logical operators combine booleans. `&&` and `||` **short-circuit**: `name != null && name.isEmpty()` never calls `isEmpty` on a null reference, because the left side already decided the answer. The **ternary operator** `condition ? a : b` picks one of two values and is handy for short assignments."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int age = 20;\nboolean hasTicket = false;\nSystem.out.println(age >= 18);\nSystem.out.println(age >= 18 && hasTicket);\nSystem.out.println(age >= 18 || hasTicket);\nSystem.out.println(!hasTicket);\nString status = age >= 18 ? \"adult\" : \"minor\";\nSystem.out.println(status);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\nfalse\ntrue\ntrue\nadult"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparing strings"
+    },
+    {
+      "type": "paragraph",
+      "text": "For objects, `==` asks whether two variables point at the **same object**, not whether the contents match. Two strings with the same characters can be two different objects, and then `==` says `false`. Always compare text with `equals`, or `equalsIgnoreCase` when case does not matter. The example builds the second string at run time so the difference is visible."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String typed = new String(\"yes\");\nSystem.out.println(typed == \"yes\");\nSystem.out.println(typed.equals(\"yes\"));\nSystem.out.println(\"YES\".equalsIgnoreCase(typed));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "false\ntrue\ntrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "if, else if and else"
+    },
+    {
+      "type": "paragraph",
+      "text": "`if` runs a block when its condition is true. Chain `else if` for further checks and finish with `else` for everything that remains. Java tests the conditions top to bottom and runs only the first block whose condition holds, so order the conditions from most specific to most general. The parentheses around the condition and the braces around the block are both required; the condition must be a `boolean`, so `if (count)` does not compile."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int temperature = 23;\nif (temperature >= 30) {\n    System.out.println(\"Hot\");\n} else if (temperature >= 20) {\n    System.out.println(\"Warm\");\n} else if (temperature >= 10) {\n    System.out.println(\"Mild\");\n} else {\n    System.out.println(\"Cold\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Warm"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The switch expression"
+    },
+    {
+      "type": "paragraph",
+      "text": "When one value is compared against many constants, `switch` is clearer than a long `else if` chain. Since Java 14 a `switch` can be an **expression** that produces a value: each `case` lists one or more constants, an arrow `->` gives the result, nothing falls through, and a `default` branch makes the switch exhaustive. A branch that needs several statements uses a block and `yield` to hand back its value."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String day = \"SAT\";\nString kind = switch (day) {\n    case \"SAT\", \"SUN\" -> \"weekend\";\n    case \"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\" -> \"weekday\";\n    default -> \"unknown\";\n};\nSystem.out.println(kind);\n\nint month = 2;\nint days = switch (month) {\n    case 2 -> 28;\n    case 4, 6, 9, 11 -> 30;\n    default -> {\n        System.out.println(\"a long month\");\n        yield 31;\n    }\n};\nSystem.out.println(days);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "weekend\n28"
+    },
+    {
+      "type": "paragraph",
+      "text": "The [Records, Enums and Streams](/tutorials/java/records-streams) lesson extends `switch` further: with enums and sealed types the compiler can prove every case is covered, and since Java 21 a case can match on the type and contents of an object."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The classic switch statement"
+    },
+    {
+      "type": "paragraph",
+      "text": "You will meet the older form with colons in existing code. It executes from the matching `case` label **downwards until it hits a `break`**, so a missing `break` runs the next case's statements too. Here `level` is 1, yet two lines print."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "int level = 1;\nswitch (level) {\n    case 1:\n        System.out.println(\"one\");\n    case 2:\n        System.out.println(\"two\");\n        break;\n    case 3:\n        System.out.println(\"three\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "one\ntwo"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fall-through is occasionally used on purpose to share code between cases, but it is a well-known source of bugs. In new code prefer the arrow form, where several labels on one case express the same intent without the risk."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "== on strings",
+      "text": "`if (answer == \"yes\")` compiles and sometimes even works, because identical string literals are shared by the compiler, but a string that was typed by the user, read from a file or built at run time is a different object and `==` returns `false`. Always write `answer.equals(\"yes\")`, or `\"yes\".equals(answer)` when `answer` might be `null`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-operators-increment"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-operators-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "operators-conditionals",
+          "difficulty": "beginner",
+          "question": "After `int n = 5; int r = n++ * 2;` what are `r` and `n`?",
+          "explanation": "Post-increment yields the old value 5 for the multiplication, so `r` is 10, and then `n` becomes 6.",
+          "options": ["r = 10, n = 6", "r = 12, n = 6", "r = 10, n = 5", "r = 12, n = 5"],
+          "correctIndex": 0
+        },
+        {
+          "id": "java-operators-qc-2",
+          "type": "true-false",
+          "lessonSlug": "operators-conditionals",
+          "difficulty": "beginner",
+          "question": "In a switch written with `->` arrows, a case never falls through into the next one.",
+          "explanation": "Arrow cases run exactly one branch. Fall-through only happens in the classic colon form when a `break` is missing.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-operators-increment", "java-operators-string-equality"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "loops"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "conditionals"
+    }
+  ],
+  "seo": {
+    "title": "Java Operators and Conditionals – if, switch, ternary",
+    "description": "Master Java arithmetic, comparison and logical operators, string equality with equals, if/else chains, the ternary operator and switch expressions."
+  },
+  "updatedOn": "2026-11-15"
+}

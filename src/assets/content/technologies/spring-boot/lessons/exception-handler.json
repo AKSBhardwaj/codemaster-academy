@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "exception-handler",
+  "title": "Handle a known failure",
+  "summary": "Spring Boot: Handle a known failure. Change the public message.",
+  "introduction": "@ExceptionHandler formats one error type for this controller. Open GET /broken.",
+  "learningObjectives": ["Handle a known failure with Spring Boot", "Change the public message"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle a known failure"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Handle a known failure",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/broken\") String broken() { throw new IllegalStateException(\"Practice failure\"); }\n@ExceptionHandler(IllegalStateException.class) ResponseEntity<?> failure() { return ResponseEntity.status(500).body(Map.of(\"error\", \"Try again later\")); }\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The controller handler catches the declared exception type and replaces it with a controlled 500 reply."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Try again later\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the public message."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not expose private stack traces or internal values in error replies."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-exception-handler-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-exception-handler-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Handle a known failure",
+    "description": "Spring Boot: Handle a known failure. Change the public message. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

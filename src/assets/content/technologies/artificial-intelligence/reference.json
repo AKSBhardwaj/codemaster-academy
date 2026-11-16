@@ -1,0 +1,152 @@
+{
+  "title": "AI Reference",
+  "description": "A quick reminder of the ideas and examples in the Artificial Intelligence lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "What an AI task looks like",
+          "summary": "Artificial intelligence, or AI, is a broad area of computing. It includes programs that search for plans or use data to make predictions. Different tasks need different methods.",
+          "example": {
+            "language": "text",
+            "code": "Task: help find a library book\nInput: a title typed by a learner\nOutput: matching titles\nCheck: compare with the real catalogue"
+          },
+          "notes": ["Do not assume an AI label means a program understands everything."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "use-an-explicit-rule",
+          "name": "Use an explicit rule",
+          "summary": "A rule tells a program exactly what to do when a condition is met. Some AI systems include rules, while others learn patterns from data.",
+          "example": {
+            "language": "python",
+            "code": "books_left = 0\nif books_left == 0:\n    print(\"Ask for a return date\")\nelse:\n    print(\"A copy is available\")"
+          },
+          "notes": ["A rule can only handle the cases its author considered."],
+          "lessonSlug": "use-an-explicit-rule"
+        },
+        {
+          "slug": "represent-a-problem-as-states",
+          "name": "Represent a problem as states",
+          "summary": "A state is a description of the current situation. An action changes one state into another. A goal describes the state we want to reach.",
+          "example": {
+            "language": "text",
+            "code": "Start state: at classroom\nAction: walk to corridor\nNext state: at corridor\nAction: walk to library\nGoal state: at library"
+          },
+          "notes": ["A plan must use moves that are actually allowed in the problem."],
+          "lessonSlug": "represent-a-problem-as-states"
+        },
+        {
+          "slug": "store-connected-places",
+          "name": "Store connected places",
+          "summary": "A graph stores things and their connections. We can describe school rooms with a dictionary whose lists name directly connected rooms.",
+          "example": {
+            "language": "python",
+            "code": "rooms = {\"class\": [\"hall\"], \"hall\": [\"class\", \"library\"], \"library\": [\"hall\"]}\nprint(rooms[\"hall\"])"
+          },
+          "notes": ["If travel is allowed both ways, remember to record both connections."],
+          "lessonSlug": "store-connected-places"
+        },
+        {
+          "slug": "search-one-step-at-a-time",
+          "name": "Search one step at a time",
+          "summary": "Breadth-first search checks nearer places before farther places. A queue holds places still waiting to be checked.",
+          "example": {
+            "language": "python",
+            "code": "from collections import deque\nrooms = {\"class\": [\"hall\"], \"hall\": [\"class\", \"library\"], \"library\": [\"hall\"]}\nqueue = deque([\"class\"])\nseen = {\"class\"}\norder = []\nwhile queue:\n    room = queue.popleft()\n    order.append(room)\n    for next_room in rooms[room]:\n        if next_room not in seen:\n            seen.add(next_room)\n            queue.append(next_room)\nprint(order)"
+          },
+          "notes": ["Breadth-first search finds fewest moves only when every move has equal cost."],
+          "lessonSlug": "search-one-step-at-a-time"
+        },
+        {
+          "slug": "a-helpful-guess-can-guide-search",
+          "name": "A helpful guess can guide search",
+          "summary": "A heuristic is a useful estimate that guides search. A straight-line distance can suggest which place is nearer, but it may ignore walls or closed paths.",
+          "example": {
+            "language": "text",
+            "code": "Route A: looks short on a map, but a gate is closed\nRoute B: looks longer, and all paths are open\nNext check: verify which moves are allowed"
+          },
+          "notes": ["A helpful estimate is not the same as a proven best answer."],
+          "lessonSlug": "a-helpful-guess-can-guide-search"
+        },
+        {
+          "slug": "respect-all-constraints",
+          "name": "Respect all constraints",
+          "summary": "A constraint is a rule every allowed answer must satisfy. A timetable needs a free room and an available teacher at the same time.",
+          "example": {
+            "language": "python",
+            "code": "slots = [\"Monday\", \"Tuesday\", \"Wednesday\"]\nroom_free = {\"Monday\", \"Wednesday\"}\nteacher_free = {\"Tuesday\", \"Wednesday\"}\nallowed = [s for s in slots if s in room_free and s in teacher_free]\nprint(allowed)"
+          },
+          "notes": [
+            "An empty answer may mean the rules cannot all be met; do not silently ignore a rule."
+          ],
+          "lessonSlug": "respect-all-constraints"
+        },
+        {
+          "slug": "rules-and-learned-patterns",
+          "name": "Rules and learned patterns",
+          "summary": "A rule-based program follows rules written by people. A learned model finds patterns using examples. Both need testing and can make mistakes.",
+          "example": {
+            "language": "text",
+            "code": "Written rule: a book is long if pages > 200\nLearned model: use labelled book examples to choose a pattern\nCheck: compare decisions with the task definition"
+          },
+          "notes": [
+            "Do not call a fixed rule learned unless a learning process actually chose it."
+          ],
+          "lessonSlug": "rules-and-learned-patterns"
+        },
+        {
+          "slug": "uncertainty-deserves-a-number",
+          "name": "Uncertainty deserves a number",
+          "summary": "Uncertainty means we do not know the outcome for sure. A past fraction can describe observed results, but a small sample gives weak evidence about the future.",
+          "example": {
+            "language": "python",
+            "code": "rainy_days = 3\nobserved_days = 10\nprint(rainy_days / observed_days)"
+          },
+          "notes": ["Do not turn a small observed fraction into a guaranteed future chance."],
+          "lessonSlug": "uncertainty-deserves-a-number"
+        },
+        {
+          "slug": "agents-observe-and-act",
+          "name": "Agents observe and act",
+          "summary": "An agent is a system that observes a situation and chooses an action. It needs clear allowed actions and a way to check what happened.",
+          "example": {
+            "language": "text",
+            "code": "Observe: shelf count is zero\nSuggest: ask when a book may return\nHuman checks: is the shelf count current?\nAllowed action in this demo: show a suggestion"
+          },
+          "notes": [
+            "Giving a system an action tool is different from merely asking it for advice."
+          ],
+          "lessonSlug": "agents-observe-and-act"
+        },
+        {
+          "slug": "check-who-the-data-represents",
+          "name": "Check who the data represents",
+          "summary": "A dataset is a collection of examples. If some groups or situations are missing, a model may work unevenly. Check results for the people and conditions it will serve.",
+          "example": {
+            "language": "text",
+            "code": "Sample: only clear photos in bright daylight\nPlanned use: photos in daylight and dim rooms\nMissing check: results on suitable dim-room examples"
+          },
+          "notes": [
+            "Do not assume more examples automatically remove every bias in how data was collected."
+          ],
+          "lessonSlug": "check-who-the-data-represents"
+        },
+        {
+          "slug": "keep-a-person-able-to-review",
+          "name": "Keep a person able to review",
+          "summary": "An AI result should be easy to question and correct. For important choices, people need the evidence, limits and a way to reject a poor suggestion.",
+          "example": {
+            "language": "text",
+            "code": "Suggestion: choose route B\nEvidence: route A has a closed gate\nLimit: map was checked yesterday\nReview: confirm the gate and path are still safe"
+          },
+          "notes": ["A fluent explanation can still contain false facts; check the evidence."],
+          "lessonSlug": "keep-a-person-able-to-review"
+        }
+      ]
+    }
+  ]
+}

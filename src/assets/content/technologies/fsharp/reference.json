@@ -1,0 +1,156 @@
+{
+  "title": "F# Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "printfn prints formatted output and a new line. %s stands for text.",
+          "example": {
+            "language": "fsharp",
+            "code": "printfn \"%s\" \"Hello, Asha!\""
+          },
+          "notes": ["Match the format marker to the value type."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "values",
+          "name": "Keep a named value",
+          "summary": "let gives a name to a value. It cannot be changed unless declared mutable.",
+          "example": {
+            "language": "fsharp",
+            "code": "let pencils = 3\nprintfn \"%d\" (pencils + 2)"
+          },
+          "notes": ["Use parentheses to group a calculation passed to printfn."],
+          "lessonSlug": "values"
+        },
+        {
+          "slug": "functions",
+          "name": "Name a calculation",
+          "summary": "A function is defined with let and an input name. Its expression is the result.",
+          "example": {
+            "language": "fsharp",
+            "code": "let twice n = n * 2\nprintfn \"%d\" (twice 4)"
+          },
+          "notes": ["F# function inputs follow the function name with spaces."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "choices",
+          "name": "Choose a value",
+          "summary": "if is an expression with then and else results.",
+          "example": {
+            "language": "fsharp",
+            "code": "let score = 8\nlet message = if score >= 5 then \"Pass\" else \"Try again\"\nprintfn \"%s\" message"
+          },
+          "notes": ["The two result branches must agree in type."],
+          "lessonSlug": "choices"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "lists",
+          "name": "Keep a list",
+          "summary": "List items are separated by semicolons. List.head reads the first item.",
+          "example": {
+            "language": "fsharp",
+            "code": "let pets = [\"cat\"; \"dog\"]\nprintfn \"%s\" (List.head pets)"
+          },
+          "notes": ["List.head fails on an empty list; tryHead returns an option."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "map",
+          "name": "Transform each value",
+          "summary": "List.map applies a function to every item and returns a new list.",
+          "example": {
+            "language": "fsharp",
+            "code": "let values = [2; 3] |> List.map (fun n -> n * 2)\nprintfn \"%A\" values"
+          },
+          "notes": ["The pipe sends the list into the next function call."],
+          "lessonSlug": "map"
+        },
+        {
+          "slug": "filter",
+          "name": "Keep matching values",
+          "summary": "List.filter keeps values that pass a Boolean test.",
+          "example": {
+            "language": "fsharp",
+            "code": "let values = [4; 8; 9] |> List.filter (fun n -> n >= 7)\nprintfn \"%A\" values"
+          },
+          "notes": ["The test must return true or false."],
+          "lessonSlug": "filter"
+        },
+        {
+          "slug": "tuples",
+          "name": "Unpack a pair",
+          "summary": "A tuple groups values. Pattern matching can give names to its parts.",
+          "example": {
+            "language": "fsharp",
+            "code": "let name, score = (\"Asha\", 8)\nprintfn \"%d\" score"
+          },
+          "notes": ["Match the same number of tuple positions."],
+          "lessonSlug": "tuples"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "records",
+          "name": "Group named fields",
+          "summary": "A record has named fields. A new record can copy an old one with one field changed.",
+          "example": {
+            "language": "fsharp",
+            "code": "type Book = { Title: string; Pages: int }\nlet book = { Title = \"Moon Trip\"; Pages = 24 }\nlet longer = { book with Pages = 30 }\nprintfn \"%d\" longer.Pages"
+          },
+          "notes": ["The with expression creates a new value."],
+          "lessonSlug": "records"
+        },
+        {
+          "slug": "options",
+          "name": "Handle an absent value",
+          "summary": "An option is Some(value) or None. Pattern matching handles both.",
+          "example": {
+            "language": "fsharp",
+            "code": "let score: int option = None\nlet value = match score with | Some n -> n | None -> 0\nprintfn \"%d\" value"
+          },
+          "notes": ["Handle None instead of assuming a value exists."],
+          "lessonSlug": "options"
+        },
+        {
+          "slug": "unions",
+          "name": "Name a set of cases",
+          "summary": "A union describes a fixed set of cases. match selects an action for a case.",
+          "example": {
+            "language": "fsharp",
+            "code": "type Light = Red | Green\nlet light = Green\nlet message = match light with | Red -> \"Stop\" | Green -> \"Go\"\nprintfn \"%s\" message"
+          },
+          "notes": ["Cover every union case in a match."],
+          "lessonSlug": "unions"
+        },
+        {
+          "slug": "fold",
+          "name": "Combine list values",
+          "summary": "List.fold carries a result through the list. The starting total is zero here.",
+          "example": {
+            "language": "fsharp",
+            "code": "let total = [2; 3; 4] |> List.fold (fun sum n -> sum + n) 0\nprintfn \"%d\" total"
+          },
+          "notes": ["The starting value affects the result."],
+          "lessonSlug": "fold"
+        }
+      ]
+    }
+  ]
+}

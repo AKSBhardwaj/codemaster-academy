@@ -1,0 +1,152 @@
+{
+  "title": "Apache HTTP Server Reference",
+  "description": "A quick reminder of the ideas and examples in the Apache HTTP Server lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "An HTTP server sends responses",
+          "summary": "Apache HTTP Server accepts web requests and sends responses. For a static site, the response body often comes straight from a file.",
+          "example": {
+            "language": "text",
+            "code": "Request: GET /club.html\nResponse status: 200 if the file is served\nResponse body: the HTML file"
+          },
+          "notes": [
+            "Apache HTTP Server is not the same project as every other tool with Apache in its name."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "listen-on-a-practice-port",
+          "name": "Listen on a practice port",
+          "summary": "Listen selects the address and port where Apache accepts connections. Bind a local experiment to loopback.",
+          "example": {
+            "language": "text",
+            "code": "Listen 127.0.0.1:8080"
+          },
+          "notes": [
+            "Do not bind a learning server to every network interface without understanding the exposure."
+          ],
+          "lessonSlug": "listen-on-a-practice-port"
+        },
+        {
+          "slug": "virtual-hosts-choose-a-site",
+          "name": "Virtual hosts choose a site",
+          "summary": "A virtual host groups configuration for a site. ServerName identifies the intended host name.",
+          "example": {
+            "language": "text",
+            "code": "<VirtualHost 127.0.0.1:8080>\n  ServerName localhost\n  DocumentRoot \"/absolute/path/to/club-site\"\n</VirtualHost>"
+          },
+          "notes": [
+            "The first matching virtual host can affect requests with unexpected hostnames; review the whole configuration."
+          ],
+          "lessonSlug": "virtual-hosts-choose-a-site"
+        },
+        {
+          "slug": "directory-access-is-explicit",
+          "name": "Directory access is explicit",
+          "summary": "A Directory block applies settings to a filesystem directory. Access rules should expose only intended public files.",
+          "example": {
+            "language": "text",
+            "code": "<Directory \"/absolute/path/to/club-site\">\n  Require all granted\n  Options -Indexes\n</Directory>"
+          },
+          "notes": [
+            "Never grant public access to an entire home directory just to serve one page."
+          ],
+          "lessonSlug": "directory-access-is-explicit"
+        },
+        {
+          "slug": "choose-the-first-page",
+          "name": "Choose the first page",
+          "summary": "DirectoryIndex lists candidate files for a directory request. The first existing suitable file can be used.",
+          "example": {
+            "language": "text",
+            "code": "DirectoryIndex index.html"
+          },
+          "notes": ["A missing index file is not a reason to expose private directory contents."],
+          "lessonSlug": "choose-the-first-page"
+        },
+        {
+          "slug": "understand-url-and-file-paths",
+          "name": "Understand URL and file paths",
+          "summary": "A URL path and a filesystem path are different. DocumentRoot usually provides the base used to map a URL path to a file.",
+          "example": {
+            "language": "text",
+            "code": "DocumentRoot: /srv/club-site\nURL path: /images/logo.png\nMapped file: /srv/club-site/images/logo.png"
+          },
+          "notes": ["Do not let a user choose an arbitrary filesystem path."],
+          "lessonSlug": "understand-url-and-file-paths"
+        },
+        {
+          "slug": "mime-types-describe-files",
+          "name": "MIME types describe files",
+          "summary": "A MIME type tells the browser what kind of response it is receiving. Apache uses configured mappings and modules for common file types.",
+          "example": {
+            "language": "text",
+            "code": "CSS: text/css\nJSON: application/json\nHTML: text/html"
+          },
+          "notes": ["A 200 response containing the wrong file type can still break the page."],
+          "lessonSlug": "mime-types-describe-files"
+        },
+        {
+          "slug": "modules-add-features",
+          "name": "Modules add features",
+          "summary": "Apache modules add features such as headers, rewriting or TLS. A directive may require its matching module to be loaded.",
+          "example": {
+            "language": "text",
+            "code": "Header set X-Content-Type-Options \"nosniff\""
+          },
+          "notes": ["Do not assume every Apache installation loads the same modules."],
+          "lessonSlug": "modules-add-features"
+        },
+        {
+          "slug": "read-htaccess-limits",
+          "name": "Read htaccess limits",
+          "summary": "An .htaccess file can apply permitted directory settings when the server allows overrides. It is not always enabled or needed.",
+          "example": {
+            "language": "text",
+            "code": "Server-level choice: AllowOverride None\nResult: .htaccess overrides are not used for that directory"
+          },
+          "notes": ["Do not enable every override merely to make an unfamiliar snippet work."],
+          "lessonSlug": "read-htaccess-limits"
+        },
+        {
+          "slug": "custom-error-documents",
+          "name": "Custom error documents",
+          "summary": "ErrorDocument can point to a local page that explains a status such as not found.",
+          "example": {
+            "language": "text",
+            "code": "ErrorDocument 404 /404.html"
+          },
+          "notes": ["Do not make a missing script return the home page with a success status."],
+          "lessonSlug": "custom-error-documents"
+        },
+        {
+          "slug": "logs-explain-requests-and-problems",
+          "name": "Logs explain requests and problems",
+          "summary": "Apache access logs record request information. Error logs help diagnose server failures or configuration problems.",
+          "example": {
+            "language": "text",
+            "code": "Access log question: which URL was requested?\nError log question: why could the server not read the file?"
+          },
+          "notes": ["Do not publish logs as static website files."],
+          "lessonSlug": "logs-explain-requests-and-problems"
+        },
+        {
+          "slug": "check-before-changing-a-server",
+          "name": "Check before changing a server",
+          "summary": "Validate the configuration before an approved reload, then test real routes and assets. A syntax check does not prove the whole website works.",
+          "example": {
+            "language": "text",
+            "code": "apachectl -t"
+          },
+          "notes": ["Do not reload or stop an organisation's server as a learning experiment."],
+          "lessonSlug": "check-before-changing-a-server"
+        }
+      ]
+    }
+  ]
+}

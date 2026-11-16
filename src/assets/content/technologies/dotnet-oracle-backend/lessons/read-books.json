@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "slug": "read-books",
+  "title": "Read books from Oracle",
+  "summary": "Use GET requests to read the Oracle book table. Follow named columns into C# Book values and learn when the API returns 404.",
+  "introduction": "Our first useful request asks for the book list. GET means \"please read this.\" It should not add, edit or delete a book. This time the API really opens Oracle, reads rows and turns them into a JSON reply.",
+  "learningObjectives": [
+    "Read the whole list and one book by ID",
+    "Match Oracle columns to the C# model",
+    "Distinguish an empty list from a missing book"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask for the list"
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep the API running in its first terminal. Use a second PowerShell terminal for this request. Your database setup and connection secret must already be ready."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "Invoke-RestMethod http://localhost:5080/api/books",
+      "title": "Get every book",
+      "runnable": false
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "id title           isRead\n-- -----           ------\n 1 The Moon Garden  False\n 2 Ocean Friends    True",
+      "title": "Example result from a fresh sample table"
+    },
+    {
+      "type": "paragraph",
+      "text": "Your IDs or row count may differ if you have practised already. Use the IDs returned by your API. Seeing these rows proves more than /health: the request reached the API and the API read Oracle."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What the repository asks Oracle"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, title, is_read\nFROM reading_list_books\nORDER BY id",
+      "title": "The list query",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "SELECT chooses the columns. FROM chooses the table. ORDER BY makes the order clear. Without it, Oracle does not promise which row comes first. We name the columns rather than using SELECT *, so the reader has a clear order."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "while (await reader.ReadAsync(cancellationToken))\n{\n    books.Add(new Book(\n        reader.GetInt64(0),\n        reader.GetString(1),\n        reader.GetInt32(2) == 1));\n}",
+      "title": "Mapping each row in BookRepository",
+      "runnable": false,
+      "caption": "This is part of ListAsync; the complete method also creates the connection, command, reader and books list."
+    },
+    {
+      "type": "paragraph",
+      "text": "ReadAsync moves to the next row. Column positions start at zero: 0 is id, 1 is title and 2 is is_read. The comparison == 1 turns Oracle's number into a C# true or false."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask for just one book"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "$books = Invoke-RestMethod http://localhost:5080/api/books\n$bookId = $books[0].id\nInvoke-RestMethod \"http://localhost:5080/api/books/$bookId\"",
+      "title": "Use an ID from the list",
+      "runnable": false,
+      "caption": "This example needs at least one book. If your list is empty, add one in the next lesson first."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT id, title, is_read\nFROM reading_list_books\nWHERE id = :id",
+      "title": "The one-book query",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The :id is a named parameter. The code sends its value separately from the SQL. If that ID is absent, the repository returns null and the controller returns HTTP 404. An empty whole list is different: GET /api/books returns HTTP 200 with []."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Check the right database",
+      "text": "If /health works but /api/books fails, check the API terminal. A wrong service, wrong password or missing table can all stop the query. Do not change the browser code to include a database password."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read the list, choose one of its IDs and request that book. Compare the returned title with the title in SQL*Plus. Both should describe the same row."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-read-books-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-read-books-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "add-books"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "first-api"
+    }
+  ],
+  "seo": {
+    "title": "Read books from Oracle | C# .NET and Oracle",
+    "description": "Use GET requests to read the Oracle book table. Follow named columns into C# Book values and learn when the API returns 404."
+  },
+  "updatedOn": "2026-11-16"
+}

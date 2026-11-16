@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "slug": "routing",
+  "title": "Routing",
+  "summary": "Map URLs to components with the Angular router: route tables, router-outlet and routerLink, lazy loading with loadComponent, route parameters as inputs, redirects, wildcards and functional guards.",
+  "introduction": "A single-page application still needs URLs: users bookmark them, share them and press the back button. The Angular router keeps the address bar and the component tree in sync without reloading the page. In this lesson you define a route table, add navigation links, load pages lazily so the first download stays small, read a parameter from the URL as a signal input and protect a route with a guard.",
+  "learningObjectives": [
+    "Define routes and render them with RouterOutlet and RouterLink",
+    "Lazy-load route components with loadComponent and read URL parameters as inputs",
+    "Add redirects, a wildcard route and a functional canActivate guard"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The route table"
+    },
+    {
+      "type": "paragraph",
+      "text": "Routes live in `app.routes.ts` as an array of objects, each pairing a URL path with a component. `provideRouter(routes)` in `app.config.ts` activates the router; the CLI added it when the project was created. Paths have no leading slash. The order matters: the router takes the first match, so the wildcard `**` must come last."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.routes.ts",
+      "code": "import { Routes } from '@angular/router';\nimport { Home } from './home/home';\n\nexport const routes: Routes = [\n  { path: '', component: Home, title: 'Home' },\n  {\n    path: 'products',\n    loadComponent: () => import('./products/products').then((m) => m.Products),\n    title: 'Products',\n  },\n  {\n    path: 'products/:id',\n    loadComponent: () => import('./product-detail/product-detail').then((m) => m.ProductDetail),\n    title: 'Product',\n  },\n  { path: 'about', redirectTo: '' },\n  {\n    path: '**',\n    loadComponent: () => import('./not-found/not-found').then((m) => m.NotFound),\n    title: 'Not found',\n  },\n];"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`component` loads the class with the main bundle. Use it for the first page.",
+        "`loadComponent` loads the file only when the route is first visited; the build puts it in its own chunk. Use it for everything else.",
+        "`title` sets the document title, which screen readers announce and the browser shows in the tab.",
+        "`redirectTo` sends one path to another; `**` catches anything that matched nothing above."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Outlet and links"
+    },
+    {
+      "type": "paragraph",
+      "text": "`<router-outlet />` marks where the matched component renders. `routerLink` turns an anchor into a client-side navigation and `routerLinkActive` adds a class while the link's route is active. All three are directives that must be imported."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.ts",
+      "code": "import { Component } from '@angular/core';\nimport { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';\n\n@Component({\n  selector: 'app-root',\n  imports: [RouterOutlet, RouterLink, RouterLinkActive],\n  template: `\n    <nav>\n      <a routerLink=\"/\" routerLinkActive=\"active\" [routerLinkActiveOptions]=\"{ exact: true }\">Home</a>\n      <a routerLink=\"/products\" routerLinkActive=\"active\">Products</a>\n    </nav>\n    <main>\n      <router-outlet />\n    </main>\n  `,\n})\nexport class App {}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "What the router does for each URL",
+      "content": "/               -> Home          (in the main bundle)\n/products       -> Products      (chunk downloaded on first visit)\n/products/42    -> ProductDetail (chunk downloaded on first visit)\n/about          -> redirects to /\n/does-not-exist -> NotFound"
+    },
+    {
+      "type": "paragraph",
+      "text": "`exact: true` on the home link matters: without it, `/` is considered active on every URL, because every URL starts with `/`. For links built from data use the array form, `[routerLink]=\"['/products', product.id]\"`, which encodes each segment for you."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a link that reloads the page",
+      "text": "Writing `<a href=\"/products\">` works, but the browser performs a full page load, the app restarts and every signal is reset. Writing `<a routerLink=\"/products\">` without adding `RouterLink` to `imports` is worse: Angular treats `routerLink` as a meaningless attribute, no `href` is generated and the link does nothing at all. Import `RouterLink` and use it for every internal link."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Route parameters as inputs"
+    },
+    {
+      "type": "paragraph",
+      "text": "`:id` in `products/:id` is a parameter. With `withComponentInputBinding()` the router delivers it to a component input with the same name, so reading the URL is the same as reading any other input. Add the feature to `provideRouter`:"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.config.ts (excerpt)",
+      "code": "import { provideRouter, withComponentInputBinding } from '@angular/router';\n\nprovideRouter(routes, withComponentInputBinding())"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/product-detail/product-detail.ts",
+      "code": "import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-product-detail',\n  template: `<h1>Product {{ id() }}</h1>`,\n})\nexport class ProductDetail {\n  readonly id = input.required<string>();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "At /products/42",
+      "content": "Product 42"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parameters are always strings; convert with `Number(this.id())` or use an input `transform`. Query parameters (`?page=2`) and route `data` arrive the same way. Because the input is a signal, navigating from `/products/42` to `/products/43` updates `id()` in place, and a `computed()` or `resource()` built on it reacts automatically. The older approach, injecting `ActivatedRoute` and subscribing to `paramMap`, still works and is what most pre-2023 code does."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Navigating from code"
+    },
+    {
+      "type": "paragraph",
+      "text": "After saving a form or logging in you often need to navigate without a link. Inject `Router` and call `navigate` with the same segments you would give `routerLink`. The method returns a promise that resolves to `true` when the navigation succeeded."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { Component, inject } from '@angular/core';\nimport { Router } from '@angular/router';\n\n@Component({\n  selector: 'app-checkout',\n  template: `<button (click)=\"pay()\">Pay</button>`,\n})\nexport class Checkout {\n  private readonly router = inject(Router);\n\n  async pay(): Promise<void> {\n    const ok = await this.router.navigate(['/orders', 1017], { queryParams: { paid: 'true' } });\n    console.log(ok ? 'navigated' : 'blocked');\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Address bar and console after clicking Pay",
+      "content": "http://localhost:4200/orders/1017?paid=true\nnavigated"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Guards"
+    },
+    {
+      "type": "paragraph",
+      "text": "A guard is a function that decides whether a navigation may proceed. `CanActivateFn` returns `true` to allow it, `false` to cancel it, or a `UrlTree` to redirect. Guards run inside an injection context, so `inject()` works in them."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/auth-guard.ts and the protected route",
+      "code": "import { inject } from '@angular/core';\nimport { CanActivateFn, Router } from '@angular/router';\nimport { AuthService } from './auth-service';\n\nexport const authGuard: CanActivateFn = () => {\n  const auth = inject(AuthService);\n  const router = inject(Router);\n  return auth.isLoggedIn() ? true : router.createUrlTree(['/login']);\n};\n\n// in app.routes.ts\n// {\n//   path: 'account',\n//   canActivate: [authGuard],\n//   loadComponent: () => import('./account/account').then((m) => m.Account),\n// }"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Visiting /account while logged out",
+      "content": "Address bar: http://localhost:4200/login\nAccount component was never loaded"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because the guard runs before `loadComponent`, the protected chunk is not even downloaded for users who may not see it. Other guard types follow the same pattern: `canDeactivate` asks before leaving a page with unsaved changes, `canMatch` decides whether a route is considered at all, and `resolve` functions load data before the component appears."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested routes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A route can have `children`, rendered in a second `<router-outlet />` inside the parent component; that is how a settings page gets its own sub-navigation. A whole feature area can also be split into its own file and loaded with `loadChildren: () => import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES)`, which keeps the main route table short and the admin code out of everyone else's download. The [performance lesson](/tutorials/angular/performance) measures the effect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-routing-lazy"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-routing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "routing",
+          "difficulty": "beginner",
+          "question": "Where must the `**` wildcard route be placed in the routes array?",
+          "explanation": "The router uses the first route that matches. `**` matches everything, so anything after it would be unreachable.",
+          "options": [
+            "First, so it is checked before the others",
+            "Last, after every other route",
+            "Anywhere; order does not matter",
+            "Inside the `children` of the home route"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-routing-qc-2",
+          "type": "true-false",
+          "lessonSlug": "routing",
+          "difficulty": "intermediate",
+          "question": "With `withComponentInputBinding()`, the `:id` segment of `products/:id` can be read with `readonly id = input.required<string>();` in the routed component.",
+          "explanation": "The router binds route parameters, query parameters and data to inputs of the same name once the feature is enabled.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-routing-lazy"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "performance"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "services-di"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "inputs-outputs"
+    }
+  ],
+  "seo": {
+    "title": "Angular Routing – Routes, Lazy Loading, Params, Guards",
+    "description": "Learn the Angular 22 router: route tables, router-outlet and routerLink, lazy loading with loadComponent, route parameters as signal inputs, redirects and guards."
+  },
+  "updatedOn": "2026-11-15"
+}

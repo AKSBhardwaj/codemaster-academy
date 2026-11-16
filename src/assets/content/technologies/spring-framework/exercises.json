@@ -1,0 +1,154 @@
+{
+  "title": "Spring Framework Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "spring-framework-first-bean-check",
+      "lessonSlug": "first-bean",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String message() { return \"Hello, Asha!\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(String.class));\n }\n}\n}\n",
+      "question": "@Bean marks a value that Spring creates. The context is a container that lets the program find that value. What result does this example give after the setup steps?",
+      "explanation": "Spring calls the @Bean method to create the String. getBean reads that managed value by its type. Close the context when the program is finished.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-framework-bean-names-check",
+      "lessonSlug": "bean-names",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String school() { return \"Oak School\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"school\", String.class));\n }\n}\n}\n",
+      "question": "The method name becomes the bean name. This example asks for the bean called school. What result does this example give after the setup steps?",
+      "explanation": "The factory method name school becomes the bean name. The lookup asks for that name and String type. The requested name must match a registered bean.",
+      "options": ["oak school", "Oak School", "Pine School"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-framework-two-beans-check",
+      "lessonSlug": "two-beans",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String red() { return \"red\"; }\n@Bean String blue() { return \"blue\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"blue\", String.class));\n }\n}\n}\n",
+      "question": "A container can hold several beans of one type. A name selects the one you need. What result does this example give after the setup steps?",
+      "explanation": "Both beans have type String. The explicit name blue selects one unambiguously. A lookup by type alone is ambiguous when two beans match.",
+      "options": ["blue", "red", "BLUE"],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-framework-dependencies-check",
+      "lessonSlug": "dependencies",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nrecord Score(int value) {}\nrecord Badge(Score score) { int value() { return score.value() * 2; } }\n@Configuration\nstatic class Config {\n@Bean Score score() { return new Score(4); }\n@Bean Badge badge(Score score) { return new Badge(score); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(Badge.class).value());\n }\n}\n}\n",
+      "question": "Spring can pass one bean into another bean method. This is dependency injection: the object receives what it needs. What result does this example give after the setup steps?",
+      "explanation": "Spring creates Score first and passes it to badge. The Badge method doubles its stored 4. Declare the needed dependency instead of creating a second hidden copy.",
+      "options": ["9", "7", "8"],
+      "correctIndex": 2
+    },
+    {
+      "id": "spring-framework-singleton-check",
+      "lessonSlug": "singleton",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean Object box() { return new Object(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"box\") == context.getBean(\"box\"));\n }\n}\n}\n",
+      "question": "The normal Spring scope is singleton: one instance per bean definition in the container. What result does this example give after the setup steps?",
+      "explanation": "The default scope returns the same Object on both lookups. Reference equality is therefore true. Singleton means one per container bean definition, not one in every program everywhere.",
+      "options": ["true", "false"],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-framework-prototype-check",
+      "lessonSlug": "prototype",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean @Scope(\"prototype\") Object box() { return new Object(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(\"box\") == context.getBean(\"box\"));\n }\n}\n}\n",
+      "question": "Prototype scope makes a new bean each time the container is asked for it. What result does this example give after the setup steps?",
+      "explanation": "Prototype scope calls the factory for each lookup. The two returned objects have different identities. Spring does not manage full destruction of prototype instances for you.",
+      "options": ["true", "false"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-framework-lazy-check",
+      "lessonSlug": "lazy",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean @Lazy String message() { System.out.println(\"Made now\"); return \"Hello\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(\"Before request\");\ncontext.getBean(\"message\");\n }\n}\n}\n",
+      "question": "@Lazy delays this bean until it is requested. The print inside its factory shows when creation happens. What result does this example give after the setup steps?",
+      "explanation": "The lazy factory has not run at the first print. Requesting its bean then prints Made now. Lazy creation delays work; it does not remove that work.",
+      "options": [
+        "Before request\nMade now",
+        "BEFORE REQUEST\nMADE NOW",
+        "before request\nmade now"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-framework-default-values-check",
+      "lessonSlug": "default-values",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean Integer score(@Value(\"${lesson.score:8}\") int score) { return score; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(Integer.class));\n }\n}\n}\n",
+      "question": "@Value can read a property with a fallback. No lesson.score property is set, so the fallback is 8. What result does this example give after the setup steps?",
+      "explanation": "The property placeholder uses 8 after the colon because no matching property is set. A fallback is used only when the property is missing.",
+      "options": ["9", "7", "8"],
+      "correctIndex": 2
+    },
+    {
+      "id": "spring-framework-initialisation-check",
+      "lessonSlug": "initialisation",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nstatic class Note { String text; public void prepare() { text = \"Ready\"; } }\n@Configuration\nstatic class Config {\n@Bean(initMethod=\"prepare\") Note note() { return new Note(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(Note.class).text);\n }\n}\n}\n",
+      "question": "initMethod names a method Spring calls after making the bean. What result does this example give after the setup steps?",
+      "explanation": "Spring calls prepare after construction. That method stores Ready before the program reads text. The named method must exist and be callable with no arguments.",
+      "options": ["ready", "Ready", "Waiting"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-framework-cleanup-check",
+      "lessonSlug": "cleanup",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nstatic class Note { public void close() { System.out.println(\"Closed\"); } }\n@Configuration\nstatic class Config {\n@Bean(destroyMethod=\"close\") Note note() { return new Note(); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\n\n }\n}\n}\n",
+      "question": "destroyMethod names cleanup. Closing the context runs it for this singleton bean. What result does this example give after the setup steps?",
+      "explanation": "The try-with-resources block closes the context. Spring then calls the bean cleanup method once. Cleanup needs the context to close; an abrupt process stop may skip it.",
+      "options": ["closed", "Closed", "Open"],
+      "correctIndex": 1
+    },
+    {
+      "id": "spring-framework-primary-check",
+      "lessonSlug": "primary",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String red() { return \"red\"; }\n@Bean @Primary String blue() { return \"blue\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(String.class));\n }\n}\n}\n",
+      "question": "@Primary marks the preferred bean when several beans match a type. What result does this example give after the setup steps?",
+      "explanation": "Both factories return Strings, but @Primary tells a type-only lookup to prefer blue. Only one matching bean should be the primary choice.",
+      "options": ["blue", "red", "BLUE"],
+      "correctIndex": 0
+    },
+    {
+      "id": "spring-framework-bean-lookup-check",
+      "lessonSlug": "bean-lookup",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "java",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean String message() { return \"Hello\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.containsBean(\"message\"));\n }\n}\n}\n",
+      "question": "containsBean lets code check a registered name before trying to read it. What result does this example give after the setup steps?",
+      "explanation": "The message bean name was registered from its factory. containsBean therefore reports true. A name check does not validate every future operation on the bean.",
+      "options": ["false", "true"],
+      "correctIndex": 1
+    }
+  ]
+}

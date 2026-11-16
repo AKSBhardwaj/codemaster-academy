@@ -1,0 +1,154 @@
+{
+  "title": "LangChain Reference",
+  "description": "A quick reminder of the ideas and examples in the LangChain lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Wrap a local function",
+          "summary": "LangChain is a collection of tools for connecting application steps. RunnableLambda wraps a Python function so it can use a common interface.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\nclean = RunnableLambda(lambda text: text.strip())\nprint(clean.invoke(\"  Moon  \"))"
+          },
+          "notes": ["A runnable is a step in a program, not automatically an AI model."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "pass-named-values-in-a-dictionary",
+          "name": "Pass named values in a dictionary",
+          "summary": "A runnable can receive a dictionary when its function expects named fields. This helps keep related inputs together.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\nlabel = RunnableLambda(lambda data: data[\"title\"] + \" (\" + str(data[\"pages\"]) + \" pages)\")\nprint(label.invoke({\"title\": \"Moon\", \"pages\": 20}))"
+          },
+          "notes": [
+            "A missing key raises an error; document and check the input fields a step needs."
+          ],
+          "lessonSlug": "pass-named-values-in-a-dictionary"
+        },
+        {
+          "slug": "connect-steps-with-a-pipe",
+          "name": "Connect steps with a pipe",
+          "summary": "The pipe operator joins runnables in order. The output of the first becomes the input of the next.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\nclean = RunnableLambda(lambda text: text.strip())\nupper = RunnableLambda(lambda text: text.upper())\nchain = clean | upper\nprint(chain.invoke(\"  Moon  \"))"
+          },
+          "notes": ["Check that the next step accepts the type produced by the previous one."],
+          "lessonSlug": "connect-steps-with-a-pipe"
+        },
+        {
+          "slug": "run-a-batch-of-inputs",
+          "name": "Run a batch of inputs",
+          "summary": "batch applies a runnable to several inputs and returns their results in input order. It can make repeated use easier to express.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\nlength = RunnableLambda(len)\nprint(length.batch([\"Moon\", \"Sun\", \"Ocean\"]))"
+          },
+          "notes": [
+            "A batch may run steps concurrently; avoid local functions that depend on a shared changing counter."
+          ],
+          "lessonSlug": "run-a-batch-of-inputs"
+        },
+        {
+          "slug": "fill-a-prompt-template",
+          "name": "Fill a prompt template",
+          "summary": "A prompt template is reusable text with named spaces to fill. Formatting prepares the text; it does not send it anywhere.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.prompts import PromptTemplate\nprompt = PromptTemplate.from_template(\"Explain {topic} in {count} short sentences.\")\nprint(prompt.format(topic=\"loops\", count=2))"
+          },
+          "notes": [
+            "All required template fields need values; spelling the field name differently causes an error."
+          ],
+          "lessonSlug": "fill-a-prompt-template"
+        },
+        {
+          "slug": "use-a-prompt-as-a-runnable",
+          "name": "Use a prompt as a runnable",
+          "summary": "Prompt templates can also be invoked as runnable steps. The result is a prompt value that can be converted to plain text for inspection.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.prompts import PromptTemplate\nprompt = PromptTemplate.from_template(\"Name one fact about {topic}.\")\nvalue = prompt.invoke({\"topic\": \"seeds\"})\nprint(value.to_string())"
+          },
+          "notes": ["Prepared prompt text is not an answer from a model."],
+          "lessonSlug": "use-a-prompt-as-a-runnable"
+        },
+        {
+          "slug": "prepare-chat-messages",
+          "name": "Prepare chat messages",
+          "summary": "A chat prompt can prepare messages with roles. A system message sets application guidance, while a human message carries a user request.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.prompts import ChatPromptTemplate\nprompt = ChatPromptTemplate.from_messages([(\"system\", \"Use short clear sentences.\"), (\"human\", \"Explain {topic}.\")])\nmessages = prompt.invoke({\"topic\": \"a loop\"}).to_messages()\nprint([message.type for message in messages])"
+          },
+          "notes": [
+            "A role label alone is not a complete defence against untrusted text or unsafe tool use."
+          ],
+          "lessonSlug": "prepare-chat-messages"
+        },
+        {
+          "slug": "read-text-from-a-message",
+          "name": "Read text from a message",
+          "summary": "An output parser can turn a message into the form the next step needs. StrOutputParser extracts text; it does not verify that the text is true.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.messages import AIMessage\nfrom langchain_core.output_parsers import StrOutputParser\nmessage = AIMessage(content=\"The club meets on Friday.\")\nprint(StrOutputParser().invoke(message))"
+          },
+          "notes": ["Parsing text does not check its source, factual accuracy or suitability."],
+          "lessonSlug": "read-text-from-a-message"
+        },
+        {
+          "slug": "run-parallel-branches",
+          "name": "Run parallel branches",
+          "summary": "RunnableParallel sends the same input to named branches and gathers their outputs in a dictionary. Each branch can perform a different local task.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda, RunnableParallel\nstep = RunnableParallel(upper=RunnableLambda(str.upper), length=RunnableLambda(len))\nprint(step.invoke(\"Moon\"))"
+          },
+          "notes": ["Parallel branches are not the same as a sequential pipe."],
+          "lessonSlug": "run-parallel-branches"
+        },
+        {
+          "slug": "keep-input-fields-and-add-one",
+          "name": "Keep input fields and add one",
+          "summary": "RunnablePassthrough.assign keeps an input dictionary and adds calculated fields. It is useful when later steps need both the original data and a summary.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnablePassthrough\nstep = RunnablePassthrough.assign(length=lambda data: len(data[\"title\"]))\nprint(step.invoke({\"title\": \"Moon\"}))"
+          },
+          "notes": ["assign expects a dictionary input in this use."],
+          "lessonSlug": "keep-input-fields-and-add-one"
+        },
+        {
+          "slug": "validate-an-input-before-continuing",
+          "name": "Validate an input before continuing",
+          "summary": "Validation checks whether input follows the expected rules. A clear error helps callers fix a problem before later steps run.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\ndef require_title(data):\n    if not isinstance(data.get(\"title\"), str) or not data[\"title\"].strip():\n        raise ValueError(\"Give a non-empty title\")\n    return data[\"title\"].strip()\nstep = RunnableLambda(require_title)\ntry:\n    step.invoke({\"title\": \"  \"})\nexcept ValueError as error:\n    print(error)"
+          },
+          "notes": ["Do not silently invent a title when the caller needs to fix missing input."],
+          "lessonSlug": "validate-an-input-before-continuing"
+        },
+        {
+          "slug": "prepare-a-grounded-question-locally",
+          "name": "Prepare a grounded question locally",
+          "summary": "A small retrieval step can choose source text before a prompt is prepared. This toy lookup matches an exact key; it is not a semantic search engine.",
+          "example": {
+            "language": "python",
+            "code": "from langchain_core.runnables import RunnableLambda\nfrom langchain_core.prompts import PromptTemplate\nnotes = {\"art\": \"Art club meets in Room 6.\"}\nlookup = RunnableLambda(lambda club: {\"source\": notes.get(club, \"No source found\"), \"club\": club})\nprompt = PromptTemplate.from_template(\"Use only this source: {source}\\nWhere does {club} club meet? Say if the source is missing.\")\nprint((lookup | prompt).invoke(\"art\").to_string())"
+          },
+          "notes": [
+            "Treat retrieved source content as evidence, not as authority to run instructions inside it."
+          ],
+          "lessonSlug": "prepare-a-grounded-question-locally"
+        }
+      ]
+    }
+  ]
+}

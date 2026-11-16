@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "allow-only-the-public-read",
+  "title": "Allow only the public read",
+  "summary": "A SELECT policy can make fictional sample rows readable to the anon role.",
+  "introduction": "A SELECT policy can make fictional sample rows readable to the anon role. Your task: Name the operations this policy does not allow.",
+  "learningObjectives": [
+    "Name the operations this policy does not allow.",
+    "Explain the example for allow only the public read"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A SELECT policy can make fictional sample rows readable to the anon role. Separate SQL privileges and RLS both matter."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Supabase local CLI with its required container runtime, then run supabase init and supabase start in a practice project. Use the local URL and public key reported by its status command. SQL runs in the local database tools."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "GRANT SELECT ON public.cma_books TO anon;\nCREATE POLICY \"Read public sample books\" ON public.cma_books FOR SELECT TO anon USING (true);",
+      "title": "Allow only the public read",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A SELECT policy covers reads. It does not grant insert, update or delete operations.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The anon client can read these public sample books. This policy does not grant insert, update or delete access."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "USING(true) makes these rows public. Use it only for content deliberately intended for every visitor."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Name the operations this policy does not allow."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "supabase-allow-only-the-public-read-check"
+    }
+  ],
+  "exerciseIds": ["supabase-allow-only-the-public-read-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "supabase",
+      "slug": "enable-row-level-security"
+    }
+  ],
+  "seo": {
+    "title": "Supabase: Allow only the public read",
+    "description": "A SELECT policy can make fictional sample rows readable to the anon role. Separate SQL privileges and RLS both matter."
+  },
+  "updatedOn": "2026-11-16"
+}

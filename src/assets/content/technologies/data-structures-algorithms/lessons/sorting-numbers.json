@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "slug": "sorting-numbers",
+  "title": "Sorting Numbers",
+  "summary": "Put numbers in order with standard library tools. Learn why JavaScript needs a numeric comparison and compare examples in six languages.",
+  "introduction": "Imagine arranging score cards from the smallest score to the largest. Sorting puts items in a chosen order. We will sort [10, 2, 30] with each language's ready-made tool, then learn how sorting algorithms do the work in later lessons.",
+  "learningObjectives": [
+    "Put small whole numbers in ascending order",
+    "Choose a numeric comparison instead of text order"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ascending means smallest first. Descending means largest first. The examples all choose ascending order and change the original list. A library is ready-made code supplied for common jobs."
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript's sort treats items like text unless you give a comparison function. Text order puts \"10\" before \"2\" because it compares the first character. The function left - right asks for number order."
+    },
+    {
+      "type": "paragraph",
+      "text": "A comparison function returns a negative number if the left item belongs first, zero if they tie, and a positive number if the right item belongs first. C also asks for one. Its example compares the two numbers without subtracting them, which avoids overflow for large C integers."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with score cards 10, 2, and 30. The goal is smallest first.",
+        "Compare 10 and 2 as numbers. Since 2 is smaller, it belongs before 10.",
+        "Compare 30 with the other values. It is the largest, so it belongs at the end.",
+        "The required result is 2 10 30. The library chooses its own internal comparison steps; this is a paper check of the result."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Sorting Numbers example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const a = [10, 2, 30];\na.sort((left, right) => left - right);\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint compareNumbers(const void *left, const void *right) {\n    int x = *(const int *)left;\n    int y = *(const int *)right;\n    return (x > y) - (x < y);\n}\n\nint main(void) {\n    int a[] = {10, 2, 30};\n    int n = sizeof a / sizeof a[0];\n    qsort(a, n, sizeof a[0], compareNumbers);\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> a = {10, 2, 30};\n    int n = static_cast<int>(a.size());\n    std::sort(a.begin(), a.end());\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "a = [10, 2, 30]\na.sort()\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {10, 2, 30};\nArray.Sort(a);\nConsole.WriteLine(string.Join(\" \", a));",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[] a = {10, 2, 30};\n        int n = a.length;\n        Arrays.sort(a);\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "2 10 30"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each program prints 2 10 30. The spaces come from the printing code. No item was added or removed; only the order changed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples use small whole numbers, not a mixture of numbers and text. Empty and one-item collections are already sorted. Equal values stay present; sorting does not remove duplicates."
+    },
+    {
+      "type": "paragraph",
+      "text": "All these calls change the supplied collection. Make a copy first if another part of your program needs the old order. Stability means equal-key items keep their old relative order; library guarantees vary, so check them before sorting records such as names with tied scores."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Writing one library call does not mean the work takes O(1) time. The library still needs to compare and move items. Many general sorting tools use about O(n log n) work for n items, but guarantees depend on the language and tool."
+    },
+    {
+      "type": "paragraph",
+      "text": "There is no single time or extra-space promise shared by all six calls. JavaScript sort and C qsort do not specify one fixed algorithm. The named sorting lessons show the costs of exact implementations you can inspect."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change 30 to -3. The output should become -3 2 10. In JavaScript, keep the comparison function so the minus sign is treated as part of a number."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "In JavaScript, a.sort() alone gives text order, so [10, 2, 30] stays 10 2 30. Use a.sort((left, right) => left - right) for these numbers. Do not expect every language's sort call to use the same default rule."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-sorting-numbers"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-sorting-numbers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "bubble-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "merge-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search"
+    }
+  ],
+  "seo": {
+    "title": "Sorting Numbers in Six Languages | DSA",
+    "description": "Put numbers in order with standard library tools. Learn why JavaScript needs a numeric comparison and compare examples in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

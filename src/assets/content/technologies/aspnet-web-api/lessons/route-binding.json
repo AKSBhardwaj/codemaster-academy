@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "route-binding",
+  "title": "Bind a route number",
+  "summary": "ASP.NET Web API: Bind a route number. Try /double/cat.",
+  "introduction": "FromRoute reads a path value. Open GET /double/4. Read the example, then check the result.",
+  "learningObjectives": ["Bind a route number with ASP.NET Web API", "Try /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Bind a route number"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Bind a route number",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"double/{n:int}\")] public IActionResult Twice([FromRoute] int n) => Ok(new { answer = n * 2 });\n}\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "FromRoute reads the constrained n value. The method doubles the resulting 4."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A route constraint controls matching; it is not a full data validation policy."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-route-binding-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-route-binding-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "json-results"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Bind a route number",
+    "description": "ASP.NET Web API: Bind a route number. Try /double/cat. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

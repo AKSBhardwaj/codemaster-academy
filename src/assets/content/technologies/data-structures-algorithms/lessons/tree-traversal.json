@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "slug": "tree-traversal",
+  "title": "Tree Traversal",
+  "summary": "Visit every node in a small binary tree using left, root, right order. Trace the calls and compare the same tree in six languages.",
+  "introduction": "Think of visiting every room in a small tree house. You need a plan so no room is missed. A tree traversal is a plan for visiting each node in a tree. Here we use inorder: visit the left branch, record the current node, then visit the right branch.",
+  "learningObjectives": [
+    "Follow left, root, right order in a binary tree",
+    "Explain when inorder traversal prints sorted values"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A node is one item in a tree. The root is the top node. A binary tree allows each node at most two children, called left and right. An empty child is written as null, nullptr, NULL, or None in these languages."
+    },
+    {
+      "type": "paragraph",
+      "text": "Our tree has root 4. Its left child is 2 and its right child is 6. Node 2 has children 1 and 3. Nodes 1, 3, and 6 have no children. Every tab builds these same links."
+    },
+    {
+      "type": "paragraph",
+      "text": "Inorder means left, current node, right. The function uses recursion: it follows the same plan for a smaller branch. An empty child is the base case, where it returns immediately."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start at 4, but do not record it yet. Go left to 2, then left again to 1.",
+        "Node 1 has no left child, so record 1. Its right child is also empty. Return to 2.",
+        "Record 2, then visit its right child and record 3. The whole left branch is done.",
+        "Return to the root and record 4. Finally visit its right child and record 6. The order is 1, 2, 3, 4, 6."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Tree Traversal example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const root = {\n  value: 4,\n  left: {\n    value: 2,\n    left: { value: 1, left: null, right: null },\n    right: { value: 3, left: null, right: null }\n  },\n  right: { value: 6, left: null, right: null }\n};\nfunction inorder(node, order) {\n  if (node === null) return;\n  inorder(node.left, order);\n  order.push(node.value);\n  inorder(node.right, order);\n}\nconst order = [];\ninorder(root, order);\nconsole.log(order.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nstruct Node {\n    int value;\n    struct Node *left;\n    struct Node *right;\n};\n\nvoid inorder(const struct Node *node, int order[], int *count) {\n    if (node == NULL) return;\n    inorder(node->left, order, count);\n    order[*count] = node->value;\n    (*count)++;\n    inorder(node->right, order, count);\n}\n\nint main(void) {\n    struct Node one = {1, NULL, NULL};\n    struct Node three = {3, NULL, NULL};\n    struct Node two = {2, &one, &three};\n    struct Node six = {6, NULL, NULL};\n    struct Node root = {4, &two, &six};\n    int order[5];\n    int count = 0;\n    inorder(&root, order, &count);\n    for (int i = 0; i < count; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", order[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nstruct Node {\n    int value;\n    Node *left;\n    Node *right;\n};\n\nvoid inorder(const Node *node, std::vector<int>& order) {\n    if (node == nullptr) return;\n    inorder(node->left, order);\n    order.push_back(node->value);\n    inorder(node->right, order);\n}\n\nint main() {\n    Node one{1, nullptr, nullptr};\n    Node three{3, nullptr, nullptr};\n    Node two{2, &one, &three};\n    Node six{6, nullptr, nullptr};\n    Node root{4, &two, &six};\n    std::vector<int> order;\n    inorder(&root, order);\n    for (int i = 0; i < static_cast<int>(order.size()); i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << order[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "class Node:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\ndef inorder(node, order):\n    if node is None:\n        return\n    inorder(node.left, order)\n    order.append(node.value)\n    inorder(node.right, order)\n\nroot = Node(4, Node(2, Node(1), Node(3)), Node(6))\norder = []\ninorder(root, order)\nprint(*order)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nNode root = new Node(4, new Node(2, new Node(1), new Node(3)), new Node(6));\nList<int> order = new List<int>();\nInorder(root, order);\nConsole.WriteLine(string.Join(\" \", order));\n\nstatic void Inorder(Node? node, List<int> order) {\n    if (node is null) return;\n    Inorder(node.Left, order);\n    order.Add(node.Value);\n    Inorder(node.Right, order);\n}\n\nclass Node {\n    public int Value;\n    public Node? Left;\n    public Node? Right;\n\n    public Node(int value, Node? left = null, Node? right = null) {\n        Value = value;\n        Left = left;\n        Right = right;\n    }\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static class Node {\n        int value;\n        Node left, right;\n\n        Node(int value, Node left, Node right) {\n            this.value = value;\n            this.left = left;\n            this.right = right;\n        }\n    }\n\n    static void inorder(Node node, List<Integer> order) {\n        if (node == null) return;\n        inorder(node.left, order);\n        order.add(node.value);\n        inorder(node.right, order);\n    }\n\n    public static void main(String[] args) {\n        Node root = new Node(4,\n            new Node(2, new Node(1, null, null), new Node(3, null, null)),\n            new Node(6, null, null));\n        List<Integer> order = new ArrayList<>();\n        inorder(root, order);\n        for (int i = 0; i < order.size(); i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(order.get(i));\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4 6"
+    },
+    {
+      "type": "paragraph",
+      "text": "The list records each node once in left, root, right order. It is sorted because this example is also a binary search tree: smaller values lie to the left and larger values to the right. An arbitrary binary tree does not promise sorted inorder output."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty tree produces an empty visit list. One node is recorded once. The input must be a proper tree with no link back to an ancestor. A cyclic graph needs a visited check, as the graph traversal lessons show."
+    },
+    {
+      "type": "paragraph",
+      "text": "The C output array has five spaces for this five-node example. Increase its capacity if you add nodes. Other versions grow a list as needed. Repeated values in separate nodes are still visited separately."
+    },
+    {
+      "type": "paragraph",
+      "text": "Two other plans are preorder (current, left, right) and postorder (left, right, current). Moving the record step changes the plan. Keep the child calls in the chosen order."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Let n be the number of nodes. Each node is visited once and has at most two child links to check, so traversal takes O(n) time."
+    },
+    {
+      "type": "paragraph",
+      "text": "Let h be the longest root-to-leaf path measured in nodes. Waiting calls need O(h) stack space. A balanced tree has h around log n; a long one-branch tree has h = n. This example also saves n output values, so total extra space is O(n). Printing each value during the visit would avoid that saved output list."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the right child value from 6 to 5 in your chosen tab. The structure stays the same, and the output should become 1 2 3 4 5. Follow the links to explain why only the last value changes."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Check for an empty node before reading its children. Also do not assume every binary tree is a binary search tree: inorder is sorted only when the tree obeys the search-tree ordering rule."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-tree-traversal"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-tree-traversal"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "recursion"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "depth-first-search"
+    }
+  ],
+  "seo": {
+    "title": "Tree Traversal in Six Languages | DSA",
+    "description": "Visit every node in a small binary tree using left, root, right order. Trace the calls and compare the same tree in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

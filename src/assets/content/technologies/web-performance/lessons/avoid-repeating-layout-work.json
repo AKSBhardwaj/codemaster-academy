@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "avoid-repeating-layout-work",
+  "title": "Avoid repeating layout work",
+  "summary": "Reading layout after each style change can make the browser repeatedly calculate positions.",
+  "introduction": "Reading layout after each style change can make the browser repeatedly calculate positions. Your task: Find the read phase and the write phase in this code.",
+  "learningObjectives": [
+    "Find the read phase and the write phase in this code.",
+    "Explain the example for avoid repeating layout work"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Reading layout after each style change can make the browser repeatedly calculate positions. Group reads and then writes when possible."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local test page and browser developer tools. Code samples show a page choice or a measurement. Compare before and after under the same conditions; exact timings depend on the device and network."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const cards = [...document.querySelectorAll(\".card\")];\nconst widths = cards.map(card => card.getBoundingClientRect().width);\ncards.forEach((card, index) => { card.style.minHeight = widths[index] / 2 + \"px\"; });",
+      "title": "Avoid repeating layout work",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`querySelectorAll` returns the current matching elements. Its list is a snapshot rather than a live record of later matches.",
+        "`getBoundingClientRect` reads the displayed geometry of an element. Group layout reads before writes in a measured hot loop."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The code reads all widths first, then applies the new heights."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not assume every DOM read is expensive. Measure the real loop before making complicated changes."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Find the read phase and the write phase in this code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-performance-avoid-repeating-layout-work-check"
+    }
+  ],
+  "exerciseIds": ["web-performance-avoid-repeating-layout-work-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-performance",
+      "slug": "load-optional-code-when-needed"
+    }
+  ],
+  "seo": {
+    "title": "Web Performance: Avoid repeating layout work",
+    "description": "Reading layout after each style change can make the browser repeatedly calculate positions. Group reads and then writes when possible."
+  },
+  "updatedOn": "2026-11-16"
+}

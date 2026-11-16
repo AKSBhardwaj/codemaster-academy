@@ -1,0 +1,152 @@
+{
+  "id": "erlang-quiz",
+  "title": "Erlang Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "erlang-review-1",
+      "lessonSlug": "first-message",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    io:format(\"Hello, Asha!~n\").\n",
+      "question": "io:format writes output. ~n starts a new line. The module exports main so the command can call it. What result does this example give after the setup steps?",
+      "explanation": "io:format reads the format string. ~n starts a newline after the greeting. The module name lesson must match lesson.erl.",
+      "options": ["Hello, Ravi!", "hello, asha!", "Hello, Asha!"],
+      "correctIndex": 2
+    },
+    {
+      "id": "erlang-review-2",
+      "lessonSlug": "variables",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Pencils = 3,\n    io:format(\"~p~n\", [Pencils + 2]).\n",
+      "question": "Variables start with a capital letter. A variable can be bound only once in a function call. What result does this example give after the setup steps?",
+      "explanation": "Pencils binds to 3. The argument list gives its sum with 2 to the ~p slot. Matching a bound variable to a different value causes an error.",
+      "options": ["4", "5", "6"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-3",
+      "lessonSlug": "atoms",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Status = ready,\n    io:format(\"~p~n\", [Status]).\n",
+      "question": "Atoms are fixed labels. An unquoted atom usually starts with a lower-case letter. What result does this example give after the setup steps?",
+      "explanation": "ready is an atom. The ~p format shows the atom value. Names starting with capitals are variables, not atoms.",
+      "options": ["ready", "waiting", "READY"],
+      "correctIndex": 0
+    },
+    {
+      "id": "erlang-review-4",
+      "lessonSlug": "tuples",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    {ok, Score} = {ok, 8},\n    io:format(\"~p~n\", [Score]).\n",
+      "question": "A tuple can hold a status and a result. Pattern matching pulls its parts into names. What result does this example give after the setup steps?",
+      "explanation": "The tuple pattern matches ok and binds Score to 8. The tuple shape and first atom must match.",
+      "options": ["8", "9", "7"],
+      "correctIndex": 0
+    },
+    {
+      "id": "erlang-review-5",
+      "lessonSlug": "lists",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    [First | _Rest] = [4, 5, 8],\n    io:format(\"~p~n\", [First]).\n",
+      "question": "[Head | Tail] separates the first item from the rest of a list. What result does this example give after the setup steps?",
+      "explanation": "The head-tail pattern puts 4 in First. The remaining list is ignored. An empty list cannot match a head-and-tail pattern.",
+      "options": ["4", "5", "3"],
+      "correctIndex": 0
+    },
+    {
+      "id": "erlang-review-6",
+      "lessonSlug": "maps",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Book = #{title => \"Moon Trip\", pages => 24},\n    io:format(\"~s~n\", [maps:get(title, Book)]).\n",
+      "question": "A map keeps key-value pairs. maps:get reads the value for a key. What result does this example give after the setup steps?",
+      "explanation": "maps:get selects the title entry. ~s prints its string characters. A missing key needs a fallback or an explicit check.",
+      "options": ["moon trip", "Moon Trip", "Sun Trip"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-7",
+      "lessonSlug": "case",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Light = green,\n    Message = case Light of red -> \"Stop\"; green -> \"Go\"; _ -> \"Wait\" end,\n    io:format(\"~s~n\", [Message]).\n",
+      "question": "case compares a value with patterns. The first matching branch supplies the result. What result does this example give after the setup steps?",
+      "explanation": "The green branch matches, so Message becomes Go. Use semicolons between branches and end after the last branch.",
+      "options": ["go", "Go", "Stop"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-8",
+      "lessonSlug": "guards",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Score = 8,\n    Message = case Score of N when N >= 5 -> \"Pass\"; _ -> \"Try again\" end,\n    io:format(\"~s~n\", [Message]).\n",
+      "question": "A guard adds a small test after a pattern. when introduces that test. What result does this example give after the setup steps?",
+      "explanation": "The guard accepts 8 because it is at least 5. Not every function is allowed inside a guard.",
+      "options": ["pass", "Pass", "Try again"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-9",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    io:format(\"~p~n\", [twice(4)]).\ntwice(N) -> N * 2.\n",
+      "question": "A named function can take an input and return its final expression. What result does this example give after the setup steps?",
+      "explanation": "twice receives 4 and returns 8 to the printing call. End each function definition with a period.",
+      "options": ["7", "8", "9"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-10",
+      "lessonSlug": "comprehensions",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Doubled = [N * 2 || N <- [2, 3]],\n    io:format(\"~p~n\", [Doubled]).\n",
+      "question": "A list comprehension visits values and builds a result for each one. What result does this example give after the setup steps?",
+      "explanation": "The comprehension takes 2 then 3, doubles them, and collects both results. Use <- to take values from a list inside the comprehension.",
+      "options": ["[4,6]", "[5,6]", "[6,4]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "erlang-review-11",
+      "lessonSlug": "send-receive",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    self() ! {score, 8},\n    receive {score, N} -> io:format(\"~p~n\", [N]) end.\n",
+      "question": "A process has a mailbox. ! sends a message, and receive reads a matching message. What result does this example give after the setup steps?",
+      "explanation": "self() names this process. The tuple is sent to its mailbox, then receive extracts 8. receive waits if no message matches; real waiting code often needs after.",
+      "options": ["7", "8", "9"],
+      "correctIndex": 1
+    },
+    {
+      "id": "erlang-review-12",
+      "lessonSlug": "spawn",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "erlang",
+      "code": "-module(lesson).\n-export([main/0]).\nmain() ->\n    Parent = self(),\n    spawn(fun() -> Parent ! {answer, 4 * 2} end),\n    receive {answer, N} -> io:format(\"~p~n\", [N]) end.\n",
+      "question": "spawn starts a new process. It can send a result back to the parent process. What result does this example give after the setup steps?",
+      "explanation": "The spawned process calculates 8 and sends it to Parent. The parent waits for that answer. Processes have their own data; share results with messages.",
+      "options": ["9", "7", "8"],
+      "correctIndex": 2
+    }
+  ]
+}

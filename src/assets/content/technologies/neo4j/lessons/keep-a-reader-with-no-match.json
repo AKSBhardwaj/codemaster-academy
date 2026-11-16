@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-a-reader-with-no-match",
+  "title": "Keep a reader with no match",
+  "summary": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing.",
+  "introduction": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing. Your task: Explain why Sam should still appear in a list of all readers.",
+  "learningObjectives": [
+    "Explain why Sam should still appear in a list of all readers.",
+    "Explain the example for keep a reader with no match"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing. Missing values appear as null."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use Neo4j 5+ locally with Neo4j Browser or another Cypher editor. These queries use fictional cma-prefixed ids. Cypher is not SQL and does not run in this site's SQL playground."
+    },
+    {
+      "type": "code",
+      "language": "cypher",
+      "code": "MERGE (r:Reader {id:'cma-r2'}) SET r.name='Sam'\nWITH r OPTIONAL MATCH (r)-[:READ]->(b:Book) RETURN r.name,b.title;",
+      "title": "Keep a reader with no match",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`MERGE` matches or creates the specified graph pattern. Use a stable identity pattern, then SET changing properties.",
+        "`OPTIONAL MATCH` keeps the earlier row when its optional pattern is absent, using null for missing values.",
+        "`MATCH` finds the described graph pattern. Labels and arrow direction narrow the connections being followed."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sam is returned with a null book title if no READ relationship exists."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A regular MATCH would remove the row when the pattern has no match. Choose based on the question you need to answer."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why Sam should still appear in a list of all readers."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "neo4j-keep-a-reader-with-no-match-check"
+    }
+  ],
+  "exerciseIds": ["neo4j-keep-a-reader-with-no-match-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "neo4j",
+      "slug": "count-connected-books"
+    }
+  ],
+  "seo": {
+    "title": "Neo4j: Keep a reader with no match",
+    "description": "OPTIONAL MATCH keeps the earlier row even when the optional connection is missing. Missing values appear as null."
+  },
+  "updatedOn": "2026-11-16"
+}

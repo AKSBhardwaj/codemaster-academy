@@ -1,4 +1,4 @@
-import { Component, computed, input, model, output, signal } from '@angular/core';
+import { Component, afterNextRender, computed, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -35,7 +35,7 @@ export class TutorialSidebarComponent {
   readonly navigated = output<void>();
 
   protected readonly searchId = `cma-sidebar-search-${nextId++}`;
-  protected readonly filter = new FormControl('', { nonNullable: true });
+  protected readonly filter = new FormControl({ value: '', disabled: true }, { nonNullable: true });
   protected readonly query = toSignal(
     this.filter.valueChanges.pipe(
       debounceTime(80),
@@ -55,11 +55,17 @@ export class TutorialSidebarComponent {
       }))
       .filter((section) => section.items.length > 0);
   });
-  protected readonly totalItems = computed(() => this.sections().reduce((sum, s) => sum + s.items.length, 0));
+  protected readonly totalItems = computed(() =>
+    this.sections().reduce((sum, s) => sum + s.items.length, 0),
+  );
   protected readonly completedItems = computed(() =>
     this.sections().reduce((sum, s) => sum + s.items.filter((i) => i.completed).length, 0),
   );
   protected readonly showBody = computed(() => this.variant() === 'drawer' || !this.collapsed());
+
+  constructor() {
+    afterNextRender(() => this.filter.enable({ emitEvent: false }));
+  }
 
   protected isExpanded(id: string): boolean {
     return this.query() !== '' || !this.collapsedSections().has(id);

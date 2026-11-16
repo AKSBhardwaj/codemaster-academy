@@ -13,7 +13,13 @@ import { QuizRunnerComponent } from './quiz-runner/quiz-runner';
 
 @Component({
   selector: 'cma-quiz',
-  imports: [RouterLink, BreadcrumbsComponent, EmptyStateComponent, PageHeaderComponent, QuizRunnerComponent],
+  imports: [
+    RouterLink,
+    BreadcrumbsComponent,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    QuizRunnerComponent,
+  ],
   templateUrl: './quiz.html',
 })
 export class QuizPage {
@@ -28,13 +34,20 @@ export class QuizPage {
     params: () => this.tech(),
     loader: ({ params }) => this.content.load<Quiz>(`technologies/${params}/quiz.json`),
   });
-  protected readonly quiz = computed(() => (this.quizResource.hasValue() ? this.quizResource.value() : undefined));
+  protected readonly quiz = computed(() =>
+    this.quizResource.hasValue()
+      ? this.quizResource.value()
+      : this.content.peek<Quiz>(`technologies/${this.tech()}/quiz.json`),
+  );
   protected readonly missing = computed(() => this.quizResource.status() === 'error');
   protected readonly history = computed(() => {
     const quiz = this.quiz();
     return quiz ? this.store.historyFor(quiz.id) : undefined;
   });
-  protected readonly crumbs = computed(() => [{ label: 'Quizzes', path: '/quizzes' }, { label: this.entry()?.name ?? this.tech() }]);
+  protected readonly crumbs = computed(() => [
+    { label: 'Quizzes', path: '/quizzes' },
+    { label: this.entry()?.name ?? this.tech() },
+  ]);
 
   constructor() {
     effect(() => {
@@ -42,11 +55,20 @@ export class QuizPage {
       if (quiz) {
         this.seo.apply({
           title: quiz.title,
-          description: quiz.description,
-          jsonLd: [breadcrumbList([{ name: 'Quizzes', url: this.seo.absoluteUrl('/quizzes') }, { name: quiz.title, url: this.seo.absoluteUrl(`/quizzes/${this.tech()}`) }])],
+          description: `${quiz.title}. ${quiz.description}`,
+          jsonLd: [
+            breadcrumbList([
+              { name: 'Quizzes', url: this.seo.absoluteUrl('/quizzes') },
+              { name: quiz.title, url: this.seo.absoluteUrl(`/quizzes/${this.tech()}`) },
+            ]),
+          ],
         });
       } else if (this.missing()) {
-        this.seo.apply({ title: `${this.entry()?.name ?? 'Technology'} quiz`, description: 'This quiz has not been published yet.', robots: 'noindex,follow' });
+        this.seo.apply({
+          title: `${this.entry()?.name ?? 'Technology'} quiz`,
+          description: 'This quiz could not load. Please try again.',
+          robots: 'noindex,follow',
+        });
       }
     });
   }

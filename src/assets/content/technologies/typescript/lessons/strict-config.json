@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "slug": "strict-config",
+  "title": "Strict Mode and Common Compiler Errors",
+  "summary": "TypeScript settings choose which checks the type checker makes. Strict settings help it catch more mix-ups.",
+  "introduction": "TypeScript settings choose which checks the type checker makes. Strict settings help it catch more mix-ups. Think of checking every item before a class trip. Learn why missing values and unknown values need extra care.",
+  "learningObjectives": [
+    "List the checks that strict enables and the optional ones tsc --init adds",
+    "Recognise TS7006, TS18048, TS2322, TS2345, TS2339 and TS2375 and explain their cause",
+    "Fix type errors honestly and migrate an existing project to strict mode step by step"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What strict switches on"
+    },
+    {
+      "type": "paragraph",
+      "text": "`\"strict\": true` is a shortcut for a family of flags. You can set any of them individually, which is how gradual migrations work, but new projects should start with all of them. TypeScript 6 turns `strict` on by default for projects that do not set it; in 5.9 you still have to write it."
+    },
+    {
+      "type": "table",
+      "caption": "Flags enabled by strict",
+      "headers": ["Flag", "What it catches"],
+      "rows": [
+        [
+          "`noImplicitAny`",
+          "Parameters and variables whose type would silently become `any` (TS7006, TS7034)"
+        ],
+        [
+          "`strictNullChecks`",
+          "Using a value that may be `null` or `undefined` without a check (TS18047, TS18048, TS2322)"
+        ],
+        [
+          "`strictPropertyInitialization`",
+          "Class fields that are not assigned in the constructor (TS2564)"
+        ],
+        [
+          "`strictFunctionTypes`",
+          "Passing a callback whose parameter types are narrower than the expected signature"
+        ],
+        ["`strictBindCallApply`", "Wrong arguments to `bind`, `call` and `apply`"],
+        ["`noImplicitThis`", "`this` used where its type cannot be determined"],
+        [
+          "`useUnknownInCatchVariables`",
+          "`catch (e)` gives `e` the type `unknown` instead of `any`"
+        ],
+        ["`alwaysStrict`", "Emits `\"use strict\"` and parses files in JavaScript strict mode"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The two errors you will see most"
+    },
+    {
+      "type": "paragraph",
+      "text": "An implicit `any` and a possibly-undefined value account for most of a beginner's error list. Both appear in this short file: a parameter without a type, and the result of `Array.prototype.find`, which returns `undefined` when nothing matches."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "implicit.ts",
+      "code": "function parsePrice(input) {\n  return Number(input);\n}\n\nconst found = [1, 2, 3].find((n) => n > 5);\nconsole.log(found.toFixed(1));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc implicit.ts",
+      "content": "implicit.ts:1:21 - error TS7006: Parameter 'input' implicitly has an 'any' type.\n\n1 function parsePrice(input) {\n                      ~~~~~\n\nimplicit.ts:6:13 - error TS18048: 'found' is possibly 'undefined'.\n\n6 console.log(found.toFixed(1));\n              ~~~~~\n\n\nFound 2 errors in the same file, starting at: implicit.ts:1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second error is not theoretical: nothing in the array is greater than 5, so running the file crashes with `TypeError: Cannot read properties of undefined (reading 'toFixed')`. The honest fixes are a real parameter type and a check for the missing case."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "implicit-fixed.ts",
+      "code": "function parsePrice(input: string): number {\n  return Number(input);\n}\n\nconst found = [1, 2, 3].find((n) => n > 5);\nconsole.log(found?.toFixed(1) ?? \"none\");\nconsole.log(parsePrice(\"9.99\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx implicit-fixed.ts",
+      "content": "none\n9.99"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Beyond strict: the optional checks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several checks are deliberately left out of `strict` because they change how common code is written. The 5.9 `tsc --init` template enables two of them, `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`, and lists the style checks as comments. This file is clean under plain `strict` and fails with both extra options on."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "exact.ts",
+      "code": "interface Settings {\n  theme?: string;\n}\n\nconst settings: Settings = { theme: undefined };\n\nconst list = [\"a\", \"b\"];\nconst item = list[5];\nconsole.log(item.toUpperCase(), settings);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc --exactOptionalPropertyTypes --noUncheckedIndexedAccess exact.ts",
+      "content": "exact.ts:5:7 - error TS2375: Type '{ theme: undefined; }' is not assignable to type 'Settings' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.\n  Types of property 'theme' are incompatible.\n    Type 'undefined' is not assignable to type 'string'.\n\n5 const settings: Settings = { theme: undefined };\n        ~~~~~~~~\n\nexact.ts:9:13 - error TS18048: 'item' is possibly 'undefined'.\n\n9 console.log(item.toUpperCase(), settings);\n              ~~~~\n\n\nFound 2 errors in the same file, starting at: exact.ts:5"
+    },
+    {
+      "type": "table",
+      "caption": "Optional checks worth knowing",
+      "headers": ["Option", "Effect", "Recommendation"],
+      "rows": [
+        [
+          "`noUncheckedIndexedAccess`",
+          "`list[i]` and `dict[key]` become `T | undefined`",
+          "On for new projects"
+        ],
+        [
+          "`exactOptionalPropertyTypes`",
+          "`theme?: string` means *absent or a string*, not *explicitly undefined*",
+          "On for new projects"
+        ],
+        [
+          "`noImplicitOverride`",
+          "Methods that replace a base-class method must say `override`",
+          "On"
+        ],
+        [
+          "`noImplicitReturns`",
+          "Every code path of a function with a return type must return",
+          "On"
+        ],
+        [
+          "`noFallthroughCasesInSwitch`",
+          "A non-empty `case` must end with `break` or `return`",
+          "On"
+        ],
+        [
+          "`noUnusedLocals` / `noUnusedParameters`",
+          "Unused declarations are errors",
+          "On in CI; some teams prefer a linter rule"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reading error codes"
+    },
+    {
+      "type": "table",
+      "caption": "Error codes you will meet every week",
+      "headers": ["Code", "Message pattern", "Usual cause"],
+      "rows": [
+        [
+          "TS2322",
+          "Type 'X' is not assignable to type 'Y'",
+          "Assigning or returning the wrong type"
+        ],
+        [
+          "TS2345",
+          "Argument of type 'X' is not assignable to parameter of type 'Y'",
+          "Calling a function with the wrong argument"
+        ],
+        [
+          "TS2339",
+          "Property 'p' does not exist on type 'T'",
+          "Typo, or a union member that lacks the property"
+        ],
+        ["TS2554", "Expected N arguments, but got M", "Missing or extra argument"],
+        [
+          "TS2741 / TS2353",
+          "Property missing / Object literal may only specify known properties",
+          "An object literal does not match the interface"
+        ],
+        ["TS7006", "Parameter 'p' implicitly has an 'any' type", "Missing parameter annotation"],
+        ["TS18047 / TS18048", "'x' is possibly 'null' / 'undefined'", "Missing null check"],
+        ["TS2307", "Cannot find module 'm'", "Wrong path, missing file or missing types"],
+        ["TS2564", "Property has no initializer", "Class field not assigned in the constructor"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fixing errors without cheating"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three edits make any error vanish: a `// @ts-ignore` comment above the line, a `!` after the value, or an `as` cast to the type you wish you had. This file uses all three on the same bug, compiles without a single complaint, and crashes on the first call."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "shortcuts.ts",
+      "code": "interface Profile {\n  nickname?: string;\n}\n\nfunction show(profile: Profile): string {\n  // @ts-ignore\n  const a = profile.nickname.toUpperCase();\n  const b = profile.nickname!.toUpperCase();\n  const c = (profile as { nickname: string }).nickname.toUpperCase();\n  return a + b + c;\n}\n\nconsole.log(show({}));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx shortcuts.ts (tsc reports no errors)",
+      "content": "TypeError: Cannot read properties of undefined (reading 'toUpperCase')"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: treating the error as the problem",
+      "text": "The error was the compiler telling you that `nickname` may be missing. `@ts-ignore`, `!`, `as` and `any` all delete the message and keep the bug. The honest fix handles the missing case: `profile.nickname?.toUpperCase() ?? \"anonymous\"`. If you must suppress an error, use `// @ts-expect-error` with a comment explaining why; unlike `@ts-ignore` it becomes an error itself (TS2578) once the underlying problem is fixed, so stale suppressions cannot accumulate."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "shortcuts-fixed.ts",
+      "code": "interface Profile {\n  nickname?: string;\n}\n\nfunction show(profile: Profile): string {\n  return profile.nickname?.toUpperCase() ?? \"anonymous\";\n}\n\nconsole.log(show({}), show({ nickname: \"ada\" }));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx shortcuts-fixed.ts",
+      "content": "anonymous ADA"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Adopting strict in an existing project"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Enable `noImplicitAny` first and annotate parameters file by file; this is the flag with the most errors but the most mechanical fixes.",
+        "Enable `strictNullChecks` next. Expect many `possibly 'undefined'` errors; fix them with real checks, not `!`.",
+        "Switch to `\"strict\": true`; the remaining flags usually produce few errors.",
+        "Add `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` once the code base is stable, and run `tsc --noEmit` in CI so the error count can only go down."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Search by code",
+      "text": "When a message is unclear, search for the code (`TS2322`) together with the type names it mentions. The code is stable across versions even when the wording changes, and the [TypeScript handbook](https://www.typescriptlang.org/docs/) and `tsc --explainFiles` or `--listFiles` help with module and configuration errors."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-strict-config-flag"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-strict-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "strict-config",
+          "difficulty": "intermediate",
+          "question": "Which option is NOT enabled by `\"strict\": true`?",
+          "explanation": "noUncheckedIndexedAccess is a separate, optional check (enabled by the 5.9 tsc --init template). The other three are part of the strict family.",
+          "options": [
+            "`noImplicitAny`",
+            "`strictNullChecks`",
+            "`noUncheckedIndexedAccess`",
+            "`useUnknownInCatchVariables`"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "ts-strict-qc-2",
+          "type": "true-false",
+          "lessonSlug": "strict-config",
+          "difficulty": "beginner",
+          "question": "`// @ts-expect-error` reports an error if the next line no longer contains a type error.",
+          "explanation": "That is its advantage over @ts-ignore: an unused @ts-expect-error directive is itself reported (TS2578), so suppressions are cleaned up when the code is fixed.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-strict-config-flag"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Strict Mode – Flags and Common Compiler Errors",
+    "description": "What strict enables in TypeScript, the optional checks worth adding, the most common tsc error codes, and how to fix them without any, ! or @ts-ignore."
+  },
+  "updatedOn": "2026-11-16"
+}

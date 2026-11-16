@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors",
+  "title": "Report a missing item",
+  "summary": "FastAPI: Report a missing item. Inspect the status as well as the body.",
+  "introduction": "HTTPException stops normal handling with an error reply. Open GET /missing.",
+  "learningObjectives": [
+    "Report a missing item with FastAPI",
+    "Inspect the status as well as the body"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing item"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Report a missing item",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/missing\")\ndef missing():\n    raise HTTPException(status_code=404, detail=\"Book not found\")\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Raising HTTPException ends the handler. FastAPI sends 404 with the detail field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"detail\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the status as well as the body."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Raise HTTPException; returning it is not the same action."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-errors-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-errors-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "response-models"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Report a missing item",
+    "description": "FastAPI: Report a missing item. Inspect the status as well as the body. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

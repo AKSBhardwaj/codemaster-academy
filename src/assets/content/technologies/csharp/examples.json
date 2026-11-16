@@ -1,0 +1,160 @@
+{
+  "title": "C# Examples",
+  "description": "Use these examples with the setup steps in their lessons. These technologies need tools on your computer and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "introduction-example",
+      "title": "C#: Write a greeting",
+      "description": "Console.WriteLine prints text and starts a new line. Put this code in Program.cs in the console project from the setup lesson.",
+      "language": "csharp",
+      "code": "Console.WriteLine(\"Hello, Asha!\");",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "introduction",
+      "output": "Hello, Asha!"
+    },
+    {
+      "id": "setup-dotnet-example",
+      "title": "Installing .NET and Creating a Project",
+      "description": "Follow the installing .net and creating a project lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "dotnet --version",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "setup-dotnet",
+      "output": "10.0.100"
+    },
+    {
+      "id": "syntax-variables-example",
+      "title": "Syntax and Variables",
+      "description": "Follow the syntax and variables lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "// A single-line comment\nConsole.WriteLine(\"One statement\");\n\n/* A comment that\n   spans two lines */\nConsole.WriteLine(\n    \"A statement split across lines\");",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "syntax-variables",
+      "output": "One statement\nA statement split across lines"
+    },
+    {
+      "id": "types-example",
+      "title": "Value and Reference Types",
+      "description": "Follow the value and reference types lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "int a = 10;\nint b = a;              // copies the value\nb = 20;\nConsole.WriteLine($\"a = {a}, b = {b}\");\n\nint[] first = [1, 2, 3];\nint[] second = first;   // copies the reference, not the array\nsecond[0] = 99;\nConsole.WriteLine($\"first[0] = {first[0]}, second[0] = {second[0]}\");",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "types",
+      "output": "a = 10, b = 20\nfirst[0] = 99, second[0] = 99"
+    },
+    {
+      "id": "control-flow-example",
+      "title": "Control Flow",
+      "description": "Follow the control flow lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "int temperature = 23;\n\nif (temperature >= 30)\n{\n    Console.WriteLine(\"Hot\");\n}\nelse if (temperature >= 20)\n{\n    Console.WriteLine(\"Pleasant\");\n}\nelse\n{\n    Console.WriteLine(\"Cold\");\n}\n\nstring advice = temperature > 25 ? \"Bring water\" : \"Bring a jacket\";\nConsole.WriteLine(advice);",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "control-flow",
+      "output": "Pleasant\nBring a jacket"
+    },
+    {
+      "id": "methods-example",
+      "title": "Methods",
+      "description": "Follow the methods lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "Console.WriteLine(Add(2, 3));\nConsole.WriteLine(Add(10, -4));\nGreet(\"Ada\");\nGreet(\"Grace\");\n\nint Add(int a, int b)\n{\n    return a + b;\n}\n\nvoid Greet(string name)\n{\n    Console.WriteLine($\"Hello, {name}!\");\n}",
+      "runnable": false,
+      "tags": ["basics", "practice"],
+      "lessonSlug": "methods",
+      "output": "5\n6\nHello, Ada!\nHello, Grace!"
+    },
+    {
+      "id": "classes-objects-example",
+      "title": "Classes and Objects",
+      "description": "Follow the classes and objects lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "var account = new BankAccount(\"Ada\", 100m);\naccount.Deposit(50m);\nbool ok = account.Withdraw(500m);\n\nConsole.WriteLine(ok);\nConsole.WriteLine(account.Balance);\nConsole.WriteLine(account.Owner);\n\nclass BankAccount\n{\n    private decimal _balance;\n\n    public string Owner { get; }\n    public decimal Balance => _balance;\n\n    public BankAccount(string owner, decimal openingBalance)\n    {\n        Owner = owner;\n        _balance = openingBalance;\n    }\n\n    public void Deposit(decimal amount)\n    {\n        if (amount <= 0)\n        {\n            throw new ArgumentOutOfRangeException(nameof(amount), \"Deposit must be positive.\");\n        }\n        _balance += amount;\n    }\n\n    public bool Withdraw(decimal amount)\n    {\n        if (amount > _balance) return false;\n        _balance -= amount;\n        return true;\n    }\n}",
+      "runnable": false,
+      "tags": ["oop", "practice"],
+      "lessonSlug": "classes-objects",
+      "output": "False\n150\nAda"
+    },
+    {
+      "id": "inheritance-interfaces-example",
+      "title": "Inheritance and Interfaces",
+      "description": "Follow the inheritance and interfaces lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "Animal[] zoo = [new Dog(\"Rex\"), new Cat(\"Tom\"), new Animal(\"Generic\")];\n\nforeach (Animal animal in zoo)\n{\n    Console.WriteLine($\"{animal.Name}: {animal.Speak()}\");\n}\n\nclass Animal(string name)\n{\n    public string Name { get; } = name;\n\n    public virtual string Speak() => \"...\";\n}\n\nclass Dog(string name) : Animal(name)\n{\n    public override string Speak() => \"Woof\";\n}\n\nclass Cat(string name) : Animal(name)\n{\n    public override string Speak() => \"Meow\";\n}",
+      "runnable": false,
+      "tags": ["oop", "practice"],
+      "lessonSlug": "inheritance-interfaces",
+      "output": "Rex: Woof\nTom: Meow\nGeneric: ..."
+    },
+    {
+      "id": "collections-linq-example",
+      "title": "Collections and LINQ",
+      "description": "Follow the collections and linq lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "List<string> todo = [\"write code\", \"run tests\"];\ntodo.Add(\"ship it\");\ntodo.Insert(0, \"plan\");\ntodo.Remove(\"run tests\");\n\nConsole.WriteLine(todo.Count);\nConsole.WriteLine(string.Join(\", \", todo));\nConsole.WriteLine(todo[0]);\nConsole.WriteLine(todo[^1]);\nConsole.WriteLine(todo.Contains(\"ship it\"));\nConsole.WriteLine(todo.IndexOf(\"missing\"));\n\nint[] primes = [2, 3, 5, 7];\nConsole.WriteLine(primes.Length);\nConsole.WriteLine(string.Join(\" \", primes[1..3]));",
+      "runnable": false,
+      "tags": ["oop", "practice"],
+      "lessonSlug": "collections-linq",
+      "output": "3\nplan, write code, ship it\nplan\nship it\nTrue\n-1\n4\n3 5"
+    },
+    {
+      "id": "properties-records-example",
+      "title": "Properties, Records and Pattern Matching",
+      "description": "Follow the properties, records and pattern matching lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "var person = new Person { Name = \"Ada\", BirthYear = 1815 };\nperson.Email = \"  Ada@Example.com \";\n\nConsole.WriteLine(person.Name);\nConsole.WriteLine(person.Email);\nConsole.WriteLine(person.AgeIn(2026));\nConsole.WriteLine(person.Initial);\n\n// person.Name = \"Grace\";   does not compile: init-only after construction\n// new Person();            does not compile: Name is required\n\nclass Person\n{\n    private string _email = \"\";\n\n    public required string Name { get; init; }\n    public int BirthYear { get; init; }\n\n    public string Email\n    {\n        get => _email;\n        set => _email = value.Trim().ToLowerInvariant();\n    }\n\n    public char Initial => Name[0];\n\n    public int AgeIn(int year) => year - BirthYear;\n}",
+      "runnable": false,
+      "tags": ["oop", "practice"],
+      "lessonSlug": "properties-records",
+      "output": "Ada\nada@example.com\n211\nA"
+    },
+    {
+      "id": "exceptions-example",
+      "title": "Exceptions",
+      "description": "Follow the exceptions lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "int[] numbers = [1, 2, 3];\nConsole.WriteLine(numbers[5]);\nConsole.WriteLine(\"This line never runs.\");",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "exceptions",
+      "output": "Unhandled exception. System.IndexOutOfRangeException: Index was outside the bounds of the array.\n   at Program.<Main>$(String[] args) in C:\\dev\\Demo\\Program.cs:line 2"
+    },
+    {
+      "id": "async-await-example",
+      "title": "async and await",
+      "description": "Follow the async and await lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "Console.WriteLine(\"Putting the kettle on...\");\nstring drink = await BrewAsync(\"tea\");\nConsole.WriteLine(drink);\n\nasync Task<string> BrewAsync(string what)\n{\n    await Task.Delay(1000);          // stands in for a slow operation\n    return $\"Your {what} is ready\";\n}",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "async-await",
+      "output": "Putting the kettle on...\nYour tea is ready"
+    },
+    {
+      "id": "files-json-example",
+      "title": "Files and JSON",
+      "description": "Follow the files and json lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "csharp",
+      "code": "string path = \"notes.txt\";\n\nFile.WriteAllText(path, \"First line\\n\");\nFile.AppendAllText(path, \"Second line\\n\");\n\nstring content = File.ReadAllText(path);\nConsole.WriteLine(content);\n\nstring[] lines = File.ReadAllLines(path);\nConsole.WriteLine($\"{lines.Length} lines; last = \\\"{lines[^1]}\\\"\");\nConsole.WriteLine(File.Exists(path));\n\nFile.Delete(path);\nConsole.WriteLine(File.Exists(path));",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "files-json",
+      "output": "First line\nSecond line\n\n2 lines; last = \"Second line\"\nTrue\nFalse"
+    },
+    {
+      "id": "testing-xunit-example",
+      "title": "Testing with xUnit",
+      "description": "Follow the testing with xunit lesson to set up this example. Read the code, then change one small value and try it on your computer.",
+      "language": "bash",
+      "code": "dotnet new classlib -n Calculator\ndotnet new xunit -n Calculator.Tests\ndotnet add Calculator.Tests reference Calculator",
+      "runnable": false,
+      "tags": ["practical", "practice"],
+      "lessonSlug": "testing-xunit",
+      "output": "Reference `..\\Calculator\\Calculator.csproj` added to the project."
+    }
+  ]
+}

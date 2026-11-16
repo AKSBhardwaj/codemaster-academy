@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "utilities-spacing-flex",
+  "title": "Spacing and Flex Utilities",
+  "summary": "A Bootstrap utility class has one small job, such as adding space or making a row of boxes.",
+  "introduction": "A Bootstrap utility class has one small job, such as adding space or making a row of boxes. Use padding for space inside a box and margin for space outside it. Then add a flex row with a small gap between its items.",
+  "learningObjectives": [
+    "Read and write spacing classes using the property, side and size scheme",
+    "Lay out elements with the flex direction, alignment, wrapping and gap utilities",
+    "Apply display, sizing, position, colour, border and shadow utilities",
+    "Decide when a utility beats a custom CSS rule"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Spacing: the naming scheme"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spacing classes follow one pattern: **property**, **side**, dash, **size**. The property is `m` for margin or `p` for padding. The side is `t` (top), `b` (bottom), `s` (start, the left in left-to-right pages), `e` (end), `x` (both horizontal), `y` (both vertical) or nothing for all four. The size is a step on a scale based on the `1rem` spacer. So `mt-3` is `margin-top: 1rem`, `px-2` is horizontal padding of `.5rem`, and `m-0` removes all margins. Insert a breakpoint before the size for a responsive version: `mt-md-5`."
+    },
+    {
+      "type": "table",
+      "caption": "The spacing scale",
+      "headers": ["Size", "Value", "Pixels at 16px root"],
+      "rows": [
+        ["`0`", "0", "0"],
+        ["`1`", "0.25rem", "4px"],
+        ["`2`", "0.5rem", "8px"],
+        ["`3`", "1rem", "16px"],
+        ["`4`", "1.5rem", "24px"],
+        ["`5`", "3rem", "48px"],
+        ["`auto`", "auto (margins only)", "whatever space is left"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Reading spacing classes",
+      "code": "<div class=\"border p-3\">\n  <h2 class=\"mt-0 mb-4\">Spacing</h2>\n  <p class=\"mb-2\">Paragraph with an 8px bottom margin.</p>\n  <p class=\"mb-0\">Paragraph with no bottom margin.</p>\n  <button type=\"button\" class=\"btn btn-primary mt-3 me-2\">Save</button>\n  <button type=\"button\" class=\"btn btn-outline-secondary mt-3\">Cancel</button>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "The box has 16px of padding on every side\nThe heading has no top margin and 24px of space below it\nThe first paragraph is followed by 8px of space, the second by none\nBoth buttons sit 16px below the second paragraph; Save has 8px of space to its right before Cancel"
+    },
+    {
+      "type": "paragraph",
+      "text": "`auto` is the one special size. `mx-auto` on a block element with a width centres it horizontally, the classic CSS trick with no CSS written. Negative margins (`mt-n3`) exist in the Sass source but are switched off in the compiled CDN build, so do not expect them to work unless you build Bootstrap yourself with `$enable-negative-margins: true`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Centring a fixed-width block",
+      "code": "<div class=\"border p-3 mx-auto\" style=\"width: 300px;\">\n  I am 300px wide and horizontally centred.\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A 300px wide box with equal empty space on its left and right, whatever the width of its parent"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Flex utilities"
+    },
+    {
+      "type": "paragraph",
+      "text": "`d-flex` turns an element into a flex container; after that the utilities map almost one to one onto [CSS flexbox](/tutorials/css) properties. `flex-row` and `flex-column` set the direction, `justify-content-*` distributes items along it (`start`, `end`, `center`, `between`, `around`, `evenly`), `align-items-*` aligns them across it (`start`, `end`, `center`, `baseline`, `stretch`), `flex-wrap` allows wrapping, `flex-fill` makes items share the space equally, `order-*` reorders them and `gap-*` spaces them on the same scale as margins. Every one of these takes a breakpoint infix, which is how a column of boxes on a phone becomes a row on a tablet."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A toolbar and a responsive row of boxes",
+      "code": "<div class=\"d-flex justify-content-between align-items-center border p-2\">\n  <span class=\"fw-bold\">Shopping list</span>\n  <div class=\"d-flex gap-2\">\n    <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">Share</button>\n    <button type=\"button\" class=\"btn btn-sm btn-primary\">Add item</button>\n  </div>\n</div>\n\n<div class=\"d-flex flex-column flex-md-row gap-3 mt-3\">\n  <div class=\"border p-3 flex-fill\">Equal</div>\n  <div class=\"border p-3 flex-fill\">Equal</div>\n  <div class=\"border p-3 flex-fill\">Equal</div>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Toolbar: \"Shopping list\" at the left edge, the two small buttons at the right edge 8px apart, everything vertically centred on one line\nBoxes below 768px: three boxes stacked with 16px between them\nBoxes at 768px and wider: three boxes side by side sharing the width equally, 16px apart"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inside a flex row, `me-auto` on an item pushes everything after it to the far end and `ms-auto` pushes the item itself to the end, which is how a navbar sends its search form to the right. Bootstrap also ships two helpers, `vstack` and `hstack`, which are `d-flex flex-column` and `d-flex flex-row align-items-center` with sensible defaults for stacking buttons or form controls."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Display, sizing and position"
+    },
+    {
+      "type": "paragraph",
+      "text": "`d-*` sets `display` (covered in the breakpoints lesson). Sizing utilities set percentages of the parent: `w-25`, `w-50`, `w-75`, `w-100`, `w-auto` and the same for `h-*`, plus `mw-100` and `mh-100` for max sizes and `vw-100`, `vh-100`, `min-vh-100` for the viewport. Position utilities set `position-{static|relative|absolute|fixed|sticky}` and the offsets `top-0`, `top-50`, `top-100`, `bottom-*`, `start-*`, `end-*`; `translate-middle` shifts an element back by half its size so those offsets refer to its centre. The classic sticky footer needs only three of them."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A footer that stays at the bottom of short pages",
+      "code": "<body class=\"d-flex flex-column min-vh-100\">\n  <main class=\"container py-4\">\n    <h1>Short page</h1>\n    <p>Not enough content to fill the window.</p>\n  </main>\n  <footer class=\"mt-auto bg-body-tertiary py-3 text-center\">\n    &copy; 2026 Garden Club\n  </footer>\n</body>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "The grey footer sits at the very bottom of the window even though the content is short\nWhen the content grows taller than the window, the footer moves below it and scrolls normally"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Colours, borders and shadows"
+    },
+    {
+      "type": "paragraph",
+      "text": "`bg-{colour}` and `text-{colour}` use the theme palette, and `text-bg-{colour}` sets both with a readable pairing. Bootstrap 5.3 adds `bg-{colour}-subtle` (a pale tint), `text-{colour}-emphasis` (a dark shade) and `border-{colour}-subtle`, which together make a tinted panel that still works in dark mode. Borders start with `border` and are adjusted with sides (`border-top`), widths (`border-2`) and colours; corners with `rounded`, `rounded-0` to `rounded-5`, `rounded-circle` and `rounded-pill`; depth with `shadow-sm`, `shadow` and `shadow-lg`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "An avatar, a tinted panel and hidden text",
+      "code": "<img src=\"images/avatar.jpg\" alt=\"Portrait of Ada\" width=\"96\" height=\"96\"\n     class=\"rounded-circle border border-3 border-primary shadow\">\n\n<div class=\"bg-primary-subtle text-primary-emphasis border border-primary-subtle rounded-3 p-3 mt-3\">\n  A tinted panel using the 5.3 subtle and emphasis colours.\n</div>\n\n<p class=\"visually-hidden\">Read by screen readers, invisible on screen.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A 96px circular image with a 3px blue border and a soft drop shadow\nA pale blue panel with dark blue text, a light blue border and 8px rounded corners, 16px below the image\nThe final paragraph takes no visible space but is read aloud by screen readers"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: Bootstrap 4 side letters",
+      "text": "`ml-2`, `mr-3`, `pl-0` and `float-left` are Bootstrap 4 names. Version 5 renamed left and right to **start** and **end** so that layouts flip correctly in right-to-left languages: `ms-2`, `me-3`, `ps-0`, `float-start`, `text-start`. The old classes are not defined in the 5.3 stylesheet, so they do nothing and produce no error; a margin that \"does not work\" is usually one of these."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Utility or custom CSS?"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Use a utility when the adjustment is local and visible in the markup: spacing, alignment, a border, a colour from the palette.",
+        "Write CSS when the same combination appears on many elements (give it a class name) or when the value is not on Bootstrap's scales (a 37px gap, a brand colour that is not in the theme).",
+        "Utilities carry `!important`, so they override component and custom styles. If a utility refuses to apply, something is overriding it with `!important` too, or the class name is misspelled.",
+        "Prefer colour-mode-aware classes (`bg-body-tertiary`, `text-body-secondary`, `border`) over fixed ones (`bg-light`, `text-dark`, `bg-white`) so the page survives a switch to dark mode."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Read a class, predict the CSS",
+      "text": "Before adding a class, say its CSS aloud: `py-md-4` is \"padding top and bottom of 1.5rem from the md breakpoint\". If you cannot translate a class into a property and value, look it up before using it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-spacing-scale"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-util-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "utilities-spacing-flex",
+          "difficulty": "beginner",
+          "question": "What CSS does `py-3` apply?",
+          "explanation": "p is padding, y is both vertical sides, and size 3 is 1rem on the spacing scale.",
+          "options": [
+            "`padding: 3px`",
+            "`padding-top: 1rem; padding-bottom: 1rem`",
+            "`padding-left: 1rem; padding-right: 1rem`",
+            "`margin-top: 1rem; margin-bottom: 1rem`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "bs-util-qc-2",
+          "type": "true-false",
+          "lessonSlug": "utilities-spacing-flex",
+          "difficulty": "beginner",
+          "question": "Inside a `d-flex` row, `me-auto` on the first item pushes all the following items to the far end.",
+          "explanation": "An auto margin in a flex container absorbs the free space, so margin-end: auto on the first item leaves the rest at the end of the row.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-spacing-scale"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "containers-grid"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "breakpoints-responsive"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Utilities – Spacing, Flex, Display and Colours",
+    "description": "Learn Bootstrap 5.3 utility classes: the spacing scale, mx-auto centring, flex alignment and gap, display, sizing, position, colours, borders and shadows."
+  },
+  "updatedOn": "2026-11-16"
+}

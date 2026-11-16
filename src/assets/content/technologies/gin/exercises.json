@@ -1,0 +1,154 @@
+{
+  "title": "Gin Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "gin-first-route-check",
+      "lessonSlug": "first-route",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/hello\", func(c *gin.Context) { c.String(http.StatusOK, \"Hello, Asha!\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "GET /hello calls this handler. Context.String sends formatted text with a status. What result does this example give after the setup steps?",
+      "explanation": "Gin calls the matching GET handler with a context. String sends status 200 and the greeting. Use a matching HTTP method and path.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "gin-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/book\", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{\"title\": \"Moon Trip\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "gin.H is a short map type for named data. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "gin.H creates a named map. JSON serialises it and writes the requested status. Use c.JSON so the response has the right content type.",
+      "options": ["{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]", "{\"title\":\"Moon Trip\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "gin-path-inputs-check",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/hello/:name\", func(c *gin.Context) { c.String(http.StatusOK, \"Hi, %s!\", c.Param(\"name\")) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "A colon marks a route value. GET /hello/Ravi puts Ravi in the name parameter. What result does this example give after the setup steps?",
+      "explanation": "Param reads Ravi from the named path part. String inserts it into the %s slot. A route value is text until it is parsed and checked.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "gin-query-check",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/page\", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{\"page\": c.DefaultQuery(\"n\", \"1\")}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "DefaultQuery reads a query parameter and supplies a fallback. GET /page uses the text fallback 1. What result does this example give after the setup steps?",
+      "explanation": "DefaultQuery reads no n value and uses the string 1. JSON therefore quotes it. Query values are strings, even when they look like numbers.",
+      "options": ["{\"page\":\"1\"}", "[\"1\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "gin-number-checks-check",
+      "lessonSlug": "number-checks",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n\"strconv\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/double/:n\", func(c *gin.Context) {\n n, err := strconv.Atoi(c.Param(\"n\"))\n if err != nil { c.String(http.StatusBadRequest, \"Use a whole number\"); return }\n c.JSON(http.StatusOK, gin.H{\"answer\": n * 2})\n})\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "strconv.Atoi turns text into an int or reports an error. Open GET /double/4. What result does this example give after the setup steps?",
+      "explanation": "Atoi successfully parses 4. The handler then returns its doubled value. Always check the parse error before using the number.",
+      "options": ["{\"answer\":8}", "{\"answer\":9}", "[8]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "gin-json-body-check",
+      "lessonSlug": "json-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\ntype Book struct { Title string `json:\"title\" binding:\"required\"` }\nr.POST(\"/books\", func(c *gin.Context) {\n var book Book\n if err := c.ShouldBindJSON(&book); err != nil { c.JSON(http.StatusBadRequest, gin.H{\"error\": \"Title needed\"}); return }\n c.JSON(http.StatusCreated, book)\n})\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "ShouldBindJSON reads and checks JSON fields. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "ShouldBindJSON fills the struct through its pointer and checks required Title. The valid result is returned with 201. Pass a pointer so the binder can fill the struct.",
+      "options": ["{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "gin-groups-check",
+      "lessonSlug": "groups",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\napi := r.Group(\"/api\")\napi.GET(\"/books\", func(c *gin.Context) { c.JSON(http.StatusOK, []string{\"Moon Trip\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "A group gives related handlers a common path prefix. Open GET /api/books. What result does this example give after the setup steps?",
+      "explanation": "The api group adds /api to /books before matching the route. The group prefix belongs in the requested URL.",
+      "options": ["[\"Moon Trip\"]", "[\"Sun Trip\"]", "[]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "gin-middleware-check",
+      "lessonSlug": "middleware",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.Use(func(c *gin.Context) { c.Set(\"school\", \"Oak School\"); c.Next() })\nr.GET(\"/school\", func(c *gin.Context) { c.String(http.StatusOK, c.GetString(\"school\")) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "Middleware can set request values before calling the next handler. Open GET /school. What result does this example give after the setup steps?",
+      "explanation": "The middleware stores a context value, then calls Next. GetString reads it in the route. Request context values belong to the current request.",
+      "options": ["oak school", "Oak School", "Pine School"],
+      "correctIndex": 1
+    },
+    {
+      "id": "gin-headers-check",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/note\", func(c *gin.Context) { c.Header(\"Cache-Control\", \"no-store\"); c.String(http.StatusOK, \"Practice note\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "Header sets a response header. Open GET /note and inspect Cache-Control. What result does this example give after the setup steps?",
+      "explanation": "Header sets Cache-Control before String writes the body. Set headers before writing the response body.",
+      "options": ["practice note", "Practice note", "Welcome"],
+      "correctIndex": 1
+    },
+    {
+      "id": "gin-redirects-check",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/start\", func(c *gin.Context) { c.Redirect(http.StatusFound, \"/hello\") })\nr.GET(\"/hello\", func(c *gin.Context) { c.String(http.StatusOK, \"Welcome\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "Redirect asks the client to visit a new URL. GET /start ends at /hello in a browser. What result does this example give after the setup steps?",
+      "explanation": "Redirect sends status 302 and the target URL. The next GET reads the greeting. A redirect is a second client request.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "gin-not-found-check",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{\"error\": \"Page not found\"}) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "NoRoute supplies a fallback handler. GET /missing has no normal route. What result does this example give after the setup steps?",
+      "explanation": "No regular route matched, so the NoRoute handler sends its controlled 404 reply. Keep the 404 status even with a friendly body.",
+      "options": ["{\"error\":\"Page not found\"}", "{\"error\":\"Home\"}", "[\"Page not found\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "gin-abort-check",
+      "lessonSlug": "abort",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "go",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/closed\", func(c *gin.Context) { c.AbortWithStatusJSON(http.StatusForbidden, gin.H{\"error\": \"Closed for practice\"}) }, func(c *gin.Context) { c.String(http.StatusOK, \"This is skipped\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "question": "AbortWithStatusJSON stops later handlers in the chain. GET /closed receives this practice block message. What result does this example give after the setup steps?",
+      "explanation": "AbortWithStatusJSON writes the error and stops later handlers. The second handler is not called. Abort stops later handlers but does not return from the current Go function.",
+      "options": [
+        "{\"error\":\"Closed for practice\"}",
+        "{\"error\":\"Open for practice\"}",
+        "[\"Closed for practice\"]"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

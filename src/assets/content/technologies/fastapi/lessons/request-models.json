@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "request-models",
+  "title": "Check a JSON body",
+  "summary": "FastAPI: Check a JSON body. Try pages equal to zero.",
+  "introduction": "A Pydantic model describes body fields. Send POST /books with application/json and {\"title\":\"Moon Trip\",\"pages\":24}.",
+  "learningObjectives": ["Check a JSON body with FastAPI", "Try pages equal to zero"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Check a JSON body",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nclass Book(BaseModel):\n    title: str\n    pages: int = Field(gt=0)\n@app.post(\"/books\", status_code=201)\ndef create(book: Book):\n    return book\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Pydantic builds a Book after checking the input. The returned model contains its title and positive page count."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\",\"pages\":24}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try pages equal to zero."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Positive page counts need a rule such as gt=0."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-request-models-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-request-models-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "query-limits"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Check a JSON body",
+    "description": "FastAPI: Check a JSON body. Try pages equal to zero. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

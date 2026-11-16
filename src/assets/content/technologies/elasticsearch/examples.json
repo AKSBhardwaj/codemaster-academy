@@ -1,0 +1,138 @@
+{
+  "title": "Elasticsearch Small Examples",
+  "description": "Use these small Elasticsearch examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Meet an index and document",
+      "description": "An index is a group of searchable documents.",
+      "language": "text",
+      "code": "PUT cma-books/_doc/1\n{\"title\":\"Moon Trip\",\"kind\":\"story\",\"pages\":60}",
+      "output": "The practice index receives document 1. The response reports whether it was created or updated.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "choose-field-mappings-first",
+      "title": "Choose field mappings first",
+      "description": "A mapping tells Elasticsearch how a field should be searched.",
+      "language": "text",
+      "code": "PUT cma-books-mapped\n{\"mappings\":{\"properties\":{\"title\":{\"type\":\"text\"},\"kind\":{\"type\":\"keyword\"},\"pages\":{\"type\":\"integer\"}}}}",
+      "output": "A new empty practice index is created with explicit field types.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-field-mappings-first"
+    },
+    {
+      "id": "index-a-known-sample",
+      "title": "Index a known sample",
+      "description": "Indexing stores a document so search can use its fields.",
+      "language": "text",
+      "code": "PUT cma-books-mapped/_doc/1?refresh=wait_for\n{\"title\":\"Moon Trip\",\"kind\":\"story\",\"pages\":60}",
+      "output": "The response waits until the new sample can be found by search.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "index-a-known-sample"
+    },
+    {
+      "id": "read-one-document-by-id",
+      "title": "Read one document by id",
+      "description": "The document get API reads a specific id.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_doc/1",
+      "output": "The response includes found:true and the stored source for Moon Trip when the document exists.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-one-document-by-id"
+    },
+    {
+      "id": "search-analysed-words",
+      "title": "Search analysed words",
+      "description": "A match query searches text using the field's analyser.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"query\":{\"match\":{\"title\":\"moon\"}}}",
+      "output": "The Moon Trip sample matches the search word moon.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "search-analysed-words"
+    },
+    {
+      "id": "filter-an-exact-category",
+      "title": "Filter an exact category",
+      "description": "A term filter checks an exact indexed value.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"query\":{\"bool\":{\"filter\":[{\"term\":{\"kind\":\"story\"}}]}}}",
+      "output": "Only documents whose keyword kind is story are selected.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-an-exact-category"
+    },
+    {
+      "id": "filter-a-numeric-range",
+      "title": "Filter a numeric range",
+      "description": "A range query selects numbers between bounds.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"query\":{\"range\":{\"pages\":{\"gte\":30,\"lte\":80}}}}",
+      "output": "The 60-page sample fits this range.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "filter-a-numeric-range"
+    },
+    {
+      "id": "combine-search-and-a-filter",
+      "title": "Combine search and a filter",
+      "description": "A bool query can combine word search with exact conditions.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"query\":{\"bool\":{\"must\":[{\"match\":{\"title\":\"moon\"}}],\"filter\":[{\"term\":{\"kind\":\"story\"}}]}}}",
+      "output": "The sample must match the title search and also have kind story.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "combine-search-and-a-filter"
+    },
+    {
+      "id": "ask-for-a-small-ordered-result",
+      "title": "Ask for a small ordered result",
+      "description": "A search request can limit its hit count and sort by a field.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"size\":2,\"sort\":[{\"pages\":\"asc\"}],\"_source\":[\"title\",\"pages\"],\"query\":{\"match_all\":{}}}",
+      "output": "At most two shortest sample documents are returned with title and pages in their source.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "ask-for-a-small-ordered-result"
+    },
+    {
+      "id": "count-categories-with-an-aggregation",
+      "title": "Count categories with an aggregation",
+      "description": "An aggregation summarises matching documents.",
+      "language": "text",
+      "code": "GET cma-books-mapped/_search\n{\"size\":0,\"aggs\":{\"by_kind\":{\"terms\":{\"field\":\"kind\"}}}}",
+      "output": "The response contains category buckets with document counts, without ordinary search hits.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "count-categories-with-an-aggregation"
+    },
+    {
+      "id": "update-one-field",
+      "title": "Update one field",
+      "description": "The update API can change selected fields of an existing document.",
+      "language": "text",
+      "code": "POST cma-books-mapped/_update/1\n{\"doc\":{\"pages\":64}}",
+      "output": "Document 1 keeps its other fields and changes pages to 64.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "update-one-field"
+    },
+    {
+      "id": "delete-only-the-sample-record",
+      "title": "Delete only the sample record",
+      "description": "The delete API removes one document by its id.",
+      "language": "text",
+      "code": "DELETE cma-books-mapped/_doc/1",
+      "output": "The named sample document is removed. A later get reports it missing.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "delete-only-the-sample-record"
+    }
+  ]
+}

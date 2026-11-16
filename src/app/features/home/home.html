@@ -1,117 +1,129 @@
-<!-- 1. Hero -->
 <section class="cma-hero">
   <div class="container-xxl">
-    <div class="cma-hero__inner">
-      <p class="cma-eyebrow mb-3">Free, structured developer education</p>
-      <h1 class="cma-hero__title">Learn to code with clear, practical tutorials</h1>
-      <p class="lead cma-text-secondary cma-hero__lead">
-        Step-by-step lessons, runnable examples, exercises and quizzes for
-        {{ totalTechnologies() || '100+' }}
-        languages, frameworks, databases and developer tools. Built for beginners, useful for
-        professionals.
-      </p>
-      <form class="cma-hero__search" role="search" (ngSubmit)="submitSearch()">
-        <label class="visually-hidden" for="home-search">Search tutorials</label>
-        <div class="input-group input-group-lg">
-          <span class="input-group-text" aria-hidden="true"
-            ><cma-icon name="search" [size]="18"
-          /></span>
-          <input
-            id="home-search"
-            type="search"
-            class="form-control"
-            placeholder="Search tutorials, e.g. Angular, SQL joins, Python lists"
-            autocomplete="off"
-            [formControl]="query"
-          />
-          <button class="btn btn-primary px-4" type="submit">Search</button>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="hero-kicker"><span></span> A little curiosity. A lot of possibility.</p>
+        <h1>Your next big idea<br />starts with <span>one line.</span></h1>
+        <p class="hero-description">
+          Learn to code with small steps, clear examples, and room to try. No experience needed.
+          Just bring your curiosity.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" routerLink="/start"
+            >Start here <cma-icon name="arrow-right" [size]="18"
+          /></a>
+          <a class="btn btn-outline-secondary btn-lg" routerLink="/tutorials">Explore tutorials</a>
         </div>
-      </form>
-      <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
-        <a
-          class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2"
-          routerLink="/tutorials"
-        >
-          Explore tutorials <cma-icon name="arrow-right" />
-        </a>
-        <a class="btn btn-outline-secondary btn-lg" routerLink="/learning-paths"
-          >Browse learning paths</a
-        >
+        <div class="hero-promise">
+          <cma-icon name="check-circle-fill" [size]="15" /> Always free <span></span> No account
+          needed <span></span> Learn at your pace
+        </div>
       </div>
-      <p class="cma-hero__status small cma-text-secondary mt-4 mb-0">
-        {{ counts().complete }} complete · {{ counts()['in-progress'] }} in progress ·
-        {{ counts().planned }} planned — every tutorial shows its real status.
-      </p>
+      <cma-home-code-preview />
+    </div>
+    <form class="home-search" role="search" (submit)="submitSearch($event)">
+      <cma-icon name="search" [size]="21" />
+      <label class="visually-hidden" for="home-search">Search tutorials</label>
+      <input
+        id="home-search"
+        type="search"
+        placeholder="What would you like to learn? Try Python, HTML, or Git..."
+        autocomplete="off"
+        [value]="query()"
+        [disabled]="!interactive()"
+        (input)="updateQuery($event)"
+      />
+      <button class="btn btn-primary" type="submit" [disabled]="!interactive()">
+        Find a lesson
+      </button>
+    </form>
+    <div class="home-stats">
+      <span
+        ><strong>{{ totalTechnologies() }}</strong> topics to explore</span
+      ><span
+        ><strong>{{ totalLessons() }}</strong> small lessons</span
+      ><span><strong>100%</strong> free to learn</span>
     </div>
   </div>
 </section>
 
-<!-- 2. Popular learning paths -->
 <section class="cma-section">
   <div class="container-xxl">
     <cma-section-header
-      eyebrow="Roadmaps"
-      title="Popular learning paths"
-      description="Ordered tutorials for a real goal, with time estimates and progress tracking."
-      linkPath="/learning-paths"
-      linkLabel="All paths"
+      eyebrow="YOUR FIRST STEPS"
+      title="Start small. Build something yours."
+      description="New to coding? These three topics are a lovely place to begin."
     />
-    <div class="row g-3">
-      @for (path of featuredPaths(); track path.slug) {
-        <div class="col-12 col-sm-6 col-lg-4 col-xxl-3"><cma-path-card [path]="path" /></div>
-      } @empty {
-        <div class="col-12"><div class="cma-skeleton" style="height: 8rem"></div></div>
+    <div class="first-steps">
+      @for (step of startingSteps; track step.slug; let i = $index) {
+        <a
+          class="first-step"
+          [class]="'first-step first-step--' + step.slug"
+          [routerLink]="['/tutorials', step.slug, 'introduction']"
+        >
+          <div class="first-step__top">
+            <span class="first-step__symbol">{{ step.symbol }}</span><span class="step-number"
+              >STEP 0{{ i + 1 }}</span
+            >
+          </div>
+          <h3>{{ step.name }}</h3>
+          <p>{{ step.text }}</p>
+          <span class="first-step__link"
+            >{{ step.action }} <cma-icon name="arrow-right" [size]="16"
+          /></span>
+        </a>
       }
     </div>
   </div>
 </section>
 
-<!-- 3. Popular programming tutorials -->
-<section class="cma-section cma-section--alt">
-  <div class="container-xxl">
-    <cma-section-header
-      eyebrow="Languages"
-      title="Popular programming tutorials"
-      linkPath="/tutorials/category/programming-languages"
-      linkLabel="All languages"
-    />
-    <div class="row g-3">
-      @for (tech of popularLanguages(); track tech.slug) {
-        <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-          <cma-technology-card [technology]="tech" variant="compact" />
-        </div>
-      }
-    </div>
-  </div>
-</section>
-
-<!-- 4. Popular frameworks and libraries -->
-<section class="cma-section">
-  <div class="container-xxl">
-    <cma-section-header
-      eyebrow="Frameworks"
-      title="Popular frameworks and libraries"
-      linkPath="/tutorials"
-      linkLabel="All tutorials"
-    />
-    <div class="row g-3">
-      @for (tech of popularFrameworks(); track tech.slug) {
-        <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-          <cma-technology-card [technology]="tech" variant="compact" />
-        </div>
-      }
-    </div>
-  </div>
-</section>
-
-@defer (hydrate on viewport) {
-  <!-- 5. Browse by category -->
+@defer (on immediate; hydrate on viewport) {
   <section class="cma-section cma-section--alt">
     <div class="container-xxl">
       <cma-section-header
-        eyebrow="Catalog"
+        eyebrow="FIND YOUR THING"
+        title="Popular programming tutorials"
+        description="One new skill can open a whole new world. Pick a topic that sparks your interest."
+        linkPath="/tutorials"
+        linkLabel="All tutorials"
+      />
+      <div class="row g-3">
+        @for (tech of popularLanguages().slice(0, 8); track tech.slug) {
+          <div class="col-6 col-md-4 col-lg-3">
+            <cma-technology-card [technology]="tech" variant="compact" />
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+@defer (on immediate; hydrate on viewport) {
+  <section class="cma-section">
+    <div class="container-xxl">
+      <cma-section-header
+        eyebrow="A PATH FOR YOUR GOAL"
+        title="Popular learning paths"
+        description="Not sure what to learn next? Follow a path. Each step builds on the last."
+        linkPath="/learning-paths"
+        linkLabel="All paths"
+      />
+      <div class="row g-3">
+        @for (path of featuredPaths(); track path.slug) {
+          <div class="col-12 col-md-4"><cma-path-card [path]="path" /></div>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+@defer (on immediate; hydrate on viewport) {
+  <section class="cma-section cma-section--alt">
+    <div class="container-xxl">
+      <cma-section-header
+        eyebrow="SO MUCH TO DISCOVER"
         title="Browse by category"
-        description="Eight categories, {{ totalTechnologies() }} technologies."
+        description="From your first website to data, apps, and the tools that bring them to life."
       />
       <div class="row g-3">
         @for (item of categories(); track item.category.slug) {
@@ -122,215 +134,79 @@
       </div>
     </div>
   </section>
-
-  <!-- 6. Playground promo -->
-  @if (home()?.playgroundPromo; as promo) {
-    <section class="cma-section">
-      <div class="container-xxl">
-        <div class="cma-promo cma-card">
-          <div class="row align-items-center g-4">
-            <div class="col-lg-7">
-              <p class="cma-eyebrow mb-2">Interactive playground</p>
-              <h2 class="mb-3">{{ promo.title }}</h2>
-              <p class="cma-text-secondary mb-3">{{ promo.text }}</p>
-              <ul class="cma-promo__list list-unstyled mb-4">
-                @for (bullet of promo.bullets; track bullet) {
-                  <li><cma-icon name="check-circle-fill" [size]="16" /> {{ bullet }}</li>
-                }
-              </ul>
-              <a
-                class="btn btn-primary d-inline-flex align-items-center gap-2"
-                routerLink="/playground"
-              >
-                <cma-icon name="code-slash" /> Open the playground
-              </a>
-              <p class="small cma-text-secondary mt-3 mb-0">
-                Runs HTML, CSS, JavaScript and SQL in the browser. Other languages are shown with
-                highlighting only.
-              </p>
-            </div>
-            <div class="col-lg-5">
-              <div class="cma-promo__code" aria-hidden="true">
-                <div class="cma-promo__bar"><span></span><span></span><span></span></div>
-                <pre><code>SELECT name, price
-FROM products
-WHERE price &lt; 20
-ORDER BY price;</code></pre>
-                <div class="cma-promo__output">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>name</th>
-                        <th>price</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Notebook</td>
-                        <td>4.50</td>
-                      </tr>
-                      <tr>
-                        <td>Mouse pad</td>
-                        <td>8.99</td>
-                      </tr>
-                      <tr>
-                        <td>USB cable</td>
-                        <td>12.00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  }
-
-  <!-- 7. Featured tutorials -->
-  <section class="cma-section cma-section--alt">
-    <div class="container-xxl">
-      <cma-section-header
-        eyebrow="Featured"
-        title="Featured tutorials"
-        description="The core technologies we are building out first. Status badges show exactly how far each one is."
-        linkPath="/tutorials"
-      />
-      <div class="row g-3">
-        @for (tech of featured(); track tech.slug) {
-          <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
-            <cma-technology-card [technology]="tech" />
-          </div>
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- 8. Recently added -->
-  <section class="cma-section">
-    <div class="container-xxl">
-      <cma-section-header
-        eyebrow="New"
-        title="Recently published"
-        description="Tutorials that received new lessons most recently."
-      />
-      @if (recent().length) {
-        <div class="row g-3">
-          @for (tech of recent(); track tech.slug) {
-            <div class="col-12 col-sm-6 col-lg-4 col-xxl-2">
-              <cma-technology-card [technology]="tech" />
-            </div>
-          }
-        </div>
-      } @else {
-        <cma-empty-state
-          icon="hourglass-split"
-          title="No lessons published yet"
-          text="Tutorials appear here as soon as their first lessons go live. Until then, browse the catalog to see what is planned."
-        >
-          <a class="btn btn-outline-secondary" routerLink="/tutorials">Browse the catalog</a>
-        </cma-empty-state>
-      }
-    </div>
-  </section>
-
-  <!-- 9. Popular exercises and quizzes -->
-  <section class="cma-section cma-section--alt">
-    <div class="container-xxl">
-      <cma-section-header
-        eyebrow="Practice"
-        title="Exercises and quizzes"
-        description="Check your understanding with graded exercises and scored quizzes."
-        linkPath="/exercises"
-        linkLabel="All exercises"
-      />
-      @if (practice().length) {
-        <div class="row g-3">
-          @for (tech of practice(); track tech.slug) {
-            <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-              <cma-technology-card [technology]="tech" variant="compact" />
-            </div>
-          }
-        </div>
-      } @else {
-        <cma-empty-state
-          icon="pencil-square"
-          title="Exercises and quizzes ship with each completed tutorial"
-          text="Every complete tutorial includes at least ten exercises and a scored quiz. None are published yet; this section fills in automatically."
-        >
-          <a class="btn btn-outline-secondary" routerLink="/exercises">Exercises</a>
-          <a class="btn btn-outline-secondary" routerLink="/quizzes">Quizzes</a>
-        </cma-empty-state>
-      }
-    </div>
-  </section>
 }
 
-@defer (hydrate never) {
-  <!-- 10. Why learn with us -->
-  @if (home()?.whyUs; as whyUs) {
-    <section class="cma-section">
-      <div class="container-xxl">
-        <cma-section-header eyebrow="Why us" title="Why learn with {{ site.name }}?" />
-        <div class="row g-4">
-          @for (item of whyUs; track item.title) {
-            <div class="col-12 col-md-6 col-lg-4">
-              <div class="cma-why">
-                <span class="cma-why__icon"><cma-icon [name]="icon(item.icon)" [size]="20" /></span>
-                <h3 class="h6 mb-1">{{ item.title }}</h3>
-                <p class="cma-text-secondary mb-0">{{ item.text }}</p>
-              </div>
-            </div>
-          }
+<section class="cma-section">
+  <div class="container-xxl">
+    <div class="practice-banner">
+      <div>
+        <p class="cma-eyebrow">LEARN BY DOING</p>
+        <h2>Small ideas.<br />Made by you.</h2>
+        <p>
+          Change a word. Pick a colour. Make a button work.<br />Our code playground is your space
+          to experiment.
+        </p>
+        <a class="btn btn-primary" routerLink="/playground"
+          >Open the playground <cma-icon name="arrow-up-right" [size]="17"
+        /></a>
+      </div>
+      <div class="practice-banner__steps">
+        <div>
+          <span>01</span><strong>Read a little</strong>
+          <p>One clear idea at a time.</p>
+        </div>
+        <div>
+          <span>02</span><strong>Try it yourself</strong>
+          <p>Run the code. See what changes.</p>
+        </div>
+        <div>
+          <span>03</span><strong>Make it yours</strong>
+          <p>Practise, explore, and try again.</p>
         </div>
       </div>
-    </section>
-  }
-}
+    </div>
+  </div>
+</section>
 
-@defer (hydrate on interaction) {
-  <!-- 11. FAQ -->
-  @if (home()?.faq; as faq) {
-    <section class="cma-section cma-section--alt">
-      <div class="container-xxl">
-        <div class="row g-4">
-          <div class="col-lg-4">
-            <cma-section-header
-              eyebrow="FAQ"
-              title="Frequently asked questions"
-              description="Short answers to the questions new learners ask most."
-            />
-          </div>
-          <div class="col-lg-8">
-            <div class="accordion cma-faq" id="home-faq">
-              @for (item of faq; track item.question; let i = $index) {
-                <div class="accordion-item">
-                  <h3 class="accordion-header">
-                    <button
-                      type="button"
-                      class="accordion-button"
-                      [class.collapsed]="openFaq() !== i"
-                      [attr.aria-expanded]="openFaq() === i"
-                      [attr.aria-controls]="'home-faq-' + i"
-                      (click)="toggleFaq(i)"
-                    >
-                      {{ item.question }}
-                    </button>
-                  </h3>
-                  <div
-                    [id]="'home-faq-' + i"
-                    class="accordion-collapse collapse"
-                    [class.show]="openFaq() === i"
+@if (home()?.faq; as faq) {
+  <section class="cma-section home-faq">
+    <div class="container-xxl">
+      <div class="row g-4 g-lg-5">
+        <div class="col-lg-4">
+          <cma-section-header
+            eyebrow="A LITTLE HELP"
+            title="Good questions. Simple answers."
+            description="Everything you need to feel ready for your first lesson."
+          />
+        </div>
+        <div class="col-lg-8">
+          <div class="accordion cma-faq">
+            @for (item of faq; track item.question; let i = $index) {
+              <div class="accordion-item">
+                <h3 class="accordion-header">
+                  <button
+                    type="button"
+                    class="accordion-button"
+                    [class.collapsed]="openFaq() !== i"
+                    [attr.aria-expanded]="openFaq() === i"
+                    [attr.aria-controls]="'home-faq-' + i"
+                    (click)="toggleFaq(i)"
                   >
-                    <div class="accordion-body cma-text-secondary">{{ item.answer }}</div>
-                  </div>
+                    {{ item.question }}
+                  </button>
+                </h3>
+                <div
+                  [id]="'home-faq-' + i"
+                  class="accordion-collapse collapse"
+                  [class.show]="openFaq() === i"
+                >
+                  <div class="accordion-body cma-text-secondary">{{ item.answer }}</div>
                 </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         </div>
       </div>
-    </section>
-  }
+    </div>
+  </section>
 }

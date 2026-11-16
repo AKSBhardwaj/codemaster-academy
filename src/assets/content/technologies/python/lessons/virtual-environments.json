@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "slug": "virtual-environments",
+  "title": "Virtual Environments and pip",
+  "summary": "A virtual environment keeps one project's Python tools separate from another project's tools.",
+  "introduction": "A virtual environment keeps one project's Python tools separate from another project's tools. Think of giving each school project its own supply box. Learn how to make the box, use it and leave it when you are done.",
+  "learningObjectives": [
+    "Create and activate a virtual environment with the venv module",
+    "Install, list and upgrade packages with pip",
+    "Record exact versions in requirements.txt and recreate the environment elsewhere",
+    "Verify from inside Python which environment and package versions are active"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why a virtual environment"
+    },
+    {
+      "type": "paragraph",
+      "text": "Installing packages globally works until project A needs one version of a library and project B needs another, or until an upgrade for one project breaks a second one. A **virtual environment** is a folder (conventionally `.venv` inside the project) that contains a link to the interpreter plus its own `site-packages` folder. Activate it and `python` and `pip` refer to that private copy. Delete the folder and the project's dependencies are gone, with no trace left on the system."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating and activating"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `venv` module ships with Python, so creating an environment is one command. Activation is a small script that puts the environment's `bin` (or `Scripts`) folder first on your PATH for the current terminal session only, and it differs by operating system."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "macOS and Linux",
+      "code": "cd my-project\npython3 -m venv .venv\nsource .venv/bin/activate"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Prompt after activation",
+      "content": "(.venv) $"
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "title": "Windows (PowerShell)",
+      "code": "cd my-project\npy -m venv .venv\n.venv\\Scripts\\Activate.ps1"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Prompt after activation",
+      "content": "(.venv) PS C:\\Users\\ada\\my-project>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `(.venv)` prefix in the prompt is how you know an environment is active. If PowerShell refuses to run the script, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` once; in the classic Command Prompt use `.venv\\Scripts\\activate.bat` instead. Create one environment per project, next to its code, and never share it between projects."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Checking from inside Python"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a virtual environment is active, `sys.prefix` points at the `.venv` folder while `sys.base_prefix` still points at the real installation, so comparing them tells a script where it is running."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "where.py",
+      "code": "import sys\n\nprint(\"Inside a virtual environment:\", sys.prefix != sys.base_prefix)\nprint(\"Python version:\", sys.version_info.major, sys.version_info.minor)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python where.py (environment active)",
+      "content": "Inside a virtual environment: True\nPython version: 3 13"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Installing packages with pip"
+    },
+    {
+      "type": "paragraph",
+      "text": "A fresh environment contains only the standard library and `pip`. Importing a third-party package before installing it fails immediately, and the traceback is one every Python programmer has seen:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "no_package.py",
+      "code": "import requests\nprint(\"This line never runs if requests is missing\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python no_package.py (before installing)",
+      "content": "Traceback (most recent call last):\n  File \"/home/ada/projects/no_package.py\", line 1, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'"
+    },
+    {
+      "type": "paragraph",
+      "text": "`pip` downloads packages from PyPI, the Python Package Index, and installs them into the active environment together with everything they depend on. Run it as `python -m pip` so that it is guaranteed to belong to the interpreter you are using."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "python -m pip install requests"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Collecting requests\n  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)\nCollecting charset_normalizer<4,>=2 (from requests)\n  Downloading charset_normalizer-3.5.2-cp313-cp313-win_amd64.whl.metadata (47 kB)\nCollecting idna<4,>=2.5 (from requests)\n  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)\nCollecting urllib3<3,>=1.26 (from requests)\n  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)\nCollecting certifi>=2023.5.7 (from requests)\n  Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)\nDownloading requests-2.34.2-py3-none-any.whl (73 kB)\nDownloading charset_normalizer-3.5.2-cp313-cp313-win_amd64.whl (206 kB)\nDownloading idna-3.20-py3-none-any.whl (69 kB)\nDownloading urllib3-2.8.0-py3-none-any.whl (135 kB)\nDownloading certifi-2026.10.23-py3-none-any.whl (135 kB)\nInstalling collected packages: urllib3, idna, charset_normalizer, certifi, requests\nSuccessfully installed certifi-2026.10.23 charset_normalizer-3.5.2 idna-3.20 requests-2.34.2 urllib3-2.8.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "The version numbers are those current when this lesson was written and will be newer on your machine. `requests` pulled in four dependencies, which is normal. `python -m pip list` shows what is installed, `pip install name==2.34.2` installs an exact version, `pip install --upgrade name` updates, `pip uninstall name` removes, and `pip show name` tells you a package's version and location."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "python -m pip list"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Package            Version\n------------------ ----------\ncertifi            2026.10.23\ncharset-normalizer 3.5.2\nidna               3.20\npip                26.2.2\nrequests           2.34.2\nurllib3            2.8.0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Using the package"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "fetch_todo.py",
+      "code": "import requests\nfrom importlib.metadata import version\n\nprint(\"requests\", version(\"requests\"))\n\nresponse = requests.get(\"https://jsonplaceholder.typicode.com/todos/1\", timeout=10)\nprint(response.status_code)\ntodo = response.json()\nprint(todo[\"title\"], todo[\"completed\"])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python fetch_todo.py (environment active)",
+      "content": "requests 2.34.2\n200\ndelectus aut autem False"
+    },
+    {
+      "type": "paragraph",
+      "text": "Compare this with the `urllib` version in [JSON and Web APIs](/tutorials/python/json-and-apis): `requests.get()` returns an object whose `.json()` method parses the body for you, and the same `.json()`, `.status_code` and `timeout` work for `post()`, `put()` and `delete()`. `importlib.metadata.version()` reports the installed version of any package from inside Python, which is useful in bug reports."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "requirements.txt"
+    },
+    {
+      "type": "paragraph",
+      "text": "Whoever runs your project later, including you on another machine or a build server, needs the same packages at the same versions. `pip freeze` prints exactly that, one pinned package per line, and the convention is to save it as `requirements.txt` next to the code."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "python -m pip freeze > requirements.txt\ncat requirements.txt"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "certifi==2026.10.23\ncharset-normalizer==3.5.2\nidna==3.20\nrequests==2.34.2\nurllib3==2.8.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Windows, replace `cat` with `type`. The recipe on a new machine is then: clone the repository, create a virtual environment, activate it and run `python -m pip install -r requirements.txt`. Pinned versions make the install reproducible; unpin and upgrade deliberately, then freeze again."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Installing without activating",
+      "text": "If `pip install` runs while no environment is active, the package lands in the global interpreter: the project seems to work on your machine, fails everywhere else, and `requirements.txt` never mentions it. Look for the `(.venv)` prefix before installing, or call the environment's interpreter explicitly with `.venv/bin/python -m pip install ...` (`.venv\\Scripts\\python` on Windows). Never commit the `.venv` folder to Git; add it to `.gitignore` and commit `requirements.txt` instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Leaving and cleaning up"
+    },
+    {
+      "type": "paragraph",
+      "text": "Type `deactivate` to return the terminal to the global interpreter; the environment itself is untouched. To remove an environment completely, delete the `.venv` folder: nothing else on the system refers to it. If an environment ever gets into a confusing state, deleting it and reinstalling from `requirements.txt` takes less than a minute, which is exactly the point of keeping dependencies isolated and recorded."
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "Newer tools, same ideas",
+      "text": "Many teams now describe dependencies in `pyproject.toml` and use a tool such as `uv` or Poetry that creates the environment and a lock file automatically. They are faster and more convenient, but they build on exactly the concepts here, so understanding `venv` and `pip` first means those tools will never feel like magic. Version control for the code itself is covered in the [Git](/tutorials/git) tutorial."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-virtual-environments-activate"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-venv-qc-1",
+          "type": "true-false",
+          "lessonSlug": "virtual-environments",
+          "difficulty": "beginner",
+          "question": "Deleting the `.venv` folder removes every package installed in that environment without affecting other projects.",
+          "explanation": "The environment is self-contained: its packages live inside the folder, so deleting it removes them and nothing else.",
+          "correct": true
+        },
+        {
+          "id": "py-venv-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "virtual-environments",
+          "difficulty": "beginner",
+          "question": "Which command creates a virtual environment in a folder named `.venv`?",
+          "explanation": "`venv` is a standard-library module run with `-m`; the last argument is the folder to create. There is nothing to install first.",
+          "options": [
+            "`python -m venv .venv`",
+            "`pip install venv`",
+            "`python --venv .venv`",
+            "`venv create .venv`"
+          ],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-virtual-environments-activate"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "modules-packages"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "json-and-apis"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "Python Virtual Environments and pip – venv Explained",
+    "description": "Create and activate a Python virtual environment with venv on Windows, macOS and Linux, install packages with pip, pin them in requirements.txt."
+  },
+  "updatedOn": "2026-11-16"
+}

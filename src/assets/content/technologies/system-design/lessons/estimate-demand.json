@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "slug": "estimate-demand",
+  "title": "Estimate demand",
+  "summary": "Estimate searches per day and per second using simple numbers. Compare an average with a busy period and leave room for uncertainty.",
+  "introduction": "Before a school trip, you count learners to choose a bus. Before designing a service, you make a rough count of the work it may handle. The count will not be perfect, but it is better than a guess with no reason.",
+  "learningObjectives": [
+    "State the assumptions behind an estimate",
+    "Calculate daily and busy-period request rates",
+    "Explain why an average does not describe every minute"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **estimate** is a rough answer based on stated assumptions. An assumption is something we treat as true until better information is available. Write both the numbers and where they came from."
+    },
+    {
+      "type": "paragraph",
+      "text": "Suppose 600 learners each make 5 searches in a day. That is 600 times 5, or 3,000 searches. If searches happen over 6 hours, divide by the number of seconds in those hours to estimate the average rate."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **peak** is a busy period. The school day is not equally busy all the time. A teacher may ask a whole class to search together, so an average can hide a short rush."
+    },
+    {
+      "type": "paragraph",
+      "text": "This JavaScript is a calculator, not a speed test. It runs in the browser and uses our made-up numbers. It does not measure a real server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Multiply 600 learners by 5 searches each: 3,000 searches per day.",
+        "Convert 6 hours to seconds: 6 times 60 times 60 is 21,600 seconds.",
+        "Divide 3,000 by 21,600: about 0.14 searches per second on average.",
+        "Assume 1,200 of the daily searches happen in a busy 10 minutes. Divide 1,200 by 600 seconds: 2 searches per second.",
+        "Plan to test that busy rate and short bursts above it. Keep the assumption separate from the measured result."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const learners = 600;\nconst searchesEach = 5;\nconst dailySearches = learners * searchesEach;\nconst openSeconds = 6 * 60 * 60;\nconst averageRate = dailySearches / openSeconds;\nconst busySearches = 1200;\nconst busySeconds = 10 * 60;\nconsole.log(\"daily searches: \" + dailySearches);\nconsole.log(\"average per second: \" + averageRate.toFixed(2));\nconsole.log(\"busy per second: \" + busySearches / busySeconds);",
+      "title": "Estimate demand example",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "daily searches: 3000\naverage per second: 0.14\nbusy per second: 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The busy rate is much higher than the daily average. It is still an estimate: a single second might contain more work than the average of those 10 busy minutes."
+    },
+    {
+      "type": "paragraph",
+      "text": "Estimate storage and network traffic separately when they matter. For example, 3,000 replies of 2,000 bytes each contain about 6,000,000 bytes of reply data. Protocol details add more traffic. A byte is a small unit of stored data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use matching units. Dividing by minutes gives requests per minute, not requests per second. Label every number so another person can check the calculation."
+    },
+    {
+      "type": "paragraph",
+      "text": "Not every registered learner uses the app each day. Not every request succeeds on its first attempt. Record how these facts might change your estimate, then compare with measurements after launch."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Keep 1,200 searches but spread the busy period over 20 minutes. Predict the new busy rate before changing busySeconds.",
+        "Use 20 * 60 for busySeconds. The result is 1 search per second. The daily search count stays 3,000."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not buy a machine from this calculation alone. An estimate tells you what workload to test; a test tells you what a particular design can handle."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-estimate-demand"
+    }
+  ],
+  "exerciseIds": ["system-design-estimate-demand"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "requirements-and-tradeoffs"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "latency-and-throughput"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Estimate demand",
+    "description": "Estimate searches per day and per second using simple numbers. Compare an average with a busy period and leave room for uncertainty."
+  },
+  "updatedOn": "2026-11-16"
+}

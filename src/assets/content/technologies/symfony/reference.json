@@ -1,0 +1,156 @@
+{
+  "title": "Symfony Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Make a controller route",
+          "summary": "A Route attribute maps a URL to a controller method. Open GET /hello.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/hello\", methods: [\"GET\"])]\npublic function hello(): Response { return new Response(\"Hello, Asha!\"); }\n}\n"
+          },
+          "notes": ["Keep the attribute above the method it describes."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Return JSON data",
+          "summary": "JsonResponse turns an array into JSON and sets its content type. Open GET /book.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/book\", methods: [\"GET\"])]\npublic function book(): JsonResponse { return new JsonResponse([\"title\" => \"Moon Trip\", \"pages\" => 24]); }\n}\n"
+          },
+          "notes": ["Use JsonResponse rather than hand-building JSON strings."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "route-inputs",
+          "name": "Read a route value",
+          "summary": "A route placeholder can become a method input. Open GET /hello/Ravi.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/hello/{name}\", methods: [\"GET\"])]\npublic function hello(string $name): Response { return new Response(\"Hi, \" . $name . \"!\", 200, [\"Content-Type\" => \"text/plain\"]); }\n}\n"
+          },
+          "notes": ["Treat route inputs as untrusted text."],
+          "lessonSlug": "route-inputs"
+        },
+        {
+          "slug": "query",
+          "name": "Read query data",
+          "summary": "A Request object gives access to query values. Open GET /search?q=cat.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/search\", methods: [\"GET\"])]\npublic function search(Request $request): JsonResponse { return new JsonResponse([\"term\" => $request->query->get(\"q\", \"\")]); }\n}\n"
+          },
+          "notes": ["Check client values before using them in a database query or file path."],
+          "lessonSlug": "query"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "constraints",
+          "name": "Constrain a path number",
+          "summary": "A route requirement describes allowed path text. Open GET /double/4.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/double/{n}\", requirements: [\"n\" => \"[0-9]+\"], methods: [\"GET\"])]\npublic function twice(int $n): JsonResponse { return new JsonResponse([\"answer\" => $n * 2]); }\n}\n"
+          },
+          "notes": ["A requirement controls route matching, not every allowed data range."],
+          "lessonSlug": "constraints"
+        },
+        {
+          "slug": "json-body",
+          "name": "Read a JSON body",
+          "summary": "Request::toArray reads JSON into an array. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/books\", methods: [\"POST\"])]\npublic function create(Request $request): JsonResponse {\n $data = $request->toArray();\n if (!is_string($data[\"title\"] ?? null)) return new JsonResponse([\"error\" => \"Title needed\"], 400);\n return new JsonResponse([\"title\" => $data[\"title\"]], 201);\n}\n}\n"
+          },
+          "notes": ["Malformed JSON can fail before your own field checks run."],
+          "lessonSlug": "json-body"
+        },
+        {
+          "slug": "named-routes",
+          "name": "Generate a named URL",
+          "summary": "A route name lets code build a link without repeating its path. Open GET /link.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/hello/{name}\", name: \"hello\", methods: [\"GET\"])]\npublic function hello(string $name): Response { return new Response($name); }\n#[Route(\"/link\", methods: [\"GET\"])]\npublic function link(): Response { return new Response($this->generateUrl(\"hello\", [\"name\" => \"Asha\"])); }\n}\n"
+          },
+          "notes": ["The parameter key must match the placeholder."],
+          "lessonSlug": "named-routes"
+        },
+        {
+          "slug": "redirects",
+          "name": "Return a redirect",
+          "summary": "RedirectResponse tells a client where to request next. GET /start ends at /hello in a browser.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/start\", methods: [\"GET\"])]\npublic function start(): RedirectResponse { return new RedirectResponse(\"/hello\"); }\n#[Route(\"/hello\", methods: [\"GET\"])]\npublic function hello(): Response { return new Response(\"Welcome\"); }\n}\n"
+          },
+          "notes": ["A redirect starts a new client request."],
+          "lessonSlug": "redirects"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "not-found",
+          "name": "Send an error status",
+          "summary": "The second JsonResponse argument is the status. Open GET /missing.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/missing\", methods: [\"GET\"])]\npublic function missing(): JsonResponse { return new JsonResponse([\"error\" => \"Book not found\"], 404); }\n}\n"
+          },
+          "notes": ["Do not hide a missing item behind a 200 success status."],
+          "lessonSlug": "not-found"
+        },
+        {
+          "slug": "headers",
+          "name": "Add reply metadata",
+          "summary": "A Response has a header bag. Open GET /note and inspect Cache-Control.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/note\", methods: [\"GET\"])]\npublic function note(): Response { $response = new Response(\"Practice note\"); $response->headers->set(\"Cache-Control\", \"no-store\"); return $response; }\n}\n"
+          },
+          "notes": ["Headers and body are separate parts of a response."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "methods",
+          "name": "Restrict an HTTP method",
+          "summary": "The methods option limits which requests match. GET /ready gives this reply; POST is not allowed.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/ready\", methods: [\"GET\"])]\npublic function ready(): Response { return new Response(\"Ready\"); }\n}\n"
+          },
+          "notes": ["Use the correct HTTP method for the operation."],
+          "lessonSlug": "methods"
+        },
+        {
+          "slug": "lists",
+          "name": "Send a list of values",
+          "summary": "A PHP list becomes a JSON array. Open GET /books.",
+          "example": {
+            "language": "php",
+            "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/books\", methods: [\"GET\"])]\npublic function books(): JsonResponse { return new JsonResponse([\"Moon Trip\", \"Sun Trip\"]); }\n}\n"
+          },
+          "notes": ["A JSON list has ordered items; an object has named fields."],
+          "lessonSlug": "lists"
+        }
+      ]
+    }
+  ]
+}

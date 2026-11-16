@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "slug": "classes",
+  "title": "Classes",
+  "summary": "Bundle data and behaviour into classes: private members, constructors with initialiser lists, const member functions, static members, destructors and operator overloading.",
+  "introduction": "A class turns a handful of related variables and the functions that keep them consistent into one type with a name. The compiler then enforces the rules you write: nobody can set a bank balance to a negative number if the only way in is a `withdraw` function that checks. This lesson builds a `BankAccount`, a `Rectangle`, a `Counter` that knows how many instances exist, and a `Money` type that works with `+` and `==`.",
+  "learningObjectives": [
+    "Define a class with private data, public member functions and constructors",
+    "Initialise members with a member initialiser list and default member initialisers",
+    "Mark member functions const and explain what that guarantees",
+    "Overload operators and use C++20's defaulted operator=="
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Data plus the functions that guard it"
+    },
+    {
+      "type": "paragraph",
+      "text": "Members after `public:` are the interface anyone can use; members after `private:` are visible only inside the class. Keeping data private and exposing behaviour is **encapsulation**: every way to change the object goes through a function that can keep it valid. A **constructor** is a member function with the class's name and no return type; it runs when an object is created and should leave the object in a usable state."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "account.cpp",
+      "code": "#include <iostream>\n#include <string>\n#include <utility>\n\nclass BankAccount {\npublic:\n    BankAccount(std::string owner, double openingBalance)\n        : owner_{std::move(owner)}, balance_{openingBalance} {}\n\n    void deposit(double amount) {\n        if (amount > 0) balance_ += amount;\n    }\n\n    bool withdraw(double amount) {\n        if (amount <= 0 || amount > balance_) return false;\n        balance_ -= amount;\n        return true;\n    }\n\n    double balance() const { return balance_; }\n    const std::string& owner() const { return owner_; }\n\nprivate:\n    std::string owner_;\n    double balance_;\n};\n\nint main() {\n    BankAccount account{\"Ada\", 100.0};\n    account.deposit(50);\n    bool ok = account.withdraw(500);\n\n    std::cout << account.owner() << \": \" << account.balance() << '\\n';\n    std::cout << std::boolalpha << \"withdraw 500 succeeded: \" << ok << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra account.cpp -o account\n$ ./account\nAda: 150\nwithdraw 500 succeeded: false"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Reading the constructor"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "The part after the colon, `: owner_{std::move(owner)}, balance_{openingBalance}`, is the **member initialiser list**. It constructs each member directly instead of default-constructing it and assigning later. Members are initialised in the order they are declared in the class, whatever order the list uses.",
+        "`std::move(owner)` moves the caller's string into the member instead of copying it; the parameter is about to die anyway.",
+        "`balance() const` promises not to modify the object. Only `const` member functions can be called on a `const BankAccount`, so mark every getter `const`.",
+        "The trailing underscore on `owner_` and `balance_` is a common convention that keeps member names from clashing with parameters."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "struct, default values and several constructors"
+    },
+    {
+      "type": "paragraph",
+      "text": "`struct` and `class` are the same thing except that a `struct`'s members are public by default. Use `struct` for plain bundles of data with no invariants and `class` when the data must be protected. A **default member initialiser** (`double width_{1.0};`) gives a member a value whenever a constructor does not mention it, which is the cleanest way to guarantee nothing is left uninitialised."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "shapes.cpp",
+      "code": "#include <iostream>\n\nstruct Point {          // struct: members public by default\n    double x{};\n    double y{};\n};\n\nclass Rectangle {\npublic:\n    Rectangle() = default;                                      // uses the member initialisers\n    Rectangle(double w, double h) : width_{w}, height_{h} {}\n    explicit Rectangle(double side) : Rectangle(side, side) {}  // delegates to the one above\n\n    double area() const { return width_ * height_; }\n    void scale(double factor) { width_ *= factor; height_ *= factor; }\n\nprivate:\n    double width_{1.0};\n    double height_{1.0};\n};\n\nint main() {\n    Point p{3.0, 4.0};\n    std::cout << \"p = (\" << p.x << \", \" << p.y << \")\\n\";\n\n    Rectangle unit;\n    Rectangle r{2.0, 3.5};\n    Rectangle square{4.0};\n\n    r.scale(2);\n    std::cout << unit.area() << ' ' << r.area() << ' ' << square.area() << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra shapes.cpp -o shapes\n$ ./shapes\np = (3, 4)\n1 28 16"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Point p{3.0, 4.0}` uses **aggregate initialisation**: a struct with public members and no constructors can be filled in declaration order. `explicit` on the one-argument constructor stops the compiler from silently converting a `double` into a `Rectangle`, so `Rectangle r = 4.0;` is rejected while `Rectangle r{4.0};` is fine. Make every single-argument constructor `explicit` unless you specifically want the conversion."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: the most vexing parse",
+      "text": "`Rectangle unit();` does not create a rectangle. C++ reads it as the declaration of a function named `unit` that takes no parameters and returns a `Rectangle`, and the next line `unit.area()` fails with a confusing error. GCC 11 and later warn: `empty parentheses were disambiguated as a function declaration [-Wvexing-parse]`. Write `Rectangle unit;` or `Rectangle unit{};` instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Destructors and static members"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **destructor** (`~Counter()`) runs automatically when an object's life ends: at the closing brace of its scope, when its container is destroyed, or when the owning smart pointer is reset. That guarantee is the foundation of resource management in C++ and gets its own lesson. A **static** member belongs to the class rather than to any object; there is exactly one `instances_` no matter how many `Counter`s exist."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "counter.cpp",
+      "code": "#include <iostream>\n\nclass Counter {\npublic:\n    Counter() { ++instances_; }\n    ~Counter() { --instances_; }     // destructor: runs when the object dies\n\n    Counter(const Counter&) = delete;            // copying would corrupt the count,\n    Counter& operator=(const Counter&) = delete; // so forbid it\n\n    static int instances() { return instances_; }\n\nprivate:\n    static inline int instances_{0};  // one shared value for the whole class\n};\n\nint main() {\n    Counter a;\n    std::cout << Counter::instances() << '\\n';\n    {\n        Counter b;\n        Counter c;\n        std::cout << Counter::instances() << '\\n';\n    }   // b and c are destroyed here, in reverse order of creation\n    std::cout << Counter::instances() << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra counter.cpp -o counter\n$ ./counter\n1\n3\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "`= delete` removes a function the compiler would otherwise generate. The compiler writes a copy constructor, copy assignment, move operations and a destructor for you when you do not; the moment you need to write one of them by hand (because the class owns something), think about all of them. That guideline is known as the *rule of five*, and the easiest way to satisfy it is to own resources only through members that already manage themselves, such as `std::string`, `std::vector` and smart pointers: the *rule of zero*."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Operator overloading"
+    },
+    {
+      "type": "paragraph",
+      "text": "Operators are functions with special names, so your types can support `+`, `==` and `<<` just like `int` and `std::string`. Keep the meaning obvious: `+` should add, not append to a log. Since C++20 you can ask the compiler for a memberwise `==` with `= default`, and `!=` comes for free."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "money.cpp",
+      "code": "#include <iostream>\n\nstruct Money {\n    long long cents{};\n\n    Money operator+(Money other) const { return Money{cents + other.cents}; }\n    bool operator==(const Money&) const = default;   // C++20: compares every member\n};\n\nstd::ostream& operator<<(std::ostream& out, Money m) {\n    return out << m.cents / 100 << '.' << (m.cents % 100 < 10 ? \"0\" : \"\") << m.cents % 100;\n}\n\nint main() {\n    Money price{1999};\n    Money tax{205};\n    Money total = price + tax;\n\n    std::cout << total << '\\n';\n    std::cout << std::boolalpha << (total == Money{2204}) << '\\n';\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ g++ -std=c++20 -Wall -Wextra money.cpp -o money\n$ ./money\n22.04\ntrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`operator<<` is a free function rather than a member because its left operand is the stream, not the `Money`. It returns the stream so that calls chain: `std::cout << total << '\\n'`. Storing cents in an integer instead of euros in a `double` is deliberate: binary floating point cannot represent `0.10` exactly, and money should never be rounded by accident."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Headers and source files",
+      "text": "In a real project the class definition with its member declarations goes in `account.hpp` and the longer member function bodies in `account.cpp`, written as `double BankAccount::balance() const { ... }`. Short functions defined inside the class body are implicitly `inline`, so a header may contain them."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cpp-classes-const-method"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "cpp-classes-qc-1",
+          "type": "true-false",
+          "lessonSlug": "classes",
+          "difficulty": "beginner",
+          "question": "The only difference between `struct` and `class` in C++ is the default access level of their members.",
+          "explanation": "Members (and base classes) of a `struct` are public by default; those of a `class` are private. Everything else, constructors, member functions, inheritance, works the same.",
+          "correct": true
+        },
+        {
+          "id": "cpp-classes-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "classes",
+          "difficulty": "intermediate",
+          "question": "In what order are the members of a class initialised when a constructor runs?",
+          "explanation": "Members are always initialised in declaration order, regardless of the order in the member initialiser list. Compilers warn (`-Wreorder`) when the list disagrees, because an initialiser that reads another member can otherwise see garbage.",
+          "options": [
+            "In the order written in the member initialiser list",
+            "In the order they are declared in the class",
+            "Alphabetically",
+            "In reverse declaration order"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["cpp-classes-const-method", "cpp-classes-counter"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "inheritance-polymorphism"
+    },
+    {
+      "technologySlug": "cpp",
+      "slug": "smart-pointers"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    }
+  ],
+  "seo": {
+    "title": "C++ Classes – Constructors, Members and Encapsulation",
+    "description": "Write C++ classes with private data, constructors and member initialiser lists, const member functions, static members, destructors and operator overloading."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "slug": "forms",
+  "title": "Forms and Validation Styles",
+  "summary": "Bootstrap can style text fields, choices and labels. Clear HTML labels still give each field its meaning.",
+  "introduction": "Bootstrap can style text fields, choices and labels. Clear HTML labels still give each field its meaning. Build one labelled field first. Then add a select box and a check box, making sure each has words that explain its job.",
+  "learningObjectives": [
+    "Style text inputs, selects, textareas, checks and switches with the form classes",
+    "Lay out forms with the grid, floating labels and input groups",
+    "Show valid and invalid states with was-validated, is-invalid and feedback elements",
+    "Keep every label connected to its field so the form stays accessible"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Form controls"
+    },
+    {
+      "type": "paragraph",
+      "text": "Text-like inputs and `<textarea>` take `.form-control`, which makes them block-level, full width, with a light grey border, rounded corners and a blue focus ring. Labels take `.form-label` for a small bottom margin, help text takes `.form-text`, and each label-plus-field pair usually sits in a `div.mb-3` to space the rows. The `for` and `id` pair is not a Bootstrap requirement but an HTML one: it is what connects the label to the field for screen readers and makes the label clickable."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A basic form",
+      "code": "<form>\n  <div class=\"mb-3\">\n    <label for=\"email\" class=\"form-label\">Email address</label>\n    <input type=\"email\" class=\"form-control\" id=\"email\" aria-describedby=\"emailHelp\">\n    <div id=\"emailHelp\" class=\"form-text\">We never share your email with anyone else.</div>\n  </div>\n  <div class=\"mb-3\">\n    <label for=\"password\" class=\"form-label\">Password</label>\n    <input type=\"password\" class=\"form-control\" id=\"password\">\n  </div>\n  <div class=\"mb-3\">\n    <label for=\"message\" class=\"form-label\">Message</label>\n    <textarea class=\"form-control\" id=\"message\" rows=\"3\"></textarea>\n  </div>\n  <button type=\"submit\" class=\"btn btn-primary\">Send</button>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Each label sits above a full-width field with a 1px light grey (#dee2e6) border and 6px rounded corners\nSmall grey help text under the email field; the three rows are 16px apart\nClicking into a field turns its border light blue and adds a soft blue glow (a 4px box shadow)\nA blue Send button below the textarea"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Selects, checks, radios and switches"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `<select>` takes `.form-select`, not `.form-control`, because it needs its own arrow icon. Checkboxes and radios are wrapped in `.form-check` with `.form-check-input` on the input and `.form-check-label` on the label; add `.form-switch` to the wrapper to turn a checkbox into a toggle switch, and `.form-check-inline` to put several side by side. Sliders use `.form-range`."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Select, checkbox, radios and a switch",
+      "code": "<div class=\"mb-3\">\n  <label for=\"size\" class=\"form-label\">Size</label>\n  <select class=\"form-select\" id=\"size\">\n    <option selected>Choose…</option>\n    <option value=\"s\">Small</option>\n    <option value=\"m\">Medium</option>\n  </select>\n</div>\n\n<div class=\"form-check\">\n  <input class=\"form-check-input\" type=\"checkbox\" id=\"terms\">\n  <label class=\"form-check-label\" for=\"terms\">I accept the terms</label>\n</div>\n\n<div class=\"form-check form-check-inline mt-3\">\n  <input class=\"form-check-input\" type=\"radio\" name=\"delivery\" id=\"post\" checked>\n  <label class=\"form-check-label\" for=\"post\">Post</label>\n</div>\n<div class=\"form-check form-check-inline mt-3\">\n  <input class=\"form-check-input\" type=\"radio\" name=\"delivery\" id=\"pickup\">\n  <label class=\"form-check-label\" for=\"pickup\">Pick up</label>\n</div>\n\n<div class=\"form-check form-switch mt-3\">\n  <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" id=\"news\">\n  <label class=\"form-check-label\" for=\"news\">Email me news</label>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A full-width drop-down showing \"Choose…\" with a grey chevron on the right\nA square checkbox with its label to the right; ticking it fills the box blue with a white tick\n\"Post\" (selected, blue circle with a white dot) and \"Pick up\" on one line\nA pill-shaped switch with a grey knob on the left; clicking slides the knob right and turns the pill blue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Floating labels and input groups"
+    },
+    {
+      "type": "paragraph",
+      "text": "`.form-floating` places the label *inside* the field and floats it to the top when the field has focus or a value. The markup order is strict: the input comes first, the label second, and the input must carry a `placeholder` (any text; it is hidden) because the effect relies on the `:placeholder-shown` selector. `.input-group` glues a text addon or a button to a field, for example a currency symbol or a search button."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Floating label and input groups",
+      "code": "<div class=\"form-floating mb-3\">\n  <input type=\"email\" class=\"form-control\" id=\"floatEmail\" placeholder=\"name@example.com\">\n  <label for=\"floatEmail\">Email address</label>\n</div>\n\n<div class=\"input-group mb-3\">\n  <span class=\"input-group-text\">£</span>\n  <input type=\"number\" class=\"form-control\" aria-label=\"Amount\">\n  <span class=\"input-group-text\">.00</span>\n</div>\n\n<div class=\"input-group\">\n  <input type=\"search\" class=\"form-control\" placeholder=\"Search plants\" aria-label=\"Search plants\">\n  <button class=\"btn btn-outline-secondary\" type=\"button\">Search</button>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A tall (58px) field showing \"Email address\" in grey inside it; on focus or when text is typed, the label shrinks and moves to the top edge while the text sits below it\nA number field with a grey \"£\" box joined to its left and a grey \".00\" box joined to its right, sharing borders\nA search field with an outlined Search button attached to its right edge"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Laying out forms with the grid"
+    },
+    {
+      "type": "paragraph",
+      "text": "Forms use the same rows and columns as everything else. `row g-3` spaces fields both horizontally and vertically, and `col-md-6` puts two fields on one line from tablets upward while keeping them stacked on phones. For a horizontal form, where the label sits to the left of the field, use `.col-form-label` on the label so its padding lines up with the input."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Two fields per row on medium screens",
+      "code": "<form class=\"row g-3\">\n  <div class=\"col-md-6\">\n    <label for=\"first\" class=\"form-label\">First name</label>\n    <input type=\"text\" class=\"form-control\" id=\"first\">\n  </div>\n  <div class=\"col-md-6\">\n    <label for=\"last\" class=\"form-label\">Last name</label>\n    <input type=\"text\" class=\"form-control\" id=\"last\">\n  </div>\n  <div class=\"col-12\">\n    <label for=\"address\" class=\"form-label\">Address</label>\n    <input type=\"text\" class=\"form-control\" id=\"address\">\n  </div>\n  <div class=\"col-12\">\n    <button type=\"submit\" class=\"btn btn-primary\">Save</button>\n  </div>\n</form>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Below 768px: four rows stacked, 16px apart: First name, Last name, Address, Save\n768px and wider: First name and Last name side by side at half width each, then Address full width, then the Save button"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Validation styles"
+    },
+    {
+      "type": "paragraph",
+      "text": "Bootstrap can colour a field green or red and show a message under it, but it never decides *when*. Its styles are triggered in one of two ways. **Client side**, the styles key off the browser's own `:valid` and `:invalid` state, but only once the form has the class `was-validated`; you add that class in a submit handler after calling `checkValidity()`. **Server side**, you render the field with `.is-valid` or `.is-invalid` directly. In both cases the message lives in a `.valid-feedback` or `.invalid-feedback` element placed right after the field; it is hidden until the matching state applies."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Client-side validation with feedback messages",
+      "code": "<form class=\"needs-validation\" novalidate>\n  <div class=\"mb-3\">\n    <label for=\"name\" class=\"form-label\">Name</label>\n    <input type=\"text\" class=\"form-control\" id=\"name\" required>\n    <div class=\"invalid-feedback\">Please enter your name.</div>\n  </div>\n  <div class=\"mb-3\">\n    <label for=\"age\" class=\"form-label\">Age</label>\n    <input type=\"number\" class=\"form-control\" id=\"age\" min=\"18\" required>\n    <div class=\"invalid-feedback\">You must be 18 or older.</div>\n    <div class=\"valid-feedback\">Looks good!</div>\n  </div>\n  <button type=\"submit\" class=\"btn btn-primary\">Register</button>\n</form>\n\n<script>\n  const form = document.querySelector('.needs-validation');\n  form.addEventListener('submit', (event) => {\n    if (!form.checkValidity()) {\n      event.preventDefault();\n    }\n    form.classList.add('was-validated');\n  });\n</script>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser",
+      "content": "Before the first submit: plain grey-bordered fields, no messages\nSubmit with both fields empty: both fields get a red border and a red icon; \"Please enter your name.\" and \"You must be 18 or older.\" appear in red; the form is not sent\nType a name and 25, submit again: both fields get a green border and a tick icon, \"Looks good!\" appears in green under Age, and the form is sent"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `novalidate` attribute matters: it stops the browser from showing its own validation bubbles and blocking the submit event, which would mean your handler never runs and `was-validated` is never added. The server-side variant needs no script at all:"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Server-rendered invalid state",
+      "code": "<label for=\"username\" class=\"form-label\">Username</label>\n<input type=\"text\" class=\"form-control is-invalid\" id=\"username\" value=\"admin\">\n<div class=\"invalid-feedback\">That username is already taken.</div>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "The field has a red border and a red icon on the right, and the red message is visible immediately, with no JavaScript involved"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: feedback that never appears",
+      "text": "Two things silently break validation messages. First, a `.invalid-feedback` element is only displayed when it is a **sibling placed immediately after** a field that is invalid, so wrapping the field in an extra `<div>` or putting the message before the input hides it for ever. Second, forgetting `novalidate` means the browser blocks invalid submissions itself, your submit handler does not run, and the `was-validated` class is never added, so Bootstrap's styles never switch on."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Validation is not security",
+      "text": "Everything in this lesson is presentation. The `required` and `min` attributes and the green and red borders help honest users; anyone can bypass them with the developer tools. The server must validate again before it trusts a single value."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-forms-signup"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-forms-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "forms",
+          "difficulty": "beginner",
+          "question": "Client-side validation styles only appear after the class `___` has been added to the form element.",
+          "explanation": "was-validated switches on the :valid and :invalid based styles. Your submit handler adds it after calling checkValidity().",
+          "answers": ["was-validated"],
+          "caseSensitive": false
+        },
+        {
+          "id": "bs-forms-qc-2",
+          "type": "true-false",
+          "lessonSlug": "forms",
+          "difficulty": "beginner",
+          "question": "Inside `.form-floating`, the `<label>` must come after the `<input>`.",
+          "explanation": "The floating effect uses a sibling selector from the input to the label, so the input must come first and must have a placeholder attribute.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-forms-validation-class", "bootstrap-forms-signup"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "buttons"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "input-types"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Forms – Controls, Layout and Validation Styles",
+    "description": "Build Bootstrap 5.3 forms with form-control, selects, checks, floating labels and input groups, then show validation states with was-validated and is-invalid."
+  },
+  "updatedOn": "2026-11-16"
+}

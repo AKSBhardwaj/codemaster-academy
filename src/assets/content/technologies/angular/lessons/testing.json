@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "slug": "testing",
+  "title": "Testing Components",
+  "summary": "Write unit tests with TestBed and Vitest: render a component, set signal inputs, click buttons, await whenStable, replace services with fakes and test HTTP calls with HttpTestingController.",
+  "introduction": "Angular projects come with a test runner configured: since Angular 21 the CLI uses Vitest, and ng test runs every spec file in the project. Testing a component means rendering it in a TestBed, poking at the DOM and checking what appears, which also forces you to keep components small and services replaceable. This lesson tests a counter component, a service and an API class, and shows the one timing rule that trips up most beginners in zoneless tests.",
+  "learningObjectives": [
+    "Render a component with TestBed, set inputs with setInput and query the DOM",
+    "Trigger events and wait for rendering with whenStable before asserting",
+    "Test a service directly and an HttpClient call with HttpTestingController"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The test setup"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every file ending in `.spec.ts` is a test file. `ng generate component` creates one next to each component, and `ng test` runs them all with Vitest in a browser-like environment. `describe`, `it`, `expect` and `beforeEach` are available globally, so a spec needs no imports beyond Angular's `TestBed` and the class under test."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/counter/counter.ts",
+      "code": "import { Component, input, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-counter',\n  template: `\n    <p>{{ label() }}: {{ count() }}</p>\n    <button (click)=\"count.update((n) => n + 1)\">Add</button>\n  `,\n})\nexport class Counter {\n  readonly label = input('Count');\n  readonly count = signal(0);\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/counter/counter.spec.ts",
+      "code": "import { TestBed } from '@angular/core/testing';\nimport { Counter } from './counter';\n\ndescribe('Counter', () => {\n  beforeEach(async () => {\n    await TestBed.configureTestingModule({ imports: [Counter] }).compileComponents();\n  });\n\n  it('shows the label and the initial count', async () => {\n    const fixture = TestBed.createComponent(Counter);\n    fixture.componentRef.setInput('label', 'Clicks');\n    await fixture.whenStable();\n\n    const element = fixture.nativeElement as HTMLElement;\n    expect(element.querySelector('p')?.textContent).toBe('Clicks: 0');\n  });\n\n  it('increments when the button is clicked', async () => {\n    const fixture = TestBed.createComponent(Counter);\n    await fixture.whenStable();\n\n    const element = fixture.nativeElement as HTMLElement;\n    element.querySelector('button')?.click();\n    await fixture.whenStable();\n\n    expect(element.querySelector('p')?.textContent).toBe('Count: 1');\n  });\n});"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng test"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": " ✓ src/app/counter/counter.spec.ts (2 tests) 41ms\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  09:41:12\n   Duration  1.84s"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`TestBed.configureTestingModule` sets up a tiny application for the test; `imports` lists the component under test, `providers` can replace services.",
+        "`createComponent` returns a **fixture**: a handle on the component instance (`componentInstance`), its host element (`nativeElement`) and rendering (`whenStable`).",
+        "`fixture.componentRef.setInput('label', 'Clicks')` sets a signal input the way a parent template would. Assigning to `componentInstance.label` does not work because inputs are read-only signals.",
+        "`await fixture.whenStable()` waits until Angular has rendered everything pending. Query the DOM after it, never before."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: asserting before Angular has rendered",
+      "text": "In a zoneless app a click schedules a render; it does not happen synchronously inside `click()`. Remove the second `await fixture.whenStable()` and the test reads the old DOM and fails with `AssertionError: expected 'Count: 0' to be 'Count: 1'`. The rule: after creating the component, after setting an input and after any event, `await fixture.whenStable()` before you look at the DOM. `fixture.detectChanges()` also works for a synchronous check, but `whenStable` additionally waits for pending effects and resources."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "ng test, with the second whenStable removed",
+      "content": " ❯ src/app/counter/counter.spec.ts (2 tests | 1 failed) 47ms\n   × Counter > increments when the button is clicked\n     → expected 'Count: 0' to be 'Count: 1' // Object.is equality\n\n Test Files  1 failed (1)\n      Tests  1 failed | 1 passed (2)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Testing a service"
+    },
+    {
+      "type": "paragraph",
+      "text": "Services with no DOM are the easiest things to test: ask the injector for an instance and call its methods. `TestBed.inject` returns the same singleton the components would get, created fresh for each test because the TestBed is reset between tests."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/cart-service.spec.ts",
+      "code": "import { TestBed } from '@angular/core/testing';\nimport { CartService } from './cart-service';\n\ndescribe('CartService', () => {\n  it('adds items and computes the total', () => {\n    const cart = TestBed.inject(CartService);\n\n    cart.add({ id: 1, name: 'Keyboard', price: 49 });\n    cart.add({ id: 2, name: 'Mouse', price: 19 });\n\n    expect(cart.count()).toBe(2);\n    expect(cart.total()).toBe(68);\n  });\n\n  it('removes an item by id', () => {\n    const cart = TestBed.inject(CartService);\n    cart.add({ id: 1, name: 'Keyboard', price: 49 });\n\n    cart.remove(1);\n\n    expect(cart.list()).toEqual([]);\n  });\n});"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Replacing a service with a fake"
+    },
+    {
+      "type": "paragraph",
+      "text": "A component that injects `CartService` should be tested without the real cart logic. Provide an object with just the members the component uses; since the template reads signals, the fake exposes signals too. This is dependency injection paying for itself."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/cart-badge/cart-badge.spec.ts",
+      "code": "import { signal } from '@angular/core';\nimport { TestBed } from '@angular/core/testing';\nimport { CartBadge } from './cart-badge';\nimport { CartService } from '../cart-service';\n\ndescribe('CartBadge', () => {\n  it('shows the count and total from the cart', async () => {\n    await TestBed.configureTestingModule({\n      imports: [CartBadge],\n      providers: [{ provide: CartService, useValue: { count: signal(3), total: signal(120) } }],\n    }).compileComponents();\n\n    const fixture = TestBed.createComponent(CartBadge);\n    await fixture.whenStable();\n\n    expect((fixture.nativeElement as HTMLElement).textContent).toBe('Cart: 3 items, 120 EUR');\n  });\n});"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Testing HTTP calls"
+    },
+    {
+      "type": "paragraph",
+      "text": "`provideHttpClientTesting()` swaps the real backend for a controller that records requests. The test subscribes, checks that exactly one request went to the expected URL, answers it with `flush`, and finally calls `verify()` to make sure no unexpected requests were made."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/products-api.spec.ts",
+      "code": "import { provideHttpClient } from '@angular/common/http';\nimport { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';\nimport { TestBed } from '@angular/core/testing';\nimport { Product, ProductsApi } from './products-api';\n\ndescribe('ProductsApi', () => {\n  beforeEach(() => {\n    TestBed.configureTestingModule({\n      providers: [provideHttpClient(), provideHttpClientTesting()],\n    });\n  });\n\n  it('loads products from /api/products', () => {\n    const api = TestBed.inject(ProductsApi);\n    const http = TestBed.inject(HttpTestingController);\n    let received: Product[] = [];\n\n    api.list().subscribe((products) => (received = products));\n\n    const request = http.expectOne('/api/products');\n    expect(request.request.method).toBe('GET');\n    request.flush([{ id: 1, name: 'Keyboard', price: 49 }]);\n\n    expect(received).toEqual([{ id: 1, name: 'Keyboard', price: 49 }]);\n    http.verify();\n  });\n});"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "ng test",
+      "content": " ✓ src/app/cart-service.spec.ts (2 tests) 12ms\n ✓ src/app/cart-badge/cart-badge.spec.ts (1 test) 36ms\n ✓ src/app/products-api.spec.ts (1 test) 18ms\n ✓ src/app/counter/counter.spec.ts (2 tests) 41ms\n\n Test Files  4 passed (4)\n      Tests  6 passed (6)\n   Start at  09:52:40\n   Duration  2.31s"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What to test"
+    },
+    {
+      "type": "table",
+      "headers": ["Kind of code", "Test through", "Typical assertion"],
+      "rows": [
+        [
+          "Presentational component",
+          "Inputs and the DOM",
+          "Text, classes and attributes after `whenStable`"
+        ],
+        [
+          "Container component",
+          "Fake services in `providers`",
+          "The right service method is called with the right arguments"
+        ],
+        ["Service with signals", "`TestBed.inject` and method calls", "Signal values after calls"],
+        [
+          "API class",
+          "`HttpTestingController`",
+          "URL, method, body, and the handling of the response"
+        ],
+        ["Pipe or plain function", "Direct call, no TestBed", "Return value"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Test behaviour the user can observe rather than implementation details: assert on rendered text, not on private fields. Vitest's `vi.fn()` and `vi.spyOn()` from the `vitest` package create spies when you need to assert that a fake method was called. `ng test --coverage` reports which lines ran; aim for meaningful tests on logic and templates rather than a percentage."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "End-to-end tests",
+      "text": "Unit tests cover one component at a time. For a flow such as *log in, add to cart, check out* use a browser automation tool like [Playwright](/tutorials/playwright) or [Cypress](/tutorials/cypress) against the running app. The [Vitest tutorial](/tutorials/vitest) covers the runner's own features in depth."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-testing-set-input"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-testing-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "testing",
+          "difficulty": "intermediate",
+          "question": "How do you give a component's `readonly label = input('Count')` the value `'Clicks'` in a test?",
+          "explanation": "Signal inputs are read-only from inside the component; the fixture's `componentRef.setInput` sets them the way a parent would.",
+          "options": [
+            "`fixture.componentInstance.label = 'Clicks'`",
+            "`fixture.componentInstance.label.set('Clicks')`",
+            "`fixture.componentRef.setInput('label', 'Clicks')`",
+            "`TestBed.inject(Counter).label('Clicks')`"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "angular-testing-qc-2",
+          "type": "true-false",
+          "lessonSlug": "testing",
+          "difficulty": "beginner",
+          "question": "`http.verify()` fails the test if a request was made that the test did not expect.",
+          "explanation": "`verify()` asserts that no unmatched requests remain, which catches accidental extra calls.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-testing-set-input"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "components"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "services-di"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "http-resource"
+    }
+  ],
+  "seo": {
+    "title": "Testing Angular Components with TestBed and Vitest",
+    "description": "Learn Angular 22 unit testing: render components with TestBed, set signal inputs, click and await whenStable, fake services with providers and test HttpClient calls."
+  },
+  "updatedOn": "2026-11-15"
+}

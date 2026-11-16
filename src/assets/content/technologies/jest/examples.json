@@ -1,0 +1,126 @@
+{
+  "title": "Jest Examples",
+  "description": "Small Jest examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Your first Jest test",
+      "description": "Jest runs a test function and reports whether its checks pass. expect gives the actual value; a matcher states the expected result.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"adds two prices\", () => { expect(2 + 3).toBe(5); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "compare-object-contents",
+      "title": "Compare object contents",
+      "description": "toEqual checks values inside objects. This is different from checking whether two names refer to the exact same object.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"book fields\", () => { expect({ title: \"Moon\" }).toEqual({ title: \"Moon\" }); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "compare-object-contents"
+    },
+    {
+      "id": "check-lists-and-text",
+      "title": "Check lists and text",
+      "description": "A length check and a containment check answer different questions about a list.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reading list\", () => { const books = [\"Moon\", \"Ocean\"]; expect(books).toHaveLength(2); expect(books).toContain(\"Moon\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-lists-and-text"
+    },
+    {
+      "id": "check-an-error",
+      "title": "Check an error",
+      "description": "Pass a function to toThrow so Jest can call it and catch the error.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"rejects bad age\", () => { const reject = () => { throw new Error(\"Bad age\"); }; expect(reject).toThrow(\"Bad age\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-an-error"
+    },
+    {
+      "id": "set-up-fresh-state",
+      "title": "Set up fresh state",
+      "description": "beforeEach runs before each test in its scope. Use it to prepare fresh mutable data.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\nlet basket;\nbeforeEach(() => { basket = []; });\ntest(\"starts empty\", () => { expect(basket).toHaveLength(0); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "set-up-fresh-state"
+    },
+    {
+      "id": "use-a-mock-function",
+      "title": "Use a mock function",
+      "description": "jest.fn makes a function that records calls. A mock can stand in for a small dependency.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"saves a score\", () => { const save = jest.fn(); save(8); expect(save).toHaveBeenCalledWith(8); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-mock-function"
+    },
+    {
+      "id": "choose-a-mock-return-value",
+      "title": "Choose a mock return value",
+      "description": "A mock can return a chosen value so the code under test has predictable input.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reads a name\", () => { const getName = jest.fn().mockReturnValue(\"Asha\"); expect(getName()).toBe(\"Asha\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-a-mock-return-value"
+    },
+    {
+      "id": "wait-for-a-promise",
+      "title": "Wait for a promise",
+      "description": "An async test can await a promise. resolves checks the value with which it finishes successfully.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"loads a score\", async () => { await expect(Promise.resolve(8)).resolves.toBe(8); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "wait-for-a-promise"
+    },
+    {
+      "id": "check-promise-rejection",
+      "title": "Check promise rejection",
+      "description": "rejects checks a promise that fails. It is useful for an expected error path.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reports missing data\", async () => { await expect(Promise.reject(new Error(\"Missing\"))).rejects.toThrow(\"Missing\"); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-promise-rejection"
+    },
+    {
+      "id": "run-a-table-of-cases",
+      "title": "Run a table of cases",
+      "description": "test.each runs a test with each row of data. A row contains inputs and expected output.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest.each([[2, 4], [3, 6], [0, 0]])(\"double %i is %i\", (input, expected) => { expect(input * 2).toBe(expected); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "run-a-table-of-cases"
+    },
+    {
+      "id": "control-a-timer",
+      "title": "Control a timer",
+      "description": "Fake timers let a test move time forward without really waiting. Restore real timers when the test ends.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reminder runs later\", () => { jest.useFakeTimers(); try { const remind = jest.fn(); setTimeout(remind, 1000); jest.advanceTimersByTime(1000); expect(remind).toHaveBeenCalledTimes(1); } finally { jest.useRealTimers(); } });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "control-a-timer"
+    },
+    {
+      "id": "review-snapshots-thoughtfully",
+      "title": "Review snapshots thoughtfully",
+      "description": "A snapshot stores an expected structure. Review changes instead of accepting a new snapshot blindly.",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"book summary\", () => { expect({ title: \"Moon\", pages: 24 }).toMatchInlineSnapshot(`\n{\n  \"pages\": 24,\n  \"title\": \"Moon\",\n}\n`); });",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "review-snapshots-thoughtfully"
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "slug": "enums-literals",
+  "title": "Enums and Literal Types",
+  "summary": "A literal type allows one exact value. A union can allow a short list of exact choices.",
+  "introduction": "A literal type allows one exact value. A union can allow a short list of exact choices. A game move might be only \"left\" or \"right\". Describe a small set of choices, then compare that with an enum, a named group of values.",
+  "learningObjectives": [
+    "Declare numeric and string enums and read the JavaScript they compile to",
+    "Model a fixed set of options with a literal union or an as const object instead",
+    "Explain why enums fail under erasableSyntaxOnly and Node's type stripping"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Numeric enums"
+    },
+    {
+      "type": "paragraph",
+      "text": "An `enum` declares a set of named constants. Without explicit values the members count up from 0, and the compiled object maps both ways: `Direction.Left` is `2` and `Direction[2]` is `\"Left\"`. Since TypeScript 5.0 every enum is a *union enum*: the type `Direction` accepts only its four members, so an arbitrary number is rejected."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "numeric.ts",
+      "code": "enum Direction {\n  Up,\n  Down,\n  Left,\n  Right,\n}\n\nlet heading: Direction = Direction.Left;\nconsole.log(Direction.Up, Direction[2], heading);\n\nheading = 42;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc numeric.ts",
+      "content": "numeric.ts:11:1 - error TS2322: Type '42' is not assignable to type 'Direction'.\n\n11 heading = 42;\n   ~~~~~~~\n\n\nFound 1 error in numeric.ts:11"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `console.log` line prints `0 Left 2`. Unlike interfaces and type aliases, an enum produces real JavaScript. Here is what `tsc` emits for `Direction`: an object built inside a function, with the reverse mapping created by the double assignment."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "numeric.js (emitted by tsc)",
+      "code": "var Direction;\n(function (Direction) {\n    Direction[Direction[\"Up\"] = 0] = \"Up\";\n    Direction[Direction[\"Down\"] = 1] = \"Down\";\n    Direction[Direction[\"Left\"] = 2] = \"Left\";\n    Direction[Direction[\"Right\"] = 3] = \"Right\";\n})(Direction || (Direction = {}));"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "String enums"
+    },
+    {
+      "type": "paragraph",
+      "text": "Giving every member a string value makes logs, JSON and database rows readable (`\"info\"` instead of `1`). String enums have no reverse mapping and are *nominal*: even the exact string `\"info\"` is not accepted where `LogLevel` is expected. You must write `LogLevel.Info`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "string-enum.ts",
+      "code": "enum LogLevel {\n  Debug = \"debug\",\n  Info = \"info\",\n  Error = \"error\",\n}\n\nfunction log(level: LogLevel, message: string): void {\n  console.log(`[${level}] ${message}`);\n}\n\nlog(LogLevel.Info, \"server started\");\nlog(\"info\", \"server started\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc string-enum.ts",
+      "content": "string-enum.ts:12:5 - error TS2345: Argument of type '\"info\"' is not assignable to parameter of type 'LogLevel'.\n\n12 log(\"info\", \"server started\");\n       ~~~~~~\n\n\nFound 1 error in string-enum.ts:12"
+    },
+    {
+      "type": "paragraph",
+      "text": "Whether that strictness is a feature or a nuisance depends on where the values come from. For a value typed inside your own code it prevents typos; for a value parsed from a request body you would have to convert the string to the enum member first anyway."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The literal-union alternative"
+    },
+    {
+      "type": "paragraph",
+      "text": "A union of string literals (`\"debug\" | \"info\" | \"error\"`) gives the same compile-time safety with zero runtime code, and plain strings are accepted. When you also need the list at runtime, for a dropdown or validation, declare an `as const` object once and derive the union from it with `typeof` and `keyof`, so the two can never drift apart."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "literal.ts",
+      "code": "const LOG_LEVELS = {\n  Debug: \"debug\",\n  Info: \"info\",\n  Error: \"error\",\n} as const;\n\ntype LogLevel = (typeof LOG_LEVELS)[keyof typeof LOG_LEVELS];\n\nfunction log(level: LogLevel, message: string): void {\n  console.log(`[${level}] ${message}`);\n}\n\nlog(\"info\", \"cache warmed\");\nlog(LOG_LEVELS.Error, \"disk full\");\nlog(\"trace\", \"too chatty\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc literal.ts",
+      "content": "literal.ts:15:5 - error TS2345: Argument of type '\"trace\"' is not assignable to parameter of type 'LogLevel'.\n\n15 log(\"trace\", \"too chatty\");\n       ~~~~~~~\n\n\nFound 1 error in literal.ts:15"
+    },
+    {
+      "type": "paragraph",
+      "text": "The two valid calls print `[info] cache warmed` and `[error] disk full`. Read the type line slowly: `typeof LOG_LEVELS` is the object type, `keyof` of that is `\"Debug\" | \"Info\" | \"Error\"`, and indexing the object type with those keys yields the union of the values. `as const` is essential; without it every value would widen to `string` and the union would collapse to `string`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Enums are not erasable"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything else in this tutorial so far could be deleted from the source to obtain valid JavaScript. An enum cannot: it *is* runtime code. TypeScript 5.8 added the `erasableSyntaxOnly` option to flag such constructs, and Node.js 24, which runs `.ts` files by stripping types, refuses them with the error code `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "erasable.ts",
+      "code": "enum Status {\n  Active,\n  Archived,\n}\n\nconsole.log(Status.Active);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc --erasableSyntaxOnly erasable.ts",
+      "content": "erasable.ts:1:6 - error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.\n\n1 enum Status {\n       ~~~~~~\n\n\nFound 1 error in erasable.ts:1"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: expecting enums to disappear like types",
+      "text": "Teams that adopt `node app.ts` or a build tool that only strips types see enums fail at startup, not at compile time. The same applies to `namespace` blocks with values and to constructor parameter properties. If any part of your toolchain relies on type stripping, enable `\"erasableSyntaxOnly\": true` so the compiler reports these constructs where they are written, and prefer literal unions or `as const` objects."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "const enums"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `const enum` is inlined: every `Flag.On` in the source becomes the literal `1 /* Flag.On */` in the output and no object is emitted. That removes the runtime cost but makes the enum invisible to other tools, and with `isolatedModules` (which the 5.9 `tsc --init` template enables) the compiler emits a const enum as an ordinary enum object anyway, so the saving disappears. Most teams avoid them."
+    },
+    {
+      "type": "table",
+      "headers": ["Need", "Use", "Runtime code"],
+      "rows": [
+        [
+          "A fixed set of string options checked by the compiler",
+          "Literal union `\"a\" | \"b\"`",
+          "None"
+        ],
+        [
+          "The same, plus the list of values at runtime",
+          "`as const` object and a derived union",
+          "A plain object"
+        ],
+        [
+          "Names for numeric flags or codes from an external protocol",
+          "Numeric `enum`",
+          "Object with reverse mapping"
+        ],
+        ["Readable values and nominal typing", "String `enum`", "Plain object"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Default choice",
+      "text": "Start with a literal union. Move to an `as const` object when you need to iterate the values. Reach for `enum` only when you want the reverse mapping of numeric codes or nominal typing, and then keep in mind that it is runtime code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-enums-literals-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-enums-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "enums-literals",
+          "difficulty": "beginner",
+          "question": "Given `enum Color { Red, Green = 5, Blue }`, what is `Color.Blue`?",
+          "explanation": "Members without an initialiser continue counting from the previous member. Red is 0, Green is set to 5, so Blue is 6.",
+          "options": ["`2`", "`5`", "`6`", "`\"Blue\"`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "ts-enums-qc-2",
+          "type": "true-false",
+          "lessonSlug": "enums-literals",
+          "difficulty": "intermediate",
+          "question": "A union of string literals such as `\"debug\" | \"info\"` produces no JavaScript at all after compilation.",
+          "explanation": "Type aliases and literal unions exist only in the type system. Enums, by contrast, compile to a real object.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-enums-literals-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "type-aliases-unions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "arrays-tuples"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Enums vs Literal Types and as const",
+    "description": "Learn numeric and string enums, what they compile to, the literal-union and as const alternatives, const enums, and why enums break Node.js type stripping."
+  },
+  "updatedOn": "2026-11-16"
+}

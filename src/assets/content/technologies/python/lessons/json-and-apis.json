@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "slug": "json-and-apis",
+  "title": "JSON and Web APIs",
+  "summary": "JSON stores data as text. An API is a set of rules that lets one program ask another program for data.",
+  "introduction": "JSON stores data as text. An API is a set of rules that lets one program ask another program for data. Think of asking for a book list at a library desk. Read a small JSON answer first, then see how a program asks for one.",
+  "learningObjectives": [
+    "Convert Python data to JSON text and back with dumps() and loads()",
+    "Explain how JSON types map to Python types and what cannot be serialised",
+    "Save and load JSON files with dump() and load()",
+    "Call a web API with urllib.request and handle HTTP and network errors"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What JSON looks like"
+    },
+    {
+      "type": "paragraph",
+      "text": "JSON (JavaScript Object Notation) is plain text: objects in braces, arrays in brackets, strings in double quotes, numbers, `true`, `false` and `null`. Python has a matching type for each, which is why the conversion is nearly free."
+    },
+    {
+      "type": "table",
+      "headers": ["JSON", "Python"],
+      "rows": [
+        ["object `{\"a\": 1}`", "`dict`"],
+        ["array `[1, 2]`", "`list` (tuples are written as arrays and come back as lists)"],
+        ["string `\"text\"`", "`str`"],
+        ["number `3` or `2.5`", "`int` or `float`"],
+        ["`true`, `false`", "`True`, `False`"],
+        ["`null`", "`None`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "dumps() and loads()"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "convert.py",
+      "code": "import json\n\nuser = {\"name\": \"Ada\", \"age\": 36, \"languages\": [\"Python\", \"SQL\"], \"admin\": False, \"manager\": None}\n\ntext = json.dumps(user)\nprint(text)\nprint(type(text).__name__)\n\ndata = json.loads(text)\nprint(data[\"languages\"][1], data[\"manager\"])\nprint(data == user)\n\nprint(json.loads('{\"total\": 3, \"items\": [1, 2.5, \"three\"]}'))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python convert.py",
+      "content": "{\"name\": \"Ada\", \"age\": 36, \"languages\": [\"Python\", \"SQL\"], \"admin\": false, \"manager\": null}\nstr\nSQL None\nTrue\n{'total': 3, 'items': [1, 2.5, 'three']}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`dumps` (dump to string) serialises Python data into JSON text; `loads` (load from string) parses JSON text back into Python data. The round trip is faithful for the types in the table, so `data == user` is `True`. Notice the spelling changes: `False` becomes `false`, `None` becomes `null` and every string gets double quotes, because that is what JSON requires."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pretty printing and what cannot be serialised"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "pretty.py",
+      "code": "import json\nfrom datetime import date\n\nconfig = {\"debug\": True, \"ports\": [8000, 8001], \"owner\": {\"name\": \"Ada\"}}\nprint(json.dumps(config, indent=2, sort_keys=True))\n\nprint(json.dumps((1, 2)))\ntry:\n    json.dumps({\"when\": date(2026, 11, 15)})\nexcept TypeError as error:\n    print(\"Error:\", error)\nprint(json.dumps({\"when\": date(2026, 11, 15).isoformat()}))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python pretty.py",
+      "content": "{\n  \"debug\": true,\n  \"owner\": {\n    \"name\": \"Ada\"\n  },\n  \"ports\": [\n    8000,\n    8001\n  ]\n}\n[1, 2]\nError: Object of type date is not JSON serializable\n{\"when\": \"2026-11-15\"}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`indent` adds line breaks and indentation for human readers, and `sort_keys` makes the output stable, which keeps version-control diffs small. Dates, sets and your own objects have no JSON equivalent and raise `TypeError`; convert them first (`isoformat()` for dates, `list()` for sets, a dictionary for objects) or pass a `default=` function that does the conversion."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "JSON files"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "settings.py",
+      "code": "import json\n\nsettings = {\"theme\": \"dark\", \"font_size\": 14, \"recent\": [\"notes.txt\", \"todo.md\"]}\n\nwith open(\"settings.json\", \"w\", encoding=\"utf-8\") as file:\n    json.dump(settings, file, indent=2)\n\nwith open(\"settings.json\", encoding=\"utf-8\") as file:\n    loaded = json.load(file)\n\nprint(loaded[\"font_size\"] + 2)\nprint(loaded[\"recent\"][0])\nprint(loaded == settings)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python settings.py",
+      "content": "16\nnotes.txt\nTrue"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "load() and loads() are not interchangeable",
+      "text": "`json.load(\"settings.json\")` fails with `AttributeError: 'str' object has no attribute 'read'`, because `load()` wants an open *file object*, not a path, while `loads()` wants a *string* of JSON. Passing a file object to `loads()` fails too, with `TypeError: the JSON object must be str, bytes or bytearray, not TextIOWrapper`. Remember the `s`: `dumps` and `loads` work with strings, `dump` and `load` work with files."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Calling a web API"
+    },
+    {
+      "type": "paragraph",
+      "text": "A web API is a URL that returns JSON instead of a page. The standard library's `urllib.request` can fetch it, and `json.load()` reads straight from the response object. The examples use JSONPlaceholder, a free fake API for testing that always returns the same sample data, so your output will match as long as you are online."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "api.py",
+      "code": "import json\nfrom urllib.request import urlopen\n\nwith urlopen(\"https://jsonplaceholder.typicode.com/users/1\", timeout=10) as response:\n    print(response.status, response.headers[\"Content-Type\"])\n    user = json.load(response)\n\nprint(user[\"name\"])\nprint(user[\"email\"])\nprint(user[\"address\"][\"city\"])\nprint(sorted(user.keys()))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python api.py",
+      "content": "200 application/json; charset=utf-8\nLeanne Graham\nSincere@april.biz\nGwenborough\n['address', 'company', 'email', 'id', 'name', 'phone', 'username', 'website']"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response is an object you use inside a `with` block, just like a file. `status` is the HTTP status code (200 means success), the headers tell you the content type, and `json.load(response)` parses the body. From then on `user` is a plain dictionary, navigated exactly as in [Dictionaries](/tutorials/python/dictionaries)."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Sending data"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "post.py",
+      "code": "import json\nfrom urllib.request import Request, urlopen\n\npayload = json.dumps({\"title\": \"Learn Python\", \"completed\": False, \"userId\": 1}).encode(\"utf-8\")\nrequest = Request(\n    \"https://jsonplaceholder.typicode.com/todos\",\n    data=payload,\n    headers={\"Content-Type\": \"application/json\"},\n    method=\"POST\",\n)\nwith urlopen(request, timeout=10) as response:\n    print(response.status)\n    created = json.load(response)\nprint(created)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python post.py",
+      "content": "201\n{'title': 'Learn Python', 'completed': False, 'userId': 1, 'id': 201}"
+    },
+    {
+      "type": "paragraph",
+      "text": "To send data, build a `Request` with a body (bytes, hence `.encode(\"utf-8\")`), the content type header and the HTTP method. The fake API answers `201 Created` and echoes the record with a new `id`; a real API would store it. The same pattern covers `PUT` and `DELETE`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling errors"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "fetch.py",
+      "code": "import json\nfrom urllib.error import HTTPError, URLError\nfrom urllib.request import urlopen\n\ndef fetch(url):\n    try:\n        with urlopen(url, timeout=10) as response:\n            return json.load(response)\n    except HTTPError as error:\n        print(\"HTTP error:\", error.code, error.reason)\n    except URLError:\n        print(\"Network error: could not reach the server\")\n    except json.JSONDecodeError as error:\n        print(\"Not JSON:\", error.msg)\n    return None\n\nprint(fetch(\"https://jsonplaceholder.typicode.com/todos/1\"))\nprint(fetch(\"https://jsonplaceholder.typicode.com/todos/99999\"))\nprint(fetch(\"https://nonexistent.invalid/api\"))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python fetch.py",
+      "content": "{'userId': 1, 'id': 1, 'title': 'delectus aut autem', 'completed': False}\nHTTP error: 404 Not Found\nNone\nNetwork error: could not reach the server\nNone"
+    },
+    {
+      "type": "paragraph",
+      "text": "`HTTPError` means the server answered with an error status (404 not found, 401 unauthorised, 500 server error); `URLError` means no usable answer at all (no network, unknown host, timeout). `HTTPError` is a subclass of `URLError`, so it must be listed first. Always pass a `timeout`, otherwise a silent server can hang your program forever. The `.invalid` domain is reserved and never resolves, which makes it handy for testing the failure path."
+    },
+    {
+      "type": "callout",
+      "icon": "info-circle",
+      "title": "requests and real projects",
+      "text": "Most Python code uses the third-party `requests` library, where the first example shrinks to `requests.get(url, timeout=10).json()`. Installing it is the first thing you do in [Virtual Environments and pip](/tutorials/python/virtual-environments). Designing your own API is covered in [REST API](/tutorials/rest-api) and [FastAPI](/tutorials/fastapi)."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-json-and-apis-loads-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-json-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "json-and-apis",
+          "difficulty": "beginner",
+          "question": "`json.___(text)` parses a string of JSON into Python data.",
+          "explanation": "`loads` reads from a string (the `s`), `load` reads from an open file object, and `dumps`/`dump` go the other way.",
+          "answers": ["loads"],
+          "caseSensitive": false
+        },
+        {
+          "id": "py-json-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "json-and-apis",
+          "difficulty": "beginner",
+          "question": "What does Python's `None` become when serialised to JSON?",
+          "explanation": "JSON has `null` for the absence of a value; `None` maps to it and comes back as `None`.",
+          "options": ["`None`", "`null`", "`nil`", "`undefined`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-json-and-apis-loads-predict"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "dictionaries"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "file-handling"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "virtual-environments"
+    }
+  ],
+  "seo": {
+    "title": "Python JSON and Web APIs – json Module and urllib",
+    "description": "Convert Python data to JSON and back with json.dumps() and loads(), save JSON files, and call a web API with urllib.request, handling HTTP and network errors."
+  },
+  "updatedOn": "2026-11-16"
+}

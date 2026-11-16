@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "post-json",
+  "title": "Read a JSON request",
+  "summary": "Flask: Read a JSON request. Send an empty object.",
+  "introduction": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. The code checks that the body is an object with text title.",
+  "learningObjectives": ["Read a JSON request with Flask", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON request"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Read a JSON request",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.post(\"/books\")\ndef create():\n    data = request.get_json(silent=True)\n    if not isinstance(data, dict) or not isinstance(data.get(\"title\"), str):\n        return jsonify(error=\"Title needed\"), 400\n    return jsonify(title=data[\"title\"]), 201\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "get_json reads the object. Its title is a string, so the created response branch is selected."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check parsed data before indexing into it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-post-json-check"
+    }
+  ],
+  "exerciseIds": ["flask-post-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Read a JSON request",
+    "description": "Flask: Read a JSON request. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

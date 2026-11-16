@@ -1,0 +1,748 @@
+{
+  "title": "MySQL Reference",
+  "description": "A compact reference of the MySQL statements, functions and client commands covered in the tutorial, grouped by task, with syntax, a short example and the lesson that explains each one.",
+  "groups": [
+    {
+      "id": "client-server",
+      "title": "Client and server",
+      "entries": [
+        {
+          "slug": "mysql-client",
+          "name": "mysql",
+          "summary": "The command-line client. Options choose user, host, port and database; -p prompts for the password.",
+          "syntax": "mysql -h HOST -P PORT -u USER -p [DATABASE]",
+          "example": {
+            "language": "bash",
+            "code": "mysql -h 127.0.0.1 -P 3306 -u root -p roastery"
+          },
+          "notes": [
+            "Capital -P is the port, lower-case -p the password prompt.",
+            "-e \"SQL\" runs one statement and exits."
+          ],
+          "lessonSlug": "installing-connecting"
+        },
+        {
+          "slug": "mysqlsh",
+          "name": "mysqlsh",
+          "summary": "MySQL Shell: a client with SQL, JavaScript and Python modes plus the parallel dump and load utilities.",
+          "syntax": "mysqlsh USER@HOST --js | --py | --sql",
+          "example": {
+            "language": "bash",
+            "code": "mysqlsh root@localhost --js"
+          },
+          "lessonSlug": "backup-restore"
+        },
+        {
+          "slug": "vertical-output",
+          "name": "\\G",
+          "summary": "Ends a statement instead of ; and prints each row vertically, one column per line.",
+          "syntax": "SELECT ... \\G",
+          "example": {
+            "language": "sql",
+            "code": "SHOW CREATE TABLE customers\\G"
+          },
+          "notes": ["Other client commands: \\s status, \\c cancel the current input, \\q quit."],
+          "lessonSlug": "installing-connecting"
+        },
+        {
+          "slug": "show-variables",
+          "name": "SHOW VARIABLES",
+          "summary": "Lists server system variables; a LIKE pattern narrows the list.",
+          "syntax": "SHOW [SESSION | GLOBAL] VARIABLES LIKE 'pattern';",
+          "example": {
+            "language": "sql",
+            "code": "SHOW VARIABLES LIKE 'sql_mode';"
+          },
+          "notes": ["SELECT @@variable reads one value, for example SELECT @@autocommit."],
+          "lessonSlug": "installing-connecting"
+        },
+        {
+          "slug": "version-user",
+          "name": "VERSION(), USER(), CURRENT_USER()",
+          "summary": "Report the server version, the account that connected and the account whose privileges apply.",
+          "syntax": "SELECT VERSION(), USER(), CURRENT_USER();",
+          "example": {
+            "language": "sql",
+            "code": "SELECT USER(), CURRENT_USER();"
+          },
+          "lessonSlug": "users-privileges"
+        }
+      ]
+    },
+    {
+      "id": "databases-tables",
+      "title": "Databases and tables",
+      "entries": [
+        {
+          "slug": "create-database",
+          "name": "CREATE DATABASE",
+          "summary": "Creates a database (schema) with an optional character set and collation.",
+          "syntax": "CREATE DATABASE [IF NOT EXISTS] name [CHARACTER SET utf8mb4] [COLLATE utf8mb4_0900_ai_ci];",
+          "example": {
+            "language": "sql",
+            "code": "CREATE DATABASE roastery\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_0900_ai_ci;"
+          },
+          "notes": [
+            "CREATE SCHEMA is a synonym.",
+            "Write utf8mb4, never utf8 (an alias for the three-byte utf8mb3)."
+          ],
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "use",
+          "name": "USE",
+          "summary": "Selects the default database for the session so table names need no prefix.",
+          "syntax": "USE database;",
+          "example": {
+            "language": "sql",
+            "code": "USE roastery;\nSELECT DATABASE();"
+          },
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "create-table",
+          "name": "CREATE TABLE",
+          "summary": "Defines a table with typed columns, keys, defaults and constraints. InnoDB is the default engine.",
+          "syntax": "CREATE TABLE name (col TYPE [NOT NULL] [DEFAULT v] [AUTO_INCREMENT], ..., PRIMARY KEY (col), CONSTRAINT fk FOREIGN KEY (col) REFERENCES other (col));",
+          "example": {
+            "language": "sql",
+            "code": "CREATE TABLE orders (\n  id          INT AUTO_INCREMENT PRIMARY KEY,\n  customer_id INT NOT NULL,\n  quantity    INT UNSIGNED NOT NULL DEFAULT 1,\n  ordered_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id)\n);"
+          },
+          "notes": [
+            "Foreign key columns get an index automatically.",
+            "Name constraints so error messages are readable."
+          ],
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "describe",
+          "name": "DESCRIBE",
+          "summary": "Shows a table's columns with type, nullability, key (PRI, UNI, MUL), default and extra attributes.",
+          "syntax": "DESCRIBE table;  -- same as SHOW COLUMNS FROM table",
+          "example": {
+            "language": "sql",
+            "code": "DESCRIBE customers;"
+          },
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "show-create-table",
+          "name": "SHOW CREATE TABLE",
+          "summary": "Prints the full CREATE TABLE statement as stored, including indexes, engine and character set.",
+          "syntax": "SHOW CREATE TABLE table\\G",
+          "example": {
+            "language": "sql",
+            "code": "SHOW CREATE TABLE orders\\G"
+          },
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "alter-table",
+          "name": "ALTER TABLE",
+          "summary": "Adds, changes, renames or drops columns and indexes on an existing table.",
+          "syntax": "ALTER TABLE t ADD COLUMN c TYPE [AFTER other] | MODIFY COLUMN c TYPE | RENAME COLUMN a TO b | DROP COLUMN c | ADD INDEX idx (c);",
+          "example": {
+            "language": "sql",
+            "code": "ALTER TABLE customers\n  ADD COLUMN phone VARCHAR(20) NULL AFTER email;"
+          },
+          "notes": [
+            "Most additions are instant or in place; type changes rewrite the table.",
+            "ALTER TABLE commits any open transaction."
+          ],
+          "lessonSlug": "databases-tables"
+        },
+        {
+          "slug": "drop-table",
+          "name": "DROP TABLE / DROP DATABASE",
+          "summary": "Removes a table or a whole database and its data permanently.",
+          "syntax": "DROP TABLE [IF EXISTS] t;  DROP DATABASE [IF EXISTS] d;",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS tz_demo;"
+          },
+          "notes": ["A table referenced by a foreign key cannot be dropped first (error 3730)."],
+          "lessonSlug": "databases-tables"
+        }
+      ]
+    },
+    {
+      "id": "data-types",
+      "title": "Data types",
+      "entries": [
+        {
+          "slug": "integer-types",
+          "name": "TINYINT, SMALLINT, INT, BIGINT",
+          "summary": "Whole numbers of 1, 2, 4 and 8 bytes. UNSIGNED forbids negatives and doubles the positive range.",
+          "syntax": "col INT [UNSIGNED] [AUTO_INCREMENT]",
+          "example": {
+            "language": "sql",
+            "code": "stock INT UNSIGNED NOT NULL DEFAULT 0"
+          },
+          "notes": [
+            "INT ranges from -2,147,483,648 to 2,147,483,647; INT UNSIGNED up to 4,294,967,295.",
+            "Display width such as INT(11) is deprecated and ignored."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "decimal",
+          "name": "DECIMAL(p,s)",
+          "summary": "Exact fixed-point number with p digits, s of them after the point. Use it for money.",
+          "syntax": "col DECIMAL(precision, scale)",
+          "example": {
+            "language": "sql",
+            "code": "price DECIMAL(6,2) NOT NULL"
+          },
+          "notes": [
+            "FLOAT and DOUBLE are approximate: 0.1E0 + 0.2E0 is not 0.3E0.",
+            "Division with / adds four decimal places; DIV is integer division."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "varchar-char",
+          "name": "VARCHAR(n), CHAR(n)",
+          "summary": "Variable-length and fixed-length strings; n is a number of characters, not bytes.",
+          "syntax": "col VARCHAR(n) | col CHAR(n)",
+          "example": {
+            "language": "sql",
+            "code": "email VARCHAR(255) NOT NULL UNIQUE,\ncountry CHAR(2)"
+          },
+          "notes": [
+            "A utf8mb4 character can take four bytes; the row limit is 65,535 bytes.",
+            "LENGTH() counts bytes, CHAR_LENGTH() counts characters."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "text",
+          "name": "TEXT, MEDIUMTEXT, LONGTEXT",
+          "summary": "Large strings of up to 64 KB, 16 MB and 4 GB, stored outside the row.",
+          "syntax": "col TEXT | MEDIUMTEXT | LONGTEXT",
+          "example": {
+            "language": "sql",
+            "code": "body MEDIUMTEXT"
+          },
+          "notes": ["BLOB variants hold raw bytes without a character set."],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "datetime-timestamp",
+          "name": "DATE, DATETIME, TIMESTAMP",
+          "summary": "Calendar date, date with time stored as written, and date with time converted to and from UTC.",
+          "syntax": "col DATE | DATETIME[(fsp)] | TIMESTAMP[(fsp)]",
+          "example": {
+            "language": "sql",
+            "code": "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\nupdated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+          },
+          "notes": [
+            "TIMESTAMP follows the session time_zone; DATETIME does not.",
+            "fsp (0 to 6) keeps fractional seconds."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "enum",
+          "name": "ENUM",
+          "summary": "A column restricted to a fixed list of strings, stored as a small integer index.",
+          "syntax": "col ENUM('a', 'b', 'c') [NOT NULL] [DEFAULT 'a']",
+          "example": {
+            "language": "sql",
+            "code": "status ENUM('pending', 'paid', 'shipped', 'cancelled') NOT NULL DEFAULT 'pending'"
+          },
+          "notes": [
+            "Sorts by position in the list, not alphabetically.",
+            "An unknown value is an error under strict mode (1265)."
+          ],
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "json",
+          "name": "JSON",
+          "summary": "A validated JSON document in binary form, read with path expressions.",
+          "syntax": "col JSON;  col->'$.path'  col->>'$.path'  JSON_EXTRACT(col, '$.path')",
+          "example": {
+            "language": "sql",
+            "code": "SELECT payload->>'$.kind' AS kind FROM events;"
+          },
+          "notes": [
+            "->> unquotes the result; -> keeps JSON quoting.",
+            "Build documents with JSON_OBJECT() and JSON_ARRAY()."
+          ],
+          "lessonSlug": "data-types"
+        }
+      ]
+    },
+    {
+      "id": "changing-data",
+      "title": "Changing data",
+      "entries": [
+        {
+          "slug": "insert",
+          "name": "INSERT",
+          "summary": "Adds one or more rows; omitted columns take their defaults.",
+          "syntax": "INSERT INTO t (c1, c2) VALUES (v1, v2), (v3, v4);",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO coffees (name, origin, roast, price, stock) VALUES\n  ('Morning Blend', 'Brazil', 'medium', 12.50, 40),\n  ('Yirgacheffe', 'Ethiopia', 'light', 16.00, 25);"
+          },
+          "notes": [
+            "Multi-row inserts are much faster than one statement per row.",
+            "INSERT ... SELECT copies rows from a query."
+          ],
+          "lessonSlug": "crud"
+        },
+        {
+          "slug": "on-duplicate-key-update",
+          "name": "INSERT ... ON DUPLICATE KEY UPDATE",
+          "summary": "MySQL's upsert: inserts, or updates the existing row when a primary or unique key conflicts.",
+          "syntax": "INSERT INTO t (...) VALUES (...) AS new ON DUPLICATE KEY UPDATE c = new.c;",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO coffees (id, name, origin, roast, price, stock)\nVALUES (4, 'Decaf Colombia', 'Colombia', 'medium', 13.75, 8) AS new\nON DUPLICATE KEY UPDATE stock = coffees.stock + new.stock;"
+          },
+          "notes": [
+            "Affected rows: 1 inserted, 2 updated, 0 unchanged.",
+            "The row alias (8.0.20+) replaces the deprecated VALUES() function."
+          ],
+          "lessonSlug": "crud"
+        },
+        {
+          "slug": "update",
+          "name": "UPDATE",
+          "summary": "Changes columns of the rows that match WHERE; reports rows matched and rows changed.",
+          "syntax": "UPDATE t SET c1 = v1, c2 = v2 WHERE condition;",
+          "example": {
+            "language": "sql",
+            "code": "UPDATE coffees SET stock = stock - 2 WHERE id = 1;"
+          },
+          "notes": [
+            "Without WHERE every row is updated.",
+            "MySQL allows UPDATE ... JOIN to update based on another table."
+          ],
+          "lessonSlug": "crud"
+        },
+        {
+          "slug": "delete",
+          "name": "DELETE",
+          "summary": "Removes the rows that match WHERE; foreign keys may block or cascade the deletion.",
+          "syntax": "DELETE FROM t WHERE condition;",
+          "example": {
+            "language": "sql",
+            "code": "DELETE FROM customers WHERE id = 6;"
+          },
+          "notes": [
+            "TRUNCATE TABLE t empties a table faster but cannot be rolled back.",
+            "Error 1451 means another table still references the row."
+          ],
+          "lessonSlug": "crud"
+        },
+        {
+          "slug": "last-insert-id",
+          "name": "LAST_INSERT_ID()",
+          "summary": "Returns the AUTO_INCREMENT value generated by the last INSERT on this connection.",
+          "syntax": "SELECT LAST_INSERT_ID();",
+          "example": {
+            "language": "sql",
+            "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Noor Haddad', 'noor@example.com', 'Amman', '2026-11-01');\nSELECT LAST_INSERT_ID();"
+          },
+          "notes": [
+            "MySQL has no RETURNING clause.",
+            "Drivers expose it as insertId or lastrowid."
+          ],
+          "lessonSlug": "crud"
+        }
+      ]
+    },
+    {
+      "id": "querying",
+      "title": "Querying",
+      "entries": [
+        {
+          "slug": "where",
+          "name": "WHERE",
+          "summary": "Filters rows with comparisons, AND, OR, NOT, IN, BETWEEN and IS NULL.",
+          "syntax": "SELECT ... FROM t WHERE condition [AND | OR condition];",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name, price FROM coffees\nWHERE origin IN ('Brazil', 'Colombia') AND price BETWEEN 12 AND 15;"
+          },
+          "notes": ["Compare with NULL only through IS NULL or <=>; = NULL never matches."],
+          "lessonSlug": "select-filtering"
+        },
+        {
+          "slug": "like",
+          "name": "LIKE and collations",
+          "summary": "Pattern matching with % and _; case- and accent-insensitive under utf8mb4_0900_ai_ci.",
+          "syntax": "col LIKE 'pattern' [COLLATE utf8mb4_bin]",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name FROM customers WHERE name LIKE 'tomas%';"
+          },
+          "notes": [
+            "Add COLLATE utf8mb4_bin for an exact match.",
+            "REGEXP matches regular expressions but cannot use an index."
+          ],
+          "lessonSlug": "select-filtering"
+        },
+        {
+          "slug": "order-by",
+          "name": "ORDER BY",
+          "summary": "Sorts the result by one or more columns or expressions, ascending or descending.",
+          "syntax": "ORDER BY col1 [ASC | DESC], col2 ...",
+          "example": {
+            "language": "sql",
+            "code": "SELECT name, roast, price FROM coffees ORDER BY roast, price DESC;"
+          },
+          "notes": [
+            "ENUM columns sort by definition order; use CAST(col AS CHAR) for alphabetical.",
+            "NULLs sort first in ascending order."
+          ],
+          "lessonSlug": "select-filtering"
+        },
+        {
+          "slug": "limit",
+          "name": "LIMIT and OFFSET",
+          "summary": "Caps the number of rows and skips rows for pagination; always combine with ORDER BY.",
+          "syntax": "LIMIT count [OFFSET skip]  |  LIMIT skip, count",
+          "example": {
+            "language": "sql",
+            "code": "SELECT id, name FROM coffees ORDER BY id LIMIT 10 OFFSET 20;"
+          },
+          "notes": [
+            "In the short form the offset comes first.",
+            "For deep pages prefer keyset pagination: WHERE id > last ORDER BY id LIMIT n."
+          ],
+          "lessonSlug": "select-filtering"
+        },
+        {
+          "slug": "join",
+          "name": "JOIN",
+          "summary": "Combines rows from two tables whose columns match; rows without a partner are dropped.",
+          "syntax": "FROM a [INNER] JOIN b ON b.col = a.col",
+          "example": {
+            "language": "sql",
+            "code": "SELECT o.id, c.name\nFROM orders o\nJOIN customers c ON c.id = o.customer_id;"
+          },
+          "notes": ["A JOIN without ON is a CROSS JOIN: every combination of rows."],
+          "lessonSlug": "joins"
+        },
+        {
+          "slug": "left-join",
+          "name": "LEFT JOIN",
+          "summary": "Keeps every row of the left table, filling the right side with NULL when nothing matches.",
+          "syntax": "FROM a LEFT JOIN b ON b.col = a.col [WHERE b.col IS NULL]",
+          "example": {
+            "language": "sql",
+            "code": "SELECT c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;"
+          },
+          "notes": [
+            "Conditions on the right table belong in ON, or the join becomes inner.",
+            "MySQL has no FULL OUTER JOIN; UNION a LEFT and a RIGHT JOIN."
+          ],
+          "lessonSlug": "joins"
+        },
+        {
+          "slug": "group-by-having",
+          "name": "GROUP BY and HAVING",
+          "summary": "Groups rows for aggregate functions and filters the groups afterwards.",
+          "syntax": "SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*) > n;",
+          "example": {
+            "language": "sql",
+            "code": "SELECT status, COUNT(*) AS orders, SUM(quantity) AS bags\nFROM orders\nGROUP BY status\nHAVING SUM(quantity) >= 3;"
+          },
+          "notes": [
+            "Every selected column must be grouped or aggregated (ONLY_FULL_GROUP_BY).",
+            "WITH ROLLUP appends subtotal rows."
+          ],
+          "lessonSlug": "aggregates"
+        },
+        {
+          "slug": "group-concat",
+          "name": "GROUP_CONCAT()",
+          "summary": "Aggregates the values of a group into one string with an optional order and separator.",
+          "syntax": "GROUP_CONCAT([DISTINCT] col [ORDER BY col] [SEPARATOR 'sep'])",
+          "example": {
+            "language": "sql",
+            "code": "SELECT customer_id, GROUP_CONCAT(id ORDER BY id SEPARATOR ', ') AS order_ids\nFROM orders GROUP BY customer_id;"
+          },
+          "notes": [
+            "Results longer than group_concat_max_len (1024 bytes) are truncated with a warning."
+          ],
+          "lessonSlug": "aggregates"
+        },
+        {
+          "slug": "concat-functions",
+          "name": "CONCAT(), DATE_FORMAT(), IFNULL()",
+          "summary": "Everyday scalar functions for building strings, formatting dates and replacing NULL.",
+          "syntax": "CONCAT(a, b, ...)  DATE_FORMAT(d, '%d %b %Y')  IFNULL(v, fallback)",
+          "example": {
+            "language": "sql",
+            "code": "SELECT CONCAT(name, ' (', city, ')') AS customer,\n       DATE_FORMAT(joined_on, '%b %Y') AS since\nFROM customers;"
+          },
+          "notes": [
+            "|| is logical OR unless sql_mode includes PIPES_AS_CONCAT.",
+            "COALESCE(a, b, c) is the standard multi-argument form of IFNULL."
+          ],
+          "lessonSlug": "select-filtering"
+        }
+      ]
+    },
+    {
+      "id": "indexes",
+      "title": "Indexes and EXPLAIN",
+      "entries": [
+        {
+          "slug": "create-index",
+          "name": "CREATE INDEX",
+          "summary": "Adds a secondary B-tree index on one or more columns to speed up lookups, joins and sorting.",
+          "syntax": "CREATE [UNIQUE] INDEX idx_name ON table (col1, col2, ...);",
+          "example": {
+            "language": "sql",
+            "code": "CREATE INDEX idx_coffees_origin_roast ON coffees (origin, roast);"
+          },
+          "notes": [
+            "A composite index serves conditions on its leftmost columns only.",
+            "Every index slows writes and uses space; index what you filter, join and sort on."
+          ],
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "show-index",
+          "name": "SHOW INDEX",
+          "summary": "Lists the indexes of a table with their columns, uniqueness and cardinality.",
+          "syntax": "SHOW INDEX FROM table;",
+          "example": {
+            "language": "sql",
+            "code": "SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE\nFROM information_schema.STATISTICS\nWHERE TABLE_SCHEMA = 'roastery' AND TABLE_NAME = 'orders';"
+          },
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "explain",
+          "name": "EXPLAIN",
+          "summary": "Shows the execution plan: access type, chosen index, estimated rows and extra work, without running the query.",
+          "syntax": "EXPLAIN [FORMAT=TREE | FORMAT=JSON] SELECT ...;",
+          "example": {
+            "language": "sql",
+            "code": "EXPLAIN SELECT * FROM orders WHERE status = 'paid';"
+          },
+          "notes": [
+            "type ALL is a full table scan; ref, range and const use an index.",
+            "Extra: Using index means a covering index answered the query."
+          ],
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "explain-analyze",
+          "name": "EXPLAIN ANALYZE",
+          "summary": "Runs the query and prints the plan tree with actual times and row counts next to the estimates.",
+          "syntax": "EXPLAIN ANALYZE SELECT ...\\G",
+          "example": {
+            "language": "sql",
+            "code": "EXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'paid'\\G"
+          },
+          "notes": [
+            "Available since 8.0.18; the query really executes, so avoid it on slow writes."
+          ],
+          "lessonSlug": "indexes"
+        },
+        {
+          "slug": "invisible-index",
+          "name": "ALTER INDEX ... INVISIBLE / DROP INDEX",
+          "summary": "Hides an index from the optimizer to test whether it is needed, or removes it.",
+          "syntax": "ALTER TABLE t ALTER INDEX idx INVISIBLE | VISIBLE;  DROP INDEX idx ON t;",
+          "example": {
+            "language": "sql",
+            "code": "ALTER TABLE orders ALTER INDEX idx_orders_status INVISIBLE;\nDROP INDEX idx_orders_status ON orders;"
+          },
+          "lessonSlug": "indexes"
+        }
+      ]
+    },
+    {
+      "id": "users",
+      "title": "Users and privileges",
+      "entries": [
+        {
+          "slug": "create-user",
+          "name": "CREATE USER",
+          "summary": "Creates an account identified by user name and host, with a password.",
+          "syntax": "CREATE USER 'user'@'host' IDENTIFIED BY 'password' [REQUIRE SSL] [PASSWORD EXPIRE INTERVAL n DAY];",
+          "example": {
+            "language": "sql",
+            "code": "CREATE USER 'report'@'localhost' IDENTIFIED BY 'Rep0rt!2026';"
+          },
+          "notes": [
+            "'user'@'localhost' and 'user'@'%' are different accounts.",
+            "The default plugin is caching_sha2_password; mysql_native_password is removed in 9.0."
+          ],
+          "lessonSlug": "users-privileges"
+        },
+        {
+          "slug": "grant",
+          "name": "GRANT",
+          "summary": "Gives privileges on a scope (*.*, db.*, db.table or columns) to an account or role.",
+          "syntax": "GRANT priv [, priv] ON scope TO 'user'@'host' [WITH GRANT OPTION];",
+          "example": {
+            "language": "sql",
+            "code": "GRANT SELECT, INSERT, UPDATE, DELETE ON roastery.* TO 'api'@'%';"
+          },
+          "notes": [
+            "Takes effect immediately; FLUSH PRIVILEGES is not needed.",
+            "Grant roles with GRANT 'role' TO 'user'@'host' and activate them with SET DEFAULT ROLE."
+          ],
+          "lessonSlug": "users-privileges"
+        },
+        {
+          "slug": "revoke",
+          "name": "REVOKE",
+          "summary": "Removes privileges previously granted to an account or role.",
+          "syntax": "REVOKE priv ON scope FROM 'user'@'host';",
+          "example": {
+            "language": "sql",
+            "code": "REVOKE DELETE ON roastery.* FROM 'app_rw';"
+          },
+          "lessonSlug": "users-privileges"
+        },
+        {
+          "slug": "show-grants",
+          "name": "SHOW GRANTS",
+          "summary": "Lists the privileges of an account, including those inherited from roles when USING is given.",
+          "syntax": "SHOW GRANTS FOR 'user'@'host' [USING 'role'];",
+          "example": {
+            "language": "sql",
+            "code": "SHOW GRANTS FOR 'api'@'%' USING 'app_rw';"
+          },
+          "lessonSlug": "users-privileges"
+        },
+        {
+          "slug": "create-role",
+          "name": "CREATE ROLE",
+          "summary": "Creates a named bundle of privileges that can be granted to many accounts.",
+          "syntax": "CREATE ROLE 'role'; GRANT ... TO 'role'; GRANT 'role' TO 'user'@'host'; SET DEFAULT ROLE ALL TO 'user'@'host';",
+          "example": {
+            "language": "sql",
+            "code": "CREATE ROLE 'app_rw';\nGRANT SELECT, INSERT, UPDATE, DELETE ON roastery.* TO 'app_rw';\nGRANT 'app_rw' TO 'api'@'%';\nSET DEFAULT ROLE ALL TO 'api'@'%';"
+          },
+          "notes": ["A granted role is inactive until it is a default role or SET ROLE is run."],
+          "lessonSlug": "users-privileges"
+        },
+        {
+          "slug": "alter-user",
+          "name": "ALTER USER / DROP USER",
+          "summary": "Changes an account's password or policy, or removes the account and its privileges.",
+          "syntax": "ALTER USER 'user'@'host' IDENTIFIED BY 'new' [PASSWORD EXPIRE ...];  DROP USER 'user'@'host';",
+          "example": {
+            "language": "sql",
+            "code": "ALTER USER 'report'@'localhost' IDENTIFIED BY 'N3w!Passw0rd';"
+          },
+          "lessonSlug": "users-privileges"
+        }
+      ]
+    },
+    {
+      "id": "transactions-backup",
+      "title": "Transactions and backup",
+      "entries": [
+        {
+          "slug": "start-transaction",
+          "name": "START TRANSACTION / COMMIT",
+          "summary": "Groups statements into one unit that is made durable by COMMIT.",
+          "syntax": "START TRANSACTION; ... COMMIT;",
+          "example": {
+            "language": "sql",
+            "code": "START TRANSACTION;\nUPDATE coffees SET stock = stock - 2 WHERE id = 1;\nINSERT INTO orders (customer_id, coffee_id, quantity, status) VALUES (5, 1, 2, 'paid');\nCOMMIT;"
+          },
+          "notes": [
+            "autocommit is on by default: each statement outside a transaction commits itself.",
+            "DDL such as ALTER TABLE commits implicitly."
+          ],
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "rollback-savepoint",
+          "name": "ROLLBACK / SAVEPOINT",
+          "summary": "Discards the changes of the current transaction, or only those after a savepoint.",
+          "syntax": "SAVEPOINT name; ... ROLLBACK TO name; ... ROLLBACK;",
+          "example": {
+            "language": "sql",
+            "code": "START TRANSACTION;\nUPDATE coffees SET price = 99 WHERE id = 1;\nSAVEPOINT before_stock;\nUPDATE coffees SET stock = 0 WHERE id = 1;\nROLLBACK TO before_stock;\nROLLBACK;"
+          },
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "isolation-level",
+          "name": "SET TRANSACTION ISOLATION LEVEL",
+          "summary": "Chooses how a transaction sees concurrent changes; InnoDB defaults to REPEATABLE READ.",
+          "syntax": "SET [SESSION] TRANSACTION ISOLATION LEVEL READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE;",
+          "example": {
+            "language": "sql",
+            "code": "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;\nSELECT @@transaction_isolation;"
+          },
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "select-for-update",
+          "name": "SELECT ... FOR UPDATE",
+          "summary": "Reads rows and locks them until the transaction ends so that concurrent writers wait.",
+          "syntax": "SELECT ... FROM t WHERE ... FOR UPDATE [NOWAIT | SKIP LOCKED];",
+          "example": {
+            "language": "sql",
+            "code": "SELECT stock FROM coffees WHERE id = 1 FOR UPDATE;"
+          },
+          "notes": [
+            "Waiting longer than innodb_lock_wait_timeout (50 s) raises error 1205.",
+            "Error 1213 is a deadlock; retry the whole transaction."
+          ],
+          "lessonSlug": "transactions"
+        },
+        {
+          "slug": "mysqldump",
+          "name": "mysqldump",
+          "summary": "Writes a logical backup (SQL statements) of one or more databases to a file; restore with the mysql client.",
+          "syntax": "mysqldump --single-transaction --routines --triggers --events -u USER -p DATABASE > file.sql",
+          "example": {
+            "language": "bash",
+            "code": "mysqldump --single-transaction --routines --triggers --events -u root -p roastery > roastery.sql\nmysql -u root -p roastery_restore < roastery.sql"
+          },
+          "notes": [
+            "--single-transaction gives a consistent InnoDB snapshot without locking.",
+            "--all-databases includes accounts; mysqlpump was removed in 8.4."
+          ],
+          "lessonSlug": "backup-restore"
+        },
+        {
+          "slug": "util-dump",
+          "name": "util.dumpSchemas() / util.loadDump()",
+          "summary": "MySQL Shell utilities that dump and load in parallel with compression and chunking.",
+          "syntax": "util.dumpSchemas([\"db\"], \"dir\", { threads: n });  util.loadDump(\"dir\", { threads: n });",
+          "example": {
+            "language": "javascript",
+            "code": "util.dumpSchemas([\"roastery\"], \"/backups/roastery\", { threads: 4 });\nutil.loadDump(\"/backups/roastery\", { threads: 4 });"
+          },
+          "notes": [
+            "loadDump requires local_infile=ON on the target server.",
+            "util.dumpInstance() dumps the whole server including accounts."
+          ],
+          "lessonSlug": "backup-restore"
+        },
+        {
+          "slug": "show-binary-logs",
+          "name": "SHOW BINARY LOGS / SHOW BINARY LOG STATUS",
+          "summary": "Lists the binary log files and the current write position used for replication and point-in-time recovery.",
+          "syntax": "SHOW BINARY LOGS;  SHOW BINARY LOG STATUS;",
+          "example": {
+            "language": "sql",
+            "code": "SHOW BINARY LOG STATUS;"
+          },
+          "notes": [
+            "SHOW BINARY LOG STATUS (8.2+) replaces SHOW MASTER STATUS.",
+            "Replay with mysqlbinlog --start-position ... --stop-datetime ... | mysql."
+          ],
+          "lessonSlug": "backup-restore"
+        }
+      ]
+    }
+  ]
+}

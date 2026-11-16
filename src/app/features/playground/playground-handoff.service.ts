@@ -24,7 +24,9 @@ export class PlaygroundHandoffService {
         /* storage unavailable: the playground opens with its default template */
       }
     }
-    void this.router.navigate(['/playground'], { queryParams: { lang: normalise(handoff.language), from: 'lesson' } });
+    void this.router.navigate(['/playground'], {
+      queryParams: { lang: normalise(handoff.language), from: 'lesson' },
+    });
   }
 
   /** Returns and clears a pending handoff. */

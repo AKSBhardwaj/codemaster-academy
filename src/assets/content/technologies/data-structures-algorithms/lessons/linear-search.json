@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "slug": "linear-search",
+  "title": "Linear Search",
+  "summary": "Learn linear search by checking one item at a time. Trace a small list, handle missing values, and compare working code in six languages.",
+  "introduction": "Imagine looking for a red pencil in your bag. You check one pencil, then the next, until you find it. Linear search does this with a list. We will search a few numbers and return the position of the first match.",
+  "learningObjectives": [
+    "Find the first matching position in a list",
+    "Explain why a missing value may need every item checked"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An algorithm is a clear set of steps. Linear search checks items from left to right. It works even when the numbers are in a mixed order."
+    },
+    {
+      "type": "paragraph",
+      "text": "An index is an item's position. These languages count positions from 0. We return the matching index, or -1 when no item matches. The value -1 is a signal here; it is not a position to read."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [9, 4, 7, 4] and look for 7. Position 0 holds 9, so keep looking.",
+        "Position 1 holds 4. It is not 7, so move one step.",
+        "Position 2 holds 7. Return 2 and stop. The last item does not need a check.",
+        "Now look for 6. Check all four items. None match, so return -1."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Linear Search example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "function findFirst(a, target) {\n  for (let i = 0; i < a.length; i++) {\n    if (a[i] === target) return i;\n  }\n  return -1;\n}\nconst a = [9, 4, 7, 4];\nconsole.log(findFirst(a, 7));\nconsole.log(findFirst(a, 6));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint findFirst(const int a[], int n, int target) {\n    for (int i = 0; i < n; i++) {\n        if (a[i] == target) return i;\n    }\n    return -1;\n}\n\nint main(void) {\n    int a[] = {9, 4, 7, 4};\n    int n = sizeof a / sizeof a[0];\n    printf(\"%d\\n\", findFirst(a, n, 7));\n    printf(\"%d\\n\", findFirst(a, n, 6));\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint findFirst(const std::vector<int>& a, int target) {\n    int n = static_cast<int>(a.size());\n    for (int i = 0; i < n; i++) {\n        if (a[i] == target) return i;\n    }\n    return -1;\n}\n\nint main() {\n    std::vector<int> a = {9, 4, 7, 4};\n    std::cout << findFirst(a, 7) << \"\\n\";\n    std::cout << findFirst(a, 6) << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "def find_first(a, target):\n    for i in range(len(a)):\n        if a[i] == target:\n            return i\n    return -1\n\na = [9, 4, 7, 4]\nprint(find_first(a, 7))\nprint(find_first(a, 6))",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {9, 4, 7, 4};\nConsole.WriteLine(FindFirst(a, 7));\nConsole.WriteLine(FindFirst(a, 6));\n\nstatic int FindFirst(int[] a, int target) {\n    int n = a.Length;\n    for (int i = 0; i < n; i++) {\n        if (a[i] == target) return i;\n    }\n    return -1;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static int findFirst(int[] a, int target) {\n        int n = a.length;\n        for (int i = 0; i < n; i++) {\n            if (a[i] == target) return i;\n        }\n        return -1;\n    }\n\n    public static void main(String[] args) {\n        int[] a = {9, 4, 7, 4};\n        System.out.println(findFirst(a, 7));\n        System.out.println(findFirst(a, 6));\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "2\n-1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first line is 2 because 7 is the third item and positions start at 0. The second line is -1 because the list does not contain 6."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty list has no item to check, so the function returns -1. If a value appears twice, this version returns the first match. Searching for 4 returns 1."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use one kind of value, such as small whole numbers. In C, pass the true item count as n; an array parameter does not carry its length."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Let n mean the number of items. In the worst case, we check n items. We call this O(n) time: doubling the list can double the checks. A match at the first item needs one check, or O(1) best time."
+    },
+    {
+      "type": "paragraph",
+      "text": "The function keeps only an index and the target. It does not copy the list. Its extra space is O(1), which means a fixed amount of room as the list grows."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the first target from 7 to 4. Predict 1 before running. Then try a value outside the list and check that you get -1."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not return -1 after the first non-match. A later item may still match. Put that return after the loop. Also check for -1 before using a returned position."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-linear-search"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-linear-search"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "array-positions"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search"
+    }
+  ],
+  "seo": {
+    "title": "Linear Search in Six Languages | DSA",
+    "description": "Learn linear search by checking one item at a time. Trace a small list, handle missing values, and compare working code in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,665 @@
+{
+  "title": "JavaScript Reference",
+  "description": "A compact reference of the JavaScript syntax, built-in methods and browser APIs covered in the tutorial, grouped by topic, with syntax, a short example and the lesson that explains each one.",
+  "groups": [
+    {
+      "id": "basics",
+      "title": "Basics",
+      "entries": [
+        {
+          "slug": "let",
+          "name": "let",
+          "summary": "Declares a block-scoped variable whose value can be reassigned later.",
+          "syntax": "let name = value;",
+          "example": { "language": "javascript", "code": "let count = 0;\ncount = count + 1;" },
+          "notes": [
+            "Use let only when the value must change; prefer const otherwise.",
+            "Cannot be used before its declaration line (temporal dead zone)."
+          ],
+          "lessonSlug": "variables"
+        },
+        {
+          "slug": "const",
+          "name": "const",
+          "summary": "Declares a block-scoped binding that cannot be reassigned. The object or array it holds can still be modified.",
+          "syntax": "const name = value;",
+          "example": {
+            "language": "javascript",
+            "code": "const limits = { max: 10 };\nlimits.max = 20;   // allowed\n// limits = {};   // TypeError"
+          },
+          "lessonSlug": "variables"
+        },
+        {
+          "slug": "typeof",
+          "name": "typeof",
+          "summary": "Returns the type of a value as a string: \"string\", \"number\", \"boolean\", \"undefined\", \"object\", \"function\", \"bigint\" or \"symbol\".",
+          "syntax": "typeof value",
+          "example": {
+            "language": "javascript",
+            "code": "typeof 42;        // \"number\"\ntypeof null;      // \"object\" (historical quirk)\ntypeof [];        // \"object\"; use Array.isArray"
+          },
+          "lessonSlug": "data-types"
+        },
+        {
+          "slug": "console-log",
+          "name": "console.log()",
+          "summary": "Prints one or more values to the developer tools console, separated by spaces. console.warn and console.error do the same with a highlight.",
+          "syntax": "console.log(value1, value2, ...)",
+          "example": {
+            "language": "javascript",
+            "code": "console.log(\"Total:\", 42);   // Total: 42"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "template-literal",
+          "name": "Template literal",
+          "summary": "A string in backticks that can span lines and embed expressions with ${...}.",
+          "syntax": "`text ${expression} text`",
+          "example": {
+            "language": "javascript",
+            "code": "const name = \"Ada\";\nconst msg = `Hello, ${name}! You have ${2 + 3} new messages.`;"
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "strict-equality",
+          "name": "=== and !==",
+          "summary": "Strict equality compares type and value with no conversion. Prefer it over == and !=, which convert types first.",
+          "syntax": "a === b   a !== b",
+          "example": {
+            "language": "javascript",
+            "code": "5 === \"5\";   // false\n5 == \"5\";    // true (converted)"
+          },
+          "lessonSlug": "operators"
+        },
+        {
+          "slug": "ternary",
+          "name": "Conditional (ternary) operator",
+          "summary": "An expression that picks one of two values depending on a condition.",
+          "syntax": "condition ? valueIfTrue : valueIfFalse",
+          "example": {
+            "language": "javascript",
+            "code": "const label = count === 1 ? \"item\" : \"items\";"
+          },
+          "notes": ["Keep it to a single level; nested ternaries are hard to read."],
+          "lessonSlug": "operators"
+        }
+      ]
+    },
+    {
+      "id": "control-flow",
+      "title": "Control flow",
+      "entries": [
+        {
+          "slug": "if-else",
+          "name": "if / else if / else",
+          "summary": "Runs the first block whose condition is truthy; else runs when none matched.",
+          "syntax": "if (cond) { ... } else if (cond2) { ... } else { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "if (score >= 90) {\n  grade = \"A\";\n} else if (score >= 80) {\n  grade = \"B\";\n} else {\n  grade = \"C\";\n}"
+          },
+          "notes": [
+            "Falsy values: false, 0 (and -0, 0n), \"\", null, undefined, NaN. Everything else is truthy."
+          ],
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "switch",
+          "name": "switch",
+          "summary": "Compares one value against several cases with strict equality; execution falls through to the next case unless break is used.",
+          "syntax": "switch (value) { case a: ...; break; default: ... }",
+          "example": {
+            "language": "javascript",
+            "code": "switch (day) {\n  case \"sat\":\n  case \"sun\":\n    kind = \"weekend\";\n    break;\n  default:\n    kind = \"weekday\";\n}"
+          },
+          "lessonSlug": "conditionals"
+        },
+        {
+          "slug": "for",
+          "name": "for",
+          "summary": "A counting loop with an initialiser, a condition checked before each pass and an update after each pass.",
+          "syntax": "for (let i = 0; i < n; i++) { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "for (let i = 1; i <= 3; i++) {\n  console.log(i);\n}"
+          },
+          "notes": ["continue skips to the next pass; break leaves the loop."],
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "for-of",
+          "name": "for...of",
+          "summary": "Loops over the elements of an array, the characters of a string or any iterable such as Map and Set.",
+          "syntax": "for (const item of iterable) { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "for (const [index, fruit] of fruits.entries()) {\n  console.log(index, fruit);\n}"
+          },
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "for-in",
+          "name": "for...in",
+          "summary": "Loops over the property names of an object. Not intended for arrays; use for...of there.",
+          "syntax": "for (const key in object) { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "for (const key in scores) {\n  console.log(key, scores[key]);\n}"
+          },
+          "lessonSlug": "loops"
+        },
+        {
+          "slug": "while",
+          "name": "while / do...while",
+          "summary": "Repeats while the condition is truthy. do...while runs the body once before checking.",
+          "syntax": "while (cond) { ... }   do { ... } while (cond);",
+          "example": {
+            "language": "javascript",
+            "code": "while (balance < 150) {\n  balance *= 1.1;\n}"
+          },
+          "notes": [
+            "Make sure something inside the body moves the condition towards false, or the loop never ends."
+          ],
+          "lessonSlug": "loops"
+        }
+      ]
+    },
+    {
+      "id": "functions",
+      "title": "Functions",
+      "entries": [
+        {
+          "slug": "function-declaration",
+          "name": "function declaration",
+          "summary": "Defines a named, reusable block of code with parameters and an optional return value. Declarations are hoisted.",
+          "syntax": "function name(param1, param2) { return value; }",
+          "example": {
+            "language": "javascript",
+            "code": "function area(w, h) {\n  return w * h;\n}\narea(3, 4);   // 12"
+          },
+          "notes": ["A function without return (or with a bare return) returns undefined."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "arrow-function",
+          "name": "Arrow function",
+          "summary": "A compact function expression. A single-expression body returns implicitly, and this is taken from the surrounding scope.",
+          "syntax": "(params) => expression   (params) => { statements }",
+          "example": {
+            "language": "javascript",
+            "code": "const square = (n) => n * n;\nconst makeUser = (name) => ({ name });   // parentheses return an object"
+          },
+          "notes": ["Do not use arrows as object methods that need their own this."],
+          "lessonSlug": "es6-features"
+        },
+        {
+          "slug": "default-parameters",
+          "name": "Default parameters",
+          "summary": "Gives a parameter a value to use when the argument is missing or undefined.",
+          "syntax": "function f(a, b = defaultValue) { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "function greet(name = \"friend\") {\n  return `Hello, ${name}`;\n}"
+          },
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "rest-parameters",
+          "name": "Rest parameters",
+          "summary": "Collects any number of trailing arguments into an array.",
+          "syntax": "function f(first, ...rest) { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "function sum(...values) {\n  return values.reduce((t, v) => t + v, 0);\n}\nsum(1, 2, 3);   // 6"
+          },
+          "lessonSlug": "es6-features"
+        },
+        {
+          "slug": "closure",
+          "name": "Closure",
+          "summary": "A function that keeps access to the variables of the scope where it was created, even after that scope has finished.",
+          "example": {
+            "language": "javascript",
+            "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\nconst next = makeCounter();\nnext();   // 1\nnext();   // 2"
+          },
+          "notes": ["Used for private state, callbacks and function factories."],
+          "lessonSlug": "functions"
+        }
+      ]
+    },
+    {
+      "id": "arrays",
+      "title": "Arrays",
+      "entries": [
+        {
+          "slug": "push-pop",
+          "name": "push / pop / shift / unshift",
+          "summary": "Add or remove elements at the end (push, pop) or the start (unshift, shift). All four mutate the array.",
+          "syntax": "arr.push(x)   arr.pop()   arr.unshift(x)   arr.shift()",
+          "example": {
+            "language": "javascript",
+            "code": "const q = [\"a\"];\nq.push(\"b\");      // [\"a\", \"b\"]\nq.shift();        // \"a\", leaves [\"b\"]"
+          },
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "map",
+          "name": "map()",
+          "summary": "Returns a new array with the result of calling a function on every element.",
+          "syntax": "arr.map((item, index) => newValue)",
+          "example": {
+            "language": "javascript",
+            "code": "[1, 2, 3].map((n) => n * 2);   // [2, 4, 6]"
+          },
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "filter",
+          "name": "filter()",
+          "summary": "Returns a new array containing only the elements for which the function returns a truthy value.",
+          "syntax": "arr.filter((item) => condition)",
+          "example": {
+            "language": "javascript",
+            "code": "[5, 12, 8].filter((n) => n < 10);   // [5, 8]"
+          },
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "reduce",
+          "name": "reduce()",
+          "summary": "Combines all elements into one value by calling a function with an accumulator and each element; the second argument is the starting value.",
+          "syntax": "arr.reduce((acc, item) => next, initial)",
+          "example": {
+            "language": "javascript",
+            "code": "[5, 12, 8].reduce((sum, n) => sum + n, 0);   // 25"
+          },
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "find",
+          "name": "find() / findIndex() / includes()",
+          "summary": "find returns the first element matching a test (or undefined), findIndex its position (or -1), includes checks for a value with strict equality.",
+          "syntax": "arr.find((item) => test)   arr.includes(value)",
+          "example": {
+            "language": "javascript",
+            "code": "[4, 9, 16].find((n) => n > 5);      // 9\n[4, 9, 16].includes(16);            // true"
+          },
+          "notes": ["some and every return a boolean for 'at least one' and 'all'."],
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "slice-splice",
+          "name": "slice() / splice()",
+          "summary": "slice copies a range without changing the array; splice removes or inserts elements in place.",
+          "syntax": "arr.slice(start, end)   arr.splice(start, deleteCount, ...items)",
+          "example": {
+            "language": "javascript",
+            "code": "const a = [1, 2, 3, 4];\na.slice(1, 3);     // [2, 3], a unchanged\na.splice(1, 2);    // removes 2 and 3 from a"
+          },
+          "lessonSlug": "arrays"
+        },
+        {
+          "slug": "sort-tosorted",
+          "name": "sort() / toSorted()",
+          "summary": "Sorts elements; without a compare function they are compared as strings. sort mutates, toSorted (ES2023) returns a sorted copy.",
+          "syntax": "arr.toSorted((a, b) => a - b)",
+          "example": {
+            "language": "javascript",
+            "code": "[10, 9, 1].toSorted();                 // [1, 10, 9]\n[10, 9, 1].toSorted((a, b) => a - b);  // [1, 9, 10]"
+          },
+          "notes": [
+            "toReversed and with are the non-mutating companions of reverse and index assignment."
+          ],
+          "lessonSlug": "arrays"
+        }
+      ]
+    },
+    {
+      "id": "objects-json",
+      "title": "Objects and JSON",
+      "entries": [
+        {
+          "slug": "object-literal",
+          "name": "Object literal",
+          "summary": "Creates an object from key: value pairs. Read properties with dot notation or brackets when the key is dynamic.",
+          "syntax": "const obj = { key: value, method() { ... } };",
+          "example": {
+            "language": "javascript",
+            "code": "const book = { title: \"JS\", pages: 300 };\nbook.title;        // \"JS\"\nbook[\"pages\"];     // 300\nbook.year = 2024;  // add"
+          },
+          "lessonSlug": "objects"
+        },
+        {
+          "slug": "object-keys",
+          "name": "Object.keys() / values() / entries()",
+          "summary": "Return arrays of an object's property names, values or [key, value] pairs.",
+          "syntax": "Object.entries(obj)",
+          "example": {
+            "language": "javascript",
+            "code": "for (const [key, value] of Object.entries(stock)) {\n  console.log(key, value);\n}"
+          },
+          "lessonSlug": "objects"
+        },
+        {
+          "slug": "optional-chaining",
+          "name": "?. optional chaining",
+          "summary": "Reads a property or calls a method only if the left side is not null or undefined; otherwise the expression is undefined.",
+          "syntax": "obj?.prop   obj?.[key]   fn?.()",
+          "example": {
+            "language": "javascript",
+            "code": "order.customer?.address?.city;   // undefined instead of a TypeError"
+          },
+          "lessonSlug": "objects"
+        },
+        {
+          "slug": "nullish-coalescing",
+          "name": "?? nullish coalescing",
+          "summary": "Returns the right side only when the left side is null or undefined. Unlike ||, it keeps 0, \"\" and false.",
+          "syntax": "value ?? fallback",
+          "example": {
+            "language": "javascript",
+            "code": "const retries = config.retries ?? 3;   // keeps an explicit 0"
+          },
+          "lessonSlug": "operators"
+        },
+        {
+          "slug": "spread",
+          "name": "... spread",
+          "summary": "Expands an array or object into a new literal or into function arguments. Produces a shallow copy.",
+          "syntax": "[...arr]   { ...obj, key: override }   fn(...args)",
+          "example": {
+            "language": "javascript",
+            "code": "const settings = { ...defaults, fontSize: 18 };\nMath.max(...[3, 11, 7]);   // 11"
+          },
+          "notes": ["Use structuredClone(value) for a deep copy."],
+          "lessonSlug": "es6-features"
+        },
+        {
+          "slug": "destructuring",
+          "name": "Destructuring",
+          "summary": "Unpacks array elements or object properties into variables, with optional defaults and renaming.",
+          "syntax": "const [a, b] = arr;   const { x, y: alias = 0 } = obj;",
+          "example": {
+            "language": "javascript",
+            "code": "const { name, age = 0 } = user;\nconst [first, ...rest] = list;\nfunction show({ title }) { return title; }"
+          },
+          "lessonSlug": "es6-features"
+        },
+        {
+          "slug": "json",
+          "name": "JSON.parse() / JSON.stringify()",
+          "summary": "Convert between JSON text and JavaScript values. parse throws a SyntaxError on invalid JSON; stringify can indent with a third argument.",
+          "syntax": "JSON.parse(text)   JSON.stringify(value, null, 2)",
+          "example": {
+            "language": "javascript",
+            "code": "const user = JSON.parse('{\"name\":\"Ada\"}');\nJSON.stringify({ a: 1 });   // '{\"a\":1}'"
+          },
+          "notes": ["undefined, functions and symbols are dropped; dates become strings."],
+          "lessonSlug": "fetch-json"
+        }
+      ]
+    },
+    {
+      "id": "strings-numbers",
+      "title": "Strings and numbers",
+      "entries": [
+        {
+          "slug": "string-slice",
+          "name": "length, at(), slice()",
+          "summary": "length counts characters, at(i) reads one (negative counts from the end), slice(start, end) extracts a range. Strings are immutable: every method returns a new string.",
+          "syntax": "str.length   str.at(-1)   str.slice(start, end)",
+          "example": {
+            "language": "javascript",
+            "code": "\"JavaScript\".slice(0, 4);   // \"Java\"\n\"JavaScript\".at(-1);        // \"t\""
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "split-join",
+          "name": "split() / join()",
+          "summary": "split breaks a string into an array at a separator; join combines array elements into a string.",
+          "syntax": "str.split(separator)   arr.join(separator)",
+          "example": {
+            "language": "javascript",
+            "code": "\"a,b,c\".split(\",\");        // [\"a\", \"b\", \"c\"]\n[\"a\", \"b\"].join(\" - \");   // \"a - b\""
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "includes-startswith",
+          "name": "includes() / startsWith() / indexOf()",
+          "summary": "Search inside a string: includes and startsWith/endsWith return booleans, indexOf returns the position or -1. All are case-sensitive.",
+          "syntax": "str.includes(part)   str.indexOf(part)",
+          "example": {
+            "language": "javascript",
+            "code": "\"hello world\".includes(\"world\");   // true\n\"hello\".indexOf(\"z\");              // -1"
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "replace-replaceall",
+          "name": "replace() / replaceAll()",
+          "summary": "replace changes the first match of a string pattern; replaceAll changes every match.",
+          "syntax": "str.replaceAll(search, replacement)",
+          "example": {
+            "language": "javascript",
+            "code": "\"2026-11-15\".replaceAll(\"-\", \"/\");   // \"2026/11/15\""
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "trim-pad",
+          "name": "trim() / padStart() / toUpperCase()",
+          "summary": "trim removes surrounding whitespace, padStart pads to a length with a character, toUpperCase and toLowerCase change case.",
+          "syntax": "str.trim()   str.padStart(length, char)",
+          "example": {
+            "language": "javascript",
+            "code": "\"  hi  \".trim();          // \"hi\"\n\"7\".padStart(3, \"0\");     // \"007\""
+          },
+          "lessonSlug": "strings"
+        },
+        {
+          "slug": "number-parse",
+          "name": "Number() / parseInt() / toFixed()",
+          "summary": "Number converts a whole string (NaN if invalid), parseInt and parseFloat read the leading number, toFixed formats with a fixed number of decimals and returns a string.",
+          "syntax": "Number(str)   parseInt(str, 10)   num.toFixed(digits)",
+          "example": {
+            "language": "javascript",
+            "code": "Number(\"3.5\");          // 3.5\nparseInt(\"42px\", 10);    // 42\n(0.1 + 0.2).toFixed(2); // \"0.30\""
+          },
+          "notes": ["Test for NaN with Number.isNaN(value), not with ===."],
+          "lessonSlug": "numbers-math"
+        },
+        {
+          "slug": "math",
+          "name": "Math.round() / floor() / ceil() / random()",
+          "summary": "Rounding helpers plus max, min, abs, sqrt and random, which returns a decimal from 0 up to (not including) 1.",
+          "syntax": "Math.round(x)   Math.floor(Math.random() * n)",
+          "example": {
+            "language": "javascript",
+            "code": "Math.round(4.5);                      // 5\nMath.floor(Math.random() * 6) + 1;    // 1 to 6"
+          },
+          "lessonSlug": "numbers-math"
+        }
+      ]
+    },
+    {
+      "id": "dom-events",
+      "title": "DOM and events",
+      "entries": [
+        {
+          "slug": "queryselector",
+          "name": "querySelector() / querySelectorAll()",
+          "summary": "Find the first element matching a CSS selector (or null), or a NodeList of every match. getElementById(\"id\") is a fast alternative for ids.",
+          "syntax": "document.querySelector(selector)   element.querySelectorAll(selector)",
+          "example": {
+            "language": "javascript",
+            "code": "const title = document.querySelector(\"#title\");\nconst items = document.querySelectorAll(\".item\");"
+          },
+          "notes": ["A NodeList has forEach but not map; use Array.from or spread first."],
+          "lessonSlug": "dom"
+        },
+        {
+          "slug": "textcontent",
+          "name": "textContent / innerHTML",
+          "summary": "textContent reads or sets the text of an element literally; innerHTML parses markup. Use textContent for user-provided or server-provided text.",
+          "syntax": "element.textContent = text;",
+          "example": {
+            "language": "javascript",
+            "code": "title.textContent = \"Hello\";\nbox.innerHTML = \"<p>Own markup only</p>\";"
+          },
+          "lessonSlug": "dom"
+        },
+        {
+          "slug": "classlist",
+          "name": "classList",
+          "summary": "Adds, removes, toggles and tests CSS classes without manipulating the class string.",
+          "syntax": "element.classList.add(\"x\")   .remove(\"x\")   .toggle(\"x\")   .contains(\"x\")",
+          "example": {
+            "language": "javascript",
+            "code": "button.classList.toggle(\"active\");\nif (panel.classList.contains(\"open\")) { /* ... */ }"
+          },
+          "lessonSlug": "dom"
+        },
+        {
+          "slug": "createelement",
+          "name": "createElement() / append() / remove()",
+          "summary": "Create a detached element, fill it, insert it with append, prepend, before or after, and delete it with remove.",
+          "syntax": "const el = document.createElement(tag); parent.append(el); el.remove();",
+          "example": {
+            "language": "javascript",
+            "code": "const li = document.createElement(\"li\");\nli.textContent = \"Eggs\";\nlist.append(li);"
+          },
+          "lessonSlug": "dom"
+        },
+        {
+          "slug": "addeventlistener",
+          "name": "addEventListener()",
+          "summary": "Registers a function to run when an event of the given type happens on the element. Pass the function itself, not a call.",
+          "syntax": "element.addEventListener(type, handler, options?)",
+          "example": {
+            "language": "javascript",
+            "code": "button.addEventListener(\"click\", (event) => {\n  console.log(event.target);\n});\nonce.addEventListener(\"click\", handler, { once: true });"
+          },
+          "notes": [
+            "Events bubble: a listener on a parent sees events from its children (event delegation).",
+            "removeEventListener needs the same function reference."
+          ],
+          "lessonSlug": "events"
+        },
+        {
+          "slug": "preventdefault",
+          "name": "event.preventDefault()",
+          "summary": "Cancels the browser's built-in action for the event, such as submitting a form or following a link.",
+          "syntax": "event.preventDefault()",
+          "example": {
+            "language": "javascript",
+            "code": "form.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const data = new FormData(form);\n});"
+          },
+          "lessonSlug": "events"
+        }
+      ]
+    },
+    {
+      "id": "async-modules",
+      "title": "Async, errors and modules",
+      "entries": [
+        {
+          "slug": "promise",
+          "name": "Promise",
+          "summary": "Represents a value that will be available later. Consume it with then, catch and finally; combine several with Promise.all or allSettled.",
+          "syntax": "new Promise((resolve, reject) => { ... })",
+          "example": {
+            "language": "javascript",
+            "code": "const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));\nwait(100).then(() => console.log(\"done\"));"
+          },
+          "notes": [
+            "Promise.all rejects on the first failure; Promise.allSettled reports every outcome."
+          ],
+          "lessonSlug": "async"
+        },
+        {
+          "slug": "async-await",
+          "name": "async / await",
+          "summary": "An async function returns a promise; inside it, await pauses until a promise settles and throws on rejection, so try/catch works.",
+          "syntax": "async function f() { const v = await promise; }",
+          "example": {
+            "language": "javascript",
+            "code": "async function load() {\n  try {\n    const data = await getData();\n  } catch (error) {\n    console.error(error.message);\n  }\n}"
+          },
+          "notes": ["Forgetting await gives you the promise instead of the value."],
+          "lessonSlug": "async"
+        },
+        {
+          "slug": "fetch",
+          "name": "fetch()",
+          "summary": "Sends an HTTP request and resolves to a Response. Check response.ok, then read the body with response.json() or response.text().",
+          "syntax": "const response = await fetch(url, options?)",
+          "example": {
+            "language": "javascript",
+            "code": "const response = await fetch(\"/api/users\");\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst users = await response.json();"
+          },
+          "notes": [
+            "fetch only rejects on network failure, not on 404 or 500 responses.",
+            "POST JSON with method, a Content-Type header and a JSON.stringify body."
+          ],
+          "lessonSlug": "fetch-json"
+        },
+        {
+          "slug": "settimeout",
+          "name": "setTimeout() / setInterval()",
+          "summary": "Run a function once after a delay, or repeatedly at an interval, in milliseconds. Both return an id for clearTimeout / clearInterval.",
+          "syntax": "const id = setTimeout(fn, ms);   clearTimeout(id);",
+          "example": {
+            "language": "javascript",
+            "code": "const id = setInterval(() => console.log(\"tick\"), 1000);\nsetTimeout(() => clearInterval(id), 5000);"
+          },
+          "lessonSlug": "async"
+        },
+        {
+          "slug": "try-catch",
+          "name": "try / catch / finally / throw",
+          "summary": "try wraps code that may fail, catch receives the error, finally always runs. throw raises an Error object of your own.",
+          "syntax": "try { ... } catch (error) { ... } finally { ... }",
+          "example": {
+            "language": "javascript",
+            "code": "try {\n  if (!valid) throw new TypeError(\"Invalid input\");\n} catch (error) {\n  console.log(error.name, error.message);\n} finally {\n  spinner.remove();\n}"
+          },
+          "notes": ["Extend Error for custom types; pass { cause } to keep the original error."],
+          "lessonSlug": "errors-debugging"
+        },
+        {
+          "slug": "import-export",
+          "name": "import / export",
+          "summary": "Share values between ES modules. Named exports are imported in braces; the single default export is imported without them.",
+          "syntax": "export const x = 1;   export default fn;   import fn, { x } from \"./m.js\";",
+          "example": {
+            "language": "javascript",
+            "code": "// math.js\nexport function area(r) { return Math.PI * r * r; }\n// main.js\nimport { area } from \"./math.js\";"
+          },
+          "notes": [
+            "Load with <script type=\"module\">; module scripts are deferred and strict.",
+            "import() with parentheses loads a module on demand."
+          ],
+          "lessonSlug": "modules-classes"
+        },
+        {
+          "slug": "class",
+          "name": "class",
+          "summary": "A template for objects with a constructor, methods, getters, static members, private #fields and inheritance through extends and super.",
+          "syntax": "class Name extends Parent { constructor() { super(); } method() {} }",
+          "example": {
+            "language": "javascript",
+            "code": "class Product {\n  #stock = 0;\n  constructor(name) { this.name = name; }\n  get inStock() { return this.#stock > 0; }\n  static create(name) { return new Product(name); }\n}"
+          },
+          "notes": [
+            "Instances are created with new; calling a class without it throws a TypeError."
+          ],
+          "lessonSlug": "modules-classes"
+        }
+      ]
+    }
+  ]
+}

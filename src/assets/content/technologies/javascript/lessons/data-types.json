@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "data-types",
+  "title": "Data Types",
+  "summary": "A data type tells us what kind of value we have, such as text, a number or true or false.",
+  "introduction": "A data type tells us what kind of value we have, such as text, a number or true or false. Sort values as you would sort things into boxes. Learn why the number 5 and the text \"5\" can behave differently.",
+  "learningObjectives": [
+    "Name the primitive types and recognise a value of each one",
+    "Use typeof to inspect a value and know its one famous quirk",
+    "Explain why assigning an object to a second variable does not copy it",
+    "Convert between strings, numbers and booleans explicitly"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dynamic typing"
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript is **dynamically typed**: a variable has no fixed type, the value inside it does. The same `let` can hold a number now and a string later. That flexibility is why learning the types matters: you cannot rely on a declaration to tell you what a variable contains, so you need to know how each kind of value behaves. If you later move to [TypeScript](/tutorials/typescript), you will add the type annotations that JavaScript leaves out."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The primitive types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **primitive** is a single, indivisible value. There are seven kinds, and `typeof` tells you which one you have."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(typeof \"hello\");\nconsole.log(typeof 42);\nconsole.log(typeof 3.14);\nconsole.log(typeof true);\nconsole.log(typeof undefined);\nconsole.log(typeof null);\nconsole.log(typeof 12345678901234567890n);\nconsole.log(typeof Symbol(\"id\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "string\nnumber\nnumber\nboolean\nundefined\nobject\nbigint\nsymbol"
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "Example values", "Used for"],
+      "rows": [
+        [
+          "string",
+          "`\"hello\"`, `'a'`, a template literal in backticks",
+          "Text of any length, including empty text"
+        ],
+        [
+          "number",
+          "`42`, `3.14`, `-7`, `Infinity`, `NaN`",
+          "Integers and decimals; there is only one number type"
+        ],
+        ["boolean", "`true`, `false`", "Yes/no answers from comparisons and conditions"],
+        ["undefined", "`undefined`", "A variable that has been declared but not given a value"],
+        ["null", "`null`", "A deliberate 'no value', set by you"],
+        ["bigint", "`12345678901234567890n`", "Whole numbers beyond the safe range of number"],
+        ["symbol", "`Symbol(\"id\")`", "Unique identifiers, mostly in library code"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "typeof null is \"object\"",
+      "text": "This is a bug from the first version of JavaScript that can never be fixed without breaking the web. Do not use `typeof` to check for `null`; compare directly with `value === null` instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Numbers, including the odd ones"
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript has a single number type for integers and decimals. Dividing by zero does not crash; it produces `Infinity`. Converting something that is not numeric gives `NaN` (*Not a Number*), which is itself of type number and is the only value that is not equal to itself, so you test for it with `Number.isNaN`. The examples wrap those two values in `String()` so they print the same way in every console."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(10 / 4);\nconsole.log(10 / 3);\nconsole.log(String(10 / 0));\nconsole.log(String(Number(\"twelve\")));\nconsole.log(Number.isNaN(Number(\"twelve\")));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "2.5\n3.3333333333333335\nInfinity\nNaN\ntrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second result shows that decimals are approximations: `10 / 3` cannot be stored exactly in binary, so you get a very close value. The [Numbers and Math](/tutorials/javascript/numbers-math) lesson explains when this matters and how to deal with it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "undefined and null"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both mean 'nothing here', but they come from different places. `undefined` is what JavaScript gives you: a declared variable without a value, a missing function argument or a property that does not exist. `null` is what *you* assign to say 'empty on purpose'. Loose equality (`==`) treats them as equal; strict equality (`===`) does not, which is one more reason to prefer `===`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "let nickname;              // declared but not assigned\nconsole.log(nickname);\nconsole.log(nickname === undefined);\n\nlet middleName = null;     // deliberately empty\nconsole.log(middleName);\nconsole.log(middleName === null);\nconsole.log(null == undefined);\nconsole.log(null === undefined);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "undefined\ntrue\nnull\ntrue\ntrue\nfalse"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Objects are reference values"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything that is not a primitive is an **object**: plain objects, arrays, functions, dates. The crucial difference is how they are copied. Assigning a primitive copies the value, so the two variables are independent. Assigning an object copies only a *reference* (think of it as the address of the object), so both variables point at the same thing and a change through one is visible through the other."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const a = [1, 2, 3];\nconst b = a;          // b points at the same array, not a copy\nb.push(4);\nconsole.log(a.length);\n\nconst x = \"text\";\nlet y = x;            // primitives are copied\ny = y + \"!\";\nconsole.log(x);\nconsole.log(y);\n\nconsole.log(typeof a);\nconsole.log(Array.isArray(a));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "4\ntext\ntext!\nobject\ntrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`typeof` reports `\"object\"` for arrays too, so use `Array.isArray` when you need to tell them apart. The [Arrays](/tutorials/javascript/arrays) and [Objects](/tutorials/javascript/objects) lessons show how to make real copies when you need them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Converting between types"
+    },
+    {
+      "type": "paragraph",
+      "text": "Form fields, URLs and files give you strings even when they contain numbers, so conversion is everyday work. Do it explicitly with `Number()`, `String()` and `Boolean()` so the reader can see it happening. `parseInt` and `parseFloat` read the leading number from a string and ignore the rest, which is handy for values such as `\"42px\"`."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(Number(\"42\") + 1);\nconsole.log(String(42) + 1);\nconsole.log(Boolean(0));\nconsole.log(Boolean(\"0\"));\nconsole.log(Number(\"\"));\nconsole.log(Number(true));\nconsole.log(parseInt(\"42px\"));\nconsole.log(String(parseInt(\"px42\")));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "43\n421\nfalse\ntrue\n0\n1\n42\nNaN"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two results surprise most people. `Boolean(\"0\")` is `true` because any non-empty string is true, even one containing a zero. `Number(\"\")` is `0`, not `NaN`, because an empty string counts as 'no digits'. The [Operators](/tutorials/javascript/operators) lesson shows what happens when JavaScript converts types *for* you."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Run `typeof` on a few more values in the sandbox: a function (`typeof console.log`), an array, a date (`typeof new Date()`) and a template literal. Predict each answer before you press Run."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-data-types-typeof"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "data-types-qc-1",
+          "type": "true-false",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "JavaScript has separate types for integers and decimal numbers.",
+          "explanation": "There is a single number type that covers both 42 and 3.14. The only other numeric type is bigint, for very large whole numbers.",
+          "correct": false
+        },
+        {
+          "id": "data-types-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "data-types",
+          "difficulty": "beginner",
+          "question": "Which of these values has the type boolean?",
+          "explanation": "Only the bare word true (no quotes) is a boolean. \"true\" in quotes is a string, 1 is a number and null has its own type.",
+          "options": ["`\"true\"`", "`true`", "`1`", "`null`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-data-types-typeof"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "variables"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "operators"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "numbers-math"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Data Types – Primitives, Objects and typeof",
+    "description": "Learn the JavaScript data types: strings, numbers, booleans, undefined, null, bigint and symbol, objects as references, typeof and explicit type conversion."
+  },
+  "updatedOn": "2026-11-16"
+}

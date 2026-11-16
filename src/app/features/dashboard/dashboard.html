@@ -1,267 +1,254 @@
-@if (auth.user(); as user) {
-  <cma-page-header
-    eyebrow="Dashboard"
-    title="Hi, {{ auth.firstName() }}"
-    lead="Your learning at a glance. Everything on this page is computed from data stored in this browser."
-  />
-  <div class="container-xxl py-4 py-lg-5">
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-lg-3">
-        <div class="cma-stat">
-          <cma-icon name="check-circle-fill" [size]="18" /><span class="cma-stat__value">{{
-            lessonsCompleted()
-          }}</span
-          ><span class="cma-stat__label">lessons completed</span>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="cma-stat">
-          <cma-icon name="pencil-square" [size]="18" /><span class="cma-stat__value">{{
-            exercisesSolved()
-          }}</span
-          ><span class="cma-stat__label">exercises solved</span>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="cma-stat">
-          <cma-icon name="patch-check" [size]="18" /><span class="cma-stat__value">{{
-            quizzesPassed()
-          }}</span
-          ><span class="cma-stat__label">quizzes passed</span>
-        </div>
-      </div>
-      <div class="col-6 col-lg-3">
-        <div class="cma-stat">
-          <cma-icon name="bookmark-fill" [size]="18" /><span class="cma-stat__value">{{
-            bookmarks.count()
-          }}</span
-          ><span class="cma-stat__label">bookmarks</span>
-        </div>
+<cma-page-header
+  eyebrow="My learning"
+  [title]="learner.nickname() ? 'Hi, ' + learner.nickname() : 'Your learning journey'"
+  lead="See what you have learned and choose your next step. Your progress is saved in this browser."
+/>
+<div class="container-xxl py-4 py-lg-5">
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="cma-stat">
+        <cma-icon name="check-circle-fill" [size]="18" /><span class="cma-stat__value">{{
+          lessonsCompleted()
+        }}</span
+        ><span class="cma-stat__label">lessons completed</span>
       </div>
     </div>
-
-    <div class="row g-4">
-      <div class="col-lg-8">
-        <section class="mb-5" aria-labelledby="continue-heading">
-          <h2 id="continue-heading" class="h4 mb-3">Continue learning</h2>
-          @if (lastLesson(); as last) {
-            <a
-              class="cma-card cma-card--link d-flex align-items-center gap-3 p-3"
-              [routerLink]="['/tutorials', last.tech, last.slug]"
-            >
-              <span class="cma-continue__icon"><cma-icon name="play-fill" [size]="20" /></span>
-              <span class="min-w-0 flex-grow-1">
-                <span class="d-block small cma-text-secondary"
-                  >Last opened · {{ last.techName }}</span
-                >
-                <span class="d-block fw-semibold">{{ last.title }}</span>
-              </span>
-              <cma-icon name="arrow-right" />
-            </a>
-          } @else {
-            <cma-empty-state
-              icon="book"
-              title="You have not opened a lesson yet"
-              text="Pick a tutorial and the lesson you were reading will appear here."
-            >
-              <a class="btn btn-primary" routerLink="/tutorials">Browse tutorials</a>
-            </cma-empty-state>
-          }
-        </section>
-
-        <section class="mb-5" aria-labelledby="progress-heading">
-          <h2 id="progress-heading" class="h4 mb-3">Tutorial progress</h2>
-          @if (technologiesInProgress().length) {
-            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-              @for (item of technologiesInProgress(); track item.technology.slug) {
-                <li class="cma-card p-3">
-                  <a
-                    class="d-flex align-items-center gap-3 text-decoration-none text-body"
-                    [routerLink]="['/tutorials', item.technology.slug]"
-                  >
-                    <cma-tech-icon
-                      [icon]="item.technology.icon"
-                      [name]="item.technology.name"
-                      [size]="40"
-                      [accent]="accentFor(item.technology)"
-                    />
-                    <span class="flex-grow-1 min-w-0">
-                      <span class="d-flex justify-content-between"
-                        ><span class="fw-semibold">{{ item.technology.name }}</span
-                        ><span
-                          class="small"
-                          [class.text-success]="item.percent === 100"
-                          [class.cma-text-secondary]="item.percent < 100"
-                          >{{ item.percent === 100 ? 'Completed · ' : '' }}{{ item.completed }} /
-                          {{ item.technology.totalLessons }}</span
-                        ></span
-                      >
-                      <span
-                        class="progress mt-1"
-                        role="progressbar"
-                        [attr.aria-valuenow]="item.percent"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        [attr.aria-label]="item.technology.name + ' progress'"
-                        style="height: 6px"
-                        ><span class="progress-bar" [style.width.%]="item.percent"></span
-                      ></span>
-                    </span>
-                  </a>
-                </li>
-              }
-            </ul>
-          } @else {
-            <cma-empty-state
-              icon="list-check"
-              title="No lessons completed yet"
-              text="Mark lessons as completed and your progress per tutorial appears here."
-            />
-          }
-        </section>
-
-        <section class="mb-5" aria-labelledby="paths-heading">
-          <h2 id="paths-heading" class="h4 mb-3">Learning paths</h2>
-          @if (enrolledPaths().length) {
-            <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-              @for (item of enrolledPaths(); track item.path.slug) {
-                <li class="cma-card p-3">
-                  <div class="d-flex justify-content-between align-items-center gap-3 mb-1">
-                    <a
-                      class="fw-semibold text-decoration-none"
-                      [routerLink]="['/learning-paths', item.path.slug]"
-                      >{{ item.path.title }}</a
-                    >
-                    <span class="small cma-text-secondary"
-                      >{{ item.percent }}% · {{ item.completed }} / {{ item.total }} published
-                      lessons</span
-                    >
-                  </div>
-                  <div
-                    class="progress"
-                    role="progressbar"
-                    [attr.aria-valuenow]="item.percent"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    [attr.aria-label]="item.path.title + ' progress'"
-                    style="height: 6px"
-                  >
-                    <div class="progress-bar" [style.width.%]="item.percent"></div>
-                  </div>
-                  @if (item.complete) {
-                    <button
-                      type="button"
-                      class="btn btn-outline-success btn-sm mt-2"
-                      (click)="certificateFor.set(item)"
-                    >
-                      <cma-icon name="award" [size]="14" /> View certificate
-                    </button>
-                  }
-                </li>
-              }
-            </ul>
-          } @else {
-            <cma-empty-state
-              icon="compass"
-              title="You are not enrolled in a path"
-              text="Enrol in a learning path to track your progress across its tutorials."
-            >
-              <a class="btn btn-outline-secondary" routerLink="/learning-paths">Browse paths</a>
-            </cma-empty-state>
-          }
-        </section>
-
-        @if (certificateFor(); as cert) {
-          <section class="mb-5" aria-labelledby="cert-heading">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h2 id="cert-heading" class="h4 mb-0">Certificate</h2>
-              <button type="button" class="btn btn-ghost btn-sm" (click)="certificateFor.set(null)">
-                Close
-              </button>
-            </div>
-            <cma-certificate
-              [learner]="user.name"
-              [pathTitle]="cert.path.title"
-              [lessons]="cert.total"
-              [hours]="cert.path.estimatedHours"
-            />
-          </section>
-        }
-
-        <section aria-labelledby="quiz-heading">
-          <h2 id="quiz-heading" class="h4 mb-3">Quiz history</h2>
-          @if (quizHistory().length) {
-            <ul class="list-group">
-              @for (item of quizHistory(); track item.id) {
-                <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
-                  <span
-                    ><span class="fw-semibold">{{ item.title ?? item.id }}</span
-                    ><span class="d-block small cma-text-secondary"
-                      >{{ item.attempts.length }}
-                      {{ item.attempts.length === 1 ? 'attempt' : 'attempts' }}</span
-                    ></span
-                  >
-                  <span class="text-end"
-                    ><span class="fw-semibold">Best {{ item.best }}%</span
-                    ><span
-                      class="d-block small"
-                      [class.text-success]="item.latest?.passed"
-                      [class.text-danger]="!item.latest?.passed"
-                      >Latest: {{ item.latest?.percent }}% ·
-                      {{ item.latest?.passed ? 'passed' : 'not passed' }}</span
-                    ></span
-                  >
-                </li>
-              }
-            </ul>
-          } @else {
-            <cma-empty-state
-              icon="patch-check"
-              title="No quiz attempts yet"
-              text="Take a quiz at the end of any tutorial to see your scores here."
-            >
-              <a class="btn btn-outline-secondary" routerLink="/quizzes">Browse quizzes</a>
-            </cma-empty-state>
-          }
-        </section>
+    <div class="col-6 col-lg-3">
+      <div class="cma-stat">
+        <cma-icon name="pencil-square" [size]="18" /><span class="cma-stat__value">{{
+          exercisesSolved()
+        }}</span
+        ><span class="cma-stat__label">exercises solved</span>
       </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cma-stat">
+        <cma-icon name="patch-check" [size]="18" /><span class="cma-stat__value">{{
+          quizzesPassed()
+        }}</span
+        ><span class="cma-stat__label">quizzes passed</span>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="cma-stat">
+        <cma-icon name="bookmark-fill" [size]="18" /><span class="cma-stat__value">{{
+          bookmarks.count()
+        }}</span
+        ><span class="cma-stat__label">bookmarks</span>
+      </div>
+    </div>
+  </div>
 
-      <aside class="col-lg-4">
-        <section class="cma-card p-3 mb-3" aria-labelledby="reco-heading">
-          <h2 id="reco-heading" class="h6">Recommended for you</h2>
-          <p class="small cma-text-secondary">
-            Rule-based suggestions from your activity in this browser; each one says why.
-          </p>
-          <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-            @for (item of recommendations.recommendations(); track item.path) {
-              <li class="cma-reco">
-                <a class="fw-semibold text-decoration-none" [routerLink]="item.path">{{
-                  item.title
-                }}</a>
-                <span class="d-block small cma-text-secondary">{{ item.reason }}</span>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <section class="mb-5" aria-labelledby="continue-heading">
+        <h2 id="continue-heading" class="h4 mb-3">Continue learning</h2>
+        @if (lastLesson(); as last) {
+          <a
+            class="cma-card cma-card--link d-flex align-items-center gap-3 p-3"
+            [routerLink]="['/tutorials', last.tech, last.slug]"
+          >
+            <span class="cma-continue__icon"><cma-icon name="play-fill" [size]="20" /></span>
+            <span class="min-w-0 flex-grow-1">
+              <span class="d-block small cma-text-secondary"
+                >Last opened · {{ last.techName }}</span
+              >
+              <span class="d-block fw-semibold">{{ last.title }}</span>
+            </span>
+            <cma-icon name="arrow-right" />
+          </a>
+        } @else {
+          <cma-empty-state
+            icon="book"
+            title="You have not opened a lesson yet"
+            text="Pick a tutorial and the lesson you were reading will appear here."
+          >
+            <a class="btn btn-primary" routerLink="/tutorials">Browse tutorials</a>
+          </cma-empty-state>
+        }
+      </section>
+
+      <section class="mb-5" aria-labelledby="progress-heading">
+        <h2 id="progress-heading" class="h4 mb-3">Tutorial progress</h2>
+        @if (technologiesInProgress().length) {
+          <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+            @for (item of technologiesInProgress(); track item.technology.slug) {
+              <li class="cma-card p-3">
+                <a
+                  class="d-flex align-items-center gap-3 text-decoration-none text-body"
+                  [routerLink]="['/tutorials', item.technology.slug]"
+                >
+                  <cma-tech-icon
+                    [icon]="item.technology.icon"
+                    [name]="item.technology.name"
+                    [size]="40"
+                    [accent]="accentFor(item.technology)"
+                  />
+                  <span class="flex-grow-1 min-w-0">
+                    <span class="d-flex justify-content-between"
+                      ><span class="fw-semibold">{{ item.technology.name }}</span
+                      ><span
+                        class="small"
+                        [class.text-success]="item.percent === 100"
+                        [class.cma-text-secondary]="item.percent < 100"
+                        >{{ item.percent === 100 ? 'Completed · ' : '' }}{{ item.completed }} /
+                        {{ item.technology.totalLessons }}</span
+                      ></span
+                    >
+                    <span
+                      class="progress mt-1"
+                      role="progressbar"
+                      [attr.aria-valuenow]="item.percent"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      [attr.aria-label]="item.technology.name + ' progress'"
+                      style="height: 6px"
+                      ><span class="progress-bar" [style.width.%]="item.percent"></span
+                    ></span>
+                  </span>
+                </a>
               </li>
             }
           </ul>
-        </section>
-        <section class="cma-card p-3" aria-labelledby="links-heading">
-          <h2 id="links-heading" class="h6">Your library</h2>
-          <a class="btn btn-outline-secondary btn-sm w-100 mb-2" routerLink="/bookmarks"
-            >Bookmarks and history</a
+        } @else {
+          <cma-empty-state
+            icon="list-check"
+            title="No lessons completed yet"
+            text="Mark lessons as completed and your progress per tutorial appears here."
+          />
+        }
+      </section>
+
+      <section class="mb-5" aria-labelledby="paths-heading">
+        <h2 id="paths-heading" class="h4 mb-3">Learning paths</h2>
+        @if (enrolledPaths().length) {
+          <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+            @for (item of enrolledPaths(); track item.path.slug) {
+              <li class="cma-card p-3">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-1">
+                  <a
+                    class="fw-semibold text-decoration-none"
+                    [routerLink]="['/learning-paths', item.path.slug]"
+                    >{{ item.path.title }}</a
+                  >
+                  <span class="small cma-text-secondary"
+                    >{{ item.percent }}% · {{ item.completed }} / {{ item.total }} published
+                    lessons</span
+                  >
+                </div>
+                <div
+                  class="progress"
+                  role="progressbar"
+                  [attr.aria-valuenow]="item.percent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-label]="item.path.title + ' progress'"
+                  style="height: 6px"
+                >
+                  <div class="progress-bar" [style.width.%]="item.percent"></div>
+                </div>
+                @if (item.complete) {
+                  <button
+                    type="button"
+                    class="btn btn-outline-success btn-sm mt-2"
+                    (click)="certificateFor.set(item)"
+                  >
+                    <cma-icon name="award" [size]="14" /> View certificate
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <cma-empty-state
+            icon="compass"
+            title="Choose your first learning path"
+            text="A learning path is a list of tutorials to follow in order. Pick one and learn a little each day."
           >
-          <a class="btn btn-outline-secondary btn-sm w-100" routerLink="/profile"
-            >Profile and data</a
-          >
+            <a class="btn btn-outline-secondary" routerLink="/learning-paths">Browse paths</a>
+          </cma-empty-state>
+        }
+      </section>
+
+      @if (certificateFor(); as cert) {
+        <section class="mb-5" aria-labelledby="cert-heading">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 id="cert-heading" class="h4 mb-0">Certificate</h2>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="certificateFor.set(null)">
+              Close
+            </button>
+          </div>
+          <cma-certificate
+            [learner]="learner.displayName()"
+            [pathTitle]="cert.path.title"
+            [lessons]="cert.total"
+            [hours]="cert.path.estimatedHours"
+          />
         </section>
-      </aside>
+      }
+
+      <section aria-labelledby="quiz-heading">
+        <h2 id="quiz-heading" class="h4 mb-3">Quiz history</h2>
+        @if (quizHistory().length) {
+          <ul class="list-group">
+            @for (item of quizHistory(); track item.id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                <span
+                  ><span class="fw-semibold">{{ item.title ?? item.id }}</span
+                  ><span class="d-block small cma-text-secondary"
+                    >{{ item.attempts.length }}
+                    {{ item.attempts.length === 1 ? 'attempt' : 'attempts' }}</span
+                  ></span
+                >
+                <span class="text-end"
+                  ><span class="fw-semibold">Best {{ item.best }}%</span
+                  ><span
+                    class="d-block small"
+                    [class.text-success]="item.latest?.passed"
+                    [class.text-danger]="!item.latest?.passed"
+                    >Latest: {{ item.latest?.percent }}% ·
+                    {{ item.latest?.passed ? 'passed' : 'not passed' }}</span
+                  ></span
+                >
+              </li>
+            }
+          </ul>
+        } @else {
+          <cma-empty-state
+            icon="patch-check"
+            title="No quiz attempts yet"
+            text="Take a quiz at the end of any tutorial to see your scores here."
+          >
+            <a class="btn btn-outline-secondary" routerLink="/quizzes">Browse quizzes</a>
+          </cma-empty-state>
+        }
+      </section>
     </div>
+
+    <aside class="col-lg-4">
+      <section class="cma-card p-3 mb-3" aria-labelledby="reco-heading">
+        <h2 id="reco-heading" class="h6">Recommended for you</h2>
+        <p class="small cma-text-secondary">These ideas can help you choose what to learn next.</p>
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+          @for (item of recommendations.recommendations(); track item.path) {
+            <li class="cma-reco">
+              <a class="fw-semibold text-decoration-none" [routerLink]="item.path">{{
+                item.title
+              }}</a>
+              <span class="d-block small cma-text-secondary">{{ item.reason }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+      <section class="cma-card p-3" aria-labelledby="links-heading">
+        <h2 id="links-heading" class="h6">Your library</h2>
+        <a class="btn btn-outline-secondary btn-sm w-100 mb-2" routerLink="/bookmarks"
+          >Bookmarks and history</a
+        >
+        <a class="btn btn-outline-secondary btn-sm w-100" routerLink="/settings"
+          >Learning settings</a
+        >
+      </section>
+    </aside>
   </div>
-} @else {
-  <cma-page-header eyebrow="Dashboard" title="Your dashboard" />
-  <div class="container-xxl py-5" aria-busy="true">
-    @if (!auth.hydrated()) {
-      <div class="cma-skeleton" style="height: 8rem"></div>
-    } @else {
-      <p class="cma-text-secondary">Redirecting…</p>
-    }
-  </div>
-}
+</div>

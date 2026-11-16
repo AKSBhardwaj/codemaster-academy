@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-a-change-in-a-transaction",
+  "title": "Keep a change in a transaction",
+  "summary": "A transaction groups changes into one job.",
+  "introduction": "A transaction groups changes into one job. Your task: Explain the difference between COMMIT and ROLLBACK.",
+  "learningObjectives": [
+    "Explain the difference between COMMIT and ROLLBACK.",
+    "Explain the example for keep a change in a transaction"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction groups changes into one job. ROLLBACK cancels uncommitted changes so you can practise safely with sample data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use PostgreSQL in a new practice database through psql or a database editor. These are PostgreSQL examples, not SQLite. They do not run in this site's SQL playground. Use only sample data."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE TEMP TABLE pg_scores (points integer);\nBEGIN;\nINSERT INTO pg_scores VALUES (5);\nROLLBACK;\nSELECT count(*) FROM pg_scores;",
+      "title": "Keep a change in a transaction",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ROLLBACK` cancels the applicable uncommitted changes. It cannot undo an earlier committed transaction.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The final count is 0 because the insert was rolled back."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Create this temporary table once. COMMIT would keep the change instead of cancelling it."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain the difference between COMMIT and ROLLBACK."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "postgresql-keep-a-change-in-a-transaction-check"
+    }
+  ],
+  "exerciseIds": ["postgresql-keep-a-change-in-a-transaction-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "postgresql",
+      "slug": "join-related-facts"
+    }
+  ],
+  "seo": {
+    "title": "PostgreSQL: Keep a change in a transaction",
+    "description": "A transaction groups changes into one job. ROLLBACK cancels uncommitted changes so you can practise safely with sample data."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,138 @@
+{
+  "title": "Vue.js Small Examples",
+  "description": "Use these small Vue.js examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Show a value in a template",
+      "description": "A Vue template describes the page. Double curly brackets show a JavaScript value as text.",
+      "language": "vue",
+      "code": "<script setup>\nconst club = \"Garden club\";\n</script>\n<template><h1>{{ club }}</h1></template>",
+      "output": "The page shows Garden club as its heading.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "remember-a-changing-value",
+      "title": "Remember a changing value",
+      "description": "A ref is a small container for a value that Vue can watch.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref } from \"vue\";\nconst count = ref(0);\n</script>\n<template><button @click=\"count++\">Books: {{ count }}</button></template>",
+      "output": "Each click increases the displayed count by one.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "remember-a-changing-value"
+    },
+    {
+      "id": "bind-an-attribute",
+      "title": "Bind an attribute",
+      "description": "v-bind connects an HTML attribute to a JavaScript value.",
+      "language": "vue",
+      "code": "<script setup>\nconst destination = \"#books\";\n</script>\n<template><a :href=\"destination\">Book list</a><h2 id=\"books\">Books</h2></template>",
+      "output": "The link points to the books heading using the bound value.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "bind-an-attribute"
+    },
+    {
+      "id": "choose-whether-to-show-a-part",
+      "title": "Choose whether to show a part",
+      "description": "v-if includes a page part when its rule is true.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref } from \"vue\";\nconst ready = ref(false);\n</script>\n<template><button @click=\"ready = !ready\">Change</button><p v-if=\"ready\">Ready to read</p><p v-else>Choose a book</p></template>",
+      "output": "The button switches between the two messages.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-whether-to-show-a-part"
+    },
+    {
+      "id": "show-a-keyed-list",
+      "title": "Show a keyed list",
+      "description": "v-for makes one page part per list item.",
+      "language": "vue",
+      "code": "<script setup>\nconst books = [{id:1,title:\"Moon Trip\"},{id:2,title:\"Garden Days\"}];\n</script>\n<template><ul><li v-for=\"book in books\" :key=\"book.id\">{{ book.title }}</li></ul></template>",
+      "output": "The page shows both book titles as list items.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-a-keyed-list"
+    },
+    {
+      "id": "connect-an-input-with-v-model",
+      "title": "Connect an input with v-model",
+      "description": "v-model connects a form field to a value.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref } from \"vue\";\nconst name = ref(\"\");\n</script>\n<template><label>Name <input v-model=\"name\"></label><p>Hello, {{ name }}</p></template>",
+      "output": "The greeting follows the name typed into the field.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "connect-an-input-with-v-model"
+    },
+    {
+      "id": "calculate-a-value-from-state",
+      "title": "Calculate a value from state",
+      "description": "A computed value is based on other reactive values.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref, computed } from \"vue\";\nconst books = ref(3);\nconst pages = computed(() => books.value * 10);\n</script>\n<template><button @click=\"books++\">Add book</button><p>{{ pages }} pages planned</p></template>",
+      "output": "The page starts at 30 pages. Adding a book changes it to 40.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "calculate-a-value-from-state"
+    },
+    {
+      "id": "pass-a-prop-to-a-child",
+      "title": "Pass a prop to a child",
+      "description": "Props are values a parent gives a child component.",
+      "language": "vue",
+      "code": "<!-- BookCard.vue -->\n<script setup>defineProps({ title: String });</script>\n<template><h2>{{ title }}</h2></template>\n\n<!-- App.vue, separate file -->\n<script setup>import BookCard from \"./BookCard.vue\";</script>\n<template><BookCard title=\"Moon Trip\" /></template>",
+      "output": "The child card displays the title given by its parent.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "pass-a-prop-to-a-child"
+    },
+    {
+      "id": "send-a-child-event",
+      "title": "Send a child event",
+      "description": "A child can emit an event to ask its parent to do something.",
+      "language": "vue",
+      "code": "<!-- ChooseButton.vue -->\n<script setup>const emit = defineEmits([\"choose\"]);</script>\n<template><button @click=\"emit('choose', 'Moon Trip')\">Choose</button></template>\n\n<!-- App.vue, separate file -->\n<script setup>import ChooseButton from \"./ChooseButton.vue\"; import { ref } from \"vue\"; const choice=ref(\"\");</script>\n<template><ChooseButton @choose=\"choice = $event\" /><p>{{ choice }}</p></template>",
+      "output": "Clicking the child button makes the parent show Moon Trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "send-a-child-event"
+    },
+    {
+      "id": "leave-a-slot-for-content",
+      "title": "Leave a slot for content",
+      "description": "A slot leaves a place where a parent can supply page content.",
+      "language": "vue",
+      "code": "<!-- NoteBox.vue -->\n<template><aside><h2>Note</h2><slot>No message yet</slot></aside></template>\n\n<!-- App.vue, separate file -->\n<script setup>import NoteBox from \"./NoteBox.vue\";</script>\n<template><NoteBox><p>Bring a notebook.</p></NoteBox></template>",
+      "output": "The supplied paragraph appears inside the note box after its heading.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "leave-a-slot-for-content"
+    },
+    {
+      "id": "clean-up-a-timer",
+      "title": "Clean up a timer",
+      "description": "A mounted hook can start work after a component joins the page.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref, onMounted, onUnmounted } from \"vue\";\nconst seconds=ref(0); let timer;\nonMounted(()=>{timer=setInterval(()=>seconds.value++,1000);});\nonUnmounted(()=>clearInterval(timer));\n</script>\n<template><p>{{ seconds }} seconds</p></template>",
+      "output": "The number increases once per second while the component is mounted.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "clean-up-a-timer"
+    },
+    {
+      "id": "build-a-small-reading-list",
+      "title": "Build a small reading list",
+      "description": "A form and a reactive array can work together.",
+      "language": "vue",
+      "code": "<script setup>\nimport { ref } from \"vue\";\nconst title=ref(\"\"); const books=ref([]); let nextId=1;\nfunction add(){if(title.value.trim()){books.value.push({id:nextId++,title:title.value.trim()});title.value=\"\";}}\n</script>\n<template><form @submit.prevent=\"add\"><label>Book <input v-model=\"title\"></label><button>Add</button></form><ul><li v-for=\"book in books\" :key=\"book.id\">{{ book.title }}</li></ul></template>",
+      "output": "Submitting a non-empty title adds it to the list and clears the field. Reloading resets this in-memory list.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "build-a-small-reading-list"
+    }
+  ]
+}

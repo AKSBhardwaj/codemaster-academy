@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "slug": "update-delete",
+  "title": "Updating and Deleting",
+  "summary": "Change documents with updateOne, updateMany and the update operators, upsert, replace, modify arrays, return the updated document, and delete safely.",
+  "introduction": "Updates in MongoDB are precise: instead of sending a whole new document, you describe the change with operators such as `$set` and `$inc`, and the server applies it atomically to each matching document. This lesson covers the update methods and the operators you need most, including the ones for arrays, then upserts, replacement, reading back the modified document, and deletion. It finishes with the two mistakes that lose data: replacing when you meant to update, and deleting with an empty filter.",
+  "learningObjectives": [
+    "Modify fields with $set, $unset, $inc and the other field operators",
+    "Add and remove array elements with $push, $addToSet and $pull",
+    "Use upserts, replaceOne and findOneAndUpdate appropriately",
+    "Delete documents with deleteOne and deleteMany without surprises"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Update methods and the result document"
+    },
+    {
+      "type": "paragraph",
+      "text": "`updateOne(filter, update)` changes the first matching document and `updateMany` changes all of them. The filter uses the same operators as `find`; the update is a document of **update operators**, each mapping field names to values. Continue with the six products from the previous lessons:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.products.updateOne({ _id: 2 }, { $set: { stock: 25, price: 22.99 } })\ndb.products.findOne({ _id: 2 }, { _id: 0, name: 1, price: 1, stock: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{ name: 'Wireless mouse', price: 22.99, stock: 25 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "The result separates **matched** from **modified**. A document that matches but already has the requested values counts as matched and not modified, which is useful for idempotent code: running the same `$set` twice is harmless. `insertedId` is only filled when an upsert created a document, as shown below."
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Effect"],
+      "rows": [
+        ["`$set`", "Sets a field, creating it if necessary; dot notation reaches nested fields"],
+        ["`$unset`", "Removes a field entirely (`{ $unset: { discontinued: '' } }`)"],
+        ["`$inc`", "Adds a number, negative to subtract; creates the field if missing"],
+        ["`$mul`", "Multiplies a numeric field"],
+        ["`$min`, `$max`", "Sets the field only if the new value is lower or higher"],
+        ["`$rename`", "Renames a field"],
+        [
+          "`$currentDate`",
+          "Sets a field to the current date (`{ $currentDate: { updatedAt: true } }`)"
+        ],
+        ["`$setOnInsert`", "Sets fields only when an upsert inserts a new document"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`updateMany` applies the same update to every match. Restock everything with five or fewer units and check the result:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.updateMany({ stock: { $lte: 5 } }, { $inc: { stock: 10 } })\ndb.products.find({ _id: { $in: [3, 6] } }, { _id: 0, name: 1, stock: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 2,\n  modifiedCount: 2,\n  upsertedCount: 0\n}\n[\n  { name: '27-inch monitor', stock: 15 },\n  { name: 'Webcam', stock: 13 }\n]"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "`db.products.updateOne({ _id: 2 }, { price: 19.99 })` does not set the price. An update document must consist of operators, and the shell rejects this one with `MongoInvalidArgumentError: Update document requires atomic operators`. Write `{ $set: { price: 19.99 } }`. The only method that accepts a plain document is `replaceOne`, and that one replaces everything."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Updating arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "Arrays have their own operators. `$push` appends a value, `$addToSet` appends only if it is not already present, `$pull` removes every element matching a value or condition, and `$pop` removes the first (`-1`) or last (`1`) element. `$each` lets `$push` and `$addToSet` take several values at once."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.updateOne({ _id: 1 }, { $addToSet: { tags: { $each: ['usb', 'rgb'] } } })\ndb.products.findOne({ _id: 1 }, { _id: 0, tags: 1 })\ndb.products.updateOne({ _id: 1 }, { $pull: { tags: 'rgb' } })\ndb.products.findOne({ _id: 1 }, { _id: 0, tags: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{ tags: [ 'usb', 'backlit', 'rgb' ] }\n{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{ tags: [ 'usb', 'backlit' ] }"
+    },
+    {
+      "type": "paragraph",
+      "text": "`'usb'` was already in the array, so `$addToSet` added only `'rgb'`. To change one element of an array of documents, filter on it and use the positional operator `$` in the update, for example `{ 'lines.productId': 5 }` with `{ $set: { 'lines.$.qty': 3 } }`; `$[]` updates every element and `$[name]` with `arrayFilters` updates the elements you describe."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Upsert: update or insert"
+    },
+    {
+      "type": "paragraph",
+      "text": "With the option `{ upsert: true }`, an update that matches nothing inserts a new document instead. The new document is built from the equality conditions of the filter plus the update operators; `$setOnInsert` adds fields that should exist only on creation, such as an initial counter."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.updateOne(\n  { name: 'Headphones' },\n  { $set: { category: 'audio', price: 79 }, $setOnInsert: { stock: 0 } },\n  { upsert: true }\n)\ndb.products.findOne({ name: 'Headphones' }, { _id: 0 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: ObjectId('69a3a800f1e2d3c4b5a69712'),\n  matchedCount: 0,\n  modifiedCount: 0,\n  upsertedCount: 1\n}\n{ name: 'Headphones', category: 'audio', price: 79, stock: 0 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run the same command again and it matches the new document: `matchedCount` becomes 1, `upsertedCount` 0, and `stock` keeps its value because `$setOnInsert` is ignored on updates. Upserts are the standard way to maintain counters and \"create if missing\" records without a separate read."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Replacing and returning documents"
+    },
+    {
+      "type": "paragraph",
+      "text": "`replaceOne(filter, document)` swaps the entire document except `_id`. Fields you leave out are gone, which is exactly right when the application holds the complete new version and exactly wrong when it holds a partial one:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.replaceOne({ _id: 4 }, { name: 'Desk lamp', price: 24.5 })\ndb.products.findOne({ _id: 4 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: null,\n  matchedCount: 1,\n  modifiedCount: 1,\n  upsertedCount: 0\n}\n{ _id: 4, name: 'Desk lamp', price: 24.5 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lamp lost its `category`, `stock` and `tags`. When you need the document as it looks after the change, `findOneAndUpdate` applies the update and returns the document in one atomic step, which avoids a race between a separate update and read. Pass `returnDocument: 'after'`; the default returns the document as it was *before*."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.findOneAndUpdate(\n  { _id: 5 },\n  { $inc: { stock: -1 } },\n  { returnDocument: 'after', projection: { _id: 0, name: 1, stock: 1 } }\n)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{ name: 'USB-C hub', stock: 7 }"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Deleting documents"
+    },
+    {
+      "type": "paragraph",
+      "text": "`deleteOne` removes the first match and `deleteMany` removes every match. Both return how many documents were deleted, and both are final: there is no undo apart from a backup. Most applications prefer a *soft delete*, a `$set` of a `deletedAt` date, for anything a user might want back."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.deleteOne({ name: 'Headphones' })\ndb.products.deleteMany({ discontinued: true })\ndb.products.countDocuments()"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{ acknowledged: true, deletedCount: 1 }\n{ acknowledged: true, deletedCount: 1 }\n5"
+    },
+    {
+      "type": "alert",
+      "variant": "danger",
+      "title": "Empty filters delete everything",
+      "text": "`db.products.deleteMany({})` deletes every document in the collection, and `updateMany({}, ...)` changes every document. An application that builds the filter from user input and ends up with an empty object does the same. Always check that a filter has the conditions you expect before calling a `Many` method."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Restore the lamp with a single `$set` that puts back `category: 'office'`, `stock: 40` and `tags: ['led']`, then run the same command again and confirm that `modifiedCount` is 0 the second time."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-update-find-error"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-update-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "update-delete",
+          "difficulty": "beginner",
+          "question": "An `updateOne` result shows `matchedCount: 1, modifiedCount: 0`. What happened?",
+          "explanation": "The filter matched a document, but applying the update changed nothing, typically because the fields already had the requested values.",
+          "options": [
+            "No document matched the filter",
+            "A document matched but already had the requested values",
+            "The update document was missing operators",
+            "An upsert inserted a new document"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-update-qc-2",
+          "type": "true-false",
+          "lessonSlug": "update-delete",
+          "difficulty": "beginner",
+          "question": "`replaceOne` keeps the fields that the replacement document does not mention.",
+          "explanation": "`replaceOne` swaps the whole document except `_id`. Fields missing from the replacement are gone; use `$set` to change some fields and keep the rest.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-update-predict-counts", "mongodb-update-find-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "crud-insert-find"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "transactions"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "update-delete"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Update and Delete – $set, $inc, $push, Upsert",
+    "description": "Update MongoDB documents with updateOne, updateMany and operators like $set, $inc and $push, use upserts, replaceOne and findOneAndUpdate, and delete safely."
+  },
+  "updatedOn": "2026-11-15"
+}

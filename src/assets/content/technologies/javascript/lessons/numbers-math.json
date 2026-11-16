@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "slug": "numbers-math",
+  "title": "Numbers and Math",
+  "summary": "JavaScript can do maths with numbers. Its Math tools help with jobs such as rounding or choosing a random number.",
+  "introduction": "JavaScript can do maths with numbers. Its Math tools help with jobs such as rounding or choosing a random number. Count points and round a result. Learn why decimal maths can give a tiny surprise and why a random result may change each time.",
+  "learningObjectives": [
+    "Explain why decimal arithmetic gives results such as 0.30000000000000004 and how to handle it",
+    "Convert strings to numbers and numbers to formatted strings",
+    "Round, clamp and pick numbers with the Math object",
+    "Recognise the safe integer limit and when BigInt is needed"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "One number type, stored in binary"
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript stores every number as a 64-bit floating-point value, the same format most languages use for `double`. Whole numbers up to about nine quadrillion are exact. Decimals are converted to binary fractions, and just as one third cannot be written exactly in decimal, one tenth cannot be written exactly in binary. The tiny error usually disappears when the number is displayed, but it becomes visible when you add or compare such values."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(0.1 + 0.2);\nconsole.log(0.1 + 0.2 === 0.3);\nconsole.log(1.1 * 3);\nconsole.log((1.1 * 3).toFixed(2));          // format for display\nconsole.log((110 * 3) / 100);                // work in cents, divide at the end\nconsole.log(Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON);   // compare with a tolerance"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0.30000000000000004\nfalse\n3.3000000000000003\n3.30\n3.3\ntrue"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Never compare money with ===",
+      "text": "`0.1 + 0.2 === 0.3` is `false`, so a check such as `if (total === 0.3)` can fail for a value that looks right on screen. Store money as whole cents (integers are exact), or round with `toFixed` or `Math.round` before comparing. This is not a JavaScript bug; every language using binary floating point behaves the same way."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Converting strings and numbers"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Number()` converts a whole string and gives `NaN` if anything in it is not numeric. `parseInt` and `parseFloat` read as many digits as they can and ignore the rest, which suits values such as `\"42px\"`; pass `10` as the second argument to `parseInt` so the base is never guessed. In the other direction, `toString(base)` writes a number in binary or hexadecimal and `toFixed(digits)` returns a string with a fixed number of decimals."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(Number(\"3.5\") + 1);\nconsole.log(parseInt(\"42px\", 10));\nconsole.log(parseFloat(\"2.5kg\"));\nconsole.log(String(Number(\"abc\")));\nconsole.log(Number.isNaN(Number(\"abc\")));\nconsole.log((255).toString(2));\nconsole.log((255).toString(16));\nconsole.log((1234.5678).toFixed(1));\nconsole.log(Number.isInteger(7.0));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "4.5\n42\n2.5\nNaN\ntrue\n11111111\nff\n1234.6\ntrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Number.isInteger(7.0)` is `true` because `7.0` and `7` are the same value; there is no separate decimal type. Use `Number.isNaN` rather than the older global `isNaN`, which converts its argument first and reports `true` for strings such as `\"hello\"`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The Math object"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Math` is a built-in object of functions and constants; you never create one, you just call `Math.round(x)`. The rounding family differs in how it treats halves and negatives: `round` goes to the nearest integer (halves go up, so `-4.5` becomes `-4`), `floor` always goes down, `ceil` always goes up and `trunc` just drops the decimals."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(Math.round(4.5));\nconsole.log(Math.round(-4.5));\nconsole.log(Math.floor(4.9));\nconsole.log(Math.ceil(4.1));\nconsole.log(Math.trunc(-4.9));\nconsole.log(Math.max(3, 11, 7));\nconsole.log(Math.min(...[3, 11, 7]));   // spread an array into arguments\nconsole.log(Math.sqrt(144));\nconsole.log(2 ** 0.5);\nconsole.log(Math.PI.toFixed(4));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "5\n-4\n4\n5\n-4\n11\n3\n12\n1.4142135623730951\n3.1416"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Random numbers"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Math.random()` returns a decimal from `0` up to but not including `1`. To get a whole number in a range, multiply by the number of possible values, round down with `Math.floor`, and add the minimum. The output below is one possible run; yours will differ every time."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "function randomBetween(min, max) {\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nconst rolls = [randomBetween(1, 6), randomBetween(1, 6), randomBetween(1, 6)];\nconsole.log(rolls.join(\" \"));\n\nconst inRange = rolls.every((r) => r >= 1 && r <= 6);\nconsole.log(inRange);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "One possible run (the first line changes every time)",
+      "content": "4 1 6\ntrue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Large integers and BigInt"
+    },
+    {
+      "type": "paragraph",
+      "text": "Integers are exact up to `Number.MAX_SAFE_INTEGER` (2 to the power 53, minus 1). Beyond that, some whole numbers cannot be represented and arithmetic silently rounds. For identifiers, cryptography or finance at that scale, use **BigInt**: write the literal with an `n` suffix and all digits are kept. BigInt and number cannot be mixed in one expression, so convert explicitly. Very large or small numbers print in scientific notation, and `toLocaleString` formats a number for display with grouping separators."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "console.log(Number.MAX_SAFE_INTEGER);\nconsole.log(9007199254740992 + 1);            // precision lost: the +1 disappears\nconsole.log(String(9007199254740992n + 1n));   // BigInt keeps every digit\nconsole.log(typeof 10n);\nconsole.log(1e21);\nconsole.log((1_000_000).toLocaleString(\"en-US\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "9007199254740991\n9007199254740992\n9007199254740993\nbigint\n1e+21\n1,000,000"
+    },
+    {
+      "type": "paragraph",
+      "text": "The BigInt result is wrapped in `String()` only so that it prints identically everywhere; in the browser's developer tools a BigInt is shown with its `n` suffix. The underscore in `1_000_000` is a numeric separator that JavaScript ignores; it exists purely to make long literals readable."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Useful number properties"
+    },
+    {
+      "type": "table",
+      "headers": ["Expression", "Value or purpose"],
+      "rows": [
+        [
+          "`Number.MAX_SAFE_INTEGER`",
+          "`9007199254740991`, the largest exactly representable integer"
+        ],
+        [
+          "`Number.EPSILON`",
+          "The smallest gap between 1 and the next number; a tolerance for comparisons"
+        ],
+        [
+          "`Infinity`, `-Infinity`",
+          "Results of dividing by zero; also useful as 'larger than anything' starting values"
+        ],
+        ["`NaN`", "Result of failed numeric conversion; test with `Number.isNaN`"],
+        ["`Number.isFinite(x)`", "`true` for ordinary numbers, `false` for `NaN` and infinities"],
+        [
+          "`x.toLocaleString(locale)`",
+          "Formatted for people: grouping separators, decimal marks, optional currency"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Write `roundTo(value, decimals)` using `Math.round` and `10 ** decimals` so that `roundTo(3.14159, 2)` returns the number `3.14` (not a string). Then format `1234567.891` as US dollars with `toLocaleString(\"en-US\", { style: \"currency\", currency: \"USD\" })`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-numbers-math-float"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "numbers-math-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "numbers-math",
+          "difficulty": "beginner",
+          "question": "What does `Math.floor(-2.5)` return?",
+          "explanation": "floor always rounds towards negative infinity, so -2.5 becomes -3. trunc would give -2 and round would give -2 as well.",
+          "options": ["`-2`", "`-3`", "`-2.5`", "`2`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "numbers-math-qc-2",
+          "type": "true-false",
+          "lessonSlug": "numbers-math",
+          "difficulty": "intermediate",
+          "question": "`Number.MAX_SAFE_INTEGER` is the largest number JavaScript can store.",
+          "explanation": "Numbers go far beyond it (up to about 1.8e308). MAX_SAFE_INTEGER is the largest integer that is guaranteed to be stored exactly; above it, some whole numbers cannot be represented.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-numbers-math-float"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "operators"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "strings"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript Numbers and Math – Precision, Rounding, Random",
+    "description": "Learn how JavaScript numbers work: floating-point precision, converting strings to numbers, toFixed, Math.round, floor and ceil, random numbers and BigInt."
+  },
+  "updatedOn": "2026-11-16"
+}

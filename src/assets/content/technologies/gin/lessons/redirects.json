@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Return a redirect",
+  "summary": "Gin: Return a redirect. Inspect the initial 302 response.",
+  "introduction": "Redirect asks the client to visit a new URL. GET /start ends at /hello in a browser.",
+  "learningObjectives": ["Return a redirect with Gin", "Inspect the initial 302 response"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Return a redirect"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Return a redirect",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.GET(\"/start\", func(c *gin.Context) { c.Redirect(http.StatusFound, \"/hello\") })\nr.GET(\"/hello\", func(c *gin.Context) { c.String(http.StatusOK, \"Welcome\") })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Redirect sends status 302 and the target URL. The next GET reads the greeting."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the initial 302 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect is a second client request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-redirects-check"
+    }
+  ],
+  "exerciseIds": ["gin-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Return a redirect",
+    "description": "Gin: Return a redirect. Inspect the initial 302 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

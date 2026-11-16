@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "pad-a-sequence-and-inspect-its-mask",
+  "title": "Pad a sequence and inspect its mask",
+  "summary": "Padding adds filler tokens to reach a chosen length. An attention mask marks real tokens with 1 and padding with 0 in this encoding.",
+  "introduction": "Padding adds filler tokens to reach a chosen length. An attention mask marks real tokens with 1 and padding with 0 in this encoding. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain pad a sequence and inspect its mask",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Padding adds filler tokens to reach a chosen length. An attention mask marks real tokens with 1 and padding with 0 in this encoding."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from tokenizers import Tokenizer\nfrom tokenizers.models import WordLevel\nfrom tokenizers.pre_tokenizers import Whitespace\n\ntokenizer = Tokenizer(WordLevel({\"[PAD]\": 0, \"[UNK]\": 1, \"moon\": 2, \"glows\": 3}, unk_token=\"[UNK]\"))\ntokenizer.pre_tokenizer = Whitespace()\ntokenizer.enable_padding(length=4, pad_id=0, pad_token=\"[PAD]\")\nencoded = tokenizer.encode(\"moon glows\")\nprint(encoded.ids, encoded.attention_mask)",
+      "title": "Pad a sequence and inspect its mask",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The output is [2, 3, 0, 0] [1, 1, 0, 0]. Two real tokens are followed by two padding tokens. The mask distinguishes them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Encode only moon and predict the four mask values.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Padding does not shorten an overlong sequence; truncation is a separate choice."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "hugging-face-pad-a-sequence-and-inspect-its-mask"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Hugging Face further reading](https://huggingface.co/docs)."
+    }
+  ],
+  "exerciseIds": ["hugging-face-pad-a-sequence-and-inspect-its-mask"],
+  "relatedLessons": [
+    {
+      "technologySlug": "hugging-face",
+      "slug": "save-and-reload-a-local-tokenizer"
+    }
+  ],
+  "seo": {
+    "title": "Hugging Face: Pad a sequence and inspect its mask",
+    "description": "Learn about pad a sequence and inspect its mask in Hugging Face. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

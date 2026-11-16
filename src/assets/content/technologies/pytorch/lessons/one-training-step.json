@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "one-training-step",
+  "title": "One training step",
+  "summary": "A training step clears old gradients, computes loss, finds new gradients and updates weights. Each step has a separate job.",
+  "introduction": "A training step clears old gradients, computes loss, finds new gradients and updates weights. Each step has a separate job. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain one training step",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A training step clears old gradients, computes loss, finds new gradients and updates weights. Each step has a separate job."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "import torch\n\nmodel = torch.nn.Linear(1, 1)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.01)\nx = torch.tensor([[1.], [2.]])\ny = torch.tensor([[2.], [4.]])\noptimizer.zero_grad()\nloss = torch.nn.functional.mse_loss(model(x), y)\nloss.backward()\noptimizer.step()\nprint(loss.item() >= 0)",
+      "title": "One training step",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The check prints True because squared-error loss is nonnegative. One update is only a demonstration, not a trained reliable model."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Point to the line that changes the weights.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Forgetting zero_grad can mix gradients from multiple steps unintentionally."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "pytorch-one-training-step"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [PyTorch further reading](https://pytorch.org/tutorials/beginner/basics/intro.html)."
+    }
+  ],
+  "exerciseIds": ["pytorch-one-training-step"],
+  "relatedLessons": [
+    {
+      "technologySlug": "pytorch",
+      "slug": "evaluation-mode-and-checking"
+    }
+  ],
+  "seo": {
+    "title": "PyTorch: One training step",
+    "description": "Learn about one training step in PyTorch. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

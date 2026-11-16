@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "modules",
+  "title": "Modules: ES Modules and CommonJS",
+  "summary": "Split code into files with import and export, understand when a .js file is an ES module or a CommonJS module, mix the two systems, and find your file's folder with import.meta.",
+  "introduction": "Real programs are many files, and a module system decides how those files share code. Node has two: the modern standard ES modules (`import`/`export`) and its original CommonJS system (`require`/`module.exports`). You will write ES modules, but you will still meet CommonJS in older packages, tutorials and configuration files, so this lesson teaches both, explains how Node decides which one a file uses, and shows the small differences that trip people up, such as the missing `__dirname`.",
+  "learningObjectives": [
+    "Export and import values with named and default exports",
+    "Explain how the .mjs, .cjs extensions and the type field choose a module system",
+    "Use CommonJS modules from ES modules and locate files with import.meta.dirname"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why modules"
+    },
+    {
+      "type": "paragraph",
+      "text": "A module is a file with its own private scope. Nothing inside it is visible to other files unless the module explicitly **exports** it, and a file can only use what it explicitly **imports**. That rule keeps names from colliding, makes dependencies between files visible at the top of each file, and lets Node load only what a program needs."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "ES modules"
+    },
+    {
+      "type": "paragraph",
+      "text": "With `\"type\": \"module\"` in `package.json` (set up in the previous lesson), every `.js` file is an ES module. A module can have any number of **named exports** and at most one **default export**:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "math.js",
+      "code": "export function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  return a * b;\n}\n\nexport default function describe() {\n  return 'tiny math helpers';\n}"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "main.js",
+      "code": "import describe, { add, multiply } from './math.js';\n\nconsole.log(describe());\nconsole.log(add(2, 3), multiply(4, 5));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node main.js",
+      "content": "tiny math helpers\n5 20"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Named exports are imported inside braces and must use the exported name (or be renamed with `as`: `{ add as sum }`).",
+        "The default export is imported without braces under any name you like; `describe` could have been called `info`.",
+        "Relative paths **must** start with `./` or `../` and **must** include the file extension. Node does not guess `.js` the way bundlers do.",
+        "Built-in modules use the `node:` prefix (`import { readFile } from 'node:fs/promises'`); packages from npm use their bare name (`import express from 'express'`)."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The missing extension",
+      "text": "Writing `import { add } from './math'` fails with `Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/ada/bookshelf/math' imported from /home/ada/bookshelf/main.js` followed by the hint `Did you mean to import \"./math.js\"?`. The same applies to folders: `import x from './utils'` does not load `./utils/index.js` in an ES module. Always write the full file name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which files are ES modules?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Node decides per file, using the extension first and the nearest `package.json` second:"
+    },
+    {
+      "type": "table",
+      "headers": ["File", "Module system"],
+      "rows": [
+        ["`*.mjs`", "Always an ES module"],
+        ["`*.cjs`", "Always CommonJS"],
+        ["`*.js` with `\"type\": \"module\"` in the nearest `package.json`", "ES module"],
+        ["`*.js` with `\"type\": \"commonjs\"`", "CommonJS"],
+        [
+          "`*.js` with no `type` field",
+          "CommonJS by default. Node 22.7 and later detect `import`/`export` syntax and re-parse the file as an ES module, printing a warning that asks you to add the `type` field"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "CommonJS"
+    },
+    {
+      "type": "paragraph",
+      "text": "CommonJS is what Node used before the ES module standard existed, and millions of packages still ship it. A CommonJS file assigns to `module.exports` and loads other files with the `require()` function, which runs synchronously and returns whatever the other file exported:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "logger.cjs",
+      "code": "function log(message) {\n  console.log(`[bookshelf] ${message}`);\n}\n\nmodule.exports = { log };"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "use-logger.cjs",
+      "code": "const { log } = require('./logger.cjs');\n\nlog('CommonJS still works');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node use-logger.cjs",
+      "content": "[bookshelf] CommonJS still works"
+    },
+    {
+      "type": "paragraph",
+      "text": "CommonJS files also get two free variables, `__dirname` and `__filename`, holding the folder and path of the current file. ES modules do not have them, and they do not have `require` either; using any of the three in an ES module throws a `ReferenceError`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Mixing the two systems"
+    },
+    {
+      "type": "paragraph",
+      "text": "An ES module can import a CommonJS file directly: the whole `module.exports` object arrives as the default import, so you rarely need to touch old code to use it."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "app.js",
+      "code": "import logger from './logger.cjs';\n\nlogger.log('called from an ES module');"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node app.js",
+      "content": "[bookshelf] called from an ES module"
+    },
+    {
+      "type": "paragraph",
+      "text": "The other direction also works in current Node: since version 22.12, `require()` can load an ES module as long as that module contains no top-level `await`. And if you ever need a real `require` inside an ES module (for example to load a `.cjs` config), `createRequire(import.meta.url)` from `node:module` builds one."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Finding your own folder with import.meta"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because `__dirname` is missing, ES modules use `import.meta` instead. `import.meta.url` is the `file://` URL of the current module, and Node 20.11 and later add `import.meta.dirname` and `import.meta.filename` as plain paths. Combine them with `node:path` to build paths that work no matter which folder the program was started from:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "paths.js",
+      "code": "import { join } from 'node:path';\n\nconsole.log(import.meta.url);\nconsole.log(import.meta.dirname);\nconsole.log(join(import.meta.dirname, 'data', 'books.json'));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node paths.js (on Windows the last two lines use backslashes and a drive letter)",
+      "content": "file:///home/ada/bookshelf/paths.js\n/home/ada/bookshelf\n/home/ada/bookshelf/data/books.json"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Importing JSON and loading modules on demand"
+    },
+    {
+      "type": "paragraph",
+      "text": "JSON files can be imported directly when you add an *import attribute* that declares the type, which prevents a server from smuggling executable code into what you expected to be data:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "settings.js (config.json contains { \"name\": \"bookshelf\", \"port\": 3000 })",
+      "code": "import config from './config.json' with { type: 'json' };\n\nconsole.log(`${config.name} will listen on port ${config.port}`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node settings.js",
+      "content": "bookshelf will listen on port 3000"
+    },
+    {
+      "type": "paragraph",
+      "text": "Finally, `import()` as a function returns a promise and loads a module only when that line runs. It is useful for optional features or heavy dependencies: `const { DatabaseSync } = await import('node:sqlite');` loads SQLite support only if the program actually needs it."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "One system per project",
+      "text": "Pick ES modules for new projects and keep the whole project consistent. Use `.cjs` only for files that must be CommonJS, such as a configuration file a tool insists on loading with `require`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-modules-named-export"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-modules-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "modules",
+          "difficulty": "beginner",
+          "question": "A project has `\"type\": \"module\"` in package.json. Which file is treated as CommonJS?",
+          "explanation": "The .cjs extension always means CommonJS, regardless of the type field. .js files follow the type field and .mjs files are always ES modules.",
+          "options": ["`server.js`", "`helpers.mjs`", "`legacy.cjs`", "None of them"],
+          "correctIndex": 2
+        },
+        {
+          "id": "nodejs-modules-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "modules",
+          "difficulty": "beginner",
+          "question": "Inside an ES module, the folder of the current file is available as `import.meta.___`.",
+          "explanation": "import.meta.dirname (Node 20.11+) replaces the CommonJS __dirname variable; import.meta.filename replaces __filename.",
+          "answers": ["dirname"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-modules-named-export", "nodejs-modules-find-error"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "setup-npm"
+    },
+    {
+      "technologySlug": "nodejs",
+      "slug": "file-system"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "modules-classes"
+    }
+  ],
+  "seo": {
+    "title": "Node.js Modules – ES Modules, CommonJS and import.meta",
+    "description": "Learn Node.js modules: import and export, the type field, .mjs and .cjs files, mixing ES modules with CommonJS, import.meta.dirname and importing JSON files."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,137 @@
+{
+  "title": "Python Examples",
+  "description": "Copy-ready Python 3.13 scripts for everyday tasks: conversions, FizzBuzz, word counts, shopping carts, classes, CSV and JSON files, web requests and dataclasses. Run them locally with python file.py.",
+  "examples": [
+    {
+      "id": "temperature-table",
+      "title": "Temperature conversion table",
+      "description": "A function with type hints and a docstring, called in a loop to print an aligned Celsius-to-Fahrenheit table with f-string formatting.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["functions", "f-strings", "loops"],
+      "lessonSlug": "functions",
+      "code": "def celsius_to_fahrenheit(celsius: float) -> float:\n    \"\"\"Convert a Celsius temperature to Fahrenheit.\"\"\"\n    return celsius * 9 / 5 + 32\n\n\nprint(f\"{'C':>6} {'F':>6}\")\nfor celsius in range(-10, 41, 10):\n    print(f\"{celsius:>6} {celsius_to_fahrenheit(celsius):>6.1f}\")",
+      "output": "     C      F\n   -10   14.0\n     0   32.0\n    10   50.0\n    20   68.0\n    30   86.0\n    40  104.0"
+    },
+    {
+      "id": "fizzbuzz",
+      "title": "FizzBuzz",
+      "description": "The classic interview warm-up: for 1 to 15, print Fizz for multiples of 3, Buzz for multiples of 5, FizzBuzz for both, and the number otherwise.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["loops", "conditionals", "modulo"],
+      "lessonSlug": "loops",
+      "code": "for n in range(1, 16):\n    if n % 15 == 0:\n        print(\"FizzBuzz\")\n    elif n % 3 == 0:\n        print(\"Fizz\")\n    elif n % 5 == 0:\n        print(\"Buzz\")\n    else:\n        print(n)",
+      "output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"
+    },
+    {
+      "id": "word-frequency",
+      "title": "Word frequency counter",
+      "description": "Normalises a text, counts each word with the dict.get() idiom and prints the three most common words, then shows the same thing with collections.Counter.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["dictionaries", "strings", "collections"],
+      "lessonSlug": "dictionaries",
+      "code": "from collections import Counter\n\ntext = \"\"\"The quick brown fox jumps over the lazy dog.\nThe dog sleeps; the fox runs. The end.\"\"\"\n\nwords = text.lower().replace(\".\", \"\").replace(\";\", \"\").split()\n\ncounts = {}\nfor word in words:\n    counts[word] = counts.get(word, 0) + 1\n\nfor word, count in sorted(counts.items(), key=lambda pair: pair[1], reverse=True)[:3]:\n    print(f\"{word:<6}{count}\")\n\nprint(Counter(words).most_common(3))",
+      "output": "the   5\nfox   2\ndog   2\n[('the', 5), ('fox', 2), ('dog', 2)]"
+    },
+    {
+      "id": "shopping-cart",
+      "title": "Shopping cart total",
+      "description": "A list of dictionaries, a generator expression for the subtotal, Decimal for exact money arithmetic and a receipt formatted with alignment.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["lists", "dictionaries", "decimal"],
+      "lessonSlug": "lists",
+      "code": "from decimal import Decimal\n\ncart = [\n    {\"item\": \"Notebook\", \"price\": Decimal(\"4.50\"), \"qty\": 3},\n    {\"item\": \"Pen\", \"price\": Decimal(\"1.25\"), \"qty\": 10},\n    {\"item\": \"Backpack\", \"price\": Decimal(\"39.99\"), \"qty\": 1},\n]\n\nfor line in cart:\n    line_total = line[\"price\"] * line[\"qty\"]\n    print(f\"{line['item']:<10}{line['qty']:>3} x {line['price']:>6} = {line_total:>7}\")\n\nsubtotal = sum(line[\"price\"] * line[\"qty\"] for line in cart)\ntax = (subtotal * Decimal(\"0.20\")).quantize(Decimal(\"0.01\"))\nprint(f\"{'Subtotal':<24}{subtotal:>7}\")\nprint(f\"{'Tax 20%':<24}{tax:>7}\")\nprint(f\"{'Total':<24}{subtotal + tax:>7}\")",
+      "output": "Notebook    3 x   4.50 =   13.50\nPen        10 x   1.25 =   12.50\nBackpack    1 x  39.99 =   39.99\nSubtotal                  65.99\nTax 20%                   13.20\nTotal                     79.19"
+    },
+    {
+      "id": "palindrome-checker",
+      "title": "Palindrome checker",
+      "description": "Keeps only letters and digits, lower-cases them and compares the text with its reverse, ignoring spaces and punctuation.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["strings", "functions", "slicing"],
+      "lessonSlug": "strings",
+      "code": "def is_palindrome(text: str) -> bool:\n    cleaned = \"\".join(ch.lower() for ch in text if ch.isalnum())\n    return cleaned == cleaned[::-1]\n\n\nfor phrase in [\"racecar\", \"A man, a plan, a canal: Panama\", \"Python\"]:\n    print(f\"{phrase!r}: {is_palindrome(phrase)}\")",
+      "output": "'racecar': True\n'A man, a plan, a canal: Panama': True\n'Python': False"
+    },
+    {
+      "id": "guess-the-number",
+      "title": "Guess the number",
+      "description": "An interactive game with a while loop, input validation with try/except, and random.randint. Run it in a terminal and type your guesses; the output depends on the secret number and your input.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["while", "random", "input", "exceptions"],
+      "lessonSlug": "loops",
+      "code": "import random\n\nsecret = random.randint(1, 20)\nattempts = 0\n\nwhile True:\n    try:\n        guess = int(input(\"Guess a number from 1 to 20: \"))\n    except ValueError:\n        print(\"Please type a whole number.\")\n        continue\n    attempts += 1\n    if guess < secret:\n        print(\"Too low.\")\n    elif guess > secret:\n        print(\"Too high.\")\n    else:\n        print(f\"Correct! You needed {attempts} attempts.\")\n        break"
+    },
+    {
+      "id": "todo-list-class",
+      "title": "To-do list class",
+      "description": "A class that owns a list of tasks, with methods to add, complete and list them, a __len__ and a __str__ for printing.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["classes", "methods", "lists"],
+      "lessonSlug": "classes-objects",
+      "code": "class TodoList:\n    def __init__(self):\n        self.tasks = []\n\n    def add(self, title):\n        self.tasks.append({\"title\": title, \"done\": False})\n\n    def complete(self, title):\n        for task in self.tasks:\n            if task[\"title\"] == title:\n                task[\"done\"] = True\n                return True\n        return False\n\n    def __len__(self):\n        return len(self.tasks)\n\n    def __str__(self):\n        lines = [f\"[{'x' if t['done'] else ' '}] {t['title']}\" for t in self.tasks]\n        return \"\\n\".join(lines)\n\n\ntodo = TodoList()\ntodo.add(\"Write lesson\")\ntodo.add(\"Review quiz\")\ntodo.add(\"Publish\")\ntodo.complete(\"Write lesson\")\nprint(todo)\nprint(len(todo), \"tasks,\", sum(t[\"done\"] for t in todo.tasks), \"done\")",
+      "output": "[x] Write lesson\n[ ] Review quiz\n[ ] Publish\n3 tasks, 1 done"
+    },
+    {
+      "id": "csv-report",
+      "title": "CSV sales report",
+      "description": "Writes a small CSV file with csv.DictWriter, reads it back with csv.DictReader, converts the numeric columns and prints revenue per region.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["csv", "files", "dictionaries"],
+      "lessonSlug": "file-handling",
+      "code": "import csv\n\nsales = [\n    {\"region\": \"North\", \"product\": \"Lamp\", \"units\": 4, \"price\": 25.0},\n    {\"region\": \"South\", \"product\": \"Chair\", \"units\": 2, \"price\": 80.0},\n    {\"region\": \"North\", \"product\": \"Desk\", \"units\": 1, \"price\": 150.0},\n]\n\nwith open(\"sales.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as file:\n    writer = csv.DictWriter(file, fieldnames=[\"region\", \"product\", \"units\", \"price\"])\n    writer.writeheader()\n    writer.writerows(sales)\n\nrevenue = {}\nwith open(\"sales.csv\", newline=\"\", encoding=\"utf-8\") as file:\n    for row in csv.DictReader(file):\n        amount = int(row[\"units\"]) * float(row[\"price\"])\n        revenue[row[\"region\"]] = revenue.get(row[\"region\"], 0) + amount\n\nfor region, amount in sorted(revenue.items()):\n    print(f\"{region:<8}{amount:>8.2f}\")",
+      "output": "North     250.00\nSouth     160.00"
+    },
+    {
+      "id": "json-settings",
+      "title": "Load settings with defaults",
+      "description": "Reads a JSON settings file if it exists, falls back to defaults otherwise, merges the two with the | operator and writes the result back pretty-printed. The output shown is for a first run, before settings.json exists.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["json", "files", "pathlib"],
+      "lessonSlug": "json-and-apis",
+      "code": "import json\nfrom pathlib import Path\n\nDEFAULTS = {\"theme\": \"light\", \"font_size\": 12, \"autosave\": True}\npath = Path(\"settings.json\")\n\nif path.exists():\n    saved = json.loads(path.read_text(encoding=\"utf-8\"))\nelse:\n    saved = {}\n\nsettings = DEFAULTS | saved | {\"font_size\": 14}\npath.write_text(json.dumps(settings, indent=2), encoding=\"utf-8\")\n\nprint(settings)\nprint(path.read_text(encoding=\"utf-8\"))",
+      "output": "{'theme': 'light', 'font_size': 14, 'autosave': True}\n{\n  \"theme\": \"light\",\n  \"font_size\": 14,\n  \"autosave\": true\n}"
+    },
+    {
+      "id": "api-request",
+      "title": "Fetch JSON from a web API",
+      "description": "Calls the free JSONPlaceholder test API with urllib, parses the JSON response and prints a summary. Needs an internet connection; the sample data never changes.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["json", "urllib", "api"],
+      "lessonSlug": "json-and-apis",
+      "code": "import json\nfrom urllib.request import urlopen\n\nURL = \"https://jsonplaceholder.typicode.com/users\"\n\nwith urlopen(URL, timeout=10) as response:\n    users = json.load(response)\n\nprint(len(users), \"users\")\nfor user in users[:3]:\n    print(f\"{user['name']:<18}{user['email']:<26}{user['address']['city']}\")",
+      "output": "10 users\nLeanne Graham     Sincere@april.biz         Gwenborough\nErvin Howell      Shanna@melissa.tv         Wisokyburgh\nClementine Bauch  Nathan@yesenia.net        McKenziehaven"
+    },
+    {
+      "id": "line-counter",
+      "title": "Count lines in every text file",
+      "description": "Creates a few sample files with pathlib, then walks the folder with glob() and prints the number of non-empty lines in each file plus the total.",
+      "language": "python",
+      "runnable": false,
+      "tags": ["pathlib", "files", "loops"],
+      "lessonSlug": "file-handling",
+      "code": "from pathlib import Path\n\nfolder = Path(\"notes\")\nfolder.mkdir(exist_ok=True)\n(folder / \"monday.txt\").write_text(\"Plan\\nWrite\\n\\nReview\\n\", encoding=\"utf-8\")\n(folder / \"tuesday.txt\").write_text(\"Test\\nShip\\n\", encoding=\"utf-8\")\n\ntotal = 0\nfor path in sorted(folder.glob(\"*.txt\")):\n    lines = [line for line in path.read_text(encoding=\"utf-8\").splitlines() if line.strip()]\n    print(f\"{path.name:<14}{len(lines):>3}\")\n    total += len(lines)\nprint(f\"{'total':<14}{total:>3}\")",
+      "output": "monday.txt      3\ntuesday.txt     2\ntotal           5"
+    },
+    {
+      "id": "dataclass-leaderboard",
+      "title": "Leaderboard with dataclasses",
+      "description": "A dataclass with a computed property, a list of players sorted by score with sorted() and a key, and ranks printed with enumerate().",
+      "language": "python",
+      "runnable": false,
+      "tags": ["dataclass", "sorting", "enumerate"],
+      "lessonSlug": "classes-objects",
+      "code": "from dataclasses import dataclass\n\n\n@dataclass\nclass Player:\n    name: str\n    wins: int\n    losses: int\n\n    @property\n    def win_rate(self) -> float:\n        games = self.wins + self.losses\n        return self.wins / games if games else 0.0\n\n\nplayers = [Player(\"Mina\", 12, 3), Player(\"Ravi\", 7, 7), Player(\"Sofia\", 15, 1)]\n\nfor rank, player in enumerate(sorted(players, key=lambda p: p.win_rate, reverse=True), start=1):\n    print(f\"{rank}. {player.name:<6}{player.win_rate:.0%}\")\n\nprint(players[0])",
+      "output": "1. Sofia 94%\n2. Mina  80%\n3. Ravi  50%\nPlayer(name='Mina', wins=12, losses=3)"
+    }
+  ]
+}

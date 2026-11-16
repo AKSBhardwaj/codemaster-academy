@@ -1,0 +1,156 @@
+{
+  "title": "Docker Reference",
+  "description": "A quick reminder of the ideas and examples in the Docker lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Images and containers",
+          "summary": "An image is a packaged starting point. A container is a running or stopped instance created from an image.",
+          "example": {
+            "language": "bash",
+            "code": "docker version"
+          },
+          "notes": [
+            "Installing a command-line client alone does not mean the Docker engine is running."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "run-a-small-example",
+          "name": "Run a small example",
+          "summary": "docker run creates and starts a container. --rm asks Docker to remove that container after it exits.",
+          "example": {
+            "language": "bash",
+            "code": "docker run --rm hello-world"
+          },
+          "notes": ["--rm removes the container after exit; it does not delete the image."],
+          "lessonSlug": "run-a-small-example"
+        },
+        {
+          "slug": "see-local-images",
+          "name": "See local images",
+          "summary": "An image list shows packages stored on your machine. A tag is a readable label for an image version.",
+          "example": {
+            "language": "bash",
+            "code": "docker image ls"
+          },
+          "notes": [
+            "A mutable tag can later point to another image; it is not a permanent content identity."
+          ],
+          "lessonSlug": "see-local-images"
+        },
+        {
+          "slug": "list-containers",
+          "name": "List containers",
+          "summary": "docker ps lists running containers. Adding -a also shows stopped containers that were not automatically removed.",
+          "example": {
+            "language": "bash",
+            "code": "docker ps\ndocker ps -a"
+          },
+          "notes": ["A stopped container and a deleted container are different states."],
+          "lessonSlug": "list-containers"
+        },
+        {
+          "slug": "name-a-practice-container",
+          "name": "Name a practice container",
+          "summary": "A container name gives you a clear target for later inspection. The -d option runs it in the background.",
+          "example": {
+            "language": "bash",
+            "code": "docker run -d --name club-web -p 127.0.0.1:8080:80 nginx:stable"
+          },
+          "notes": [
+            "Use a fresh name and bind practice ports to 127.0.0.1 so they are not exposed on every network interface."
+          ],
+          "lessonSlug": "name-a-practice-container"
+        },
+        {
+          "slug": "read-container-logs",
+          "name": "Read container logs",
+          "summary": "Logs record messages written by a container's program. They help explain what it is doing or why it stopped.",
+          "example": {
+            "language": "bash",
+            "code": "docker logs club-web"
+          },
+          "notes": ["Do not put secrets into logs; logs are often copied elsewhere."],
+          "lessonSlug": "read-container-logs"
+        },
+        {
+          "slug": "inspect-container-details",
+          "name": "Inspect container details",
+          "summary": "inspect returns detailed configuration and state. A format expression can select a small part of the result.",
+          "example": {
+            "language": "bash",
+            "code": "docker inspect --format=\"{{.State.Status}}\" club-web"
+          },
+          "notes": ["Inspect only containers you own or have permission to examine."],
+          "lessonSlug": "inspect-container-details"
+        },
+        {
+          "slug": "read-a-dockerfile",
+          "name": "Read a Dockerfile",
+          "summary": "A Dockerfile describes how to build an image. FROM chooses a base; COPY adds a file from the build folder.",
+          "example": {
+            "language": "dockerfile",
+            "code": "FROM nginx:stable\nCOPY index.html /usr/share/nginx/html/index.html"
+          },
+          "notes": ["Do not COPY secret files into an image; image layers can retain them."],
+          "lessonSlug": "read-a-dockerfile"
+        },
+        {
+          "slug": "build-a-local-image",
+          "name": "Build a local image",
+          "summary": "docker build reads a Dockerfile and its build context. -t gives the resulting image a tag.",
+          "example": {
+            "language": "bash",
+            "code": "docker build -t club-page:learning ."
+          },
+          "notes": [
+            "A large or secret-filled build context can include files you did not intend to send to the builder."
+          ],
+          "lessonSlug": "build-a-local-image"
+        },
+        {
+          "slug": "keep-unwanted-files-out",
+          "name": "Keep unwanted files out",
+          "summary": "A .dockerignore file excludes matching files from the build context. This keeps temporary or private files out of a build.",
+          "example": {
+            "language": "text",
+            "code": ".git\nnode_modules\n.env\n*.log"
+          },
+          "notes": [
+            "Ignoring a file in Git and ignoring it in a Docker build are separate settings."
+          ],
+          "lessonSlug": "keep-unwanted-files-out"
+        },
+        {
+          "slug": "volumes-store-data-outside-a-container",
+          "name": "Volumes store data outside a container",
+          "summary": "A volume is storage managed separately from a container's writable layer. It can outlive a particular container.",
+          "example": {
+            "language": "text",
+            "code": "Container A writes a note to a named volume\nContainer A is removed\nContainer B mounts the same volume and reads the note"
+          },
+          "notes": [
+            "A volume is not automatically a backup and is not deleted by removing only the container."
+          ],
+          "lessonSlug": "volumes-store-data-outside-a-container"
+        },
+        {
+          "slug": "stop-and-remove-only-your-practice-container",
+          "name": "Stop and remove only your practice container",
+          "summary": "Cleanup should target the exact resource you created. Stopping a container is separate from removing it.",
+          "example": {
+            "language": "bash",
+            "code": "docker stop club-web\ndocker rm club-web"
+          },
+          "notes": ["Do not use broad prune commands on a shared machine while learning."],
+          "lessonSlug": "stop-and-remove-only-your-practice-container"
+        }
+      ]
+    }
+  ]
+}

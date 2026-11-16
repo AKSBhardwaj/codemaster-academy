@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Set a reply header",
+  "summary": "Fiber: Set a reply header. Inspect the response with curl -i.",
+  "introduction": "Set adds a response header. Open GET /note and inspect Cache-Control.",
+  "learningObjectives": ["Set a reply header with Fiber", "Inspect the response with curl -i"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run go mod init school and go get github.com/gofiber/fiber/v2@v2.52.5 in a practice folder. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set a reply header"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Set a reply header",
+      "code": "package main\nimport \"github.com/gofiber/fiber/v2\"\nfunc main() {\napp := fiber.New()\napp.Get(\"/note\", func(c *fiber.Ctx) error { c.Set(\"Cache-Control\", \"no-store\"); return c.SendString(\"Practice note\") })\napp.Listen(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Set adds Cache-Control before SendString writes the response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the response with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Set headers before sending the body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fiber-headers-check"
+    }
+  ],
+  "exerciseIds": ["fiber-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fiber",
+      "slug": "locals"
+    }
+  ],
+  "seo": {
+    "title": "Fiber: Set a reply header",
+    "description": "Fiber: Set a reply header. Inspect the response with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

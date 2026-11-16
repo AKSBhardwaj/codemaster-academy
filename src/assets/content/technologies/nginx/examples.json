@@ -1,0 +1,126 @@
+{
+  "title": "Nginx Examples",
+  "description": "Small Nginx examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Serving a static file",
+      "description": "Nginx is a web server. It can answer a request by sending a file, such as index.html, without running a custom application backend.",
+      "language": "text",
+      "code": "Request: GET /index.html\nNginx reads: the configured index.html file\nResponse: HTML for the browser",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "read-the-configuration-structure",
+      "title": "Read the configuration structure",
+      "description": "Nginx configuration uses directives and blocks. Some directives are valid only in specific contexts.",
+      "language": "text",
+      "code": "events {}\nhttp {\n  server {\n    listen 127.0.0.1:8080;\n  }\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-the-configuration-structure"
+    },
+    {
+      "id": "document-roots",
+      "title": "Document roots",
+      "description": "root chooses the base directory used to find a requested file. The request path is normally added to that base.",
+      "language": "text",
+      "code": "server {\n  listen 127.0.0.1:8080;\n  root /absolute/path/to/club-site;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "document-roots"
+    },
+    {
+      "id": "index-documents",
+      "title": "Index documents",
+      "description": "index names files to try when a request refers to a directory. index.html is a common first page.",
+      "language": "text",
+      "code": "location / {\n  index index.html;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "index-documents"
+    },
+    {
+      "id": "locations-match-request-paths",
+      "title": "Locations match request paths",
+      "description": "A location block chooses handling for matching request paths. Simple prefix locations are useful for organising a static site.",
+      "language": "text",
+      "code": "location /assets/ {\n  root /absolute/path/to/club-site;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "locations-match-request-paths"
+    },
+    {
+      "id": "check-files-with-try-files",
+      "title": "Check files with try_files",
+      "description": "try_files checks candidate paths and uses a final fallback when none exists. Static generated pages often need directory index handling.",
+      "language": "text",
+      "code": "location / {\n  try_files $uri $uri/ =404;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "check-files-with-try-files"
+    },
+    {
+      "id": "use-a-helpful-error-page",
+      "title": "Use a helpful error page",
+      "description": "A custom error page explains a missing route while retaining a useful HTTP status.",
+      "language": "text",
+      "code": "error_page 404 /404.html;\nlocation = /404.html {\n  internal;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-helpful-error-page"
+    },
+    {
+      "id": "content-types-matter",
+      "title": "Content types matter",
+      "description": "A MIME type tells the browser what kind of file it received. Standard Nginx MIME mappings cover common web assets.",
+      "language": "text",
+      "code": "http {\n  include mime.types;\n  default_type application/octet-stream;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "content-types-matter"
+    },
+    {
+      "id": "cache-deliberate-file-versions",
+      "title": "Cache deliberate file versions",
+      "description": "Caching lets browsers reuse files. Long caching works best for files whose names change when their contents change.",
+      "language": "text",
+      "code": "location /assets/ {\n  expires 1h;\n}",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "cache-deliberate-file-versions"
+    },
+    {
+      "id": "read-access-and-error-logs",
+      "title": "Read access and error logs",
+      "description": "An access log records requests. An error log records problems such as missing permissions or invalid configuration.",
+      "language": "text",
+      "code": "access_log /absolute/practice/logs/access.log;\nerror_log /absolute/practice/logs/error.log warn;",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-access-and-error-logs"
+    },
+    {
+      "id": "https-protects-the-connection",
+      "title": "HTTPS protects the connection",
+      "description": "HTTPS uses TLS to encrypt traffic between the browser and server. A certificate identifies the hostname for that connection.",
+      "language": "text",
+      "code": "Browser -> encrypted HTTPS connection -> server\nCertificate: must match the intended hostname\nKeys: kept private on the server side",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "https-protects-the-connection"
+    },
+    {
+      "id": "validate-before-reload",
+      "title": "Validate before reload",
+      "description": "A configuration test can catch syntax problems before the server tries to use a new configuration. Reloading is a separate action.",
+      "language": "text",
+      "code": "nginx -t",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "validate-before-reload"
+    }
+  ]
+}

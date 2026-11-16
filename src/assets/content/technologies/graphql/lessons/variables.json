@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "variables",
+  "title": "Keep query text and values apart",
+  "summary": "GraphQL: Keep query text and values apart. Change variable n to 7 without changing the query.",
+  "introduction": "A variable lets one query be reused with different values. Its value is supplied separately.",
+  "learningObjectives": [
+    "Keep query text and values apart with GraphQL",
+    "Change variable n to 7 without changing the query"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Keep query text and values apart"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Keep query text and values apart",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { twice(n: Int!): Int! }\");\n\nconst rootValue = { twice: ({ n }) => n * 2 };\nconst result = await graphql({ schema, rootValue, source: \"query Double($n: Int!) { twice(n: $n) }\", variableValues: { n: 4 } });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The separate variable object provides n. GraphQL inserts that value into the field argument."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"twice\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change variable n to 7 without changing the query."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A declared required variable must be supplied."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-variables-check"
+    }
+  ],
+  "exerciseIds": ["graphql-variables-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "arguments"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Keep query text and values apart",
+    "description": "GraphQL: Keep query text and values apart. Change variable n to 7 without changing the query. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

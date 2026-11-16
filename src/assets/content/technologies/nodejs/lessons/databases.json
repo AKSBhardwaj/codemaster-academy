@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "slug": "databases",
+  "title": "Working with Databases (node:sqlite)",
+  "summary": "Store data in SQLite with the built-in node:sqlite module: create tables, insert and query with prepared statements and parameters, group writes in transactions and plug the database into the.",
+  "introduction": "An array in memory forgets everything when the process restarts. A database keeps data safe between runs, lets several processes share it and answers questions with SQL instead of hand-written loops. Node 24 ships a database driver in the box: `node:sqlite` talks to SQLite, the embedded engine that stores a whole database in a single file and needs no server. This lesson uses it to give the bookshelf API real persistence and teaches the one habit that matters with every database: parameters, never string concatenation.",
+  "learningObjectives": [
+    "Open an SQLite database and create tables with node:sqlite",
+    "Insert and query rows with prepared statements and positional or named parameters",
+    "Group writes in a transaction and connect the database to Express routes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why SQLite, and why node:sqlite"
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite runs inside your process and writes to one file, so there is nothing to install, configure or start. It is the right choice for prototypes, command-line tools, tests and many small production sites; when you outgrow it, the SQL you learned transfers to [PostgreSQL](/tutorials/postgresql) or [MySQL](/tutorials/mysql) with a different driver package. `node:sqlite` arrived in Node 22 and is enabled without flags in Node 24, though the docs still label it *active development*, so expect the API to grow. Depending on your exact release, the first import may print an `ExperimentalWarning` on stderr; the outputs below omit it, and `node --disable-warning=ExperimentalWarning` silences it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Opening a database and creating a table"
+    },
+    {
+      "type": "paragraph",
+      "text": "`DatabaseSync` opens (and if necessary creates) the file you name, or an in-memory database when you pass `':memory:'`. `exec` runs one or more SQL statements that return nothing, which is what schema setup needs:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "setup.js",
+      "code": "import { DatabaseSync } from 'node:sqlite';\n\nconst db = new DatabaseSync('bookshelf.db');\n\ndb.exec(`\n  CREATE TABLE IF NOT EXISTS books (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    title TEXT NOT NULL,\n    author TEXT NOT NULL,\n    year INTEGER\n  )\n`);\n\nconsole.log('Database ready');\ndb.close();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node setup.js",
+      "content": "Database ready"
+    },
+    {
+      "type": "paragraph",
+      "text": "The API is **synchronous**: every call blocks until SQLite answers. That is a deliberate design, because an in-process SQLite query usually takes microseconds and the overhead of a promise would cost more than the query. Drivers for networked databases such as `pg` or `mysql2` are asynchronous instead, and you `await` them; the prepared-statement ideas below are the same."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inserting with prepared statements"
+    },
+    {
+      "type": "paragraph",
+      "text": "`prepare` compiles an SQL statement once; `run` executes it with values for the `?` placeholders and returns how many rows changed and the id of the last inserted row. Reusing one prepared statement for many rows is both faster and safer than building SQL strings:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "insert.js",
+      "code": "import { DatabaseSync } from 'node:sqlite';\n\nconst db = new DatabaseSync('bookshelf.db');\n\nconst insert = db.prepare('INSERT INTO books (title, author, year) VALUES (?, ?, ?)');\n\nconst result = insert.run('Dune', 'Frank Herbert', 1965);\nconsole.log('Inserted row', result.lastInsertRowid, 'changes:', result.changes);\n\ninsert.run('Neuromancer', 'William Gibson', 1984);\ninsert.run('Snow Crash', 'Neal Stephenson', 1992);\n\nconst { count } = db.prepare('SELECT COUNT(*) AS count FROM books').get();\nconsole.log(`${count} books stored`);\n\ndb.close();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node insert.js",
+      "content": "Inserted row 1 changes: 1\n3 books stored"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Never build SQL from user input",
+      "text": "`db.prepare(\"SELECT * FROM books WHERE title = '\" + title + \"'\")` looks harmless until someone searches for `'; DROP TABLE books; --`. This is **SQL injection**, still one of the most common ways applications are breached. Placeholders send the SQL and the values to SQLite separately, so a value can never change the meaning of the statement. Every example in this lesson uses them; make it a reflex."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Querying"
+    },
+    {
+      "type": "paragraph",
+      "text": "`all` returns every matching row as an array of objects keyed by column name; `get` returns the first row or `undefined`. Parameters can be positional (`?`) or named (`$year`), in which case you pass an object:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "query.js",
+      "code": "import { DatabaseSync } from 'node:sqlite';\n\nconst db = new DatabaseSync('bookshelf.db');\n\nconst classics = db\n  .prepare('SELECT id, title, year FROM books WHERE year < $year ORDER BY year')\n  .all({ $year: 1990 });\n\nfor (const book of classics) {\n  console.log(`${book.id}: ${book.title} (${book.year})`);\n}\n\nconst one = db.prepare('SELECT title, author FROM books WHERE id = ?').get(3);\nconsole.log(one.title, 'by', one.author);\n\nconst missing = db.prepare('SELECT * FROM books WHERE id = ?').get(99);\nconsole.log(missing);\n\ndb.close();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node query.js",
+      "content": "1: Dune (1965)\n2: Neuromancer (1984)\nSnow Crash by Neal Stephenson\nundefined"
+    },
+    {
+      "type": "table",
+      "headers": ["SQLite type", "JavaScript value"],
+      "rows": [
+        [
+          "`INTEGER`",
+          "`number` (or `bigint` when you enable `readBigInts` for values beyond 2^53)"
+        ],
+        ["`REAL`", "`number`"],
+        ["`TEXT`", "`string`"],
+        ["`BLOB`", "`Uint8Array`"],
+        ["`NULL`", "`null`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "SQLite has no boolean or date types: store booleans as `0`/`1` and dates as ISO 8601 strings (`'2026-11-15T09:00:00Z'`), which sort correctly as text. Need more SQL than this lesson shows? The [SQL tutorial](/tutorials/sql) covers joins, grouping and constraints with the same dialect."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Transactions"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction makes a group of statements succeed or fail together: if the third insert of an import throws, the first two are rolled back and the table is exactly as it was. It is also dramatically faster for bulk writes, because SQLite syncs to disk once per transaction instead of once per statement:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "import.js",
+      "code": "import { DatabaseSync } from 'node:sqlite';\n\nconst db = new DatabaseSync('bookshelf.db');\nconst insert = db.prepare('INSERT INTO books (title, author, year) VALUES (?, ?, ?)');\n\nconst incoming = [\n  ['Hyperion', 'Dan Simmons', 1989],\n  ['Foundation', 'Isaac Asimov', 1951],\n];\n\ndb.exec('BEGIN');\ntry {\n  for (const [title, author, year] of incoming) insert.run(title, author, year);\n  db.exec('COMMIT');\n  console.log(`Imported ${incoming.length} books`);\n} catch (error) {\n  db.exec('ROLLBACK');\n  console.error('Import failed, nothing was saved:', error.message);\n}\n\ndb.close();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "node import.js",
+      "content": "Imported 2 books"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Wiring the database into the API"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open the database once when the server starts and reuse the connection in every route. The handlers from the [JSON API lesson](/tutorials/nodejs/json-apis) barely change: the array lookups become statements, and the created row comes back from the database so the response reflects what was actually stored:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Routes backed by SQLite",
+      "code": "const db = new DatabaseSync('bookshelf.db');\n\napp.get('/api/books', (req, res) => {\n  res.json(db.prepare('SELECT * FROM books ORDER BY id').all());\n});\n\napp.post('/api/books', (req, res) => {\n  const { title, author, year } = req.body ?? {};\n  if (typeof title !== 'string' || title.trim() === '') {\n    return res.status(400).json({ error: 'title is required' });\n  }\n  const result = db\n    .prepare('INSERT INTO books (title, author, year) VALUES (?, ?, ?)')\n    .run(title.trim(), author ?? 'Unknown', year ?? null);\n  const book = db.prepare('SELECT * FROM books WHERE id = ?').get(result.lastInsertRowid);\n  res.status(201).json(book);\n});"
+    },
+    {
+      "type": "callout",
+      "icon": "database",
+      "title": "Growing beyond one file",
+      "text": "Keep the SQL inside a small module (`books-repository.js`) that exports `listBooks()`, `createBook()` and so on. Routes then call functions instead of writing SQL, tests can target the repository with an in-memory database, and swapping SQLite for PostgreSQL later touches one file."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nodejs-databases-prepare"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "nodejs-db-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "databases",
+          "difficulty": "beginner",
+          "question": "Which method returns the first matching row, or `undefined` when there is none?",
+          "explanation": "get() returns a single row object or undefined; all() returns an array (possibly empty) and run() returns change counts for statements that modify data.",
+          "options": ["`statement.all()`", "`statement.get()`", "`statement.run()`", "`db.exec()`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "nodejs-db-qc-2",
+          "type": "true-false",
+          "lessonSlug": "databases",
+          "difficulty": "beginner",
+          "question": "Wrapping 1,000 inserts in a single transaction is usually much faster than running them one by one.",
+          "explanation": "Without a transaction SQLite commits (and syncs to disk) after every statement; inside one it syncs once at COMMIT, which is typically orders of magnitude faster.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["nodejs-databases-prepare"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nodejs",
+      "slug": "json-apis"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "insert"
+    }
+  ],
+  "seo": {
+    "title": "Node.js and SQLite – Databases with node:sqlite",
+    "description": "Use the built-in node:sqlite module in Node.js 24: open a database, create tables, prepared statements with parameters, transactions and Express routes."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -27,16 +27,25 @@ const ALIASES: Record<string, string> = {
   output: 'text',
   'objective-c': 'objective-c',
   htm: 'html',
+  fortran: 'fortran-free-form',
 };
 
-const theme = createCssVariablesTheme({ name: 'css-variables', variablePrefix: '--shiki-', fontStyle: true });
+const theme = createCssVariablesTheme({
+  name: 'css-variables',
+  variablePrefix: '--shiki-',
+  fontStyle: true,
+});
 
 let highlighterPromise: Promise<HighlighterCore> | undefined;
 const loadedLanguages = new Set<string>();
 const unavailableLanguages = new Set<string>();
 
 function highlighter(): Promise<HighlighterCore> {
-  highlighterPromise ??= createHighlighterCore({ themes: [theme], langs: [], engine: createJavaScriptRegexEngine() });
+  highlighterPromise ??= createHighlighterCore({
+    themes: [theme],
+    langs: [],
+    engine: createJavaScriptRegexEngine(),
+  });
   return highlighterPromise;
 }
 

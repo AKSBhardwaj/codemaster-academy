@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax",
+  "title": "CSS Syntax and Rules",
+  "summary": "A CSS rule names what to style and lists the changes inside curly brackets.",
+  "introduction": "A CSS rule names what to style and lists the changes inside curly brackets. Read one rule like a short instruction: choose h1, then make its colour blue. Learn where the colon and semicolon go.",
+  "learningObjectives": [
+    "Name the parts of a CSS rule: selector, declaration block, property and value",
+    "Write valid declarations with the correct separators and comments",
+    "Use shorthand properties and recognise when the browser has ignored a declaration"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Anatomy of a rule"
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "One rule, two declarations",
+      "code": "h1 {\n  color: #1d4ed8;\n  font-size: 2rem;\n}"
+    },
+    {
+      "type": "table",
+      "headers": ["Part", "What it is", "In the example"],
+      "rows": [
+        ["Selector", "Decides which elements the rule applies to", "`h1`"],
+        ["Declaration block", "Everything between the curly braces", "The two indented lines"],
+        ["Declaration", "One `property: value;` pair", "`color: #1d4ed8;`"],
+        ["Property", "The aspect of the element you are changing", "`color`"],
+        ["Value", "The setting for that property", "`#1d4ed8`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A colon separates the property from its value and a semicolon ends the declaration. The semicolon after the last declaration is technically optional, but always write it: the moment you add another declaration below, a missing semicolon breaks both lines, as you will see at the end of this lesson. Property names are case-insensitive (`COLOR` works) but the convention is lowercase everywhere."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Several selectors, several rules"
+    },
+    {
+      "type": "paragraph",
+      "text": "A comma lets one rule target several selectors, which avoids repeating identical declarations. And several rules can match the same element: their declarations are merged, so the heading below gets its typeface and colour from the first rule and its size from the second."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1, h2 {\n  font-family: Georgia, serif;\n  color: #0f172a;\n}\n\nh1 {\n  font-size: 2.25rem;\n}\n\np {\n  line-height: 1.6;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1,h2{font-family:Georgia,serif;color:#0f172a}h1{font-size:1.8em}p{line-height:1.6}</style><h1>Sample heading</h1><p>This sample page exists so your CSS has something to style.</p><h2>Card title</h2>"
+    },
+    {
+      "type": "paragraph",
+      "text": "When two rules set the *same* property on the same element, the cascade decides. The short version, enough for now: a more specific selector wins, and between equally specific selectors the one written later wins. [Specificity, Inheritance and the Cascade](/tutorials/css/specificity-cascade) covers the full rules."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comments and whitespace"
+    },
+    {
+      "type": "paragraph",
+      "text": "Comments start with `/*` and end with `*/`; they can span several lines and may appear anywhere a space can. Whitespace itself is ignored, so `h1{color:red}` and the four-line version mean the same thing. The convention most teams follow is one declaration per line, two spaces of indentation and a blank line between rules, because it makes diffs readable."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Comments",
+      "code": "/* Site-wide typography.\n   Edit the body rule to change the default font. */\nbody {\n  font-family: system-ui, sans-serif; /* falls back to any sans-serif font */\n  line-height: 1.5;\n}\n\n/* Temporarily disabled:\nh1 { color: red; }\n*/"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "// is not a comment",
+      "text": "Many languages use `//` for comments; CSS does not. A line such as `// color: red;` becomes part of a broken declaration, and because the browser reads until the next semicolon it can swallow the *next* declaration as well. Use `/* … */` only."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Shorthand properties"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **shorthand** sets several related properties (its *longhands*) in one declaration. `margin: 8px 16px;` sets the top and bottom margins to 8px and the left and right margins to 16px; `border: 1px solid #cbd5e1;` sets the width, style and colour of all four borders at once. Shorthands keep stylesheets short, with one catch: any longhand you leave out is reset to its default value, even if an earlier rule had set it."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "A shorthand resets what you omit",
+      "code": ".card h2 {\n  font-weight: 700;\n  font: 1.25rem Georgia, serif; /* resets font-weight to normal! */\n}\n\n/* Write the shorthand first, then the longhand you want to keep */\n.card h2 {\n  font: 1.25rem Georgia, serif;\n  font-weight: 700;\n}"
+    },
+    {
+      "type": "table",
+      "headers": ["Shorthand", "Longhands it sets"],
+      "rows": [
+        ["`margin: 8px 16px;`", "`margin-top`, `margin-right`, `margin-bottom`, `margin-left`"],
+        ["`border: 1px solid #cbd5e1;`", "`border-width`, `border-style`, `border-color`"],
+        [
+          "`font: italic 700 1rem/1.5 Georgia, serif;`",
+          "`font-style`, `font-weight`, `font-size`, `line-height`, `font-family`"
+        ],
+        [
+          "`background: #fff url(bg.png) no-repeat;`",
+          "`background-color`, `background-image`, `background-repeat` and five more"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens when you make a mistake"
+    },
+    {
+      "type": "paragraph",
+      "text": "CSS was designed so that old browsers could skip features they did not understand, which means every browser follows the same error-recovery rules. An unknown property or an invalid value drops *that declaration* and keeps the rest of the rule. A missing semicolon glues two declarations into one invalid declaration, so both are lost. And if any selector in a comma-separated list is invalid, the *whole rule* is dropped."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Four declarations, one survivor",
+      "code": "p {\n  colour: red;          /* unknown property: ignored */\n  font-size: 18px       /* missing semicolon... */\n  line-height: 1.5;     /* ...so this declaration is swallowed too */\n  color: green;         /* valid: applied */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Result",
+      "content": "The paragraph is green. Its font size and line height stay at their defaults, and the browser reports no error."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is why the developer tools matter so much for CSS. In the *Styles* (Chrome, Edge) or *Rules* (Firefox) panel, ignored declarations are shown struck through with a small warning icon, and hovering the icon tells you why. Make a habit of checking there before rewriting a rule."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nesting rules"
+    },
+    {
+      "type": "paragraph",
+      "text": "Modern CSS lets you write a rule inside another rule; the inner selector is combined with the outer one. The example below is equivalent to three flat rules: `.card`, `.card h2` and `.card:hover`. All current browsers support nesting. The rest of this tutorial mostly writes flat rules so that every snippet can be pasted anywhere, but you will meet nesting in real projects."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "Nested rules (equivalent to .card, .card h2 and .card:hover)",
+      "runnable": true,
+      "code": ".card {\n  padding: 1rem;\n  border: 1px solid #cbd5e1;\n\n  h2 {\n    margin-top: 0;\n  }\n\n  &:hover {\n    border-color: #1d4ed8;\n  }\n}"
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: find and fix the broken declarations",
+      "height": 200,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Fix the CSS</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    /* Two of these declarations are ignored. Fix them, then press Run. */\n    h1 {\n      colour: #1d4ed8;\n      font-size: 2rem\n      letter-spacing: 1px;\n    }\n    p { color: #475569; }\n  </style>\n</head>\n<body>\n  <h1>Spot the mistakes</h1>\n  <p>The heading should be blue, 2rem tall and slightly letter-spaced.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-syntax-rule-parts"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-syntax-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "syntax",
+          "difficulty": "beginner",
+          "question": "What happens to `p { font-weight: heavy; color: green; }` in the browser?",
+          "explanation": "`heavy` is not a valid `font-weight` value, so that declaration alone is dropped. The valid `color: green;` declaration is still applied.",
+          "options": [
+            "The whole rule is ignored",
+            "Only the invalid `font-weight` declaration is ignored; the paragraph is green",
+            "The browser shows an error dialog",
+            "The browser guesses `font-weight: bold`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-syntax-qc-2",
+          "type": "true-false",
+          "lessonSlug": "syntax",
+          "difficulty": "beginner",
+          "question": "`h1, h2 { color: navy; }` applies the colour to both h1 and h2 elements.",
+          "explanation": "A comma in a selector creates a selector list; the declarations apply to every element matched by any selector in the list.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-syntax-rule-parts"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "selectors"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "specificity-cascade"
+    }
+  ],
+  "seo": {
+    "title": "CSS Syntax – Rules, Selectors, Properties and Values",
+    "description": "Understand the anatomy of a CSS rule: selectors, declaration blocks, properties, values, comments and shorthands, and how browsers skip invalid declarations."
+  },
+  "updatedOn": "2026-11-16"
+}

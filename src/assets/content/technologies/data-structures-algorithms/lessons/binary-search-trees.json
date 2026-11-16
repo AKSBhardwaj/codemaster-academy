@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "slug": "binary-search-trees",
+  "title": "Binary search trees",
+  "summary": "Use a binary search tree to choose a left or right branch. Find one target, handle a missing value, and learn why the tree shape matters.",
+  "introduction": "A guessing game becomes easier when someone says smaller or bigger. A binary search tree stores values so each comparison tells us which branch can still contain the answer.",
+  "learningObjectives": [
+    "Explain the smaller-left and larger-right rule",
+    "Trace a search that skips an unneeded branch",
+    "Describe how tree height changes search work"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **binary search tree**, or BST, is a binary tree with an ordering rule. In this lesson, every value in a node's left branch is smaller, and every value in its right branch is larger."
+    },
+    {
+      "type": "paragraph",
+      "text": "The rule applies to whole branches, not just the two children. The same rule must hold at every node. We use distinct values here, so there are no duplicates to place."
+    },
+    {
+      "type": "paragraph",
+      "text": "For a search, compare the target with the current value. Equal means found. Smaller means try the left branch. Larger means try the right branch. The other branch can be skipped."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Build root 8, left child 3, and right child 10.",
+        "Search for 10. Compare it with 8; 10 is larger.",
+        "Move to the right child. Its value is 10, so the target is found.",
+        "Print 10. We never needed to inspect node 3."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Binary search trees example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const root = {\n  value: 8,\n  left: { value: 3, left: null, right: null },\n  right: { value: 10, left: null, right: null }\n};\nlet current = root;\nconst target = 10;\nlet found = -1;\nwhile (current !== null) {\n  if (target === current.value) {\n    found = current.value;\n    break;\n  }\n  current = target < current.value ? current.left : current.right;\n}\nconsole.log(found);",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int value; struct Node *left; struct Node *right; };\n\nint main(void) {\n    struct Node left = {3, NULL, NULL};\n    struct Node right = {10, NULL, NULL};\n    struct Node root = {8, &left, &right};\n    struct Node * current = &root;\n    int target = 10;\n    int found = -1;\n    while (current != NULL) {\n        if (target == current->value) {\n            found = current->value;\n            break;\n        }\n        current = target < current->value ? current->left : current->right;\n    }\n    printf(\"%d\\n\", found);\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\nstruct Node { int value; Node* left; Node* right; };\n\nint main() {\n    Node left{3, nullptr, nullptr};\n    Node right{10, nullptr, nullptr};\n    Node root{8, &left, &right};\n    Node* current = &root;\n    int target = 10;\n    int found = -1;\n    while (current != nullptr) {\n        if (target == current->value) {\n            found = current->value;\n            break;\n        }\n        current = target < current->value ? current->left : current->right;\n    }\n    std::cout << found << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "class Node:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\nroot = Node(8, Node(3), Node(10))\ncurrent = root\ntarget = 10\nfound = -1\nwhile current is not None:\n    if target == current.value:\n        found = current.value\n        break\n    current = current.left if target < current.value else current.right\nprint(found)",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "Node root = new Node(8, new Node(3), new Node(10));\nNode? current = root;\nint target = 10;\nint found = -1;\nwhile (current != null) {\n    if (target == current.Value) {\n        found = current.Value;\n        break;\n    }\n    current = target < current.Value ? current.Left : current.Right;\n}\nSystem.Console.WriteLine(found);\n\nclass Node\n{\n    public int Value;\n    public Node? Left, Right;\n    public Node(int value, Node? left = null, Node? right = null)\n    { Value = value; Left = left; Right = right; }\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    static class Node {\n        int value;\n        Node left, right;\n        Node(int value, Node left, Node right) {\n            this.value = value; this.left = left; this.right = right;\n        }\n    }\n    public static void main(String[] args) {\n        Node root = new Node(8, new Node(3, null, null), new Node(10, null, null));\n        Node current = root;\n        int target = 10;\n        int found = -1;\n        while (current != null) {\n            if (target == current.value) {\n                found = current.value;\n                break;\n            }\n            current = target < current.value ? current.left : current.right;\n        }\n        System.out.println(found);\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "10"
+    },
+    {
+      "type": "paragraph",
+      "text": "The loop follows just one branch at each step. An empty link ends an unsuccessful search. We use -1 to mean missing only because all values in this tiny example are non-negative. A reusable function should return a separate found flag or an optional result."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty tree immediately gives missing. Searching for the root succeeds in one comparison. Searching for 6 goes left to 3, then right to an empty link and gives -1."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **balanced** tree keeps its height small. Search can then take O(log n) work, read O of log n. Roughly, doubling the item count adds only one more level to a neatly balanced tree. An ordinary BST does not balance itself: inserting 1, 2, 3, and 4 in order can make a long one-sided chain. Search then takes O(n) worst-case work."
+    },
+    {
+      "type": "paragraph",
+      "text": "Before adding duplicate values, choose a rule: reject them, count them in a node, or place them consistently with a matching search rule. The strict smaller/larger rule here excludes duplicates."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change target from 10 to 6.",
+        "The output becomes -1. Trace 8, then 3, then the empty right branch. Missing is a useful result, not a failed loop."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not assume that every binary tree is a binary search tree. Branch skipping is correct only while the ordering rule holds everywhere."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-binary-search-trees"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-binary-search-trees"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "counting-work"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "heaps"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Binary search trees in six languages",
+    "description": "Use a binary search tree to choose a left or right branch. Find one target, handle a missing value, and learn why the tree shape matters."
+  },
+  "updatedOn": "2026-11-16"
+}

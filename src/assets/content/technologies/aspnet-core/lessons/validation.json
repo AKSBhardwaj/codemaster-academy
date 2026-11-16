@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "validation",
+  "title": "Check a body value",
+  "summary": "ASP.NET Core: Check a body value. Send an empty title and inspect status 400.",
+  "introduction": "The handler checks a title before returning a created response. Send POST /books with {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": [
+    "Check a body value with ASP.NET Core",
+    "Send an empty title and inspect status 400"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n School, enter School, and replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. Stop the app before changing examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check a body value"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Check a body value",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapPost(\"/books\", (Book book) => {\n if (string.IsNullOrWhiteSpace(book.Title)) return Results.BadRequest(new { error = \"Title needed\" });\n return Results.Created(\"/books/1\", book);\n});\napp.Run();\nrecord Book(string? Title);\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The title passes the whitespace check. Created returns the book with status 201 and a location."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty title and inspect status 400."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Minimal APIs in this version do not make every custom validation rule for you."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-core-validation-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-core-validation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-core",
+      "slug": "post-body"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Core: Check a body value",
+    "description": "ASP.NET Core: Check a body value. Send an empty title and inspect status 400. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

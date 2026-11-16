@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "path-inputs",
+  "title": "Read a route parameter",
+  "summary": "NestJS: Read a route parameter. Visit /hello/Asha.",
+  "introduction": "@Param reads a named part of the route. Open GET /hello/Ravi.",
+  "learningObjectives": ["Read a route parameter with NestJS", "Visit /hello/Asha"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a route parameter"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Read a route parameter",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"hello/:name\") hello(@Param(\"name\") name: string) { return `Hi, ${name}!`; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Param decorator takes the name segment from the URL. The handler receives Ravi."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Hi, Ravi!"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /hello/Asha."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A TypeScript type does not validate a value sent over HTTP."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-path-inputs-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-path-inputs-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Read a route parameter",
+    "description": "NestJS: Read a route parameter. Visit /hello/Asha. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

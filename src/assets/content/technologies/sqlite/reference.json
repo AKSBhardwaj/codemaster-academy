@@ -1,0 +1,144 @@
+{
+  "title": "SQLite Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the SQLite course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Ask SQLite for an answer",
+          "summary": "SQLite can calculate a value without a table.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT 4 + 3 AS books_read;"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "create-a-sample-table",
+          "name": "Create a sample table",
+          "summary": "A table defines named columns for each record.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS cma_sqlite_books;\nCREATE TABLE cma_sqlite_books(id INTEGER PRIMARY KEY,title TEXT NOT NULL,pages INTEGER);\nINSERT INTO cma_sqlite_books(title,pages) VALUES('Moon Trip',60);\nSELECT id,title,pages FROM cma_sqlite_books;"
+          },
+          "lessonSlug": "create-a-sample-table"
+        },
+        {
+          "slug": "inspect-the-kind-of-a-value",
+          "name": "Inspect the kind of a value",
+          "summary": "SQLite values have storage classes such as integer, real and text.",
+          "example": {
+            "language": "sql",
+            "code": "SELECT typeof(12) AS whole,typeof(2.5) AS decimal_kind,typeof('12') AS words;"
+          },
+          "lessonSlug": "inspect-the-kind-of-a-value"
+        },
+        {
+          "slug": "filter-a-query-only-list",
+          "name": "Filter a query-only list",
+          "summary": "WHERE chooses rows that pass a rule. A WITH list gives this practice query its own small dataset.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(title,pages) AS (VALUES('Moon Trip',60),('Tiny Seed',20))\nSELECT title FROM books WHERE pages>=50;"
+          },
+          "lessonSlug": "filter-a-query-only-list"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "sort-and-limit-the-result",
+          "name": "Sort and limit the result",
+          "summary": "ORDER BY chooses the result order. LIMIT then keeps only the requested number of rows.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(title,pages) AS (VALUES('Moon Trip',60),('Tiny Seed',20),('Garden Days',40))\nSELECT title FROM books ORDER BY pages,title LIMIT 2;"
+          },
+          "lessonSlug": "sort-and-limit-the-result"
+        },
+        {
+          "slug": "count-a-group-of-rows",
+          "name": "Count a group of rows",
+          "summary": "GROUP BY combines matching categories for a summary.",
+          "example": {
+            "language": "sql",
+            "code": "WITH books(kind) AS (VALUES('story'),('science'),('story'))\nSELECT kind,count(*) AS total FROM books GROUP BY kind ORDER BY kind;"
+          },
+          "lessonSlug": "count-a-group-of-rows"
+        },
+        {
+          "slug": "join-related-records",
+          "name": "Join related records",
+          "summary": "A join matches records using a rule. It can show an author name beside a title without repeating that name in every book record.",
+          "example": {
+            "language": "sql",
+            "code": "WITH authors(id,name) AS (VALUES(1,'Mia')),books(title,author_id) AS (VALUES('Moon Trip',1))\nSELECT books.title,authors.name FROM books JOIN authors ON authors.id=books.author_id;"
+          },
+          "lessonSlug": "join-related-records"
+        },
+        {
+          "slug": "protect-a-positive-number",
+          "name": "Protect a positive number",
+          "summary": "A CHECK constraint gives a rule for stored data.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS cma_sqlite_scores;\nCREATE TABLE cma_sqlite_scores(points INTEGER NOT NULL CHECK(points>=0));\nINSERT INTO cma_sqlite_scores VALUES(5);\nSELECT points FROM cma_sqlite_scores;"
+          },
+          "lessonSlug": "protect-a-positive-number"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "turn-on-foreign-key-checks",
+          "name": "Turn on foreign-key checks",
+          "summary": "A foreign key links a child record to a parent id.",
+          "example": {
+            "language": "sql",
+            "code": "PRAGMA foreign_keys=ON;\nDROP TABLE IF EXISTS cma_sqlite_loans;\nDROP TABLE IF EXISTS cma_sqlite_readers;\nCREATE TABLE cma_sqlite_readers(id INTEGER PRIMARY KEY);\nCREATE TABLE cma_sqlite_loans(reader_id INTEGER REFERENCES cma_sqlite_readers(id));\nINSERT INTO cma_sqlite_readers VALUES(1);\nINSERT INTO cma_sqlite_loans VALUES(1);\nSELECT reader_id FROM cma_sqlite_loans;"
+          },
+          "lessonSlug": "turn-on-foreign-key-checks"
+        },
+        {
+          "slug": "undo-an-unfinished-change",
+          "name": "Undo an unfinished change",
+          "summary": "A transaction can group row changes. ROLLBACK cancels uncommitted work inside that transaction.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS cma_sqlite_points;\nCREATE TABLE cma_sqlite_points(points INTEGER);\nBEGIN;\nINSERT INTO cma_sqlite_points VALUES(7);\nROLLBACK;\nSELECT count(*) AS rows_left FROM cma_sqlite_points;"
+          },
+          "lessonSlug": "undo-an-unfinished-change"
+        },
+        {
+          "slug": "inspect-a-table-definition",
+          "name": "Inspect a table definition",
+          "summary": "PRAGMA table_info shows facts about a table's columns.",
+          "example": {
+            "language": "sql",
+            "code": "DROP TABLE IF EXISTS cma_sqlite_notes;\nCREATE TABLE cma_sqlite_notes(id INTEGER PRIMARY KEY,message TEXT NOT NULL);\nPRAGMA table_info(cma_sqlite_notes);"
+          },
+          "lessonSlug": "inspect-a-table-definition"
+        },
+        {
+          "slug": "bind-a-value-from-python",
+          "name": "Bind a value from Python",
+          "summary": "An application should pass a value separately from SQL text.",
+          "example": {
+            "language": "python",
+            "code": "import sqlite3\nwith sqlite3.connect(\":memory:\") as connection:\n    connection.execute(\"CREATE TABLE books(title TEXT)\")\n    connection.execute(\"INSERT INTO books VALUES (?)\", (\"Moon Trip\",))\n    print(connection.execute(\"SELECT title FROM books\").fetchone()[0])"
+          },
+          "lessonSlug": "bind-a-value-from-python"
+        }
+      ]
+    }
+  ]
+}

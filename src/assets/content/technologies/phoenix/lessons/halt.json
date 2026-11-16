@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "halt",
+  "title": "Stop later processing",
+  "summary": "Phoenix: Stop later processing. Change the public message.",
+  "introduction": "halt marks the connection so later plugs stop. Open GET /closed.",
+  "learningObjectives": ["Stop later processing with Phoenix", "Change the public message"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create an app named school with mix phx.new school --no-ecto --no-html --no-assets. Enter school and run mix deps.get. Put each labelled section in its named file, then run mix phx.server. Use http://127.0.0.1:4000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Stop later processing"
+    },
+    {
+      "type": "code",
+      "language": "elixir",
+      "title": "Stop later processing",
+      "code": "# lib/school_web/router.ex\ndefmodule SchoolWeb.Router do\n use SchoolWeb, :router\n pipeline :api do\n  plug :accepts, [\"json\"]\n end\n scope \"/\", SchoolWeb do\n  pipe_through :api\nget \"/closed\", LessonController, :closed\n end\nend\n\n# lib/school_web/controllers/lesson_controller.ex\ndefmodule SchoolWeb.LessonController do\n use SchoolWeb, :controller\ndef closed(conn, _params), do: conn |> send_resp(403, \"Closed for practice\") |> halt()\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "send_resp writes the 403 body. halt then marks the connection to stop later plugs."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Closed for practice"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the public message."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "halt does not itself send a response; send it first."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "phoenix-halt-check"
+    }
+  ],
+  "exerciseIds": ["phoenix-halt-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "phoenix",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "Phoenix: Stop later processing",
+    "description": "Phoenix: Stop later processing. Change the public message. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

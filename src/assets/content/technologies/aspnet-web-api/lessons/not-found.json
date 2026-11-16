@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "not-found",
+  "title": "Report a missing book",
+  "summary": "ASP.NET Web API: Report a missing book. Inspect the status too.",
+  "introduction": "NotFound creates a 404 result. Open GET /missing. Read the example, then check the result.",
+  "learningObjectives": ["Report a missing book with ASP.NET Web API", "Inspect the status too"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing book"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Report a missing book",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpGet(\"missing\")] public IActionResult Missing() => NotFound(new { error = \"Book not found\" });\n}\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "NotFound chooses status 404 and serialises the supplied error field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Book not found\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the status too."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A missing item should not look like a successful response."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-not-found-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-not-found-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "created-results"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Report a missing book",
+    "description": "ASP.NET Web API: Report a missing book. Inspect the status too. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

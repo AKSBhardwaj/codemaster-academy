@@ -25,9 +25,13 @@ const OUT_DIR = resolve(ROOT, 'tmp', 'screenshots');
 
 const pages = [
   { name: 'home', path: '/' },
+  { name: 'start', path: '/start' },
   { name: 'tutorials', path: '/tutorials' },
   { name: 'tutorial-layout', path: '/tutorials/html' },
   { name: 'lesson', path: '/tutorials/html/introduction' },
+  { name: 'learning', path: '/dashboard' },
+  { name: 'settings', path: '/settings' },
+  { name: 'contact', path: '/contact' },
   { name: 'not-found', path: '/does-not-exist' },
 ];
 const viewports = [
@@ -43,7 +47,6 @@ function startStaticServer(): Promise<{ server: Server; url: string }> {
       handler(req, res, {
         public: DIST,
         cleanUrls: true,
-        rewrites: [{ source: '**', destination: '/index.csr.html' }],
       }),
     );
     server.listen(0, '127.0.0.1', () => {
@@ -73,7 +76,10 @@ async function main(): Promise<void> {
         for (const target of pages) {
           await page.goto(`${baseUrl}${target.path}`, { waitUntil: 'networkidle' });
           const suffix = scheme === 'dark' ? '-dark' : '';
-          await page.screenshot({ path: resolve(OUT_DIR, `${target.name}-${viewport.width}${suffix}.png`), fullPage: target.name === 'home' });
+          await page.screenshot({
+            path: resolve(OUT_DIR, `${target.name}-${viewport.width}${suffix}.png`),
+            fullPage: target.name === 'home',
+          });
         }
         await context.close();
       }

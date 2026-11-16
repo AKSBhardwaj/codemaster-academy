@@ -1,0 +1,158 @@
+{
+  "title": "ASP.NET Core Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-route",
+          "name": "Make a minimal route",
+          "summary": "MapGet connects a GET path to a function. Open GET /.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/\", () => \"Hello, Asha!\");\napp.Run();\n\n"
+          },
+          "notes": ["MapGet only handles matching GET requests."],
+          "lessonSlug": "first-route"
+        },
+        {
+          "slug": "json",
+          "name": "Return a data object",
+          "summary": "Results.Json sends structured data as JSON. Open GET /book.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/book\", () => Results.Json(new { title = \"Moon Trip\", pages = 24 }));\napp.Run();\n\n"
+          },
+          "notes": ["Use objects for data instead of joining JSON text by hand."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-values",
+          "name": "Read a path input",
+          "summary": "Curly braces name a route value. Open GET /hello/Ravi.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/hello/{name}\", (string name) => $\"Hi, {name}!\");\napp.Run();\n\n"
+          },
+          "notes": ["Do not place user text into raw HTML without escaping it."],
+          "lessonSlug": "path-values"
+        },
+        {
+          "slug": "typed-paths",
+          "name": "Constrain a route number",
+          "summary": "The int route constraint only matches whole numbers. Open GET /double/4.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/double/{n:int}\", (int n) => Results.Json(new { answer = n * 2 }));\napp.Run();\n\n"
+          },
+          "notes": ["A failed route constraint usually means this route does not match."],
+          "lessonSlug": "typed-paths"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "query-values",
+          "name": "Read an optional query",
+          "summary": "A simple input outside the path can come from the query string. GET /page with no n uses the fallback.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/page\", (int? n) => Results.Json(new { page = n ?? 1 }));\napp.Run();\n\n"
+          },
+          "notes": ["A missing optional number is null, not automatically zero."],
+          "lessonSlug": "query-values"
+        },
+        {
+          "slug": "post-body",
+          "name": "Read a JSON record",
+          "summary": "A record can describe body data. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapPost(\"/books\", (Book book) => Results.Json(book, statusCode: 201));\napp.Run();\nrecord Book(string Title);\n"
+          },
+          "notes": ["A type describes shape; add checks for values that must not be empty."],
+          "lessonSlug": "post-body"
+        },
+        {
+          "slug": "validation",
+          "name": "Check a body value",
+          "summary": "The handler checks a title before returning a created response. Send POST /books with {\"title\":\"Moon Trip\"}.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapPost(\"/books\", (Book book) => {\n if (string.IsNullOrWhiteSpace(book.Title)) return Results.BadRequest(new { error = \"Title needed\" });\n return Results.Created(\"/books/1\", book);\n});\napp.Run();\nrecord Book(string? Title);\n"
+          },
+          "notes": [
+            "Minimal APIs in this version do not make every custom validation rule for you."
+          ],
+          "lessonSlug": "validation"
+        },
+        {
+          "slug": "middleware",
+          "name": "Add a shared response rule",
+          "summary": "Middleware can run before and after later handlers. GET /note carries the header set here.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.Use(async (context, next) => { context.Response.Headers[\"Cache-Control\"] = \"no-store\"; await next(); });\napp.MapGet(\"/note\", () => \"Practice note\");\napp.Run();\n\n"
+          },
+          "notes": ["Call next when the request should continue through the pipeline."],
+          "lessonSlug": "middleware"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "route-groups",
+          "name": "Group related paths",
+          "summary": "MapGroup gives several routes one common prefix. Open GET /api/books.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\nvar api = app.MapGroup(\"/api\");\napi.MapGet(\"/books\", () => new[] { \"Moon Trip\" });\napp.Run();\n\n"
+          },
+          "notes": ["The group prefix is part of each final route."],
+          "lessonSlug": "route-groups"
+        },
+        {
+          "slug": "services",
+          "name": "Receive a shared helper",
+          "summary": "A registered service can be an input to a handler. Open GET /school.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddSingleton(new SchoolName(\"Oak School\"));\nvar app = builder.Build();\napp.MapGet(\"/school\", (SchoolName school) => school.Value);\napp.Run();\nrecord SchoolName(string Value);\n"
+          },
+          "notes": ["Register services before building the app."],
+          "lessonSlug": "services"
+        },
+        {
+          "slug": "not-found",
+          "name": "Return a missing-item reply",
+          "summary": "Results.NotFound gives a 404 response. Open GET /missing.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/missing\", () => Results.NotFound(new { error = \"Book not found\" }));\napp.Run();\n\n"
+          },
+          "notes": ["Use the error status as well as a helpful message."],
+          "lessonSlug": "not-found"
+        },
+        {
+          "slug": "redirects",
+          "name": "Point a client elsewhere",
+          "summary": "Results.Redirect sends a location. A browser following GET /start reaches /hello.",
+          "example": {
+            "language": "csharp",
+            "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/start\", () => Results.Redirect(\"/hello\"));\napp.MapGet(\"/hello\", () => \"Welcome\");\napp.Run();\n\n"
+          },
+          "notes": ["A redirect asks the client to make a second request."],
+          "lessonSlug": "redirects"
+        }
+      ]
+    }
+  ]
+}

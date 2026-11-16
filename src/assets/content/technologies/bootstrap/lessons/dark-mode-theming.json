@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "slug": "dark-mode-theming",
+  "title": "Colour Modes and Theming",
+  "summary": "Bootstrap 5.3 can use light or dark colours. A theme setting chooses which set of colours a page part uses.",
+  "introduction": "Bootstrap 5.3 can use light or dark colours. A theme setting chooses which set of colours a page part uses. Try a small card in each theme. Check that words, borders and focus marks are still easy to see.",
+  "learningObjectives": [
+    "Enable dark mode for a page or one component with data-bs-theme",
+    "Build a light and dark toggle that respects the system preference",
+    "Use Bootstrap's CSS variables to retheme colours without Sass",
+    "Choose colour-mode-aware classes so components stay readable in both modes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How colour modes work"
+    },
+    {
+      "type": "paragraph",
+      "text": "The 5.3 stylesheet defines two sets of root variables: one for light mode, on `:root` and `[data-bs-theme=\"light\"]`, and one for dark mode, on `[data-bs-theme=\"dark\"]`. Components never hard-code a colour; a card reads `--bs-body-bg`, a border reads `--bs-border-color`, an alert reads `--bs-success-bg-subtle`. Set the attribute on `<html>` and every variable, and therefore every component, flips at once. Bootstrap does **not** watch the operating system setting by itself; you either set the attribute or, as the toggle below does, read the system preference with JavaScript."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A page in dark mode",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\" data-bs-theme=\"dark\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Night garden</title>\n  <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n</head>\n<body>\n  <main class=\"container py-4\">\n    <h1>Night garden</h1>\n    <p>Everything below adapts without extra classes.</p>\n    <div class=\"card\" style=\"max-width: 20rem;\">\n      <div class=\"card-body\">\n        <h2 class=\"card-title h5\">Moonflower</h2>\n        <p class=\"card-text\">Opens at dusk and closes by morning.</p>\n        <a href=\"/plants/moonflower\" class=\"btn btn-primary\">Details</a>\n      </div>\n    </div>\n    <div class=\"alert alert-success mt-3\" role=\"alert\">Watered at 21:00.</div>\n  </main>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Page background #212529 with light grey (#dee2e6) text\nThe card shares the dark background and has a mid-grey border; its button is the same blue as in light mode\nThe alert is dark green with pale green text, the reverse of its light-mode colours"
+    },
+    {
+      "type": "paragraph",
+      "text": "Remove the attribute and the same markup renders in light mode. That is the whole point: the components did not change, only the variables they read."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dark mode for one component"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because the dark variables are defined on `[data-bs-theme=\"dark\"]` rather than on `html` alone, the attribute works on **any** element and applies to everything inside it. A dark footer or navbar on an otherwise light page is one attribute, and the links, borders and form controls inside it recolour themselves."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "A dark footer on a light page",
+      "code": "<footer class=\"bg-dark py-4 mt-5\" data-bs-theme=\"dark\">\n  <div class=\"container\">\n    <p class=\"mb-1\">Garden Club</p>\n    <a href=\"/privacy\">Privacy</a>\n  </div>\n</footer>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "A #212529 footer with light grey text and a light blue (#6ea8fe) link, while the rest of the page keeps its white background and dark text"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A toggle that remembers the choice"
+    },
+    {
+      "type": "paragraph",
+      "text": "A good toggle does three things: on first visit it follows the operating system (`prefers-color-scheme`), it stores the user's explicit choice, and it applies the stored choice *before* the page paints so there is no flash of the wrong theme. That last point is why the first script sits in the `<head>` and is tiny. The button handler can live at the end of the body as usual."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "theme-toggle.html",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Theme toggle</title>\n  <script>\n    const saved = localStorage.getItem('theme');\n    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;\n    document.documentElement.setAttribute('data-bs-theme', saved ?? (prefersDark ? 'dark' : 'light'));\n  </script>\n  <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n</head>\n<body>\n  <main class=\"container py-4\">\n    <h1>Theme toggle</h1>\n    <button type=\"button\" class=\"btn btn-outline-secondary\" id=\"themeToggle\">Switch theme</button>\n  </main>\n  <script>\n    document.getElementById('themeToggle').addEventListener('click', () => {\n      const root = document.documentElement;\n      const next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';\n      root.setAttribute('data-bs-theme', next);\n      localStorage.setItem('theme', next);\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Behaviour in the browser",
+      "content": "First visit on a system set to dark: the page loads dark immediately, with no light flash\nClicking \"Switch theme\" flips the whole page between light and dark\nAfter a reload the page comes back in whichever mode was chosen last, regardless of the system setting"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Retheming with CSS variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same variables are your theming API. Override them in a stylesheet loaded **after** Bootstrap, once for light mode and once for dark mode when the values differ. Root variables control page-wide things such as the font stack, body background and link colour; links in 5.3 are built from `--bs-link-color-rgb`, so override the `-rgb` variants. Components have their own prefixed variables, for example `--bs-btn-bg` on buttons, which you set on the component's class."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Place after the Bootstrap stylesheet link",
+      "code": "<style>\n  :root,\n  [data-bs-theme=\"light\"] {\n    --bs-body-bg: #fbf7ef;\n    --bs-body-font-family: Georgia, \"Times New Roman\", serif;\n    --bs-link-color-rgb: 122, 31, 31;\n    --bs-link-hover-color-rgb: 94, 23, 23;\n  }\n\n  [data-bs-theme=\"dark\"] {\n    --bs-body-bg: #1b1a17;\n  }\n\n  .btn-primary {\n    --bs-btn-bg: #7a1f1f;\n    --bs-btn-border-color: #7a1f1f;\n    --bs-btn-hover-bg: #5e1717;\n    --bs-btn-hover-border-color: #5e1717;\n    --bs-btn-active-bg: #4a1212;\n    --bs-btn-active-border-color: #4a1212;\n  }\n</style>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered result",
+      "content": "Light mode: cream page background, serif text, dark red links that darken on hover; primary buttons are dark red and darken on hover and press\nDark mode: near-black page background with the same serif text; the buttons keep their dark red"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: changing --bs-primary and expecting buttons to follow",
+      "text": "`--bs-primary` is informational: `btn-primary`, `bg-primary` and `text-primary` do not read it. Buttons use `--bs-btn-bg` and friends, which were compiled from the Sass variable `$primary` into fixed values; backgrounds use `--bs-primary-rgb`. Overriding only `--bs-primary` therefore changes nothing visible. Set the component variables as above, or change `$primary` in Sass (next lesson) to recolour everything at once."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Classes that survive dark mode"
+    },
+    {
+      "type": "paragraph",
+      "text": "Some utilities are fixed colours and some follow the mode. Choose the adaptive ones wherever a page might be viewed dark, and keep the fixed ones for things that must stay the same, such as a brand bar."
+    },
+    {
+      "type": "table",
+      "headers": ["Fixed in both modes", "Adapts to the mode"],
+      "rows": [
+        ["`bg-white`, `bg-light`, `bg-dark`", "`bg-body`, `bg-body-secondary`, `bg-body-tertiary`"],
+        [
+          "`text-white`, `text-black`, `text-dark`",
+          "`text-body`, `text-body-secondary`, `text-body-emphasis`"
+        ],
+        [
+          "`border-dark`, `border-white`",
+          "`border` (uses `--bs-border-color`), `border-primary-subtle`"
+        ],
+        ["`bg-primary` with `text-white`", "`bg-primary-subtle` with `text-primary-emphasis`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Invent your own mode",
+      "text": "Nothing limits the attribute to light and dark. A rule for `[data-bs-theme=\"sepia\"]` that sets `--bs-body-bg`, `--bs-body-color` and a few others gives you a third mode that every component honours, selectable with the same toggle code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "bootstrap-dark-mode-attribute"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "bs-dark-qc-1",
+          "type": "true-false",
+          "lessonSlug": "dark-mode-theming",
+          "difficulty": "beginner",
+          "question": "Out of the box, Bootstrap 5.3 switches to dark mode automatically when the operating system is set to dark.",
+          "explanation": "The CDN build only reacts to the data-bs-theme attribute. Reading prefers-color-scheme and setting the attribute is your script's job, unless you rebuild Bootstrap with $color-mode-type set to media-query.",
+          "correct": false
+        },
+        {
+          "id": "bs-dark-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "dark-mode-theming",
+          "difficulty": "beginner",
+          "question": "Which background class changes colour when the page switches to dark mode?",
+          "explanation": "bg-body-tertiary reads a colour-mode variable (light grey in light mode, dark grey in dark mode). bg-light, bg-white and bg-secondary are fixed colours.",
+          "options": ["`bg-light`", "`bg-white`", "`bg-body-tertiary`", "`bg-secondary`"],
+          "correctIndex": 2
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["bootstrap-dark-mode-attribute"],
+  "relatedLessons": [
+    {
+      "technologySlug": "bootstrap",
+      "slug": "sass-customisation"
+    },
+    {
+      "technologySlug": "bootstrap",
+      "slug": "navbar"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "custom-properties"
+    }
+  ],
+  "seo": {
+    "title": "Bootstrap Dark Mode – data-bs-theme and CSS Variables",
+    "description": "Enable dark mode in Bootstrap 5.3 with data-bs-theme on the page or one component, build a toggle that remembers the choice, and retheme with CSS variables."
+  },
+  "updatedOn": "2026-11-16"
+}

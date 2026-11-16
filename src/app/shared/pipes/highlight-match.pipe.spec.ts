@@ -4,7 +4,9 @@ describe('HighlightMatchPipe', () => {
   const pipe = new HighlightMatchPipe();
 
   it('returns the whole text unmatched when there are no terms', () => {
-    expect(pipe.transform('Angular Tutorial', [])).toEqual([{ text: 'Angular Tutorial', match: false }]);
+    expect(pipe.transform('Angular Tutorial', [])).toEqual([
+      { text: 'Angular Tutorial', match: false },
+    ]);
   });
 
   it('marks case-insensitive matches and keeps surrounding text', () => {

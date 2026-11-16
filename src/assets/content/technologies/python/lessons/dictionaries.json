@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "dictionaries",
+  "title": "Dictionaries",
+  "summary": "A dictionary stores values under named keys. Each key helps you look up one value.",
+  "introduction": "A dictionary stores values under named keys. Each key helps you look up one value. Think of a word book: a word is the key, and its meaning is the value. Make a small record and look up a fact by its key.",
+  "learningObjectives": [
+    "Create dictionaries and read, add, update and delete entries",
+    "Handle missing keys with in, get() and setdefault()",
+    "Loop over keys, values and items",
+    "Build and navigate nested structures of dicts and lists"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating and using a dictionary"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "basics.py",
+      "code": "user = {\"name\": \"Ada\", \"age\": 36, \"languages\": [\"Python\", \"SQL\"]}\n\nprint(user[\"name\"])\nprint(user[\"languages\"][0])\nprint(len(user))\n\nuser[\"age\"] = 37                    # update an existing key\nuser[\"email\"] = \"ada@example.com\"   # add a new key\ndel user[\"languages\"]               # remove a key\nprint(user)\nprint(\"email\" in user, \"languages\" in user)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python basics.py",
+      "content": "Ada\nPython\n3\n{'name': 'Ada', 'age': 37, 'email': 'ada@example.com'}\nTrue False"
+    },
+    {
+      "type": "paragraph",
+      "text": "Curly braces with `key: value` pairs create a dictionary. Keys are usually strings but can be any immutable value (numbers, tuples); values can be anything, including lists and other dictionaries. Entries keep the order in which they were inserted, so printing a dictionary shows it as you built it. The `in` operator tests *keys*, not values."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Missing keys"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "missing.py",
+      "code": "stock = {\"apple\": 5, \"pear\": 0}\nprint(stock[\"banana\"])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python missing.py",
+      "content": "Traceback (most recent call last):\n  File \"/home/ada/projects/missing.py\", line 2, in <module>\n    print(stock[\"banana\"])\n          ~~~~~^^^^^^^^^^\nKeyError: 'banana'"
+    },
+    {
+      "type": "paragraph",
+      "text": "Indexing a key that does not exist raises `KeyError`. That is right when the key *must* exist (a bug should be loud) and wrong when the key legitimately might not. Three tools cover the second case: `in` to test first, `get()` to read with a default, and `setdefault()` to insert a default only when the key is absent."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "safe.py",
+      "code": "stock = {\"apple\": 5, \"pear\": 0}\n\nprint(stock.get(\"banana\"))\nprint(stock.get(\"banana\", 0))\nprint(stock.get(\"apple\", 0))\n\nif \"pear\" in stock:\n    print(\"We stock pears:\", stock[\"pear\"])\n\nstock.setdefault(\"banana\", 12)   # add only if missing\nstock.setdefault(\"apple\", 99)    # apple exists: unchanged\nprint(stock)\nprint(stock.pop(\"pear\"), stock.pop(\"kiwi\", \"none\"))\nprint(stock)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python safe.py",
+      "content": "None\n0\n5\nWe stock pears: 0\n{'apple': 5, 'pear': 0, 'banana': 12}\n0 none\n{'apple': 5, 'banana': 12}"
+    },
+    {
+      "type": "paragraph",
+      "text": "`get()` without a default returns `None` for a missing key, which is fine for a quick check but easy to pass along by accident; give it an explicit default whenever the value is used in a calculation. `pop(key, default)` removes an entry and returns its value, with the same default mechanism."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Looping"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "looping.py",
+      "code": "prices = {\"coffee\": 2.5, \"tea\": 1.8, \"cake\": 3.2}\n\nfor item in prices:\n    print(item)\n\nfor item, price in prices.items():\n    print(f\"{item:<8}{price:>5.2f}\")\n\nprint(list(prices.keys()))\nprint(round(sum(prices.values()), 2))\nprint(max(prices, key=prices.get))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python looping.py",
+      "content": "coffee\ntea\ncake\ncoffee   2.50\ntea      1.80\ncake     3.20\n['coffee', 'tea', 'cake']\n7.5\ncake"
+    },
+    {
+      "type": "paragraph",
+      "text": "Looping over a dictionary yields its keys. `items()` gives `(key, value)` pairs, which is what you want most of the time; `keys()` and `values()` give live views of one side that you can pass to `list()`, `sum()` or `sorted()`. `max(prices, key=prices.get)` finds the key with the largest value, a one-liner you will reuse constantly."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Counting things"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "counting.py",
+      "code": "from collections import Counter\n\ntext = \"the cat and the dog and the bird\"\ncounts = {}\nfor word in text.split():\n    counts[word] = counts.get(word, 0) + 1\nprint(counts)\n\ncounter = Counter(text.split())\nprint(counter.most_common(2))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python counting.py",
+      "content": "{'the': 3, 'cat': 1, 'and': 2, 'dog': 1, 'bird': 1}\n[('the', 3), ('and', 2)]"
+    },
+    {
+      "type": "paragraph",
+      "text": "`counts.get(word, 0) + 1` is *the* counting idiom: read the current count (zero if the word is new), add one, store it back. The standard library's `Counter` packages the same idea and adds helpers such as `most_common()`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Changing a dictionary while looping over it",
+      "text": "Adding or removing keys inside `for key in my_dict:` raises `RuntimeError: dictionary changed size during iteration`. Loop over a snapshot of the keys instead, `for key in list(my_dict):`, or build a new dictionary containing only the entries you want to keep."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested data"
+    },
+    {
+      "type": "paragraph",
+      "text": "A dictionary of lists of dictionaries is exactly how JSON APIs deliver data. Read a path such as `library[\"books\"][1][\"title\"]` left to right: the library, its books, the second one, its title."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "nested.py",
+      "code": "library = {\n    \"books\": [\n        {\"title\": \"Dune\", \"year\": 1965, \"tags\": [\"sci-fi\"]},\n        {\"title\": \"Emma\", \"year\": 1815, \"tags\": [\"classic\", \"romance\"]},\n    ],\n    \"open\": True,\n}\n\nprint(library[\"books\"][1][\"title\"])\nprint(library[\"books\"][0][\"tags\"][0])\nfor book in library[\"books\"]:\n    print(f\"{book['title']} ({book['year']}): {', '.join(book['tags'])}\")\n\nlibrary[\"books\"].append({\"title\": \"Kindred\", \"year\": 1979, \"tags\": []})\nprint(len(library[\"books\"]))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python nested.py",
+      "content": "Emma\nsci-fi\nDune (1965): sci-fi\nEmma (1815): classic, romance\n3"
+    },
+    {
+      "type": "table",
+      "headers": ["Method or syntax", "Effect"],
+      "rows": [
+        [
+          "`d[key]`, `d[key] = value`, `del d[key]`",
+          "Read, write or remove; reading a missing key raises `KeyError`"
+        ],
+        ["`d.get(key, default)`", "Read without raising"],
+        [
+          "`d.setdefault(key, default)`",
+          "Insert `default` if the key is missing, then return the value"
+        ],
+        ["`d.pop(key, default)`", "Remove and return"],
+        ["`d.items()`, `d.keys()`, `d.values()`", "Views for looping"],
+        [
+          "`d.update(other)` or `d | other`",
+          "Merge another dictionary in (`|` returns a new one, Python 3.9+)"
+        ]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-dictionaries-keyerror"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-dict-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "dictionaries",
+          "difficulty": "beginner",
+          "question": "`prices.___(\"tea\", 0)` returns the value stored under `\"tea\"`, or `0` if the key is missing, without raising an error.",
+          "explanation": "`get(key, default)` is the safe read. `setdefault()` would also insert the key, and plain indexing raises `KeyError`.",
+          "answers": ["get"],
+          "caseSensitive": false
+        },
+        {
+          "id": "py-dict-qc-2",
+          "type": "true-false",
+          "lessonSlug": "dictionaries",
+          "difficulty": "beginner",
+          "question": "A Python dictionary remembers the order in which its keys were inserted.",
+          "explanation": "Since Python 3.7, dictionaries preserve insertion order, so looping and printing show entries in the order you added them.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-dictionaries-keyerror"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "comprehensions"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "json-and-apis"
+    }
+  ],
+  "seo": {
+    "title": "Python Dictionaries – Keys, Values, get() and Nesting",
+    "description": "Learn Python dictionaries: create and update entries, handle missing keys with get() and setdefault(), loop over items, count words and navigate nested data."
+  },
+  "updatedOn": "2026-11-16"
+}

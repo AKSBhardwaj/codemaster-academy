@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Send a client to another route",
+  "summary": "NestJS: Send a client to another route. Inspect the initial 302 response.",
+  "introduction": "@Redirect sends a location to the client. A browser following GET /start ends at /hello.",
+  "learningObjectives": [
+    "Send a client to another route with NestJS",
+    "Inspect the initial 302 response"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Send a client to another route"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Send a client to another route",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"start\") @Redirect(\"/hello\", 302) start() {}\n@Get(\"hello\") hello() { return \"Welcome\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Redirect sends a 302 with /hello as its location. The browser then requests the greeting route."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the initial 302 response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect makes the client send a new request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-redirects-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Send a client to another route",
+    "description": "NestJS: Send a client to another route. Inspect the initial 302 response. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-defaults",
+  "title": "Supply a query default",
+  "summary": "FastAPI: Supply a query default. Visit /page?n=3.",
+  "introduction": "An input not in the path is read from the query. GET /page with no n uses its default.",
+  "learningObjectives": ["Supply a query default with FastAPI", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Supply a query default"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Supply a query default",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/page\")\ndef page(n: int = 1):\n    return {\"page\": n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because n is absent, the Python default supplies 1. The handler returns that page value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":1}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A default makes the query input optional."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-query-defaults-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-query-defaults-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "path-types"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Supply a query default",
+    "description": "FastAPI: Supply a query default. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

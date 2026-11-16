@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "control-a-timer",
+  "title": "Control a timer",
+  "summary": "Fake timers let a test move time forward without really waiting. Restore real timers when the test ends.",
+  "introduction": "Fake timers let a test move time forward without really waiting. Restore real timers when the test ends. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain control a timer",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Fake timers let a test move time forward without really waiting. Restore real timers when the test ends."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { test, expect, jest, beforeEach } from \"@jest/globals\";\ntest(\"reminder runs later\", () => { jest.useFakeTimers(); try { const remind = jest.fn(); setTimeout(remind, 1000); jest.advanceTimersByTime(1000); expect(remind).toHaveBeenCalledTimes(1); } finally { jest.useRealTimers(); } });",
+      "title": "Control a timer",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The reminder runs once when fake time advances by 1000 milliseconds."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Assert it has not run before advancing time.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Leaving fake timers active can affect later tests."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "jest-control-a-timer"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Jest further reading](https://jestjs.io/docs/getting-started)."
+    }
+  ],
+  "exerciseIds": ["jest-control-a-timer"],
+  "relatedLessons": [
+    {
+      "technologySlug": "jest",
+      "slug": "review-snapshots-thoughtfully"
+    }
+  ],
+  "seo": {
+    "title": "Jest: Control a timer",
+    "description": "Learn about control a timer in Jest. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

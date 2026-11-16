@@ -15,8 +15,12 @@ export class ProgressStore {
   private readonly completed = signal<CompletedMap>({});
   /** True once browser storage has been read. */
   readonly hydrated = signal(false);
-  readonly completedSets = computed(() => new Map(Object.entries(this.completed()).map(([tech, slugs]) => [tech, new Set(slugs)])));
-  readonly totalCompleted = computed(() => Object.values(this.completed()).reduce((sum, slugs) => sum + slugs.length, 0));
+  readonly completedSets = computed(
+    () => new Map(Object.entries(this.completed()).map(([tech, slugs]) => [tech, new Set(slugs)])),
+  );
+  readonly totalCompleted = computed(() =>
+    Object.values(this.completed()).reduce((sum, slugs) => sum + slugs.length, 0),
+  );
 
   constructor() {
     const injector = inject(Injector);

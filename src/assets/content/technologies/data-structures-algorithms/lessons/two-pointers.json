@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "slug": "two-pointers",
+  "title": "Two Pointers",
+  "summary": "Find two numbers with a chosen sum by moving from both ends of a sorted list. Trace the decisions and compare six language examples.",
+  "introduction": "Imagine pointing at the smallest and largest score cards in an ordered row. If their sum is too small, move the left finger to a larger score. If it is too large, move the right finger to a smaller score. These two fingers act like two pointers.",
+  "learningObjectives": [
+    "Find a pair of distinct positions with a target sum",
+    "Choose which position to move using sorted order"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "In this pattern, a pointer means a position marker. It does not mean a memory address. left starts at the first item and right starts at the last item."
+    },
+    {
+      "type": "paragraph",
+      "text": "If the sum is too small, even the largest remaining partner cannot help the current left value. Move left forward. If the sum is too large, even the smallest remaining partner is too big for the current right value, so move right back."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Use the sorted list [1, 2, 4, 6, 8] and target 10. Start at positions 0 and 4.",
+        "The values are 1 and 8. Their sum is 9, which is too small.",
+        "Move left to position 1. Now the values are 2 and 8, making 10.",
+        "Stop and report positions 1 and 4. A different valid pair, 4 and 6, also exists, but this version returns the first pair it reaches."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Two Pointers example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const a = [1, 2, 4, 6, 8];\nconst target = 10;\nconst n = a.length;\nlet left = 0, right = n - 1;\nlet found = false;\nwhile (left < right) {\n    let sum = a[left] + a[right];\n    if (sum == target) {\n        found = true;\n        break;\n    }\n    if (sum < target) left++;\n    else right--;\n}\nconsole.log(found ? `${left} ${right}` : \"not found\");",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int a[] = {1, 2, 4, 6, 8};\n    int target = 10;\n    int n = sizeof a / sizeof a[0];\n    int left = 0, right = n - 1;\n    int found = 0;\n    while (left < right) {\n        int sum = a[left] + a[right];\n        if (sum == target) {\n            found = 1;\n            break;\n        }\n        if (sum < target) left++;\n        else right--;\n    }\n    if (found) printf(\"%d %d\\n\", left, right);\n    else printf(\"not found\\n\");\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> a = {1, 2, 4, 6, 8};\n    int target = 10;\n    int n = static_cast<int>(a.size());\n    int left = 0, right = n - 1;\n    bool found = false;\n    while (left < right) {\n        int sum = a[left] + a[right];\n        if (sum == target) {\n            found = true;\n            break;\n        }\n        if (sum < target) left++;\n        else right--;\n    }\n    if (found) std::cout << left << \" \" << right << \"\\n\";\n    else std::cout << \"not found\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "a = [1, 2, 4, 6, 8]\ntarget = 10\nleft, right = 0, len(a) - 1\nfound = False\nwhile left < right:\n    total = a[left] + a[right]\n    if total == target:\n        found = True\n        break\n    if total < target:\n        left += 1\n    else:\n        right -= 1\nif found:\n    print(left, right)\nelse:\n    print(\"not found\")",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {1, 2, 4, 6, 8};\nint target = 10;\nint n = a.Length;\nint left = 0, right = n - 1;\nbool found = false;\nwhile (left < right) {\n    int sum = a[left] + a[right];\n    if (sum == target) {\n        found = true;\n        break;\n    }\n    if (sum < target) left++;\n    else right--;\n}\nConsole.WriteLine(found ? $\"{left} {right}\" : \"not found\");",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 4, 6, 8};\n        int target = 10;\n        int n = a.length;\n        int left = 0, right = n - 1;\n        boolean found = false;\n        while (left < right) {\n            int sum = a[left] + a[right];\n            if (sum == target) {\n                found = true;\n                break;\n            }\n            if (sum < target) left++;\n            else right--;\n        }\n        System.out.println(found ? left + \" \" + right : \"not found\");\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The output gives positions, not the values being added. Position 1 holds 2 and position 4 holds 8, so the selected values total 10."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "The list must already be sorted from small to large. Sorting takes extra work and changes positions, so these are positions in the sorted list. Keep original positions separately if your task needs them."
+    },
+    {
+      "type": "paragraph",
+      "text": "The condition left < right prevents using one item twice. Empty and one-item lists have no pair. Duplicates are allowed at distinct positions: [5, 5] can make 10. If no pair exists, the program prints not found."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use small whole numbers here so adding two of them fits the language's number type. This version finds one pair; it does not count or list every pair."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each failed check moves one position inward. There can be at most n - 1 such moves for n items, so the scan takes O(n) worst time. A pair found immediately takes O(1) best time."
+    },
+    {
+      "type": "paragraph",
+      "text": "Only two positions, the sum, and a flag are stored, so the scan uses O(1) extra space. These costs exclude any earlier sorting step."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change target to 7. The first sum, 9, is too large, so move right leftward. You should find values 1 and 6 at positions 0 and 3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not move left when the sum is too large. That would choose a value that is just as large or larger. Use sorted order to move the sum in the direction you need."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-two-pointers"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-two-pointers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "array-positions"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "sorting-numbers"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search"
+    }
+  ],
+  "seo": {
+    "title": "Two Pointers in Six Languages | DSA",
+    "description": "Find two numbers with a chosen sum by moving from both ends of a sorted list. Trace the decisions and compare six language examples."
+  },
+  "updatedOn": "2026-11-16"
+}

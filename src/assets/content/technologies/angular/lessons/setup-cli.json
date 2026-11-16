@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-cli",
+  "title": "Installing the Angular CLI and Creating an App",
+  "summary": "Install Node.js and the Angular CLI, create a project with ng new, run it with ng serve, understand the generated files and generate your first component.",
+  "introduction": "Angular code has to be compiled before a browser can run it, and the Angular CLI is the tool that does the compiling, serving, testing and building. In this lesson you install it, create a project, start the development server and look at every file the CLI generated so that nothing in the project is a mystery. By the end you will have a running app that reloads the browser each time you save.",
+  "learningObjectives": [
+    "Install Node.js and the Angular CLI and verify the versions",
+    "Create and run a new Angular 22 project with ng new and ng serve",
+    "Explain the purpose of each generated file and generate a component with ng generate"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install Node.js and the CLI"
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular's tooling runs on [Node.js](/tutorials/nodejs). Install the current long-term-support line (Node.js 24) from nodejs.org, open a terminal and check that `node` and `npm` answer. Your patch versions will differ from the ones shown."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "node --version\nnpm --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "v24.11.1\n11.6.0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Next install the Angular CLI globally so that the `ng` command is available in every folder. Pinning the major version keeps you on Angular 22 even after Angular 23 is released."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install -g @angular/cli@22\nng version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Angular CLI: 22.0.3\nNode: 24.11.1\nPackage Manager: npm 11.6.0\nOS: win32 x64"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Windows, if PowerShell refuses to run `ng` because scripts are disabled, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, or use `npx ng` instead of `ng`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create a project with ng new"
+    },
+    {
+      "type": "paragraph",
+      "text": "`ng new` creates a folder, writes the configuration, installs the dependencies and initialises a Git repository. It asks a few questions first; the defaults are fine for this tutorial. Newer CLI versions may add a question or two, for example about generating configuration files for AI coding tools, and the defaults are fine there as well."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng new my-app"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "? Which stylesheet format would you like to use? CSS\n? Do you want to enable Server-Side Rendering (SSR) and Static Site Generation (SSG/Prerendering)? No\nCREATE my-app/angular.json (2654 bytes)\nCREATE my-app/package.json (1050 bytes)\nCREATE my-app/README.md (1476 bytes)\nCREATE my-app/tsconfig.json (1051 bytes)\nCREATE my-app/src/index.html (291 bytes)\nCREATE my-app/src/main.ts (211 bytes)\nCREATE my-app/src/styles.css (80 bytes)\nCREATE my-app/src/app/app.ts (314 bytes)\nCREATE my-app/src/app/app.html (19903 bytes)\nCREATE my-app/src/app/app.css (0 bytes)\nCREATE my-app/src/app/app.spec.ts (606 bytes)\nCREATE my-app/src/app/app.config.ts (339 bytes)\nCREATE my-app/src/app/app.routes.ts (77 bytes)\n✔ Packages installed successfully.\n    Successfully initialized git."
+    },
+    {
+      "type": "paragraph",
+      "text": "Answer *No* to server-side rendering for now; the [performance lesson](/tutorials/angular/performance) adds it later with a single command. Then move into the folder and start the development server."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "cd my-app\nng serve"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Initial chunk files | Names         |  Raw size\nmain.js             | main          | 106.84 kB |\nstyles.css          | styles        |  95 bytes |\n\n                    | Initial total | 106.93 kB\n\nApplication bundle generation complete. [1.412 seconds]\n\nWatch mode enabled. Watching for file changes...\n  ➜  Local:   http://localhost:4200/\n  ➜  press h + enter to show help"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open `http://localhost:4200` and you will see the CLI's welcome page. Leave `ng serve` running: every time you save a file it recompiles in well under a second and the browser updates itself. `npm start` runs the same command, so either works."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: running ng commands in the wrong folder",
+      "text": "`ng serve`, `ng generate`, `ng test` and `ng build` only work inside a project folder, where `angular.json` lives. Run them one level up and you get `The serve command requires to be run in an Angular project, but a project definition could not be found.` Check the terminal's current folder before assuming the installation is broken."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What the CLI generated"
+    },
+    {
+      "type": "table",
+      "headers": ["File", "Purpose"],
+      "rows": [
+        [
+          "`angular.json`",
+          "Workspace configuration: build options, output folder, budgets, the dev server, the test runner"
+        ],
+        [
+          "`package.json`",
+          "Dependencies (`@angular/*`, `typescript`, `vitest`) and the `start`, `build` and `test` scripts"
+        ],
+        [
+          "`tsconfig.json`",
+          "TypeScript settings; `strict` is on and Angular's own strict template checks are enabled"
+        ],
+        [
+          "`src/index.html`",
+          "The only HTML page; it contains `<app-root>` where the app is rendered"
+        ],
+        [
+          "`src/main.ts`",
+          "Bootstraps the root component with the configuration from `app.config.ts`"
+        ],
+        ["`src/styles.css`", "Global styles that apply to every component"],
+        [
+          "`src/app/app.ts`, `app.html`, `app.css`",
+          "The root component: class, template and styles"
+        ],
+        [
+          "`src/app/app.config.ts`",
+          "Application-wide providers such as the router and, later, the HTTP client"
+        ],
+        ["`src/app/app.routes.ts`", "The route table, empty for now"],
+        ["`src/app/app.spec.ts`", "A unit test for the root component, run by `ng test`"],
+        ["`public/`", "Static files such as `favicon.ico`, copied to the build output as they are"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular 20 changed the naming convention: files are called `app.ts` rather than `app.component.ts` and classes are called `App` rather than `AppComponent`. Older projects and tutorials still use the suffixes; both styles work, but new projects follow the shorter one."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.ts (generated)",
+      "code": "import { Component, signal } from '@angular/core';\nimport { RouterOutlet } from '@angular/router';\n\n@Component({\n  selector: 'app-root',\n  imports: [RouterOutlet],\n  templateUrl: './app.html',\n  styleUrl: './app.css'\n})\nexport class App {\n  protected readonly title = signal('my-app');\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.config.ts (generated)",
+      "code": "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideRouter } from '@angular/router';\n\nimport { routes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideRouter(routes)\n  ]\n};"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice what is missing: there is no `zone.js` in the dependencies and no zone provider in the configuration. New Angular 22 projects are zoneless; the [signals lesson](/tutorials/angular/signals) explains how change detection works without it. Depending on the exact CLI version you may also see an explicit `provideZonelessChangeDetection()` in the list, which has the same effect."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Replace the welcome page"
+    },
+    {
+      "type": "paragraph",
+      "text": "The generated `app.html` is a long welcome page. Replace its entire content with two lines, save, and watch the browser update."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "src/app/app.html",
+      "code": "<h1>{{ title() }}</h1>\n<router-outlet />"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "my-app"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Generate a component"
+    },
+    {
+      "type": "paragraph",
+      "text": "You could create component files by hand, but `ng generate` writes the class, template, stylesheet and a test in one go, with the naming conventions already applied. `ng g c` is the short form."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "ng generate component greeting"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "CREATE src/app/greeting/greeting.ts (243 bytes)\nCREATE src/app/greeting/greeting.html (25 bytes)\nCREATE src/app/greeting/greeting.css (0 bytes)\nCREATE src/app/greeting/greeting.spec.ts (609 bytes)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The generated class is `Greeting` with the selector `app-greeting`. The `app-` prefix is the project's default and avoids clashes with native and third-party elements. Useful flags: `--inline-template` and `--inline-style` keep everything in the `.ts` file for small components, and `--skip-tests` omits the spec file. The [components lesson](/tutorials/angular/components) explains what to put inside."
+    },
+    {
+      "type": "table",
+      "headers": ["Command", "What it does"],
+      "rows": [
+        ["`ng serve`", "Compiles the app, serves it on port 4200 and rebuilds on every save"],
+        [
+          "`ng generate component name`",
+          "Creates a component (also `service`, `pipe`, `directive`, `guard`, `interceptor`)"
+        ],
+        ["`ng test`", "Runs the unit tests with Vitest"],
+        ["`ng build`", "Produces an optimised production build in `dist/`"],
+        ["`ng add @angular/ssr`", "Adds a package and runs its setup, here server-side rendering"],
+        [
+          "`ng update @angular/core@23 @angular/cli@23`",
+          "Upgrades Angular and runs the official migrations"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Editor support",
+      "text": "Install the Angular Language Service extension for [VS Code](/tutorials/vscode). It checks templates as you type, autocompletes component selectors and inputs, and jumps from a tag in a template to the component class."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-setup-generate"
+    }
+  ],
+  "exerciseIds": ["angular-setup-generate"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "components"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    }
+  ],
+  "seo": {
+    "title": "Install the Angular CLI and Create Your First App",
+    "description": "Install Node.js and the Angular CLI, create an Angular 22 project with ng new, run it with ng serve, understand the generated files and generate a component."
+  },
+  "updatedOn": "2026-11-15"
+}

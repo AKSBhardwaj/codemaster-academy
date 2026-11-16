@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "slug": "properties-records",
+  "title": "Properties, Records and Pattern Matching",
+  "summary": "Write properties with validation, init-only and required members, declare immutable records with value equality, and match data with switch patterns.",
+  "introduction": "Properties are how C# classes expose data without giving up control: they look like fields to callers but run code when read or written. Records build on properties to give you immutable data types with value equality in a single line. Pattern matching then lets you take decisions based on the shape of data (its type, its properties, a range) rather than long if chains. This lesson covers all three, which together define how modern C# models data.",
+  "learningObjectives": [
+    "Write auto, computed, validated, init-only and required properties",
+    "Declare records and explain value equality and with expressions",
+    "Use type, relational, logical and property patterns in switch expressions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Properties"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **property** has a getter and optionally a setter. An *auto-property* (`{ get; set; }`) stores the value in a hidden field; a full property runs your code, which is where validation and normalisation go, and the `value` keyword inside a setter is the value being assigned. `init` instead of `set` allows assignment only while the object is being created, and `required` forces callers to set the property in an object initializer, so the compiler, not a runtime check, guarantees it is never missing."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var person = new Person { Name = \"Ada\", BirthYear = 1815 };\nperson.Email = \"  Ada@Example.com \";\n\nConsole.WriteLine(person.Name);\nConsole.WriteLine(person.Email);\nConsole.WriteLine(person.AgeIn(2026));\nConsole.WriteLine(person.Initial);\n\n// person.Name = \"Grace\";   does not compile: init-only after construction\n// new Person();            does not compile: Name is required\n\nclass Person\n{\n    private string _email = \"\";\n\n    public required string Name { get; init; }\n    public int BirthYear { get; init; }\n\n    public string Email\n    {\n        get => _email;\n        set => _email = value.Trim().ToLowerInvariant();\n    }\n\n    public char Initial => Name[0];\n\n    public int AgeIn(int year) => year - BirthYear;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada\nada@example.com\n211\nA"
+    },
+    {
+      "type": "table",
+      "headers": ["Form", "Example", "Meaning"],
+      "rows": [
+        ["Auto-property", "`public int Pages { get; set; }`", "Read and write from anywhere"],
+        ["Read-only", "`public string Id { get; }`", "Set only in the constructor"],
+        [
+          "Init-only",
+          "`public string Name { get; init; }`",
+          "Set in the constructor or an object initializer, then frozen"
+        ],
+        [
+          "Private setter",
+          "`public int Count { get; private set; }`",
+          "Readable everywhere, writable only inside the class"
+        ],
+        [
+          "Computed",
+          "`public char Initial => Name[0];`",
+          "Calculated on every read, nothing stored"
+        ],
+        [
+          "Required",
+          "`public required string Name { get; init; }`",
+          "The caller must set it when creating the object"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Records"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **record** is a type whose main job is to carry data. Declaring `record Point(int X, int Y)` generates, in one line, a constructor, two init-only properties, a readable `ToString`, **value equality** (`==` compares the properties, not the references), a matching `GetHashCode`, deconstruction into variables, and support for `with` expressions that copy an instance with some properties changed. Records are reference types by default; `record struct` gives a value type with the same conveniences. A record may also declare extra members in a body."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var p1 = new Point(3, 4);\nvar p2 = new Point(3, 4);\nvar moved = p1 with { X = 10 };\n\nConsole.WriteLine(p1);\nConsole.WriteLine(p1 == p2);\nConsole.WriteLine(ReferenceEquals(p1, p2));\nConsole.WriteLine(moved);\nConsole.WriteLine(p1);\nConsole.WriteLine(p1.DistanceFromOrigin);\n\nvar (x, y) = moved;\nConsole.WriteLine($\"x = {x}, y = {y}\");\n\nrecord Point(int X, int Y)\n{\n    public double DistanceFromOrigin => Math.Sqrt(X * X + Y * Y);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Point { X = 3, Y = 4 }\nTrue\nFalse\nPoint { X = 10, Y = 4 }\nPoint { X = 3, Y = 4 }\n5\nx = 10, y = 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "`with` did not touch `p1`; it produced a new record. Compare this with a class: two `new Point(3, 4)` class instances would be unequal under `==`, and you would have to write the constructor, properties, `Equals` and `ToString` yourself. Use records for values that are defined by their data: coordinates, money amounts, messages, objects read from JSON. Use classes for things with identity and changing state, such as a bank account."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Pattern matching"
+    },
+    {
+      "type": "paragraph",
+      "text": "You have already used `is` with a type and `switch` expressions with constants. Patterns combine: a **type pattern** (`int n`) tests the type and captures the value, a **relational pattern** (`< 0`) compares, `and`, `or` and `not` combine patterns, and `when` adds an arbitrary condition. Arms are tried in order, so put specific cases before general ones; here `0` must come before `int n`."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "object?[] inputs = [0, 7, -3, \"hello\", \"\", null, 2.5];\n\nforeach (object? input in inputs)\n{\n    Console.WriteLine(Classify(input));\n}\n\nstring Classify(object? value) => value switch\n{\n    null => \"nothing\",\n    0 => \"zero\",\n    int n when n < 0 => $\"negative {n}\",\n    int n => $\"positive {n}\",\n    \"\" => \"empty string\",\n    string s => $\"text \\\"{s}\\\"\",\n    _ => $\"other ({value})\",\n};"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "zero\npositive 7\nnegative -3\ntext \"hello\"\nempty string\nnothing\nother (2.5)"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Property patterns"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **property pattern** matches on the values of properties, which is where records and pattern matching shine together. Combined with relational patterns it turns a set of business rules into a readable table, and the compiler warns if a later arm can never be reached."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "List<Order> orders =\n[\n    new Order(\"Ada\", 120m, IsMember: true),\n    new Order(\"Ken\", 60m, IsMember: false),\n    new Order(\"Grace\", 300m, IsMember: false),\n    new Order(\"Mei\", 20m, IsMember: false),\n];\n\nforeach (var order in orders)\n{\n    string shipping = order switch\n    {\n        { IsMember: true } => \"free (member)\",\n        { Total: >= 100m } => \"free\",\n        { Total: >= 50m and < 100m } => \"reduced\",\n        _ => \"standard\",\n    };\n    Console.WriteLine($\"{order.Customer}: {shipping}\");\n}\n\nrecord Order(string Customer, decimal Total, bool IsMember);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada: free (member)\nKen: reduced\nGrace: free\nMei: standard"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Patterns with is"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same patterns work after `is`, which makes range checks read like prose and avoids repeating the variable name."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int[] readings = [12, -4, 250, 73];\n\nforeach (int r in readings)\n{\n    if (r is >= 0 and <= 100)\n        Console.WriteLine($\"{r} ok\");\n    else if (r is < 0)\n        Console.WriteLine($\"{r} below range\");\n    else\n        Console.WriteLine($\"{r} above range\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "12 ok\n-4 below range\n250 above range\n73 ok"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "with copies are shallow",
+      "text": "`with` copies property values, so a record that contains a `List<T>` shares that list with its copy: changing the list through one record changes it for both, and the two records still compare equal only while they share the same list instance. Keep records immutable all the way down (use `ImmutableList<T>` or arrays you never mutate), or copy the collection yourself inside the `with` initializer."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-records-equality"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-records-qc-1",
+          "type": "true-false",
+          "lessonSlug": "properties-records",
+          "difficulty": "beginner",
+          "question": "Two record instances with the same property values are equal under ==.",
+          "explanation": "Records implement value equality: `==`, `Equals` and `GetHashCode` all use the property values. Classes compare references unless you override equality yourself.",
+          "correct": true
+        },
+        {
+          "id": "csharp-records-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "properties-records",
+          "difficulty": "beginner",
+          "question": "Which pattern matches an int between 1 and 10 inclusive?",
+          "explanation": "Relational patterns are combined with `and`: `is >= 1 and <= 10`. The other forms are not C# syntax.",
+          "options": ["`is 1..10`", "`is >= 1 and <= 10`", "`is 1 to 10`", "`is between(1, 10)`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-records-equality"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "collections-linq"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "control-flow"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "files-json"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    }
+  ],
+  "seo": {
+    "title": "C# Properties, Records and Pattern Matching Explained",
+    "description": "Learn C# properties with init and required, records with value equality and with expressions, and pattern matching with type, relational and property patterns."
+  },
+  "updatedOn": "2026-11-15"
+}

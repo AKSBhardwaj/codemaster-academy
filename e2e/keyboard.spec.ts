@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('keyboard navigation', () => {
+  test('section links stay on the current lesson', async ({ page }) => {
+    await page.goto('/tutorials/html/introduction');
+    const link = page.getByRole('link', { name: 'Link to section What does HTML do?' });
+    await link.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/tutorials\/html\/introduction\/?#what-does-html-do$/);
+    await expect(page.locator('h1')).toHaveText('HTML Introduction');
+  });
   test('the skip link is the first tab stop and moves focus to the main content', async ({
     page,
   }) => {
@@ -10,6 +18,7 @@ test.describe('keyboard navigation', () => {
     await expect(skip).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(page.locator('#main-content')).toBeFocused();
+    await expect(page).toHaveURL(/\/tutorials\/html\/introduction\/?#main-content$/);
   });
 
   test('navbar dropdowns open, move focus and close with the keyboard', async ({
@@ -50,6 +59,8 @@ test.describe('keyboard navigation', () => {
 
   test('moving between lessons returns focus to the main content', async ({ page }) => {
     await page.goto('/tutorials/html/introduction');
+    // Exercise client-side navigation after startup; native links also work before hydration.
+    await expect(page.locator('cma-tutorial-sidebar input').first()).toBeEnabled();
     const next = page.getByRole('link', { name: /Next/ }).first();
     await next.focus();
     await page.keyboard.press('Enter');
@@ -61,13 +72,15 @@ test.describe('keyboard navigation', () => {
     test.skip(!isMobile, 'The offcanvas menu only exists on small screens.');
     await page.goto('/');
     const open = page.getByRole('button', { name: 'Open menu' });
-    await open.click();
+    await open.focus();
+    await open.press('Enter');
     await expect(page.locator('.offcanvas.show, [role="dialog"]').first()).toBeVisible();
     await page.keyboard.press('Tab');
     await expect(
       page.locator('.offcanvas.show, [role="dialog"]').first().locator(':focus'),
     ).toHaveCount(1);
     await page.keyboard.press('Escape');
+    await expect(open).toHaveAttribute('aria-expanded', 'false');
     await expect(open).toBeFocused();
   });
 });

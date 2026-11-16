@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "slug": "custom-hooks",
+  "title": "Custom Hooks",
+  "summary": "A custom Hook is a function that shares React behaviour between components.",
+  "introduction": "A custom Hook is a function that shares React behaviour between components. When two parts repeat the same state steps, put those steps in a helper whose name starts with use. Each call still has its own state.",
+  "learningObjectives": [
+    "State the rules of hooks and explain why they exist",
+    "Extract repeated stateful logic into a custom hook",
+    "Explain why two components using the same hook do not share state",
+    "Design a hook's return value for the way it will be used"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The rules of hooks"
+    },
+    {
+      "type": "paragraph",
+      "text": "React identifies each hook call by its **order** within a component. That gives two rules: call hooks only at the top level of a component or of another hook, never inside conditions, loops or nested functions; and call hooks only from React function components or custom hooks, not from ordinary JavaScript functions. The `use` function from React 19 is the one exception to the first rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "A custom hook is any function whose name starts with `use` and that calls at least one hook. The prefix is not decoration: the `eslint-plugin-react-hooks` rules that the Vite template installs rely on it to know where to check the rules of hooks."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Breaking the first rule",
+      "code": "function Profile({ userId }) {\n  if (!userId) return null;              // an early return…\n  const [name, setName] = useState('');  // …before a hook\n  // ...\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "ESLint",
+      "content": "React Hook \"useState\" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  (react-hooks/rules-of-hooks)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Extracting a hook"
+    },
+    {
+      "type": "paragraph",
+      "text": "Suppose two components need the window width to choose a layout. Written twice, the state and the listener are duplicated. Move them into a function:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "useWindowWidth.js",
+      "code": "import { useEffect, useState } from 'react';\n\nexport function useWindowWidth() {\n  const [width, setWidth] = useState(() => window.innerWidth);\n\n  useEffect(() => {\n    const onResize = () => setWidth(window.innerWidth);\n    window.addEventListener('resize', onResize);\n    return () => window.removeEventListener('resize', onResize);\n  }, []);\n\n  return width;\n}"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Layout.jsx",
+      "code": "import { useWindowWidth } from './useWindowWidth.js';\n\nfunction Layout() {\n  const width = useWindowWidth();\n  return <p>{width < 768 ? 'Mobile layout' : 'Desktop layout'} ({width}px)</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered",
+      "content": "window 1280px wide:        <p>Desktop layout (1280px)</p>\nafter resizing to 600px:   <p>Mobile layout (600px)</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Nothing about the body changed; it was cut out of the component and pasted into a function. The component now reads like a sentence, and the subscription logic has one home where bugs get fixed once."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Hooks share logic, not state"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each call to a custom hook gets its own state, exactly as two `useState` calls do. Two components using `useWindowWidth` each hold their own `width`; they happen to agree because both listen to the same window. The next example makes the independence visible."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "useCounter.js",
+      "code": "import { useState } from 'react';\n\nexport function useCounter(initial = 0, step = 1) {\n  const [count, setCount] = useState(initial);\n  const increment = () => setCount((c) => c + step);\n  const reset = () => setCount(initial);\n  return { count, increment, reset };\n}"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Scoreboard.jsx",
+      "code": "import { useCounter } from './useCounter.js';\n\nfunction Scoreboard() {\n  const home = useCounter(0, 1);\n  const away = useCounter(0, 3);\n\n  return (\n    <>\n      <button onClick={home.increment}>Home: {home.count}</button>\n      <button onClick={away.increment}>Away: {away.count}</button>\n      <button onClick={() => { home.reset(); away.reset(); }}>Reset</button>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After clicking Home twice and Away once",
+      "content": "<button>Home: 2</button><button>Away: 3</button><button>Reset</button>"
+    },
+    {
+      "type": "paragraph",
+      "text": "If you *do* want several components to see the same value, the hook needs a shared source behind it: [context](/tutorials/react/context), an external store, or a server cache."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "useLocalStorage"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "useLocalStorage.js",
+      "code": "import { useEffect, useState } from 'react';\n\nexport function useLocalStorage(key, initialValue) {\n  const [value, setValue] = useState(() => {\n    const stored = localStorage.getItem(key);\n    return stored === null ? initialValue : JSON.parse(stored);\n  });\n\n  useEffect(() => {\n    localStorage.setItem(key, JSON.stringify(value));\n  }, [key, value]);\n\n  return [value, setValue];\n}"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Settings.jsx",
+      "code": "import { useLocalStorage } from './useLocalStorage.js';\n\nfunction Settings() {\n  const [fontSize, setFontSize] = useLocalStorage('fontSize', 16);\n\n  return (\n    <label>\n      Font size: {fontSize}px\n      <input\n        type=\"range\" min=\"12\" max=\"24\" value={fontSize}\n        onChange={(e) => setFontSize(Number(e.target.value))}\n      />\n    </label>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After moving the slider to 20 and reloading the page",
+      "content": "localStorage.getItem('fontSize')  →  \"20\"\nrendered label text               →  Font size: 20px"
+    },
+    {
+      "type": "paragraph",
+      "text": "Returning `[value, setValue]` mirrors `useState`, so the hook is a drop-in replacement. The lazy initializer reads storage once; the effect writes on every change. Returning an array lets callers pick names; returning an object (as `useCounter` does) is better when there are more than two values or when callers rarely need all of them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "useFetch"
+    },
+    {
+      "type": "paragraph",
+      "text": "The loading, error and data pattern from the [effects lesson](/tutorials/react/effects) is the most copied code in React apps, which makes it a natural hook:"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "useFetch.js",
+      "code": "import { useEffect, useState } from 'react';\n\nexport function useFetch(url) {\n  const [state, setState] = useState({ status: 'loading', data: null, error: null });\n\n  useEffect(() => {\n    let ignore = false;\n    setState({ status: 'loading', data: null, error: null });\n\n    fetch(url)\n      .then((res) => {\n        if (!res.ok) throw new Error(`HTTP ${res.status}`);\n        return res.json();\n      })\n      .then((data) => {\n        if (!ignore) setState({ status: 'ready', data, error: null });\n      })\n      .catch((error) => {\n        if (!ignore) setState({ status: 'error', data: null, error });\n      });\n\n    return () => {\n      ignore = true;\n    };\n  }, [url]);\n\n  return state;\n}"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Todo.jsx",
+      "code": "import { useFetch } from './useFetch.js';\n\nfunction Todo({ id }) {\n  const { status, data, error } = useFetch(`https://jsonplaceholder.typicode.com/todos/${id}`);\n\n  if (status === 'loading') return <p>Loading…</p>;\n  if (status === 'error') return <p>Error: {error.message}</p>;\n  return <p>{data.title}</p>;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered once the response arrives",
+      "content": "<Todo id={1} />  →  <p>delectus aut autem</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Because `url` is a dependency, switching from `<Todo id={1} />` to `<Todo id={2} />` fetches again, and the `ignore` flag discards any response that arrives for a URL that is no longer current. In production you would reach for a library that adds caching and retries, which the [data fetching lesson](/tutorials/react/data-fetching) covers; the hook is still worth understanding because that is what those libraries do inside."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a hook that is not named like one",
+      "text": "Naming a helper `getWindowWidth` while it calls `useState` hides it from the lint rules, and calling it conditionally then corrupts the hook order with confusing errors such as \"Rendered more hooks than during the previous render\". Conversely, a function that calls no hooks should not be named `useX`; a plain name tells readers it can be called anywhere."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Designing good hooks"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Name hooks after what they do for the component (`useOnlineStatus`), not how they do it (`useNavigatorOnLineEffect`).",
+        "Keep each hook focused; compose hooks from hooks when you need more.",
+        "Return exactly what callers use: a pair for one value and its setter, an object for several values.",
+        "Accept plain values as arguments and list them in the inner effect's dependencies, as `useFetch` does with `url`."
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-hooks-toggle"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-hooks-qc-1",
+          "type": "true-false",
+          "lessonSlug": "custom-hooks",
+          "difficulty": "beginner",
+          "question": "Two components that both call `useCounter()` share the same `count` value.",
+          "explanation": "Every call to a hook creates its own state. Custom hooks share logic; to share state you need context, a store or a server cache.",
+          "correct": false
+        },
+        {
+          "id": "react-hooks-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "custom-hooks",
+          "difficulty": "beginner",
+          "question": "Why must a custom hook's name start with `use`?",
+          "explanation": "React itself does not check names, but the lint rules use the prefix to verify the rules of hooks inside the function, and readers immediately know it calls hooks.",
+          "options": [
+            "React refuses to run functions with other names",
+            "So the lint rules can check the rules of hooks inside it and readers know it calls hooks",
+            "It makes the hook's state persist between renders",
+            "It is required for the hook to return an array"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-hooks-toggle"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "effects"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "context"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "data-fetching"
+    }
+  ],
+  "seo": {
+    "title": "React Custom Hooks – Reuse Stateful Logic",
+    "description": "Learn the rules of hooks and build custom hooks in React 19: useWindowWidth, useCounter, useLocalStorage and useFetch, plus advice on naming and return values."
+  },
+  "updatedOn": "2026-11-16"
+}

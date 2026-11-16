@@ -1,6 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { EXECUTION_ENGINES, type ExecutionEngine, type RunCapability, type RunEvent, type RunRequest } from './execution-engine';
+import {
+  EXECUTION_ENGINES,
+  type ExecutionEngine,
+  type RunCapability,
+  type RunEvent,
+  type RunRequest,
+} from './execution-engine';
 import { HtmlSandboxEngine } from './html-sandbox.engine';
 import { SqlJsEngine } from './sqljs.engine';
 import { UnavailableEngine } from './unavailable.engine';
@@ -10,7 +16,10 @@ const ALIASES: Record<string, string> = { js: 'javascript', htm: 'html' };
 /** Picks the engine for a language. Registered engines come from EXECUTION_ENGINES; the fallback is honest. */
 @Injectable({ providedIn: 'root' })
 export class ExecutionService {
-  private readonly engines = inject(EXECUTION_ENGINES, { optional: true }) ?? [inject(HtmlSandboxEngine), inject(SqlJsEngine)];
+  private readonly engines = inject(EXECUTION_ENGINES, { optional: true }) ?? [
+    inject(HtmlSandboxEngine),
+    inject(SqlJsEngine),
+  ];
   private readonly fallback = inject(UnavailableEngine);
 
   normalise(language: string): string {

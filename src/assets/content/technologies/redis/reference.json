@@ -1,0 +1,144 @@
+{
+  "title": "Redis Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the Redis course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Store a value under a key",
+          "summary": "A key is a name used to find a value. SET stores a string, and GET reads that string back.",
+          "example": {
+            "language": "text",
+            "code": "SET cma:club \"Garden club\"\nGET cma:club"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "count-with-an-atomic-increment",
+          "name": "Count with an atomic increment",
+          "summary": "INCR adds one to a key holding an integer.",
+          "example": {
+            "language": "text",
+            "code": "SET cma:books 0\nINCR cma:books\nINCR cma:books\nGET cma:books"
+          },
+          "lessonSlug": "count-with-an-atomic-increment"
+        },
+        {
+          "slug": "give-a-key-an-expiry",
+          "name": "Give a key an expiry",
+          "summary": "An expiry makes a key disappear after a time limit.",
+          "example": {
+            "language": "text",
+            "code": "SET cma:tip \"Water the plants\" EX 30\nTTL cma:tip"
+          },
+          "lessonSlug": "give-a-key-an-expiry"
+        },
+        {
+          "slug": "check-whether-a-key-exists",
+          "name": "Check whether a key exists",
+          "summary": "EXISTS checks for a key without reading its value.",
+          "example": {
+            "language": "text",
+            "code": "SET cma:temporary \"sample\"\nEXISTS cma:temporary\nDEL cma:temporary\nEXISTS cma:temporary"
+          },
+          "lessonSlug": "check-whether-a-key-exists"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "group-fields-in-a-hash",
+          "name": "Group fields in a hash",
+          "summary": "A hash stores several named fields under one Redis key.",
+          "example": {
+            "language": "text",
+            "code": "HSET cma:book:1 title \"Moon Trip\" pages 60\nHGET cma:book:1 title"
+          },
+          "lessonSlug": "group-fields-in-a-hash"
+        },
+        {
+          "slug": "use-a-list-as-a-small-queue",
+          "name": "Use a list as a small queue",
+          "summary": "A Redis list keeps values in order. Adding on the right and removing on the left gives first-in, first-out behaviour.",
+          "example": {
+            "language": "text",
+            "code": "DEL cma:queue\nRPUSH cma:queue \"Moon Trip\" \"Garden Days\"\nLPOP cma:queue"
+          },
+          "lessonSlug": "use-a-list-as-a-small-queue"
+        },
+        {
+          "slug": "keep-each-member-once",
+          "name": "Keep each member once",
+          "summary": "A set holds unique members without a promised order.",
+          "example": {
+            "language": "text",
+            "code": "DEL cma:readers\nSADD cma:readers Mia Sam Mia\nSCARD cma:readers"
+          },
+          "lessonSlug": "keep-each-member-once"
+        },
+        {
+          "slug": "rank-values-with-a-sorted-set",
+          "name": "Rank values with a sorted set",
+          "summary": "A sorted set pairs each member with a score.",
+          "example": {
+            "language": "text",
+            "code": "DEL cma:scores\nZADD cma:scores 5 Mia 8 Sam 3 Ravi\nZRANGE cma:scores 0 -1 WITHSCORES"
+          },
+          "lessonSlug": "rank-values-with-a-sorted-set"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "scan-keys-in-small-batches",
+          "name": "Scan keys in small batches",
+          "summary": "SCAN walks through key names using a cursor.",
+          "example": {
+            "language": "text",
+            "code": "SCAN 0 MATCH cma:* COUNT 10"
+          },
+          "lessonSlug": "scan-keys-in-small-batches"
+        },
+        {
+          "slug": "group-commands-with-multi",
+          "name": "Group commands with MULTI",
+          "summary": "MULTI queues commands for EXEC. Redis runs that queued group without another client's commands between them.",
+          "example": {
+            "language": "text",
+            "code": "MULTI\nSET cma:points 2\nINCR cma:points\nEXEC"
+          },
+          "lessonSlug": "group-commands-with-multi"
+        },
+        {
+          "slug": "publish-a-live-message",
+          "name": "Publish a live message",
+          "summary": "Publish/subscribe sends live messages to clients currently listening to a channel.",
+          "example": {
+            "language": "text",
+            "code": "# Terminal A:\nSUBSCRIBE cma:club-news\n# Terminal B:\nPUBLISH cma:club-news \"Meeting at four\""
+          },
+          "lessonSlug": "publish-a-live-message"
+        },
+        {
+          "slug": "choose-what-must-survive-a-restart",
+          "name": "Choose what must survive a restart",
+          "summary": "Redis persistence settings decide how data is written to disk.",
+          "example": {
+            "language": "text",
+            "code": "Example decision:\nCached book summary: can be loaded again if lost.\nOnly copy of a payment record: must not depend on an unreviewed cache setup.\nCheck the server's RDB snapshot and AOF settings, then test a practice restart."
+          },
+          "lessonSlug": "choose-what-must-survive-a-restart"
+        }
+      ]
+    }
+  ]
+}

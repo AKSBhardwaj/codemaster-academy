@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "mutations",
+  "title": "Ask for a change",
+  "summary": "GraphQL: Ask for a change. Set the value to 6.",
+  "introduction": "A mutation names a write action. This local example changes one in-memory score.",
+  "learningObjectives": ["Ask for a change with GraphQL", "Set the value to 6"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ask for a change"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Ask for a change",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Query { score: Int! } type Mutation { setScore(value: Int!): Int! }\");\nlet score = 3;\nconst rootValue = { score: () => score, setScore: ({ value }) => { score = value; return score; } };\nconst result = await graphql({ schema, rootValue, source: \"mutation { setScore(value: 8) }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The mutation resolver receives 8, stores it in the local score and returns the new value."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"setScore\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Set the value to 6."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The resolver must implement the change; declaring a mutation alone does not save data."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-mutations-check"
+    }
+  ],
+  "exerciseIds": ["graphql-mutations-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "enums"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Ask for a change",
+    "description": "GraphQL: Ask for a change. Set the value to 6. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

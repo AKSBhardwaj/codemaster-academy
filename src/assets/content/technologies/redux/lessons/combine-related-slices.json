@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "combine-related-slices",
+  "title": "Combine related slices",
+  "summary": "A store can hold several slices under different keys.",
+  "introduction": "A store can hold several slices under different keys. Your task: Write a selector for the books list in this root state.",
+  "learningObjectives": [
+    "Write a selector for the books list in this root state.",
+    "Explain the example for combine related slices"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A store can hold several slices under different keys. Each slice still handles its own part of the state."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a JavaScript project with @reduxjs/toolkit installed. React examples also need react-redux and React. These imports require your project build tool and are not available in the plain playground."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {configureStore,createSlice} from \"@reduxjs/toolkit\";\nconst books=createSlice({name:\"books\",initialState:[],reducers:{}});\nconst theme=createSlice({name:\"theme\",initialState:\"light\",reducers:{}});\nconst store=configureStore({reducer:{books:books.reducer,theme:theme.reducer}});\nconsole.log(store.getState().theme);",
+      "title": "Combine related slices",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`createSlice` groups a state value and its reducer rules. Redux Toolkit also generates an action creator for each named reducer.",
+        "`configureStore` creates a Redux store from the supplied reducer or reducer map."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The root state has books and theme keys. The theme value is light."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Selectors need to follow the actual root shape. Moving a slice under a key changes its lookup path."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Write a selector for the books list in this root state."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "redux-combine-related-slices-check"
+    }
+  ],
+  "exerciseIds": ["redux-combine-related-slices-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "redux",
+      "slug": "select-a-useful-piece-of-state"
+    }
+  ],
+  "seo": {
+    "title": "Redux: Combine related slices",
+    "description": "A store can hold several slices under different keys. Each slice still handles its own part of the state."
+  },
+  "updatedOn": "2026-11-16"
+}

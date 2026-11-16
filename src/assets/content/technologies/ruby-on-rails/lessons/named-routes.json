@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "named-routes",
+  "title": "Build a path from a route helper",
+  "summary": "Ruby on Rails: Build a path from a route helper. Change the name passed to hello_path.",
+  "introduction": "The as option names a route helper. Open GET /link to see the helper fill in a name.",
+  "learningObjectives": [
+    "Build a path from a route helper with Ruby on Rails",
+    "Change the name passed to hello_path"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with rails new school --api --skip-active-record. Enter it. Put each labelled section into its named file, then run bin/rails server -b 127.0.0.1 -p 8000. No database is needed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Build a path from a route helper"
+    },
+    {
+      "type": "code",
+      "language": "ruby",
+      "title": "Build a path from a route helper",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\", as: :hello\nget \"/link\", to: \"lesson#link\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: params[:name]\nend\ndef link\n render plain: hello_path(name: \"Asha\")\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The named route creates hello_path. Supplying Asha fills its required name segment."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "/hello/Asha"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the name passed to hello_path."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Path helper inputs must match the route values."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ruby-on-rails-named-routes-check"
+    }
+  ],
+  "exerciseIds": ["ruby-on-rails-named-routes-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ruby-on-rails",
+      "slug": "status"
+    }
+  ],
+  "seo": {
+    "title": "Ruby on Rails: Build a path from a route helper",
+    "description": "Ruby on Rails: Build a path from a route helper. Change the name passed to hello_path. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

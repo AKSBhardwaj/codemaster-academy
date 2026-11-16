@@ -1,0 +1,164 @@
+{
+  "id": "django-quiz",
+  "title": "Django Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "django-review-1",
+      "lessonSlug": "first-view",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef hello(request):\n    return HttpResponse(\"Hello, Asha!\")\nurlpatterns = [\npath(\"\", hello),\n]\n",
+      "question": "A view is a function that returns a response. path connects the empty path to hello. Open GET /. What result does this example give after the setup steps?",
+      "explanation": "urlpatterns maps the empty path to hello. The view returns an HttpResponse containing the greeting. Django path patterns do not start with a slash.",
+      "options": ["Hello, Asha!", "Hello, Ravi!", "hello, asha!"],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-2",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef book(request):\n    return JsonResponse({\"title\": \"Moon Trip\", \"pages\": 24})\nurlpatterns = [\npath(\"book/\", book),\n]\n",
+      "question": "JsonResponse turns a Python dictionary into JSON. Open GET /book/. What result does this example give after the setup steps?",
+      "explanation": "JsonResponse converts the dictionary to JSON. Python True would become JSON true when used in a field. Use a dictionary by default; lists need safe=False.",
+      "options": [
+        "{\"title\": \"Moon Trip\", \"pages\": 24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}",
+        "[\"Moon Trip\",24]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-3",
+      "lessonSlug": "integer-paths",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef twice(request, n):\n    return JsonResponse({\"answer\": n * 2})\nurlpatterns = [\npath(\"double/<int:n>/\", twice),\n]\n",
+      "question": "The int converter turns a matching path part into a Python int. Open GET /double/4/. What result does this example give after the setup steps?",
+      "explanation": "The int converter matches 4 and passes integer n to the view. The multiplication returns 8. A nonmatching converter produces 404 before the view runs.",
+      "options": ["{\"answer\": 8}", "{\"answer\":9}", "[8]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-4",
+      "lessonSlug": "text-paths",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef hello(request, name):\n    return HttpResponse(\"Hi, \" + name + \"!\", content_type=\"text/plain\")\nurlpatterns = [\npath(\"hello/<str:name>/\", hello),\n]\n",
+      "question": "The str converter passes one path segment as text. Open GET /hello/Ravi/. What result does this example give after the setup steps?",
+      "explanation": "The str converter captures Ravi. A text/plain response displays the characters without treating them as HTML. Use text/plain or proper escaping when returning user text.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "django-review-5",
+      "lessonSlug": "query",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef search(request):\n    return JsonResponse({\"term\": request.GET.get(\"q\", \"\")})\nurlpatterns = [\npath(\"search/\", search),\n]\n",
+      "question": "request.GET contains query values. Visit GET /search/?q=cat. What result does this example give after the setup steps?",
+      "explanation": "request.GET.get finds q in the query string. The dictionary response places cat under term. Despite its name, request.GET describes query data, not the entire request.",
+      "options": ["{\"term\": \"cat\"}", "{\"term\":\"dog\"}", "[\"cat\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-6",
+      "lessonSlug": "methods",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef check(request):\n    if request.method != \"GET\":\n        return HttpResponseNotAllowed([\"GET\"])\n    return HttpResponse(\"Ready\")\nurlpatterns = [\npath(\"check/\", check),\n]\n",
+      "question": "A view can inspect request.method. A GET request to /check/ is accepted; another method gets 405. What result does this example give after the setup steps?",
+      "explanation": "For GET the check passes and returns Ready. Other methods receive the allowed-method response. Use 405 for an unsupported method, not 404.",
+      "options": ["Waiting", "ready", "Ready"],
+      "correctIndex": 2
+    },
+    {
+      "id": "django-review-7",
+      "lessonSlug": "named-routes",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef hello(request, name):\n    return HttpResponse(name)\ndef link(request):\n    return HttpResponse(reverse(\"hello\", kwargs={\"name\": \"Asha\"}))\nurlpatterns = [\npath(\"hello/<str:name>/\", hello, name=\"hello\"),\npath(\"link/\", link),\n]\n",
+      "question": "reverse finds a route by name and fills its inputs. Open GET /link/. What result does this example give after the setup steps?",
+      "explanation": "reverse looks up the named pattern and substitutes Asha for its name input. The keyword name must match the path input name.",
+      "options": ["/hello/Asha/", "/hello/Ravi/", "/hello/asha/"],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-8",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef start(request):\n    return redirect(\"hello\")\ndef hello(request):\n    return HttpResponse(\"Welcome\")\nurlpatterns = [\npath(\"start/\", start),\npath(\"hello/\", hello, name=\"hello\"),\n]\n",
+      "question": "redirect creates an HTTP redirect. GET /start/ sends a browser to /hello/. What result does this example give after the setup steps?",
+      "explanation": "The redirect resolves the named hello route. The browser requests it and receives Welcome. A redirect causes a second request from the client.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "django-review-9",
+      "lessonSlug": "missing-items",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef missing(request):\n    return JsonResponse({\"error\": \"Book not found\"}, status=404)\nurlpatterns = [\npath(\"missing/\", missing),\n]\n",
+      "question": "The response status describes the result. Open GET /missing/ to see a 404 reply. What result does this example give after the setup steps?",
+      "explanation": "The status keyword sets 404 while the dictionary supplies the error body. Returning error text with status 200 can mislead clients.",
+      "options": [
+        "{\"error\":\"Title needed\"}",
+        "[\"Book not found\"]",
+        "{\"error\": \"Book not found\"}"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "django-review-10",
+      "lessonSlug": "list-data",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef books(request):\n    return JsonResponse({\"books\": [\"Moon Trip\", \"Sun Trip\"]})\nurlpatterns = [\npath(\"books/\", books),\n]\n",
+      "question": "JsonResponse normally expects a dictionary. A dictionary can hold a list under a clear key. Open GET /books/. What result does this example give after the setup steps?",
+      "explanation": "The outer dictionary stores a list under books. JsonResponse preserves the two title values. A named wrapper leaves room for more response information later.",
+      "options": [
+        "{\"books\": [\"Moon Trip\", \"Sun Trip\"]}",
+        "{\"books\":[\"Sun Trip\",\"Sun Trip\"]}",
+        "[[\"Moon Trip\",\"Sun Trip\"]]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-11",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef note(request):\n    response = HttpResponse(\"Practice note\", content_type=\"text/plain\")\n    response[\"Cache-Control\"] = \"no-store\"\n    return response\nurlpatterns = [\npath(\"note/\", note),\n]\n",
+      "question": "A response object can store headers. GET /note/ has a no-store cache rule. What result does this example give after the setup steps?",
+      "explanation": "The header is set on the response object before the view returns it. Set headers before returning the response.",
+      "options": ["Practice note", "Welcome", "practice note"],
+      "correctIndex": 0
+    },
+    {
+      "id": "django-review-12",
+      "lessonSlug": "health-view",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "python",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef health(request):\n    return JsonResponse({\"ready\": True})\nurlpatterns = [\npath(\"health/\", health),\n]\n",
+      "question": "A health route gives a small answer that a checker can read. GET /health/ returns one Boolean field. What result does this example give after the setup steps?",
+      "explanation": "JsonResponse converts Python True to JSON true. This route checks only the simple ready flag. A simple health response does not prove every outside service is working.",
+      "options": ["{\"ready\": true}", "{\"ready\":false}", "[true]"],
+      "correctIndex": 0
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "Functions",
+  "summary": "Define and call functions, declare prototypes so the compiler knows them before use, understand pass-by-value, recursion and static variables, and avoid the missing-return bug.",
+  "introduction": "A function is a named block of code with inputs and one output. Functions let you name an idea once and reuse it, test it in isolation and keep `main` readable. C's functions are simple compared with other languages: there is no overloading, no default arguments and no nesting, and every argument is copied. This lesson covers definitions, prototypes, the order in which the compiler needs to see things, pass-by-value, recursion and `static` local variables.",
+  "learningObjectives": [
+    "Define a function with a return type, parameters and a body, and call it",
+    "Declare prototypes so functions can be used before their definition",
+    "Explain why changing a parameter does not change the caller's variable",
+    "Write a recursive function and a function with a static local variable"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Defining and calling a function"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function definition has four parts: the **return type**, the **name**, the **parameter list** in parentheses and the **body** in braces. `return` sends a value back and ends the function. A function that returns nothing has the return type `void`. A function that takes no parameters is written with `(void)`: in C17 an empty pair of parentheses in a declaration means \"parameters unspecified\", a leftover from old C that C23 finally removes by making `()` mean the same as `(void)`."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "circle.c",
+      "code": "#include <stdio.h>\n\ndouble circle_area(double radius)\n{\n    const double pi = 3.14159265358979;\n    return pi * radius * radius;\n}\n\nvoid print_line(int width)\n{\n    for (int i = 0; i < width; i++) {\n        printf(\"-\");\n    }\n    printf(\"\\n\");\n}\n\nint main(void)\n{\n    print_line(20);\n    printf(\"radius 1.0: %.2f\\n\", circle_area(1.0));\n    printf(\"radius 2.5: %.2f\\n\", circle_area(2.5));\n    print_line(20);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 circle.c -o circle\n$ ./circle\n--------------------\nradius 1.0: 3.14\nradius 2.5: 19.63\n--------------------"
+    },
+    {
+      "type": "paragraph",
+      "text": "`circle_area` is called twice with different **arguments**; inside the function the value arrives in the **parameter** `radius`. The result of a call is an expression, so it can sit directly inside `printf`. `print_line` returns nothing and is called purely for its effect on the screen."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Prototypes and declaration order"
+    },
+    {
+      "type": "paragraph",
+      "text": "The compiler reads a file from top to bottom and must know a function's return type and parameter types before the first call. Defining every function above `main` works for small programs. For larger ones you write a **prototype**: the first line of the definition with a semicolon instead of a body, placed near the top of the file or in a header. Calling a function that has not been declared is an error: C99 removed the old rule that guessed `int`, and recent compilers (GCC 14, Clang 16) refuse to compile such a call."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "prototype.c",
+      "code": "#include <stdio.h>\n\nint max_of(int a, int b);                 /* prototypes */\nint clamp(int value, int low, int high);\n\nint main(void)\n{\n    printf(\"%d\\n\", max_of(3, 9));\n    printf(\"%d\\n\", clamp(15, 0, 10));\n    printf(\"%d\\n\", clamp(-4, 0, 10));\n    return 0;\n}\n\nint max_of(int a, int b)\n{\n    return a > b ? a : b;\n}\n\nint clamp(int value, int low, int high)\n{\n    if (value < low) return low;\n    if (value > high) return high;\n    return value;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "9\n10\n0"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parameter names in a prototype are optional (`int max_of(int, int);` is legal) but worth keeping as documentation. The prototype and the definition must agree on the return type and every parameter type, or the compiler reports a conflicting declaration."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arguments are copied"
+    },
+    {
+      "type": "paragraph",
+      "text": "C passes every argument **by value**: the function receives a copy, and assigning to a parameter changes only that copy. This is simple and safe, but it means a function cannot modify the caller's variable through a plain parameter. To do that you pass the variable's *address*, the subject of the [pointers](/tutorials/c/pointers) lesson. Arrays look like an exception, because an array argument arrives as a pointer to its first element, so a function can change the caller's array elements."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "byvalue.c",
+      "code": "#include <stdio.h>\n\nvoid try_to_double(int n)\n{\n    n = n * 2;\n    printf(\"inside:  n = %d\\n\", n);\n}\n\nint main(void)\n{\n    int n = 21;\n    try_to_double(n);\n    printf(\"outside: n = %d\\n\", n);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "inside:  n = 42\noutside: n = 21"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Recursion"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function may call itself. Each call gets its own fresh parameters and local variables on the call stack, so a recursive function must have a **base case** that returns without recursing, otherwise the stack grows until the program crashes. Recursion suits problems defined in terms of smaller versions of themselves, such as factorials, tree walks and divide-and-conquer sorting; for simple counting a loop is clearer and faster."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "factorial.c",
+      "code": "#include <stdio.h>\n\nunsigned long long factorial(unsigned int n)\n{\n    if (n <= 1) {\n        return 1;                 /* base case stops the recursion */\n    }\n    return n * factorial(n - 1);  /* recursive case */\n}\n\nint main(void)\n{\n    for (unsigned int i = 0; i <= 5; i++) {\n        printf(\"%u! = %llu\\n\", i, factorial(i));\n    }\n    printf(\"20! = %llu\\n\", factorial(20));\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "0! = 1\n1! = 1\n2! = 2\n3! = 6\n4! = 24\n5! = 120\n20! = 2432902008176640000"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "static local variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A local variable normally disappears when its function returns. Declaring it `static` gives it one permanent storage location that keeps its value between calls and starts at zero. This is handy for counters and caches and risky in programs that use threads. The same keyword on a function or a file-scope variable means something different: it makes the name private to the file, as explained in [Headers and Multi-file Programs](/tutorials/c/headers-multifile)."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "counter.c",
+      "code": "#include <stdio.h>\n\nint next_id(void)\n{\n    static int last = 0;   /* initialised once, kept between calls */\n    last++;\n    return last;\n}\n\nint main(void)\n{\n    printf(\"%d\\n\", next_id());\n    printf(\"%d\\n\", next_id());\n    printf(\"%d\\n\", next_id());\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "1\n2\n3"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting to return a value",
+      "text": "If a function with a non-`void` return type reaches its closing brace without executing `return`, using the result is undefined behaviour: you may get the right answer today and garbage after the next compiler update. `-Wall` enables `-Wreturn-type`, which reports \"control reaches end of non-void function\", so treat that warning as an error. Make sure every path through the function, including every branch of an `if` chain, ends in a `return`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Design tip",
+      "text": "Give each function one job and a name that says what it returns or does: `circle_area`, `print_line`, `next_id`. If a function needs more than a screenful of code or a comment explaining its sections, split it. Small functions are easier to test, reuse and, above all, read."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-functions-average"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-functions-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "A function declaration without a body, such as `int square(int n);`, is called a ___.",
+          "explanation": "A prototype tells the compiler the return type and parameter types so that calls can be checked before the definition appears.",
+          "answers": ["prototype", "function prototype", "declaration"],
+          "caseSensitive": false
+        },
+        {
+          "id": "c-functions-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`bump` receives a copy of `v`, so incrementing `x` never touches `v`, which stays 1.",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nvoid bump(int x)\n{\n    x++;\n}\n\nint main(void)\n{\n    int v = 1;\n    bump(v);\n    bump(v);\n    printf(\"%d\\n\", v);\n    return 0;\n}",
+          "options": ["`1`", "`2`", "`3`", "It does not compile"],
+          "correctIndex": 0
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-functions-implicit-declaration", "c-functions-average"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "pointers"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "headers-multifile"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C Functions – Prototypes, Pass by Value, Recursion",
+    "description": "Learn C functions: definitions and calls, prototypes, why arguments are copied, recursion with a base case, static local variables and the missing-return bug."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,199 @@
+{
+  "title": "C# .NET and Oracle Backend Exercises",
+  "description": "Practise each step of the Reading List API. Read the code, find mistakes and explain the reply. C# and Oracle tasks run in the local sample, so use the lesson setup and compare your work with the notes.",
+  "exercises": [
+    {
+      "id": "dotnet-oracle-backend-introduction-check",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A reader clicks Add book. Which part checks the title and asks Oracle to save it?",
+      "explanation": "The browser sends the request. The C# API checks its values and talks to Oracle. Oracle keeps the row. The browser does not need the database password.",
+      "options": ["The page heading", "The C# API running on the server", "The CSS file"],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-setup-dotnet-check",
+      "lessonSlug": "setup-dotnet",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "You want the controller-based API used in this course. Which project command should replace line 2?",
+      "explanation": "The webapi template with --use-controllers makes an API project with controllers. -f net10.0 chooses .NET 10. A console project is useful for small programs, but it does not create this web API setup.",
+      "language": "bash",
+      "code": "dotnet --list-sdks\ndotnet new console -n ReadingListApi -f net10.0",
+      "options": [
+        "dotnet new webapi --use-controllers -n ReadingListApi -f net10.0",
+        "dotnet new classlib -n ReadingListApi -f net10.0",
+        "dotnet clean"
+      ],
+      "correctIndex": 0,
+      "errorLine": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-oracle-setup-check",
+      "lessonSlug": "oracle-setup",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "The API reads a setting called ConnectionStrings:Oracle. In an environment variable, replace the colon with ___, so the key is ConnectionStrings__Oracle.",
+      "explanation": "Use two underscores: __. .NET reads them as a separator between setting levels. The value belongs in the API's environment, not in browser JavaScript or a public file.",
+      "answers": ["__"],
+      "caseSensitive": true
+    },
+    {
+      "id": "dotnet-oracle-backend-create-books-table-check",
+      "lessonSlug": "create-books-table",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "The table uses the rule below. What happens when this INSERT tries to save is_read as 2?",
+      "explanation": "The CHECK rule permits only 0 or 1. A value of 2 fails the check, so Oracle does not add this row. The rule protects the table even if a program sends a wrong value.",
+      "language": "sql",
+      "code": "-- This rule is part of reading_list_books:\n-- CHECK (is_read IN (0, 1))\nINSERT INTO reading_list_books (title, is_read)\nVALUES ('Moon Trip', 2);",
+      "options": [
+        "Oracle silently changes 2 to 1",
+        "Oracle saves 2 because it is a number",
+        "Oracle rejects the row because 2 fails the check"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-csharp-models-check",
+      "lessonSlug": "csharp-models",
+      "difficulty": "beginner",
+      "type": "coding-task",
+      "question": "In a .NET 10 scratch file, add rules to this request model: Title is required and may have at most 120 characters. Use DataAnnotations attributes. Then compare your work with the solution.",
+      "explanation": "Required rejects missing, empty and whitespace-only titles. StringLength(120) sets the maximum length. The sample's [ApiController] checks model errors and returns 400 before a controller action uses invalid input.",
+      "language": "csharp",
+      "starterCode": "using System.ComponentModel.DataAnnotations;\n\npublic sealed class SaveBookRequest\n{\n    // Add two validation attributes here.\n    public string? Title { get; init; }\n    public bool IsRead { get; init; }\n}",
+      "solutionCode": "using System.ComponentModel.DataAnnotations;\n\npublic sealed class SaveBookRequest\n{\n    [Required]\n    [StringLength(120)]\n    public string? Title { get; init; }\n    public bool IsRead { get; init; }\n}",
+      "checklist": [
+        "Title has the [Required] attribute.",
+        "Title has the [StringLength(120)] attribute.",
+        "The System.ComponentModel.DataAnnotations namespace is imported."
+      ]
+    },
+    {
+      "id": "dotnet-oracle-backend-connect-oracle-check",
+      "lessonSlug": "connect-oracle",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "This code has a connection string, but the connection is still closed. Which step belongs before ExecuteReaderAsync?",
+      "explanation": "Creating an OracleConnection does not open it. Await OpenAsync before running a command. using releases the connection when the work ends, including when an error occurs.",
+      "language": "csharp",
+      "code": "using var connection = new OracleConnection(connectionString);\nusing var command = connection.CreateCommand();\ncommand.CommandText = \"SELECT id, title FROM reading_list_books\";\nusing var reader = await command.ExecuteReaderAsync();",
+      "options": [
+        "Put the database password in the SQL text",
+        "await connection.OpenAsync();",
+        "Remove the SELECT word"
+      ],
+      "correctIndex": 1,
+      "errorLine": 4
+    },
+    {
+      "id": "dotnet-oracle-backend-first-api-check",
+      "lessonSlug": "first-api",
+      "difficulty": "beginner",
+      "type": "fill-blank",
+      "question": "A controller has [Route(\"api/books\")]. Add [Http___] to its list action so GET /api/books can reach it.",
+      "explanation": "HttpGet tells ASP.NET Core that this action handles GET requests. The controller's route supplies api/books. A method name alone is not the complete route rule.",
+      "answers": ["Get"],
+      "caseSensitive": true
+    },
+    {
+      "id": "dotnet-oracle-backend-read-books-check",
+      "lessonSlug": "read-books",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "The reading list has no books yet. What should GET /api/books return?",
+      "explanation": "The collection exists even when it has no rows. Return 200 with an empty JSON array, []. A missing single book, such as GET /api/books/999 when that id is absent, is a different case and gets 404.",
+      "options": ["200 OK with []", "404 for the whole API", "201 Created with an invented book"],
+      "correctIndex": 0
+    },
+    {
+      "id": "dotnet-oracle-backend-add-books-check",
+      "lessonSlug": "add-books",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "question": "The API accepts this valid request and saves one new row. Which reply matches this course's POST route?",
+      "explanation": "POST creates a new book. The API returns 201, the saved book, and a Location header pointing to its address. Read the returned id; do not guess that it will be 1.",
+      "language": "http",
+      "code": "POST /api/books HTTP/1.1\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"isRead\":false}",
+      "options": [
+        "204 with no new book address",
+        "404 because the id was not sent",
+        "201 with the new book and a Location header"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-update-delete-books-check",
+      "lessonSlug": "update-delete-books",
+      "difficulty": "beginner",
+      "type": "coding-task",
+      "question": "This DELETE command would remove every book. Change it so it removes only the row whose id is in bookId. Use a named :id parameter. This is a code fragment for the sample's open Oracle connection.",
+      "explanation": "DELETE without WHERE affects every row. WHERE id = :id selects one id. BindByName makes the value match the name, and an Int64 parameter carries the C# long id as data.",
+      "language": "csharp",
+      "starterCode": "// connection is open; bookId is a positive long.\nusing var command = connection.CreateCommand();\ncommand.CommandText = \"DELETE FROM reading_list_books\";\n// Add a named parameter and a WHERE rule before running this command.",
+      "solutionCode": "// connection is open; bookId is a positive long.\nusing var command = connection.CreateCommand();\ncommand.BindByName = true;\ncommand.CommandText = \"DELETE FROM reading_list_books WHERE id = :id\";\ncommand.Parameters.Add(\"id\", OracleDbType.Int64).Value = bookId;\nint changed = await command.ExecuteNonQueryAsync();",
+      "checklist": [
+        "The SQL ends with WHERE id = :id.",
+        "BindByName is true.",
+        "An OracleDbType.Int64 parameter named id receives bookId.",
+        "The command uses ExecuteNonQueryAsync after the parameter is added."
+      ]
+    },
+    {
+      "id": "dotnet-oracle-backend-safe-queries-transactions-check",
+      "lessonSlug": "safe-queries-transactions",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A fresh connection starts a transaction, inserts a practice book, then rolls back before any commit. What happens to that inserted row?",
+      "explanation": "Rollback cancels changes made in that transaction, so this new row does not remain. Identity numbers can still have gaps. Rollback does not promise to give an id number back.",
+      "options": [
+        "The title changes to an empty string",
+        "The inserted row is undone; its id number may still be skipped",
+        "The API must delete every row in the table"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "dotnet-oracle-backend-test-api-check",
+      "lessonSlug": "test-api",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "A POST reply gives your new test book id 37. What is the best next step when testing the complete route flow?",
+      "explanation": "Use the id or Location from the real response. Read that book, update it, delete it, and check that reading the deleted id gives 404. Another run can receive a different id.",
+      "options": [
+        "GET /api/books/37 and check the saved title",
+        "Always GET /api/books/1",
+        "Wait one second and assume the save worked"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "dotnet-oracle-backend-browser-client-check",
+      "lessonSlug": "browser-client",
+      "difficulty": "beginner",
+      "type": "find-error",
+      "question": "This browser code is the wrong place for a database secret. What should the browser do instead?",
+      "explanation": "Browser files can be read by the person using the page. Keep the Oracle connection setting in the API process. The browser sends HTTP requests to /api/books; it never opens the Oracle connection.",
+      "language": "javascript",
+      "code": "// Browser JavaScript: do not use this design.\nconst oraclePassword = \"example-password\";\n// Connect straight to Oracle from the page.",
+      "options": [
+        "Hide the password in a CSS file",
+        "Send a request to the API and let the API talk to Oracle",
+        "Rename oraclePassword to a shorter name"
+      ],
+      "correctIndex": 1,
+      "errorLine": 2
+    },
+    {
+      "id": "dotnet-oracle-backend-finish-project-check",
+      "lessonSlug": "finish-project",
+      "difficulty": "beginner",
+      "type": "true-false",
+      "question": "Finishing the local practice checks means this unauthenticated teaching API is ready for anyone on the internet to change its books.",
+      "explanation": "False. This sample is a local learning project. Before making a real shared service, plan who may read and change data, protect secrets, use HTTPS, and add suitable access checks, error handling, backups and tests.",
+      "correct": false
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "slug": "oracle-setup",
+  "title": "Prepare your Oracle database",
+  "summary": "Set up a local Oracle Free database and a separate reading_app user. Learn the difference between an administrator and the API account.",
+  "introduction": "A database is a place for keeping organised records. First we need a running Oracle database. Then we make a small, separate workspace for our book app. An adult, teacher or computer administrator can help with the installation.",
+  "learningObjectives": [
+    "Choose the correct Oracle database service",
+    "Create a separate local learning account",
+    "Keep administrator credentials out of the API"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Install or use a local learning database"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use [Oracle AI Database 26ai Free](https://www.oracle.com/database/free/get-started/) and follow the instructions for your operating system. Download from Oracle, extract the installer and record the connection details it shows. Keep the administrator password private."
+    },
+    {
+      "type": "paragraph",
+      "text": "The native Windows installer needs a supported Windows edition and administrator access. Windows Home is not supported by that installer. If your computer is not supported, use a compatible Linux machine or a teacher-provided learning database. Do not remove an existing database just to follow this lesson."
+    },
+    {
+      "type": "paragraph",
+      "text": "These lessons use the local address localhost:1521/FREEPDB1. **localhost** means this computer. **1521** is the database listener port, like a numbered door. **FREEPDB1** is the application database service inside the Free installation."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Check your actual service name",
+      "text": "FREE is the root service, not the workspace we want. Older Oracle XE installations often use XEPDB1. Use the service shown by your own installation; changing the host to Docker does not change the service name."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Connect as the setup administrator"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open a terminal in the extracted dotnet-oracle-backend folder. SQL*Plus is Oracle's command tool. It will ask for the administrator password without putting it in this command."
+    },
+    {
+      "type": "code",
+      "language": "powershell",
+      "code": "sqlplus system@localhost:1521/FREEPDB1",
+      "title": "Open SQL*Plus",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "If the command is not found, use the full path to sqlplus.exe under your Oracle installation's bin folder, or an installed Oracle SQL client. In PowerShell, put & before a quoted executable path. The exact folder depends on your installation."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SHOW CON_NAME;\n@database/01-create-user.sql",
+      "title": "Inside SQL*Plus, from the sample root",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "SHOW CON_NAME should say FREEPDB1. Stop if it says CDB$ROOT; reconnect using the application service. The script asks you to choose a password for reading_app. Choose 12 to 30 characters using only letters, numbers, ! or _ for this practice script. These characters avoid SQL*Plus quoting surprises."
+    },
+    {
+      "type": "paragraph",
+      "text": "The script creates reading_app, gives it a small 10 MB space allowance and lets it connect and create its first table. This user is separate from SYSTEM. Do not use the administrator account in your API."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What is a schema?"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **schema** is the group of database objects owned by a user. The reading_app schema will own our book table. No real school or personal records are needed; we use made-up book titles."
+    },
+    {
+      "type": "alert",
+      "variant": "info",
+      "title": "Run setup once",
+      "text": "The script creates a new user. If Oracle says the user already exists, check whether it is your earlier practice account. Do not drop another person's user or data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your small task"
+    },
+    {
+      "type": "paragraph",
+      "text": "Write down only the host, port, service and username. Leave out both passwords. Point to the part of the address that names the application database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check your understanding"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dotnet-oracle-backend-oracle-setup-check"
+    }
+  ],
+  "exerciseIds": ["dotnet-oracle-backend-oracle-setup-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "create-books-table"
+    },
+    {
+      "technologySlug": "dotnet-oracle-backend",
+      "slug": "setup-dotnet"
+    }
+  ],
+  "seo": {
+    "title": "Prepare your Oracle database | C# .NET and Oracle",
+    "description": "Set up a local Oracle Free database and a separate reading_app user. Learn the difference between an administrator and the API account."
+  },
+  "updatedOn": "2026-11-16"
+}

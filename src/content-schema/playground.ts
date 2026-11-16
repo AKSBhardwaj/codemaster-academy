@@ -29,6 +29,8 @@ export const playgroundConfigSchema = z.strictObject({
   languages: z.array(playgroundLanguageSchema).min(1).max(30),
   /** SQL executed before every SQL run to create the sample database. */
   sqlSetup: z.string().min(1).max(20000),
-  sqlSchemaSummary: z.array(z.strictObject({ table: z.string(), columns: z.array(z.string()).min(1) })).min(1),
+  sqlSchemaSummary: z
+    .array(z.strictObject({ table: z.string(), columns: z.array(z.string()).min(1) }))
+    .min(1),
 });
 export type PlaygroundConfig = z.infer<typeof playgroundConfigSchema>;

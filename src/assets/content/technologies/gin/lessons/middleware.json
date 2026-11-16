@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "middleware",
+  "title": "Run a shared request step",
+  "summary": "Gin: Run a shared request step. Change the stored school name.",
+  "introduction": "Middleware can set request values before calling the next handler. Open GET /school.",
+  "learningObjectives": ["Run a shared request step with Gin", "Change the stored school name"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice folder, run go mod init school and go get github.com/gin-gonic/gin@v1.10.0. Save one example as main.go and run go run . Use http://127.0.0.1:3000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a shared request step"
+    },
+    {
+      "type": "code",
+      "language": "go",
+      "title": "Run a shared request step",
+      "code": "package main\nimport (\n\"github.com/gin-gonic/gin\"\n\"net/http\"\n)\nfunc main() {\nr := gin.New()\nr.Use(gin.Recovery())\nr.Use(func(c *gin.Context) { c.Set(\"school\", \"Oak School\"); c.Next() })\nr.GET(\"/school\", func(c *gin.Context) { c.String(http.StatusOK, c.GetString(\"school\")) })\nr.Run(\"127.0.0.1:3000\")\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The middleware stores a context value, then calls Next. GetString reads it in the route."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Oak School"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the stored school name."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Request context values belong to the current request."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "gin-middleware-check"
+    }
+  ],
+  "exerciseIds": ["gin-middleware-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "gin",
+      "slug": "groups"
+    }
+  ],
+  "seo": {
+    "title": "Gin: Run a shared request step",
+    "description": "Gin: Run a shared request step. Change the stored school name. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

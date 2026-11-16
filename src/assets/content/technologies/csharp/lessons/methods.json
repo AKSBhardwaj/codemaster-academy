@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "slug": "methods",
+  "title": "Methods",
+  "summary": "Define methods with parameters and return values, use expression bodies, optional and named arguments, params, out and ref parameters, overloading and recursion.",
+  "introduction": "A method packages a piece of logic under a name so you can run it from many places without copying code, and it is how you split a long program into readable steps. In this lesson you declare methods beside top-level statements, pass data in through parameters, get results back through return values and out parameters, and learn the conveniences C# adds: expression-bodied methods, optional parameters, named arguments, params lists and overloading.",
+  "learningObjectives": [
+    "Declare methods with parameters and return values and call them",
+    "Use optional parameters, named arguments and params to make calls flexible",
+    "Return several results with out parameters and apply recursion safely"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring and calling a method"
+    },
+    {
+      "type": "paragraph",
+      "text": "A method declaration has a return type (or `void` for none), a name, a parameter list in parentheses and a body. `return` ends the method and hands a value back. In a file with top-level statements you declare methods below the statements; they become local functions that the statements above can call, and the order of declaration does not matter."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(Add(2, 3));\nConsole.WriteLine(Add(10, -4));\nGreet(\"Ada\");\nGreet(\"Grace\");\n\nint Add(int a, int b)\n{\n    return a + b;\n}\n\nvoid Greet(string name)\n{\n    Console.WriteLine($\"Hello, {name}!\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "5\n6\nHello, Ada!\nHello, Grace!"
+    },
+    {
+      "type": "paragraph",
+      "text": "`a` and `b` are **parameters**; the values `2` and `3` you pass are **arguments**. Each call gets its own copies, so `Add(2, 3)` and `Add(10, -4)` never interfere. `Greet` returns nothing, so its return type is `void` and it is called for its side effect. Method names use PascalCase and usually start with a verb."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Expression-bodied methods"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a method is a single expression, replace the braces and `return` with `=>`. The meaning is identical; it is simply shorter, and you will see this form everywhere in modern C#."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(Square(7));\nConsole.WriteLine(IsEven(10));\nConsole.WriteLine(ToCelsius(212));\n\nint Square(int n) => n * n;\nbool IsEven(int n) => n % 2 == 0;\ndouble ToCelsius(double fahrenheit) => (fahrenheit - 32) * 5 / 9;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "49\nTrue\n100"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Optional parameters and named arguments"
+    },
+    {
+      "type": "paragraph",
+      "text": "A parameter with a default value may be omitted by callers. Optional parameters must come after the required ones. When a method has several optional parameters, **named arguments** let you set just the one you want and make calls self-documenting."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(Describe(\"Rex\"));\nConsole.WriteLine(Describe(\"Tom\", species: \"cat\"));\nConsole.WriteLine(Describe(\"Polly\", 12, \"parrot\"));\nConsole.WriteLine(Describe(age: 3, name: \"Bella\"));\n\nstring Describe(string name, int age = 1, string species = \"dog\")\n    => $\"{name} is a {age}-year-old {species}.\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Rex is a 1-year-old dog.\nTom is a 1-year-old cat.\nPolly is a 12-year-old parrot.\nBella is a 3-year-old dog."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "params, out and ref"
+    },
+    {
+      "type": "paragraph",
+      "text": "`params` lets callers pass any number of arguments, which arrive as an array (since C# 13 the parameter may also be a span or another collection type). `out` parameters let a method return more than one result: the method *must* assign them before it returns, and the caller can declare the variable right inside the call. `ref` is similar, but the variable must already have a value and the method may read it as well as write it."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(Sum());\nConsole.WriteLine(Sum(1, 2, 3, 4));\n\nif (TryDivide(10, 4, out double quotient))\n{\n    Console.WriteLine($\"10 / 4 = {quotient}\");\n}\n\nif (!TryDivide(1, 0, out _))\n{\n    Console.WriteLine(\"Cannot divide by zero\");\n}\n\nint lives = 3;\nLoseLife(ref lives);\nConsole.WriteLine($\"Lives left: {lives}\");\n\nint Sum(params int[] numbers)\n{\n    int total = 0;\n    foreach (int n in numbers) total += n;\n    return total;\n}\n\nbool TryDivide(double a, double b, out double result)\n{\n    if (b == 0)\n    {\n        result = 0;\n        return false;\n    }\n    result = a / b;\n    return true;\n}\n\nvoid LoseLife(ref int count) => count--;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0\n10\n10 / 4 = 2.5\nCannot divide by zero\nLives left: 2"
+    },
+    {
+      "type": "paragraph",
+      "text": "`out _` discards a result you do not need. The *Try* pattern (return a `bool`, deliver the value through `out`) is used throughout .NET, for example by `int.TryParse` and `Dictionary.TryGetValue`, because it reports failure without throwing an exception."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Overloading"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several methods may share a name as long as their parameter lists differ in number or type; the compiler picks the one that matches the arguments. Overloads should do the same job for different inputs, never unrelated things."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine($\"{Area(5):F2}\");\nConsole.WriteLine(Area(4, 2.5));\n\ndouble Area(double radius) => Math.PI * radius * radius;\ndouble Area(double width, double height) => width * height;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "78.54\n10"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Recursion"
+    },
+    {
+      "type": "paragraph",
+      "text": "A method may call itself. Every recursive method needs a **base case** that stops the recursion (`n <= 1` below); without it the calls pile up until the runtime fails with a `StackOverflowException`, which cannot be caught. The result type is `long` because factorials grow fast."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "Console.WriteLine(Factorial(5));\nConsole.WriteLine(Factorial(20));\n\nlong Factorial(int n) => n <= 1 ? 1 : n * Factorial(n - 1);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "120\n2432902008176640000"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Scope"
+    },
+    {
+      "type": "paragraph",
+      "text": "Variables declared inside a method exist only inside it, and one method cannot see another method's locals; it only receives what is passed in. Top-level variables declared above the methods *are* visible inside local functions, which is convenient in small scripts but makes code harder to test and reuse. Prefer passing values as parameters."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Changing a parameter does not change the caller's variable",
+      "text": "For value types, `void Double(int n) { n *= 2; }` only doubles its own copy; after `Double(x)` the caller's `x` is unchanged. Pass it with `ref` or, better, return the new value: `int Double(int n) => n * 2;`. Objects and arrays are different: their *contents* can be changed through the reference, as the [types lesson](/tutorials/csharp/types) showed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-methods-expression-bodied"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-methods-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "methods",
+          "difficulty": "intermediate",
+          "question": "Given `string Pad(string text, int width = 10, char fill = ' ')`, which call does not compile?",
+          "explanation": "A named argument that is out of its position cannot be followed by a positional argument. `Pad(fill: '*', \"a\")` names `fill` first and then passes `\"a\"` positionally, which the compiler rejects. The other calls are valid.",
+          "options": [
+            "`Pad(\"a\")`",
+            "`Pad(\"a\", fill: '*')`",
+            "`Pad(fill: '*', \"a\")`",
+            "`Pad(\"a\", 5, '-')`"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "csharp-methods-qc-2",
+          "type": "predict-output",
+          "lessonSlug": "methods",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "The inner call doubles 4 to 8, the outer call doubles 8 to 16, and the result is assigned back to `x`.",
+          "language": "csharp",
+          "code": "int x = 4;\nx = Twice(Twice(x));\nConsole.WriteLine(x);\n\nint Twice(int n) => n * 2;",
+          "options": ["8", "16", "4", "32"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-methods-expression-bodied", "csharp-methods-named-args"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "control-flow"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C# Methods – Parameters, Return Values, params, out",
+    "description": "Learn to declare and call C# methods: parameters and return values, expression bodies, optional and named arguments, params, out and ref, overloading and recursion."
+  },
+  "updatedOn": "2026-11-15"
+}

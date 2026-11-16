@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "selected-fields",
+  "title": "Choose part of an object",
+  "summary": "GraphQL: Choose part of an object. Ask for pages too.",
+  "introduction": "The query picks title and leaves out pages. The resolver still holds both fields.",
+  "learningObjectives": ["Choose part of an object with GraphQL", "Ask for pages too"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose part of an object"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Choose part of an object",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String!, pages: Int! } type Query { book: Book! }\");\n\nconst rootValue = { book: () => ({ title: \"Moon Trip\", pages: 24 }) };\nconst result = await graphql({ schema, rootValue, source: \"{ book { title } }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The query asks for title only. GraphQL reads that field from the resolved book and leaves pages out."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"book\":{\"title\":\"Moon Trip\"}}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ask for pages too."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "GraphQL object fields need a selection of their inner fields."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-selected-fields-check"
+    }
+  ],
+  "exerciseIds": ["graphql-selected-fields-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "first-query"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Choose part of an object",
+    "description": "GraphQL: Choose part of an object. Ask for pages too. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

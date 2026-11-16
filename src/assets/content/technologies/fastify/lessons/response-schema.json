@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "response-schema",
+  "title": "Choose response fields",
+  "summary": "Fastify: Choose response fields. Add pages to both the data and response schema.",
+  "introduction": "A response schema can choose which fields are sent. GET /book keeps title and leaves out internalNote.",
+  "learningObjectives": [
+    "Choose response fields with Fastify",
+    "Add pages to both the data and response schema"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose response fields"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Choose response fields",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/book\", { schema: { response: { 200: { type: \"object\", properties: { title: { type: \"string\" } } } } } }, async () => ({ title: \"Moon Trip\", internalNote: \"draft\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The response schema lists title only. Fastify serialises that public field and omits the note."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add pages to both the data and response schema."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A response schema is not a replacement for deciding which data is safe to return."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-response-schema-check"
+    }
+  ],
+  "exerciseIds": ["fastify-response-schema-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "plugins"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Choose response fields",
+    "description": "Fastify: Choose response fields. Add pages to both the data and response schema. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

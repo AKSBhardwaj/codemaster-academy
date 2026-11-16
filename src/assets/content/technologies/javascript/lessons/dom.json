@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "slug": "dom",
+  "title": "The DOM",
+  "summary": "The DOM is the browser's model of the page parts. JavaScript can find and change those parts.",
+  "introduction": "The DOM is the browser's model of the page parts. JavaScript can find and change those parts. Think of the page as a tree with branches. Find one heading, change its text, then add a new item to a list.",
+  "learningObjectives": [
+    "Describe the DOM as a tree that JavaScript modifies through the document object",
+    "Select elements with querySelector, querySelectorAll and getElementById",
+    "Change text, attributes, classes and inline styles safely",
+    "Create, insert and remove elements and run scripts after the page has loaded"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What the DOM is"
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser turns markup such as `<ul><li>Milk</li></ul>` into objects: a `ul` element object with a `li` child, which in turn holds a text node. The whole tree hangs from `document`, a global object every script can use. Each element object has properties that reflect its content and attributes, and changing a property changes the page. Knowing [HTML elements](/tutorials/html/elements) and [attributes](/tutorials/html/attributes) matters here, because the DOM mirrors them one for one."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Selecting elements"
+    },
+    {
+      "type": "paragraph",
+      "text": "`document.querySelector(selector)` returns the first element matching a CSS selector, or `null` when there is none; `document.querySelectorAll(selector)` returns a `NodeList` of every match. `getElementById(\"id\")` is a fast alternative for ids (note: no `#`). Because the examples below run in a sandbox with an empty page, each one first builds the elements it works with; in a real page they already exist."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const heading = document.createElement(\"h1\");\nheading.id = \"title\";\nheading.textContent = \"Built with JavaScript\";\ndocument.body.append(heading);\n\nconsole.log(document.querySelector(\"h1\").textContent);\nconsole.log(document.getElementById(\"title\").tagName);\nconsole.log(document.querySelectorAll(\"h1\").length);\nconsole.log(document.querySelector(\".missing\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Built with JavaScript\nH1\n1\nnull"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Changing content: textContent versus innerHTML"
+    },
+    {
+      "type": "paragraph",
+      "text": "`textContent` reads or replaces the text inside an element; whatever you assign is shown literally. `innerHTML` reads or replaces the markup, so the browser parses tags in the string and creates elements. Use `textContent` for anything that comes from a user or a server: assigning such text to `innerHTML` lets an attacker inject markup and scripts into your page (a **cross-site scripting** attack)."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const box = document.createElement(\"div\");\nbox.innerHTML = \"<p>One</p><p>Two</p>\";     // parsed as markup\ndocument.body.append(box);\n\nconsole.log(box.children.length);\nconsole.log(box.textContent);\nconsole.log(box.querySelector(\"p\").textContent);\n\nbox.textContent = \"<b>not bold</b>\";          // shown literally, no elements created\nconsole.log(box.children.length);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "2\nOneTwo\nOne\n0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Attributes, classes and styles"
+    },
+    {
+      "type": "paragraph",
+      "text": "`setAttribute` and `getAttribute` work with any attribute; common ones such as `href`, `id` and `value` are also plain properties. `classList` adds, removes and toggles classes without string juggling, and is the preferred way to change appearance: put the CSS in a class and switch the class. `dataset` exposes `data-*` attributes as properties. The `style` property sets inline styles for the rare values computed at runtime, such as a progress bar width."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const link = document.createElement(\"a\");\nlink.setAttribute(\"href\", \"/tutorials/javascript\");\nlink.textContent = \"JavaScript tutorial\";\nlink.classList.add(\"button\", \"primary\");\nlink.dataset.track = \"nav\";\nlink.style.width = \"40%\";\ndocument.body.append(link);\n\nconsole.log(link.getAttribute(\"href\"));\nconsole.log(link.className);\nconsole.log(link.classList.contains(\"primary\"));\nlink.classList.toggle(\"primary\");\nconsole.log(link.className);\nconsole.log(link.dataset.track);\nconsole.log(link.style.width);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "/tutorials/javascript\nbutton primary\ntrue\nbutton\nnav\n40%"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Creating and removing elements"
+    },
+    {
+      "type": "paragraph",
+      "text": "`document.createElement(tag)` makes a detached element; fill it in, then insert it with `append` (end of the parent), `prepend` (start), `before` or `after` (next to a sibling). `remove()` takes an element out of the tree. Building elements from data in a loop is the pattern behind every dynamic list, table and gallery."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const fruits = [\"apple\", \"banana\", \"cherry\"];\nconst list = document.createElement(\"ul\");\n\nfor (const fruit of fruits) {\n  const item = document.createElement(\"li\");\n  item.textContent = fruit;\n  list.append(item);\n}\ndocument.body.append(list);\n\nconsole.log(list.querySelectorAll(\"li\").length);\nconsole.log(list.lastElementChild.textContent);\n\nlist.firstElementChild.remove();\nconsole.log(list.firstElementChild.textContent);\nconsole.log(list.outerHTML);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\ncherry\nbanana\n<ul><li>banana</li><li>cherry</li></ul>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try it on a real page"
+    },
+    {
+      "type": "paragraph",
+      "text": "The page below has real markup to work on. The script changes the heading, adds a highlighted item to the list and colours the note. Edit it and press Run: try removing the first item, or adding a class to every `li` with a loop over `querySelectorAll`."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Edit the page with the DOM",
+      "height": 260,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>DOM practice</title>\n  <style>\n    .highlight { background: #fde68a; padding: 2px 4px; }\n  </style>\n</head>\n<body>\n  <h1 id=\"title\">Shopping list</h1>\n  <ul id=\"list\">\n    <li>Milk</li>\n    <li>Bread</li>\n  </ul>\n  <p class=\"note\">Edit the script and press Run.</p>\n  <script>\n    const title = document.getElementById(\"title\");\n    title.textContent = \"Shopping list (3 items)\";\n\n    const list = document.querySelector(\"#list\");\n    const item = document.createElement(\"li\");\n    item.textContent = \"Eggs\";\n    item.classList.add(\"highlight\");\n    list.append(item);\n\n    document.querySelector(\".note\").style.color = \"green\";\n  </script>\n</body>\n</html>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "When does the script run?"
+    },
+    {
+      "type": "paragraph",
+      "text": "The browser runs a script the moment it reaches the `<script>` tag. A script in `<head>` therefore runs before `<body>` has been parsed, and `querySelector` finds nothing. There are three fixes: put the script at the end of `<body>`, load an external file with `defer`, or wait for the `DOMContentLoaded` event. The example shows the problem and the event-based fix in one page."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Script in the head: too early, then fixed",
+      "runnable": true,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Too early</title>\n  <script>\n    // Runs before <body> exists, so the element is not found yet\n    console.log(document.querySelector(\"#title\"));\n\n    document.addEventListener(\"DOMContentLoaded\", () => {\n      console.log(document.querySelector(\"#title\").textContent);\n    });\n  </script>\n</head>\n<body>\n  <h1 id=\"title\">Ready</h1>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "null\nReady"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Cannot read properties of null",
+      "text": "`TypeError: Cannot read properties of null (reading 'textContent')` almost always means a selector found nothing: either the script ran before the element existed, or the selector is wrong (a typo in the id, or `getElementById(\"#title\")` with a `#` that only `querySelector` understands). Log the result of the selector first; if it is `null`, fix the timing or the selector."
+    },
+    {
+      "type": "table",
+      "headers": ["Task", "API"],
+      "rows": [
+        ["Find one element / all matches", "`querySelector` / `querySelectorAll`"],
+        ["Read or set text safely", "`textContent`"],
+        ["Insert markup you wrote yourself", "`innerHTML`"],
+        ["Change appearance", "`classList.add`, `remove`, `toggle`"],
+        ["Read `data-*` attributes", "`element.dataset`"],
+        ["Create / insert / delete", "`createElement`, `append`, `prepend`, `remove`"],
+        ["Walk the tree", "`parentElement`, `children`, `firstElementChild`, `closest`"]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-dom-nodelist-map"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "dom-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "dom",
+          "difficulty": "beginner",
+          "question": "Which call returns a single element, or null if nothing matches?",
+          "explanation": "querySelector returns the first match or null. querySelectorAll always returns a NodeList, even an empty one.",
+          "options": [
+            "`document.querySelectorAll(\".card\")`",
+            "`document.querySelector(\".card\")`",
+            "`document.getElementsByClassName(\"card\")`",
+            "`document.children(\".card\")`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "dom-qc-2",
+          "type": "true-false",
+          "lessonSlug": "dom",
+          "difficulty": "intermediate",
+          "question": "Assigning text typed by a user to `element.innerHTML` is safe because browsers block scripts in it.",
+          "explanation": "innerHTML parses markup, and attacker-controlled markup can inject elements and run code (cross-site scripting). Use textContent for user-provided text.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-dom-nodelist-map"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "events"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "elements"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "apis"
+    }
+  ],
+  "seo": {
+    "title": "JavaScript DOM – Select, Change and Create Elements",
+    "description": "Learn DOM manipulation in JavaScript: querySelector, textContent versus innerHTML, classList and attributes, creating and removing elements, and script timing."
+  },
+  "updatedOn": "2026-11-16"
+}

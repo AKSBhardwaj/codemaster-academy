@@ -27,12 +27,17 @@ describe('inline markup', () => {
 
   it('supports nesting inside links and bold', () => {
     expect(parseInlineMarkup('[**bold link**](https://example.com)')).toEqual([
-      { kind: 'link', href: 'https://example.com', children: [{ kind: 'strong', children: [{ kind: 'text', text: 'bold link' }] }] },
+      {
+        kind: 'link',
+        href: 'https://example.com',
+        children: [{ kind: 'strong', children: [{ kind: 'text', text: 'bold link' }] }],
+      },
     ]);
   });
 
   it('collects links and strips markup', () => {
-    const text = 'See [HTML](/tutorials/html) and [MDN](https://developer.mozilla.org) for **more**.';
+    const text =
+      'See [HTML](/tutorials/html) and [MDN](https://developer.mozilla.org) for **more**.';
     expect(collectInlineLinks(text)).toEqual(['/tutorials/html', 'https://developer.mozilla.org']);
     expect(stripInlineMarkup(text)).toBe('See HTML and MDN for more.');
   });

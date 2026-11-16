@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "understand-filters-and-read-cost",
+  "title": "Understand filters and read cost",
+  "summary": "A FilterExpression removes items after DynamoDB reads the key-matching data.",
+  "introduction": "A FilterExpression removes items after DynamoDB reads the key-matching data. Your task: Explain why a filter can return few rows after reading more.",
+  "learningObjectives": [
+    "Explain why a filter can return few rows after reading more.",
+    "Explain the example for understand filters and read cost"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A FilterExpression removes items after DynamoDB reads the key-matching data. It does not make that earlier read work disappear."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"TableName\":\"cma-books\",\"KeyConditionExpression\":\"#reader=:reader\",\"FilterExpression\":\"#pages>=:minimum\",\"ExpressionAttributeNames\":{\"#reader\":\"reader\",\"#pages\":\"pages\"},\"ExpressionAttributeValues\":{\":reader\":{\"S\":\"mia\"},\":minimum\":{\"N\":\"50\"}}}",
+      "title": "Understand filters and read cost",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`KeyConditionExpression` uses the table or index keys to select a partition and, optionally, a sort-key range.",
+        "`ConditionExpression` checks the current item as part of the write, so a failed condition prevents the change.",
+        "`ExpressionAttributeNames` maps placeholders such as #reader to actual field names in the request expression."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only matching items with pages at least 50 are returned, but the query reads the partition candidates first."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A selective filter on a huge partition can still be expensive. Design a suitable key or index for important access patterns."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why a filter can return few rows after reading more."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-understand-filters-and-read-cost-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-understand-filters-and-read-cost-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "avoid-replacing-an-existing-item"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Understand filters and read cost",
+    "description": "A FilterExpression removes items after DynamoDB reads the key-matching data. It does not make that earlier read work disappear."
+  },
+  "updatedOn": "2026-11-16"
+}

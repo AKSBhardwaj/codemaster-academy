@@ -1,0 +1,150 @@
+{
+  "title": "Postman Reference",
+  "description": "A quick reminder of the ideas and examples in the Postman lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Requests and responses",
+          "summary": "Postman helps inspect HTTP messages. A request asks for work; a response gives a status, headers and sometimes a body.",
+          "example": {
+            "language": "text",
+            "code": "Request: GET /books/17\nWorked response: 200 OK\nBody: {\"id\":17,\"title\":\"Moon\"}"
+          },
+          "notes": ["Reading a sample response does not prove a real service will return it."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "read-a-url",
+          "name": "Read a URL",
+          "summary": "A URL identifies a destination. Its scheme, host, path and query parts have different roles.",
+          "example": {
+            "language": "text",
+            "code": "https://practice.test/books?title=Moon\nScheme: https\nHost: practice.test\nPath: /books\nQuery: title=Moon"
+          },
+          "notes": ["Do not send requests to a system you are not authorised to use."],
+          "lessonSlug": "read-a-url"
+        },
+        {
+          "slug": "get-reads-a-resource",
+          "name": "GET reads a resource",
+          "summary": "GET asks for a representation of a resource. It should not be designed as a hidden command to delete or charge something.",
+          "example": {
+            "language": "text",
+            "code": "GET /books/17 HTTP/1.1\nHost: practice.test\nAccept: application/json"
+          },
+          "notes": ["Do not put private secrets in URLs; URLs can appear in logs."],
+          "lessonSlug": "get-reads-a-resource"
+        },
+        {
+          "slug": "post-submits-data",
+          "name": "POST submits data",
+          "summary": "POST sends data to a resource for processing. Many APIs use it to create something, according to that API's contract.",
+          "example": {
+            "language": "text",
+            "code": "POST /notes HTTP/1.1\nHost: practice.test\nContent-Type: application/json\n\n{\"text\":\"Read chapter one\"}"
+          },
+          "notes": ["Never press Send against a live write endpoint merely to see what happens."],
+          "lessonSlug": "post-submits-data"
+        },
+        {
+          "slug": "put-patch-and-delete",
+          "name": "PUT PATCH and DELETE",
+          "summary": "Methods have different intended meanings. PUT commonly replaces a resource representation; PATCH changes part; DELETE requests removal.",
+          "example": {
+            "language": "text",
+            "code": "PUT /notes/3 -> replace the note representation\nPATCH /notes/3 -> apply a partial change\nDELETE /notes/3 -> request removal"
+          },
+          "notes": ["A method name alone does not tell you all the service's business rules."],
+          "lessonSlug": "put-patch-and-delete"
+        },
+        {
+          "slug": "understand-status-families",
+          "name": "Understand status families",
+          "summary": "The first status-code digit groups the result. 2xx means success; 4xx indicates a client-side request issue; 5xx indicates a server-side failure.",
+          "example": {
+            "language": "text",
+            "code": "200 OK: successful read\n404 Not Found: requested item missing\n500 Internal Server Error: server failed"
+          },
+          "notes": ["Do not assume every non-200 response is a server crash."],
+          "lessonSlug": "understand-status-families"
+        },
+        {
+          "slug": "read-json-safely",
+          "name": "Read JSON safely",
+          "summary": "JSON is a text format for structured data. Object keys and string values use double quotes.",
+          "example": {
+            "language": "text",
+            "code": "{\"title\":\"Moon\",\"pages\":24,\"available\":true}"
+          },
+          "notes": ["JSON does not allow comments or trailing commas in its standard form."],
+          "lessonSlug": "read-json-safely"
+        },
+        {
+          "slug": "use-variables-for-repeatable-requests",
+          "name": "Use variables for repeatable requests",
+          "summary": "A Postman variable can hold a reusable value such as a base URL. The selected scope controls which value is used.",
+          "example": {
+            "language": "text",
+            "code": "Request URL: {{baseUrl}}/books/17\nPractice baseUrl: https://practice.test"
+          },
+          "notes": [
+            "Do not accidentally switch a harmless practice request to a live write environment."
+          ],
+          "lessonSlug": "use-variables-for-repeatable-requests"
+        },
+        {
+          "slug": "keep-credentials-private",
+          "name": "Keep credentials private",
+          "summary": "Some real APIs need credentials. Use the tool's appropriate local or secret storage and authorised access; do not copy real tokens into examples or public collections.",
+          "example": {
+            "language": "text",
+            "code": "Public collection: request shape and non-secret examples\nPrivate authorised setup: credentials supplied separately"
+          },
+          "notes": [
+            "Removing a token from a new export does not revoke a token that was already leaked."
+          ],
+          "lessonSlug": "keep-credentials-private"
+        },
+        {
+          "slug": "write-a-response-check",
+          "name": "Write a response check",
+          "summary": "A Postman response script can assert facts about the last response. pm is provided by Postman's script environment.",
+          "example": {
+            "language": "text",
+            "code": "pm.test(\"status is OK\", function () {\n  pm.response.to.have.status(200);\n});"
+          },
+          "notes": ["A status check alone does not verify every field in a response body."],
+          "lessonSlug": "write-a-response-check"
+        },
+        {
+          "slug": "check-a-response-field",
+          "name": "Check a response field",
+          "summary": "A body check should use the contract for that request. Read JSON and assert the field you need.",
+          "example": {
+            "language": "text",
+            "code": "pm.test(\"book has a title\", function () {\n  const book = pm.response.json();\n  pm.expect(book.title).to.be.a(\"string\");\n});"
+          },
+          "notes": [
+            "Do not parse every response as JSON without checking the endpoint's contract."
+          ],
+          "lessonSlug": "check-a-response-field"
+        },
+        {
+          "slug": "organise-and-review-a-collection",
+          "name": "Organise and review a collection",
+          "summary": "A collection groups related requests and examples. Review its target URLs, scripts and exported data before sharing or running it.",
+          "example": {
+            "language": "text",
+            "code": "Collection: Library reads\nRequests: find a book, list books\nExamples: success and missing-book response\nReview: no real credentials or private data"
+          },
+          "notes": ["A downloaded collection can contain scripts; inspect it before running."],
+          "lessonSlug": "organise-and-review-a-collection"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "undo-a-sample-transaction",
+  "title": "Undo a sample transaction",
+  "summary": "A transaction can keep related changes together.",
+  "introduction": "A transaction can keep related changes together. Your task: Explain why the table was created before BEGIN TRANSACTION.",
+  "learningObjectives": [
+    "Explain why the table was created before BEGIN TRANSACTION.",
+    "Explain the example for undo a sample transaction"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A transaction can keep related changes together. ROLLBACK cancels changes made within it to a normal temporary table."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use SQL Server 2019+ in a separate practice database with a SQL editor. T-SQL is different from the SQLite engine on this site, so these examples are for that separate tool."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DROP TABLE IF EXISTS #practice_scores;\nCREATE TABLE #practice_scores(points int);\nBEGIN TRANSACTION;\nINSERT INTO #practice_scores VALUES(5);\nROLLBACK TRANSACTION;\nSELECT COUNT(*) AS rows_left FROM #practice_scores;",
+      "title": "Undo a sample transaction",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ROLLBACK` cancels the applicable uncommitted changes. It cannot undo an earlier committed transaction.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The temporary table remains, but rows_left is 0 because the insert was rolled back."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Table variables have different rollback behaviour. This example deliberately uses a # temporary table."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why the table was created before BEGIN TRANSACTION."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-server-undo-a-sample-transaction-check"
+    }
+  ],
+  "exerciseIds": ["sql-server-undo-a-sample-transaction-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql-server",
+      "slug": "number-a-sorted-result"
+    }
+  ],
+  "seo": {
+    "title": "Microsoft SQL Server: Undo a sample transaction",
+    "description": "A transaction can keep related changes together. ROLLBACK cancels changes made within it to a normal temporary table."
+  },
+  "updatedOn": "2026-11-16"
+}

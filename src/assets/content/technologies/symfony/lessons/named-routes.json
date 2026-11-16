@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "named-routes",
+  "title": "Generate a named URL",
+  "summary": "Symfony: Generate a named URL. Change the route path and compare the link.",
+  "introduction": "A route name lets code build a link without repeating its path. Open GET /link.",
+  "learningObjectives": [
+    "Generate a named URL with Symfony",
+    "Change the route path and compare the link"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Generate a named URL"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Generate a named URL",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/hello/{name}\", name: \"hello\", methods: [\"GET\"])]\npublic function hello(string $name): Response { return new Response($name); }\n#[Route(\"/link\", methods: [\"GET\"])]\npublic function link(): Response { return new Response($this->generateUrl(\"hello\", [\"name\" => \"Asha\"])); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "generateUrl looks up the hello name and substitutes Asha into its path."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "/hello/Asha"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the route path and compare the link."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The parameter key must match the placeholder."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-named-routes-check"
+    }
+  ],
+  "exerciseIds": ["symfony-named-routes-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "json-body"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Generate a named URL",
+    "description": "Symfony: Generate a named URL. Change the route path and compare the link. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

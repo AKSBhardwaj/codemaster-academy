@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "copy-a-nested-object",
+  "title": "Copy a nested object",
+  "summary": "A nested object needs its own copy when you change one of its fields.",
+  "introduction": "A nested object needs its own copy when you change one of its fields. Your task: Change the colour while preserving the name.",
+  "learningObjectives": [
+    "Change the colour while preserving the name.",
+    "Explain the example for copy a nested object"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A nested object needs its own copy when you change one of its fields. This keeps old state values unchanged."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a React project with Zustand 5 installed. Hook examples belong in React components; vanilla examples use zustand/vanilla. These package imports require your own build tool."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {create} from \"zustand\";\nconst useClub=create(set=>({profile:{name:\"Mia\",colour:\"blue\"},rename:name=>set(state=>({profile:{...state.profile,name}}))}));\nuseClub.getState().rename(\"Sam\");\nconsole.log(useClub.getState().profile.colour);",
+      "title": "Copy a nested object",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "This update callback receives the latest Zustand state. Return the fields you intend to merge at the top level."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The name changes to Sam while the colour stays blue."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Replacing profile with only {name} would lose its colour. Spread the old nested object when keeping its fields."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the colour while preserving the name."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "zustand-copy-a-nested-object-check"
+    }
+  ],
+  "exerciseIds": ["zustand-copy-a-nested-object-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "zustand",
+      "slug": "update-one-top-level-field"
+    }
+  ],
+  "seo": {
+    "title": "Zustand: Copy a nested object",
+    "description": "A nested object needs its own copy when you change one of its fields. This keeps old state values unchanged."
+  },
+  "updatedOn": "2026-11-16"
+}

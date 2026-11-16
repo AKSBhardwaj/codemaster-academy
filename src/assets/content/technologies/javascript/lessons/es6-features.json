@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "slug": "es6-features",
+  "title": "Modern Syntax: Arrow Functions, Destructuring, Spread and Template Literals",
+  "summary": "JavaScript has useful ways to write common jobs with less repeated code.",
+  "introduction": "JavaScript has useful ways to write common jobs with less repeated code. Learn one shortcut at a time: build a sentence with values, take values from a list, and copy items into a new list.",
+  "learningObjectives": [
+    "Write arrow functions and explain how they treat this",
+    "Unpack arrays and objects with destructuring, including defaults and renaming",
+    "Copy and merge with spread and collect arguments with rest parameters",
+    "Use template literals, shorthand properties and computed keys",
+    "Recognise recent additions such as Object.groupBy, Set methods and structuredClone"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arrow functions and this"
+    },
+    {
+      "type": "paragraph",
+      "text": "An arrow function is shorter than a function expression, and when its body is a single expression the value is returned implicitly. To return an object literal from a one-line arrow, wrap it in parentheses so the braces are not read as a block. The deeper difference is `this`: a regular function gets its own `this` from how it is called, while an arrow function keeps the `this` of the surrounding code. That makes arrows ideal for callbacks inside methods, and wrong for methods themselves."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const numbers = [1, 2, 3, 4];\nconst squares = numbers.map(function (n) { return n * n; });\nconst squaresArrow = numbers.map((n) => n * n);\nconsole.log(squares.join(\", \"));\nconsole.log(squaresArrow.join(\", \"));\n\nconst makeUser = (name, role = \"member\") => ({ name, role });   // parentheses return an object\nconsole.log(JSON.stringify(makeUser(\"Ada\")));\n\nconst timer = {\n  seconds: 0,\n  start() {\n    const tick = () => this.seconds++;   // arrow keeps the object's this\n    tick();\n    tick();\n    return this.seconds;\n  },\n};\nconsole.log(timer.start());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1, 4, 9, 16\n1, 4, 9, 16\n{\"name\":\"Ada\",\"role\":\"member\"}\n2"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Arrow functions as object methods",
+      "text": "Writing `describe: () => this.name` inside an object literal does not work: the arrow has no `this` of its own, so it takes the surrounding one (in a script that is `window`, in a module it is `undefined`) and `this.name` is not the object's name. Use the method shorthand `describe() {...}` for methods and arrows for the callbacks inside them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Destructuring"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Destructuring** unpacks values from an array or object into variables in one statement. For arrays the position matters and you can skip elements with an empty slot. For objects the property name matters; you can rename with `property: newName`, provide a default with `=`, and destructure directly in a function's parameter list so the function documents the fields it needs."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const point = [10, 20, 30];\nconst [x, y] = point;\nconsole.log(x + y);\n\nconst [first, , third] = point;      // skip the second element\nconsole.log(first + third);\n\nconst user = { name: \"Grace\", age: 85, country: \"US\" };\nconst { name, country: nation, email = \"none\" } = user;\nconsole.log(`${name} from ${nation}, email: ${email}`);\n\nfunction describe({ name, age }) {\n  return `${name} is ${age}`;\n}\nconsole.log(describe(user));\n\nlet a = 1;\nlet b = 2;\n[a, b] = [b, a];                      // swap without a temporary variable\nconsole.log(`${a} ${b}`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "30\n40\nGrace from US, email: none\nGrace is 85\n2 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Spread and rest"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same three dots have two jobs depending on where they appear. **Spread** (`...value` inside a literal or a call) expands an array or object into its elements: copy an array, merge objects, or pass an array as separate arguments. **Rest** (`...name` in a parameter list or on the left of a destructuring) collects the remaining values into an array. When merging objects with spread, later properties overwrite earlier ones, which is how defaults are combined with overrides."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const base = [1, 2];\nconst more = [...base, 3, 4];\nconsole.log(more.join(\", \"));\nconsole.log(Math.max(...more));\n\nconst defaults = { theme: \"light\", fontSize: 14 };\nconst settings = { ...defaults, fontSize: 18 };\nconsole.log(JSON.stringify(settings));\n\nfunction sum(...values) {               // rest: collect all arguments\n  return values.reduce((total, v) => total + v, 0);\n}\nconsole.log(sum(1, 2, 3, 4, 5));\n\nconst [head, ...tail] = more;\nconsole.log(head);\nconsole.log(tail.join(\", \"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "1, 2, 3, 4\n4\n{\"theme\":\"light\",\"fontSize\":18}\n15\n1\n2, 3, 4"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Template literals, shorthand properties and computed keys"
+    },
+    {
+      "type": "paragraph",
+      "text": "Template literals embed expressions with `${...}` and may span several lines, so building a multi-line message no longer needs `+` and `\\n`. Object literals gained two shortcuts: when a variable has the same name as the property, write the name once (`{ product }` instead of `{ product: product }`), and square brackets let a key come from an expression."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const product = \"Notebook\";\nconst price = 4.5;\nconst qty = 3;\n\nconsole.log(`${qty} x ${product} = ${(price * qty).toFixed(2)}`);\n\nconst receipt = `Item: ${product}\nTotal: ${price * qty}`;\nconsole.log(receipt);\n\nconst key = \"color\";\nconst item = { product, [key]: \"blue\", [`${key}Code`]: \"#00f\" };\nconsole.log(JSON.stringify(item));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3 x Notebook = 13.50\nItem: Notebook\nTotal: 13.5\n{\"product\":\"Notebook\",\"color\":\"blue\",\"colorCode\":\"#00f\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Optional chaining and nullish coalescing"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two operators from ES2020 remove most defensive `if` checks. `?.` reads a property or calls a method only when the left side is not `null` or `undefined`, otherwise the whole expression is `undefined`. `??` provides a default for exactly those two values, unlike `||`, which also replaces `0` and `\"\"`. Combined, `config.retries ?? 3` and `user.profile?.avatar ?? defaultAvatar` read as plain English."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const config = { retries: 0, logger: null };\nconsole.log(config.retries ?? 3);\nconsole.log(config.retries || 3);           // 0 is falsy, so || replaces it\nconsole.log(config.logger?.level ?? \"info\");\nconsole.log(config.onError?.());             // calling a missing function safely\nconsole.log(config.tags?.[0] ?? \"no tags\");"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0\n3\ninfo\nundefined\nno tags"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Recent additions worth knowing"
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript keeps growing. `Object.groupBy` (ES2024) splits an array into groups by a key you compute. `Set` gained `union`, `intersection` and `difference` (ES2025), which previously needed hand-written loops. `structuredClone` makes a deep copy of nested data, and `Array.prototype.at`, `toSorted` and `toReversed` were covered in the [Arrays](/tutorials/javascript/arrays) lesson. All of these run in current versions of Chrome, Firefox and Safari."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "runnable": true,
+      "code": "const people = [\n  { name: \"Ada\", role: \"engineer\" },\n  { name: \"Grace\", role: \"engineer\" },\n  { name: \"Linus\", role: \"founder\" },\n];\nconst byRole = Object.groupBy(people, (p) => p.role);\nconsole.log(Object.keys(byRole).join(\", \"));\nconsole.log(byRole.engineer.map((p) => p.name).join(\", \"));\n\nconst frontend = new Set([\"html\", \"css\", \"js\"]);\nconst backend = new Set([\"js\", \"sql\"]);\nconsole.log([...frontend.intersection(backend)].join(\", \"));\nconsole.log(frontend.union(backend).size);\n\nconst copy = structuredClone({ nested: { deep: true } });\nconsole.log(copy.nested.deep);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "engineer, founder\nAda, Grace\njs\n4\ntrue"
+    },
+    {
+      "type": "table",
+      "headers": ["Feature", "Edition", "Replaces"],
+      "rows": [
+        [
+          "Arrow functions, `let`/`const`, template literals, destructuring, spread, classes, modules",
+          "ES2015",
+          "Verbose function expressions, `var`, string concatenation, manual copies"
+        ],
+        ["`async`/`await`", "ES2017", "Long `.then()` chains"],
+        ["`?.` and `??`", "ES2020", "Nested `if (x && x.y)` checks"],
+        [
+          "`at()`, `toSorted`, `toReversed`",
+          "ES2022 to ES2023",
+          "`arr[arr.length - 1]`, mutating `sort` and `reverse`"
+        ],
+        [
+          "`structuredClone`",
+          "Web platform API (not an ECMAScript edition)",
+          "`JSON.parse(JSON.stringify(x))` as a deep-copy workaround"
+        ],
+        ["`Object.groupBy`, `Promise.withResolvers`", "ES2024", "`reduce`-based grouping"],
+        ["`Set` methods such as `union` and `intersection`", "ES2025", "Hand-written set loops"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Rewrite the `createButton` function from the [Objects](/tutorials/javascript/objects) lesson with destructuring and defaults in its parameter list: `function createButton({ label = \"OK\", size = \"medium\", disabled = false } = {})`. It should behave exactly the same, with less code."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "js-es6-features-rest"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "es6-features-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "es6-features",
+          "difficulty": "beginner",
+          "question": "After `const { b } = { a: 1, b: 2 };`, what is `b`?",
+          "explanation": "Object destructuring matches by property name, so b receives the value of the b property: 2.",
+          "options": ["`1`", "`2`", "`{ b: 2 }`", "`undefined`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "es6-features-qc-2",
+          "type": "true-false",
+          "lessonSlug": "es6-features",
+          "difficulty": "intermediate",
+          "question": "`{ ...original }` creates a deep copy, so nested objects inside it are copied too.",
+          "explanation": "Spread makes a shallow copy: top-level properties are copied, but nested objects are still shared with the original. Use structuredClone for a deep copy.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["js-es6-features-rest"],
+  "relatedLessons": [
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "async"
+    }
+  ],
+  "seo": {
+    "title": "Modern JavaScript Syntax – Arrows, Destructuring, Spread",
+    "description": "Learn modern JavaScript syntax: arrow functions and this, destructuring with defaults, spread and rest, template literals, optional chaining and Object.groupBy."
+  },
+  "updatedOn": "2026-11-16"
+}

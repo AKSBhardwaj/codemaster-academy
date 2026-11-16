@@ -1,0 +1,156 @@
+{
+  "title": "Elixir Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-message",
+          "name": "Print a greeting",
+          "summary": "IO.puts writes text and adds a newline. IO means input and output.",
+          "example": {
+            "language": "elixir",
+            "code": "IO.puts(\"Hello, Asha!\")"
+          },
+          "notes": ["Keep quotes around strings."],
+          "lessonSlug": "first-message"
+        },
+        {
+          "slug": "values",
+          "name": "Name a value",
+          "summary": "A name can be bound to a value. The plus sign adds numbers.",
+          "example": {
+            "language": "elixir",
+            "code": "pencils = 3\nIO.puts(pencils + 2)"
+          },
+          "notes": ["Values are not changed in place; a new binding is different from mutation."],
+          "lessonSlug": "values"
+        },
+        {
+          "slug": "atoms",
+          "name": "Name a fixed label",
+          "summary": "An atom is a named label. It begins with a colon and is often used for a small set of choices.",
+          "example": {
+            "language": "elixir",
+            "code": "status = :ready\nIO.inspect(status)"
+          },
+          "notes": ["Do not create unlimited new atoms from user input."],
+          "lessonSlug": "atoms"
+        },
+        {
+          "slug": "tuples",
+          "name": "Keep a small group",
+          "summary": "A tuple groups a few values. It is often used to return a status and a result together.",
+          "example": {
+            "language": "elixir",
+            "code": "result = {:ok, 8}\nIO.puts(elem(result, 1))"
+          },
+          "notes": ["Tuple positions start at zero."],
+          "lessonSlug": "tuples"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "lists",
+          "name": "Store a sequence",
+          "summary": "A list holds a sequence of values. Enum.join turns these strings into one string.",
+          "example": {
+            "language": "elixir",
+            "code": "IO.puts(Enum.join([\"cat\", \"dog\"], \", \"))"
+          },
+          "notes": ["Lists and tuples are different data shapes."],
+          "lessonSlug": "lists"
+        },
+        {
+          "slug": "maps",
+          "name": "Use named fields",
+          "summary": "A map stores key-value pairs. Atom keys can be read with dot syntax.",
+          "example": {
+            "language": "elixir",
+            "code": "book = %{title: \"Moon Trip\", pages: 24}\nIO.puts(book.title)"
+          },
+          "notes": ["A missing key with dot syntax raises an error."],
+          "lessonSlug": "maps"
+        },
+        {
+          "slug": "matching",
+          "name": "Pull values from a shape",
+          "summary": "The equals sign matches shapes and binds names to their parts.",
+          "example": {
+            "language": "elixir",
+            "code": "{:ok, score} = {:ok, 8}\nIO.puts(score)"
+          },
+          "notes": ["A shape that does not match raises a match error."],
+          "lessonSlug": "matching"
+        },
+        {
+          "slug": "choices",
+          "name": "Choose with if",
+          "summary": "if picks one of two branches. Only false and nil count as false in Elixir.",
+          "example": {
+            "language": "elixir",
+            "code": "score = 8\nIO.puts(if score >= 5, do: \"Pass\", else: \"Try again\")"
+          },
+          "notes": ["Zero is a true value, so test a number with an explicit rule."],
+          "lessonSlug": "choices"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "functions",
+          "name": "Use an anonymous function",
+          "summary": "fn creates a function value. A dot is used when calling a function stored in a variable.",
+          "example": {
+            "language": "elixir",
+            "code": "twice = fn n -> n * 2 end\nIO.puts(twice.(4))"
+          },
+          "notes": ["Do not omit the dot in this kind of function call."],
+          "lessonSlug": "functions"
+        },
+        {
+          "slug": "map",
+          "name": "Transform each value",
+          "summary": "Enum.map builds a list using the result of a function for each item.",
+          "example": {
+            "language": "elixir",
+            "code": "values = Enum.map([2, 3], fn n -> n * 2 end)\nIO.puts(Enum.join(values, \", \"))"
+          },
+          "notes": ["Keep the returned list if you need it later."],
+          "lessonSlug": "map"
+        },
+        {
+          "slug": "pipes",
+          "name": "Read steps from left to right",
+          "summary": "The pipe |> passes a value as the first input to the next function.",
+          "example": {
+            "language": "elixir",
+            "code": "[4, 8, 9]\n|> Enum.filter(fn n -> n >= 7 end)\n|> Enum.sum()\n|> IO.puts()"
+          },
+          "notes": ["The piped value becomes the first argument, not the last."],
+          "lessonSlug": "pipes"
+        },
+        {
+          "slug": "case",
+          "name": "Choose by a pattern",
+          "summary": "case matches a value against patterns. _ is a catch-all pattern.",
+          "example": {
+            "language": "elixir",
+            "code": "result = {:ok, 8}\nmessage = case result do\n {:ok, n} -> \"Score: #{n}\"\n _ -> \"Try again\"\nend\nIO.puts(message)"
+          },
+          "notes": ["Include a case for the shapes your program can receive."],
+          "lessonSlug": "case"
+        }
+      ]
+    }
+  ]
+}

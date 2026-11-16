@@ -23,7 +23,9 @@ function parsePaths(name: string, svg: string): IconPath[] {
   const paths: IconPath[] = [];
   for (const tag of tags) {
     if (!tag.startsWith('<path')) {
-      throw new Error(`Icon "${name}" uses unsupported element ${tag.split(' ')[0]}>; pick a path-only icon.`);
+      throw new Error(
+        `Icon "${name}" uses unsupported element ${tag.split(' ')[0]}>; pick a path-only icon.`,
+      );
     }
     const d = /\sd="([^"]+)"/.exec(tag)?.[1];
     if (!d) throw new Error(`Icon "${name}" has a <path> without a d attribute.`);

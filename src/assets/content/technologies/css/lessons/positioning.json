@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "slug": "positioning",
+  "title": "Positioning",
+  "summary": "CSS position controls how a box is placed. Some choices use the normal page order, and others place a box more freely.",
+  "introduction": "CSS position controls how a box is placed. Some choices use the normal page order, and others place a box more freely. Try each choice on a small box. Learn what the box uses as its starting point before changing top or left.",
+  "learningObjectives": [
+    "Explain how static, relative, absolute, fixed and sticky differ",
+    "Choose the correct containing block with position: relative on an ancestor",
+    "Layer elements with z-index and recognise stacking contexts"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Normal flow and position: static"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every element starts with `position: static`: it sits where normal flow puts it, and the offset properties `top`, `right`, `bottom` and `left` (or the `inset` shorthand) have no effect on it. Writing `top: 20px` and seeing nothing happen almost always means the element is still static. The four other values change what the offsets are measured from."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "relative: nudge without disturbing the flow"
+    },
+    {
+      "type": "paragraph",
+      "text": "A relatively positioned element is offset from *its own normal position*, and the space it would have occupied stays reserved, so nothing else moves. Small nudges are one use; the more important one is that a relatively positioned element becomes the **containing block** for absolutely positioned descendants, as the next section shows."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  position: relative;\n  left: 2rem;     /* moved 2rem to the right; its original space stays reserved */\n  top: 0.5rem;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{position:relative;left:2rem;top:.5rem;font-size:1.4em;background:#eff6ff}p{margin-top:12px}</style><h1>Sample heading</h1><p>The paragraph does not move up: the heading's original space is still reserved.</p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "absolute: taken out of the flow"
+    },
+    {
+      "type": "paragraph",
+      "text": "An absolutely positioned element is removed from normal flow: it takes no space, and other elements are laid out as if it did not exist. Its offsets are measured from the nearest ancestor whose `position` is anything other than `static`; if there is none, from the initial containing block, which is the page. That is why the recipe for a badge in the corner of a card is two declarations: `position: relative` on the card (to make it the reference) and `position: absolute` on the badge."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .card {\n    position: relative;          /* the badge is measured from here */\n    padding: 16px;\n    border: 1px solid #cbd5e1;\n    border-radius: 8px;\n  }\n  .badge {\n    position: absolute;\n    top: -10px;\n    right: -10px;\n    background: #dc2626;\n    color: white;\n    padding: 2px 10px;\n    border-radius: 9999px;\n    font-size: 0.8rem;\n  }\n</style>\n<div class=\"card\">\n  <span class=\"badge\">New</span>\n  <h2>Card title</h2>\n  <p>The badge takes no space in the card.</p>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.card{position:relative;padding:12px 16px;margin-top:12px;border:1px solid #cbd5e1;border-radius:8px}.badge{position:absolute;top:-10px;right:-10px;background:#dc2626;color:#fff;padding:2px 10px;border-radius:9999px;font-size:.8rem}.card h2{font-size:1.1em}.card p{margin:0}</style><div class=\"card\"><span class=\"badge\">New</span><h2>Card title</h2><p>The badge takes no space in the card.</p></div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `inset` shorthand sets all four offsets at once (`inset: 0` stretches the element over its whole containing block, a common overlay trick). Setting both `left` and `right` without a width also stretches it horizontally."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "fixed: pinned to the viewport"
+    },
+    {
+      "type": "paragraph",
+      "text": "`position: fixed` works like `absolute` but the reference is the viewport, so the element stays put while the page scrolls: cookie banners, chat buttons, persistent headers. It takes no space either, so add padding to the `body` if content must not end up hidden underneath it. One caveat: if an ancestor has a `transform`, `filter` or `perspective`, that ancestor becomes the containing block and the element is no longer fixed to the viewport."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  body { margin: 0; padding: 16px 16px 72px; font-family: system-ui, sans-serif; }\n  .banner {\n    position: fixed;\n    bottom: 0;\n    left: 0;\n    right: 0;                /* left + right without width = full width */\n    background: #0f172a;\n    color: white;\n    padding: 12px 16px;\n  }\n</style>\n<p>Scroll the page: the banner stays at the bottom of the window.</p>\n<p style=\"height: 600px\"></p>\n<div class=\"banner\">We use cookies. <button type=\"button\">OK</button></div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>body{padding-bottom:60px}.banner{position:fixed;bottom:0;left:0;right:0;background:#0f172a;color:#fff;padding:8px 12px}</style><p>Scroll the page: the banner stays at the bottom of the window.</p><p style=\"height:300px\"></p><div class=\"banner\">We use cookies. <button type=\"button\">OK</button></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "sticky: in the flow until it reaches a threshold"
+    },
+    {
+      "type": "paragraph",
+      "text": "A sticky element behaves like a relative one, keeping its place and its space, until the nearest scrolling ancestor scrolls it to the offset you set, typically `top: 0`. From then on it stays at that offset, but only while its *parent* is on screen: when the parent scrolls away, the sticky element goes with it. Section headings in a long list are the classic use."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  .list { height: 140px; overflow-y: auto; border: 1px solid #cbd5e1; }\n  h3 {\n    position: sticky;\n    top: 0;                  /* the threshold: stick when it reaches the top */\n    margin: 0;\n    padding: 4px 8px;\n    background: #eff6ff;\n  }\n  p { margin: 0; padding: 4px 8px; }\n</style>\n<div class=\"list\">\n  <h3>A</h3><p>Alice</p><p>Arthur</p><p>Ava</p>\n  <h3>B</h3><p>Ben</p><p>Bella</p><p>Bruno</p>\n  <h3>C</h3><p>Cara</p><p>Chris</p><p>Cleo</p>\n</div>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.list{height:120px;overflow-y:auto;border:1px solid #cbd5e1}h3{position:sticky;top:0;margin:0;padding:4px 8px;background:#eff6ff;font-size:1em}p{margin:0;padding:4px 8px}</style><div class=\"list\"><h3>A</h3><p>Alice</p><p>Arthur</p><p>Ava</p><h3>B</h3><p>Ben</p><p>Bella</p><p>Bruno</p><h3>C</h3><p>Cara</p><p>Chris</p><p>Cleo</p></div>"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "When sticky silently does nothing",
+      "text": "Two mistakes make `position: sticky` look unsupported. The first is forgetting the threshold: without `top` (or another offset) there is nothing to stick to. The second is an ancestor with `overflow: hidden`, `auto` or `scroll` that has no fixed height: it becomes the scrolling ancestor, and since it never scrolls, the element never sticks. Check both before blaming the browser."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "z-index and stacking contexts"
+    },
+    {
+      "type": "paragraph",
+      "text": "Positioned elements paint on top of normal flow, and `z-index` orders positioned elements (and flex or grid items) among themselves: a higher integer is closer to the viewer. The catch is that `z-index` is only compared between elements in the same **stacking context**. A new context is created by a positioned element with a `z-index` other than `auto`, and also by `opacity` below 1, `transform`, `filter`, `position: fixed` or `sticky`, among others. Once an element is inside a context, no `z-index` value can lift it above an element that sits above that whole context, which explains the classic mystery of a `z-index: 9999` dropdown hiding behind a `z-index: 1` header: the dropdown's parent created a context that is below the header."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "code": ".header {\n  position: sticky;\n  top: 0;\n  z-index: 20;        /* above the page content that scrolls under it */\n}\n\n.dropdown {\n  position: absolute;\n  z-index: 10;        /* compared only with siblings in the same stacking context */\n}\n\n.card {\n  transform: translateY(-4px);  /* creates a stacking context: a child z-index\n                                   cannot escape above the header any more */\n}"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Value",
+        "Offsets measured from",
+        "Keeps its space?",
+        "Moves when the page scrolls?"
+      ],
+      "rows": [
+        ["`static`", "Offsets ignored", "Yes", "Yes"],
+        ["`relative`", "Its own normal position", "Yes", "Yes"],
+        [
+          "`absolute`",
+          "Nearest positioned ancestor, else the page",
+          "No",
+          "Yes, with that ancestor"
+        ],
+        ["`fixed`", "The viewport", "No", "No"],
+        [
+          "`sticky`",
+          "Nearest scrolling ancestor, limited to its parent",
+          "Yes",
+          "Until it reaches the threshold"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Positioning is not layout",
+      "text": "Use positioning for things that overlap or stick: badges, tooltips, dropdowns, banners, headers. For arranging content side by side or in columns, reach for [Flexbox](/tutorials/css/flexbox) and [Grid](/tutorials/css/grid), which keep elements in the flow and adapt to their content."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: position a tooltip",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Positioning</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 40px 16px; }\n    .term { position: relative; border-bottom: 2px dotted #1d4ed8; }\n    .tip {\n      /* Make the tip absolute, place it above the term (bottom: 120%, left: 0) */\n      background: #0f172a; color: white; padding: 4px 8px; border-radius: 4px;\n      font-size: 0.85rem; white-space: nowrap;\n    }\n  </style>\n</head>\n<body>\n  <p>CSS stands for <span class=\"term\">cascading<span class=\"tip\">Rules combine by priority</span></span> style sheets.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-positioning-sticky"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-positioning-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "positioning",
+          "difficulty": "beginner",
+          "question": "An element with `position: absolute; top: 0; right: 0;` is placed in the top-right corner of what?",
+          "explanation": "Absolute positioning uses the nearest ancestor whose position is not static as its reference. Only when no such ancestor exists does it fall back to the page.",
+          "options": [
+            "Its direct parent, always",
+            "The nearest ancestor whose `position` is not `static`, otherwise the page",
+            "The viewport, always",
+            "The nearest ancestor with `overflow: hidden`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-positioning-qc-2",
+          "type": "true-false",
+          "lessonSlug": "positioning",
+          "difficulty": "beginner",
+          "question": "`position: relative` removes the element from normal flow so other elements fill its space.",
+          "explanation": "Relative positioning offsets the element visually but keeps its original space reserved. Only `absolute` and `fixed` remove an element from the flow.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-positioning-sticky"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "display"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "box-model"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "transitions-animations"
+    }
+  ],
+  "seo": {
+    "title": "CSS Positioning – relative, absolute, fixed and sticky",
+    "description": "Learn CSS positioning: static, relative, absolute, fixed and sticky, containing blocks and offsets, and how z-index and stacking contexts layer elements."
+  },
+  "updatedOn": "2026-11-16"
+}

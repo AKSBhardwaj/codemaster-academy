@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "slug": "security-basics",
+  "title": "Security Basics",
+  "summary": "Protect a MongoDB deployment with authentication, least-privilege roles, network rules and TLS, keep credentials out of code, and write queries that cannot be hijacked by operator injection.",
+  "introduction": "Most MongoDB breaches in the news had the same cause: a server reachable from the internet with no authentication. The fixes are not complicated, but they have to be done, and some of them live in your application code rather than in the database. This lesson covers the layers in order: who can connect (network), who they are (authentication), what they may do (authorisation), how secrets are handled, and how to write queries so that user input can never change their meaning.",
+  "learningObjectives": [
+    "Enable authentication and create users with the minimum roles they need",
+    "Restrict network access with IP access lists, bindIp and TLS",
+    "Keep connection strings and passwords out of source code",
+    "Prevent operator injection in application queries"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layer 1: who can reach the server"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Atlas, the **IP access list** is the first gate: a connection from an address that is not listed is dropped before any password is checked. Add only the addresses of your application servers and of the developers who need shell access, and remove entries when they are no longer needed. For production, private networking (VPC peering or private endpoints) removes the public path entirely. Atlas also enforces TLS on every connection, so data in transit is always encrypted."
+    },
+    {
+      "type": "paragraph",
+      "text": "A self-managed server has the same controls in its configuration file. `bindIp` limits which network interfaces `mongod` listens on, the default being `localhost` only; `authorization: enabled` turns on access control; and the `tls` section requires encrypted connections:"
+    },
+    {
+      "type": "code",
+      "language": "yaml",
+      "title": "mongod.conf",
+      "code": "net:\n  bindIp: 127.0.0.1,10.0.0.5\n  port: 27017\n  tls:\n    mode: requireTLS\n    certificateKeyFile: /etc/ssl/mongodb.pem\nsecurity:\n  authorization: enabled"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Choosing *Allow access from anywhere* (`0.0.0.0/0`) in Atlas, or setting `bindIp: 0.0.0.0` on a server without `authorization: enabled`, \"just to get it working\". Automated scanners find open MongoDB ports within hours, and an unauthenticated server is copied, wiped and held to ransom. Open access is never a shortcut; add your real IP address instead."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layer 2: authentication"
+    },
+    {
+      "type": "paragraph",
+      "text": "MongoDB authenticates database users with **SCRAM** (a salted, challenge-response password mechanism) by default; X.509 certificates, LDAP and, on Atlas, workload identity federation exist for larger setups. On Atlas you create users in the project's Database Access page or with the Atlas CLI, never with a shell command. On a self-managed server you create the first administrator yourself, in the `admin` database, before enabling authorisation locks you out:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use admin\ndb.createUser({\n  user: 'admin',\n  pwd: passwordPrompt(),\n  roles: [\n    { role: 'userAdminAnyDatabase', db: 'admin' },\n    { role: 'readWriteAnyDatabase', db: 'admin' }\n  ]\n})"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (the password you type is not echoed)",
+      "content": "switched to db admin\nEnter password\n{ ok: 1 }"
+    },
+    {
+      "type": "paragraph",
+      "text": "`passwordPrompt()` asks for the password interactively so that it never appears in the shell history. After restarting `mongod` with `authorization: enabled`, connect with `mongosh --username admin --authenticationDatabase admin` and the server will refuse any command from a session that has not authenticated."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layer 3: authorisation and least privilege"
+    },
+    {
+      "type": "paragraph",
+      "text": "A user has **roles**, each scoped to a database, and a role is a set of permitted actions. The principle is least privilege: an application that reads and writes the `shop` database gets exactly `readWrite` on `shop`, a reporting tool gets `read`, and nobody uses the administrator account for day-to-day work."
+    },
+    {
+      "type": "table",
+      "headers": ["Role", "Allows"],
+      "rows": [
+        ["`read`", "Reading every collection in one database"],
+        [
+          "`readWrite`",
+          "Reading and writing, including creating collections and indexes, in one database"
+        ],
+        ["`dbAdmin`", "Schema and index administration, statistics, without reading data"],
+        ["`userAdmin`", "Creating users and roles in one database"],
+        [
+          "`readAnyDatabase`, `readWriteAnyDatabase`",
+          "The same across all databases (granted in `admin`)"
+        ],
+        ["`clusterAdmin`, `root`", "Cluster management and everything; for administrators only"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.createUser({\n  user: 'shopApp',\n  pwd: passwordPrompt(),\n  roles: [{ role: 'readWrite', db: 'shop' }]\n})\ndb.getUser('shopApp')"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (the password you type is not echoed)",
+      "content": "switched to db shop\nEnter password\n{ ok: 1 }\n{\n  _id: 'shop.shopApp',\n  userId: UUID('8c6b2f0e-3d4a-4f61-9b2e-7a1c5d9e0f33'),\n  user: 'shopApp',\n  db: 'shop',\n  roles: [ { role: 'readWrite', db: 'shop' } ],\n  mechanisms: [ 'SCRAM-SHA-1', 'SCRAM-SHA-256' ]\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Atlas offers the same built-in roles plus custom roles for finer control, for example `readWrite` on `shop` but `read` only on `shop.customers`. Create one database user per application and environment, so that revoking or rotating one credential does not take everything else down."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layer 4: secrets"
+    },
+    {
+      "type": "paragraph",
+      "text": "A connection string with a password in it is a secret. It belongs in an environment variable or a secrets manager, is never committed to version control, and is rotated when someone who knew it leaves. Passwords containing characters such as `@`, `:` or `/` must be percent-encoded in the string. In development a `.env` file loaded at start-up is convenient, as long as `.env` is listed in `.gitignore`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "# .env (never committed)\nMONGODB_URI=\"mongodb+srv://shopApp:S3cret%40pass@cluster0.ab12cd.mongodb.net/shop\"\n\n# start the app with the variable set (Node 20+ can load the file itself)\nnode --env-file=.env app.mjs"
+    },
+    {
+      "type": "paragraph",
+      "text": "The [Node.js driver](/tutorials/mongodb/node-driver) lesson reads `process.env.MONGODB_URI` for exactly this reason. Log the host you connected to if you must, never the full string."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Layer 5: queries that cannot be hijacked"
+    },
+    {
+      "type": "paragraph",
+      "text": "MongoDB has no SQL to inject, but it has **operator injection**. Filters are documents, and if a value in a filter comes straight from a JSON request body, the client can send an object instead of a string. A login that checks `{ username: body.username, password: body.password }` is defeated by the body `{ \"username\": { \"$ne\": \"\" }, \"password\": { \"$ne\": \"\" } }`, because the operator matches every user. You can see the effect in the shell:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.find({ email: { $ne: '' } }, { _id: 0, name: 1 }).limit(1)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { name: 'Ann Lee' } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The defence is to control the *type* of every value that enters a filter and to never query by secret values at all. Passwords are stored as hashes and compared in application code:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "login.mjs (Express handler)",
+      "code": "import bcrypt from 'bcrypt';\n\napp.post('/login', async (req, res) => {\n  const username = typeof req.body.username === 'string' ? req.body.username : '';\n  const password = typeof req.body.password === 'string' ? req.body.password : '';\n\n  const user = await users.findOne({ username });            // a string can never be an operator\n  const ok = user !== null && (await bcrypt.compare(password, user.passwordHash));\n  if (!ok) return res.status(401).json({ error: 'invalid credentials' });\n\n  res.json({ id: user._id });\n});"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same discipline applies to ids (`ObjectId.isValid` before `new ObjectId`), to numbers (`Number()` and a range check), and to anything that reaches `$regex`, where user input must be escaped so that `.*` cannot turn a prefix search into a scan of every document. Never build `$where` or `$function` expressions from user input: they run JavaScript on the server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Beyond the basics"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**Encryption at rest** is on by default in Atlas and available for self-managed Enterprise servers; **Queryable Encryption** encrypts chosen fields in the client so that even administrators cannot read them.",
+        "**Backups**: Atlas takes continuous or scheduled snapshots; test a restore before you need one.",
+        "**Auditing and monitoring**: review Atlas activity logs and alerts for new users, access list changes and unusual connection counts.",
+        "**Updates**: run a supported MongoDB version and keep drivers current; security fixes ship in patch releases."
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "shield-check",
+      "title": "A five-minute audit",
+      "text": "Open your Atlas project and check: is `0.0.0.0/0` in the access list? Does the application user have more than `readWrite` on its database? Is the connection string in a file that is committed? Does any query put a request body value straight into a filter? Fixing those four closes the most common holes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-security-roles"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-security-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "security-basics",
+          "difficulty": "beginner",
+          "question": "A reporting service only needs to read the `analytics` database. Which role should its user have?",
+          "explanation": "`read` on the one database it needs is least privilege. `readWrite` and the AnyDatabase roles grant more than the service uses.",
+          "options": [
+            "`readWrite` on `analytics`",
+            "`read` on `analytics`",
+            "`readAnyDatabase`",
+            "`root`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-security-qc-2",
+          "type": "true-false",
+          "lessonSlug": "security-basics",
+          "difficulty": "intermediate",
+          "question": "Because MongoDB queries are not SQL, user input placed directly into a filter cannot change the query's meaning.",
+          "explanation": "A JSON body can supply an object such as `{ \"$ne\": \"\" }` instead of a string, turning an equality check into an operator that matches everything. Validate the type of every value that enters a filter.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-security-roles"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "setup-atlas-shell"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "node-driver"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "fetch-json"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Security Basics – Users, Roles, Network, Injection",
+    "description": "Secure MongoDB and Atlas: IP access lists and TLS, SCRAM users with least-privilege roles, secrets in environment variables and queries safe from operator injection."
+  },
+  "updatedOn": "2026-11-15"
+}

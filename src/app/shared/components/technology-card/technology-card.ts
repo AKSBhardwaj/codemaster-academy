@@ -17,7 +17,9 @@ export class TechnologyCardComponent {
   readonly technology = input.required<TechnologyCatalogEntry>();
   readonly variant = input<'grid' | 'compact'>('grid');
   private readonly catalog = inject(CatalogService);
-  protected readonly category = computed(() => this.catalog.category(this.technology().categorySlug));
+  protected readonly category = computed(() =>
+    this.catalog.category(this.technology().categorySlug),
+  );
   protected readonly difficulty = computed(() => DIFFICULTY_LABEL[this.technology().difficulty]);
   protected readonly link = computed(() => ['/tutorials', this.technology().slug]);
 }

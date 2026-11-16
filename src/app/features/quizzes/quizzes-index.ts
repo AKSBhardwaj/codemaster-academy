@@ -8,17 +8,27 @@ import { TechnologyLinkListComponent } from '../../shared/components/technology-
   selector: 'cma-quizzes-index',
   imports: [PageHeaderComponent, EmptyStateComponent, TechnologyLinkListComponent],
   template: `
-    <cma-page-header eyebrow="Practice" title="Quizzes" lead="Scored quizzes for every published tutorial, with an answer review and unlimited retries. Scores are saved in this browser." />
+    <cma-page-header
+      eyebrow="Practice"
+      title="Quizzes"
+      lead="Scored quizzes for every published tutorial, with an answer review and unlimited retries. Scores are saved in this browser."
+    />
     <div class="container-xxl py-4 py-lg-5">
       @if (available().length) {
         <cma-technology-link-list [technologies]="available()" basePath="/quizzes" label="Quiz" />
       } @else if (!catalog.isLoading()) {
-        <cma-empty-state icon="patch-check" title="No quizzes published yet" text="Quizzes appear here as tutorials reach the in-progress and complete stages." />
+        <cma-empty-state
+          icon="patch-check"
+          title="No quizzes published yet"
+          text="Check your connection and reload the page to try again."
+        />
       }
     </div>
   `,
 })
 export class QuizzesIndexPage {
   protected readonly catalog = inject(CatalogService);
-  protected readonly available = computed(() => this.catalog.technologies().filter((t) => t.hasQuiz));
+  protected readonly available = computed(() =>
+    this.catalog.technologies().filter((t) => t.hasQuiz),
+  );
 }

@@ -1,0 +1,138 @@
+{
+  "title": "Remix Small Examples",
+  "description": "Use these small Remix examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Choose browser rendering",
+      "description": "A single-page app loads a browser shell and lets routes choose its content.",
+      "language": "typescript",
+      "code": "// react-router.config.ts\nimport type {Config} from \"@react-router/dev/config\";\nexport default {ssr:false} satisfies Config;",
+      "output": "The framework builds an app intended to run its route work in the browser.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "declare-route-files",
+      "title": "Declare route files",
+      "description": "A route config maps addresses to route modules.",
+      "language": "typescript",
+      "code": "// app/routes.ts\nimport {type RouteConfig,index,route} from \"@react-router/dev/routes\";\nexport default [index(\"routes/home.tsx\"),route(\"books\",\"routes/books.tsx\")] satisfies RouteConfig;",
+      "output": "The home module handles /, and the books module handles /books once those files are created.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "declare-route-files"
+    },
+    {
+      "id": "write-a-route-page",
+      "title": "Write a route page",
+      "description": "A route module exports a component to show for its address.",
+      "language": "tsx",
+      "code": "// app/routes/home.tsx\nexport default function Home(){return <main><h1>Reading club</h1><p>Choose a book today.</p></main>;}",
+      "output": "The home route shows a heading and paragraph.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "write-a-route-page"
+    },
+    {
+      "id": "use-links-for-navigation",
+      "title": "Use links for navigation",
+      "description": "Link changes the route while keeping the useful meaning of a link.",
+      "language": "tsx",
+      "code": "// app/routes/home.tsx\nimport {Link} from \"react-router\";\nexport default function Home(){return <main><h1>Reading club</h1><Link to=\"/books\">Open the book list</Link></main>;}",
+      "output": "The link opens the configured books route.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-links-for-navigation"
+    },
+    {
+      "id": "show-a-nested-route",
+      "title": "Show a nested route",
+      "description": "A parent route can wrap child routes. Outlet is the place where the matched child appears.",
+      "language": "tsx",
+      "code": "// app/routes/books-layout.tsx\nimport {Outlet} from \"react-router\";\nexport default function BooksLayout(){return <section><h1>Our books</h1><Outlet/></section>;}\n// Configure this module as a parent with child routes in app/routes.ts.",
+      "output": "When this route has a matching child, the child is shown below Our books.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-a-nested-route"
+    },
+    {
+      "id": "read-an-address-parameter",
+      "title": "Read an address parameter",
+      "description": "A route parameter captures a value from an address.",
+      "language": "tsx",
+      "code": "// Configure route(\"books/:slug\", \"routes/book.tsx\") first.\n// app/routes/book.tsx\nimport {useParams} from \"react-router\";\nexport default function Book(){const {slug}=useParams();return <h1>Book: {slug}</h1>;}",
+      "output": "At /books/moon-trip, the page shows Book: moon-trip.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-an-address-parameter"
+    },
+    {
+      "id": "load-data-in-the-browser",
+      "title": "Load data in the browser",
+      "description": "clientLoader prepares route data in the browser.",
+      "language": "tsx",
+      "code": "// app/routes/books.tsx; also create public/books.json as a JSON array.\nimport {useLoaderData} from \"react-router\";\nexport async function clientLoader(){const response=await fetch(\"/books.json\");if(!response.ok)throw new Error(\"Books could not load\");return response.json();}\nexport default function Books(){const books=useLoaderData<typeof clientLoader>();return <ul>{books.map((book:{id:number;title:string})=><li key={book.id}>{book.title}</li>)}</ul>;}",
+      "output": "The route reads the real JSON file and shows one item per book.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "load-data-in-the-browser"
+    },
+    {
+      "id": "show-a-first-load-fallback",
+      "title": "Show a first-load fallback",
+      "description": "A HydrateFallback can show a simple message while route data needed during initial hydration is loading.",
+      "language": "tsx",
+      "code": "// Add these exports to a route module that has clientLoader.\nexport function HydrateFallback(){return <p>Loading the book list...</p>;}\n// To require client loading during hydration for this route:\n// clientLoader.hydrate = true as const;",
+      "output": "The fallback gives the reader a clear waiting message while that route prepares its initial client data.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "show-a-first-load-fallback"
+    },
+    {
+      "id": "give-the-active-link-a-clear-style",
+      "title": "Give the active link a clear style",
+      "description": "NavLink knows whether its destination is the active route.",
+      "language": "tsx",
+      "code": "import {NavLink} from \"react-router\";\nexport default function Menu(){return <nav aria-label=\"Main\"><NavLink to=\"/books\" className={({isActive})=>isActive?\"current\":\"\"}>Books</NavLink></nav>;}",
+      "output": "On the books route, the link receives the current class and active-page semantics.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "give-the-active-link-a-clear-style"
+    },
+    {
+      "id": "use-search-values-in-the-address",
+      "title": "Use search values in the address",
+      "description": "Search parameters let a page keep small filter choices in the URL.",
+      "language": "tsx",
+      "code": "import {useSearchParams} from \"react-router\";\nexport default function Filter(){const [params,setParams]=useSearchParams();return <label>Topic <input value={params.get(\"topic\")||\"\"} onChange={e=>setParams({topic:e.target.value})}/></label>;}",
+      "output": "Typing changes the topic search value in the address as well as the input.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-search-values-in-the-address"
+    },
+    {
+      "id": "explain-a-route-error",
+      "title": "Explain a route error",
+      "description": "A route ErrorBoundary can show a useful message when loading or rendering fails.",
+      "language": "tsx",
+      "code": "// Export from the route module.\nimport {useRouteError,isRouteErrorResponse,Link} from \"react-router\";\nexport function ErrorBoundary(){const error=useRouteError();return <main><h1>We could not open this page</h1><p>{isRouteErrorResponse(error)?`Status ${error.status}`:\"Please try again.\"}</p><Link to=\"/\">Go home</Link></main>;}",
+      "output": "A caught route error displays a clear message and a home link.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "explain-a-route-error"
+    },
+    {
+      "id": "serve-the-browser-build",
+      "title": "Serve the browser build",
+      "description": "A browser route app needs its static host to return the app shell for supported client-side addresses.",
+      "language": "text",
+      "code": "Run the project build command.\nServe the generated build/client files.\nConfigure the static host fallback to index.html for client routes.\nOpen /books directly in a new tab.\nCheck that real asset requests still return their actual files.",
+      "output": "Both link navigation and direct route visits can open the app when the host fallback is correct.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "serve-the-browser-build"
+    }
+  ]
+}

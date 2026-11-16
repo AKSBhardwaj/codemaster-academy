@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors",
+  "title": "Give a clear error reply",
+  "summary": "Fastify: Give a clear error reply. Inspect the 500 status.",
+  "introduction": "setErrorHandler handles errors from routes. GET /broken returns a simple public message.",
+  "learningObjectives": ["Give a clear error reply with Fastify", "Inspect the 500 status"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Give a clear error reply"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Give a clear error reply",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.setErrorHandler((error, request, reply) => reply.code(500).send({ error: \"Try again later\" }));\napp.get(\"/broken\", async () => { throw new Error(\"Practice failure\"); });\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The thrown error reaches the configured handler, which sends status 500 and a short message."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"error\":\"Try again later\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the 500 status."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Avoid showing private stack traces to clients."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-errors-check"
+    }
+  ],
+  "exerciseIds": ["fastify-errors-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "response-schema"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Give a clear error reply",
+    "description": "Fastify: Give a clear error reply. Inspect the 500 status. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

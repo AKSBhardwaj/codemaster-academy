@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "slug": "schema-design",
+  "title": "Schema Design",
+  "summary": "Design documents around how your application reads and writes data: when to embed, when to reference, how to enforce rules with schema validation and which types to use.",
+  "introduction": "MongoDB does not force a schema on you, which makes the schema you choose more important, not less. Relational design starts from the data and normalises it; document design starts from the application's questions and stores together what is read together. This lesson gives you the rules for choosing between embedding and referencing, shows how to enforce the rules you decide on with schema validation, and covers the type choices and the unbounded-growth trap that cause most real-world trouble.",
+  "learningObjectives": [
+    "Model data around the application's access patterns rather than around tables",
+    "Decide between embedding and referencing with a short list of criteria",
+    "Enforce document rules with $jsonSchema validation",
+    "Pick the right BSON types and recognise the unbounded-array anti-pattern"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Design for the queries"
+    },
+    {
+      "type": "paragraph",
+      "text": "The guiding principle is simple: **data that is accessed together should be stored together**. A document read is one disk seek and one network round trip; a join across collections is several. So before drawing collections, list what the application does: show an order with its lines and delivery address, list a customer's recent orders, display a product with its average rating. Each of those sentences describes a document shape, and the most frequent ones win when they conflict."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is the opposite of relational normalisation, where duplicating data is a defect. In MongoDB a little duplication, such as copying a product's name into each order line, is often correct: the order should show the name as it was when the order was placed, even if the catalogue changes later. The art is knowing when duplication helps and when it hurts."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Embedding"
+    },
+    {
+      "type": "paragraph",
+      "text": "Embed when the child data belongs to exactly one parent, is read with it almost every time, and has a bounded size. An order is the classic case: its lines and shipping address exist only for that order and are always displayed together."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.orders.insertOne({\n  _id: 1001,\n  customerId: 1,\n  placedAt: new Date('2026-03-02T10:15:00Z'),\n  status: 'paid',\n  shipping: { street: '12 Rua Augusta', city: 'Lisbon', country: 'PT' },\n  lines: [\n    { productId: 1, name: 'Mechanical keyboard', qty: 1, price: 89.5 },\n    { productId: 5, name: 'USB-C hub', qty: 2, price: 39 }\n  ],\n  total: 167.5\n})\ndb.orders.findOne({ _id: 1001 }, { _id: 0, 'lines.name': 1, 'lines.qty': 1, total: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\n{ acknowledged: true, insertedId: 1001 }\n{\n  lines: [\n    { name: 'Mechanical keyboard', qty: 1 },\n    { name: 'USB-C hub', qty: 2 }\n  ],\n  total: 167.5\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Everything the order page needs arrives in one document, and the whole order is written atomically, so there is never a moment where the lines exist without the header. The embedded `total` is a **computed** value stored on write so that listing orders does not have to add up lines every time; keep such values in sync in the code that changes the lines."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Referencing"
+    },
+    {
+      "type": "paragraph",
+      "text": "Reference, by storing the other document's `_id`, when the child data can grow without limit, is shared by many parents, is updated on its own schedule, or is large and rarely needed. Product reviews fail the first test: a popular product can collect thousands, and nobody reads them all on the product page."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.reviews.insertMany([\n  { productId: 1, customerId: 1, stars: 5, text: 'Great keys', createdAt: new Date('2026-03-03') },\n  { productId: 1, customerId: 2, stars: 4, text: 'Loud but nice', createdAt: new Date('2026-03-04') }\n])\ndb.reviews.find({ productId: 1 }, { _id: 0, stars: 1, text: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedIds: {\n    '0': ObjectId('69a3a800f1e2d3c4b5a69721'),\n    '1': ObjectId('69a3a800f1e2d3c4b5a69722')\n  }\n}\n[\n  { stars: 5, text: 'Great keys' },\n  { stars: 4, text: 'Loud but nice' }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The reviews live in their own collection, keyed by `productId`, and the product page loads the latest few with a filtered, sorted, limited query backed by an index on `{ productId: 1, createdAt: -1 }`. The product document can still carry a computed `averageRating` and `reviewCount`, updated whenever a review is written, so the listing page never touches the reviews collection at all. The [Relationships](/tutorials/mongodb/relationships) lesson covers the patterns for one-to-many and many-to-many in detail."
+    },
+    {
+      "type": "table",
+      "caption": "Embed or reference?",
+      "headers": ["Question", "Embed", "Reference"],
+      "rows": [
+        ["Is the child read with the parent nearly every time?", "Yes", "Rarely"],
+        [
+          "How many children can a parent have?",
+          "A bounded, modest number",
+          "Unbounded or thousands"
+        ],
+        ["Is the child shared by several parents?", "No, it belongs to one", "Yes"],
+        ["Is the child updated independently of the parent?", "No", "Yes, often"],
+        [
+          "Must parent and child change atomically?",
+          "Yes, embedding gives that for free",
+          "Only with a transaction"
+        ]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: unbounded arrays",
+      "text": "Appending every event, message or log line to an array inside a user document feels natural and works for weeks. Then documents approach the 16 MB limit, every update rewrites a huge document, and indexes on the array explode in size. If an array can grow without an upper bound that you control, store the elements as separate documents in their own collection instead, or group them into fixed-size buckets such as one document per user per day."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Schema validation"
+    },
+    {
+      "type": "paragraph",
+      "text": "Flexible does not mean unchecked. A collection can carry a **validator**, usually written with `$jsonSchema`, that every insert and update must satisfy. It documents the shape you decided on and stops a buggy client from writing a string where a number belongs. Re-create the `customers` collection with rules:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.drop()\ndb.createCollection('customers', {\n  validator: {\n    $jsonSchema: {\n      bsonType: 'object',\n      required: ['name', 'email'],\n      properties: {\n        name: { bsonType: 'string' },\n        email: { bsonType: 'string', pattern: '^.+@.+$' },\n        loyaltyPoints: { bsonType: 'number', minimum: 0 }\n      }\n    }\n  }\n})\ndb.customers.insertOne({ name: 'Ann Lee' })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "true\n{ ok: 1 }\nMongoServerError[DocumentValidationFailure]: Document failed validation\nAdditional information: {\n  failingDocumentId: ObjectId('69a3a800f1e2d3c4b5a69723'),\n  details: {\n    operatorName: '$jsonSchema',\n    schemaRulesNotSatisfied: [\n      {\n        operatorName: 'required',\n        specifiedAs: { required: [ 'name', 'email' ] },\n        missingProperties: [ 'email' ]\n      }\n    ]\n  }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "The error explains exactly which rule failed, here the missing `email`. Fields not listed under `properties` are still allowed unless you add `additionalProperties: false`. To add or change rules on an existing collection, use `db.runCommand({ collMod: 'customers', validator: { ... } })`; the options `validationLevel: 'moderate'` (check only documents that already pass) and `validationAction: 'warn'` (log instead of reject) let you introduce rules gradually on a collection with old data."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing types"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "**Money:** use `Decimal128('19.99')`, not a double. `0.1 + 0.2` is not `0.3` in binary floating point, and accountants notice.",
+        "**Dates:** store a BSON `Date`, never a string. Dates compare, sort and support `$gt` on real time; `'03/02/2026'` does none of that reliably.",
+        "**Identifiers:** keep the same type everywhere. A `customerId` stored as a number in orders and as a string in reviews never joins up.",
+        "**Booleans and enums:** use `true`/`false` and short lowercase strings such as `'paid'`; avoid `'Y'`, `1` and `'PAID'` in the same field.",
+        "**Field names:** short, consistent, `camelCase`, and the same name for the same concept in every collection."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Beyond these basics, the MongoDB documentation describes named **schema design patterns**: the *computed* pattern you saw with `total`, the *extended reference* pattern that copies a few fields of a referenced document (the product name in an order line), the *bucket* pattern for time-based data, and the *subset* pattern that keeps the most recent few children embedded and the rest in another collection. Recognising them by name makes design discussions much shorter."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Insert a valid customer with `name`, `email` and `loyaltyPoints: 10`, then try `loyaltyPoints: -5` and read the validation error. Finally sketch, on paper, the documents for a blog with posts, authors and comments, and decide for each relationship whether to embed or reference."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-schema-embed-or-reference"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-schema-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "schema-design",
+          "difficulty": "intermediate",
+          "question": "A support ticket has a bounded list of at most five attachments that are always shown with the ticket. Where do the attachments belong?",
+          "explanation": "Bounded, owned by one parent and always read together: all three criteria point to embedding the attachments as an array in the ticket document.",
+          "options": [
+            "In a separate `attachments` collection joined with `$lookup`",
+            "Embedded as an array inside the ticket document",
+            "In the `users` collection of the person who uploaded them",
+            "In a bucket document per day"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-schema-qc-2",
+          "type": "true-false",
+          "lessonSlug": "schema-design",
+          "difficulty": "beginner",
+          "question": "Because MongoDB has a flexible schema, there is no way to require a field or restrict its type.",
+          "explanation": "A collection validator written with `$jsonSchema` can require fields, restrict types and ranges, and reject documents that do not comply.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-schema-embed-or-reference"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "relationships"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "documents-collections"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "constraints"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Schema Design – Embed, Reference and Validate",
+    "description": "Learn MongoDB schema design: model documents around access patterns, choose between embedding and referencing, add $jsonSchema validation and pick the right types."
+  },
+  "updatedOn": "2026-11-15"
+}

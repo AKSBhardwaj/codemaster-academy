@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "slug": "signals",
+  "title": "Signals and Computed State",
+  "summary": "Angular's reactive primitives: signal() for state, computed() for derived values, effect() for side effects and linkedSignal() for state that resets, plus how zoneless change detection uses them.",
+  "introduction": "Signals are how Angular 22 knows what changed. A signal is a box holding a value; reading it records a dependency, writing it notifies everything that depends on it. Templates, computed values and effects all build on that one idea, and it is what lets a zoneless app re-render precisely the parts that need it. This lesson covers the four primitives you will use daily and the mistakes that silently break reactivity.",
+  "learningObjectives": [
+    "Create, read and update signals with signal(), set() and update()",
+    "Derive values with computed() and keep dependent state in sync with linkedSignal()",
+    "Run side effects with effect() and explain how zoneless change detection relies on signals"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Why signals?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Earlier Angular versions used `zone.js` to patch every browser API, run change detection after each event and compare every binding on the page to find out what changed. That worked, but it did a lot of guessing. A signal removes the guesswork: when you call `name.set('Grace')`, Angular knows that exactly the template nodes, computed values and effects which read `name` need attention. Angular 22 projects are zoneless by default, and signals are the mechanism that makes that possible."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "signal(): writable state"
+    },
+    {
+      "type": "paragraph",
+      "text": "`signal(initialValue)` creates a `WritableSignal`. Read it by calling it, replace the value with `set()`, or derive the next value from the current one with `update()`. Signals work in components, services and plain functions alike."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "import { signal } from '@angular/core';\n\nconst count = signal(0);\nconsole.log(count());\n\ncount.set(5);\ncount.update((n) => n * 2);\nconsole.log(count());\n\ncount.set(10);           // same value: nothing is notified\nconsole.log(count());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "0\n10\n10"
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular compares the old and new value with `Object.is`, so setting a signal to the value it already holds notifies nobody. For objects and arrays that means a *new* reference is required; mutating the existing one is invisible."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "computed(): derived values"
+    },
+    {
+      "type": "paragraph",
+      "text": "`computed(() => ...)` creates a read-only signal whose value is calculated from other signals. It is **lazy** (not calculated until something reads it) and **memoised** (recalculated only when one of the signals it read has changed). Put every derived value in a `computed()` instead of recalculating it in the template or copying it into a second writable signal."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/cart/cart.ts",
+      "code": "import { Component, computed, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-cart',\n  template: `\n    <p>{{ count() }} items, total {{ total() }}</p>\n    <button (click)=\"add(25)\">Add 25</button>\n    <button (click)=\"clear()\">Clear</button>\n  `,\n})\nexport class Cart {\n  readonly prices = signal<number[]>([10, 15]);\n  readonly count = computed(() => this.prices().length);\n  readonly total = computed(() => this.prices().reduce((sum, p) => sum + p, 0));\n\n  add(price: number): void {\n    this.prices.update((list) => [...list, price]);\n  }\n\n  clear(): void {\n    this.prices.set([]);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "2 items, total 25\n\nAfter clicking \"Add 25\":\n3 items, total 50\n\nAfter clicking \"Clear\":\n0 items, total 0"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: mutating instead of replacing",
+      "text": "`this.prices().push(25)` changes the array but not the signal: the reference is the same, so `count` and `total` are never recalculated and the template does not update. Always produce a new value: `this.prices.update((list) => [...list, 25])`, and for objects `this.user.update((u) => ({ ...u, name: 'Grace' }))`. The same rule applies to `set`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "effect(): side effects"
+    },
+    {
+      "type": "paragraph",
+      "text": "Templates and computed values are pure: they describe what to show. When a signal change must reach the outside world (write to `localStorage`, set an attribute on `<body>`, log, start a request) use `effect()`. The function runs once when created and again whenever any signal it read has changed. Create effects in the constructor or in a field initialiser, because they need an injection context to register their cleanup."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/theme-switch/theme-switch.ts",
+      "code": "import { Component, effect, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-theme-switch',\n  template: `<button (click)=\"toggle()\">Switch to {{ theme() === 'light' ? 'dark' : 'light' }}</button>`,\n})\nexport class ThemeSwitch {\n  readonly theme = signal<'light' | 'dark'>('light');\n\n  constructor() {\n    effect(() => {\n      document.body.dataset['theme'] = this.theme();\n      console.log(`theme is now ${this.theme()}`);\n    });\n  }\n\n  toggle(): void {\n    this.theme.update((t) => (t === 'light' ? 'dark' : 'light'));\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Browser console, after one click",
+      "content": "theme is now light\ntheme is now dark"
+    },
+    {
+      "type": "paragraph",
+      "text": "Effects are batched: three `set()` calls in a row cause one run, not three. If you need to read a signal inside an effect without depending on it, wrap the read in `untracked(() => other())`. And resist the temptation to copy state between signals inside an effect; that is what `computed()` and `linkedSignal()` are for."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "linkedSignal(): state that follows other state"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sometimes a value must be editable by the user *and* reset when its source changes: the selected shipping option should be the first available option, until the user picks another, until the options are reloaded. `linkedSignal()` is a writable signal with a computation that recomputes the value whenever its sources change."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/shipping/shipping.ts",
+      "code": "import { Component, linkedSignal, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-shipping',\n  template: `\n    @for (option of options(); track option) {\n      <button (click)=\"selected.set(option)\">{{ option }}</button>\n    }\n    <p>Selected: {{ selected() }}</p>\n    <button (click)=\"reload()\">Reload options</button>\n  `,\n})\nexport class Shipping {\n  readonly options = signal(['Standard', 'Express']);\n  readonly selected = linkedSignal(() => this.options()[0]);\n\n  reload(): void {\n    this.options.set(['Pickup', 'Courier']);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "[ Standard ] [ Express ]\nSelected: Standard\n\nAfter clicking \"Express\":\nSelected: Express\n\nAfter clicking \"Reload options\":\n[ Pickup ] [ Courier ]\nSelected: Pickup"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing the primitive"
+    },
+    {
+      "type": "table",
+      "headers": ["Primitive", "Writable?", "Use it for"],
+      "rows": [
+        ["`signal()`", "Yes", "State the user or the app changes directly"],
+        ["`computed()`", "No", "Values derived from other signals: totals, filtered lists, labels"],
+        ["`linkedSignal()`", "Yes", "Editable state with a default that follows other signals"],
+        [
+          "`effect()`",
+          "n/a",
+          "Side effects outside the template: logging, storage, DOM outside Angular"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Expose signals from services as read-only with `asReadonly()` so that only the service can change them, and keep the writable one private. The [services lesson](/tutorials/angular/services-di) uses exactly that pattern."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How zoneless change detection uses signals"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a template reads a signal, Angular records which view depends on it. Changing the signal marks that view for refresh and schedules a render; nothing else on the page is checked. Template event handlers also mark their component for refresh, which is why a handler that updates a plain property still works. Code that changes state from outside Angular, for instance a callback from a third-party library, should write to a signal or call `ChangeDetectorRef.markForCheck()`. Keep state in signals and you rarely think about change detection at all."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Signals and RxJS",
+      "text": "Observables remain the right tool for streams of events over time, such as web sockets or typed-ahead search. `toSignal()` from `@angular/core/rxjs-interop` turns an observable into a signal for the template, and `toObservable()` goes the other way. The [data lesson](/tutorials/angular/http-resource) shows `toSignal()` with `HttpClient`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-signals-predict"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-signals-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "signals",
+          "difficulty": "beginner",
+          "question": "Which primitive should hold a `fullName` built from `firstName` and `lastName` signals?",
+          "explanation": "A derived value belongs in `computed()`: it recalculates only when either name changes and can never drift out of sync.",
+          "options": [
+            "`signal()` updated inside an `effect()`",
+            "`computed()`",
+            "A plain class property set in `ngOnInit`",
+            "`linkedSignal()`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-signals-qc-2",
+          "type": "true-false",
+          "lessonSlug": "signals",
+          "difficulty": "intermediate",
+          "question": "Calling `items().push(x)` on a signal holding an array updates every template that displays the list.",
+          "explanation": "Pushing mutates the array without changing the signal's reference, so no dependents are notified. Use `items.update((list) => [...list, x])`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-signals-predict", "angular-signals-counter"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "inputs-outputs"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "templates-control-flow"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "Angular Signals – signal, computed, effect, linkedSignal",
+    "description": "Learn Angular 22 signals: create state with signal(), derive values with computed(), run side effects with effect(), reset state with linkedSignal() and avoid."
+  },
+  "updatedOn": "2026-11-15"
+}

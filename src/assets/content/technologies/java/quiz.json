@@ -1,0 +1,184 @@
+{
+  "id": "java-quiz",
+  "title": "Java Quiz",
+  "description": "Fourteen questions covering the whole Java tutorial: the JVM and tools, syntax, types, operators, loops, methods, classes, inheritance, collections, generics, exceptions, strings and streams.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "java-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What does the compiler `javac` produce from a `.java` file?",
+      "explanation": "javac writes a `.class` file containing bytecode for the JVM. Machine code is generated later, at run time, by the JVM's JIT compiler.",
+      "options": [
+        "Machine code for the current CPU",
+        "Bytecode in a `.class` file",
+        "An executable `.exe` file",
+        "A `.jar` file containing the source"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-q-02",
+      "type": "true-false",
+      "lessonSlug": "setup-jdk",
+      "difficulty": "beginner",
+      "question": "`java Hello.java` compiles and runs a single source file without leaving a `.class` file on disk.",
+      "explanation": "The source-file launcher, available since Java 11, compiles in memory and runs the program in one step.",
+      "correct": true
+    },
+    {
+      "id": "java-q-03",
+      "type": "fill-blank",
+      "lessonSlug": "syntax-variables",
+      "difficulty": "beginner",
+      "question": "The keyword that makes a variable a constant which can be assigned only once is `___`.",
+      "explanation": "`final` prevents reassignment after the first assignment; attempting it gives `cannot assign a value to final variable`.",
+      "answers": ["final"],
+      "caseSensitive": false
+    },
+    {
+      "id": "java-q-04",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "intermediate",
+      "question": "What does this code print?",
+      "explanation": "`Integer.MAX_VALUE` is 2147483647. Adding one overflows silently and wraps around to the smallest int, -2147483648. Java never throws for plain int overflow; use `long` or `Math.addExact` when it matters.",
+      "language": "java",
+      "code": "int big = Integer.MAX_VALUE;\nSystem.out.println(big + 1);",
+      "options": ["2147483648", "-2147483648", "0", "ArithmeticException"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-q-05",
+      "type": "find-error",
+      "lessonSlug": "operators-conditionals",
+      "difficulty": "beginner",
+      "question": "This prints `one` and then `two` although `code` is 1. Why?",
+      "explanation": "In the classic switch statement execution continues from the matching label until a `break`. `case 1` has no `break`, so it falls through into `case 2`. The arrow form `case 1 -> ...` never falls through.",
+      "language": "java",
+      "code": "int code = 1;\nswitch (code) {\n    case 1:\n        System.out.println(\"one\");\n    case 2:\n        System.out.println(\"two\");\n        break;\n    default:\n        System.out.println(\"other\");\n}",
+      "options": [
+        "`case 1` has no `break`, so execution falls through into `case 2`",
+        "`default` must be the first label",
+        "`switch` cannot be used with an `int`",
+        "The second label should be `case 1:` as well"
+      ],
+      "correctIndex": 0,
+      "errorLine": 4
+    },
+    {
+      "id": "java-q-06",
+      "type": "predict-output",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "question": "What does this loop print?",
+      "explanation": "`i` starts at 3 and the loop runs while `i > 0`, decrementing each time: 3, 2, 1. When `i` reaches 0 the condition fails. `print` does not add line breaks, so the digits appear on one line.",
+      "language": "java",
+      "code": "for (int i = 3; i > 0; i--) {\n    System.out.print(i);\n}",
+      "options": ["123", "321", "3210", "32"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-q-07",
+      "type": "true-false",
+      "lessonSlug": "methods",
+      "difficulty": "beginner",
+      "question": "A method declared `void` may still use `return;` to leave early.",
+      "explanation": "A bare `return;` without a value is allowed in a void method and ends it immediately. Only a `return` with a value is forbidden there.",
+      "correct": true
+    },
+    {
+      "id": "java-q-08",
+      "type": "fill-blank",
+      "lessonSlug": "classes-objects",
+      "difficulty": "beginner",
+      "question": "Inside a constructor, the keyword `___` refers to the object being created, as in `___.name = name;`.",
+      "explanation": "`this` is the reference to the current object. It is needed when a parameter has the same name as a field, otherwise the assignment would only touch the parameter.",
+      "answers": ["this"],
+      "caseSensitive": false
+    },
+    {
+      "id": "java-q-09",
+      "type": "multiple-choice",
+      "lessonSlug": "inheritance-interfaces",
+      "difficulty": "intermediate",
+      "question": "Which statement about Java interfaces is correct?",
+      "explanation": "Since Java 8 an interface may contain `default` methods with a body. A class may implement many interfaces, interface fields are implicitly `public static final` constants, and interfaces have no constructors.",
+      "options": [
+        "An interface can declare `default` methods that have a body",
+        "A class can implement at most one interface",
+        "Interface fields are ordinary mutable instance variables",
+        "An interface can declare a constructor"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "java-q-10",
+      "type": "predict-output",
+      "lessonSlug": "collections",
+      "difficulty": "intermediate",
+      "question": "What does this code print?",
+      "explanation": "A `TreeMap` keeps its keys sorted, so `a` comes before `b` regardless of insertion order. `merge(\"b\", 5, Integer::sum)` adds 5 to the existing 1, giving 6.",
+      "language": "java",
+      "code": "Map<String, Integer> m = new TreeMap<>();\nm.put(\"b\", 1);\nm.put(\"a\", 2);\nm.merge(\"b\", 5, Integer::sum);\nSystem.out.println(m);",
+      "options": ["{b=6, a=2}", "{a=2, b=6}", "{a=2, b=5}", "{a=2, b=1}"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-q-11",
+      "type": "true-false",
+      "lessonSlug": "generics",
+      "difficulty": "intermediate",
+      "question": "Type arguments are erased at run time, which is why `new T()` inside a generic class is not allowed.",
+      "explanation": "After compilation a `Box<String>` is just a `Box`; the JVM does not know what `T` was, so it cannot create an instance of it.",
+      "correct": true
+    },
+    {
+      "id": "java-q-12",
+      "type": "multiple-choice",
+      "lessonSlug": "exceptions",
+      "difficulty": "intermediate",
+      "question": "Which of these is an unchecked exception?",
+      "explanation": "`IllegalArgumentException` extends `RuntimeException`, so the compiler does not force callers to handle it. `IOException`, `FileNotFoundException` and `InterruptedException` are checked and must be caught or declared.",
+      "options": [
+        "`IOException`",
+        "`FileNotFoundException`",
+        "`IllegalArgumentException`",
+        "`InterruptedException`"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "java-q-13",
+      "type": "predict-output",
+      "lessonSlug": "strings-io",
+      "difficulty": "intermediate",
+      "question": "What does this code print?",
+      "explanation": "In `banana`, `an` first appears at index 1 and last at index 3. `replace` swaps every `a` for `o`, giving `bonono`. Strings are immutable, so `s` itself is unchanged, but the expression prints the new values.",
+      "language": "java",
+      "code": "String s = \"banana\";\nSystem.out.println(s.indexOf(\"an\") + \" \" + s.lastIndexOf(\"an\") + \" \" + s.replace(\"a\", \"o\"));",
+      "options": ["1 3 bonono", "1 4 bonono", "2 4 bonono", "1 3 bonana"],
+      "correctIndex": 0
+    },
+    {
+      "id": "java-q-14",
+      "type": "find-error",
+      "lessonSlug": "records-streams",
+      "difficulty": "intermediate",
+      "question": "Why does this code not compile?",
+      "explanation": "Record components become `private final` fields. They can be read through the accessor `p.x()` but never reassigned, so javac reports `cannot assign a value to final variable x`. To get a changed point, create a new record: `new Point(5, p.y())`.",
+      "language": "java",
+      "code": "record Point(int x, int y) {}\n\npublic static void main(String[] args) {\n    Point p = new Point(1, 2);\n    p.x = 5;\n    System.out.println(p);\n}",
+      "options": [
+        "Record components are final, so `p.x = 5` cannot assign to one",
+        "Records must declare an explicit constructor",
+        "Records cannot be passed to `println`",
+        "`new Point(1, 2)` must be written as `Point.of(1, 2)`"
+      ],
+      "correctIndex": 0,
+      "errorLine": 5
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "choose-a-cache-rule-for-a-purpose",
+  "title": "Choose a cache rule for a purpose",
+  "summary": "Cache-first uses a stored response before trying the network.",
+  "introduction": "Cache-first uses a stored response before trying the network. Your task: Explain why response.clone is used before storing a copy.",
+  "learningObjectives": [
+    "Explain why response.clone is used before storing a copy.",
+    "Explain the example for choose a cache rule for a purpose"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Cache-first uses a stored response before trying the network. It suits files whose addresses change when their contents change."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples belong in separate files on your own HTTPS or localhost site. Service workers need that trusted origin and cannot run in this site's sandbox. Use browser developer tools to inspect them."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// Example helper inside sw.js\nasync function cachedAsset(request) {\n  const cache = await caches.open(\"reading-assets-v1\");\n  const saved = await cache.match(request);\n  if (saved) return saved;\n  const response = await fetch(request);\n  if (response.ok) await cache.put(request, response.clone());\n  return response;\n}",
+      "title": "Choose a cache rule for a purpose",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`caches.open` opens a named Cache Storage collection. Choose versioned names that your app can manage safely.",
+        "`clone()` makes another readable response body, so storing a copy does not consume the one returned to the caller.",
+        "`response.ok` checks for a successful HTTP status. A completed fetch can still contain a 404 or another error response."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The helper reuses a stored response. On a first successful fetch, it saves a copy and returns the original response."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Use this only for selected safe GET assets. Personal data and frequently changing documents need a deliberate policy."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why response.clone is used before storing a copy."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "progressive-web-apps-choose-a-cache-rule-for-a-purpose-check"
+    }
+  ],
+  "exerciseIds": ["progressive-web-apps-choose-a-cache-rule-for-a-purpose-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "progressive-web-apps",
+      "slug": "give-navigation-an-offline-fallback"
+    }
+  ],
+  "seo": {
+    "title": "Progressive Web Apps: Choose a cache rule for a purpose",
+    "description": "Cache-first uses a stored response before trying the network. It suits files whose addresses change when their contents change."
+  },
+  "updatedOn": "2026-11-16"
+}

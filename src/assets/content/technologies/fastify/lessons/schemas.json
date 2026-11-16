@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "schemas",
+  "title": "Validate a path value",
+  "summary": "Fastify: Validate a path value. Visit /books/cat and read the validation error.",
+  "introduction": "A schema describes allowed data. GET /books/3 converts and checks id as a positive integer.",
+  "learningObjectives": [
+    "Validate a path value with Fastify",
+    "Visit /books/cat and read the validation error"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Validate a path value"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Validate a path value",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/books/:id\", { schema: { params: { type: \"object\", required: [\"id\"], properties: { id: { type: \"integer\", minimum: 1 } } } } }, async request => ({ id: request.params.id }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The integer schema converts and checks the path input. The handler receives numeric id 3."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"id\":3}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /books/cat and read the validation error."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Schemas must describe the input shape you actually expect."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-schemas-check"
+    }
+  ],
+  "exerciseIds": ["fastify-schemas-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "body"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Validate a path value",
+    "description": "Fastify: Validate a path value. Visit /books/cat and read the validation error. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

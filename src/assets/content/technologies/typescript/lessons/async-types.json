@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "slug": "async-types",
+  "title": "Typing Promises and async Code",
+  "summary": "A Promise type describes the value a waiting job is expected to give back later.",
+  "introduction": "A Promise type describes the value a waiting job is expected to give back later. Think of a ticket that promises one kind of result. Read the result type, then see how await gives your code that result.",
+  "learningObjectives": [
+    "Declare async functions with Promise<T> return types and read awaited values with the right type",
+    "Recognise the compiler errors for a missing await and for using an unknown caught error",
+    "Validate a fetch response at runtime instead of asserting its type"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Promise<T> and async functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Promise<T>` is a generic type: `T` is what the promise eventually resolves to. An `async` function always returns a promise, so its declared return type is `Promise<User>`, not `User`, even though the body simply returns an object. `await` does the reverse: applied to a `Promise<User>` it produces a `User`. Top-level `await` is allowed in ES modules with a `target` of es2017 or later."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "basics.ts",
+      "code": "interface User {\n  id: number;\n  name: string;\n}\n\nfunction wait(ms: number): Promise<void> {\n  return new Promise((resolve) => setTimeout(resolve, ms));\n}\n\nasync function fetchUser(id: number): Promise<User> {\n  await wait(10);\n  return { id, name: `user-${id}` };\n}\n\nconst user = await fetchUser(1);\nconsole.log(user.name);\n\nconst pending = fetchUser(2);\nconsole.log(pending.name);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc basics.ts",
+      "content": "basics.ts:19:21 - error TS2339: Property 'name' does not exist on type 'Promise<User>'.\n\n19 console.log(pending.name);\n                       ~~~~\n\n  basics.ts:19:21\n    19 console.log(pending.name);\n                           ~~~~\n    Did you forget to use 'await'?\n\n\nFound 1 error in basics.ts:19"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first part prints `user-1`. The second part is the classic bug: without `await`, `pending` is a `Promise<User>`, which has `then` and `catch` but no `name`. Plain JavaScript would print `undefined`; the compiler names the problem and even suggests the fix. `wait` shows the manual way to build a promise: the `Promise<void>` annotation lets the compiler check that `resolve` is called with nothing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A promise in a condition"
+    },
+    {
+      "type": "paragraph",
+      "text": "A forgotten `await` inside an `if` is nastier, because a promise object is always truthy and the branch always runs. Since TypeScript 4.x the compiler reports a promise used as a condition, and the message again asks the right question."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "forgot-await.ts",
+      "code": "async function isAdmin(id: number): Promise<boolean> {\n  return id === 1;\n}\n\nasync function main(): Promise<void> {\n  if (isAdmin(2)) {\n    console.log(\"admin\");\n  }\n}\n\nmain();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc forgot-await.ts",
+      "content": "forgot-await.ts:6:7 - error TS2801: This condition will always return true since this 'Promise<boolean>' is always defined.\n\n6   if (isAdmin(2)) {\n        ~~~~~~~~~~\n\n  forgot-await.ts:6:7\n    6   if (isAdmin(2)) {\n            ~~~~~~~~~~\n    Did you forget to use 'await'?\n\n\nFound 1 error in forgot-await.ts:6"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run the file with `tsx` and it prints `admin` for user 2, which is exactly the security bug the compiler just prevented. The fix is `if (await isAdmin(2))`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Promise.all and Awaited"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Promise.all` takes an array of promises and resolves to a tuple of their results in the same order, each with its own type, so destructuring gives `user` a `User` and `count` a `number`. The utility type `Awaited<T>` unwraps a promise type in type position; combined with `ReturnType` it recovers the resolved type of any async function without repeating it."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "all.ts",
+      "code": "interface User {\n  id: number;\n  name: string;\n}\n\nasync function fetchUser(id: number): Promise<User> {\n  return { id, name: `user-${id}` };\n}\n\nasync function fetchCount(): Promise<number> {\n  return 42;\n}\n\nconst [user, count] = await Promise.all([fetchUser(1), fetchCount()]);\nconsole.log(user.name, count + 1);\n\ntype FetchedUser = Awaited<ReturnType<typeof fetchUser>>;\nconst copy: FetchedUser = { ...user, name: \"copy\" };\nconsole.log(copy);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx all.ts",
+      "content": "user-1 43\n{ id: 1, name: 'copy' }"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Errors are unknown"
+    },
+    {
+      "type": "paragraph",
+      "text": "JavaScript lets you `throw` anything, so TypeScript cannot know what lands in a `catch`. Under `strict` (specifically `useUnknownInCatchVariables`) the caught value is `unknown`, and reading `.message` from it is an error until you prove it is an `Error`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "catch.ts",
+      "code": "async function readConfig(): Promise<string> {\n  throw new Error(\"config.json not found\");\n}\n\ntry {\n  await readConfig();\n} catch (error) {\n  console.log(error.message);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc catch.ts",
+      "content": "catch.ts:8:15 - error TS18046: 'error' is of type 'unknown'.\n\n8   console.log(error.message);\n                ~~~~~\n\n\nFound 1 error in catch.ts:8"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "catch-fixed.ts",
+      "code": "async function readConfig(): Promise<string> {\n  throw new Error(\"config.json not found\");\n}\n\ntry {\n  await readConfig();\n} catch (error) {\n  const message = error instanceof Error ? error.message : String(error);\n  console.log(`Failed: ${message}`);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx catch-fixed.ts",
+      "content": "Failed: config.json not found"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Typing a fetch response"
+    },
+    {
+      "type": "paragraph",
+      "text": "`fetch` is typed in both the browser and `@types/node`, but `response.json()` returns `Promise<any>`, because nobody can know what a server sends. Assign the result to `unknown`, then prove its shape with a type predicate before returning it as a `Todo`. The predicate is ordinary code that runs at runtime, which is the only kind of check that can protect you from a changed API."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "fetch.ts",
+      "code": "interface Todo {\n  id: number;\n  title: string;\n  completed: boolean;\n}\n\nfunction isTodo(value: unknown): value is Todo {\n  return (\n    typeof value === \"object\" &&\n    value !== null &&\n    typeof (value as Todo).id === \"number\" &&\n    typeof (value as Todo).title === \"string\"\n  );\n}\n\nasync function getTodo(id: number): Promise<Todo> {\n  const response = await fetch(`https://example.com/todos/${id}`);\n  if (!response.ok) {\n    throw new Error(`HTTP ${response.status}`);\n  }\n  const body: unknown = await response.json();\n  if (!isTodo(body)) {\n    throw new Error(\"Unexpected response shape\");\n  }\n  return body;\n}\n\nexport { getTodo };"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc fetch.ts",
+      "content": "(no output: the file compiles without errors)"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: return (await response.json()) as Todo",
+      "text": "The cast compiles, looks typed and checks nothing. When the API renames `title` to `name`, every consumer of `getTodo` still believes it has a `title`, and the failure appears far away as `undefined` in the UI. Because `json()` returns `any`, even the cast is optional: `return response.json()` compiles too. Always route external data through `unknown` and a runtime check; for larger shapes use a schema library (such as zod or valibot) that generates both the check and the type."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Where the types come from",
+      "text": "`Promise`, `fetch`, `Response` and `setTimeout` are declared in the built-in `lib` files and in `@types/node`, which the [declaration files lesson](/tutorials/typescript/declaration-files) explains. If `fetch` is reported as unknown, check that `@types/node` is installed or that `\"lib\"` includes `\"dom\"`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-async-types-await"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-async-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "async-types",
+          "difficulty": "beginner",
+          "question": "What is the inferred return type of `async function load() { return 42; }`?",
+          "explanation": "An async function always wraps its return value in a promise, so the return type is Promise<number>.",
+          "options": ["`number`", "`Promise<number>`", "`Promise<void>`", "`Awaited<number>`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-async-qc-2",
+          "type": "true-false",
+          "lessonSlug": "async-types",
+          "difficulty": "intermediate",
+          "question": "Under strict mode the variable in `catch (error)` has the type `Error`.",
+          "explanation": "Anything can be thrown, so strict mode types the caught value as unknown. Use instanceof Error to narrow it.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-async-types-await"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "utility-types"
+    }
+  ],
+  "seo": {
+    "title": "Typing async Code in TypeScript – Promise<T>, await, catch",
+    "description": "Type Promises and async functions in TypeScript, catch forgotten awaits at compile time, handle unknown errors in catch blocks and validate fetch responses."
+  },
+  "updatedOn": "2026-11-16"
+}

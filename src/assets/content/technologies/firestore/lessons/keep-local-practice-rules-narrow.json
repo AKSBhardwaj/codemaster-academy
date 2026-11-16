@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "keep-local-practice-rules-narrow",
+  "title": "Keep local practice rules narrow",
+  "summary": "Security rules decide which client reads and writes are allowed.",
+  "introduction": "Security rules decide which client reads and writes are allowed. Your task: Try an invalid negative page count and confirm it is rejected.",
+  "learningObjectives": [
+    "Try an invalid negative page count and confirm it is rejected.",
+    "Explain the example for keep local practice rules narrow"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Security rules decide which client reads and writes are allowed. Even a local exercise should name its intended collection and validate important fields."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Firebase Emulator Suite with the demo-reading-club project and Firestore on port 8080. Install the firebase JavaScript SDK in a local browser project. Run each full snippet on a fresh page. Keep the sample rules local."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "rules_version = '2';\nservice cloud.firestore {\n match /databases/{database}/documents {\n  match /books/{bookId} {\n   allow read: if true;\n   allow create, update: if request.resource.data.keys().hasOnly(['title','pages']) && request.resource.data.title is string && request.resource.data.pages is int && request.resource.data.pages > 0;\n   allow delete: if false;\n  }\n }\n}",
+      "title": "Keep local practice rules narrow",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "The match path limits the rule to books documents.",
+        "The write test checks the allowed field names and value types; delete remains denied in this local example."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "In the emulator, anyone using this demo client can read the books and write valid sample fields. Other collection access remains denied."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "These are deliberately public local practice rules, not private-user production rules. Never deploy them as protection for private records."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Try an invalid negative page count and confirm it is rejected."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "firestore-keep-local-practice-rules-narrow-check"
+    }
+  ],
+  "exerciseIds": ["firestore-keep-local-practice-rules-narrow-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "firestore",
+      "slug": "group-writes-in-a-batch"
+    }
+  ],
+  "seo": {
+    "title": "Firebase Firestore: Keep local practice rules narrow",
+    "description": "Security rules decide which client reads and writes are allowed. Even a local exercise should name its intended collection and validate important fields."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "validation",
+  "title": "Reject a missing title",
+  "summary": "Spring Boot: Reject a missing title. Send an empty title and inspect 400.",
+  "introduction": "A handler can check a body value and send 400 when it is not usable. Send POST /books with {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": [
+    "Reject a missing title with Spring Boot",
+    "Send an empty title and inspect 400"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save one example as Lesson.java and run jbang Lesson.java. JBang downloads the dependency on the //DEPS line. Use http://127.0.0.1:8080 and stop the server before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reject a missing title"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Reject a missing title",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") ResponseEntity<?> create(@RequestBody Book book) {\n if (book.title() == null || book.title().isBlank()) return ResponseEntity.badRequest().body(Map.of(\"error\", \"Title needed\"));\n return ResponseEntity.status(201).body(book);\n}\n }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The title is present and not blank, so the handler returns 201 with the book body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty title and inspect 400."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check input before storing or acting on it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-boot-validation-check"
+    }
+  ],
+  "exerciseIds": ["spring-boot-validation-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-boot",
+      "slug": "request-bodies"
+    }
+  ],
+  "seo": {
+    "title": "Spring Boot: Reject a missing title",
+    "description": "Spring Boot: Reject a missing title. Send an empty title and inspect 400. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

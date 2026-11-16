@@ -1,0 +1,126 @@
+{
+  "title": "Scikit-learn Examples",
+  "description": "Small Scikit-learn examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Features and labels",
+      "description": "A feature is an input measurement. A label is the known answer in a teaching example. Scikit-learn usually expects a table of feature rows.",
+      "language": "python",
+      "code": "X = [[1], [2], [8], [9]]\ny = [0, 0, 1, 1]\nprint(len(X), len(y))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "fit-a-simple-classifier",
+      "title": "Fit a simple classifier",
+      "description": "A classifier chooses a group label. fit lets the model learn from examples. A decision tree splits inputs using learned thresholds.",
+      "language": "python",
+      "code": "from sklearn.tree import DecisionTreeClassifier\nX = [[1], [2], [8], [9]]\ny = [0, 0, 1, 1]\nmodel = DecisionTreeClassifier(max_depth=1, random_state=0)\nmodel.fit(X, y)\nprint(model.predict([[1.5], [8.5]]).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "fit-a-simple-classifier"
+    },
+    {
+      "id": "keep-test-data-separate",
+      "title": "Keep test data separate",
+      "description": "A test set holds examples kept out of model fitting. It gives a better check than only asking about examples the model already saw.",
+      "language": "python",
+      "code": "from sklearn.model_selection import train_test_split\nX = [[n] for n in range(10)]\ny = [0] * 5 + [1] * 5\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, stratify=y)\nprint(len(X_train), len(X_test))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "keep-test-data-separate"
+    },
+    {
+      "id": "use-a-simple-baseline",
+      "title": "Use a simple baseline",
+      "description": "A baseline is a simple result to compare against. DummyClassifier can always choose the most frequent training class.",
+      "language": "python",
+      "code": "from sklearn.dummy import DummyClassifier\nmodel = DummyClassifier(strategy=\"most_frequent\")\nmodel.fit([[1], [2], [3]], [0, 0, 1])\nprint(model.predict([[8], [9]]).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-simple-baseline"
+    },
+    {
+      "id": "measure-accuracy",
+      "title": "Measure accuracy",
+      "description": "Accuracy is the fraction of labels predicted correctly. It can be misleading when one class is much more common than another.",
+      "language": "python",
+      "code": "from sklearn.metrics import accuracy_score\nprint(accuracy_score([0, 1, 1, 0], [0, 1, 0, 0]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "measure-accuracy"
+    },
+    {
+      "id": "read-a-confusion-matrix",
+      "title": "Read a confusion matrix",
+      "description": "A confusion matrix counts correct and incorrect class choices. With labels [0, 1], rows are true labels and columns are predicted labels.",
+      "language": "python",
+      "code": "from sklearn.metrics import confusion_matrix\nprint(confusion_matrix([0, 0, 1, 1], [0, 1, 1, 1], labels=[0, 1]).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "read-a-confusion-matrix"
+    },
+    {
+      "id": "scale-using-training-data",
+      "title": "Scale using training data",
+      "description": "Scaling puts features on a chosen numeric scale. Fit the scaler on training data, then use that fitted scaler on other data.",
+      "language": "python",
+      "code": "from sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nscaled = scaler.fit_transform([[1.0], [2.0], [3.0]])\nprint(round(float(scaled[1, 0]), 6))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "scale-using-training-data"
+    },
+    {
+      "id": "pipelines-keep-steps-together",
+      "title": "Pipelines keep steps together",
+      "description": "A pipeline applies preparation and a model in the intended order. It helps use the same preparation for fitting and prediction.",
+      "language": "python",
+      "code": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.neighbors import KNeighborsClassifier\nmodel = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=1))\nmodel.fit([[1], [2], [8], [9]], [0, 0, 1, 1])\nprint(model.predict([[1.5], [8.5]]).tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "pipelines-keep-steps-together"
+    },
+    {
+      "id": "predict-a-number-with-regression",
+      "title": "Predict a number with regression",
+      "description": "Regression predicts a number instead of a class. LinearRegression fits a straight-line relationship to the examples.",
+      "language": "python",
+      "code": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression().fit([[1], [2], [3]], [2, 4, 6])\nprint(round(float(model.predict([[4]])[0]), 2))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "predict-a-number-with-regression"
+    },
+    {
+      "id": "measure-numeric-error",
+      "title": "Measure numeric error",
+      "description": "Mean absolute error averages the size of prediction mistakes without keeping their plus or minus signs.",
+      "language": "python",
+      "code": "from sklearn.metrics import mean_absolute_error\nprint(mean_absolute_error([2, 4], [3, 4]))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "measure-numeric-error"
+    },
+    {
+      "id": "cross-validation-repeats-a-check",
+      "title": "Cross-validation repeats a check",
+      "description": "Cross-validation trains and evaluates on several train/validation splits. It gives more than one estimate, but still needs careful data grouping.",
+      "language": "python",
+      "code": "from sklearn.datasets import load_iris\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import cross_val_score\nX, y = load_iris(return_X_y=True)\nscores = cross_val_score(DecisionTreeClassifier(max_depth=2, random_state=0), X, y, cv=3)\nprint(len(scores))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "cross-validation-repeats-a-check"
+    },
+    {
+      "id": "inspect-the-model-limit",
+      "title": "Inspect the model limit",
+      "description": "A model setting chosen before fitting is a hyperparameter. max_depth limits how many splits a tree can make along a path.",
+      "language": "python",
+      "code": "from sklearn.tree import DecisionTreeClassifier\nmodel = DecisionTreeClassifier(max_depth=1, random_state=0)\nmodel.fit([[1], [2], [8], [9]], [0, 0, 1, 1])\nprint(model.get_depth())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "inspect-the-model-limit"
+    }
+  ]
+}

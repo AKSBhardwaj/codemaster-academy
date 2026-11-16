@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-values",
+  "title": "Read an optional query",
+  "summary": "ASP.NET Core: Read an optional query. Visit /page?n=3.",
+  "introduction": "A simple input outside the path can come from the query string. GET /page with no n uses the fallback.",
+  "learningObjectives": ["Read an optional query with ASP.NET Core", "Visit /page?n=3"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n School, enter School, and replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. Stop the app before changing examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read an optional query"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Read an optional query",
+      "code": "var builder = WebApplication.CreateBuilder(args);\n\nvar app = builder.Build();\napp.MapGet(\"/page\", (int? n) => Results.Json(new { page = n ?? 1 }));\napp.Run();\n\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The nullable query input is absent. The ?? expression supplies 1."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":1}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /page?n=3."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A missing optional number is null, not automatically zero."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-core-query-values-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-core-query-values-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-core",
+      "slug": "typed-paths"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Core: Read an optional query",
+    "description": "ASP.NET Core: Read an optional query. Visit /page?n=3. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "slug": "templates",
+  "title": "Templates: Reuse a Recipe",
+  "summary": "A template is like a recipe with a blank space for the kind of value. One recipe can work with whole numbers or decimal numbers.",
+  "introduction": "A template is like a recipe with a blank space for the kind of value. One recipe can work with whole numbers or decimal numbers. Read one example at a time. Save it in a .cpp file and use the compiler from the setup lesson to run it.",
+  "learningObjectives": [
+    "Use one function with two kinds of numbers",
+    "Make a box that stores one value",
+    "Limit a template to whole-number types"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "One function, two number types"
+    },
+    {
+      "type": "paragraph",
+      "text": "T is a name for a type we will choose later. C++ fills it in when we call the function."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "templates.cpp",
+      "code": "#include <iostream>\n\ntemplate <typename T>\nT twice(T value) { return value + value; }\n\nint main() {\n    std::cout << twice(3) << \"\\n\";\n    std::cout << twice(2.5) << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "6\n5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "A box for one value"
+    },
+    {
+      "type": "paragraph",
+      "text": "Classes can be templates too. Box<int> stores a whole number. Box<std::string> stores text."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "templates.cpp",
+      "code": "#include <iostream>\n#include <string>\n\ntemplate <typename T>\nstruct Box { T value; };\n\nint main() {\n    Box<int> pencils{4};\n    Box<std::string> label{\"Blue\"};\n    std::cout << pencils.value << \" \" << label.value << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "4 Blue"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set a rule for the type"
+    },
+    {
+      "type": "paragraph",
+      "text": "A concept names a rule for a type. std::integral means a whole-number type. This C++20 function accepts int, but it does not accept a decimal such as 2.5."
+    },
+    {
+      "type": "code",
+      "language": "cpp",
+      "title": "templates.cpp",
+      "code": "#include <concepts>\n#include <iostream>\n\ntemplate <std::integral T>\nT addOne(T value) { return value + 1; }\n\nint main() {\n    std::cout << addOne(6) << \"\\n\";\n}\n"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "7"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A template does not make every action work with every type. A type must support the actions used in the recipe."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Call twice(10). Predict the answer before you run it."
+    }
+  ],
+  "exerciseIds": ["cpp-templates-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cpp",
+      "slug": "functions"
+    }
+  ],
+  "seo": {
+    "title": "C++ Templates: Reuse a Recipe",
+    "description": "A template is like a recipe with a blank space for the kind of value. One recipe can work with whole numbers or decimal numbers."
+  },
+  "updatedOn": "2026-11-16"
+}

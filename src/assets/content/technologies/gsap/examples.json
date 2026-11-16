@@ -1,0 +1,138 @@
+{
+  "title": "GSAP Small Examples",
+  "description": "Use these small GSAP examples with the tools described in each lesson. Read the expected result before you try a change.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "Move to a new position",
+      "description": "A tween changes values over time. gsap.to starts from the current value and moves toward the value you give it.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:120,duration:1});",
+      "output": "The box moves 120 CSS pixels to the right over one second.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "start-from-a-chosen-value",
+      "title": "Start from a chosen value",
+      "description": "gsap.from starts with the supplied values and moves to the element's current values.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.from(box,{opacity:0,y:20,duration:0.5});",
+      "output": "The box appears from a slightly lower, transparent starting state.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "start-from-a-chosen-value"
+    },
+    {
+      "id": "set-both-ends-explicitly",
+      "title": "Set both ends explicitly",
+      "description": "fromTo names both the starting and ending values.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.fromTo(box,{x:0,opacity:0.3},{x:100,opacity:1,duration:1});",
+      "output": "The box moves from x=0 to x=100 while becoming fully visible.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "set-both-ends-explicitly"
+    },
+    {
+      "id": "choose-an-easing-curve",
+      "title": "Choose an easing curve",
+      "description": "Easing changes the speed during a tween.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:160,duration:1,ease:\"power2.out\"});",
+      "output": "The box moves quickly at first and slows as it reaches the end.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "choose-an-easing-curve"
+    },
+    {
+      "id": "repeat-and-return",
+      "title": "Repeat and return",
+      "description": "repeat adds more plays after the first. yoyo reverses the direction on alternate plays.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{x:120,duration:0.6,repeat:1,yoyo:true});",
+      "output": "The box moves right once and then returns to its starting position.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "repeat-and-return"
+    },
+    {
+      "id": "sequence-steps-on-a-timeline",
+      "title": "Sequence steps on a timeline",
+      "description": "A timeline groups tweens in order. By default, a new tween begins after the previous one finishes.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst timeline=gsap.timeline();\ntimeline.to(box,{x:120,duration:0.5}).to(box,{rotation:20,duration:0.5}).to(box,{opacity:0.5,duration:0.5});",
+      "output": "The box moves, then turns, then fades partway.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "sequence-steps-on-a-timeline"
+    },
+    {
+      "id": "overlap-timeline-steps",
+      "title": "Overlap timeline steps",
+      "description": "A timeline position can make two tweens overlap.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst timeline=gsap.timeline();\ntimeline.to(box,{x:120,duration:1});\ntimeline.to(box,{rotation:45,duration:1},\"<\");",
+      "output": "The box moves and turns at the same time.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "overlap-timeline-steps"
+    },
+    {
+      "id": "stagger-a-group",
+      "title": "Stagger a group",
+      "description": "Stagger starts similar tweens at slightly different times.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst boxes=[\"One\",\"Two\",\"Three\"].map(text=>{const node=document.createElement(\"p\");node.textContent=text;document.body.append(node);return node;});\ngsap.from(boxes,{opacity:0,y:10,duration:0.4,stagger:0.15});",
+      "output": "The three paragraphs appear one after another with a short gap between starts.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "stagger-a-group"
+    },
+    {
+      "id": "control-playback",
+      "title": "Control playback",
+      "description": "A tween object has methods to play, pause and reverse.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst tween=gsap.to(box,{x:160,duration:2,paused:true});\nconst button=document.createElement(\"button\");button.textContent=\"Play movement\";button.onclick=()=>tween.play();document.body.append(button);",
+      "output": "The box waits until the Play movement button is pressed.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "control-playback"
+    },
+    {
+      "id": "respect-reduced-motion",
+      "title": "Respect reduced motion",
+      "description": "GSAP matchMedia can choose different motion based on a media query.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst media=gsap.matchMedia();\nmedia.add(\"(prefers-reduced-motion: no-preference)\",()=>{gsap.from(box,{x:-20,opacity:0,duration:0.4});});\n// With reduced motion, the normal visible box stays in place.",
+      "output": "People who allow motion get a short entrance. Those requesting less motion see the normal box directly.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "respect-reduced-motion"
+    },
+    {
+      "id": "clean-up-a-component-animation",
+      "title": "Clean up a component animation",
+      "description": "A GSAP context can collect animations created for a component.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\nconst context=gsap.context(()=>{gsap.to(box,{x:120,duration:1});});\nfunction removeFeature(){context.revert();box.remove();}\n// Call removeFeature when this component is removed.",
+      "output": "Cleanup reverts the tween's changes before removing its box.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "clean-up-a-component-animation"
+    },
+    {
+      "id": "animate-transforms-with-a-purpose",
+      "title": "Animate transforms with a purpose",
+      "description": "Transform and opacity animations often avoid redoing page layout.",
+      "language": "javascript",
+      "code": "import {gsap} from \"gsap\";\nconst box=document.createElement(\"div\");box.textContent=\"Book\";box.style.cssText=\"width:80px;padding:16px;background:#174a8b;color:white\";document.body.append(box);\ngsap.to(box,{scale:1.05,duration:0.2,yoyo:true,repeat:1,ease:\"power1.out\"});",
+      "output": "The box briefly grows and returns, using its transform rather than changing its layout width.",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "animate-transforms-with-a-purpose"
+    }
+  ]
+}

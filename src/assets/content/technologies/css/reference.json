@@ -1,0 +1,606 @@
+{
+  "title": "CSS Reference",
+  "description": "A compact reference of the selectors, properties, functions and at-rules covered in the CSS tutorial, grouped by topic, with syntax, a short example and the lesson that explains each one.",
+  "groups": [
+    {
+      "id": "selectors",
+      "title": "Selectors",
+      "entries": [
+        {
+          "slug": "type-selector",
+          "name": "element",
+          "summary": "Matches every element with the given tag name.",
+          "syntax": "p { … }",
+          "example": { "language": "css", "code": "h1 {\n  font-size: 2rem;\n}" },
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "class-selector",
+          "name": ".class",
+          "summary": "Matches elements whose class attribute contains the name. The everyday selector for styling components.",
+          "syntax": ".card { … }",
+          "example": { "language": "css", "code": ".card.featured {\n  border-color: #1d4ed8;\n}" },
+          "notes": [
+            "Chain classes without spaces to require both: .card.featured",
+            "Specificity 0-1-0"
+          ],
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "id-selector",
+          "name": "#id",
+          "summary": "Matches the single element with that id. Very high specificity; prefer classes for styling.",
+          "syntax": "#main-nav { … }",
+          "notes": ["Specificity 1-0-0: one id beats any number of classes"],
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "attribute-selector",
+          "name": "[attr=value]",
+          "summary": "Matches elements by the presence or value of an attribute, with ^= (starts with), $= (ends with) and *= (contains) variants.",
+          "syntax": "[type=\"email\"] { … }",
+          "example": {
+            "language": "css",
+            "code": "a[href^=\"https\"] {\n  color: #1d4ed8;\n}\n\na[href$=\".pdf\"]::after {\n  content: \" (PDF)\";\n}"
+          },
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "descendant-child-combinators",
+          "name": "A B, A > B",
+          "summary": "A space matches B anywhere inside A; > matches only B elements that are direct children of A.",
+          "syntax": ".menu a { … }  .menu > li { … }",
+          "example": {
+            "language": "css",
+            "code": ".menu a { color: #1d4ed8; }     /* every link inside */\n.menu > li { font-weight: 700; } /* top-level items only */"
+          },
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "sibling-combinators",
+          "name": "A + B, A ~ B",
+          "summary": "+ matches B immediately after A with the same parent; ~ matches any B that follows A with the same parent.",
+          "syntax": "h2 + p { … }  h2 ~ p { … }",
+          "example": {
+            "language": "css",
+            "code": "h2 + p {\n  margin-top: 0;\n}\n\nli + li {\n  border-top: 1px solid #e2e8f0;\n}"
+          },
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "selector-functions",
+          "name": ":is(), :where(), :not()",
+          "summary": "Group selectors inside one rule. :is() takes the specificity of its most specific argument, :where() always adds zero, :not() excludes matches.",
+          "syntax": ":is(h1, h2, h3) a { … }",
+          "example": {
+            "language": "css",
+            "code": "article :is(h1, h2, h3) {\n  margin-top: 2rem;\n}\n\n:where(ul, ol) {\n  padding: 0;\n}\n\nli:not(:last-child) {\n  margin-bottom: 0.5rem;\n}"
+          },
+          "lessonSlug": "selectors"
+        },
+        {
+          "slug": "has-selector",
+          "name": ":has()",
+          "summary": "Matches an element based on what it contains or what follows it: the long-awaited parent selector. Supported by all current browsers.",
+          "syntax": ".card:has(img) { … }",
+          "example": {
+            "language": "css",
+            "code": ".card:has(img) {\n  padding: 0;\n}\n\nlabel:has(input:checked) {\n  font-weight: 700;\n}"
+          },
+          "lessonSlug": "selectors"
+        }
+      ]
+    },
+    {
+      "id": "pseudo",
+      "title": "Pseudo-classes and pseudo-elements",
+      "entries": [
+        {
+          "slug": "interaction-states",
+          "name": ":hover, :focus-visible, :active",
+          "summary": "Match an element while the pointer is over it, while it has keyboard focus, or while it is being pressed. Order link states as :link, :visited, :hover, :active.",
+          "syntax": "a:hover { … }",
+          "example": {
+            "language": "css",
+            "code": "button:hover {\n  background: #1e3a8a;\n}\n\nbutton:focus-visible {\n  outline: 3px solid #f59e0b;\n  outline-offset: 2px;\n}"
+          },
+          "notes": ["Never remove the focus outline without a visible replacement"],
+          "lessonSlug": "pseudo-classes-elements"
+        },
+        {
+          "slug": "nth-child",
+          "name": ":nth-child(), :first-child, :last-child",
+          "summary": "Select elements by their position among siblings. :nth-child() takes a formula such as 2n, 2n+1, n+3 or the keywords odd and even.",
+          "syntax": "li:nth-child(2n) { … }",
+          "example": {
+            "language": "css",
+            "code": "tr:nth-child(even) {\n  background: #f1f5f9;\n}\n\nli:last-child {\n  border-bottom: 0;\n}"
+          },
+          "notes": [":nth-of-type() counts only siblings of the same element type"],
+          "lessonSlug": "pseudo-classes-elements"
+        },
+        {
+          "slug": "form-states",
+          "name": ":checked, :disabled, :user-invalid",
+          "summary": "Match form controls by state: ticked, disabled, required, or invalid after the user has interacted with the field.",
+          "syntax": "input:user-invalid { … }",
+          "example": {
+            "language": "css",
+            "code": "input:user-invalid {\n  border-color: #dc2626;\n}\n\ninput:disabled {\n  background: #e2e8f0;\n}"
+          },
+          "notes": [
+            ":invalid is true before the user types anything; :user-invalid waits for interaction"
+          ],
+          "lessonSlug": "pseudo-classes-elements"
+        },
+        {
+          "slug": "before-after",
+          "name": "::before, ::after",
+          "summary": "Generate a box as the first or last child of an element. The box exists only if the rule sets content.",
+          "syntax": "h2::before { content: \"…\"; }",
+          "example": {
+            "language": "css",
+            "code": ".external::after {\n  content: \" \\2197\";\n}\n\n.divider::before {\n  content: \"\";\n  display: block;\n  height: 1px;\n  background: #cbd5e1;\n}"
+          },
+          "notes": ["Decoration only: screen readers handle generated text inconsistently"],
+          "lessonSlug": "pseudo-classes-elements"
+        },
+        {
+          "slug": "marker-first-letter",
+          "name": "::marker, ::first-letter, ::selection",
+          "summary": "Style the bullet or number of a list item, the first letter of a block (drop caps) and text the user has highlighted.",
+          "syntax": "li::marker { … }",
+          "example": {
+            "language": "css",
+            "code": "li::marker {\n  color: #1d4ed8;\n}\n\np::first-letter {\n  font-size: 2em;\n  float: left;\n}"
+          },
+          "lessonSlug": "pseudo-classes-elements"
+        }
+      ]
+    },
+    {
+      "id": "box-model",
+      "title": "Box model and display",
+      "entries": [
+        {
+          "slug": "width-height",
+          "name": "width, height, max-width",
+          "summary": "Size of the content area (or the whole box with border-box). max-width and min-width set limits that respond to the container.",
+          "syntax": "width: 20rem; max-width: 100%;",
+          "example": { "language": "css", "code": "img {\n  max-width: 100%;\n  height: auto;\n}" },
+          "notes": ["Inline elements ignore width and height"],
+          "lessonSlug": "box-model"
+        },
+        {
+          "slug": "padding",
+          "name": "padding",
+          "summary": "Space inside the border, painted by the background. One to four values, clockwise from the top.",
+          "syntax": "padding: 1rem 1.5rem;",
+          "example": {
+            "language": "css",
+            "code": ".card {\n  padding: 1rem 1.5rem;   /* vertical horizontal */\n}"
+          },
+          "lessonSlug": "box-model"
+        },
+        {
+          "slug": "margin",
+          "name": "margin",
+          "summary": "Transparent space outside the border. Vertical margins of block boxes collapse; auto left and right margins centre a block with a width.",
+          "syntax": "margin: 0 auto;",
+          "example": {
+            "language": "css",
+            "code": ".container {\n  width: min(100% - 2rem, 70rem);\n  margin: 0 auto;\n}"
+          },
+          "notes": ["Margins may be negative; padding may not"],
+          "lessonSlug": "box-model"
+        },
+        {
+          "slug": "border",
+          "name": "border",
+          "summary": "Shorthand for border-width, border-style and border-color. The style is required; without it nothing is drawn.",
+          "syntax": "border: 1px solid #cbd5e1;",
+          "example": {
+            "language": "css",
+            "code": ".card {\n  border: 1px solid #cbd5e1;\n  border-left: 4px solid #1d4ed8;\n}"
+          },
+          "lessonSlug": "backgrounds-borders"
+        },
+        {
+          "slug": "box-sizing",
+          "name": "box-sizing",
+          "summary": "Decides whether width and height include padding and border (border-box) or only the content (content-box, the default).",
+          "syntax": "box-sizing: border-box;",
+          "example": {
+            "language": "css",
+            "code": "*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}"
+          },
+          "lessonSlug": "box-model"
+        },
+        {
+          "slug": "display",
+          "name": "display",
+          "summary": "The type of box an element generates: block, inline, inline-block, none, flex, grid, flow-root or contents.",
+          "syntax": "display: flex;",
+          "example": {
+            "language": "css",
+            "code": ".menu li {\n  display: inline-block;\n}\n\n.hidden {\n  display: none;\n}"
+          },
+          "notes": [
+            "display: none also hides from screen readers; visibility: hidden keeps the space"
+          ],
+          "lessonSlug": "display"
+        }
+      ]
+    },
+    {
+      "id": "colors-backgrounds",
+      "title": "Colours and backgrounds",
+      "entries": [
+        {
+          "slug": "color",
+          "name": "color",
+          "summary": "The text colour, inherited by descendants. The keyword currentColor reuses it for borders, outlines and SVG fills.",
+          "syntax": "color: #172033;",
+          "example": {
+            "language": "css",
+            "code": ".card {\n  color: #3730a3;\n  border: 2px solid currentColor;\n}"
+          },
+          "lessonSlug": "colors"
+        },
+        {
+          "slug": "color-notations",
+          "name": "#hex, rgb(), hsl()",
+          "summary": "Three ways to write a colour. Modern rgb() and hsl() use spaces between channels and a slash before the alpha value.",
+          "syntax": "rgb(29 78 216 / 50%)",
+          "example": {
+            "language": "css",
+            "code": "a { color: #1d4ed8; }\n.overlay { background: rgb(0 0 0 / 60%); }\n.badge { background: hsl(220 80% 96%); }"
+          },
+          "notes": [
+            "An alpha channel affects one colour; the opacity property fades the whole element"
+          ],
+          "lessonSlug": "colors"
+        },
+        {
+          "slug": "background",
+          "name": "background",
+          "summary": "Shorthand for background-color, -image, -repeat, -position and -size. Omitted longhands are reset, including the colour.",
+          "syntax": "background: #0f172a url(\"hero.jpg\") center / cover no-repeat;",
+          "example": {
+            "language": "css",
+            "code": ".hero {\n  background: #0f172a url(\"../images/hero.jpg\") center / cover no-repeat;\n}"
+          },
+          "notes": ["url() paths resolve relative to the CSS file"],
+          "lessonSlug": "backgrounds-borders"
+        },
+        {
+          "slug": "gradients",
+          "name": "linear-gradient(), radial-gradient()",
+          "summary": "Generated images for background-image. Several can be layered with commas; the first is painted on top.",
+          "syntax": "background-image: linear-gradient(90deg, #1d4ed8, #9333ea);",
+          "example": {
+            "language": "css",
+            "code": "button {\n  background-image: linear-gradient(#3b82f6, #1d4ed8);\n}"
+          },
+          "lessonSlug": "backgrounds-borders"
+        },
+        {
+          "slug": "border-radius",
+          "name": "border-radius",
+          "summary": "Rounds the corners of the border and background. 50% on a square makes a circle; a very large value makes a pill.",
+          "syntax": "border-radius: 8px;",
+          "example": {
+            "language": "css",
+            "code": ".avatar { border-radius: 50%; }\n.pill { border-radius: 9999px; }"
+          },
+          "lessonSlug": "backgrounds-borders"
+        },
+        {
+          "slug": "box-shadow",
+          "name": "box-shadow",
+          "summary": "One or more shadows: x offset, y offset, blur, optional spread and colour. inset draws the shadow inside the box.",
+          "syntax": "box-shadow: 0 4px 12px rgb(0 0 0 / 15%);",
+          "example": {
+            "language": "css",
+            "code": ".card {\n  box-shadow:\n    0 1px 2px rgb(0 0 0 / 10%),\n    0 8px 24px rgb(0 0 0 / 8%);\n}"
+          },
+          "lessonSlug": "backgrounds-borders"
+        }
+      ]
+    },
+    {
+      "id": "typography",
+      "title": "Typography",
+      "entries": [
+        {
+          "slug": "font-family",
+          "name": "font-family",
+          "summary": "An ordered list of typefaces; the browser uses the first one available. End with a generic family such as sans-serif.",
+          "syntax": "font-family: \"Inter\", system-ui, sans-serif;",
+          "example": {
+            "language": "css",
+            "code": "code {\n  font-family: ui-monospace, Consolas, monospace;\n}"
+          },
+          "lessonSlug": "typography"
+        },
+        {
+          "slug": "font-size-weight",
+          "name": "font-size, font-weight",
+          "summary": "Size (best in rem) and weight from 100 to 900, where 400 is normal and 700 is bold.",
+          "syntax": "font-size: 1.125rem; font-weight: 600;",
+          "example": {
+            "language": "css",
+            "code": "h1 {\n  font-size: clamp(1.75rem, 1rem + 2.5vw, 3rem);\n  font-weight: 800;\n}"
+          },
+          "notes": [
+            "The font shorthand needs at least a size and a family and resets what you omit"
+          ],
+          "lessonSlug": "typography"
+        },
+        {
+          "slug": "line-height",
+          "name": "line-height",
+          "summary": "Distance between baselines. Write a unitless number so every element gets a value proportional to its own font size.",
+          "syntax": "line-height: 1.5;",
+          "example": {
+            "language": "css",
+            "code": "body { line-height: 1.6; }\nh1, h2 { line-height: 1.15; }"
+          },
+          "lessonSlug": "typography"
+        },
+        {
+          "slug": "text-properties",
+          "name": "text-align, text-decoration, text-transform",
+          "summary": "Horizontal alignment, underlines and strike-throughs, and case transformation such as uppercase.",
+          "syntax": "text-align: center;",
+          "example": {
+            "language": "css",
+            "code": ".eyebrow {\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n}\n\na {\n  text-underline-offset: 3px;\n}"
+          },
+          "lessonSlug": "typography"
+        },
+        {
+          "slug": "font-face",
+          "name": "@font-face",
+          "summary": "Loads a web font from a file and gives it a family name. Use woff2 and font-display: swap to avoid invisible text while loading.",
+          "syntax": "@font-face { font-family: \"Name\"; src: url(\"file.woff2\") format(\"woff2\"); }",
+          "example": {
+            "language": "css",
+            "code": "@font-face {\n  font-family: \"Inter\";\n  src: url(\"../fonts/inter.woff2\") format(\"woff2\");\n  font-weight: 100 900;\n  font-display: swap;\n}"
+          },
+          "lessonSlug": "typography"
+        }
+      ]
+    },
+    {
+      "id": "layout",
+      "title": "Layout: positioning, flexbox and grid",
+      "entries": [
+        {
+          "slug": "position",
+          "name": "position, top / right / bottom / left, inset",
+          "summary": "static (default), relative (offset, keeps its space), absolute (removed, placed from the nearest positioned ancestor), fixed (viewport) or sticky (sticks at a threshold within its parent).",
+          "syntax": "position: absolute; inset: 0;",
+          "example": {
+            "language": "css",
+            "code": ".card { position: relative; }\n.badge {\n  position: absolute;\n  top: -8px;\n  right: -8px;\n}\n.toc {\n  position: sticky;\n  top: 1rem;\n}"
+          },
+          "notes": ["Offsets do nothing on position: static"],
+          "lessonSlug": "positioning"
+        },
+        {
+          "slug": "z-index",
+          "name": "z-index",
+          "summary": "Stacking order of positioned elements (and flex or grid items) within the same stacking context; higher values are in front.",
+          "syntax": "z-index: 10;",
+          "example": {
+            "language": "css",
+            "code": ".header {\n  position: sticky;\n  top: 0;\n  z-index: 20;\n}"
+          },
+          "notes": ["opacity below 1, transform and filter create new stacking contexts"],
+          "lessonSlug": "positioning"
+        },
+        {
+          "slug": "display-flex",
+          "name": "display: flex, flex-direction, flex-wrap",
+          "summary": "Makes the children flex items laid out along one axis. flex-direction chooses row or column; flex-wrap allows several lines.",
+          "syntax": "display: flex; flex-wrap: wrap;",
+          "example": {
+            "language": "css",
+            "code": ".tags {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.5rem;\n}"
+          },
+          "lessonSlug": "flexbox"
+        },
+        {
+          "slug": "justify-align",
+          "name": "justify-content, align-items",
+          "summary": "justify-content distributes items along the main axis; align-items aligns them on the cross axis. Both set to center is the centring recipe.",
+          "syntax": "justify-content: space-between; align-items: center;",
+          "example": {
+            "language": "css",
+            "code": ".hero {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}"
+          },
+          "notes": ["align-self overrides align-items for one item"],
+          "lessonSlug": "flexbox"
+        },
+        {
+          "slug": "gap",
+          "name": "gap",
+          "summary": "Space between flex items or grid tracks, with nothing at the outer edges. One value for both directions or row-gap column-gap.",
+          "syntax": "gap: 1rem 2rem;",
+          "example": { "language": "css", "code": ".grid {\n  display: grid;\n  gap: 1rem;\n}" },
+          "lessonSlug": "flexbox"
+        },
+        {
+          "slug": "flex",
+          "name": "flex",
+          "summary": "Shorthand for flex-grow, flex-shrink and flex-basis. flex: 1 shares space equally, flex: none keeps the item's size.",
+          "syntax": "flex: 1;",
+          "example": {
+            "language": "css",
+            "code": ".sidebar { flex: none; width: 16rem; }\n.main { flex: 1; min-width: 0; }"
+          },
+          "notes": ["Items shrink by default; use flex: none to stop them"],
+          "lessonSlug": "flexbox"
+        },
+        {
+          "slug": "display-grid",
+          "name": "display: grid",
+          "summary": "Makes the children grid items placed into rows and columns defined on the container.",
+          "syntax": "display: grid;",
+          "example": {
+            "language": "css",
+            "code": ".layout {\n  display: grid;\n  grid-template-columns: 16rem 1fr;\n  gap: 1rem;\n}"
+          },
+          "lessonSlug": "grid"
+        },
+        {
+          "slug": "grid-template-columns",
+          "name": "grid-template-columns, grid-template-rows",
+          "summary": "Track sizes in lengths, percentages, auto or fr (fractions of free space). repeat(), minmax() and auto-fit build responsive grids.",
+          "syntax": "grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));",
+          "example": {
+            "language": "css",
+            "code": ".gallery {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));\n  gap: 1rem;\n}"
+          },
+          "notes": [
+            "1fr cannot shrink below its content; use minmax(0, 1fr) when content may be wide"
+          ],
+          "lessonSlug": "grid"
+        },
+        {
+          "slug": "grid-column-row",
+          "name": "grid-column, grid-row",
+          "summary": "Place an item by line numbers: start / end, span n, or -1 for the last line.",
+          "syntax": "grid-column: 1 / -1;",
+          "example": {
+            "language": "css",
+            "code": ".featured {\n  grid-column: span 2;\n  grid-row: 1 / 3;\n}"
+          },
+          "lessonSlug": "grid"
+        },
+        {
+          "slug": "grid-template-areas",
+          "name": "grid-template-areas, grid-area",
+          "summary": "Draw the layout as strings of area names on the container and assign items to areas by name. Redraw inside a media query for other screens.",
+          "syntax": "grid-template-areas: \"header header\" \"sidebar main\";",
+          "example": {
+            "language": "css",
+            "code": ".page {\n  display: grid;\n  grid-template-columns: 14rem 1fr;\n  grid-template-areas:\n    \"header header\"\n    \"sidebar main\"\n    \"footer footer\";\n}\nheader { grid-area: header; }"
+          },
+          "lessonSlug": "grid"
+        }
+      ]
+    },
+    {
+      "id": "responsive-motion-variables",
+      "title": "Responsive design, motion and variables",
+      "entries": [
+        {
+          "slug": "media",
+          "name": "@media",
+          "summary": "Applies rules only when a condition holds: viewport width (min-width or the range syntax), print, or user preferences such as dark mode and reduced motion.",
+          "syntax": "@media (width >= 48em) { … }",
+          "example": {
+            "language": "css",
+            "code": "@media (width >= 48em) {\n  .layout { grid-template-columns: 1fr 2fr; }\n}\n\n@media (prefers-color-scheme: dark) {\n  :root { --bg: #0f172a; }\n}"
+          },
+          "notes": ["Write mobile styles as the default and add rules as the viewport grows"],
+          "lessonSlug": "responsive-design"
+        },
+        {
+          "slug": "container",
+          "name": "@container, container-type",
+          "summary": "Rules that react to the size of an ancestor declared as a container, so a component adapts to the space it gets rather than to the viewport.",
+          "syntax": "container-type: inline-size;  @container (width > 30rem) { … }",
+          "example": {
+            "language": "css",
+            "code": ".sidebar { container-type: inline-size; }\n\n@container (width > 30rem) {\n  .card { grid-template-columns: 8rem 1fr; }\n}"
+          },
+          "lessonSlug": "responsive-design"
+        },
+        {
+          "slug": "math-functions",
+          "name": "calc(), min(), max(), clamp()",
+          "summary": "Arithmetic on values, even with mixed units. clamp(min, preferred, max) keeps a fluid value within limits.",
+          "syntax": "clamp(1.5rem, 1rem + 2.5vw, 3rem)",
+          "example": {
+            "language": "css",
+            "code": ".container {\n  width: min(100% - 2rem, 70rem);\n}\n\nh1 {\n  font-size: clamp(1.5rem, 1rem + 2.5vw, 3rem);\n}"
+          },
+          "notes": ["Put spaces around + and - inside calc()"],
+          "lessonSlug": "units"
+        },
+        {
+          "slug": "units",
+          "name": "px, rem, em, %, vw, vh, dvh, ch",
+          "summary": "px is fixed; rem follows the root font size; em the current font size; % the containing block; vw and vh the viewport; dvh the visible viewport on phones; ch the width of a zero.",
+          "syntax": "font-size: 1.125rem; max-width: 65ch;",
+          "example": {
+            "language": "css",
+            "code": "h1 { font-size: 2rem; }\np { max-width: 65ch; }\n.screen { min-height: 100dvh; }"
+          },
+          "notes": ["Write line-height as a unitless number", "0 needs no unit"],
+          "lessonSlug": "units"
+        },
+        {
+          "slug": "transition",
+          "name": "transition",
+          "summary": "Animates a property when its value changes: property, duration, timing function and optional delay. Declare it on the base state so both directions animate.",
+          "syntax": "transition: background-color 200ms ease-out;",
+          "example": {
+            "language": "css",
+            "code": "button {\n  transition: background-color 200ms ease-out, transform 200ms ease-out;\n}\nbutton:hover {\n  transform: translateY(-2px);\n}"
+          },
+          "notes": [
+            "display and height: auto cannot be transitioned by default",
+            "Prefer transform and opacity for smooth motion"
+          ],
+          "lessonSlug": "transitions-animations"
+        },
+        {
+          "slug": "keyframes-animation",
+          "name": "@keyframes, animation",
+          "summary": "Define a sequence of steps and play it with the animation shorthand: name, duration, timing, delay, iteration count, direction, fill mode.",
+          "syntax": "animation: spin 1s linear infinite;",
+          "example": {
+            "language": "css",
+            "code": "@keyframes spin {\n  to { transform: rotate(360deg); }\n}\n\n.spinner {\n  animation: spin 1s linear infinite;\n}"
+          },
+          "notes": ["Respect @media (prefers-reduced-motion: reduce)"],
+          "lessonSlug": "transitions-animations"
+        },
+        {
+          "slug": "custom-properties",
+          "name": "--name, var()",
+          "summary": "Custom properties hold reusable values. Declare them on :root or any element, read them with var(), and give var() a fallback for undefined names.",
+          "syntax": "--brand: #1d4ed8;  color: var(--brand, navy);",
+          "example": {
+            "language": "css",
+            "code": ":root {\n  --brand: #1d4ed8;\n  --space: 1rem;\n}\n\n.card {\n  --brand: #be123c;      /* overrides for this component */\n  border: 1px solid var(--brand);\n  padding: calc(var(--space) * 1.5);\n}"
+          },
+          "notes": [
+            "They inherit, so overriding one on a component rethemes everything inside it",
+            "A defined but unsuitable value makes the property fall back to its initial value, not to the var() fallback"
+          ],
+          "lessonSlug": "custom-properties"
+        },
+        {
+          "slug": "cascade-keywords",
+          "name": "!important, inherit, initial, unset, revert, @layer",
+          "summary": "Tools that interact with the cascade: !important reverses priority, the four keywords reset a property explicitly, and @layer orders groups of rules independently of specificity.",
+          "syntax": "@layer reset, base, components;",
+          "example": {
+            "language": "css",
+            "code": "button {\n  font: inherit;\n}\n\n@layer base {\n  a { color: #1d4ed8; }\n}"
+          },
+          "notes": [
+            "Rules outside any layer beat all layered rules",
+            "Keep !important for utility classes that must win by design"
+          ],
+          "lessonSlug": "specificity-cascade"
+        }
+      ]
+    }
+  ]
+}

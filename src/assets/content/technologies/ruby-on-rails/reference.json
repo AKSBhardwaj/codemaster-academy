@@ -1,0 +1,156 @@
+{
+  "title": "Ruby on Rails Quick Reference",
+  "description": "Look up a lesson idea, see its small example, and check a common mistake. Open the linked lesson for setup and practice steps.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "first-action",
+          "name": "Make a controller action",
+          "summary": "A route names a controller and action. GET /hello runs LessonController#hello.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hello, Asha!\"\nend\nend\n"
+          },
+          "notes": ["The file lesson_controller.rb must define LessonController."],
+          "lessonSlug": "first-action"
+        },
+        {
+          "slug": "json",
+          "name": "Render JSON data",
+          "summary": "render json turns a Ruby value into a JSON response. Open GET /book.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/book\", to: \"lesson#book\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef book\n render json: { title: \"Moon Trip\", pages: 24 }\nend\nend\n"
+          },
+          "notes": ["Do not call render twice in one action."],
+          "lessonSlug": "json"
+        },
+        {
+          "slug": "path-inputs",
+          "name": "Read a path input",
+          "summary": "A colon marks a route value. GET /hello/Ravi places Ravi in params[:name].",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: \"Hi, #{params[:name]}!\"\nend\nend\n"
+          },
+          "notes": ["Use plain text or safe templates when returning user text."],
+          "lessonSlug": "path-inputs"
+        },
+        {
+          "slug": "query-inputs",
+          "name": "Read query data",
+          "summary": "params also contains query values. Open GET /search?q=cat.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/search\", to: \"lesson#search\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef search\n render json: { term: params[:q] || \"\" }\nend\nend\n"
+          },
+          "notes": ["Client parameters need checks before important use."],
+          "lessonSlug": "query-inputs"
+        }
+      ]
+    },
+    {
+      "id": "use-the-idea",
+      "title": "Use the idea",
+      "entries": [
+        {
+          "slug": "post-body",
+          "name": "Read a JSON request",
+          "summary": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. Rails puts body values in params.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n if !params[:title].is_a?(String)\n  render json: { error: \"Title needed\" }, status: :bad_request\n  return\n end\n render json: { title: params[:title] }, status: :created\nend\nend\n"
+          },
+          "notes": ["This example returns data but does not save a database record."],
+          "lessonSlug": "post-body"
+        },
+        {
+          "slug": "strong-parameters",
+          "name": "Choose allowed inputs",
+          "summary": "permit chooses allowed parameter keys. Send POST /books with title and an extra secret key; only title is returned.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n allowed = params.permit(:title)\n render json: allowed\nend\nend\n"
+          },
+          "notes": ["Permitting a key does not validate its meaning or value."],
+          "lessonSlug": "strong-parameters"
+        },
+        {
+          "slug": "status",
+          "name": "Report a missing item",
+          "summary": "Rails status symbols name HTTP statuses. Open GET /missing.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/missing\", to: \"lesson#missing\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef missing\n render json: { error: \"Book not found\" }, status: :not_found\nend\nend\n"
+          },
+          "notes": ["An error body should come with an error status."],
+          "lessonSlug": "status"
+        },
+        {
+          "slug": "named-routes",
+          "name": "Build a path from a route helper",
+          "summary": "The as option names a route helper. Open GET /link to see the helper fill in a name.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/hello/:name\", to: \"lesson#hello\", as: :hello\nget \"/link\", to: \"lesson#link\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef hello\n render plain: params[:name]\nend\ndef link\n render plain: hello_path(name: \"Asha\")\nend\nend\n"
+          },
+          "notes": ["Path helper inputs must match the route values."],
+          "lessonSlug": "named-routes"
+        }
+      ]
+    },
+    {
+      "id": "next-steps",
+      "title": "Next steps",
+      "entries": [
+        {
+          "slug": "redirects",
+          "name": "Redirect a client",
+          "summary": "redirect_to sends a Location header. A browser following GET /start reaches /hello.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/start\", to: \"lesson#start\"\nget \"/hello\", to: \"lesson#hello\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef start\n redirect_to \"/hello\"\nend\ndef hello\n render plain: \"Welcome\"\nend\nend\n"
+          },
+          "notes": ["Return after a redirect if more code should not run."],
+          "lessonSlug": "redirects"
+        },
+        {
+          "slug": "headers",
+          "name": "Set response metadata",
+          "summary": "response.headers holds reply headers. Open GET /note.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/note\", to: \"lesson#note\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef note\n response.headers[\"Cache-Control\"] = \"no-store\"\n render plain: \"Practice note\"\nend\nend\n"
+          },
+          "notes": ["Set headers before the response is completed."],
+          "lessonSlug": "headers"
+        },
+        {
+          "slug": "callbacks",
+          "name": "Run a shared step",
+          "summary": "before_action runs before controller actions. GET /school reads the value set by the callback.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\nget \"/school\", to: \"lesson#school\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\nbefore_action :set_school\ndef school\n render plain: @school\nend\nprivate\ndef set_school\n @school = \"Oak School\"\nend\nend\n"
+          },
+          "notes": ["Callbacks can affect many actions, so keep their purpose clear."],
+          "lessonSlug": "callbacks"
+        },
+        {
+          "slug": "no-content",
+          "name": "Return an empty successful reply",
+          "summary": "head sends a status and no body. DELETE /books/1 returns 204 in this practice-only action.",
+          "example": {
+            "language": "ruby",
+            "code": "# config/routes.rb\nRails.application.routes.draw do\ndelete \"/books/:id\", to: \"lesson#destroy\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef destroy\n head :no_content\nend\nend\n"
+          },
+          "notes": ["This sample has no stored records; it demonstrates the response shape only."],
+          "lessonSlug": "no-content"
+        }
+      ]
+    }
+  ]
+}

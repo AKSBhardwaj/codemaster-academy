@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "understand-a-waiting-update",
+  "title": "Understand a waiting update",
+  "summary": "A new worker may wait while the old one still controls open pages.",
+  "introduction": "A new worker may wait while the old one still controls open pages. Your task: Inspect active and waiting workers after changing sw.js.",
+  "learningObjectives": [
+    "Inspect active and waiting workers after changing sw.js.",
+    "Explain the example for understand a waiting update"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A new worker may wait while the old one still controls open pages. This avoids mixing a new app version with an old page halfway through a task."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "These examples belong in separate files on your own HTTPS or localhost site. Service workers need that trusted origin and cannot run in this site's sandbox. Use browser developer tools to inspect them."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "navigator.serviceWorker.ready.then(registration => {\n  console.log(\"Active worker:\", registration.active?.scriptURL);\n  console.log(\"Waiting worker:\", registration.waiting?.scriptURL);\n});",
+      "title": "Understand a waiting update",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`waiting` refers to an installed worker that has not yet replaced the active worker for existing pages."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The console shows the active worker and, when present, a waiting version. The values depend on the current installation state."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not force an update and reload in the middle of unsaved work. Offer a clear update action when needed."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Inspect active and waiting workers after changing sw.js."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "progressive-web-apps-understand-a-waiting-update-check"
+    }
+  ],
+  "exerciseIds": ["progressive-web-apps-understand-a-waiting-update-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "progressive-web-apps",
+      "slug": "remove-your-own-old-caches"
+    }
+  ],
+  "seo": {
+    "title": "Progressive Web Apps: Understand a waiting update",
+    "description": "A new worker may wait while the old one still controls open pages. This avoids mixing a new app version with an old page halfway through a task."
+  },
+  "updatedOn": "2026-11-16"
+}

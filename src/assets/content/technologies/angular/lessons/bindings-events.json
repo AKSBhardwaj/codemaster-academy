@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "slug": "bindings-events",
+  "title": "Property Bindings and Events",
+  "summary": "Bind values to properties, attributes, classes and styles with square brackets, react to DOM events with parentheses, use template reference variables and two-way binding.",
+  "introduction": "Interpolation only puts text on the page. Real interfaces need to set an image source, disable a button, toggle a class, and respond when the user types or clicks. Angular has one syntax for each direction: square brackets send data from the class into the DOM, parentheses send DOM events back to the class, and the combination binds both ways. This lesson covers all of them with the exact DOM each one produces.",
+  "learningObjectives": [
+    "Bind properties, attributes, classes and styles with [ ] syntax",
+    "Handle DOM events with ( ) syntax, $event and template reference variables",
+    "Use two-way binding with [( )] and explain why boolean attributes need property binding"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Data into the DOM: property binding"
+    },
+    {
+      "type": "paragraph",
+      "text": "`[property]=\"expression\"` sets a DOM **property** of the element to the value of the expression, and keeps it updated. Because it targets the property rather than the HTML attribute, the value keeps its type: a boolean stays a boolean, an array stays an array. The same syntax sets inputs on child components, which the [next lesson](/tutorials/angular/inputs-outputs) covers."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/avatar/avatar.ts",
+      "code": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-avatar',\n  template: `\n    <img [src]=\"photoUrl()\" [alt]=\"'Photo of ' + name()\" width=\"64\" height=\"64\">\n    <button\n      [disabled]=\"saving()\"\n      [class.busy]=\"saving()\"\n      [style.opacity]=\"saving() ? 0.5 : 1\"\n      [attr.aria-label]=\"'Save ' + name()\">\n      Save\n    </button>\n  `,\n})\nexport class Avatar {\n  readonly name = signal('Ada');\n  readonly photoUrl = signal('/assets/ada.png');\n  readonly saving = signal(true);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Resulting DOM",
+      "content": "<img src=\"/assets/ada.png\" alt=\"Photo of Ada\" width=\"64\" height=\"64\">\n<button disabled class=\"busy\" style=\"opacity: 0.5;\" aria-label=\"Save Ada\">Save</button>"
+    },
+    {
+      "type": "table",
+      "headers": ["Binding", "What it sets", "Example"],
+      "rows": [
+        [
+          "`[prop]`",
+          "A DOM property or a component input",
+          "`[src]=\"url()\"`, `[disabled]=\"busy()\"`"
+        ],
+        [
+          "`[attr.name]`",
+          "An HTML attribute, for things that have no property such as `aria-*` and `colspan`",
+          "`[attr.aria-label]=\"label()\"`"
+        ],
+        [
+          "`[class.name]`",
+          "Adds the class while the expression is truthy",
+          "`[class.active]=\"selected()\"`"
+        ],
+        [
+          "`[class]`",
+          "Several classes at once from a string, array or object",
+          "`[class]=\"{ active: on(), large: big() }\"`"
+        ],
+        [
+          "`[style.prop]`",
+          "One inline style, optionally with a unit",
+          "`[style.width.px]=\"size()\"`"
+        ],
+        [
+          "`[style]`",
+          "Several styles from an object",
+          "`[style]=\"{ color: c(), 'font-size': '2rem' }\"`"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular has no `ngClass` or `ngStyle` requirement any more: the `[class]` and `[style]` bindings cover every case the old directives did, without an import."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: interpolating a boolean",
+      "text": "`<button disabled=\"{{ saving() }}\">` looks reasonable but always disables the button, even when `saving()` is `false`. Interpolation produces a string, and the string `'false'` is truthy. The same trap applies to `checked`, `required` and `hidden`. Use property binding for anything that is not text: `[disabled]=\"saving()\"`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Events out of the DOM: event binding"
+    },
+    {
+      "type": "paragraph",
+      "text": "`(event)=\"statement\"` runs the statement whenever the element fires that DOM event. Unlike interpolation, event statements may assign values and call signal setters. The event object is available as `$event`. A **template reference variable** (`#box`) gives the template direct access to an element, which is often simpler than digging the value out of `$event`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/search/search.ts",
+      "code": "import { Component, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-search',\n  template: `\n    <input #box (input)=\"query.set(box.value)\" (keydown.enter)=\"search()\" placeholder=\"Search\">\n    <button (click)=\"search()\">Go</button>\n    <p>Typing: {{ query() }}</p>\n    <p>{{ message() }}</p>\n  `,\n})\nexport class Search {\n  readonly query = signal('');\n  readonly message = signal('');\n\n  search(): void {\n    this.message.set(`Searching for \"${this.query()}\"`);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After typing \"signals\" and pressing Enter",
+      "content": "Typing: signals\nSearching for \"signals\""
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`(input)` fires on every keystroke; `(change)` fires when the field loses focus or Enter is pressed.",
+        "`(keydown.enter)`, `(keydown.escape)` and `(keydown.control.s)` are Angular's key pseudo-events, which save you from checking `$event.key` by hand.",
+        "`box.value` reads the input's current value through the reference variable. With `$event` you would write `onInput($event)` and, in the class, `(event.target as HTMLInputElement).value`.",
+        "Writing `(click)=\"search\"` without parentheses is valid but does nothing: it evaluates the method reference and throws the result away."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular removes event listeners automatically when the element leaves the DOM, so there is nothing to clean up. In a zoneless application, an event binding is also one of the signals to the framework that the component may need re-rendering, which is why updating a plain property inside a handler still refreshes the template."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Both directions: two-way binding"
+    },
+    {
+      "type": "paragraph",
+      "text": "`[(ngModel)]` combines a property binding with an event binding: the input shows the current value and writes the user's edits back. It comes from `FormsModule`, which must be imported. Binding it to a signal works directly; Angular reads the signal for the value and calls `set` on changes."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/nickname/nickname.ts",
+      "code": "import { Component, signal } from '@angular/core';\nimport { FormsModule } from '@angular/forms';\n\n@Component({\n  selector: 'app-nickname',\n  imports: [FormsModule],\n  template: `\n    <label>Nickname <input [(ngModel)]=\"nickname\"></label>\n    <p>Hello, {{ nickname() }}!</p>\n  `,\n})\nexport class Nickname {\n  readonly nickname = signal('ada');\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser, after changing the field to \"lovelace\"",
+      "content": "Nickname [lovelace]\nHello, lovelace!"
+    },
+    {
+      "type": "paragraph",
+      "text": "The banana-in-a-box syntax `[( )]` is sugar for `[ngModel]=\"nickname()\" (ngModelChange)=\"nickname.set($event)\"`. Any component can offer the same convenience by declaring a `model()` property; the [inputs and outputs lesson](/tutorials/angular/inputs-outputs) shows how. For forms with validation, the [forms lesson](/tutorials/angular/forms) introduces reactive forms, which scale better than scattered `ngModel` bindings."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing the right binding"
+    },
+    {
+      "type": "table",
+      "headers": ["You want to", "Write"],
+      "rows": [
+        ["Show text", "`{{ expression }}`"],
+        ["Set a property or component input", "`[name]=\"expression\"`"],
+        ["Set an attribute that has no property", "`[attr.name]=\"expression\"`"],
+        ["Toggle a class or style", "`[class.x]=\"bool\"`, `[style.x]=\"value\"`"],
+        ["React to a DOM event", "`(event)=\"statement\"`"],
+        ["Keep a form field and a value in sync", "`[(ngModel)]=\"signalOrProperty\"`"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Accessibility note",
+      "text": "`[attr.aria-label]`, `[attr.aria-expanded]` and friends keep assistive technology informed as state changes. Angular's strict templates check that you bind known properties, so a typo such as `[disabeld]` fails at compile time instead of silently doing nothing."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-bindings-syntax"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-bindings-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "bindings-events",
+          "difficulty": "beginner",
+          "question": "Which binding adds the class `active` to a list item only while `selected()` is true?",
+          "explanation": "`[class.active]` adds or removes the single class based on the boolean. Interpolating into `class` would overwrite other classes with the string `true`.",
+          "options": [
+            "`class=\"{{ selected() }}\"`",
+            "`[class.active]=\"selected()\"`",
+            "`(class.active)=\"selected()\"`",
+            "`[attr.active]=\"selected()\"`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-bindings-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "bindings-events",
+          "difficulty": "beginner",
+          "question": "Inside an event handler expression, the DOM event object is available through the variable `___`.",
+          "explanation": "`$event` holds the native event, for example a `KeyboardEvent` for `(keydown)`.",
+          "answers": ["$event"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-bindings-syntax"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "templates-control-flow"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "inputs-outputs"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "events"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "attributes"
+    }
+  ],
+  "seo": {
+    "title": "Angular Property Binding, Event Binding and Two-Way Binding",
+    "description": "Learn Angular 22 bindings: [property], [attr.], [class.] and [style.] bindings, (event) handlers with $event and template references, and [(ngModel)] two-way binding."
+  },
+  "updatedOn": "2026-11-15"
+}

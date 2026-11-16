@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "async-routes",
+  "title": "Wait without blocking",
+  "summary": "FastAPI: Wait without blocking. Return 6 from read_score.",
+  "introduction": "An async route can await an async operation. GET /score waits for a completed coroutine and returns its result.",
+  "learningObjectives": ["Wait without blocking with FastAPI", "Return 6 from read_score"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Wait without blocking"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Wait without blocking",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\nasync def read_score():\n    return 8\n@app.get(\"/score\")\nasync def score():\n    value = await read_score()\n    return {\"score\": value}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "await obtains 8 from the coroutine. The returned dictionary then exposes it as score."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"score\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Return 6 from read_score."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Do not put blocking work in async routes and assume async makes it faster."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-async-routes-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-async-routes-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "lists"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Wait without blocking",
+    "description": "FastAPI: Wait without blocking. Return 6 from read_score. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

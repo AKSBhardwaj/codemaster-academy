@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "slug": "box-model",
+  "title": "The CSS Box Model",
+  "summary": "CSS treats each page part like a box. A box has content, padding, a border and margin.",
+  "introduction": "CSS treats each page part like a box. A box has content, padding, a border and margin. Imagine a gift in a box: the gift is the content, and the space around it is padding. Learn which kind of space to change.",
+  "learningObjectives": [
+    "Identify content, padding, border and margin on any element",
+    "Calculate an element's rendered size under content-box and border-box",
+    "Explain margin collapsing and use the shorthand spacing properties"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The four layers"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every element generates a rectangular box with four layers, from the inside out. The **content** area holds the text or the child elements. **Padding** is space inside the border, between the content and the edge. The **border** is the edge itself, visible once it has a style and a colour. The **margin** is space outside the border that keeps neighbouring boxes apart. A background paints the content and padding areas (and sits underneath the border), never the margin."
+    },
+    {
+      "type": "table",
+      "headers": ["Layer", "Position", "Painted by the background?", "Properties"],
+      "rows": [
+        ["Content", "Innermost", "Yes", "`width`, `height`"],
+        ["Padding", "Inside the border", "Yes", "`padding`, `padding-top`, …"],
+        ["Border", "The edge", "Has its own colour", "`border`, `border-width`, …"],
+        ["Margin", "Outside the border", "No, always transparent", "`margin`, `margin-top`, …"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": ".card {\n  width: 300px;\n  padding: 20px;\n  border: 4px solid #1d4ed8;\n  margin: 24px;\n  background-color: #eff6ff;   /* fills content and padding, not the margin */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.card{width:300px;padding:20px;border:4px solid #1d4ed8;margin:24px;background:#eff6ff}.card p{margin:0}</style><div class=\"card\"><p>Light blue: content and padding. Blue edge: border. White around it: margin.</p></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How wide is the box really?"
+    },
+    {
+      "type": "paragraph",
+      "text": "By default (`box-sizing: content-box`) the `width` property sets the width of the *content area only*. Padding and border are added on the outside, so the card above is not 300px wide on screen but 300 + 20 + 20 + 4 + 4 = **348px**, and with its margins it claims 396px of its parent. This is the single most common source of layout surprises, which is why the alternative model exists."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "The same declarations under both models",
+      "code": "/* content-box (default): 300 + 20 + 20 + 4 + 4 = 348px on screen */\n.card {\n  box-sizing: content-box;\n  width: 300px;\n  padding: 20px;\n  border: 4px solid #1d4ed8;\n}\n\n/* border-box: the 300px includes padding and border; the content gets 252px */\n.card {\n  box-sizing: border-box;\n  width: 300px;\n  padding: 20px;\n  border: 4px solid #1d4ed8;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered widths",
+      "content": "content-box: content 300px, padding 40px, border 8px  -> 348px wide\nborder-box:  content 252px, padding 40px, border 8px  -> 300px wide"
+    },
+    {
+      "type": "paragraph",
+      "text": "`border-box` matches how people think (\"make it 300px wide\" means the whole visible box), so nearly every project starts with a reset that applies it to every element, including the `::before` and `::after` pseudo-elements:"
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "The usual reset",
+      "code": "*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "100% plus padding overflows",
+      "text": "A box with `width: 100%` and `padding: 1rem` under the default `content-box` model is wider than its parent by 2rem, which produces a horizontal scrollbar or a box poking out on the right. Either apply the `border-box` reset above, or leave `width` at its default `auto`, which already fills the parent and makes room for padding."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Shorthand spacing"
+    },
+    {
+      "type": "paragraph",
+      "text": "`margin` and `padding` accept one to four values, assigned clockwise from the top: top, right, bottom, left. Two values mean vertical then horizontal; three mean top, horizontal, bottom. Margins may be negative (to pull an element towards or over a neighbour); padding may not. The special value `auto` on left and right margins absorbs the free space equally, which is how `margin: 0 auto` centres a block that has a width."
+    },
+    {
+      "type": "table",
+      "headers": ["Declaration", "Top", "Right", "Bottom", "Left"],
+      "rows": [
+        ["`margin: 8px;`", "8px", "8px", "8px", "8px"],
+        ["`margin: 8px 16px;`", "8px", "16px", "8px", "16px"],
+        ["`margin: 8px 16px 24px;`", "8px", "16px", "24px", "16px"],
+        ["`margin: 8px 16px 24px 32px;`", "8px", "16px", "24px", "32px"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": ".card {\n  width: 20rem;\n  margin: 2rem auto;      /* 2rem above and below, centred horizontally */\n  padding: 1rem 1.5rem;   /* 1rem top and bottom, 1.5rem left and right */\n  border: 1px solid #cbd5e1;\n  border-radius: 8px;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>.card{width:20rem;margin:2rem auto;padding:1rem 1.5rem;border:1px solid #cbd5e1;border-radius:8px}.card p{margin:0}</style><div class=\"card\"><p>A centred card with uneven padding.</p></div>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Margin collapsing"
+    },
+    {
+      "type": "paragraph",
+      "text": "When the vertical margins of two block boxes touch, they **collapse** into one margin equal to the larger of the two, not their sum. A paragraph with `margin-bottom: 24px` followed by one with `margin-top: 16px` leaves 24px between them. Margins also collapse between a parent and its first or last child when no padding, border or content separates them, which is why a heading's top margin can appear *outside* the box that contains it. Horizontal margins never collapse, and neither do the margins of flex or grid items."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<style>\n  p { background: #eff6ff; padding: 4px; }\n  .first  { margin-bottom: 24px; }\n  .second { margin-top: 16px; }\n</style>\n<p class=\"first\">24px margin below me.</p>\n<p class=\"second\">16px margin above me. The gap is 24px, not 40px.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>p{background:#eff6ff;padding:4px}.first{margin:0 0 24px}.second{margin:16px 0 0}</style><p class=\"first\">24px margin below me.</p><p class=\"second\">16px margin above me. The gap is 24px, not 40px.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "Collapsing is usually helpful: it keeps the space between paragraphs consistent whatever their order. When it gets in the way, give the parent some padding or a border, set `display: flow-root` on it, or lay the children out with flexbox or grid and use `gap` for spacing, where margins do not collapse at all. Many stylesheets also keep things predictable by using margins in one direction only, such as `margin-bottom` on every block."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inspecting the box in developer tools"
+    },
+    {
+      "type": "paragraph",
+      "text": "Select any element in the *Elements* (or *Inspector*) panel and open the *Computed* tab: the diagram shows the content size in the middle with padding, border and margin around it, and you can hover each layer to highlight it on the page. Hovering an element in the page with the inspector active uses the same colours: blue for content, green for padding, orange for margin. When something is wider than it should be, this view tells you which layer is responsible in seconds."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Logical properties",
+      "text": "`margin-block: 1rem` sets the top and bottom margins and `padding-inline: 1rem` the left and right padding, in horizontal writing. These *logical* properties follow the writing direction, so a layout built with them works unchanged for right-to-left languages. All current browsers support them; you will see them in modern stylesheets alongside the physical `margin-top` style."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: compare content-box and border-box",
+      "height": 220,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Box sizing</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .box {\n      width: 200px;\n      padding: 20px;\n      border: 5px solid #1d4ed8;\n      margin-bottom: 12px;\n      background: #eff6ff;\n    }\n    /* Change content-box to border-box and compare the widths. */\n    .a { box-sizing: content-box; }\n    .b { box-sizing: border-box; }\n  </style>\n</head>\n<body>\n  <div class=\"box a\">content-box: 250px wide</div>\n  <div class=\"box b\">border-box: 200px wide</div>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-box-model-padding"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-box-model-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "box-model",
+          "difficulty": "beginner",
+          "question": "Under the default `content-box` model, how wide on screen is a box with `width: 200px`, `padding: 10px` and `border: 5px solid`?",
+          "explanation": "Padding and border are added on both sides: 200 + 10 + 10 + 5 + 5 = 230px. With `border-box` the answer would be 200px.",
+          "options": ["200px", "215px", "230px", "240px"],
+          "correctIndex": 2
+        },
+        {
+          "id": "css-box-model-qc-2",
+          "type": "true-false",
+          "lessonSlug": "box-model",
+          "difficulty": "intermediate",
+          "question": "Left and right margins between neighbouring inline-block elements collapse into one.",
+          "explanation": "Only vertical margins of block boxes collapse. Horizontal margins always add up.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-box-model-padding"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "units"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "backgrounds-borders"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "display"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "flexbox"
+    }
+  ],
+  "seo": {
+    "title": "CSS Box Model – Content, Padding, Border and Margin",
+    "description": "Learn the CSS box model: content, padding, border and margin, how width is calculated with content-box and border-box, shorthand spacing and margin collapsing."
+  },
+  "updatedOn": "2026-11-16"
+}

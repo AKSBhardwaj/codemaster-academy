@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "slug": "syntax-variables",
+  "title": "Syntax and Variables",
+  "summary": "The building blocks of every C program: statements, blocks, comments and case-sensitive names, plus how to declare, initialise and scope variables and constants.",
+  "introduction": "Before you can express an idea in C you need its grammar: where semicolons go, what braces mean, how comments work and how variables are declared. C is strict about all of this and the compiler rejects programs that break the rules, which is good news because the rules are few. This lesson covers the shape of a program, variable declarations and initialisation, naming conventions, constants, and the block scope that decides where a name is visible.",
+  "learningObjectives": [
+    "Write syntactically correct statements, blocks and comments",
+    "Declare, initialise and assign variables of the basic types",
+    "Define constants with const, #define and enum",
+    "Predict which variable a name refers to using block scope"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The shape of a C program"
+    },
+    {
+      "type": "paragraph",
+      "text": "A C program is a sequence of **declarations** and **statements**. A declaration introduces a name (a variable, a function, a type); a statement does something. Every simple statement ends with a semicolon, and braces group statements into a **block** that counts as a single statement. Line breaks and indentation carry no meaning: the compiler sees `int x = 1; int y = 2;` on one line exactly as it sees them on two. Names are case-sensitive, so `total`, `Total` and `TOTAL` are three different variables."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "shape.c",
+      "code": "#include <stdio.h>   /* a preprocessor directive: no semicolon */\n\n// A single-line comment runs to the end of the line.\n\nint main(void)\n{\n    int width = 4;      /* declaration with an initialiser */\n    int height = 3;\n    int area;           /* declaration without a value yet */\n\n    area = width * height;       /* assignment statement */\n    printf(\"Area: %d\\n\", area);  /* function-call statement */\n\n    /* A block groups statements; this one belongs to the if. */\n    if (area > 10) {\n        printf(\"That is a big rectangle.\\n\");\n    }\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "$ gcc -Wall -Wextra -std=c17 shape.c -o shape\n$ ./shape\nArea: 12\nThat is a big rectangle."
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`/* ... */` comments may span several lines but cannot be nested; `// ...` comments (standard since C99) run to the end of the line.",
+        "Lines beginning with `#` are preprocessor directives, handled before compilation proper, and take no semicolon.",
+        "A block `{ ... }` may appear wherever a statement may, and every `if`, loop and function body is one."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Declaring variables"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable is a named piece of memory with a **type**. The type fixes how many bytes the variable occupies and how its bits are interpreted, and it never changes. Declare with `type name;` or, better, `type name = value;`. Several variables of one type may share a declaration, and since C99 a declaration may appear anywhere a statement can, not only at the top of a block. The [next lesson](/tutorials/c/data-types) looks at each type in depth; here you only need `int` for whole numbers, `double` for fractional numbers and `char` for single characters."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "variables.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int count = 10;             /* whole number */\n    double temperature = 21.5;  /* number with a fractional part */\n    char grade = 'B';           /* one character, in single quotes */\n    int x = 1, y = 2, z;        /* several at once; z has no value yet */\n\n    z = x + y;\n    count = count + 5;          /* reassignment replaces the old value */\n    temperature = temperature - 0.5;\n\n    printf(\"count = %d\\n\", count);\n    printf(\"temperature = %.1f\\n\", temperature);\n    printf(\"grade = %c\\n\", grade);\n    printf(\"z = %d\\n\", z);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "count = 15\ntemperature = 21.0\ngrade = B\nz = 3"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Naming rules and conventions"
+    },
+    {
+      "type": "table",
+      "headers": ["Name", "Valid?", "Why"],
+      "rows": [
+        ["`total_price`", "Yes", "Letters, digits and underscores, starting with a letter"],
+        [
+          "`MAX_ITEMS`",
+          "Yes",
+          "Valid; all-caps is conventionally reserved for macros and constants"
+        ],
+        [
+          "`_buffer`",
+          "Allowed, avoid",
+          "Names starting with an underscore are reserved for the compiler and library in many contexts"
+        ],
+        ["`2nd_value`", "No", "A name cannot start with a digit"],
+        ["`first-name`", "No", "The hyphen is the minus operator: this is `first` minus `name`"],
+        ["`int`", "No", "Keywords such as `int`, `if`, `return` and `sizeof` cannot be reused"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Most C code uses `snake_case` for variables and functions, and names that say what the value *means* (`row_count`, not `rc`). Single letters are fine for loop counters and coordinates."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Initialise before you use"
+    },
+    {
+      "type": "paragraph",
+      "text": "A local variable declared without an initialiser holds whatever bits happened to be in that memory, an **indeterminate value**. Reading it is a bug, and frequently undefined behaviour, that produces different results on different runs or compilers. The compiler catches many cases when warnings are on:"
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "uninit.c",
+      "code": "#include <stdio.h>\n\nint main(void)\n{\n    int total;\n    int bonus = 5;\n\n    total = total + bonus;\n    printf(\"%d\\n\", total);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal (GCC 13; wording differs between versions)",
+      "content": "$ gcc -Wall -Wextra -std=c17 uninit.c -o uninit\nuninit.c: In function 'main':\nuninit.c:8:11: warning: 'total' is used uninitialized [-Wuninitialized]\n    8 |     total = total + bonus;\n      |     ~~~~~~^~~~~~~~~~~~~~~"
+    },
+    {
+      "type": "paragraph",
+      "text": "The program still builds and prints some number, which is exactly the problem: it may print 5 on your machine and 32773 on a colleague's. The fix is to write `int total = 0;`. Make it a rule to give every variable a value in its declaration unless you assign one on the very next line."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Constants"
+    },
+    {
+      "type": "paragraph",
+      "text": "C has three ways to name a value that never changes, and they are not interchangeable. A `const` variable is a real variable that the compiler refuses to assign to; it has a type and a scope. A `#define` macro is textual replacement performed by the preprocessor before compilation: it has no type and ignores scope. An `enum` constant is a genuine integer constant that may be used anywhere the compiler needs a value at compile time, such as an array size. C23 adds `constexpr` for typed compile-time constants, but in C17 these three are what you have."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "constants.c",
+      "code": "#include <stdio.h>\n\n#define TAX_RATE 0.2        /* macro: text replaced before compiling */\nenum { MAX_ITEMS = 3 };     /* enumeration constant: a real integer constant */\n\nint main(void)\n{\n    const double base_price = 50.0;   /* read-only variable */\n    int prices[MAX_ITEMS] = {10, 20, 30};\n\n    printf(\"With tax: %.2f\\n\", base_price * (1 + TAX_RATE));\n    printf(\"Items: %d, last price: %d\\n\", MAX_ITEMS, prices[MAX_ITEMS - 1]);\n    /* base_price = 60.0;  does not compile: assignment of read-only variable */\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "With tax: 60.00\nItems: 3, last price: 30"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Scope: where a name is visible"
+    },
+    {
+      "type": "paragraph",
+      "text": "A variable declared inside a block exists from its declaration to the block's closing brace: that is **block scope**. A variable declared outside every function has **file scope** and is visible from its declaration to the end of the file. An inner block may declare a variable with the same name as an outer one; the inner one *shadows* the outer one until the block ends. Shadowing compiles, but it confuses readers, and the `-Wshadow` flag reports it."
+    },
+    {
+      "type": "code",
+      "language": "c",
+      "title": "scope.c",
+      "code": "#include <stdio.h>\n\nint calls = 0;          /* file scope: visible to every function below */\n\nint main(void)\n{\n    int value = 1;      /* block scope: the body of main */\n    calls++;\n\n    {\n        int value = 2;  /* a new variable that shadows the outer one */\n        printf(\"inner value = %d\\n\", value);\n    }\n\n    for (int i = 0; i < 2; i++) {   /* i exists only inside the loop */\n        calls++;\n    }\n\n    printf(\"outer value = %d\\n\", value);\n    printf(\"calls = %d\\n\", calls);\n    return 0;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Terminal",
+      "content": "inner value = 2\nouter value = 1\ncalls = 3"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: double quotes for a character",
+      "text": "`char grade = \"B\";` is wrong even though it may compile with a warning. `'B'` in single quotes is one character, the number 66. `\"B\"` in double quotes is a *string*: two bytes, the letter and a terminating zero, and the expression is the address of that string, not a character. Use single quotes for one character and double quotes for text."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Compile `scope.c` with `-Wshadow` added to the usual flags and read the warning about `value`. Then move `int i` out of the `for` header and declare it before the loop; `i` is now visible after the loop too, which is sometimes exactly what you want."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "c-syntax-swap"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "c-syntax-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "Which of these is a valid C variable name?",
+          "explanation": "Names consist of letters, digits and underscores and cannot start with a digit; `first-name` is a subtraction and `int` is a keyword.",
+          "options": ["`2fast`", "`first-name`", "`first_name`", "`int`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "c-syntax-qc-2",
+          "type": "true-false",
+          "lessonSlug": "syntax-variables",
+          "difficulty": "beginner",
+          "question": "A local variable declared without an initialiser, such as `int n;`, starts at 0.",
+          "explanation": "Only variables with static storage (file scope or `static`) start at zero. A plain local variable holds an indeterminate value until you assign one.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["c-syntax-missing-semicolon", "c-syntax-swap"],
+  "relatedLessons": [
+    {
+      "technologySlug": "c",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "c",
+      "slug": "operators-control-flow"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    }
+  ],
+  "seo": {
+    "title": "C Syntax and Variables – Statements, Scope, Constants",
+    "description": "Learn C syntax: statements, blocks and comments, how to declare and initialise variables, name them correctly, define constants and understand block scope."
+  },
+  "updatedOn": "2026-11-15"
+}

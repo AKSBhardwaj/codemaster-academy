@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "slug": "design-a-library",
+  "title": "Design a school library service",
+  "summary": "Plan book search, borrowing, and returns for a small library. Follow one safe loan and explain what happens when two readers want the same copy.",
+  "introduction": "Let us put the building blocks together. We will plan a small library service where readers find books and staff track loans. The plan starts small and protects one important rule: a copy cannot be lent to two people at once.",
+  "learningObjectives": [
+    "Turn library needs into a small data model",
+    "Trace a loan that saves related changes together",
+    "Explain retries, busy periods, and a safe first design"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Write the goal and the size"
+    },
+    {
+      "type": "paragraph",
+      "text": "For this design, assume one school, 500 readers, 2,000 book titles, and 5,000 physical copies. Readers search titles; permitted users borrow and return copies. Book sales and payments are outside this plan."
+    },
+    {
+      "type": "paragraph",
+      "text": "A sample speed goal is that 95 out of 100 searches finish within one second while 10 searches arrive each second. This is a target to test, not a result we have measured. The safety goal is that one copy has at most one current loan."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Name the facts and their owners"
+    },
+    {
+      "type": "table",
+      "headers": ["Record", "Useful fields", "Purpose"],
+      "rows": [
+        ["Book", "bookId, title, author", "One record describes a title."],
+        ["Copy", "copyId, bookId, shelf, state", "Each physical copy has its own identity."],
+        [
+          "Loan",
+          "loanId, copyId, readerId, dueAt, returnedAt",
+          "A loan records who has one copy and whether it was returned."
+        ],
+        [
+          "Request result",
+          "readerId, requestId, loanId, result",
+          "A repeated borrow request can return its saved result."
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a database suited to linked records and transactions. A **transaction** saves related changes together or saves none. Begin with one application and one database; this size alone does not justify many services."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/library-design.svg",
+      "width": 400,
+      "height": 544,
+      "alt": "The browser asks to borrow copy C7. The service checks permission, saves the loan in one transaction, and returns the result.",
+      "caption": "Two people may ask for the same copy. The final availability check and loan update belong in one safe database operation."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "School library: one small service and one database\nGET /books?title=moon -> matching public book details\nPOST /loans {copyId, requestId} -> saved loan or clear refusal\nPOST /loans/{loanId}/return -> returned loan or already returned\n\nBorrow one copy\n1. Check the reader and their permission to borrow.\n2. Begin a transaction and claim the unique reader/requestId.\n3. For an already saved request, check the details and return its result.\n4. For a new request, change Copy.state to on-loan only if still available.\n5. If a copy changed, add the Loan; otherwise prepare a refusal.\n6. Save that outcome for this requestId and commit together, then reply.\n7. Concurrent requests with the same ID wait or retry; do not execute twice.\n\nRule: a physical copy has at most one current loan.\nReminder failure must not undo a saved loan.",
+      "runnable": false,
+      "title": "Worked design plan",
+      "caption": "Read this as a design plan. It is not a running server or an API you can call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Follow a search and a borrow"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A browser sends a title search. The service checks the input and uses an index or search tool that matches the chosen search rules.",
+        "The reply lists public book details and copies. A cached availability count is only a hint; it may be old by the time someone chooses a copy.",
+        "The borrow request checks the current copy state in the database transaction. If two readers ask together, only one may change the same available copy.",
+        "Save the loan and request result with that change. Reply after the commit, which is the point when the transaction is saved.",
+        "A return changes the loan and copy together too. Returning an already returned loan should not create another side effect."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handle a missing reply"
+    },
+    {
+      "type": "paragraph",
+      "text": "The database may save a loan just before the network reply is lost. A reader then retries. Use the same request ID and return the saved result instead of creating another loan. Claim the reader-and-request ID safely so concurrent repeats cannot both run. Check that the same ID is not reused for a different copy."
+    },
+    {
+      "type": "paragraph",
+      "text": "If saving fails, roll back all related changes. Do not leave the copy marked on-loan without a loan record. Keep a durable record of reminder work if reminders must survive a restart; reminder delays should not block borrowing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Grow only where measurements point"
+    },
+    {
+      "type": "paragraph",
+      "text": "Index common lookups such as book title, copy ID, and current loans for a reader. If public title searches become busy, cache those results. Always use the authoritative loan data for a borrow decision."
+    },
+    {
+      "type": "paragraph",
+      "text": "If search work begins to slow writes, a separate search index may help. It can be slightly behind, so show that availability is confirmed when borrowing. Monitor errors, slow requests, and conflicting borrow attempts. Practise a restore from backup."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A cached page says copy C7 is available. The database now says it is on-loan. What should the borrow request do?",
+        "Refuse the new loan clearly and refresh the availability shown. The old page must not override the saved loan rule."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not read \"available\" and then save a loan as two unprotected steps. Another request can change the copy between those steps."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-design-a-library"
+    }
+  ],
+  "exerciseIds": ["system-design-design-a-library"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "backups-and-recovery"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Design a school library service",
+    "description": "Plan book search, borrowing, and returns for a small library. Follow one safe loan and explain what happens when two readers want the same copy."
+  },
+  "updatedOn": "2026-11-16"
+}

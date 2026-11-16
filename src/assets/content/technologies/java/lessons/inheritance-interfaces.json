@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "slug": "inheritance-interfaces",
+  "title": "Inheritance and Interfaces",
+  "summary": "Extend a class with extends and super, override methods for polymorphism, use abstract classes for shared skeletons, and define contracts with interfaces and default methods.",
+  "introduction": "Classes rarely live alone. A dog and a cat are both animals; a salaried and an hourly employee both get paid; a circle and a rectangle both have an area. Java gives you two tools to express such relationships. Inheritance lets a class reuse and specialise another class, and polymorphism lets one piece of code treat all the specialised versions alike. Interfaces describe what a class can do without saying how, so unrelated classes can be used through one contract. This lesson builds each of these with short complete programs and shows the compiler errors that catch the most common mistakes.",
+  "learningObjectives": [
+    "Extend a class, call the parent constructor with super and override methods",
+    "Explain polymorphism and why @Override matters",
+    "Choose between an abstract class and an interface",
+    "Test and narrow a reference with instanceof pattern matching"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Extending a class"
+    },
+    {
+      "type": "paragraph",
+      "text": "`class Dog extends Animal` makes `Dog` a **subclass** of `Animal`: it inherits every field and method of the parent and may add its own or replace some. A subclass constructor must first call a parent constructor with `super(...)`, which initialises the inherited part. Replacing an inherited method is called **overriding**; marking it with `@Override` asks the compiler to verify that a method with that exact signature really exists in the parent. The program below keeps all classes in one file, which is allowed as long as only `Main`, the public one, matches the file name."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Main.java",
+      "code": "class Animal {\n    protected final String name;\n\n    Animal(String name) {\n        this.name = name;\n    }\n\n    String sound() {\n        return \"...\";\n    }\n\n    void introduce() {\n        System.out.println(name + \" says \" + sound());\n    }\n}\n\nclass Dog extends Animal {\n    Dog(String name) {\n        super(name);\n    }\n\n    @Override\n    String sound() {\n        return \"Woof\";\n    }\n}\n\nclass Cat extends Animal {\n    Cat(String name) {\n        super(name);\n    }\n\n    @Override\n    String sound() {\n        return \"Meow\";\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Animal[] animals = { new Dog(\"Rex\"), new Cat(\"Tom\"), new Animal(\"Generic\") };\n        for (Animal animal : animals) {\n            animal.introduce();\n        }\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Main.java",
+      "content": "Rex says Woof\nTom says Meow\nGeneric says ..."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is **polymorphism**: the array is typed `Animal`, the loop calls `introduce`, which is defined once in `Animal`, and yet each object answers with its own `sound`. Java decides at run time which `sound` to run based on the actual object, not on the declared type of the variable. `protected` makes `name` visible to subclasses while keeping it hidden from unrelated code. A class can extend only **one** parent."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Abstract classes"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sometimes the parent should never be instantiated on its own: there is no such thing as a generic employee, only salaried or hourly ones. Declare the class `abstract` and leave the methods that differ per subclass as `abstract` signatures without a body. Subclasses must implement them, and the parent can still contain real code that uses them, such as `payslip` below."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Payroll.java",
+      "code": "abstract class Employee {\n    private final String name;\n\n    Employee(String name) {\n        this.name = name;\n    }\n\n    abstract double monthlyPay();\n\n    String payslip() {\n        return name + \": \" + monthlyPay();\n    }\n}\n\nclass Salaried extends Employee {\n    private final double annualSalary;\n\n    Salaried(String name, double annualSalary) {\n        super(name);\n        this.annualSalary = annualSalary;\n    }\n\n    @Override\n    double monthlyPay() {\n        return annualSalary / 12;\n    }\n}\n\nclass Hourly extends Employee {\n    private final double rate;\n    private final int hours;\n\n    Hourly(String name, double rate, int hours) {\n        super(name);\n        this.rate = rate;\n        this.hours = hours;\n    }\n\n    @Override\n    double monthlyPay() {\n        return rate * hours;\n    }\n}\n\npublic class Payroll {\n    public static void main(String[] args) {\n        Employee[] staff = { new Salaried(\"Ada\", 60000), new Hourly(\"Bob\", 25, 160) };\n        for (Employee employee : staff) {\n            System.out.println(employee.payslip());\n        }\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Payroll.java",
+      "content": "Ada: 5000.0\nBob: 4000.0"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Interfaces"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **interface** lists methods without bodies: a contract. A class that `implements` the interface promises to provide those methods, and may implement several interfaces at once, which single inheritance does not allow. Since Java 8 an interface may also contain `default` methods with a body, so shared convenience code can live next to the contract. Interface methods are `public` by default, so the implementing methods must be `public` too."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Shapes.java",
+      "code": "interface Shape {\n    double area();\n\n    default String describe() {\n        return String.format(\"%s with area %.2f\", getClass().getSimpleName(), area());\n    }\n}\n\nclass Rectangle implements Shape {\n    private final double width;\n    private final double height;\n\n    Rectangle(double width, double height) {\n        this.width = width;\n        this.height = height;\n    }\n\n    public double area() {\n        return width * height;\n    }\n}\n\nclass Circle implements Shape {\n    private final double radius;\n\n    Circle(double radius) {\n        this.radius = radius;\n    }\n\n    public double area() {\n        return Math.PI * radius * radius;\n    }\n}\n\npublic class Shapes {\n    public static void main(String[] args) {\n        Shape[] shapes = { new Rectangle(3, 4), new Circle(1) };\n        double total = 0;\n        for (Shape shape : shapes) {\n            System.out.println(shape.describe());\n            total += shape.area();\n        }\n        System.out.printf(\"Total area: %.2f%n\", total);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Shapes.java",
+      "content": "Rectangle with area 12.00\nCircle with area 3.14\nTotal area: 15.14"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Rectangle` and `Circle` share no code, only the promise that `area()` exists, and that promise is enough for the loop. The standard library is built this way: `List`, `Comparable` and `Runnable` are all interfaces, and your classes plug into sorting, collections and threads by implementing them."
+    },
+    {
+      "type": "table",
+      "headers": ["Use an abstract class when", "Use an interface when"],
+      "rows": [
+        [
+          "Subclasses share fields and constructor logic",
+          "Unrelated classes should offer the same capability"
+        ],
+        [
+          "There is a real is-a hierarchy with one parent",
+          "A class needs several capabilities at once"
+        ],
+        [
+          "You want to provide partial implementation and state",
+          "You only need a contract, maybe with default helpers"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "instanceof and pattern matching"
+    },
+    {
+      "type": "paragraph",
+      "text": "Occasionally you hold a general reference and need the specific type. `instanceof` tests it, and since Java 16 it can **bind** a variable of the narrower type in the same expression, so the old test-then-cast pair becomes one line. The binding is in scope wherever the test is known to be true, including the rest of an `&&` condition."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "Object value = \"hello\";\nif (value instanceof String s && s.length() > 3) {\n    System.out.println(s.toUpperCase());\n}\nShape shape = new Circle(2);\nif (shape instanceof Circle c) {\n    System.out.printf(\"A circle of area %.1f%n\", c.area());\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "HELLO\nA circle of area 12.6"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java 17 added `sealed` interfaces and classes, which list exactly which types may implement them; combined with `switch`, the compiler can then check that every case is handled. The [Records, Enums and Streams](/tutorials/java/records-streams) lesson shows that in action."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A misspelled override",
+      "text": "Without `@Override`, a subclass method named `tostring()` or `descibe()` silently becomes a brand-new method and the parent version keeps running, which is a bug you can hunt for hours. With `@Override` the compiler stops you immediately: `error: method does not override or implement a method from a supertype`. Add the annotation to every method you intend to override, including `toString` and `equals`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-inheritance-override"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-inheritance-qc-1",
+          "type": "true-false",
+          "lessonSlug": "inheritance-interfaces",
+          "difficulty": "beginner",
+          "question": "A Java class can extend several parent classes at the same time.",
+          "explanation": "Java has single inheritance of classes: one `extends`. A class may, however, implement any number of interfaces.",
+          "correct": false
+        },
+        {
+          "id": "java-inheritance-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "inheritance-interfaces",
+          "difficulty": "beginner",
+          "question": "Which keyword calls the parent class constructor from a subclass constructor?",
+          "explanation": "`super(...)` invokes the parent constructor and must come first so the inherited part of the object is initialised before the subclass adds its own.",
+          "options": ["`this()`", "`super()`", "`parent()`", "`base()`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-inheritance-override"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "classes-objects"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "records-streams"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "generics"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "classes"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "classes-objects"
+    }
+  ],
+  "seo": {
+    "title": "Java Inheritance and Interfaces – extends, implements",
+    "description": "Learn Java inheritance with extends and super, overriding and polymorphism, abstract classes, interfaces with default methods and instanceof patterns."
+  },
+  "updatedOn": "2026-11-15"
+}

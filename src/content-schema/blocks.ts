@@ -16,7 +16,10 @@ export const headingBlockSchema = z.strictObject({
   id: slugSchema.optional(),
 });
 
-export const paragraphBlockSchema = z.strictObject({ type: z.literal('paragraph'), text: richTextSchema });
+export const paragraphBlockSchema = z.strictObject({
+  type: z.literal('paragraph'),
+  text: richTextSchema,
+});
 
 export const listBlockSchema = z.strictObject({
   type: z.literal('list'),
@@ -35,7 +38,41 @@ export const codeBlockSourceSchema = z.strictObject({
   /** Marks the example as runnable in the playground (html/css/js or sql only). */
   runnable: z.boolean().optional(),
 });
-export const codeBlockSchema = codeBlockSourceSchema.extend({ tokens: z.array(z.array(codeTokenSchema)) });
+export const codeBlockSchema = codeBlockSourceSchema.extend({
+  tokens: z.array(z.array(codeTokenSchema)),
+});
+
+/** Equivalent examples in several languages, with one example selected at a time. */
+export const codeTabsBlockSourceSchema = z
+  .strictObject({
+    type: z.literal('code-tabs'),
+    title: z.string().max(80).optional(),
+    defaultLanguage: codeBlockSourceSchema.shape.language.optional(),
+    variants: z.array(codeBlockSourceSchema).min(2).max(8),
+  })
+  .superRefine((block, context) => {
+    const languages = new Set<string>();
+    block.variants.forEach((variant, index) => {
+      if (languages.has(variant.language)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['variants', index, 'language'],
+          message: 'each code tab must use a different language',
+        });
+      }
+      languages.add(variant.language);
+    });
+    if (block.defaultLanguage && !languages.has(block.defaultLanguage)) {
+      context.addIssue({
+        code: 'custom',
+        path: ['defaultLanguage'],
+        message: 'defaultLanguage must match one of the variants',
+      });
+    }
+  });
+export const codeTabsBlockSchema = codeTabsBlockSourceSchema.safeExtend({
+  variants: z.array(codeBlockSchema).min(2).max(8),
+});
 
 export const outputBlockSchema = z.strictObject({
   type: z.literal('output'),
@@ -111,6 +148,7 @@ export const contentBlockSourceSchema = z.discriminatedUnion('type', [
   paragraphBlockSchema,
   listBlockSchema,
   codeBlockSourceSchema,
+  codeTabsBlockSourceSchema,
   outputBlockSchema,
   alertBlockSchema,
   tableBlockSchema,
@@ -128,6 +166,7 @@ export const contentBlockSchema = z.discriminatedUnion('type', [
   paragraphBlockSchema,
   listBlockSchema,
   codeBlockSchema,
+  codeTabsBlockSchema,
   outputBlockSchema,
   alertBlockSchema,
   tableBlockSchema,
@@ -143,6 +182,7 @@ export type HeadingBlock = z.infer<typeof headingBlockSchema>;
 export type ParagraphBlock = z.infer<typeof paragraphBlockSchema>;
 export type ListBlock = z.infer<typeof listBlockSchema>;
 export type CodeBlock = z.infer<typeof codeBlockSchema>;
+export type CodeTabsBlock = z.infer<typeof codeTabsBlockSchema>;
 export type OutputBlock = z.infer<typeof outputBlockSchema>;
 export type AlertBlock = z.infer<typeof alertBlockSchema>;
 export type TableBlock = z.infer<typeof tableBlockSchema>;

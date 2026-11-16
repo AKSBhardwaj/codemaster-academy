@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "slug": "retries-need-safe-rules",
+  "title": "Retries need safe rules",
+  "summary": "Retry a temporary failure with limits and increasing delays. Use stable request IDs so a lost reply does not repeat an important action.",
+  "introduction": "You ask a librarian to reserve a book, but the phone goes quiet before the reply. The reservation might have worked. Asking again without a rule could create a second reservation. Computer requests face the same uncertainty.",
+  "learningObjectives": [
+    "Explain why a missing reply does not prove an action failed",
+    "Plan bounded backoff and jitter for temporary failures",
+    "Describe durable idempotency for repeated write requests"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **retry** repeats an attempt. A timeout can mean the request failed, is still running, or succeeded but its reply was lost. The caller often cannot tell which happened."
+    },
+    {
+      "type": "paragraph",
+      "text": "An **idempotent** action has the same intended effect when the same action repeats. Reading a title is usually safe to retry. Creating a new reservation needs a more careful rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "An **idempotency key** is a stable ID for one intended action. The server stores the key and result durably. Repeating that key with the same request can return the stored result. The protected effect and record must follow an atomic design; a separate check-then-act can still race."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Choose at most three retries after the original attempt: four total attempts.",
+        "Start with a base delay of 100 milliseconds, then double it for each retry, up to a cap.",
+        "Add a small varied delay, called jitter, so many clients do not all retry together.",
+        "Stop at the attempt limit or the overall deadline. Retry only suitable temporary failures and honor the service's retry guidance."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const base = 100;\nconst cap = 1000;\nconst sampleJitter = [20, 5, 30];\nfor (let retry = 0; retry < sampleJitter.length; retry++) {\n  const delay = Math.min(cap, base * 2 ** retry + sampleJitter[retry]);\n  console.log(`retry ${retry + 1}: wait ${delay} ms`);\n}",
+      "title": "Retries need safe rules model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "retry 1: wait 120 ms\nretry 2: wait 205 ms\nretry 3: wait 430 ms"
+    },
+    {
+      "type": "paragraph",
+      "text": "The jitter values are fixed here so the output is easy to check. Real clients choose varied jitter values under their policy. This code calculates delays; it does not wait, call a service, or create a reservation."
+    },
+    {
+      "type": "paragraph",
+      "text": "For request ID reserve-42, the service can keep the original request details and saved answer. A new request with that ID but different details should be rejected. Keep the key long enough for the supported retry window and define what happens after it expires."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Bounded retries",
+          "Can recover from a short temporary problem",
+          "More attempts also add load to a struggling service"
+        ],
+        [
+          "Backoff with jitter",
+          "Spreads repeated attempts over time",
+          "A delay must still fit the caller's overall deadline"
+        ],
+        [
+          "Durable idempotency key",
+          "Can stop one intended write from repeating its effect",
+          "Needs atomic handling, request matching, and retention rules"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Do not retry a validation error unchanged: an invalid book ID will still be invalid. Some errors may include Retry-After guidance; use it when it applies."
+    },
+    {
+      "type": "paragraph",
+      "text": "If every layer retries several times, one user action can turn into many downstream calls. Decide which layer owns retries and use a shared time budget. Idempotency within one store also does not automatically cover an outside email or payment; that boundary needs its own safe handoff."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change base from 100 to 200. Keep the same jitter values. Predict the last retry delay.",
+        "The third delay becomes 830 ms: 200 times 4 plus 30. The 1000 ms cap is not reached."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not assign a new idempotency key to each attempt of the same intended action. That makes duplicates look like brand-new work."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-retries-need-safe-rules"
+    }
+  ],
+  "exerciseIds": ["system-design-retries-need-safe-rules"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "queues-handle-work-later"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "timeouts-and-circuit-breakers"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Retries need safe rules",
+    "description": "Retry a temporary failure with limits and increasing delays. Use stable request IDs so a lost reply does not repeat an important action."
+  },
+  "updatedOn": "2026-11-16"
+}

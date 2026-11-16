@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "post-json",
+  "title": "Read a JSON body",
+  "summary": "Express.js: Read a JSON body. Send an empty object and read the 400 reply.",
+  "introduction": "POST can send a body. Send POST /books with Content-Type application/json and body {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": [
+    "Read a JSON body with Express.js",
+    "Send an empty object and read the 400 reply"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON body"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Read a JSON body",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.post(\"/books\", (req, res) => {\n if (typeof req.body?.title !== \"string\") return res.status(400).json({ error: \"Title needed\" });\n return res.status(201).json({ title: req.body.title });\n});\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "express.json has already parsed the body. The title check passes, so status 201 and that title are returned."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object and read the 400 reply."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "express.json must run before routes that read a JSON body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-post-json-check"
+    }
+  ],
+  "exerciseIds": ["express-post-json-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "query-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Read a JSON body",
+    "description": "Express.js: Read a JSON body. Send an empty object and read the 400 reply. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

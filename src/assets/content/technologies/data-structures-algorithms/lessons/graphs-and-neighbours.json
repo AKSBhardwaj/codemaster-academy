@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "slug": "graphs-and-neighbours",
+  "title": "Graphs and neighbours",
+  "summary": "Describe places and links with a graph. Read the neighbours of one place from a small table and compare directed and undirected edges.",
+  "introduction": "Think of three playgrounds joined by paths. The places are points, and the paths connect them. A graph lets a program describe such connections without forcing them into one long line.",
+  "learningObjectives": [
+    "Explain vertices, edges, and neighbours",
+    "Read one row of an adjacency matrix",
+    "Distinguish a direct neighbour from a reachable place"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **graph** holds points called **vertices**, also called nodes. A link between two vertices is an **edge**. A **neighbour** is a vertex joined by one direct edge."
+    },
+    {
+      "type": "paragraph",
+      "text": "Our vertices are numbered 0, 1, and 2. There is a path between 0 and 1, and a path between 0 and 2. There is no direct path between 1 and 2."
+    },
+    {
+      "type": "paragraph",
+      "text": "These paths work both ways, so this is an **undirected** graph. A **directed** graph uses arrows: an edge from 0 to 1 does not automatically give an edge from 1 to 0."
+    },
+    {
+      "type": "paragraph",
+      "text": "An **adjacency matrix** is a square table of connections. Row a, column b is 1 when an edge goes from a to b, and 0 when it does not. Each row and column stands for one vertex."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Write row 0 as [0, 1, 1]. Vertex 0 has no edge to itself, but it has edges to 1 and 2.",
+        "Write row 1 as [1, 0, 0] and row 2 as [1, 0, 0], because the paths go both ways.",
+        "Choose vertex 0. Scan its row from column 0 through column 2.",
+        "Print the column number whenever the cell is 1. This prints neighbours 1 and 2."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Graphs and neighbours example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const edges = [\n  [0, 1, 1],\n  [1, 0, 0],\n  [1, 0, 0]\n];\nconst vertex = 0;\nif (vertex >= 0 && vertex < edges.length) {\n  for (let neighbour = 0; neighbour < edges.length; neighbour++) {\n    if (edges[vertex][neighbour] === 1) console.log(neighbour);\n  }\n}",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int edges[3][3] = {{0, 1, 1}, {1, 0, 0}, {1, 0, 0}};\n    int vertex = 0;\n    if (vertex >= 0 && vertex < 3) {\n        for (int neighbour = 0; neighbour < 3; neighbour++) {\n            if (edges[vertex][neighbour] == 1) printf(\"%d\\n\", neighbour);\n        }\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int edges[3][3] = {{0, 1, 1}, {1, 0, 0}, {1, 0, 0}};\n    int vertex = 0;\n    if (vertex >= 0 && vertex < 3) {\n        for (int neighbour = 0; neighbour < 3; neighbour++) {\n            if (edges[vertex][neighbour] == 1) std::cout << neighbour << '\\n';\n        }\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "edges = [\n    [0, 1, 1],\n    [1, 0, 0],\n    [1, 0, 0]\n]\nvertex = 0\nif 0 <= vertex < len(edges):\n    for neighbour in range(len(edges)):\n        if edges[vertex][neighbour] == 1:\n            print(neighbour)",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "int[,] edges = { { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 0 } };\nint vertex = 0;\nif (vertex >= 0 && vertex < 3)\n{\n    for (int neighbour = 0; neighbour < 3; neighbour++)\n    {\n        if (edges[vertex, neighbour] == 1) System.Console.WriteLine(neighbour);\n    }\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        int[][] edges = {{0, 1, 1}, {1, 0, 0}, {1, 0, 0}};\n        int vertex = 0;\n        if (vertex >= 0 && vertex < edges.length) {\n            for (int neighbour = 0; neighbour < edges.length; neighbour++) {\n                if (edges[vertex][neighbour] == 1) System.out.println(neighbour);\n            }\n        }\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "1\n2"
+    },
+    {
+      "type": "paragraph",
+      "text": "The loop visits columns in number order, so the output order is fixed. Vertex 1 can reach vertex 2 by going through 0, but it is not a direct neighbour of 2. Listing neighbours is one step; finding whole routes needs a graph search."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **isolated vertex** has no edges, so its row contains only zeros and prints nothing. A graph may have separate groups that are not connected. A general graph can also contain cycles."
+    },
+    {
+      "type": "paragraph",
+      "text": "This graph has no self-edges and at most one edge between a pair. A self-edge would appear on the diagonal, such as row 0, column 0. Different problems may allow or forbid these edges."
+    },
+    {
+      "type": "paragraph",
+      "text": "For V vertices, scanning one matrix row takes O(V) work and the full matrix uses O(V²) space. An **adjacency list** instead stores only each vertex's neighbours. That often saves space when few pairs have edges; the whole list uses O(V + E) space for V vertices and E edges."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change vertex from 0 to 1.",
+        "The output becomes just 0. Vertex 1 is directly joined to 0, but it is not directly joined to 2."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "For an undirected edge, update both directions. If you set row 0, column 1 to 1 but leave row 1, column 0 at 0, the table no longer describes that two-way path."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-graphs-and-neighbours"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-graphs-and-neighbours"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "queues"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "stacks"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Graphs and neighbours in six languages",
+    "description": "Describe places and links with a graph. Read the neighbours of one place from a small table and compare directed and undirected edges."
+  },
+  "updatedOn": "2026-11-16"
+}

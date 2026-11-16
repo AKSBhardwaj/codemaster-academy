@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "slug": "tuples-sets",
+  "title": "Tuples and Sets",
+  "summary": "A tuple keeps items in order without letting you replace its items. A set keeps unique items, without a fixed order.",
+  "introduction": "A tuple keeps items in order without letting you replace its items. A set keeps unique items, without a fixed order. Use a tuple for a pair of values and a set to remove repeated names. Choose the kind that matches the job.",
+  "learningObjectives": [
+    "Create tuples, unpack them and swap variables in one line",
+    "Explain why immutability makes tuples usable as dictionary keys",
+    "Remove duplicates and test membership with sets",
+    "Combine sets with union, intersection and difference"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Tuples"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "tuples.py",
+      "code": "point = (3, 4)\nsingle = (42,)            # the comma makes the tuple, not the parentheses\nempty = ()\n\nprint(point[0], point[-1], len(point))\nprint(type(single), type((42)))\n\nx, y = point               # unpacking\nprint(x, y)\n\nx, y = y, x                # swap without a temporary variable\nprint(x, y)\n\nfirst, *rest = (1, 2, 3, 4)\nprint(first, rest)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python tuples.py",
+      "content": "3 4 2\n<class 'tuple'> <class 'int'>\n3 4\n4 3\n1 [2, 3, 4]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parentheses are optional in most places (`point = 3, 4` works) but a one-item tuple needs its trailing comma, as `type((42))` shows. Tuples support indexing, slicing, `len`, `in` and loops exactly like lists; what they lack is every method that would change them. **Unpacking** assigns the items to several names at once, and a starred name collects whatever is left over into a list."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Immutability and what it buys you"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "change_tuple.py",
+      "code": "date = (2026, 11, 15)\ndate[0] = 2027"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python change_tuple.py",
+      "content": "Traceback (most recent call last):\n  File \"/home/ada/projects/change_tuple.py\", line 2, in <module>\n    date[0] = 2027\n    ~~~~^^^\nTypeError: 'tuple' object does not support item assignment"
+    },
+    {
+      "type": "paragraph",
+      "text": "That restriction is the point. Because a tuple can never change, Python can compute a stable hash for it, so tuples (unlike lists) may be dictionary keys and set members. Immutability also communicates intent: a function that returns `(low, high)` promises a fixed pair, while a list suggests \"zero or more of the same kind of thing\". Returning several values from a function is really returning one tuple, which the caller unpacks."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "tuple_uses.py",
+      "code": "capitals = {(51.5, -0.1): \"London\", (48.9, 2.4): \"Paris\"}\nprint(capitals[(48.9, 2.4)])\n\ndef min_max(values):\n    return min(values), max(values)\n\nlow, high = min_max([7, 2, 9, 4])\nprint(low, high)\n\ncities = [(\"Osaka\", 2.7), (\"Lima\", 10.1)]\nfor city, population in cities:\n    print(f\"{city}: {population} million\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python tuple_uses.py",
+      "content": "Paris\n2 9\nOsaka: 2.7 million\nLima: 10.1 million"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `def` block defines a function, covered properly in [Functions](/tutorials/python/functions); for now, notice that `return min(values), max(values)` hands back one tuple, which `low, high = ...` unpacks. A list of tuples is the natural shape for rows of data, and the loop unpacks each row into named variables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Sets"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "sets.py",
+      "code": "tags = {\"python\", \"web\", \"python\", \"data\"}\nprint(len(tags))\nprint(\"web\" in tags, \"sql\" in tags)\n\ntags.add(\"sql\")\ntags.discard(\"web\")\ntags.discard(\"missing\")        # no error if absent\nprint(sorted(tags))\n\nnumbers = [3, 1, 3, 2, 1]\nunique = set(numbers)\nprint(unique, len(unique))\nprint(sorted(unique))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python sets.py",
+      "content": "3\nTrue False\n['data', 'python', 'sql']\n{1, 2, 3} 3\n[1, 2, 3]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Curly braces around plain values make a set; duplicates vanish on creation, which is why `len(tags)` is 3. Sets have no order, so they cannot be indexed, and the order you see when printing one is not something to rely on (it depends on how the items hash). Sort a set when you need a predictable sequence. `add()` and `discard()` change the set in place; `remove()` is like `discard()` except that it raises `KeyError` for a missing item."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "{} is an empty dict, not an empty set",
+      "text": "`{}` creates an empty **dictionary**, because dictionaries came first and own the braces. Write `set()` for an empty set. In the same spirit, `(42)` is just the number 42 in parentheses, and only `(42,)` is a one-item tuple."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Set algebra"
+    },
+    {
+      "type": "paragraph",
+      "text": "Sets shine when you compare groups: which skills do two job adverts share, which users signed up but never logged in, which files exist in one folder but not the other. Each operation has an operator and an equivalent method."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "set_ops.py",
+      "code": "frontend = {\"html\", \"css\", \"javascript\", \"python\"}\nbackend = {\"python\", \"sql\", \"javascript\", \"go\"}\n\nprint(sorted(frontend | backend))     # union: in either\nprint(sorted(frontend & backend))     # intersection: in both\nprint(sorted(frontend - backend))     # difference: in frontend only\nprint(sorted(frontend ^ backend))     # symmetric difference: in exactly one\nprint({\"html\", \"css\"} <= frontend)    # subset test\nprint(frontend.isdisjoint({\"rust\"}))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python set_ops.py",
+      "content": "['css', 'go', 'html', 'javascript', 'python', 'sql']\n['javascript', 'python']\n['css', 'html']\n['css', 'go', 'html', 'sql']\nTrue\nTrue"
+    },
+    {
+      "type": "paragraph",
+      "text": "The method forms `union()`, `intersection()`, `difference()` and `symmetric_difference()` accept any iterable, not only sets. Membership tests and these operations take roughly constant time per item, whereas `in` on a list scans every element, so convert a large list to a set before testing thousands of values against it."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which one should I use?"
+    },
+    {
+      "type": "table",
+      "headers": ["You need", "Use", "Because"],
+      "rows": [
+        [
+          "An ordered collection that grows and changes",
+          "`list`",
+          "Append, insert, remove and sort in place"
+        ],
+        [
+          "A fixed record of several values, or a dictionary key",
+          "`tuple`",
+          "Immutable, hashable, unpacks cleanly"
+        ],
+        [
+          "Unique items and fast membership tests",
+          "`set`",
+          "Duplicates removed, `in` is instant, set algebra"
+        ],
+        [
+          "Values looked up by a name",
+          "`dict`",
+          "Covered in the [next lesson](/tutorials/python/dictionaries)"
+        ]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-tuples-sets-immutable"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-tuples-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "tuples-sets",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "Converting to a set drops the duplicate 2s and 3s, leaving `{1, 2, 3}`, so the length is 3.",
+          "language": "python",
+          "code": "values = [1, 2, 2, 3, 3, 3]\nprint(len(set(values)))",
+          "options": ["`6`", "`3`", "`1`", "An error"],
+          "correctIndex": 1
+        },
+        {
+          "id": "py-tuples-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "tuples-sets",
+          "difficulty": "beginner",
+          "question": "Which expression creates a tuple containing the single item 5?",
+          "explanation": "The comma makes the tuple: `(5,)`. `(5)` is just the integer 5, `[5]` is a list, and `tuple(5)` fails because an int is not iterable.",
+          "options": ["`(5)`", "`(5,)`", "`[5]`", "`tuple(5)`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-tuples-sets-immutable"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "dictionaries"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    }
+  ],
+  "seo": {
+    "title": "Python Tuples and Sets – Unpacking, Unique Items, Set Math",
+    "description": "Learn Python tuples and sets: unpacking and immutability, tuples as dictionary keys, removing duplicates, membership tests and set union and intersection."
+  },
+  "updatedOn": "2026-11-16"
+}

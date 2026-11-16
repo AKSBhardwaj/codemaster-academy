@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "lazy",
+  "title": "Create a bean when needed",
+  "summary": "Spring Framework: Create a bean when needed. Remove @Lazy and compare the order.",
+  "introduction": "@Lazy delays this bean until it is requested. The print inside its factory shows when creation happens.",
+  "learningObjectives": [
+    "Create a bean when needed with Spring Framework",
+    "Remove @Lazy and compare the order"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Create a bean when needed"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Create a bean when needed",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\n\n@Configuration\nstatic class Config {\n@Bean @Lazy String message() { System.out.println(\"Made now\"); return \"Hello\"; }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(\"Before request\");\ncontext.getBean(\"message\");\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lazy factory has not run at the first print. Requesting its bean then prints Made now."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Before request\nMade now"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Remove @Lazy and compare the order."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Lazy creation delays work; it does not remove that work."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-lazy-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-lazy-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "prototype"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Create a bean when needed",
+    "description": "Spring Framework: Create a bean when needed. Remove @Lazy and compare the order. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

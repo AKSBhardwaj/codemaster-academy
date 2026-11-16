@@ -1,0 +1,144 @@
+{
+  "title": "JavaScript DOM Quick Guide",
+  "description": "Find a short explanation and a worked example for each idea in the JavaScript DOM course.",
+  "groups": [
+    {
+      "id": "first-steps",
+      "title": "First steps",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Find a page element",
+          "summary": "The DOM gives JavaScript a way to work with the parts of a page.",
+          "example": {
+            "language": "html",
+            "code": "<h1 id=\"title\">Reading club</h1>\n<script>\n  const title = document.querySelector(\"#title\");\n  console.log(title.textContent);\n</script>"
+          },
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "change-words-safely",
+          "name": "Change words safely",
+          "summary": "textContent replaces the text inside an element.",
+          "example": {
+            "language": "html",
+            "code": "<p id=\"message\">Waiting</p>\n<script>\n  document.querySelector(\"#message\").textContent = \"Welcome, Mia!\";\n</script>"
+          },
+          "lessonSlug": "change-words-safely"
+        },
+        {
+          "slug": "choose-several-elements",
+          "name": "Choose several elements",
+          "summary": "querySelectorAll gives a list of all matches.",
+          "example": {
+            "language": "html",
+            "code": "<ul><li>Seeds</li><li>Water</li></ul>\n<script>\n  document.querySelectorAll(\"li\").forEach((item) => {\n    item.textContent = \"Pack: \" + item.textContent;\n  });\n</script>"
+          },
+          "lessonSlug": "choose-several-elements"
+        },
+        {
+          "slug": "change-a-class",
+          "name": "Change a class",
+          "summary": "classList changes class names on an element.",
+          "example": {
+            "language": "html",
+            "code": "<style>.bright { background: gold; }</style>\n<p id=\"note\">Bring a book.</p>\n<script>\n  document.querySelector(\"#note\").classList.add(\"bright\");\n</script>"
+          },
+          "lessonSlug": "change-a-class"
+        }
+      ]
+    },
+    {
+      "id": "build-skills",
+      "title": "Build your skills",
+      "entries": [
+        {
+          "slug": "react-to-a-click",
+          "name": "React to a click",
+          "summary": "An event listener is a function that runs when an event happens.",
+          "example": {
+            "language": "html",
+            "code": "<button id=\"hello\">Say hello</button><p id=\"reply\"></p>\n<script>\n  document.querySelector(\"#hello\").addEventListener(\"click\", () => {\n    document.querySelector(\"#reply\").textContent = \"Hello, reader!\";\n  });\n</script>"
+          },
+          "lessonSlug": "react-to-a-click"
+        },
+        {
+          "slug": "read-a-form-value",
+          "name": "Read a form value",
+          "summary": "An input value is the text currently typed into a field.",
+          "example": {
+            "language": "html",
+            "code": "<form id=\"form\"><label for=\"name\">Name</label><input id=\"name\"><button>Greet</button></form><p id=\"reply\"></p>\n<script>\n  document.querySelector(\"#form\").addEventListener(\"submit\", (event) => {\n    event.preventDefault();\n    document.querySelector(\"#reply\").textContent = \"Hi, \" + document.querySelector(\"#name\").value;\n  });\n</script>"
+          },
+          "lessonSlug": "read-a-form-value"
+        },
+        {
+          "slug": "create-a-new-element",
+          "name": "Create a new element",
+          "summary": "createElement makes a new page part. append puts that part inside an existing element.",
+          "example": {
+            "language": "html",
+            "code": "<ul id=\"books\"></ul>\n<script>\n  const item = document.createElement(\"li\");\n  item.textContent = \"Moon Trip\";\n  document.querySelector(\"#books\").append(item);\n</script>"
+          },
+          "lessonSlug": "create-a-new-element"
+        },
+        {
+          "slug": "remove-a-page-part",
+          "name": "Remove a page part",
+          "summary": "The remove method takes an element out of the page.",
+          "example": {
+            "language": "html",
+            "code": "<p id=\"tip\">This tip can be closed.</p><button id=\"close\">Close tip</button>\n<script>\n  document.querySelector(\"#close\").addEventListener(\"click\", () => {\n    document.querySelector(\"#tip\")?.remove();\n  });\n</script>"
+          },
+          "lessonSlug": "remove-a-page-part"
+        }
+      ]
+    },
+    {
+      "id": "put-together",
+      "title": "Put it together",
+      "entries": [
+        {
+          "slug": "use-one-listener-for-a-list",
+          "name": "Use one listener for a list",
+          "summary": "Events often travel from a child to its parent.",
+          "example": {
+            "language": "html",
+            "code": "<div id=\"list\"><button data-book=\"Moon Trip\">Choose</button></div><p id=\"choice\"></p>\n<script>\n  document.querySelector(\"#list\").addEventListener(\"click\", (event) => {\n    const button = event.target.closest(\"button[data-book]\");\n    if (button) document.querySelector(\"#choice\").textContent = button.dataset.book;\n  });\n</script>"
+          },
+          "lessonSlug": "use-one-listener-for-a-list"
+        },
+        {
+          "slug": "keep-focus-visible",
+          "name": "Keep focus visible",
+          "summary": "Focus marks the control that receives keyboard input.",
+          "example": {
+            "language": "html",
+            "code": "<label for=\"search\">Find a book</label><input id=\"search\"><button id=\"start\">Go to search</button>\n<script>\n  document.querySelector(\"#start\").addEventListener(\"click\", () => {\n    document.querySelector(\"#search\").focus();\n  });\n</script>"
+          },
+          "lessonSlug": "keep-focus-visible"
+        },
+        {
+          "slug": "read-an-extra-data-value",
+          "name": "Read an extra data value",
+          "summary": "A data attribute stores a small extra value on an HTML element.",
+          "example": {
+            "language": "html",
+            "code": "<p id=\"book\" data-pages=\"40\">Garden Days</p>\n<script>\n  const pages = Number(document.querySelector(\"#book\").dataset.pages);\n  console.log(pages + 5);\n</script>"
+          },
+          "lessonSlug": "read-an-extra-data-value"
+        },
+        {
+          "slug": "build-a-tiny-counter",
+          "name": "Build a tiny counter",
+          "summary": "A page can keep a number in JavaScript and show it in an element.",
+          "example": {
+            "language": "html",
+            "code": "<button id=\"add\">Read one more</button><p>Books read: <output id=\"count\">0</output></p>\n<script>\n  let count = 0;\n  document.querySelector(\"#add\").addEventListener(\"click\", () => {\n    count += 1;\n    document.querySelector(\"#count\").textContent = String(count);\n  });\n</script>"
+          },
+          "lessonSlug": "build-a-tiny-counter"
+        }
+      ]
+    }
+  ]
+}

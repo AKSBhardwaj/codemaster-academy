@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "slug": "relationships",
+  "title": "Modelling Relationships",
+  "summary": "Model one-to-one, one-to-many and many-to-many relationships with embedding and references, join collections with $lookup, and handle the absence of foreign keys.",
+  "introduction": "Data is full of relationships: a customer places orders, an order contains products, a product carries tags that many products share. Relational databases model all of them the same way, with foreign keys and joins. MongoDB gives you a choice for each one, and the right choice depends on cardinality and on which side you query from. This lesson walks through the three shapes of relationship, shows where the reference lives in each, joins collections with $lookup when you really need to, and explains what the database does not do for you.",
+  "learningObjectives": [
+    "Choose embedding or referencing for one-to-one, one-to-many and many-to-many relationships",
+    "Decide which side of a relationship stores the reference",
+    "Join collections with the $lookup aggregation stage",
+    "Handle referential integrity in application code"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three shapes of relationship"
+    },
+    {
+      "type": "paragraph",
+      "text": "**One-to-one** data, such as a customer and their billing address, is almost always embedded: there is no reason to split a document that is always read whole. **One-to-many** is where the decisions start. If the *many* side is small and owned by the parent, like an order's lines, embed it. If it can grow without limit or is queried on its own, like a customer's orders, give each child a field holding the parent's `_id`. **Many-to-many**, such as customers and the products on their wishlists, is modelled with an array of ids on the side you query from most."
+    },
+    {
+      "type": "paragraph",
+      "text": "The rule for where the reference lives follows from size: the reference goes on the side that is bounded. An order can hold one `customerId`; a customer cannot sensibly hold an ever-growing array of order ids. Re-create the customers so that the ids match the orders from the [Aggregation](/tutorials/mongodb/aggregation) lesson, and add wishlists:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.customers.drop()\ndb.customers.insertMany([\n  { _id: 1, name: 'Ann Lee', email: 'ann@example.com', city: 'Lisbon', wishlist: [3, 5] },\n  { _id: 2, name: 'Ben Costa', email: 'ben@example.com', city: 'Porto', wishlist: [3] },\n  { _id: 3, name: 'Chloe Martin', email: 'chloe@example.com', city: 'Faro', wishlist: [] }\n])\ndb.orders.find({ customerId: 2 }, { status: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\ntrue\n{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }\n[ { _id: 1002, status: 'paid' }, { _id: 1005, status: 'paid' } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Listing a customer's orders is a plain `find` on the child collection, and an index on `customerId` keeps it fast however many orders accumulate. The many-to-many wishlist works in both directions with the array matching you already know: a scalar matches any element, and `$in` finds the products behind an array of ids."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.customers.find({ wishlist: 3 }, { _id: 0, name: 1 })\ndb.products.find({ _id: { $in: db.customers.findOne({ _id: 1 }).wishlist } }, { _id: 0, name: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { name: 'Ann Lee' }, { name: 'Ben Costa' } ]\n[ { name: '27-inch monitor' }, { name: 'USB-C hub' } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second query makes two round trips: one to read the wishlist, one to fetch the products. For a page that shows one customer that is fine. For a report over thousands of customers you want the server to do the joining, which is what `$lookup` is for."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Joining with $lookup"
+    },
+    {
+      "type": "paragraph",
+      "text": "`$lookup` is an aggregation stage that, for each input document, finds the documents in another collection whose `foreignField` equals the input's `localField`, and attaches them as an array under the name given by `as`. The result is always an array, even when at most one match is possible:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $match: { _id: 1002 } },\n  { $lookup: { from: 'customers', localField: 'customerId', foreignField: '_id', as: 'customer' } },\n  { $project: { customerId: 1, 'customer.name': 1 } }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { _id: 1002, customerId: 2, customer: [ { name: 'Ben Costa' } ] }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "To flatten that array into a plain embedded document, follow the lookup with `$unwind`. A report of paid orders with the customer's name and city then reads naturally, and `$project` can lift fields out of the joined document with field paths:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.orders.aggregate([\n  { $match: { status: 'paid' } },\n  { $lookup: { from: 'customers', localField: 'customerId', foreignField: '_id', as: 'customer' } },\n  { $unwind: '$customer' },\n  { $project: { name: '$customer.name', city: '$customer.city' } },\n  { $sort: { _id: 1 } }\n])"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[\n  { _id: 1001, name: 'Ann Lee', city: 'Lisbon' },\n  { _id: 1002, name: 'Ben Costa', city: 'Porto' },\n  { _id: 1004, name: 'Chloe Martin', city: 'Faro' },\n  { _id: 1005, name: 'Ben Costa', city: 'Porto' }\n]"
+    },
+    {
+      "type": "paragraph",
+      "text": "`$unwind` drops orders whose lookup array is empty, which is the behaviour of an inner join; pass `{ path: '$customer', preserveNullAndEmptyArrays: true }` to keep them, like a left join. `$lookup` also has a longer form with `let` and `pipeline` for joins on more than one field or with extra filtering of the foreign documents."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Running `$lookup` against a foreign field that has no index. For every input document the server searches the foreign collection, so without an index on `foreignField` a lookup over ten thousand orders performs ten thousand collection scans. `_id` is always indexed; any other join field needs `createIndex` before the pipeline goes anywhere near production."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Extended references: copy what you display"
+    },
+    {
+      "type": "paragraph",
+      "text": "A join on every read is a smell in a document database. The usual cure is the **extended reference** pattern: alongside the id, store the two or three fields of the related document that are shown with it, such as the customer's name on an order or the product's name and price on an order line. The order page then needs no lookup at all, and the copied price is even *more* correct than a join, because it records what the customer actually paid."
+    },
+    {
+      "type": "paragraph",
+      "text": "The cost is that copies can go stale. Decide per field: a product's name on a historic order should stay as it was, while a customer's display name on their recent orders may need an `updateMany` when they change it. Copy fields that are read far more often than they change, and keep the id so you can always fetch the live document."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "No foreign keys"
+    },
+    {
+      "type": "paragraph",
+      "text": "MongoDB does not enforce references. Deleting customer 2 leaves orders 1002 and 1005 pointing at nothing, and inserting an order for customer 99 succeeds. Integrity is the application's job: validate that a referenced document exists before writing, delete or archive children together with their parent, and use a [transaction](/tutorials/mongodb/transactions) when several collections must change together. Schema validation can at least guarantee that the reference field exists and has the right type."
+    },
+    {
+      "type": "table",
+      "caption": "Choosing a relationship model",
+      "headers": ["Relationship", "Default model", "Example"],
+      "rows": [
+        ["One-to-one", "Embed", "Customer and billing address"],
+        ["One-to-few, owned", "Embed an array", "Order and its lines"],
+        ["One-to-many, unbounded", "Child holds parent id", "Customer and orders"],
+        [
+          "Many-to-many",
+          "Array of ids on the side you query from",
+          "Customers and wishlisted products"
+        ],
+        ["Read-heavy join", "Extended reference", "Customer name copied onto each order"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Write a pipeline that starts from `customers`, looks up each customer's orders with `localField: '_id'` and `foreignField: 'customerId'`, and projects the name with the number of orders using `$size`. Chloe should show 1 and Ann 2, including her cancelled order."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-relationships-lookup-fields"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-relationships-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "relationships",
+          "difficulty": "intermediate",
+          "question": "A blog post can have thousands of comments that are listed on their own paginated page. How should comments be modelled?",
+          "explanation": "Unbounded and queried independently means a separate collection with a `postId` on each comment, indexed for fast paging. Embedding would hit the document size limit and rewrite the post on every comment.",
+          "options": [
+            "Embedded as an array inside the post document",
+            "In their own collection, each holding the post's `_id`",
+            "As an array of comment ids inside the post document",
+            "Copied into both the post and the author documents"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-relationships-qc-2",
+          "type": "true-false",
+          "lessonSlug": "relationships",
+          "difficulty": "beginner",
+          "question": "The field created by `$lookup` is always an array, even when only one document matches.",
+          "explanation": "`$lookup` attaches every matching foreign document as an array under the `as` name. Use `$unwind` to turn a single match into an embedded document.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-relationships-lookup-fields"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "schema-design"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "aggregation"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "joins"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Relationships – Embedding, References and $lookup",
+    "description": "Model one-to-one, one-to-many and many-to-many relationships in MongoDB, decide where references live, join collections with $lookup and keep data consistent."
+  },
+  "updatedOn": "2026-11-15"
+}

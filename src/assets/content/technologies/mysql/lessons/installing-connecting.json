@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "slug": "installing-connecting",
+  "title": "Installing MySQL and Connecting",
+  "summary": "Install MySQL 8.4 or 9 on Windows, macOS or Linux, or run it in Docker, then connect with the mysql client, run your first commands and fix the three classic connection errors.",
+  "introduction": "Before you can create a table you need a running server and a client to talk to it. This lesson compares the installation routes for each operating system, shows the fastest way to get a disposable server with Docker, and then connects with the mysql command-line client that every later lesson uses. You will also meet the connection mistakes that stop most beginners on day one: the wrong host, the wrong port, and the root account that refuses a perfectly good password.",
+  "learningObjectives": [
+    "Install MySQL Community Server with the package or container that fits your system",
+    "Connect to a server with the mysql client, choosing host, port, user and database",
+    "Run the first diagnostic commands and quit cleanly"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choosing how to install"
+    },
+    {
+      "type": "paragraph",
+      "text": "MySQL Community Server is free. Which download you pick depends on your operating system and on whether you want a permanent installation or a throwaway server for learning. All routes give you the same server and the same `mysql` client."
+    },
+    {
+      "type": "table",
+      "headers": ["Platform", "Route", "Notes"],
+      "rows": [
+        [
+          "Windows",
+          "MySQL Server MSI from dev.mysql.com",
+          "The MSI launches *MySQL Configurator*, which sets the root password, picks the port and registers a Windows service"
+        ],
+        [
+          "macOS",
+          "`brew install mysql@8.4` or the DMG package",
+          "Homebrew's plain `mysql` formula installs the latest 9.x innovation release instead"
+        ],
+        [
+          "Linux",
+          "MySQL APT or Yum repository",
+          "Ubuntu's own `mysql-server` package is still the 8.0 series; add Oracle's repository first to get 8.4 or 9.x"
+        ],
+        [
+          "Any",
+          "Docker image `mysql:8.4`",
+          "Nothing to uninstall later; data lives in the container or in a volume you attach"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "The fastest route: Docker"
+    },
+    {
+      "type": "paragraph",
+      "text": "If Docker is installed, one command downloads the image, initialises a data directory, sets the root password and starts the server. `-p 3306:3306` publishes the server's port on your machine so desktop tools can reach it; `-d` runs it in the background. `docker run` prints the new container's id and returns while the server spends a few seconds initialising. `docker exec -it` then runs the client *inside* the container, which avoids every networking question for now."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "docker run --name mysql-dev \\\n  -e MYSQL_ROOT_PASSWORD=change-me \\\n  -p 3306:3306 \\\n  -d mysql:8.4\n\ndocker exec -it mysql-dev mysql -u root -p"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Enter password:\nWelcome to the MySQL monitor.  Commands end with ; or \\g.\nYour MySQL connection id is 8\nServer version: 8.4.6 MySQL Community Server - GPL\n\nCopyright (c) 2000, 2025, Oracle and/or its affiliates.\n\nOracle is a registered trademark of Oracle Corporation and/or its\naffiliates. Other names may be trademarks of their respective\nowners.\n\nType 'help;' or '\\h' for help. Type '\\c' to clear the current input statement.\n\nmysql>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The connection id, patch version and copyright year in the banner depend on your build. The `mysql>` prompt means the server accepted the password and is waiting for SQL."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Linux packages"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Ubuntu and Debian the server starts as a system service as soon as the package is installed. `mysql_secure_installation` is an interactive script that sets a password policy, removes anonymous accounts and the `test` database and disables remote root login; answer yes to all of it even on a development machine, because it costs nothing and matches production."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "sudo apt update\nsudo apt install mysql-server\nsudo systemctl status mysql\nsudo mysql_secure_installation"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "● mysql.service - MySQL Community Server\n     Loaded: loaded (/usr/lib/systemd/system/mysql.service; enabled; preset: enabled)\n     Active: active (running) since Sat 2026-11-14 09:12:03 UTC; 2min 10s ago"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `systemctl status` lines above are the ones that matter: `enabled` means the service starts at boot and `active (running)` means it is listening now. Timestamps will be your own."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Connecting with the mysql client"
+    },
+    {
+      "type": "paragraph",
+      "text": "`mysql` is a small terminal program that sends what you type to a server and prints the answer. It takes the connection details as options; a database name as the last argument selects it immediately, which saves a `USE` statement."
+    },
+    {
+      "type": "table",
+      "headers": ["Option", "Meaning", "Example"],
+      "rows": [
+        ["`-u`", "Account name", "`-u root`"],
+        [
+          "`-p`",
+          "Prompt for the password; never type it on the command line, where it would land in your shell history",
+          "`-p`"
+        ],
+        [
+          "`-h`",
+          "Host. `localhost` uses the Unix socket on Linux and macOS; `127.0.0.1` forces a TCP connection",
+          "`-h 127.0.0.1`"
+        ],
+        ["`-P`", "Port (capital P); the default is 3306", "`-P 3307`"],
+        ["last argument", "Database to select on connect", "`mysql -u root -p roastery`"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "First commands"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two functions confirm who you are and what you are talking to. `USER()` reports the account and the host the server sees you connecting from, which becomes important in the [users lesson](/tutorials/mysql/users-privileges). Every statement ends with a semicolon; the client waits patiently on a new line until you type one."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT USER(), VERSION();"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+----------------+-----------+\n| USER()         | VERSION() |\n+----------------+-----------+\n| root@localhost | 8.4.6     |\n+----------------+-----------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Server settings are *system variables*, and `SHOW VARIABLES` reads them. The `LIKE` pattern narrows the list, because a server has several hundred."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SHOW VARIABLES LIKE 'port';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+---------------+-------+\n| Variable_name | Value |\n+---------------+-------+\n| port          | 3306  |\n+---------------+-------+\n1 row in set (0.01 sec)"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`\\s` (or `STATUS`) prints the connection details: user, server version, character set, uptime.",
+        "`\\G` instead of `;` prints each row vertically, which is the only readable way to look at wide rows.",
+        "`\\c` throws away a half-typed statement when you have lost track of quotes or brackets.",
+        "`\\q` or `exit` closes the connection and returns to the shell.",
+        "`help` lists every client command; `help contents` opens the server-side SQL help."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Three connection errors and their fixes"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ERROR 2002 (HY000): Can't connect to local MySQL server through socket` means no server is listening on the socket file. Either the service is not running (`sudo systemctl start mysql`) or it only listens on TCP, so add `-h 127.0.0.1`.",
+        "`ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)` means the password is wrong, or the account exists for a different host than the one you are connecting from.",
+        "`ERROR 1698 (28000): Access denied for user 'root'@'localhost'` on Debian and Ubuntu packages means root authenticates through the `auth_socket` plugin: only the system root user may log in, without a password. Run `sudo mysql`, then create a normal account for yourself as shown in [Users and Privileges](/tutorials/mysql/users-privileges)."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A container's localhost is not your localhost",
+      "text": "When you connect from your desktop to the port published by Docker, the server sees the connection arriving from the Docker bridge network, not from `localhost`. An account created as `'app'@'localhost'` is therefore rejected with error 1045 even though the password is right. Create accounts for containers as `'app'@'%'` (any host), or run the client inside the container with `docker exec`, as above."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Graphical tools"
+    },
+    {
+      "type": "paragraph",
+      "text": "The command line is enough for this tutorial, but you will also meet *MySQL Workbench*, Oracle's desktop client with a visual schema designer, and *MySQL Shell* (`mysqlsh`), a newer command-line client with SQL, JavaScript and Python modes that provides the parallel dump and load utilities used in [Backup and Restore](/tutorials/mysql/backup-restore). Editors such as VS Code and DBeaver connect too. All of them ask for the same four things: host, port, user and password."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep a scratch server",
+      "text": "A Docker container you can delete with `docker rm -f mysql-dev` is the ideal place to try every destructive statement in this tutorial. Recreate it in ten seconds and nothing you broke matters."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-connect-password-flag"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "installing-connecting-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "installing-connecting",
+          "difficulty": "beginner",
+          "question": "Which option sets the port when connecting with the mysql client?",
+          "explanation": "`-P` (capital) is the port; lower-case `-p` asks for the password. Mixing them up is a classic first-day mistake.",
+          "options": ["`-p 3307`", "`-P 3307`", "`--host 3307`", "`-u 3307`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "installing-connecting-qc-2",
+          "type": "true-false",
+          "lessonSlug": "installing-connecting",
+          "difficulty": "beginner",
+          "question": "On Ubuntu, `ERROR 1698 (28000): Access denied for user 'root'@'localhost'` usually means you typed the wrong password.",
+          "explanation": "Error 1698 comes from the auth_socket plugin: the packaged root account only accepts the system root user. Use `sudo mysql` and create your own account.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-connect-password-flag"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "databases-tables"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "users-privileges"
+    }
+  ],
+  "seo": {
+    "title": "Install MySQL 8.4 and Connect with the mysql Client",
+    "description": "Install MySQL 8.4 or 9 on Windows, macOS, Linux or Docker, connect with the mysql command-line client, run your first commands and fix common connection errors."
+  },
+  "updatedOn": "2026-11-15"
+}

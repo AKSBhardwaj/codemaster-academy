@@ -1,0 +1,126 @@
+{
+  "title": "OpenCV Examples",
+  "description": "Small OpenCV examples from the lessons. Each example links back to its explanation and practice task.",
+  "examples": [
+    {
+      "id": "introduction",
+      "title": "An image is a number array",
+      "description": "OpenCV is a library for working with images. A small colour image can be stored as rows, columns and three colour values per pixel.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((3, 4, 3), dtype=np.uint8)\nprint(image.shape)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "introduction"
+    },
+    {
+      "id": "know-the-bgr-channel-order",
+      "title": "Know the BGR channel order",
+      "description": "OpenCV commonly uses blue, green, red order for colour images. Each uint8 channel can hold a whole number from 0 to 255.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((1, 1, 3), dtype=np.uint8)\nimage[0, 0] = [255, 0, 0]\nprint(image[0, 0].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "know-the-bgr-channel-order"
+    },
+    {
+      "id": "convert-bgr-to-rgb",
+      "title": "Convert BGR to RGB",
+      "description": "A colour conversion can reorder channels so another tool reads them correctly. COLOR_BGR2RGB swaps the blue and red positions.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nbgr = np.array([[[255, 0, 0]]], dtype=np.uint8)\nrgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)\nprint(rgb[0, 0].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "convert-bgr-to-rgb"
+    },
+    {
+      "id": "make-a-grayscale-image",
+      "title": "Make a grayscale image",
+      "description": "Grayscale stores one brightness value per pixel. It drops colour detail while keeping a brightness view useful for some image operations.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nbgr = np.full((2, 3, 3), 100, dtype=np.uint8)\ngray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)\nprint(gray.shape, gray[0, 0].item())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "make-a-grayscale-image"
+    },
+    {
+      "id": "crop-by-rows-and-columns",
+      "title": "Crop by rows and columns",
+      "description": "Cropping selects a rectangle from an image. NumPy slices use start positions and stop just before the end positions.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.arange(20, dtype=np.uint8).reshape(4, 5)\ncrop = image[1:3, 2:5].copy()\nprint(crop.tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "crop-by-rows-and-columns"
+    },
+    {
+      "id": "resize-to-a-chosen-size",
+      "title": "Resize to a chosen size",
+      "description": "Resizing changes image dimensions. OpenCV resize takes the target size as width, height, unlike the row-first array shape.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((4, 6, 3), dtype=np.uint8)\nsmall = cv2.resize(image, (3, 2), interpolation=cv2.INTER_NEAREST)\nprint(small.shape)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "resize-to-a-chosen-size"
+    },
+    {
+      "id": "threshold-brightness",
+      "title": "Threshold brightness",
+      "description": "Thresholding turns brightness values into two groups. A binary threshold sets values above the limit to a maximum and the rest to zero.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\ngray = np.array([[50, 100, 150]], dtype=np.uint8)\n_, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)\nprint(binary.tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "threshold-brightness"
+    },
+    {
+      "id": "blur-nearby-pixels",
+      "title": "Blur nearby pixels",
+      "description": "Blurring combines neighbouring pixel values to soften local changes. A kernel is the small neighbourhood used for the calculation.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((5, 5), dtype=np.uint8)\nimage[2, 2] = 255\nblurred = cv2.GaussianBlur(image, (3, 3), 0)\nprint(int(blurred[2, 2]) < 255, int(blurred[2, 1]) > 0)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "blur-nearby-pixels"
+    },
+    {
+      "id": "find-candidate-edges",
+      "title": "Find candidate edges",
+      "description": "An edge is a strong image change, often in brightness. Canny finds candidate edges after several processing steps; an edge is not an object label.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((20, 20), dtype=np.uint8)\nimage[5:15, 5:15] = 255\nedges = cv2.Canny(image, 50, 150)\nprint(edges.shape, bool(np.any(edges)))",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "find-candidate-edges"
+    },
+    {
+      "id": "draw-with-image-coordinates",
+      "title": "Draw with image coordinates",
+      "description": "OpenCV drawing points use x, y order. x is the column and y is the row. A negative thickness can fill a shape.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.zeros((5, 5, 3), dtype=np.uint8)\ncv2.rectangle(image, (1, 1), (3, 3), (0, 255, 0), thickness=-1)\nprint(image[2, 2].tolist(), image[0, 0].tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "draw-with-image-coordinates"
+    },
+    {
+      "id": "use-a-mask-to-select-pixels",
+      "title": "Use a mask to select pixels",
+      "description": "A mask is an image that marks which pixels to include. In this operation, a nonzero mask value allows the source pixel through.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.array([[10, 20], [30, 40]], dtype=np.uint8)\nmask = np.array([[255, 0], [0, 255]], dtype=np.uint8)\nselected = cv2.bitwise_and(image, image, mask=mask)\nprint(selected.tolist())",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "use-a-mask-to-select-pixels"
+    },
+    {
+      "id": "save-a-small-local-picture",
+      "title": "Save a small local picture",
+      "description": "imwrite saves image pixels to a file. Check its return value and choose a practice path so you do not overwrite work you need.",
+      "language": "python",
+      "code": "import cv2\nimport numpy as np\n\nimage = np.full((10, 10, 3), [0, 255, 0], dtype=np.uint8)\nsaved = cv2.imwrite(\"practice-green.png\", image)\nprint(saved)",
+      "runnable": false,
+      "tags": ["beginner"],
+      "lessonSlug": "save-a-small-local-picture"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-inputs",
+  "title": "Read a query value",
+  "summary": "NestJS: Read a query value. Try /search with no query.",
+  "introduction": "@Query reads the query string. Visit GET /search?q=cat. Read the example, then check the result.",
+  "learningObjectives": ["Read a query value with NestJS", "Try /search with no query"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query value"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Read a query value",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"search\") search(@Query(\"q\") q: string = \"\") { return { term: q }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Query decorator supplies q from the URL. Its value becomes the term field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\":\"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /search with no query."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Validate query input before using it for important work."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-query-inputs-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-query-inputs-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "path-inputs"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Read a query value",
+    "description": "NestJS: Read a query value. Try /search with no query. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "expect-a-denied-write",
+  "title": "Expect a denied write",
+  "summary": "A read-only policy should reject browser writes.",
+  "introduction": "A read-only policy should reject browser writes. Your task: Confirm the table still has only its intended sample rows.",
+  "learningObjectives": [
+    "Confirm the table still has only its intended sample rows.",
+    "Explain the example for expect a denied write"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A read-only policy should reject browser writes. Testing the denied path confirms that the page cannot change public records accidentally."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the Supabase local CLI with its required container runtime, then run supabase init and supabase start in a practice project. Use the local URL and public key reported by its status command. SQL runs in the local database tools."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "import {supabase} from \"./client.js\";\nconst {error}=await supabase.from(\"cma_books\").insert({title:\"Not allowed\",pages:10});\nconsole.log(error?\"Write correctly denied\":\"Check your permissions\");",
+      "title": "Expect a denied write",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`from` chooses the Supabase table. The following query methods choose fields, filters and ordering for that request."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "With only the read permissions from this course, the insert is denied."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not broaden database permissions just to make this deliberate denied-write test pass as a write."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Confirm the table still has only its intended sample rows."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "supabase-expect-a-denied-write-check"
+    }
+  ],
+  "exerciseIds": ["supabase-expect-a-denied-write-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "supabase",
+      "slug": "count-without-requesting-every-row"
+    }
+  ],
+  "seo": {
+    "title": "Supabase: Expect a denied write",
+    "description": "A read-only policy should reject browser writes. Testing the denied path confirms that the page cannot change public records accidentally."
+  },
+  "updatedOn": "2026-11-16"
+}

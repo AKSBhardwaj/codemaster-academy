@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "integer-paths",
+  "title": "Read a checked path number",
+  "summary": "Django: Read a checked path number. Try /double/cat/.",
+  "introduction": "The int converter turns a matching path part into a Python int. Open GET /double/4/.",
+  "learningObjectives": ["Read a checked path number with Django", "Try /double/cat/"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install django~=5.2, run django-admin startproject school, then enter school. Replace school/urls.py with each example and run python manage.py runserver 127.0.0.1:8000. These view examples need no database tables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a checked path number"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Read a checked path number",
+      "code": "from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed\nfrom django.shortcuts import redirect\nfrom django.urls import path, reverse\nimport json\ndef twice(request, n):\n    return JsonResponse({\"answer\": n * 2})\nurlpatterns = [\npath(\"double/<int:n>/\", twice),\n]\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The int converter matches 4 and passes integer n to the view. The multiplication returns 8."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\": 8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try /double/cat/."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A nonmatching converter produces 404 before the view runs."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "django-integer-paths-check"
+    }
+  ],
+  "exerciseIds": ["django-integer-paths-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "django",
+      "slug": "json"
+    }
+  ],
+  "seo": {
+    "title": "Django: Read a checked path number",
+    "description": "Django: Read a checked path number. Try /double/cat/. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

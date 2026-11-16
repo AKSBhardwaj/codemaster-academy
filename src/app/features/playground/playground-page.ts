@@ -10,7 +10,11 @@ import { PlaygroundPage } from './playground';
   selector: 'cma-playground-page',
   imports: [PageHeaderComponent, PlaygroundPage],
   template: `
-    <cma-page-header eyebrow="Playground" title="Code playground" lead="Write and run HTML, CSS, JavaScript and SQL safely in your browser. Start from a template or open an example from any lesson." />
+    <cma-page-header
+      eyebrow="Playground"
+      title="Code playground"
+      lead="Write and run HTML, CSS, JavaScript and SQL safely in your browser. Start from a template or open an example from any lesson."
+    />
     <div class="container-xxl py-4">
       <cma-playground [lang]="lang()" [template]="template()" />
     </div>

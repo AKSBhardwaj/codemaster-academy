@@ -1,0 +1,200 @@
+{
+  "id": "rest-api-quiz",
+  "title": "REST API Development Quiz",
+  "description": "Review the 12 starter lessons. The questions name the example to revisit. Take your time, use the lessons, and read the reason after each answer.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "rest-api-review-1",
+      "lessonSlug": "resources",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\"}",
+      "question": "A resource is a thing an API exposes. /books/1 names one book, while /books names a collection. What result does this example give after the setup steps?",
+      "explanation": "The final path segment identifies book 1. The 200 status and JSON body show that the read succeeded. Use resource names clearly; a URL should identify what is being addressed.",
+      "options": [
+        "Book 2 is returned with status 200.",
+        "Book 0 is returned with status 200.",
+        "Book 1 is returned with status 200."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-2",
+      "lessonSlug": "get",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"title\":\"Moon Trip\"}]",
+      "question": "GET asks to read a resource. Reading this collection does not add or remove books. What result does this example give after the setup steps?",
+      "explanation": "The collection URL returns an array. The worked response contains one resource in that array. Do not design a GET route that deletes a record.",
+      "options": [
+        "a list with one book is returned.",
+        "A list with one book is returned.",
+        "A LIST WITH ONE BOOK IS RETURNED."
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "rest-api-review-3",
+      "lessonSlug": "post",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "POST /books HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Sun Trip\"}\n\nHTTP/1.1 201 Created\nLocation: /books/2\nContent-Type: application/json\n\n{\"id\":2,\"title\":\"Sun Trip\"}",
+      "question": "POST sends data for the collection to handle. A successful creation often returns 201 and a Location header. What result does this example give after the setup steps?",
+      "explanation": "The server assigns id 2 and advertises its URL in Location. The 201 status tells the client creation succeeded. A repeated POST can create another item unless the API provides a duplicate-prevention rule.",
+      "options": [
+        "Book 0 is created; its location is /books/2.",
+        "Book 2 is created; its location is /books/2.",
+        "Book 3 is created; its location is /books/2."
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "rest-api-review-4",
+      "lessonSlug": "put",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "PUT /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}",
+      "question": "PUT supplies the desired representation at a known URL. This example replaces the book title and page count. What result does this example give after the setup steps?",
+      "explanation": "The supplied representation includes pages 30. Replacing the resource makes that the stored value. Know whether the API treats omitted fields as removed when using PUT.",
+      "options": [
+        "Book 2 now has 30 pages.",
+        "Book 0 now has 30 pages.",
+        "Book 1 now has 30 pages."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-5",
+      "lessonSlug": "patch",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "PATCH /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/merge-patch+json\n\n{\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}",
+      "question": "PATCH can send only changes. This example uses JSON Merge Patch to change the page count. What result does this example give after the setup steps?",
+      "explanation": "The merge-patch document contains only pages. Its rule updates that field while leaving the title intact. PATCH formats have different rules; name the media type you support.",
+      "options": [
+        "Only the page count is changed to 30.",
+        "Only the page count is changed to 31.",
+        "Only the page count is changed to 0."
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "rest-api-review-6",
+      "lessonSlug": "delete",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "DELETE /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 204 No Content",
+      "question": "DELETE asks to remove the target resource. A 204 success response has no body. What result does this example give after the setup steps?",
+      "explanation": "The status is 204, which deliberately has no content body. A later read must use a separate request. Do not attach a JSON body to a 204 response.",
+      "options": [
+        "THE BOOK IS REMOVED; THE RESPONSE BODY IS EMPTY.",
+        "the book is removed; the response body is empty.",
+        "The book is removed; the response body is empty."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-7",
+      "lessonSlug": "not-found",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books/99 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 404 Not Found\nContent-Type: application/json\n\n{\"error\":\"Book not found\"}",
+      "question": "404 means the requested resource was not found. A short error body can help a client explain the problem. What result does this example give after the setup steps?",
+      "explanation": "The path names a resource the server cannot find. The response status and error body both describe that failure. Do not return 200 for every outcome; clients use status codes.",
+      "options": [
+        "The API reports a missing book with status 404.",
+        "The API reports a missing book with status 405.",
+        "The API reports a missing book with status 0."
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "rest-api-review-8",
+      "lessonSlug": "filters",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books?colour=blue HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"colour\":\"blue\"}]",
+      "question": "A query string can describe a filter. The exact parameter names belong to the API design. What result does this example give after the setup steps?",
+      "explanation": "The query parameter says colour=blue. The worked result includes a book satisfying that filter. Document filter rules rather than making clients guess them.",
+      "options": [
+        "Only matching red books are returned.",
+        "only matching blue books are returned.",
+        "Only matching blue books are returned."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-9",
+      "lessonSlug": "pagination",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books?limit=1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"items\":[{\"id\":1}],\"next\":\"/books?after=1&limit=1\"}",
+      "question": "Pagination divides a large collection into smaller pieces. This example returns a next link. What result does this example give after the setup steps?",
+      "explanation": "limit=1 asks for one result. The next field gives a URL that continues after that item. Use a stable ordering so items do not jump between pages.",
+      "options": [
+        "THE CLIENT GETS ONE ITEM AND A LINK FOR THE NEXT PAGE.",
+        "the client gets one item and a link for the next page.",
+        "The client gets one item and a link for the next page."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-10",
+      "lessonSlug": "content-types",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1}",
+      "question": "Content-Type says what format a body uses. Accept says which response formats the client can understand. What result does this example give after the setup steps?",
+      "explanation": "Accept asks for JSON. The response Content-Type confirms that its body uses JSON. JSON text needs valid quoting; a header alone does not make invalid text valid JSON.",
+      "options": [
+        "The response body is JSON.",
+        "THE RESPONSE BODY IS JSON.",
+        "the response body is json."
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "rest-api-review-11",
+      "lessonSlug": "idempotence",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "PUT /books/1 HTTP/1.1\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\n# Send the same PUT a second time.\n# Final stored representation:\n{\"title\":\"Moon Trip\",\"pages\":30}",
+      "question": "An idempotent operation has the same intended final effect when repeated. Setting pages to 30 twice leaves it at 30. What result does this example give after the setup steps?",
+      "explanation": "Both requests set the same representation at the same URL. Repeating the assignment does not add another 30 pages. Same final effect does not require every repeated response to have the same status.",
+      "options": [
+        "The page count remains 31 after both PUT requests.",
+        "The page count remains 0 after both PUT requests.",
+        "The page count remains 30 after both PUT requests."
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "rest-api-review-12",
+      "lessonSlug": "conditional-get",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\nIf-None-Match: \"book-v1\"\n\nHTTP/1.1 304 Not Modified\nETag: \"book-v1\"",
+      "question": "An ETag labels a version. If-None-Match asks whether that version is still current. A 304 has no new body. What result does this example give after the setup steps?",
+      "explanation": "The supplied ETag matches the current version. The 304 tells the client its saved representation is still usable. A client needs a cached body to reuse; 304 does not contain the resource data.",
+      "options": [
+        "The client may reuse its cached book-v0 body.",
+        "The client may reuse its cached book-v1 body.",
+        "The client may reuse its cached book-v2 body."
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

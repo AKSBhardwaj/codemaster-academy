@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "search-one-step-at-a-time",
+  "title": "Search one step at a time",
+  "summary": "Breadth-first search checks nearer places before farther places. A queue holds places still waiting to be checked.",
+  "introduction": "Breadth-first search checks nearer places before farther places. A queue holds places still waiting to be checked. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain search one step at a time",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Breadth-first search checks nearer places before farther places. A queue holds places still waiting to be checked."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from collections import deque\nrooms = {\"class\": [\"hall\"], \"hall\": [\"class\", \"library\"], \"library\": [\"hall\"]}\nqueue = deque([\"class\"])\nseen = {\"class\"}\norder = []\nwhile queue:\n    room = queue.popleft()\n    order.append(room)\n    for next_room in rooms[room]:\n        if next_room not in seen:\n            seen.add(next_room)\n            queue.append(next_room)\nprint(order)",
+      "title": "Search one step at a time",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The output visits class, hall, then library. popleft takes the oldest waiting room. seen stops the search from looping back forever."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Explain why class is not added again from hall.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Breadth-first search finds fewest moves only when every move has equal cost."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "artificial-intelligence-search-one-step-at-a-time"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Artificial Intelligence further reading](https://ai4k12.org/resources/)."
+    }
+  ],
+  "exerciseIds": ["artificial-intelligence-search-one-step-at-a-time"],
+  "relatedLessons": [
+    {
+      "technologySlug": "artificial-intelligence",
+      "slug": "a-helpful-guess-can-guide-search"
+    }
+  ],
+  "seo": {
+    "title": "AI: Search one step at a time",
+    "description": "Learn about search one step at a time in Artificial Intelligence. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

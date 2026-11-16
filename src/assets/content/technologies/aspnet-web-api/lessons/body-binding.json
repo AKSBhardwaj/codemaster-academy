@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "body-binding",
+  "title": "Read a typed body",
+  "summary": "ASP.NET Web API: Read a typed body. Post a different title.",
+  "introduction": "FromBody reads a JSON request body. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+  "learningObjectives": ["Read a typed body with ASP.NET Web API", "Post a different title"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install the .NET SDK. Run dotnet new web -n SchoolApi and enter it. Replace Program.cs with one example. Run dotnet run --urls http://127.0.0.1:8000. These examples use controllers without a database."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a typed body"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "title": "Read a typed body",
+      "code": "using Microsoft.AspNetCore.Mvc;\nusing System.ComponentModel.DataAnnotations;\nvar builder = WebApplication.CreateBuilder(args);\nbuilder.Services.AddControllers();\nvar app = builder.Build();\napp.MapControllers();\napp.Run();\n[ApiController]\n[Route(\"\")]\npublic class LessonController : ControllerBase {\n[HttpPost(\"books\")] public IActionResult Create([FromBody] BookInput book) => Ok(book);\n}\npublic record BookInput(string Title);\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The JSON title is bound to the record. Ok returns that typed value as JSON."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Post a different title."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Send the correct Content-Type so JSON can be parsed."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "aspnet-web-api-body-binding-check"
+    }
+  ],
+  "exerciseIds": ["aspnet-web-api-body-binding-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "aspnet-web-api",
+      "slug": "query-binding"
+    }
+  ],
+  "seo": {
+    "title": "ASP.NET Web API: Read a typed body",
+    "description": "ASP.NET Web API: Read a typed body. Post a different title. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

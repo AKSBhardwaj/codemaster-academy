@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "wait-for-a-condition",
+  "title": "Wait for a condition",
+  "summary": "An explicit wait checks for a condition until a time limit. It is more useful than always sleeping a fixed length.",
+  "introduction": "An explicit wait checks for a condition until a time limit. It is more useful than always sleeping a fixed length. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain wait for a condition",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An explicit wait checks for a condition until a time limit. It is more useful than always sleeping a fixed length."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<p id=\"ready\">Ready</p>'))\n    from selenium.webdriver.support.ui import WebDriverWait\n    from selenium.webdriver.support import expected_conditions as EC\n    item = WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.ID, \"ready\")))\n    assert item.text == \"Ready\"\nfinally:\n    driver.quit()",
+      "title": "Wait for a condition",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The wait returns when the Ready element is visible, or fails after its limit."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Wait for a missing ID and read the failure.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not use long fixed sleeps to hide a timing problem."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "selenium-wait-for-a-condition"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Selenium further reading](https://www.selenium.dev/documentation/webdriver/)."
+    }
+  ],
+  "exerciseIds": ["selenium-wait-for-a-condition"],
+  "relatedLessons": [
+    {
+      "technologySlug": "selenium",
+      "slug": "press-a-keyboard-key"
+    }
+  ],
+  "seo": {
+    "title": "Selenium: Wait for a condition",
+    "description": "Learn about wait for a condition in Selenium. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

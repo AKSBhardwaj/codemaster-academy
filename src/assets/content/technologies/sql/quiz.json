@@ -1,0 +1,172 @@
+{
+  "id": "sql-quiz",
+  "title": "SQL Quiz",
+  "description": "Fourteen questions covering the whole SQL tutorial: querying and filtering, sorting, changing data, tables and constraints, joins, aggregates, grouping, subqueries and transactions.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "sql-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which statement reads rows from a table?",
+      "explanation": "SELECT is the query statement. INSERT adds rows, CREATE TABLE defines structure and COMMIT ends a transaction.",
+      "options": ["`SELECT`", "`INSERT`", "`CREATE TABLE`", "`COMMIT`"],
+      "correctIndex": 0
+    },
+    {
+      "id": "sql-q-02",
+      "type": "true-false",
+      "lessonSlug": "select",
+      "difficulty": "beginner",
+      "question": "`SELECT DISTINCT country FROM customers` returns each country once, even if several customers share it.",
+      "explanation": "DISTINCT removes duplicate rows from the result; with a single column that means each value appears once.",
+      "correct": true
+    },
+    {
+      "id": "sql-q-03",
+      "type": "multiple-choice",
+      "lessonSlug": "where",
+      "difficulty": "beginner",
+      "question": "Which operator means *not equal* in standard SQL?",
+      "explanation": "`<>` is the standard not-equal operator; `!=` is also accepted by every major database. The other spellings are invalid.",
+      "options": ["`<>`", "`=!`", "`NOT =`", "`~=`"],
+      "correctIndex": 0
+    },
+    {
+      "id": "sql-q-04",
+      "type": "fill-blank",
+      "lessonSlug": "sorting-limiting",
+      "difficulty": "beginner",
+      "question": "`ORDER BY price ___` sorts the most expensive product first.",
+      "explanation": "DESC sorts in descending order; ASC, the default, sorts ascending.",
+      "answers": ["DESC"],
+      "caseSensitive": false
+    },
+    {
+      "id": "sql-q-05",
+      "type": "predict-output",
+      "lessonSlug": "filtering-operators",
+      "difficulty": "intermediate",
+      "question": "What does this query return?",
+      "explanation": "BETWEEN includes both ends. Sticky notes cost exactly 2.75 and Notebook exactly 4.5, so both are counted: 2.",
+      "language": "sql",
+      "code": "SELECT COUNT(*) AS n\nFROM products\nWHERE price BETWEEN 2.75 AND 4.5;",
+      "options": ["0", "1", "2", "3"],
+      "correctIndex": 2
+    },
+    {
+      "id": "sql-q-06",
+      "type": "true-false",
+      "lessonSlug": "insert",
+      "difficulty": "beginner",
+      "question": "`INSERT INTO products VALUES (...)` without a column list depends on the table's column order and needs a value for every column.",
+      "explanation": "Without a column list the values are matched to the columns positionally, including id. Listing the columns makes the statement robust to schema changes.",
+      "correct": true
+    },
+    {
+      "id": "sql-q-07",
+      "type": "find-error",
+      "lessonSlug": "update-delete",
+      "difficulty": "beginner",
+      "question": "This statement fails with a syntax error. What is missing?",
+      "explanation": "UPDATE needs SET before the column assignments: `UPDATE products SET price = 10 WHERE id = 1`. SQLite reports *near \"price\": syntax error*.",
+      "language": "sql",
+      "code": "UPDATE products price = 10 WHERE id = 1;",
+      "options": [
+        "The `SET` keyword before the assignment",
+        "A `FROM` clause",
+        "Parentheses around the assignment",
+        "A `VALUES` keyword"
+      ],
+      "correctIndex": 0,
+      "errorLine": 1
+    },
+    {
+      "id": "sql-q-08",
+      "type": "multiple-choice",
+      "lessonSlug": "create-table",
+      "difficulty": "beginner",
+      "question": "How does SQLite store the boolean value `TRUE`?",
+      "explanation": "SQLite has no boolean type; TRUE and FALSE are aliases for the integers 1 and 0. PostgreSQL has a real BOOLEAN type and MySQL uses TINYINT(1).",
+      "options": [
+        "As the text 'true'",
+        "As the integer 1",
+        "As a dedicated BOOLEAN type",
+        "As NULL"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-q-09",
+      "type": "multiple-choice",
+      "lessonSlug": "constraints",
+      "difficulty": "intermediate",
+      "question": "Which constraint guarantees that `orders.customer_id` always refers to an existing customer?",
+      "explanation": "A foreign key links a column to another table's primary key and rejects values that do not exist there. In SQLite it is enforced only with PRAGMA foreign_keys = ON.",
+      "options": ["`UNIQUE`", "`CHECK`", "`FOREIGN KEY ... REFERENCES customers(id)`", "`DEFAULT`"],
+      "correctIndex": 2
+    },
+    {
+      "id": "sql-q-10",
+      "type": "multiple-choice",
+      "lessonSlug": "joins",
+      "difficulty": "intermediate",
+      "question": "Which join returns every customer, including those without orders, with NULLs for the missing order columns?",
+      "explanation": "LEFT JOIN keeps all rows of the left table (customers) and fills the right table's columns with NULL when there is no match. INNER JOIN drops unmatched rows and CROSS JOIN pairs every row with every row.",
+      "options": ["`INNER JOIN`", "`LEFT JOIN`", "`CROSS JOIN`", "`SELF JOIN`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-q-11",
+      "type": "predict-output",
+      "lessonSlug": "aggregates",
+      "difficulty": "intermediate",
+      "question": "What does this query return in SQLite?",
+      "explanation": "Both operands are integers, so SQLite (like PostgreSQL and SQL Server) performs integer division and truncates to 3. Use 7 / 2.0 for 3.5. MySQL and Oracle are the exceptions and return 3.5.",
+      "language": "sql",
+      "code": "SELECT 7 / 2 AS result;",
+      "options": ["3.5", "3", "4", "An error"],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-q-12",
+      "type": "true-false",
+      "lessonSlug": "group-by-having",
+      "difficulty": "beginner",
+      "question": "HAVING filters groups after aggregation, while WHERE filters individual rows before grouping.",
+      "explanation": "That is exactly the division of labour: WHERE runs before GROUP BY and cannot see aggregates; HAVING runs after and can.",
+      "correct": true
+    },
+    {
+      "id": "sql-q-13",
+      "type": "multiple-choice",
+      "lessonSlug": "subqueries",
+      "difficulty": "intermediate",
+      "question": "In `WHERE price > (SELECT AVG(price) FROM products)`, what kind of subquery is used?",
+      "explanation": "The inner query returns a single value (the average), computed once and compared against every row. It does not reference the outer row, so it is not correlated.",
+      "options": [
+        "A correlated subquery",
+        "A scalar subquery returning one value",
+        "A derived table",
+        "A recursive CTE"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "sql-q-14",
+      "type": "multiple-choice",
+      "lessonSlug": "transactions",
+      "difficulty": "beginner",
+      "question": "What does `ROLLBACK` do?",
+      "explanation": "ROLLBACK undoes every change since BEGIN (or since a savepoint with ROLLBACK TO). COMMIT is the statement that saves.",
+      "options": [
+        "Saves all changes made since BEGIN",
+        "Discards all changes made since BEGIN",
+        "Deletes the table",
+        "Starts a new transaction"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

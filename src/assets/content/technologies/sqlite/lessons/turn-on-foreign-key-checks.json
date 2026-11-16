@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "turn-on-foreign-key-checks",
+  "title": "Turn on foreign-key checks",
+  "summary": "A foreign key links a child record to a parent id.",
+  "introduction": "A foreign key links a child record to a parent id. Your task: Explain why reader 2 would not be a valid reference yet.",
+  "learningObjectives": [
+    "Explain why reader 2 would not be a valid reference yet.",
+    "Explain the example for turn on foreign-key checks"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A foreign key links a child record to a parent id. SQLite needs foreign-key checking enabled for a connection to enforce the link."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use the SQL Run button for examples marked runnable. They use this site's in-browser SQLite database and sample-only table names. A Python example needs Python on your own computer instead."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "PRAGMA foreign_keys=ON;\nDROP TABLE IF EXISTS cma_sqlite_loans;\nDROP TABLE IF EXISTS cma_sqlite_readers;\nCREATE TABLE cma_sqlite_readers(id INTEGER PRIMARY KEY);\nCREATE TABLE cma_sqlite_loans(reader_id INTEGER REFERENCES cma_sqlite_readers(id));\nINSERT INTO cma_sqlite_readers VALUES(1);\nINSERT INTO cma_sqlite_loans VALUES(1);\nSELECT reader_id FROM cma_sqlite_loans;",
+      "title": "Turn on foreign-key checks",
+      "runnable": true
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key.",
+        "`PRAGMA` is SQLite's command family for connection settings or inspection. Check the specific pragma's effect.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The valid child row refers to reader 1. A row referring to a missing parent would be rejected with checks enabled."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Set the pragma before starting a transaction. Confirm the setting for each new connection."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why reader 2 would not be a valid reference yet."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sqlite-turn-on-foreign-key-checks-check"
+    }
+  ],
+  "exerciseIds": ["sqlite-turn-on-foreign-key-checks-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sqlite",
+      "slug": "protect-a-positive-number"
+    }
+  ],
+  "seo": {
+    "title": "SQLite: Turn on foreign-key checks",
+    "description": "A foreign key links a child record to a parent id. SQLite needs foreign-key checking enabled for a connection to enforce the link."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "slug": "components",
+  "title": "Components",
+  "summary": "The anatomy of an Angular component: decorator, selector, template, styles and class, how components nest, how styles are scoped and the lifecycle hooks you will actually use.",
+  "introduction": "A component is the unit of Angular: a class that owns a piece of the page, the HTML that draws it and the styles that dress it. Every screen you build is a tree of components passing data down and events up. This lesson takes a component apart, shows how to use one inside another, explains why a component's CSS cannot leak into its neighbours, and introduces the two lifecycle hooks that most components need.",
+  "learningObjectives": [
+    "Write a component with a selector, template, styles and state",
+    "Use a component inside another by importing it",
+    "Explain view encapsulation and when ngOnInit and ngOnDestroy run"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Anatomy of a component"
+    },
+    {
+      "type": "paragraph",
+      "text": "Three things make a class a component: the `@Component` decorator, which carries the metadata; a **selector**, which is the tag name other templates use; and a **template**, which is the HTML Angular renders. The class holds the state and the methods the template calls."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/user-card/user-card.ts",
+      "code": "import { Component, computed, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-user-card',\n  template: `\n    <article class=\"card\">\n      <h2>{{ name() }}</h2>\n      <p>{{ initials() }} · joined {{ year }}</p>\n      <button (click)=\"toggle()\">{{ expanded() ? 'Less' : 'More' }}</button>\n    </article>\n  `,\n  styles: `\n    .card { border: 1px solid #ccc; padding: 1rem; border-radius: 8px; }\n    h2 { margin: 0 0 0.5rem; }\n  `,\n})\nexport class UserCard {\n  readonly name = signal('Ada Lovelace');\n  readonly year = 2024;\n  readonly expanded = signal(false);\n\n  readonly initials = computed(() =>\n    this.name()\n      .split(' ')\n      .map((part) => part[0])\n      .join(''),\n  );\n\n  toggle(): void {\n    this.expanded.update((open) => !open);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "Ada Lovelace\nAL · joined 2024\n[ More ]\n\nAfter clicking the button:\nAda Lovelace\nAL · joined 2024\n[ Less ]"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`name` and `expanded` are signals, so the template updates when they change. `year` is a plain property; that works too, but Angular only knows it changed because the click handler ran, not because the value did.",
+        "`initials` is a `computed()`: a value derived from other signals that recalculates only when `name` changes.",
+        "`styles` holds CSS that applies to this component only (more on that below).",
+        "Methods called from the template, such as `toggle()`, are ordinary class methods."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inline or separate files?"
+    },
+    {
+      "type": "paragraph",
+      "text": "`template` and `styles` keep everything in one file, which is ideal for small components. For larger ones use `templateUrl: './user-card.html'` and `styleUrl: './user-card.css'`; the paths are relative to the `.ts` file and `ng generate component` creates this layout by default. Angular compiles both forms identically, so choose by readability: once a template no longer fits on one screen, move it out."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Using a component inside another"
+    },
+    {
+      "type": "paragraph",
+      "text": "A component can only use tags that it knows about. Add the child class to the parent's `imports` array, then write its selector in the template. Self-closing tags such as `<app-user-card />` are allowed for components."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/app.ts",
+      "code": "import { Component } from '@angular/core';\nimport { UserCard } from './user-card/user-card';\n\n@Component({\n  selector: 'app-root',\n  imports: [UserCard],\n  template: `\n    <h1>Team</h1>\n    <app-user-card />\n    <app-user-card />\n  `,\n})\nexport class App {}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "Team\n\nAda Lovelace\nAL · joined 2024\n[ More ]\n\nAda Lovelace\nAL · joined 2024\n[ More ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each `<app-user-card />` is a separate **instance** with its own signals: clicking *More* on the first card does not expand the second. Right now both cards show the same person because the data lives inside the component; the [inputs and outputs lesson](/tutorials/angular/inputs-outputs) shows how a parent passes different data to each child."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: forgetting the import",
+      "text": "Use `<app-user-card />` without adding `UserCard` to `imports` and the build fails with `NG8001: 'app-user-card' is not a known element`. The message continues with the fix: verify that the component is included in the `@Component.imports` of the parent. Every component, directive and pipe a template uses must be listed there."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "ng serve, when the import is missing",
+      "content": "✘ [ERROR] NG8001: 'app-user-card' is not a known element:\n1. If 'app-user-card' is an Angular component, then verify that it is included in the '@Component.imports' of this component.\n2. If 'app-user-card' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]\n\n    src/app/app.ts:8:4:\n      8 │     <app-user-card />\n        ╵     ~~~~~~~~~~~~~~~~~"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Styles stay inside the component"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `h2` rule in `UserCard` does not affect the `<h1>` in `App`, nor any `<h2>` elsewhere. Angular's default **view encapsulation** (`Emulated`) adds a generated attribute such as `_ngcontent-ng-c123` to every element of the component's template and rewrites each selector to require it. Styles therefore apply only to the component's own elements, and global styles in `src/styles.css` still apply everywhere."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "What the browser receives for the h2 rule",
+      "code": "h2[_ngcontent-ng-c2088726403] {\n  margin: 0 0 0.5rem;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two selectors are special. `:host` targets the component's own element (`<app-user-card>`), which is useful for `display: block` or a border around the whole component. `::ng-deep` punches through encapsulation to style children; it is deprecated and best avoided because it makes styles leak in exactly the way encapsulation prevents."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "src/app/user-card/user-card.css",
+      "code": ":host {\n  display: block;\n  max-width: 20rem;\n}\n\n:host(.highlight) {\n  outline: 2px solid gold;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Lifecycle hooks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Angular creates a component, renders it, updates it as state changes and eventually destroys it. You can run code at these moments by implementing lifecycle hooks. Most components need at most two."
+    },
+    {
+      "type": "table",
+      "headers": ["Hook", "When it runs", "Typical use"],
+      "rows": [
+        [
+          "constructor and field initialisers",
+          "When the class is instantiated, before inputs have values",
+          "Injecting services, creating signals"
+        ],
+        [
+          "`ngOnInit()`",
+          "Once, after the first inputs are set",
+          "Work that needs input values, such as starting a timer"
+        ],
+        [
+          "`ngOnDestroy()`",
+          "Just before the component is removed",
+          "Stopping timers, closing connections"
+        ],
+        [
+          "`afterNextRender()` / `afterEveryRender()`",
+          "After the DOM has been written",
+          "Browser-only work such as measuring an element"
+        ]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/clock/clock.ts",
+      "code": "import { Component, OnDestroy, OnInit, signal } from '@angular/core';\n\n@Component({\n  selector: 'app-clock',\n  template: `<p>Seconds on page: {{ seconds() }}</p>`,\n})\nexport class Clock implements OnInit, OnDestroy {\n  readonly seconds = signal(0);\n  private timer: ReturnType<typeof setInterval> | undefined;\n\n  ngOnInit(): void {\n    this.timer = setInterval(() => this.seconds.update((s) => s + 1), 1000);\n  }\n\n  ngOnDestroy(): void {\n    clearInterval(this.timer);\n  }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser, after three seconds",
+      "content": "Seconds on page: 3"
+    },
+    {
+      "type": "paragraph",
+      "text": "The interval updates a signal, so the paragraph re-renders every second without any extra wiring. Clearing it in `ngOnDestroy` matters: a timer that outlives its component keeps running, updates state nobody displays and, if it holds a reference to the component, prevents garbage collection. Angular also offers `DestroyRef` for the same job inside services and functions: `inject(DestroyRef).onDestroy(() => clearInterval(timer))`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep components small",
+      "text": "A component that fetches data, filters it, renders a table and handles a form is four components waiting to be split. Small components with one job are easier to test, reuse and read; the [services lesson](/tutorials/angular/services-di) shows where the shared logic goes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-components-greeting"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-components-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "components",
+          "difficulty": "beginner",
+          "question": "Two `<app-user-card />` tags are rendered by the same parent. What happens when you click *More* on the first one?",
+          "explanation": "Each tag creates a separate instance with its own signals, so only the first card expands.",
+          "options": [
+            "Both cards expand",
+            "Only the first card expands",
+            "Only the second card expands",
+            "Angular throws an error because a component may be used only once"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "angular-components-qc-2",
+          "type": "true-false",
+          "lessonSlug": "components",
+          "difficulty": "beginner",
+          "question": "A CSS rule in a component's `styles` applies to matching elements in every other component as well.",
+          "explanation": "With the default emulated encapsulation, component styles are rewritten to match only that component's elements. Global rules belong in `src/styles.css`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-components-greeting"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "templates-control-flow"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "inputs-outputs"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "selectors"
+    }
+  ],
+  "seo": {
+    "title": "Angular Components – Selector, Template, Styles, Lifecycle",
+    "description": "Learn the anatomy of an Angular 22 component: decorator, selector, template and scoped styles, nesting components with imports, and the ngOnInit and ngOnDestroy hooks."
+  },
+  "updatedOn": "2026-11-15"
+}

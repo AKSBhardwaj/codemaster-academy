@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "find-an-element-again-after-change",
+  "title": "Find an element again after change",
+  "summary": "A page can replace a DOM element. A saved old element reference may then be stale, so locate the current element again.",
+  "introduction": "A page can replace a DOM element. A saved old element reference may then be stale, so locate the current element again. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain find an element again after change",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A page can replace a DOM element. A saved old element reference may then be stale, so locate the current element again."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from urllib.parse import quote\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\n\ndriver = webdriver.Chrome()\ntry:\n    driver.get(\"data:text/html;charset=utf-8,\" + quote('<button id=\"replace\" onclick=\"document.getElementById(\\'message\\').outerHTML=\\'<p id=message>New</p>\\'\">Replace</button><p id=\"message\">Old</p>'))\n    driver.find_element(By.ID, \"replace\").click()\n    assert driver.find_element(By.ID, \"message\").text == \"New\"\nfinally:\n    driver.quit()",
+      "title": "Find an element again after change",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The fresh locator finds the replacement paragraph."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Describe why keeping the old paragraph reference could fail.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not retry the same stale object forever; find the current element."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "selenium-find-an-element-again-after-change"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Selenium further reading](https://www.selenium.dev/documentation/webdriver/)."
+    }
+  ],
+  "exerciseIds": ["selenium-find-an-element-again-after-change"],
+  "relatedLessons": [
+    {
+      "technologySlug": "selenium",
+      "slug": "save-evidence-and-close"
+    }
+  ],
+  "seo": {
+    "title": "Selenium: Find an element again after change",
+    "description": "Learn about find an element again after change in Selenium. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

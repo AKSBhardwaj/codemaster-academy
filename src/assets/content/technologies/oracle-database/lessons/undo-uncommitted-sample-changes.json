@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "undo-uncommitted-sample-changes",
+  "title": "Undo uncommitted sample changes",
+  "summary": "A savepoint marks a point inside a transaction.",
+  "introduction": "A savepoint marks a point inside a transaction. Your task: Explain which insert the savepoint rollback undoes.",
+  "learningObjectives": [
+    "Explain which insert the savepoint rollback undoes.",
+    "Explain the example for undo uncommitted sample changes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A savepoint marks a point inside a transaction. ROLLBACK TO can undo later changes while keeping earlier work in that transaction."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use Oracle Database 19c+ with a SQL editor in a new practice schema. Oracle SQL and PL/SQL do not run in this site's SQLite playground. Create only the named sample objects in that practice schema."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "-- After creating cma_oracle_books; finish any earlier practice transaction first.\nSAVEPOINT before_extra;\nINSERT INTO cma_oracle_books(title) VALUES('Temporary sample');\nROLLBACK TO before_extra;\nSELECT title FROM cma_oracle_books WHERE title='Temporary sample';",
+      "title": "Undo uncommitted sample changes",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`ROLLBACK` cancels the applicable uncommitted changes. It cannot undo an earlier committed transaction.",
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name.",
+        "`WHERE` keeps only rows that pass its condition. Check the condition with sample data before using it for a change."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The extra sample title is not returned after the rollback to the savepoint."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "This demonstration assumes no earlier row has that title. Do not run DDL between the savepoint and rollback."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain which insert the savepoint rollback undoes."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "oracle-database-undo-uncommitted-sample-changes-check"
+    }
+  ],
+  "exerciseIds": ["oracle-database-undo-uncommitted-sample-changes-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "oracle-database",
+      "slug": "run-a-small-pl-sql-block"
+    }
+  ],
+  "seo": {
+    "title": "Oracle Database: Undo uncommitted sample changes",
+    "description": "A savepoint marks a point inside a transaction. ROLLBACK TO can undo later changes while keeping earlier work in that transaction."
+  },
+  "updatedOn": "2026-11-16"
+}

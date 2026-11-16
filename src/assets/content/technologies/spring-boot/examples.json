@@ -1,0 +1,138 @@
+{
+  "title": "Spring Boot Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "first-route",
+      "title": "Return a greeting",
+      "description": "@RestController makes return values into HTTP responses. GET /hello calls this method.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/hello\") String hello() { return \"Hello, Asha!\"; }\n }\n}\n",
+      "output": "Hello, Asha!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "first-route"
+    },
+    {
+      "id": "json",
+      "title": "Return named data",
+      "description": "Spring Boot writes a Map as JSON. Open GET /book.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/book\") Map<String, Object> book() { return Map.of(\"title\", \"Moon Trip\"); }\n }\n}\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "json"
+    },
+    {
+      "id": "path-inputs",
+      "title": "Read a path value",
+      "description": "@PathVariable reads a value from a named path position. Open GET /hello/Ravi.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/hello/{name}\") String hello(@PathVariable(\"name\") String name) { return \"Hi, \" + name + \"!\"; }\n }\n}\n",
+      "output": "Hi, Ravi!",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "path-inputs"
+    },
+    {
+      "id": "query-defaults",
+      "title": "Use a query default",
+      "description": "@RequestParam reads a query value. GET /page without n uses the default 1.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/page\") Map<String, Integer> page(@RequestParam(name=\"n\", defaultValue=\"1\") int n) { return Map.of(\"page\", n); }\n }\n}\n",
+      "output": "{\"page\":1}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "query-defaults"
+    },
+    {
+      "id": "typed-paths",
+      "title": "Parse a whole number",
+      "description": "An int path input is parsed by Spring. Open GET /double/4.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/double/{n}\") Map<String, Integer> twice(@PathVariable(\"n\") int n) { return Map.of(\"answer\", n * 2); }\n }\n}\n",
+      "output": "{\"answer\":8}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "typed-paths"
+    },
+    {
+      "id": "request-bodies",
+      "title": "Read a JSON body",
+      "description": "@RequestBody reads JSON into a Java record. Send POST /books with application/json and {\"title\":\"Moon Trip\"}.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") Book create(@RequestBody Book book) { return book; }\n }\n}\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "request-bodies"
+    },
+    {
+      "id": "validation",
+      "title": "Reject a missing title",
+      "description": "A handler can check a body value and send 400 when it is not usable. Send POST /books with {\"title\":\"Moon Trip\"}.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\nrecord Book(String title) {}\n@PostMapping(\"/books\") ResponseEntity<?> create(@RequestBody Book book) {\n if (book.title() == null || book.title().isBlank()) return ResponseEntity.badRequest().body(Map.of(\"error\", \"Title needed\"));\n return ResponseEntity.status(201).body(book);\n}\n }\n}\n",
+      "output": "{\"title\":\"Moon Trip\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "validation"
+    },
+    {
+      "id": "status",
+      "title": "Report a missing resource",
+      "description": "ResponseEntity lets code choose a status and body. Open GET /missing.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/missing\") ResponseEntity<?> missing() { return ResponseEntity.status(404).body(Map.of(\"error\", \"Book not found\")); }\n }\n}\n",
+      "output": "{\"error\":\"Book not found\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "status"
+    },
+    {
+      "id": "lists",
+      "title": "Return several records",
+      "description": "A list becomes a JSON array. Open GET /books.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/books\") List<String> books() { return List.of(\"Moon Trip\", \"Sun Trip\"); }\n }\n}\n",
+      "output": "[\"Moon Trip\",\"Sun Trip\"]",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "lists"
+    },
+    {
+      "id": "headers",
+      "title": "Set reply metadata",
+      "description": "A response can carry cache instructions. Open GET /note and inspect Cache-Control.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/note\") ResponseEntity<String> note() { return ResponseEntity.ok().header(\"Cache-Control\", \"no-store\").body(\"Practice note\"); }\n }\n}\n",
+      "output": "Practice note",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "headers"
+    },
+    {
+      "id": "redirects",
+      "title": "Return a location",
+      "description": "A 302 reply with Location asks a browser to make another request. GET /start ends at /hello.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/start\") ResponseEntity<Void> start() { return ResponseEntity.status(302).header(\"Location\", \"/hello\").build(); }\n@GetMapping(\"/hello\") String hello() { return \"Welcome\"; }\n }\n}\n",
+      "output": "Welcome",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "redirects"
+    },
+    {
+      "id": "exception-handler",
+      "title": "Handle a known failure",
+      "description": "@ExceptionHandler formats one error type for this controller. Open GET /broken.",
+      "language": "java",
+      "code": "//DEPS org.springframework.boot:spring-boot-starter-web:3.3.5\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@SpringBootConfiguration\n@EnableAutoConfiguration\n@Import(Lesson.Web.class)\npublic class Lesson {\n public static void main(String[] args) { SpringApplication.run(Lesson.class, args); }\n @RestController\n static class Web {\n@GetMapping(\"/broken\") String broken() { throw new IllegalStateException(\"Practice failure\"); }\n@ExceptionHandler(IllegalStateException.class) ResponseEntity<?> failure() { return ResponseEntity.status(500).body(Map.of(\"error\", \"Try again later\")); }\n }\n}\n",
+      "output": "{\"error\":\"Try again later\"}",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "exception-handler"
+    }
+  ]
+}

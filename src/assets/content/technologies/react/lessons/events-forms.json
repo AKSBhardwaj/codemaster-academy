@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "events-forms",
+  "title": "Events and Forms",
+  "summary": "React events let a component respond to a click or a typed value. Forms group inputs together.",
+  "introduction": "React events let a component respond to a click or a typed value. Forms group inputs together. Build a small form. Keep its current text in state and show what happens when the reader presses the submit button.",
+  "learningObjectives": [
+    "Attach event handlers and read the event object",
+    "Build controlled inputs whose value lives in state",
+    "Handle form submission without a page reload",
+    "Use form Actions and useActionState for async submissions"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Event handlers"
+    },
+    {
+      "type": "paragraph",
+      "text": "Handlers are passed as props named after the event in camelCase: `onClick`, `onChange`, `onSubmit`, `onKeyDown`. You pass the **function itself**, not a call. React attaches one native listener at the root and dispatches to your handlers with an event object that has the same properties and methods as the DOM event: `target`, `currentTarget`, `preventDefault()`, `stopPropagation()`."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Toolbar.jsx",
+      "code": "function Toolbar() {\n  function handleSave(e) {\n    console.log(e.type, e.currentTarget.textContent);\n  }\n\n  return (\n    <>\n      <button onClick={handleSave}>Save</button>\n      <button onClick={() => console.log('deleted')}>Delete</button>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console after clicking Save, then Delete",
+      "content": "click Save\ndeleted"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use an inline arrow function when you need to pass arguments or the handler is a one-liner; use a named function when it has several lines. Both are fine. Handlers can also be passed down as props (`onRemove`) so a parent decides what a click means, as the [components lesson](/tutorials/react/components-props) showed."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: calling the handler instead of passing it",
+      "text": "`<button onClick={handleSave()}>` runs `handleSave` during rendering, not on click, and passes its return value (`undefined`) as the handler. Write `onClick={handleSave}` or `onClick={() => handleSave(id)}`. The same applies to `onSubmit` and every other event prop."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Controlled inputs"
+    },
+    {
+      "type": "paragraph",
+      "text": "In plain HTML an input keeps its own value. In React you usually make the input **controlled**: its `value` comes from state and `onChange` writes every keystroke back into that state. The state is then the single source of truth, which makes validation, formatting and resetting trivial."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "NameForm.jsx",
+      "code": "import { useState } from 'react';\n\nfunction NameForm() {\n  const [name, setName] = useState('');\n\n  return (\n    <form>\n      <label htmlFor=\"name\">Name</label>\n      <input id=\"name\" value={name} onChange={(e) => setName(e.target.value)} />\n      <p>Hello, {name || 'stranger'}!</p>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "The paragraph",
+      "content": "initially:            <p>Hello, stranger!</p>\nafter typing \"Ada\":   <p>Hello, Ada!</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`onChange` in React fires on every keystroke (unlike the DOM `change` event, which waits until the field loses focus). Checkboxes use `checked` and `e.target.checked` instead of `value`; `<select>` and `<textarea>` both take `value`, with no `selected` attribute on options."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Submitting a form"
+    },
+    {
+      "type": "paragraph",
+      "text": "A form with several fields usually keeps one object in state, updated by a single handler that uses the input's `name`. On submit you call `preventDefault()`; otherwise the browser performs a full page load with the values in the URL."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "SignupForm.jsx",
+      "code": "import { useState } from 'react';\n\nfunction SignupForm() {\n  const [form, setForm] = useState({ email: '', plan: 'free', newsletter: false });\n\n  function handleChange(e) {\n    const { name, type, value, checked } = e.target;\n    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });\n  }\n\n  function handleSubmit(e) {\n    e.preventDefault();\n    console.log(form);\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"email\" type=\"email\" value={form.email} onChange={handleChange} required />\n      <select name=\"plan\" value={form.plan} onChange={handleChange}>\n        <option value=\"free\">Free</option>\n        <option value=\"pro\">Pro</option>\n      </select>\n      <label>\n        <input name=\"newsletter\" type=\"checkbox\" checked={form.newsletter} onChange={handleChange} />\n        Send me the newsletter\n      </label>\n      <button type=\"submit\">Sign up</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console: ada@example.com, Pro plan and checked box submitted",
+      "content": "{ email: 'ada@example.com', plan: 'pro', newsletter: true }"
+    },
+    {
+      "type": "paragraph",
+      "text": "The computed property name `[name]` lets one handler serve every field. `required` and `type=\"email\"` give you the browser's built-in validation for free; the submit handler only runs once it passes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Uncontrolled inputs and FormData"
+    },
+    {
+      "type": "paragraph",
+      "text": "Not every field needs state. If you only care about the values at submit time, leave the inputs uncontrolled and read them from the form element with `FormData`. This is less code, and it is also the model that React 19 Actions build on."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "SearchForm.jsx",
+      "code": "function SearchForm() {\n  function handleSubmit(e) {\n    e.preventDefault();\n    const data = new FormData(e.currentTarget);\n    console.log(data.get('q'));\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"q\" placeholder=\"Search\" />\n      <button>Go</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console after typing \"hooks\" and pressing Enter",
+      "content": "hooks"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Form Actions in React 19"
+    },
+    {
+      "type": "paragraph",
+      "text": "React 19 lets you pass a function to the form's `action` prop. React calls it with the `FormData`, and if the function is `async` React tracks it as an **Action**: it knows when the submission is pending, resets uncontrolled fields when it finishes, and `useActionState` exposes the result. This replaces a lot of hand-written `isSubmitting` and `error` state."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Subscribe.jsx",
+      "code": "import { useActionState } from 'react';\n\nasync function subscribe(previousState, formData) {\n  const email = formData.get('email');\n  if (!email.includes('@')) {\n    return { error: 'Enter a valid email address.' };\n  }\n  await fetch('/api/subscribe', { method: 'POST', body: formData });\n  return { success: `Subscribed ${email}.` };\n}\n\nfunction Subscribe() {\n  const [state, formAction, isPending] = useActionState(subscribe, {});\n\n  return (\n    <form action={formAction}>\n      <input name=\"email\" required />\n      <button disabled={isPending}>{isPending ? 'Sending…' : 'Subscribe'}</button>\n      {state.error && <p role=\"alert\">{state.error}</p>}\n      {state.success && <p>{state.success}</p>}\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "The message below the button",
+      "content": "submit \"ada\"              →  <p role=\"alert\">Enter a valid email address.</p>\nsubmit \"ada@example.com\"  →  <p>Subscribed ada@example.com.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useActionState(action, initialState)` returns the latest value the action returned, a wrapped action to put on the form, and a pending flag. The action receives the previous state first and the `FormData` second. For a submit button nested deep inside the form, `useFormStatus` from `react-dom` reads the same pending flag without prop drilling."
+    },
+    {
+      "type": "table",
+      "headers": ["Approach", "Value lives in", "Best for"],
+      "rows": [
+        [
+          "Controlled input",
+          "React state, updated on every keystroke",
+          "Live validation, formatting, dependent fields"
+        ],
+        [
+          "Uncontrolled input + FormData",
+          "The DOM until submit",
+          "Simple forms where only the final values matter"
+        ],
+        [
+          "Form Action (React 19)",
+          "The DOM, read by the action",
+          "Async submissions that need pending and error state"
+        ]
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-forms-controlled"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-events-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "events-forms",
+          "difficulty": "beginner",
+          "question": "Which pair of props makes an `<input>` controlled?",
+          "explanation": "A controlled input reads its `value` from state and reports every change through `onChange`. `defaultValue` is the uncontrolled alternative.",
+          "options": [
+            "`defaultValue` and `onInput`",
+            "`value` and `onChange`",
+            "`name` and `id`",
+            "`ref` and `onBlur`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-events-qc-2",
+          "type": "true-false",
+          "lessonSlug": "events-forms",
+          "difficulty": "beginner",
+          "question": "In React, `onChange` on a text input fires only when the field loses focus.",
+          "explanation": "React's `onChange` fires on every keystroke, like the DOM `input` event. The DOM `change` event is the one that waits for blur.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-forms-controlled", "react-events-prevent"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "refs"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "forms"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "events"
+    }
+  ],
+  "seo": {
+    "title": "React Events and Forms – Controlled Inputs and Actions",
+    "description": "Handle events in React 19, build controlled inputs, submit forms without a reload, read FormData and use form Actions with useActionState for async submits."
+  },
+  "updatedOn": "2026-11-16"
+}

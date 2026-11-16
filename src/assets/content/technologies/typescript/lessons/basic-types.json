@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "slug": "basic-types",
+  "title": "Basic Types",
+  "summary": "TypeScript labels common values as string, number or boolean. It can often work out the label from the value.",
+  "introduction": "TypeScript labels common values as string, number or boolean. It can often work out the label from the value. Use short examples with names, scores and true-or-false choices. Learn when to add a label and when the checker already knows it.",
+  "learningObjectives": [
+    "Annotate variables with primitive types and recognise when inference already does it",
+    "Tell any and unknown apart and explain why unknown is the safe choice",
+    "Handle null and undefined explicitly instead of relying on luck"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Annotations and inference"
+    },
+    {
+      "type": "paragraph",
+      "text": "An annotation is a colon and a type after a name: `let title: string`. But you do not need one when the compiler can see the initial value. `let count = 5` gives `count` the type `number` just as surely as writing it out, and the compiler then enforces it for the rest of the variable's life."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "infer.ts",
+      "code": "let count = 5;\nlet title: string = \"Quarterly report\";\nlet done = false;\nlet big = 9007199254740993n;\n\ncount = count + 1;\ntitle = title.toUpperCase();\ndone = count > 5;\n\nconsole.log(count, title, done, typeof big);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx infer.ts",
+      "content": "6 QUARTERLY REPORT true bigint"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hover over `count` in your editor and it shows `let count: number`. The annotation on `title` is redundant, and most style guides omit it. Inference is not a shortcut that weakens checking: assigning a string to `count` is rejected exactly as if you had annotated it."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "reassign.ts",
+      "code": "let count = 5;\ncount = \"six\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc reassign.ts",
+      "content": "reassign.ts:2:1 - error TS2322: Type 'string' is not assignable to type 'number'.\n\n2 count = \"six\";\n  ~~~~~\n\n\nFound 1 error in reassign.ts:2"
+    },
+    {
+      "type": "table",
+      "caption": "The primitive types",
+      "headers": ["Type", "Example values", "Notes"],
+      "rows": [
+        [
+          "`string`",
+          "`\"hi\"`, `'hi'`, or a template literal written in backticks",
+          "All three quote styles produce the same type"
+        ],
+        [
+          "`number`",
+          "`42`, `3.14`, `-1`, `NaN`, `Infinity`",
+          "One type for integers and floats, like JavaScript"
+        ],
+        ["`boolean`", "`true`, `false`", "Comparisons such as `count > 5` produce it"],
+        ["`bigint`", "`9007199254740993n`", "Needs `target` es2020 or later"],
+        ["`symbol`", "`Symbol(\"id\")`", "Unique keys; rare in application code"],
+        [
+          "`null`, `undefined`",
+          "`null`, `undefined`",
+          "Each is its own type under strict mode (see below)"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Literal types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A type does not have to be as wide as `string`. A *literal type* is a single value: the type `\"dark\"` accepts only the string `\"dark\"`. Literal types become powerful when you combine them into a union of allowed values, which the [unions lesson](/tutorials/typescript/type-aliases-unions) covers in depth. `const` and `let` infer them differently: a `const` can never change, so its type is the exact literal; a `let` may be reassigned, so the compiler widens it to the primitive."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "literal.ts",
+      "code": "const state = \"active\";\nlet mode = \"dark\";\n\nlet theme: \"light\" | \"dark\" = \"light\";\ntheme = \"dark\";\ntheme = \"blue\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc literal.ts",
+      "content": "literal.ts:6:1 - error TS2322: Type '\"blue\"' is not assignable to type '\"dark\" | \"light\"'.\n\n6 theme = \"blue\";\n  ~~~~~\n\n\nFound 1 error in literal.ts:6"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hovering shows `const state: \"active\"` but `let mode: string`. Annotating `theme` with two literals turns a typo such as `\"blue\"` into a compile error instead of a theme that silently falls back to the default. (The message lists the union members in the order the compiler first met them, `\"dark\"` on line 2 before `\"light\"` on line 4; the order never affects the meaning.)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "any and unknown"
+    },
+    {
+      "type": "paragraph",
+      "text": "`any` switches the checker off for one value: you can call anything on it, pass it anywhere, and the compiler stays silent. It exists for migrating JavaScript and for a few library edge cases, and `JSON.parse` returns it. `unknown` is the opposite: it also accepts every value, but you cannot *do* anything with it until you have proved what it is."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "unknown.ts",
+      "code": "const parsed: unknown = JSON.parse('\"hello\"');\n\nconsole.log(parsed.toUpperCase());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc unknown.ts",
+      "content": "unknown.ts:3:13 - error TS18046: 'parsed' is of type 'unknown'.\n\n3 console.log(parsed.toUpperCase());\n              ~~~~~~\n\n\nFound 1 error in unknown.ts:3"
+    },
+    {
+      "type": "paragraph",
+      "text": "The fix is a check that the compiler understands, called *narrowing*. Inside the `if`, `parsed` has the type `string` and every string method is available."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "unknown-fixed.ts",
+      "code": "const parsed: unknown = JSON.parse('\"hello\"');\n\nif (typeof parsed === \"string\") {\n  console.log(parsed.toUpperCase());\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx unknown-fixed.ts",
+      "content": "HELLO"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: letting any creep in",
+      "text": "Under `strict`, a parameter without an annotation or an inferable value is an error: `function log(message) {}` reports `TS7006: Parameter 'message' implicitly has an 'any' type.` Beginners fix it by writing `message: any`, which makes the error disappear and the checking with it. Write the real type (`message: string`) or, when you truly do not know, `unknown` and narrow it. A project with `any` sprinkled through it has the costs of TypeScript without the benefits."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "void and never"
+    },
+    {
+      "type": "paragraph",
+      "text": "`void` is the return type of a function that returns nothing useful, such as one that only logs. `never` is the type of a value that cannot exist: the return type of a function that always throws or loops forever, and the type the compiler assigns to a variable once every possibility has been ruled out. You will rarely annotate `never` by hand until the [narrowing lesson](/tutorials/typescript/narrowing), where it powers exhaustiveness checks."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "null and undefined under strict mode"
+    },
+    {
+      "type": "paragraph",
+      "text": "In JavaScript any variable can hold `null` or `undefined`, and `Cannot read properties of undefined` is the most common runtime error in the language. With `strict` on (which enables `strictNullChecks`), `null` and `undefined` are separate types that are not assignable to `string`, `number` or anything else unless you say so with a union."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "null.ts",
+      "code": "let nickname: string = null;\n\nfunction shout(text: string | undefined): string {\n  return text.toUpperCase();\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc null.ts",
+      "content": "null.ts:1:5 - error TS2322: Type 'null' is not assignable to type 'string'.\n\n1 let nickname: string = null;\n      ~~~~~~~~\n\nnull.ts:4:10 - error TS18048: 'text' is possibly 'undefined'.\n\n4   return text.toUpperCase();\n           ~~~~\n\n\nFound 2 errors in the same file, starting at: null.ts:1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both fixes are explicit. The variable declares that it may hold `null`; the function checks for `undefined` before touching the string. Readers of this code now know exactly where a missing value is possible and where it is not."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "null-fixed.ts",
+      "code": "let nickname: string | null = null;\n\nfunction shout(text: string | undefined): string {\n  if (text === undefined) {\n    return \"\";\n  }\n  return text.toUpperCase();\n}\n\nconsole.log(nickname, shout(\"quiet\"), JSON.stringify(shout(undefined)));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx null-fixed.ts",
+      "content": "null QUIET \"\""
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "When to annotate",
+      "text": "Always annotate function parameters (the compiler cannot guess them) and the return types of exported functions (so a change inside the body cannot silently change the contract). Let local variables infer from their initial value. Annotate a variable only when it starts empty or when you want a narrower type than the value suggests, such as `let theme: \"light\" | \"dark\"`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-basic-types-unknown"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-basic-types-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "basic-types",
+          "difficulty": "beginner",
+          "question": "What type does the compiler infer for `const answer = 42;`?",
+          "explanation": "A const can never be reassigned, so its type is the literal 42. A let with the same initialiser would be widened to number.",
+          "options": ["`number`", "`42`", "`any`", "`unknown`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-basic-types-qc-2",
+          "type": "true-false",
+          "lessonSlug": "basic-types",
+          "difficulty": "beginner",
+          "question": "A value of type `unknown` can be passed to a parameter of type `string` without a check.",
+          "explanation": "unknown is the top type: everything is assignable to it, but it is assignable to nothing except unknown and any until it is narrowed.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-basic-types-predict", "ts-basic-types-unknown"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "functions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "type-aliases-unions"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "narrowing"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Basic Types – string, number, any, unknown, null",
+    "description": "TypeScript primitive types, inference versus annotations, literal types, any versus unknown, and strict null checks, explained with real compiler errors."
+  },
+  "updatedOn": "2026-11-16"
+}

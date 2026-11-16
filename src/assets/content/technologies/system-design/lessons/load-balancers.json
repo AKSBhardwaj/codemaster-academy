@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "slug": "load-balancers",
+  "title": "Load balancers",
+  "summary": "Send requests across healthy servers with a load balancer. Trace round-robin routing and see why shared state and useful health checks matter.",
+  "introduction": "A helper at the library door sends each learner to an open desk. A load balancer does a similar job for requests. It chooses an available server so one server does not have to handle every visitor.",
+  "learningObjectives": [
+    "Describe what a load balancer does",
+    "Trace round-robin routing over healthy servers",
+    "Explain why a health check cannot guarantee every request succeeds"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Understand the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **load balancer** receives requests and forwards them to app servers. **Round robin** means taking turns: A, then B, then A again. Other rules can choose the server with fewer active requests."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **health check** asks whether a server is ready to do useful work. It might test a small readiness endpoint. A machine can answer a network ping while its app is still broken."
+    },
+    {
+      "type": "paragraph",
+      "text": "The servers need the same important records and compatible code. If a draft exists only in server A's memory, a later request sent to B may not find it. Shared durable state, or carefully designed routing, avoids that surprise."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with servers A, B, and C. In this example, B is marked unhealthy.",
+        "Build a list containing only A and C.",
+        "Send four requests to those two servers in turn.",
+        "If no server is healthy, return a clear temporary-unavailable result instead of selecting a missing server."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This small JavaScript model runs in the playground. Its numbers and events are chosen for learning. It does not create servers or measure a real service."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/system-design/load-balancer.svg",
+      "width": 400,
+      "height": 526,
+      "alt": "The load balancer skips offline server B and sends requests to A or C. The healthy servers share a database.",
+      "caption": "Server B is offline, so requests use A and C. Both still share a database; that part can become a bottleneck."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const servers = [\n  { name: \"A\", healthy: true },\n  { name: \"B\", healthy: false },\n  { name: \"C\", healthy: true }\n];\nconst ready = servers.filter(server => server.healthy);\nfor (let request = 0; request < 4; request++) {\n  const target = ready.length ? ready[request % ready.length].name : \"unavailable\";\n  console.log(`request ${request + 1}: ${target}`);\n}",
+      "title": "Load balancers model",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "request 1: A\nrequest 2: C\nrequest 3: A\nrequest 4: C"
+    },
+    {
+      "type": "paragraph",
+      "text": "The percent sign gets the remainder after division. Here it cycles between index 0 and index 1. The code is a routing model; it does not contact servers."
+    },
+    {
+      "type": "paragraph",
+      "text": "Round robin gives equal request counts here, not necessarily equal work. One search might be cheap while another needs a large report. A routing rule should suit the workload."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose with care"
+    },
+    {
+      "type": "table",
+      "headers": ["Choice", "What it helps", "What to watch"],
+      "rows": [
+        [
+          "Round robin",
+          "Simple turn-taking for similar requests",
+          "Equal counts may hide very different request costs"
+        ],
+        [
+          "Least active requests",
+          "Can help when requests take different times",
+          "Needs current load information"
+        ],
+        [
+          "Sticky routing",
+          "Can keep a user on one server for a while",
+          "That server may fail, so this is not a backup for important state"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "A server may fail just after a successful health check. Requests still need time limits and clear errors. Retry only when repeating the action is safe."
+    },
+    {
+      "type": "paragraph",
+      "text": "The load balancer itself also needs a failure plan. Real services often use redundant managed routing or several balancers. Adding a single new box is not a promise of continuous service."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Set B to healthy: true. Predict the targets of four requests.",
+        "They become A, B, C, A. Then set all three servers to false and check that every result is unavailable."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not treat a green health check as proof that every future request will work. Checks describe a recent moment and only the parts they test."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-load-balancers"
+    }
+  ],
+  "exerciseIds": ["system-design-load-balancers"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "scaling-up-and-out"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "timeouts-and-circuit-breakers"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Load balancers",
+    "description": "Send requests across healthy servers with a load balancer. Trace round-robin routing and see why shared state and useful health checks matter."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "let-an-identity-column-make-an-id",
+  "title": "Let an identity column make an id",
+  "summary": "An IDENTITY column generates numeric values for new rows.",
+  "introduction": "An IDENTITY column generates numeric values for new rows. Your task: Insert a second book and read the returned id.",
+  "learningObjectives": [
+    "Insert a second book and read the returned id.",
+    "Explain the example for let an identity column make an id"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "An IDENTITY column generates numeric values for new rows. OUTPUT can show the id that was actually inserted."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use SQL Server 2019+ in a separate practice database with a SQL editor. T-SQL is different from the SQLite engine on this site, so these examples are for that separate tool."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DROP TABLE IF EXISTS #new_books;\nCREATE TABLE #new_books(id int IDENTITY(1,1) PRIMARY KEY,title nvarchar(80));\nINSERT INTO #new_books(title) OUTPUT inserted.id,inserted.title VALUES(N'Moon Trip');",
+      "title": "Let an identity column make an id",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "A primary key identifies a row and prevents duplicate key values. Related records can refer to that key."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The inserted sample row is returned with its generated id and title."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not assume identity values are gap-free. Failed or removed rows can leave gaps."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Insert a second book and read the returned id."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-server-let-an-identity-column-make-an-id-check"
+    }
+  ],
+  "exerciseIds": ["sql-server-let-an-identity-column-make-an-id-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql-server",
+      "slug": "pass-a-query-parameter"
+    }
+  ],
+  "seo": {
+    "title": "Microsoft SQL Server: Let an identity column make an id",
+    "description": "An IDENTITY column generates numeric values for new rows. OUTPUT can show the id that was actually inserted."
+  },
+  "updatedOn": "2026-11-16"
+}

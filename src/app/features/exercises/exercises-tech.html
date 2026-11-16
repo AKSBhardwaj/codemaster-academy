@@ -1,7 +1,9 @@
 @if (set(); as set) {
   <cma-page-header eyebrow="Practice" [title]="set.title" [lead]="set.description">
     <div slot="top"><cma-breadcrumbs [items]="crumbs()" /></div>
-    <p class="small cma-text-secondary mt-3 mb-0">{{ set.exercises.length }} exercises · {{ solved() }} solved in this browser</p>
+    <p class="small cma-text-secondary mt-3 mb-0">
+      {{ set.exercises.length }} exercises · {{ solved() }} solved in this browser
+    </p>
   </cma-page-header>
 
   <div class="container-xxl py-4 py-lg-5">
@@ -9,36 +11,75 @@
       <aside class="col-lg-3" aria-label="Filters">
         <div class="cma-filters">
           <label class="form-label fw-semibold" for="ex-type">Type</label>
-          <select id="ex-type" class="form-select form-select-sm mb-3" (change)="typeFilter.set($any($event.target).value)">
+          <select
+            id="ex-type"
+            class="form-select form-select-sm mb-3"
+            [disabled]="!interactive()"
+            (change)="typeFilter.set($any($event.target).value)"
+          >
             <option value="all" [selected]="typeFilter() === 'all'">All types</option>
             @for (type of types; track type) {
-              <option [value]="type" [selected]="typeFilter() === type">{{ typeLabel[type] }}</option>
+              <option [value]="type" [selected]="typeFilter() === type">
+                {{ typeLabel[type] }}
+              </option>
             }
           </select>
           <label class="form-label fw-semibold" for="ex-difficulty">Difficulty</label>
-          <select id="ex-difficulty" class="form-select form-select-sm mb-3" (change)="difficultyFilter.set($any($event.target).value)">
+          <select
+            id="ex-difficulty"
+            class="form-select form-select-sm mb-3"
+            [disabled]="!interactive()"
+            (change)="difficultyFilter.set($any($event.target).value)"
+          >
             <option value="all" [selected]="difficultyFilter() === 'all'">All levels</option>
             @for (level of difficulties; track level) {
-              <option [value]="level" [selected]="difficultyFilter() === level">{{ difficultyLabel[level] }}</option>
+              <option [value]="level" [selected]="difficultyFilter() === level">
+                {{ difficultyLabel[level] }}
+              </option>
             }
           </select>
           <label class="form-label fw-semibold" for="ex-lesson">Lesson</label>
-          <select id="ex-lesson" class="form-select form-select-sm mb-3" (change)="lessonFilter.set($any($event.target).value)">
+          <select
+            id="ex-lesson"
+            class="form-select form-select-sm mb-3"
+            [disabled]="!interactive()"
+            (change)="lessonFilter.set($any($event.target).value)"
+          >
             <option value="all" [selected]="lessonFilter() === 'all'">All lessons</option>
             @for (lesson of lessons(); track lesson) {
-              <option [value]="lesson" [selected]="lessonFilter() === lesson">{{ lessonTitle(lesson) }}</option>
+              <option [value]="lesson" [selected]="lessonFilter() === lesson">
+                {{ lessonTitle(lesson) }}
+              </option>
             }
           </select>
-          <a class="btn btn-outline-secondary btn-sm w-100" [routerLink]="['/tutorials', set.technologySlug]">{{ set.technologyName }} tutorial</a>
-          <a class="btn btn-outline-secondary btn-sm w-100 mt-2" [routerLink]="['/quizzes', set.technologySlug]">Take the quiz</a>
+          <a
+            class="btn btn-outline-secondary btn-sm w-100"
+            [routerLink]="['/tutorials', set.technologySlug]"
+            >{{ set.technologyName }} tutorial</a
+          >
+          <a
+            class="btn btn-outline-secondary btn-sm w-100 mt-2"
+            [routerLink]="['/quizzes', set.technologySlug]"
+            >Take the quiz</a
+          >
         </div>
       </aside>
       <div class="col-lg-9">
-        <p class="small cma-text-secondary mb-3" aria-live="polite">Showing {{ visible().length }} of {{ set.exercises.length }} exercises</p>
+        <p class="small cma-text-secondary mb-3" aria-live="polite">
+          Showing {{ visible().length }} of {{ set.exercises.length }} exercises
+        </p>
         @for (exercise of visible(); track exercise.id; let i = $index) {
-          <cma-exercise-card [exercise]="exercise" [technologySlug]="set.technologySlug" [number]="i + 1" />
+          <cma-exercise-card
+            [exercise]="exercise"
+            [technologySlug]="set.technologySlug"
+            [number]="i + 1"
+          />
         } @empty {
-          <cma-empty-state icon="funnel" title="No exercises match these filters" text="Choose another type, difficulty or lesson." />
+          <cma-empty-state
+            icon="funnel"
+            title="No exercises match these filters"
+            text="Choose another type, difficulty or lesson."
+          />
         }
       </div>
     </div>
@@ -46,11 +87,22 @@
 } @else if (missing()) {
   <cma-page-header eyebrow="Practice" [title]="(entry()?.name ?? 'Technology') + ' exercises'" />
   <div class="container-xxl py-5">
-    <cma-empty-state icon="pencil-square" title="These exercises are not published yet" text="Exercises ship together with each tutorial's lessons. Check the tutorial page for its current status.">
-      <a class="btn btn-primary" [routerLink]="['/tutorials', tech()]">Go to the tutorial</a>
+    <cma-empty-state
+      icon="pencil-square"
+      title="These exercises could not be loaded"
+      text="Check your connection and try again. You can also open the tutorial or choose another topic."
+    >
+      <button type="button" class="btn btn-primary" (click)="setResource.reload()">
+        Try again
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/tutorials', tech()]"
+        >Go to the tutorial</a
+      >
       <a class="btn btn-outline-secondary" routerLink="/exercises">All exercises</a>
     </cma-empty-state>
   </div>
 } @else {
-  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 10rem"></div></div>
+  <div class="container-xxl py-5" aria-busy="true">
+    <div class="cma-skeleton" style="height: 10rem"></div>
+  </div>
 }

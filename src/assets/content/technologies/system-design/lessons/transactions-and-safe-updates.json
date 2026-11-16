@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "slug": "transactions-and-safe-updates",
+  "title": "Transactions and safe updates",
+  "summary": "Keep a book-copy claim and its loan record together. Use a small SQLite transaction and conditional update to prevent a second claim.",
+  "introduction": "Two learners reach for the last library copy. Both saw it on the shelf a moment ago. The system needs a rule that chooses one borrower without promising the same copy twice.",
+  "learningObjectives": [
+    "Explain why separate read and write steps can race",
+    "Keep related changes in one transaction",
+    "Use a conditional change to claim an available item"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **transaction** groups database work into one unit. **Commit** saves its changes together. **Rollback** cancels its uncommitted changes. This helps keep related facts consistent."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **race** happens when work overlaps in a way that changes the result. If two requests both read available=true and later write a loan, both may think they won. A check made earlier is not enough by itself."
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a database operation that changes the copy only if it is still available. Then create the loan only if that change succeeded. Put these related steps in the same transaction."
+    },
+    {
+      "type": "paragraph",
+      "text": "This SQLite example runs in the browser's SQL playground with fictional records. BEGIN IMMEDIATE takes a write lock for the short transaction. SQLite allows one writer at a time; other databases may use different locking rules."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Create one available copy, ID 203, and an empty loan table. copy_id is unique in this table of active loans.",
+        "Learner A starts a transaction and changes available from 1 to 0, but only if it was still 1.",
+        "SQLite changes() reports the number of rows changed by the immediately preceding write. Insert a loan only when that number is 1, then commit.",
+        "Learner B tries the same conditional change. It changes zero rows because the copy is already claimed, so no second loan is inserted.",
+        "Read the final state: copy 203 is unavailable and has one active borrower, Learner A."
+      ]
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "PRAGMA foreign_keys = ON;\nCREATE TABLE sd_tx_copy (\n  id INTEGER PRIMARY KEY,\n  available INTEGER NOT NULL CHECK (available IN (0, 1))\n);\nCREATE TABLE sd_tx_loan (\n  copy_id INTEGER PRIMARY KEY REFERENCES sd_tx_copy(id),\n  borrower TEXT NOT NULL\n);\nINSERT INTO sd_tx_copy VALUES (203, 1);\n\nBEGIN IMMEDIATE;\nUPDATE sd_tx_copy SET available = 0\nWHERE id = 203 AND available = 1;\nINSERT INTO sd_tx_loan(copy_id, borrower)\nSELECT 203, 'Learner A' WHERE changes() = 1;\nCOMMIT;\n\nBEGIN IMMEDIATE;\nUPDATE sd_tx_copy SET available = 0\nWHERE id = 203 AND available = 1;\nINSERT INTO sd_tx_loan(copy_id, borrower)\nSELECT 203, 'Learner B' WHERE changes() = 1;\nCOMMIT;\n\nSELECT c.id, c.available, l.borrower\nFROM sd_tx_copy AS c\nJOIN sd_tx_loan AS l ON l.copy_id = c.id;",
+      "title": "Transactions and safe updates example",
+      "runnable": true
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "id | available | borrower\n203 | 0 | Learner A"
+    },
+    {
+      "type": "paragraph",
+      "text": "The database keeps the claim and loan together. The primary key on copy_id is a second guard against two active loans for the same copy. A real library would keep returned-loan history separately or design an equivalent active-loan rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "The two attempts run one after the other here, so this is a small model of the rule rather than a real concurrency test. A real app must also handle waiting or busy errors when writers overlap."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What can go wrong?"
+    },
+    {
+      "type": "paragraph",
+      "text": "If any write inside the transaction fails, the caller must roll back the transaction. Do not commit a copy claim after the loan insert fails. The success example above does not include application error handling."
+    },
+    {
+      "type": "paragraph",
+      "text": "Keep transactions short. Waiting for a user to answer or calling a slow external service while holding a lock can delay other work."
+    },
+    {
+      "type": "paragraph",
+      "text": "A database rollback cannot unsend an email that already left the system. Save the required data first, then arrange external follow-up work with a clear retry rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "changes() is specific to this SQLite example. Other databases and drivers expose affected-row counts differently. Learn the rules of the real database before translating the pattern."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Reverse the two borrower names so Learner B makes the first attempt. Predict the final active borrower.",
+        "Learner B gets the copy. The second attempt still changes zero rows. The rule is about the first successful claim, not a preferred name."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not check availability in one request and create an unguarded loan later. Claim the item conditionally and keep related writes in one transaction."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "system-design-transactions-and-safe-updates"
+    }
+  ],
+  "exerciseIds": ["system-design-transactions-and-safe-updates"],
+  "relatedLessons": [
+    {
+      "technologySlug": "system-design",
+      "slug": "choose-the-data"
+    },
+    {
+      "technologySlug": "system-design",
+      "slug": "retries-need-safe-rules"
+    }
+  ],
+  "seo": {
+    "title": "System Design: Transactions and safe updates",
+    "description": "Keep a book-copy claim and its loan record together. Use a small SQLite transaction and conditional update to prevent a second claim."
+  },
+  "updatedOn": "2026-11-16"
+}

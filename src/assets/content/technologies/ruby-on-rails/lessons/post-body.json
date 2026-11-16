@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "post-body",
+  "title": "Read a JSON request",
+  "summary": "Ruby on Rails: Read a JSON request. Send an empty object.",
+  "introduction": "Send POST /books with application/json and {\"title\":\"Moon Trip\"}. Rails puts body values in params.",
+  "learningObjectives": ["Read a JSON request with Ruby on Rails", "Send an empty object"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with rails new school --api --skip-active-record. Enter it. Put each labelled section into its named file, then run bin/rails server -b 127.0.0.1 -p 8000. No database is needed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a JSON request"
+    },
+    {
+      "type": "code",
+      "language": "ruby",
+      "title": "Read a JSON request",
+      "code": "# config/routes.rb\nRails.application.routes.draw do\npost \"/books\", to: \"lesson#create\"\nend\n\n# app/controllers/lesson_controller.rb\nclass LessonController < ActionController::API\ndef create\n if !params[:title].is_a?(String)\n  render json: { error: \"Title needed\" }, status: :bad_request\n  return\n end\n render json: { title: params[:title] }, status: :created\nend\nend\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The title parameter is a String. The action sends it with created status instead of taking the error branch."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"title\":\"Moon Trip\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Send an empty object."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "This example returns data but does not save a database record."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ruby-on-rails-post-body-check"
+    }
+  ],
+  "exerciseIds": ["ruby-on-rails-post-body-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "ruby-on-rails",
+      "slug": "query-inputs"
+    }
+  ],
+  "seo": {
+    "title": "Ruby on Rails: Read a JSON request",
+    "description": "Ruby on Rails: Read a JSON request. Send an empty object. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

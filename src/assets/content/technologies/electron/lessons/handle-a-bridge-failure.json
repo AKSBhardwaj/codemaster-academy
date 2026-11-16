@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "handle-a-bridge-failure",
+  "title": "Handle a bridge failure",
+  "summary": "A request through the bridge can reject.",
+  "introduction": "A request through the bridge can reject. Your task: Test the fallback by temporarily rejecting the handler.",
+  "learningObjectives": [
+    "Test the fallback by temporarily rejecting the handler.",
+    "Explain the example for handle a bridge failure"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A request through the bridge can reject. The renderer should show a useful message instead of leaving an unhandled error."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local Electron project with electron installed as a dev dependency and main.cjs as its main file. Run with npx electron . after creating package.json and index.html. These APIs do not run in a web-page playground."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// renderer.js, with a status element and the previous bridge installed.\nasync function showVersion(){\n  const status=document.querySelector(\"#status\");\n  try{status.textContent=await window.club.getVersion();}\n  catch{status.textContent=\"The app version could not be read.\";}\n}\nshowVersion();",
+      "title": "Handle a bridge failure",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`textContent` reads or replaces plain text inside an element. It does not interpret the supplied words as HTML.",
+        "`querySelector` finds the first matching element. Check for a missing result when the element is optional."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "A successful request shows the version. A failed request shows the fallback text."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Check that the target element exists in your real page. Do not display private internal error messages to the user."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Test the fallback by temporarily rejecting the handler."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "electron-handle-a-bridge-failure-check"
+    }
+  ],
+  "exerciseIds": ["electron-handle-a-bridge-failure-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "electron",
+      "slug": "ask-the-main-process-a-narrow-question"
+    }
+  ],
+  "seo": {
+    "title": "Electron: Handle a bridge failure",
+    "description": "A request through the bridge can reject. The renderer should show a useful message instead of leaving an unhandled error."
+  },
+  "updatedOn": "2026-11-16"
+}

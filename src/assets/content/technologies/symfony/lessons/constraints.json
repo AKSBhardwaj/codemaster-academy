@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "constraints",
+  "title": "Constrain a path number",
+  "summary": "Symfony: Constrain a path number. Visit /double/cat.",
+  "introduction": "A route requirement describes allowed path text. Open GET /double/4.",
+  "learningObjectives": ["Constrain a path number with Symfony", "Visit /double/cat"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a Symfony 7 skeleton project with Composer and install the Symfony CLI. Save each example as src/Controller/LessonController.php. Use the default attribute route import. Run symfony server:start --no-tls --port=8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Constrain a path number"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "title": "Constrain a path number",
+      "code": "<?php\nnamespace App\\Controller;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\HttpFoundation\\JsonResponse;\nuse Symfony\\Component\\HttpFoundation\\RedirectResponse;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\nclass LessonController extends AbstractController {\n#[Route(\"/double/{n}\", requirements: [\"n\" => \"[0-9]+\"], methods: [\"GET\"])]\npublic function twice(int $n): JsonResponse { return new JsonResponse([\"answer\" => $n * 2]); }\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The route requirement allows the digits in 4. Symfony supplies the typed input to the method."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"answer\":8}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /double/cat."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A requirement controls route matching, not every allowed data range."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "symfony-constraints-check"
+    }
+  ],
+  "exerciseIds": ["symfony-constraints-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "symfony",
+      "slug": "query"
+    }
+  ],
+  "seo": {
+    "title": "Symfony: Constrain a path number",
+    "description": "Symfony: Constrain a path number. Visit /double/cat. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

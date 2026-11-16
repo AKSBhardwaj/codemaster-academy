@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "test-client",
+  "title": "Test a request in Python",
+  "summary": "Flask: Test a request in Python. Change the score and compare the test result.",
+  "introduction": "The test client calls the app without an open port. This example prints the returned JSON score.",
+  "learningObjectives": [
+    "Test a request in Python with Flask",
+    "Change the score and compare the test result"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Test a request in Python"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Test a request in Python",
+      "code": "from flask import Flask, jsonify\napp = Flask(__name__)\n@app.get(\"/score\")\ndef score():\n    return jsonify(score=8)\nwith app.test_client() as client:\n    response = client.get(\"/score\")\n    print(response.get_json()[\"score\"])",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The test client executes the view in memory. get_json reads score 8 from its response."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the score and compare the test result."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use the test client only for tests; it is not a public server."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-test-client-check"
+    }
+  ],
+  "exerciseIds": ["flask-test-client-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "error-handlers"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Test a request in Python",
+    "description": "Flask: Test a request in Python. Change the score and compare the test result. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

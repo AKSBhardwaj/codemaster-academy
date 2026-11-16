@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "slug": "pipes-directives",
+  "title": "Pipes and Directives",
+  "summary": "Format values in templates with built-in pipes, write a custom pipe, add behaviour to elements with attribute directives and host bindings, and use NgOptimizedImage for images.",
+  "introduction": "Templates should display data, not reformat it. Pipes take a value and return a display version (a date, a currency, a shortened string) without touching the data itself, and directives attach behaviour and styling to existing elements without wrapping them in a component. This lesson uses the built-in pipes with their exact output, writes a truncate pipe, builds a highlight directive with the host object, and shows why NgOptimizedImage should replace plain img tags.",
+  "learningObjectives": [
+    "Format dates, numbers, currencies and text with built-in pipes and parameters",
+    "Write a custom pipe with PipeTransform",
+    "Create an attribute directive with inputs and host bindings and use NgOptimizedImage"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Built-in pipes"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pipe sits after a `|` in an expression and transforms the value on its left. Parameters follow after colons. Pipes are standalone classes imported from `@angular/common`, and each one you use must be listed in `imports`. Formatting follows the application's locale, which is `en-US` unless you register another."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/invoice/invoice.ts",
+      "code": "import { Component, signal } from '@angular/core';\nimport { CurrencyPipe, DatePipe, DecimalPipe, PercentPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';\n\n@Component({\n  selector: 'app-invoice',\n  imports: [CurrencyPipe, DatePipe, DecimalPipe, PercentPipe, TitleCasePipe, UpperCasePipe],\n  template: `\n    <p>{{ customer() | titlecase }}</p>\n    <p>{{ status() | uppercase }}</p>\n    <p>{{ issued() | date:'longDate' }}</p>\n    <p>{{ issued() | date:'EEEE' }}</p>\n    <p>{{ amount() | currency:'EUR' }}</p>\n    <p>{{ amount() | number:'1.0-0' }}</p>\n    <p>{{ discount() | percent:'1.0-1' }}</p>\n  `,\n})\nexport class Invoice {\n  readonly customer = signal('ada lovelace');\n  readonly status = signal('paid');\n  readonly issued = signal(new Date(2026, 4, 28));\n  readonly amount = signal(1234.56);\n  readonly discount = signal(0.125);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "In the browser",
+      "content": "Ada Lovelace\nPAID\nMay 28, 2026\nThursday\n€1,234.56\n1,235\n12.5%"
+    },
+    {
+      "type": "table",
+      "headers": ["Pipe", "Class to import", "Example", "Result"],
+      "rows": [
+        ["`date`", "`DatePipe`", "`issued() | date:'yyyy-MM-dd'`", "`2026-05-28`"],
+        [
+          "`currency`",
+          "`CurrencyPipe`",
+          "`amount() | currency:'USD':'symbol':'1.0-0'`",
+          "`$1,235`"
+        ],
+        ["`number`", "`DecimalPipe`", "`amount() | number:'1.2-2'`", "`1,234.56`"],
+        ["`percent`", "`PercentPipe`", "`0.25 | percent`", "`25%`"],
+        [
+          "`uppercase`, `lowercase`, `titlecase`",
+          "`UpperCasePipe`, ...",
+          "`'hello' | uppercase`",
+          "`HELLO`"
+        ],
+        ["`slice`", "`SlicePipe`", "`[1, 2, 3, 4] | slice:1:3`", "`2,3`"],
+        [
+          "`json`",
+          "`JsonPipe`",
+          "`user() | json`",
+          "The object as indented JSON, useful for debugging"
+        ],
+        [
+          "`async`",
+          "`AsyncPipe`",
+          "`items$ | async`",
+          "The latest value of an observable or promise"
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The digit pattern `'1.0-1'` reads as *at least 1 integer digit, 0 to 1 decimal digits*. Pipes chain left to right: `{{ issued() | date:'EEEE' | uppercase }}` gives `THURSDAY`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing a pipe"
+    },
+    {
+      "type": "paragraph",
+      "text": "A pipe is a class with a `transform` method and a `@Pipe` decorator that names it. `ng generate pipe truncate` creates the skeleton. Pipes are **pure** by default: Angular calls `transform` again only when the input value or a parameter changes, which makes them cheaper than calling a method from the template."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/truncate-pipe.ts",
+      "code": "import { Pipe, PipeTransform } from '@angular/core';\n\n@Pipe({ name: 'truncate' })\nexport class TruncatePipe implements PipeTransform {\n  transform(value: string, max = 20, suffix = '...'): string {\n    return value.length <= max ? value : value.slice(0, max).trimEnd() + suffix;\n  }\n}"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "In a template that imports TruncatePipe",
+      "code": "<p>{{ 'Mechanical keyboard with hot-swappable switches' | truncate:10 }}</p>\n<p>{{ 'Mouse' | truncate:10 }}</p>\n<p>{{ 'Mechanical keyboard' | truncate:14:'…' }}</p>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Mechanical...\nMouse\nMechanical key…"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Attribute directives"
+    },
+    {
+      "type": "paragraph",
+      "text": "A directive is a component without a template: it attaches to an existing element selected by an attribute and changes its behaviour or appearance. Bindings to the host element go in the `host` object of the decorator, with the same `[property]` and `(event)` syntax as a template. Inputs work exactly as in components."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/highlight.ts",
+      "code": "import { Directive, input, signal } from '@angular/core';\n\n@Directive({\n  selector: '[appHighlight]',\n  host: {\n    '[style.background-color]': 'hovering() ? color() : null',\n    '(mouseenter)': 'hovering.set(true)',\n    '(mouseleave)': 'hovering.set(false)',\n  },\n})\nexport class Highlight {\n  readonly color = input('yellow', {\n    alias: 'appHighlight',\n    transform: (value: string) => value || 'yellow',\n  });\n  readonly hovering = signal(false);\n}"
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "In a template that imports Highlight",
+      "code": "<p appHighlight>Hover me (yellow)</p>\n<p appHighlight=\"lightblue\">Hover me (light blue)</p>"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "DOM while the pointer is over the second paragraph",
+      "content": "<p apphighlight=\"\">Hover me (yellow)</p>\n<p apphighlight=\"lightblue\" style=\"background-color: lightblue;\">Hover me (light blue)</p>"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "`alias: 'appHighlight'` lets the selector attribute double as the input, so `appHighlight=\"lightblue\"` sets the colour.",
+        "The `transform` turns the empty string from a bare `appHighlight` attribute back into the default.",
+        "Setting the style to `null` removes it, so the paragraph returns to normal when the pointer leaves.",
+        "Older code used `@HostBinding` and `@HostListener` decorators for the same thing; the `host` object is the current style and keeps all host interaction in one place."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: a directive that is not imported",
+      "text": "Forget to add `Highlight` to the component's `imports` and nothing breaks visibly: `appHighlight` becomes an ordinary, meaningless HTML attribute and the hover effect is simply missing. Unknown *elements* raise `NG8001`, but unknown *attributes* are legal HTML, so Angular cannot tell. When a directive seems to do nothing, check the `imports` array first. Binding with brackets, `[appHighlight]=\"colour()\"`, does fail loudly with `NG8002`, which is one argument for the bracket form."
+    },
+    {
+      "type": "paragraph",
+      "text": "Directives can also inject the element they sit on (`inject(ElementRef)`) for direct DOM access, read other directives on the same element, and be composed with `hostDirectives` so that a component gains a directive's behaviour without the template author adding it. Structural directives, which add or remove elements, are rarely needed now that `@if`, `@for` and `@defer` are built in."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "NgOptimizedImage"
+    },
+    {
+      "type": "paragraph",
+      "text": "`NgOptimizedImage` is a built-in directive for `<img>` that applies performance best practice automatically: it requires `width` and `height` so the layout never jumps, lazy-loads images that are off screen, marks the most important image with `priority` so the browser fetches it first, and warns in the console when something is wrong. Replace `src` with `ngSrc`."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/app/hero/hero.ts",
+      "code": "import { Component } from '@angular/core';\nimport { NgOptimizedImage } from '@angular/common';\n\n@Component({\n  selector: 'app-hero',\n  imports: [NgOptimizedImage],\n  template: `\n    <img ngSrc=\"/images/hero.jpg\" width=\"1200\" height=\"600\" priority alt=\"A desk with a laptop and a notebook\">\n    <img ngSrc=\"/images/team.jpg\" width=\"800\" height=\"500\" alt=\"The four founders in front of the office\">\n  `,\n})\nexport class Hero {}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Resulting DOM (abbreviated)",
+      "content": "<img src=\"/images/hero.jpg\" width=\"1200\" height=\"600\" alt=\"A desk with a laptop and a notebook\" fetchpriority=\"high\" loading=\"eager\">\n<img src=\"/images/team.jpg\" width=\"800\" height=\"500\" alt=\"The four founders in front of the office\" loading=\"lazy\" fetchpriority=\"auto\">"
+    },
+    {
+      "type": "paragraph",
+      "text": "With an image CDN you can add a loader so that `ngSrc` requests correctly sized versions through `srcset`. The directive does not work for inline `data:` URLs; those use a plain `<img>`."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "angular-pipes-truncate"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "angular-pipes-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "pipes-directives",
+          "difficulty": "beginner",
+          "question": "What does this interpolation render with the default en-US locale?",
+          "explanation": "`'1.0-0'` allows no decimals, so 1234.56 rounds to 1,235, and the thousands separator is added.",
+          "language": "html",
+          "code": "{{ 1234.56 | number:'1.0-0' }}",
+          "options": ["`1234.56`", "`1,234.56`", "`1,235`", "`1234`"],
+          "correctIndex": 2
+        },
+        {
+          "id": "angular-pipes-qc-2",
+          "type": "true-false",
+          "lessonSlug": "pipes-directives",
+          "difficulty": "beginner",
+          "question": "A pure pipe's `transform` runs again on every change detection cycle, even when its input has not changed.",
+          "explanation": "Pure pipes are memoised: Angular reruns `transform` only when the input value or a parameter changes.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["angular-pipes-truncate"],
+  "relatedLessons": [
+    {
+      "technologySlug": "angular",
+      "slug": "templates-control-flow"
+    },
+    {
+      "technologySlug": "angular",
+      "slug": "http-resource"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "images"
+    }
+  ],
+  "seo": {
+    "title": "Angular Pipes and Directives – Format and Extend Templates",
+    "description": "Learn Angular 22 pipes and directives: date, currency, number and percent pipes with exact output, a custom pipe, an attribute directive with host bindings and."
+  },
+  "updatedOn": "2026-11-15"
+}

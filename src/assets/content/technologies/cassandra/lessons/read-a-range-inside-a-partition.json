@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "read-a-range-inside-a-partition",
+  "title": "Read a range inside a partition",
+  "summary": "After choosing a partition, a query can use a range on its clustering column.",
+  "introduction": "After choosing a partition, a query can use a range on its clustering column. Your task: Change the start date and predict which sample days match.",
+  "learningObjectives": [
+    "Change the start date and predict which sample days match.",
+    "Explain the example for read a range inside a partition"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "After choosing a partition, a query can use a range on its clustering column. This is useful for a reader's recent days."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT day,title FROM reading_by_reader WHERE reader_id='mia' AND day>='2026-11-01' LIMIT 5;",
+      "title": "Read a range inside a partition",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`SELECT` names the output values. `AS` can give a calculated result a readable column name.",
+        "`WHERE` keeps only rows that pass its condition. Check the condition with sample data before using it for a change."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "At most five of Mia's entries from the chosen date range are returned."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "A range rule on a different non-key column may need a different table design. Do not add ALLOW FILTERING as a reflex."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Change the start date and predict which sample days match."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-read-a-range-inside-a-partition-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-read-a-range-inside-a-partition-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "read-one-partition"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Read a range inside a partition",
+    "description": "After choosing a partition, a query can use a range on its clustering column. This is useful for a reader's recent days."
+  },
+  "updatedOn": "2026-11-16"
+}

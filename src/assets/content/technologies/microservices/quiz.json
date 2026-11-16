@@ -1,0 +1,128 @@
+{
+  "id": "microservices-quiz",
+  "title": "Microservices Quiz",
+  "description": "Revisit the key ideas in Microservices. Read each choice carefully. You can try the quiz again after reviewing the lessons.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "microservices-quiz-1",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What should guide a service boundary?",
+      "options": ["One service for every line of code", "A clear business job"],
+      "correctIndex": 1,
+      "explanation": "A service is a part that does work for another part. Microservices divide an app by jobs, such as catalog search and lending. The jobs are separated by purpose. Merely splitting files does not create useful service boundaries."
+    },
+    {
+      "id": "microservices-quiz-2",
+      "lessonSlug": "own-the-data-you-change",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Who should update a book title?",
+      "options": ["Catalog", "Every service at once"],
+      "correctIndex": 0,
+      "explanation": "A service should clearly own the data it changes. Other services use its interface rather than editing its tables directly. Catalog remains responsible for book facts. Loans stays responsible for lending facts."
+    },
+    {
+      "id": "microservices-quiz-3",
+      "lessonSlug": "contracts-explain-requests",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does 404 mean in this contract?",
+      "options": ["The book has 404 pages", "The book was not found"],
+      "correctIndex": 1,
+      "explanation": "A contract describes the request fields and response fields. Both sides need to agree on their meaning. The contract tells callers what a successful result and a missing item look like."
+    },
+    {
+      "id": "microservices-quiz-4",
+      "lessonSlug": "direct-calls-can-wait",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which service is waiting in this example?",
+      "options": ["Loans", "The database index"],
+      "correctIndex": 0,
+      "explanation": "In a direct call, the caller waits for a reply. This is simple to follow but the caller depends on the other service responding. Loans cannot finish this step until Catalog replies or a time limit is reached."
+    },
+    {
+      "id": "microservices-quiz-5",
+      "lessonSlug": "events-announce-something-happened",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Does BookBorrowed describe the past or ask permission?",
+      "options": ["It asks for permission", "It describes a past fact"],
+      "correctIndex": 1,
+      "explanation": "An event reports a past fact. Other services may react to it without the sender waiting for every reaction. The event says a loan already happened. It is different from asking whether a loan should happen."
+    },
+    {
+      "id": "microservices-quiz-6",
+      "lessonSlug": "duplicate-messages-are-possible",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "How many times should event 81 change the count?",
+      "options": ["Once", "Every time it is received"],
+      "correctIndex": 0,
+      "explanation": "Message delivery can repeat. A consumer should recognise an event it has already handled. Remembering handled IDs avoids double counting. The storage and cleanup rule for IDs must be planned."
+    },
+    {
+      "id": "microservices-quiz-7",
+      "lessonSlug": "timeouts-bound-waiting",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What does a timeout limit?",
+      "options": ["The number of book titles", "How long the caller waits"],
+      "correctIndex": 1,
+      "explanation": "A timeout sets a limit on waiting. The caller must choose a useful response when that limit passes. The caller stops waiting after the limit. The remote work might still be running."
+    },
+    {
+      "id": "microservices-quiz-8",
+      "lessonSlug": "circuit-breakers-pause-failing-calls",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Why stop calls briefly?",
+      "options": ["To avoid piling up failing work", "To erase failed requests from history"],
+      "correctIndex": 0,
+      "explanation": "A circuit breaker stops repeated calls to a service that is failing. Later it allows a small trial to see whether recovery happened. Failing fast avoids building a long queue of waiting calls. The trial helps detect recovery."
+    },
+    {
+      "id": "microservices-quiz-9",
+      "lessonSlug": "work-across-services-needs-recovery",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What is the recovery action here?",
+      "options": ["Reserve a second book", "Release the reservation"],
+      "correctIndex": 1,
+      "explanation": "A multi-step business action can partly succeed. A recovery action, often called compensation, tries to undo an earlier step. Releasing the reservation lets another learner borrow the copy. Recovery can also fail and needs monitoring."
+    },
+    {
+      "id": "microservices-quiz-10",
+      "lessonSlug": "versions-protect-callers",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "Which change is more likely to break an old caller?",
+      "options": ["Removing title", "Keeping title unchanged"],
+      "correctIndex": 0,
+      "explanation": "A new contract version gives callers time to move. A safe added optional field is often easier than removing a field callers still need. A caller that ignores unknown fields can keep using id and title. Removing title would break it."
+    },
+    {
+      "id": "microservices-quiz-11",
+      "lessonSlug": "trace-a-request-across-parts",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What joins these trace records?",
+      "options": ["The book title", "trace-7"],
+      "correctIndex": 1,
+      "explanation": "A trace follows one request through several services. A shared trace ID connects the records. The matching ID helps find where time was spent. It should not contain private learner information."
+    },
+    {
+      "id": "microservices-quiz-12",
+      "lessonSlug": "choose-services-only-when-needed",
+      "difficulty": "beginner",
+      "type": "multiple-choice",
+      "question": "What should decide the architecture?",
+      "options": ["The actual needs and costs", "The newest buzzword"],
+      "correctIndex": 0,
+      "explanation": "Microservices bring independent releases and scaling, but add network calls and more operations work. Compare those costs before splitting an app. Both choices can be good. The team and problem decide; a fashionable name does not."
+    }
+  ]
+}

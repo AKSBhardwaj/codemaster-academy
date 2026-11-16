@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "slug": "trees",
+  "title": "Trees: parents and children",
+  "summary": "Explore a tree of connected nodes. Name the root and leaves, add three node values, and see how a small recursive rule visits the tree.",
+  "introduction": "A school folder can contain smaller folders, which can contain more folders. A tree describes this branching shape. We will use a tiny tree with one top node and two children.",
+  "learningObjectives": [
+    "Name a root, parent, child, and leaf",
+    "Trace a recursive tree sum",
+    "Explain why an empty branch contributes zero"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **tree** is a connected structure with no cycle. In a rooted tree, one node is the **root**, or starting point. A node below another is its **child**. The node above is its **parent**."
+    },
+    {
+      "type": "paragraph",
+      "text": "A **leaf** has no children. Our root holds 8, with children 3 and 10. Both children are leaves. Every node except the root has exactly one parent."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is a **binary tree**, so each node has at most two children: left and right. Binary does not mean the values are sorted. A binary search tree adds a separate ordering rule."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Recursion** means a function calls itself on a smaller part of the task. To sum a tree, add the current value, the left branch sum, and the right branch sum. An empty branch returns 0 and stops that call."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Ask for the sum at root 8.",
+        "The left call visits 3. Its two branches are empty, so it returns 3 + 0 + 0 = 3.",
+        "The right call visits 10 and returns 10 + 0 + 0 = 10.",
+        "The root returns 8 + 3 + 10 = 21. Print 21."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Trees: parents and children example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const root = {\n  value: 8,\n  left: { value: 3, left: null, right: null },\n  right: { value: 10, left: null, right: null }\n};\nfunction sum(node) {\n  if (node === null) return 0;\n  return node.value + sum(node.left) + sum(node.right);\n}\nconsole.log(sum(root));",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int value; struct Node *left; struct Node *right; };\nint sum(const struct Node *node) {\n    if (node == NULL) return 0;\n    return node->value + sum(node->left) + sum(node->right);\n}\n\nint main(void) {\n    struct Node left = {3, NULL, NULL};\n    struct Node right = {10, NULL, NULL};\n    struct Node root = {8, &left, &right};\n    printf(\"%d\\n\", sum(&root));\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\nstruct Node { int value; Node* left; Node* right; };\nint sum(const Node* node) {\n    if (node == nullptr) return 0;\n    return node->value + sum(node->left) + sum(node->right);\n}\n\nint main() {\n    Node left{3, nullptr, nullptr};\n    Node right{10, nullptr, nullptr};\n    Node root{8, &left, &right};\n    std::cout << sum(&root) << '\\n';\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "class Node:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\ndef tree_sum(node):\n    if node is None:\n        return 0\n    return node.value + tree_sum(node.left) + tree_sum(node.right)\n\nroot = Node(8, Node(3), Node(10))\nprint(tree_sum(root))",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "Node root = new Node(8, new Node(3), new Node(10));\nSystem.Console.WriteLine(Sum(root));\n\nstatic int Sum(Node? node)\n{\n    if (node is null) return 0;\n    return node.Value + Sum(node.Left) + Sum(node.Right);\n}\n\nclass Node\n{\n    public int Value;\n    public Node? Left, Right;\n    public Node(int value, Node? left = null, Node? right = null)\n    { Value = value; Left = left; Right = right; }\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    static class Node {\n        int value;\n        Node left, right;\n        Node(int value, Node left, Node right) {\n            this.value = value; this.left = left; this.right = right;\n        }\n    }\n    static int sum(Node node) {\n        if (node == null) return 0;\n        return node.value + sum(node.left) + sum(node.right);\n    }\n    public static void main(String[] args) {\n        Node root = new Node(8, new Node(3, null, null), new Node(10, null, null));\n        System.out.println(sum(root));\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "21"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every node contributes its value once. There are no shared child nodes or links back to parents in this example. The result depends on the values, not whether we add the left or right sum first."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty tree has an empty root and sums to 0. One node sums to its own value. The empty-branch check is the **base case**: the rule that stops the recursion."
+    },
+    {
+      "type": "paragraph",
+      "text": "Visiting all n nodes takes O(n) work. The waiting calls use O(h) extra space, where h is the height: the longest downward path measured in levels here. A very tall tree can exceed a language's call-stack limit. An explicit stack can avoid deep function calls."
+    },
+    {
+      "type": "paragraph",
+      "text": "A node that points back to an ancestor makes a cycle. This simple recursive function expects a tree, so such a cycle would keep it calling itself."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the right leaf from 10 to 12.",
+        "The sum becomes 23: 8 + 3 + 12. The shape and the stopping rule stay the same."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not read node.value before checking whether node is empty. Empty branches do not contain a node to read."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-trees"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-trees"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search-trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "heaps"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "graphs-and-neighbours"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Trees: parents and children in six languages",
+    "description": "Explore a tree of connected nodes. Name the root and leaves, add three node values, and see how a small recursive rule visits the tree."
+  },
+  "updatedOn": "2026-11-16"
+}

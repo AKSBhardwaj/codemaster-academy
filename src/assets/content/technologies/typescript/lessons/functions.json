@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "slug": "functions",
+  "title": "Typing Functions",
+  "summary": "A function type describes its inputs and the kind of answer it returns.",
+  "introduction": "A function type describes its inputs and the kind of answer it returns. Label the numbers going into a small maths helper. Then label the answer, so the checker can catch a text value used in the wrong place.",
+  "learningObjectives": [
+    "Annotate parameters and return types and read the errors for wrong or missing arguments",
+    "Declare optional, default and rest parameters in the right order",
+    "Describe callbacks with function type aliases and rely on contextual typing"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Parameters and return types"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parameters are the one place where inference cannot help: the compiler has no way to know what a caller will pass, so under `strict` every parameter needs a type. The return type can usually be inferred from the `return` statements, but annotating it on anything exported turns the signature into a contract that the body cannot accidentally break. Arrow functions are typed the same way."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "basics.ts",
+      "code": "function add(a: number, b: number): number {\n  return a + b;\n}\n\nconst double = (n: number) => n * 2;\n\nconsole.log(add(2, 3), double(21));\nadd(1);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc basics.ts",
+      "content": "basics.ts:8:1 - error TS2554: Expected 2 arguments, but got 1.\n\n8 add(1);\n  ~~~\n\n  basics.ts:1:25\n    1 function add(a: number, b: number): number {\n                              ~~~~~~~~~\n    An argument for 'b' was not provided.\n\n\nFound 1 error in basics.ts:8"
+    },
+    {
+      "type": "paragraph",
+      "text": "Running the file with `tsx` prints `5 42`; in plain JavaScript the call `add(1)` would silently return `NaN`. The compiler instead reports the call *and* points back at the parameter that was not provided. Argument count is checked as strictly as argument type: passing too many arguments is also an error, which catches a whole family of copy-and-paste mistakes."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Optional, default and rest parameters"
+    },
+    {
+      "type": "paragraph",
+      "text": "A question mark makes a parameter optional; inside the function its type gains `| undefined`, so you must handle the missing case. A default value (`greeting = \"Hello\"`) also makes the parameter optional, but the type is inferred from the default and never includes `undefined` inside the body. A rest parameter collects any number of trailing arguments into an array."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "params.ts",
+      "code": "function greet(name: string, greeting = \"Hello\", punctuation?: string): string {\n  return `${greeting}, ${name}${punctuation ?? \"!\"}`;\n}\n\nfunction sum(...values: number[]): number {\n  return values.reduce((total, value) => total + value, 0);\n}\n\nconsole.log(greet(\"Ada\"));\nconsole.log(greet(\"Ada\", \"Hi\", \"?\"));\nconsole.log(sum(1, 2, 3, 4));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx params.ts",
+      "content": "Hello, Ada!\nHi, Ada?\n10"
+    },
+    {
+      "type": "paragraph",
+      "text": "Note the `??` operator: `punctuation ?? \"!\"` uses the default only when `punctuation` is `null` or `undefined`, which is exactly the case the `?` introduced. Inside `sum`, `values` is a `number[]`, so the arrow function passed to `reduce` gets `total` and `value` typed as numbers without any annotation."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: an optional parameter before a required one",
+      "text": "`function slice(start?: number, end: number)` is rejected with `TS1016: A required parameter cannot follow an optional parameter.` Callers fill parameters left to right, so there would be no way to supply `end` without `start`. Put optional and default parameters last, or accept a single options object when a function has several optional settings."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Function types and callbacks"
+    },
+    {
+      "type": "paragraph",
+      "text": "A function is a value, so it has a type: the parameter list and the return type written with an arrow, such as `(value: number) => string`. Giving that type a name with `type` makes it reusable. When you pass an arrow function where a function type is expected, the compiler *contextually types* its parameters from the expected signature, so `(value) => ...` needs no annotation and still gets full checking."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "callbacks.ts",
+      "code": "type Formatter = (value: number) => string;\n\nfunction formatAll(values: number[], format: Formatter): string[] {\n  return values.map(format);\n}\n\nconst euros: Formatter = (value) => `${value.toFixed(2)} EUR`;\n\nconsole.log(formatAll([1.5, 20], euros));\nconsole.log(formatAll([3], (value) => value * 2));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc callbacks.ts",
+      "content": "callbacks.ts:10:39 - error TS2322: Type 'number' is not assignable to type 'string'.\n\n10 console.log(formatAll([3], (value) => value * 2));\n                                         ~~~~~~~~~\n\n  callbacks.ts:1:18\n    1 type Formatter = (value: number) => string;\n                       ~~~~~~~~~~~~~~~~~~~~~~~~~\n    The expected type comes from the return type of this signature.\n\n\nFound 1 error in callbacks.ts:10"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first call prints `[ '1.50 EUR', '20.00 EUR' ]`. The second is rejected because the callback returns a number where `Formatter` promises a string, and the message tells you which signature imposed the expectation. This is the same mechanism that types the callbacks you pass to `map`, `filter`, `addEventListener` and every library API."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "void and never"
+    },
+    {
+      "type": "paragraph",
+      "text": "`void` says a function's return value is not meant to be used; `logLine` below returns nothing, and callers that try to use its result get an error. `never` says the function does not return at all: it throws or loops forever. The compiler uses that knowledge for control flow: after `fail(...)` is called inside the `if`, it knows the code below only runs when `port` is a real number."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "void-never.ts",
+      "code": "function logLine(message: string): void {\n  console.log(`> ${message}`);\n}\n\nfunction fail(reason: string): never {\n  throw new Error(reason);\n}\n\nfunction parsePort(input: string): number {\n  const port = Number(input);\n  if (Number.isNaN(port)) {\n    fail(`Not a port: ${input}`);\n  }\n  return port;\n}\n\nlogLine(`port ${parsePort(\"8080\")}`);\nlogLine(`port ${parsePort(\"abc\")}`);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx void-never.ts (Node prints the stack trace after the message)",
+      "content": "> port 8080\nError: Not a port: abc"
+    },
+    {
+      "type": "table",
+      "headers": ["Return type", "Meaning", "Typical use"],
+      "rows": [
+        ["`string`, `number`, `User`...", "Always returns a value of that type", "Most functions"],
+        ["`void`", "Returns nothing callers should use", "Logging, event handlers, side effects"],
+        ["`never`", "Never returns normally", "Functions that always throw; exhaustiveness checks"],
+        [
+          "`Promise<T>`",
+          "Returns asynchronously",
+          "Every `async` function; see the [async lesson](/tutorials/typescript/async-types)"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Overloads and generics",
+      "text": "Sometimes one function accepts several unrelated shapes, such as `parse(text: string)` and `parse(bytes: Uint8Array)`. TypeScript supports *overload signatures* for that, but the more common tool is a generic function, which the [generics lesson](/tutorials/typescript/generics) covers. Reach for overloads only when the return type genuinely depends on which parameter shape was used."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-functions-format-name"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-functions-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "Inside `function tag(label?: string) { ... }`, what is the type of `label`?",
+          "explanation": "An optional parameter may be omitted, so inside the body its type is the declared type plus undefined. You must handle that case before calling string methods.",
+          "options": ["`string`", "`string | undefined`", "`string | null`", "`any`"],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-functions-qc-2",
+          "type": "true-false",
+          "lessonSlug": "functions",
+          "difficulty": "beginner",
+          "question": "An arrow function passed to `[1, 2, 3].map((n) => n * 2)` needs an explicit `n: number` annotation under strict mode.",
+          "explanation": "The parameter is contextually typed from the array's map signature, so n is already a number. Annotations are only required where no context exists.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-functions-format-name"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "basic-types"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "generics"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "async-types"
+    }
+  ],
+  "seo": {
+    "title": "Typing Functions in TypeScript – Parameters and Returns",
+    "description": "Learn to type function parameters, return values, optional and rest parameters, callbacks with function types, and the void and never return types."
+  },
+  "updatedOn": "2026-11-16"
+}

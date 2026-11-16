@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-jdk",
+  "title": "Installing the JDK and Running Programs",
+  "summary": "Install a Java 25 JDK, verify it from the terminal, compile and run a program with javac and java, try the single-file launcher and jshell, and choose an editor.",
+  "introduction": "Before writing real programs you need the Java Development Kit (JDK): the compiler, the runtime and a set of command-line tools. This lesson walks through installing Java 25 on Windows, macOS or Linux, checking the installation, compiling and running a program by hand so you understand what an IDE does for you later, and using two shortcuts that make learning faster: the single-file source launcher and the jshell prompt.",
+  "learningObjectives": [
+    "Install a Java 25 JDK and verify it with java -version",
+    "Compile with javac and run with java, and explain what the .class file is",
+    "Run a single source file directly and experiment in jshell",
+    "Recognise the most common beginner errors when running a program"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose and install a JDK"
+    },
+    {
+      "type": "paragraph",
+      "text": "The JDK is free. Several vendors publish builds of the same OpenJDK source code: **Eclipse Temurin** from adoptium.net (a popular, no-strings choice), Oracle's builds, Amazon Corretto, Microsoft's Build of OpenJDK and others. For this tutorial any **JDK 25** build works. Download the installer or archive for your operating system and run it. On Windows, tick the installer option that adds Java to your `PATH`; Temurin's installer also offers to set the `JAVA_HOME` variable, which build tools and IDEs read to find the JDK. On macOS the installer puts the JDK where the system expects it, and on Linux the package manager of most distributions has an `openjdk-25-jdk` package or a vendor repository."
+    },
+    {
+      "type": "paragraph",
+      "text": "Do not install a JRE (runtime only) or a very old version that a download page offers you by default: a JRE cannot compile anything, and versions below 17 are out of support. If you later need several versions side by side, a version manager such as SDKMAN! (macOS and Linux) switches between them with one command."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Verify the installation"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open a terminal (PowerShell or Command Prompt on Windows, Terminal on macOS, any shell on Linux) and ask both tools for their version."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "java -version\njavac -version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "openjdk version \"25.0.1\" 2025-10-21 LTS\nOpenJDK Runtime Environment Temurin-25.0.1+8 (build 25.0.1+8-LTS)\nOpenJDK 64-Bit Server VM Temurin-25.0.1+8 (build 25.0.1+8-LTS, mixed mode, sharing)\njavac 25.0.1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first line is the one that matters: it must say version 25 (the digits after the dot are the update level and rise over time). The second and third lines name the vendor and build, so they look different if you installed another vendor's JDK. If the command is *not found*, the installer did not update your `PATH`. Open a new terminal window first, because `PATH` changes only reach terminals started afterwards; if that does not help, add the JDK's `bin` folder to `PATH` by hand. If `java` works but `javac` does not, you have a JRE rather than a JDK."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Compile and run by hand"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a folder for experiments and, inside it, a file named exactly `Hello.java` with the program below. Use any text editor for now; the next section recommends two editors that understand Java."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Hello.java",
+      "code": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, world!\");\n    }\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "In the terminal, change into that folder (`cd` followed by the folder path) and run two commands: the compiler, then the launcher."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "javac Hello.java\njava Hello"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, world!"
+    },
+    {
+      "type": "paragraph",
+      "text": "`javac` printed nothing, which in the Unix tradition means success, and produced a new file `Hello.class` next to the source. That file holds bytecode, which is why you run it with `java Hello` (the class name) rather than with a file name: the launcher searches the current folder for a class called `Hello`, loads it and calls its `main` method. Every time you change the source you compile again; the old `.class` file is overwritten."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Skipping javac for one file"
+    },
+    {
+      "type": "paragraph",
+      "text": "The **source-file launcher** compiles in memory and runs in one step, without leaving a `.class` file on disk. It exists since Java 11, and since Java 22 the file may use other `.java` files in the same folder. It is ideal for the exercises in this tutorial."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "java Hello.java"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Hello, world!"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Java 25: a shorter program"
+    },
+    {
+      "type": "paragraph",
+      "text": "Java 25 finalised **compact source files** and **instance main methods** (JEP 512). For small programs you may drop the class declaration and the `public static` modifiers and print with the new `IO` class from `java.lang`:"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Hi.java",
+      "code": "void main() {\n    IO.println(\"Hello from a compact source file!\");\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Hi.java",
+      "content": "Hello from a compact source file!"
+    },
+    {
+      "type": "paragraph",
+      "text": "The launcher wraps the method in an implicit class for you. Every lesson here still shows the full form, because it is what you will find in every existing codebase and every job, but the compact form is a good scratchpad. On Java 21 and older it does not compile, so avoid it on a team project until the project itself is on Java 25."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Experiment in jshell"
+    },
+    {
+      "type": "paragraph",
+      "text": "`jshell` is an interactive prompt that ships with the JDK: type an expression, press Enter and see its value, with no class and no `main` method. It is the quickest way to test what a method returns while you read a lesson. Expressions you do not assign to a name land in automatic variables called `$1`, `$2` and so on."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "jshell"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "A jshell session (your input after jshell>)",
+      "content": "|  Welcome to JShell -- Version 25.0.1\n|  For an introduction type: /help intro\n\njshell> 2 + 3\n$1 ==> 5\n\njshell> \"Java\".toUpperCase()\n$2 ==> \"JAVA\"\n\njshell> /exit\n|  Goodbye"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Choose an editor"
+    },
+    {
+      "type": "paragraph",
+      "text": "Any text editor can write Java, but an editor that understands the language saves hours: it underlines errors as you type, completes method names and runs the program with one click. Two free choices cover almost everyone. [Visual Studio Code](/tutorials/vscode) with the *Extension Pack for Java* is light and familiar if you already use it for other languages. **IntelliJ IDEA Community Edition** is a full Java IDE and the tool most professional Java teams use. Both find your installed JDK automatically. Larger projects add a build tool, Maven or Gradle, that downloads libraries and compiles everything with one command; you do not need one for this tutorial."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Common beginner errors"
+    },
+    {
+      "type": "paragraph",
+      "text": "The most frequent mistake in the first week is passing the file name instead of the class name to `java`. The launcher then looks for a class literally called `Hello.class` and fails:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "title": "Terminal",
+      "code": "java Hello.class"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Error: Could not find or load main class Hello.class\nCaused by: java.lang.ClassNotFoundException: Hello.class"
+    },
+    {
+      "type": "paragraph",
+      "text": "The same message appears, without the `.class` suffix, when you run `java Hello` from a different folder than the one containing `Hello.class`, or when you forgot to compile. Check the folder with `dir` (Windows) or `ls` (macOS and Linux) and compile again."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The file name must match the public class",
+      "text": "If `Hello.java` contains `public class Greeting`, javac answers `error: class Greeting is public, should be declared in a file named Greeting.java`. Rename the file or the class so they agree, and remember that Java is case-sensitive: `hello.java` is not `Hello.java`."
+    },
+    {
+      "type": "callout",
+      "icon": "terminal",
+      "title": "Stay in the right folder",
+      "text": "Both `javac` and `java` work relative to the folder your terminal is in. If a command cannot find your file or class, the first thing to check is where you are: `cd` into the folder that holds `Hello.java` and try again."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-setup-first-program"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-setup-qc-1",
+          "type": "fill-blank",
+          "lessonSlug": "setup-jdk",
+          "difficulty": "beginner",
+          "question": "The compiler that turns `Hello.java` into bytecode is started with the command `___ Hello.java`.",
+          "explanation": "`javac` is the Java compiler. It writes `Hello.class`, which the `java` launcher then runs.",
+          "answers": ["javac"],
+          "caseSensitive": false
+        },
+        {
+          "id": "java-setup-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-jdk",
+          "difficulty": "beginner",
+          "question": "After `javac Hello.java` succeeded, which command runs the program?",
+          "explanation": "`java` takes the class name. Passing `Hello.class` makes it search for a class named `Hello.class`, which does not exist.",
+          "options": ["`java Hello.class`", "`java Hello`", "`javac Hello`", "`run Hello.java`"],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-setup-run-command", "java-setup-first-program"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    }
+  ],
+  "seo": {
+    "title": "Install the JDK and Run Java Programs (Java 25)",
+    "description": "Step-by-step guide to installing a Java 25 JDK, checking java -version, compiling with javac, running with java, and using the source launcher and jshell."
+  },
+  "updatedOn": "2026-11-15"
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Add response metadata",
+  "summary": "FastAPI: Add response metadata. Inspect Cache-Control with curl -i.",
+  "introduction": "The Response input lets a function set headers. Open GET /note.",
+  "learningObjectives": [
+    "Add response metadata with FastAPI",
+    "Inspect Cache-Control with curl -i"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Add response metadata"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Add response metadata",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/note\")\ndef note(response: Response):\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return {\"note\": \"Practice\"}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The injected response object receives the header. The returned dictionary supplies the body."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"note\":\"Practice\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect Cache-Control with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A header changes metadata, not the JSON field values."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-headers-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "errors"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Add response metadata",
+    "description": "FastAPI: Add response metadata. Inspect Cache-Control with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

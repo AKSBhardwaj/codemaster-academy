@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "slug": "utility-types",
+  "title": "Utility Types",
+  "summary": "Utility types make new type shapes from shapes you already have.",
+  "introduction": "Utility types make new type shapes from shapes you already have. A school form might use only some facts from a bigger record. Try making fields optional or picking only the fields a task needs.",
+  "learningObjectives": [
+    "Build form and update types with Partial, Required, Pick and Omit",
+    "Use Record, Readonly, ReturnType, Parameters, Awaited and NonNullable in real signatures",
+    "Explain how mapped and conditional types implement the built-in utilities"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Partial, Pick and Omit"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Partial<T>` makes every property optional, `Pick<T, Keys>` keeps only the listed properties, and `Omit<T, Keys>` removes them. They compose: `Partial<Omit<User, \"id\">>` is *any subset of the fields except the id*, which is exactly what an update endpoint accepts. The excess property check still applies, so a stray `id` in the changes is rejected."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "partial.ts",
+      "code": "interface User {\n  id: number;\n  name: string;\n  email: string;\n  role: \"admin\" | \"member\";\n}\n\ntype UserPreview = Pick<User, \"id\" | \"name\">;\ntype NewUser = Omit<User, \"id\">;\n\nfunction updateUser(id: number, changes: Partial<Omit<User, \"id\">>): string {\n  return `user ${id}: ${Object.keys(changes).join(\", \")}`;\n}\n\nconst preview: UserPreview = { id: 1, name: \"Ada\" };\nconst draft: NewUser = { name: \"Grace\", email: \"grace@example.com\", role: \"member\" };\n\nconsole.log(preview, draft.role);\nconsole.log(updateUser(1, { name: \"Ada Lovelace\" }));\n\nupdateUser(1, { id: 2 });"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc partial.ts",
+      "content": "partial.ts:21:17 - error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'Partial<Omit<User, \"id\">>'.\n\n21 updateUser(1, { id: 2 });\n                   ~~\n\n\nFound 1 error in partial.ts:21"
+    },
+    {
+      "type": "paragraph",
+      "text": "The valid lines print `{ id: 1, name: 'Ada' } member` and `user 1: name`. Rename `email` to `emailAddress` in `User` and all three derived types follow automatically; that is the whole point. `Required<T>` is the inverse of `Partial`: it removes every `?`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Record, Readonly and indexed access"
+    },
+    {
+      "type": "paragraph",
+      "text": "`User[\"role\"]` is an *indexed access type*: it reads the type of one property, so `Role` stays in sync with the interface. `Record<Keys, Value>` builds an object type with exactly those keys; using the `Role` union as keys guarantees that every role has an entry and no unknown role sneaks in. `Readonly<T>` marks every property read-only."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "record.ts",
+      "code": "interface User {\n  id: number;\n  name: string;\n  role: \"admin\" | \"member\";\n}\n\ntype Role = User[\"role\"];\n\nconst permissions: Record<Role, string[]> = {\n  admin: [\"read\", \"write\", \"delete\"],\n  member: [\"read\"],\n};\n\nconst frozen: Readonly<User> = { id: 1, name: \"Ada\", role: \"admin\" };\n\nconsole.log(permissions[frozen.role]);\n\nfrozen.name = \"Grace\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc record.ts",
+      "content": "record.ts:18:8 - error TS2540: Cannot assign to 'name' because it is a read-only property.\n\n18 frozen.name = \"Grace\";\n          ~~~~\n\n\nFound 1 error in record.ts:18"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lookup prints `[ 'read', 'write', 'delete' ]`. Try removing the `member` entry from `permissions`: the compiler reports that the property is missing, because `Record<Role, ...>` requires every key of the union. Compare that with an index signature, which allows any key and therefore cannot catch a forgotten one."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Types derived from functions"
+    },
+    {
+      "type": "paragraph",
+      "text": "You do not always control the type you need; sometimes it is whatever a function happens to return. `typeof createUser` is the function's type, `ReturnType` extracts what it returns and `Parameters` extracts its parameter list as a tuple. `Awaited<T>` unwraps a `Promise`, and `NonNullable<T>` strips `null` and `undefined` from a union."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "return-type.ts",
+      "code": "type Role = \"admin\" | \"member\";\n\nfunction createUser(name: string, role: Role = \"member\") {\n  return { id: Math.floor(Math.random() * 1000), name, role };\n}\n\ntype Created = ReturnType<typeof createUser>;\ntype Args = Parameters<typeof createUser>;\n\nasync function loadIds() {\n  return [1, 2, 3];\n}\n\ntype Ids = Awaited<ReturnType<typeof loadIds>>;\ntype MaybeName = string | null | undefined;\ntype Name = NonNullable<MaybeName>;\n\nconst args: Args = [\"Ada\", \"admin\"];\nconst created: Created = createUser(...args);\nconst ids: Ids = await loadIds();\nconst name: Name = created.name;\n\nconsole.log(created.role, ids.length, name);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsx return-type.ts",
+      "content": "admin 3 Ada"
+    },
+    {
+      "type": "paragraph",
+      "text": "Hovering shows `Created` as `{ id: number; name: string; role: Role }`, `Args` as `[name: string, role?: Role]`, `Ids` as `number[]` and `Name` as `string`. Deriving types this way is common in tests and in code that wraps a third-party function whose return type is not exported."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How utility types work"
+    },
+    {
+      "type": "paragraph",
+      "text": "`Partial` is a one-line *mapped type*: it loops over `keyof T` and re-declares each property with a `?`. `Exclude` and `Extract` are *conditional types* that filter a union: `Exclude<Status, \"idle\" | \"loading\">` keeps the members that are *not* in the second argument, `Extract` keeps the ones that are. Knowing this lets you read the definitions in `lib.es5.d.ts` and the types of libraries that build on them."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "mapped.ts",
+      "code": "type MyPartial<T> = { [K in keyof T]?: T[K] };\n\ntype Status = \"idle\" | \"loading\" | \"done\" | \"error\";\ntype Busy = Extract<Status, \"loading\">;\ntype Settled = Exclude<Status, \"idle\" | \"loading\">;\n\ninterface Config {\n  server: { port: number; host: string };\n}\n\nconst config: Readonly<Config> = { server: { port: 3000, host: \"localhost\" } };\nconfig.server.port = 4000;\nconsole.log(config.server.port);\n\nconst settled: Settled = \"loading\";"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc mapped.ts",
+      "content": "mapped.ts:15:7 - error TS2322: Type '\"loading\"' is not assignable to type 'Settled'.\n\n15 const settled: Settled = \"loading\";\n         ~~~~~~~\n\n\nFound 1 error in mapped.ts:15"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: expecting Readonly and Partial to be deep",
+      "text": "Line 12 compiled and the program prints `4000`. `Readonly<Config>` protects only the top-level `server` property; the object it points to is still mutable, and `Partial` likewise makes only the first level optional. When you need the whole tree protected, write a recursive mapped type (`type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> }`) or use `Object.freeze` at runtime, remembering that `freeze` is also shallow."
+    },
+    {
+      "type": "table",
+      "caption": "Utility types you will meet most often",
+      "headers": ["Utility", "Produces"],
+      "rows": [
+        ["`Partial<T>` / `Required<T>`", "All properties optional / all required"],
+        ["`Readonly<T>`", "All properties read-only (shallow)"],
+        ["`Pick<T, K>` / `Omit<T, K>`", "Only the keys `K` / everything except `K`"],
+        ["`Record<K, V>`", "An object type with keys `K` and values `V`"],
+        [
+          "`Exclude<U, M>` / `Extract<U, M>`",
+          "Union `U` without / with the members assignable to `M`"
+        ],
+        ["`NonNullable<T>`", "`T` without `null` and `undefined`"],
+        [
+          "`ReturnType<F>` / `Parameters<F>`",
+          "What function type `F` returns / its parameters as a tuple"
+        ],
+        ["`Awaited<T>`", "The resolved type of a promise, recursively"],
+        ["`NoInfer<T>`", "Blocks inference from that position (TypeScript 5.4+)"]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Template literal types",
+      "text": "`Uppercase`, `Lowercase`, `Capitalize` and `Uncapitalize` transform string literal types, and template literal types (written with backticks and `${...}` placeholders, like template strings) build new ones: wrapping `Capitalize<\"click\" | \"focus\">` in a template literal type with an `on` prefix yields `\"onClick\" | \"onFocus\"`. They are a niche but handy tool for typing event maps and CSS-like strings."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-utility-types-pick"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-utility-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "utility-types",
+          "difficulty": "beginner",
+          "question": "Which type describes an object that must have a `string[]` for every member of `type Day = \"mon\" | \"tue\"`?",
+          "explanation": "Record builds an object type from a union of keys and a value type. The other options describe different shapes entirely.",
+          "options": [
+            "`Pick<Day, string[]>`",
+            "`Record<Day, string[]>`",
+            "`Partial<Day>`",
+            "`Extract<Day, string[]>`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "ts-utility-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "utility-types",
+          "difficulty": "intermediate",
+          "question": "Given `async function load(): Promise<number[]>`, the type `___<ReturnType<typeof load>>` is `number[]`.",
+          "explanation": "ReturnType gives Promise<number[]>; Awaited unwraps the promise to its resolved type.",
+          "answers": ["Awaited"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-utility-types-pick"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "generics"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "objects-interfaces"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "async-types"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Utility Types – Partial, Pick, Omit, Record",
+    "description": "Learn TypeScript utility types with real examples: Partial, Required, Pick, Omit, Record, Readonly, ReturnType, Parameters, Awaited, Exclude and Extract."
+  },
+  "updatedOn": "2026-11-16"
+}

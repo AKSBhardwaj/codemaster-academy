@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "slug": "heaps",
+  "title": "Heaps and the smallest item",
+  "summary": "Remove the smallest item from a min-heap. Follow a short sift-down, read the next smallest item, and learn why a heap is not fully sorted.",
+  "introduction": "Suppose the shortest job should go first. You need the smallest waiting time quickly, but you do not need every job sorted on every step. A min-heap keeps the smallest item ready at the top.",
+  "learningObjectives": [
+    "Explain the min-heap parent rule",
+    "Remove the root and repair the heap with sift-down",
+    "Distinguish a heap from a sorted list and a search tree"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **min-heap** is a complete binary tree where every parent is at most as large as either child. Complete means levels fill from top to bottom, and the last level fills from left to right."
+    },
+    {
+      "type": "paragraph",
+      "text": "Because the rule holds all the way down, the root is a smallest value. Equal values are allowed. The left child does not have to be smaller than the right child."
+    },
+    {
+      "type": "paragraph",
+      "text": "We store the tree in an array. For a parent at index i, the left child is at 2 × i + 1 and the right child is at 2 × i + 2. A child exists only if its index is less than size."
+    },
+    {
+      "type": "paragraph",
+      "text": "To remove the root, move the last active value to the top and reduce size. Then **sift down**: swap with the smaller child until the parent rule is true again."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with the valid min-heap [2, 4, 7, 9]. The root 2 is the minimum.",
+        "Save 2. Move the last value, 9, to index 0. There are now three active places: [9, 4, 7].",
+        "The smaller child is 4. Swap 9 with 4, giving [4, 9, 7]. Node 9 has no active child, so stop.",
+        "Print the removed value, 2, then the new root, 4."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Heaps and the smallest item example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const heap = [2, 4, 7, 9];\nlet size = heap.length;\nif (size > 0) {\n  const removed = heap[0];\n  heap[0] = heap[size - 1];\n  size--;\n  let parent = 0;\n  while (2 * parent + 1 < size) {\n    let child = 2 * parent + 1;\n    const right = child + 1;\n    if (right < size && heap[right] < heap[child]) child = right;\n    if (heap[parent] <= heap[child]) break;\n    const temp = heap[parent];\n    heap[parent] = heap[child];\n    heap[child] = temp;\n    parent = child;\n  }\n  console.log(removed);\n  if (size > 0) console.log(heap[0]);\n}",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    int heap[] = {2, 4, 7, 9};\n    int size = 4;\n    if (size > 0) {\n        int removed = heap[0];\n        heap[0] = heap[size - 1];\n        size--;\n        int parent = 0;\n        while (2 * parent + 1 < size) {\n            int child = 2 * parent + 1;\n            int right = child + 1;\n            if (right < size && heap[right] < heap[child]) child = right;\n            if (heap[parent] <= heap[child]) break;\n            int temp = heap[parent];\n            heap[parent] = heap[child];\n            heap[child] = temp;\n            parent = child;\n        }\n        printf(\"%d\\n\", removed);\n        if (size > 0) printf(\"%d\\n\", heap[0]);\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nint main() {\n    int heap[] = {2, 4, 7, 9};\n    int size = 4;\n    if (size > 0) {\n        int removed = heap[0];\n        heap[0] = heap[size - 1];\n        size--;\n        int parent = 0;\n        while (2 * parent + 1 < size) {\n            int child = 2 * parent + 1;\n            int right = child + 1;\n            if (right < size && heap[right] < heap[child]) child = right;\n            if (heap[parent] <= heap[child]) break;\n            int temp = heap[parent];\n            heap[parent] = heap[child];\n            heap[child] = temp;\n            parent = child;\n        }\n        std::cout << removed << '\\n';\n        if (size > 0) std::cout << heap[0] << '\\n';\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "heap = [2, 4, 7, 9]\nsize = len(heap)\nif size > 0:\n    removed = heap[0]\n    heap[0] = heap[size - 1]\n    size -= 1\n    parent = 0\n    while 2 * parent + 1 < size:\n        child = 2 * parent + 1\n        right = child + 1\n        if right < size and heap[right] < heap[child]:\n            child = right\n        if heap[parent] <= heap[child]:\n            break\n        heap[parent], heap[child] = heap[child], heap[parent]\n        parent = child\n    print(removed)\n    if size > 0:\n        print(heap[0])",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "int[] heap = {2, 4, 7, 9};\nint size = 4;\nif (size > 0) {\n    int removed = heap[0];\n    heap[0] = heap[size - 1];\n    size--;\n    int parent = 0;\n    while (2 * parent + 1 < size) {\n        int child = 2 * parent + 1;\n        int right = child + 1;\n        if (right < size && heap[right] < heap[child]) child = right;\n        if (heap[parent] <= heap[child]) break;\n        int temp = heap[parent];\n        heap[parent] = heap[child];\n        heap[child] = temp;\n        parent = child;\n    }\n    System.Console.WriteLine(removed);\n    if (size > 0) System.Console.WriteLine(heap[0]);\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        int[] heap = {2, 4, 7, 9};\n        int size = 4;\n        if (size > 0) {\n            int removed = heap[0];\n            heap[0] = heap[size - 1];\n            size--;\n            int parent = 0;\n            while (2 * parent + 1 < size) {\n                int child = 2 * parent + 1;\n                int right = child + 1;\n                if (right < size && heap[right] < heap[child]) child = right;\n                if (heap[parent] <= heap[child]) break;\n                int temp = heap[parent];\n                heap[parent] = heap[child];\n                heap[child] = temp;\n                parent = child;\n            }\n            System.out.println(removed);\n            if (size > 0) System.out.println(heap[0]);\n        }\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "2\n4"
+    },
+    {
+      "type": "paragraph",
+      "text": "Only the first size places belong to the heap. The old last array place is ignored after removal. The active result [4, 9, 7] is a valid min-heap even though it is not sorted. The root is enough to answer the next-minimum question."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "For an empty heap, do not read the root. For a one-item heap, removal leaves size 0, so there is no next root to print. Both guards are present in the example."
+    },
+    {
+      "type": "paragraph",
+      "text": "Sifting checks whether the right child exists before reading it. If only the left child exists, that is the only child to compare. Choosing the smaller child keeps the parent rule true for both sides."
+    },
+    {
+      "type": "paragraph",
+      "text": "Peeking at the root takes O(1) work. Inserting or removing an item takes O(log n) worst-case work because the complete tree has few levels. Doubling its item count adds about one level, so the work grows slowly. Finding an arbitrary value can still require O(n) checks."
+    },
+    {
+      "type": "paragraph",
+      "text": "This program starts with a valid heap. Do not pass any random array to this one removal step and expect it to sort or build the whole heap."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change the starting root value from 2 to 1. Leave the other values alone.",
+        "The output becomes 1 then 4. The starting array is still a valid min-heap because 1 is no larger than its children."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not swap with any child at random. Swap with the smaller child in a min-heap. Otherwise the new parent might still be larger than its other child."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-heaps"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-heaps"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "binary-search-trees"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "queues"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Heaps and the smallest item in six languages",
+    "description": "Remove the smallest item from a min-heap. Follow a short sift-down, read the next smallest item, and learn why a heap is not fully sorted."
+  },
+  "updatedOn": "2026-11-16"
+}

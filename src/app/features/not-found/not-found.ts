@@ -16,10 +16,16 @@ import { IconComponent } from '../../shared/components/icon/icon';
         <a class="btn btn-primary d-inline-flex align-items-center gap-2" routerLink="/">
           <cma-icon name="house" /> Home
         </a>
-        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" routerLink="/tutorials">
+        <a
+          class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+          routerLink="/tutorials"
+        >
           <cma-icon name="book" /> All tutorials
         </a>
-        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" routerLink="/search">
+        <a
+          class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+          routerLink="/search"
+        >
           <cma-icon name="search" /> Search
         </a>
       </div>

@@ -21,6 +21,20 @@ const BLOCKS: ContentBlock[] = [
     tokens: [[['<p>', 'tk-punctuation'], ['Hi'], ['</p>', 'tk-punctuation']]],
     title: 'index.html',
   },
+  {
+    type: 'code-tabs',
+    title: 'Add two scores',
+    defaultLanguage: 'javascript',
+    variants: [
+      {
+        type: 'code',
+        language: 'javascript',
+        code: 'console.log(3 + 4);',
+        tokens: [[['console.log(3 + 4);']]],
+      },
+      { type: 'code', language: 'python', code: 'print(3 + 4)', tokens: [[['print(3 + 4)']]] },
+    ],
+  },
   { type: 'output', content: 'Hi' },
   { type: 'output', content: '<p>Hi</p>', kind: 'html' },
   { type: 'alert', variant: 'warning', text: 'Do not forget the doctype.' },
@@ -95,9 +109,13 @@ describe('ContentRendererComponent', () => {
     expect(root.querySelector('figure img')?.getAttribute('alt')).toBe('An example image');
     expect(root.querySelector('.cma-video button')).not.toBeNull();
     expect(root.querySelector('.cma-video iframe')).toBeNull();
-    expect(root.querySelectorAll('aside.cma-callout').length).toBe(2); // callout block + exercise fallback
+    expect(root.querySelectorAll('.cma-callout[role="note"]').length).toBe(2); // callout block + exercise fallback
     expect(root.querySelector('cma-quiz-runner')).not.toBeNull();
-    expect(root.querySelectorAll('figure.cma-code').length).toBe(2);
+    expect(root.querySelectorAll('figure.cma-code').length).toBe(3);
+    expect(root.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.trim()).toBe(
+      'JavaScript',
+    );
+    expect(root.querySelector('[role="tabpanel"] pre')?.textContent).toBe('console.log(3 + 4);');
     expect(root.innerHTML).not.toContain('innerHTML');
   });
 });

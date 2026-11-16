@@ -14,10 +14,19 @@ const base = {
 };
 
 export const multipleChoiceSchema = z
-  .strictObject({ ...base, type: z.literal('multiple-choice'), options, correctIndex: z.number().int().nonnegative() })
+  .strictObject({
+    ...base,
+    type: z.literal('multiple-choice'),
+    options,
+    correctIndex: z.number().int().nonnegative(),
+  })
   .refine((q) => q.correctIndex < q.options.length, { message: 'correctIndex out of range' });
 
-export const trueFalseSchema = z.strictObject({ ...base, type: z.literal('true-false'), correct: z.boolean() });
+export const trueFalseSchema = z.strictObject({
+  ...base,
+  type: z.literal('true-false'),
+  correct: z.boolean(),
+});
 
 export const fillBlankSchema = z
   .strictObject({
@@ -61,7 +70,10 @@ export const codingTaskSchema = z.strictObject({
   /** Optional automatic check (only for languages the playground can execute). */
   check: z
     .discriminatedUnion('kind', [
-      z.strictObject({ kind: z.literal('console-output'), expectedLines: z.array(z.string()).min(1) }),
+      z.strictObject({
+        kind: z.literal('console-output'),
+        expectedLines: z.array(z.string()).min(1),
+      }),
       z.strictObject({
         kind: z.literal('sql-result'),
         expectedColumns: z.array(z.string()).min(1),
@@ -99,7 +111,10 @@ export const exerciseSetSourceSchema = z.strictObject({
   exercises: z.array(exerciseSchema).min(1).max(200),
 });
 export type ExerciseSetSource = z.infer<typeof exerciseSetSourceSchema>;
-export const exerciseSetSchema = exerciseSetSourceSchema.extend({ technologySlug: slugSchema, technologyName: z.string() });
+export const exerciseSetSchema = exerciseSetSourceSchema.extend({
+  technologySlug: slugSchema,
+  technologyName: z.string(),
+});
 export type ExerciseSet = z.infer<typeof exerciseSetSchema>;
 
 /** Authored shape: technologies/<slug>/quiz.json */
@@ -111,5 +126,8 @@ export const quizSourceSchema = z.strictObject({
   questions: z.array(quizQuestionSourceSchema).min(5).max(60),
 });
 export type QuizSource = z.infer<typeof quizSourceSchema>;
-export const quizSchema = quizSourceSchema.extend({ technologySlug: slugSchema, technologyName: z.string() });
+export const quizSchema = quizSourceSchema.extend({
+  technologySlug: slugSchema,
+  technologyName: z.string(),
+});
 export type Quiz = z.infer<typeof quizSchema>;

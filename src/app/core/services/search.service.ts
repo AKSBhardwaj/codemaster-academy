@@ -1,6 +1,11 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import type MiniSearch from 'minisearch';
-import type { SearchDocument, SearchDocumentKind, SearchIndexFile, TechnologyStatus } from '../models/content';
+import type {
+  SearchDocument,
+  SearchDocumentKind,
+  SearchIndexFile,
+  TechnologyStatus,
+} from '../models/content';
 import { SEARCH_INDEX_OPTIONS, SEARCH_QUERY_OPTIONS } from '../../../content-schema/search';
 import { ContentService } from './content.service';
 
@@ -40,9 +45,18 @@ export const KIND_LABEL: Record<SearchDocumentKind, string> = {
   reference: 'Reference',
 };
 
-const STATUS_BOOST: Record<TechnologyStatus, number> = { complete: 1.3, 'in-progress': 1.1, planned: 0.85 };
+const STATUS_BOOST: Record<TechnologyStatus, number> = {
+  complete: 1.3,
+  'in-progress': 1.1,
+  planned: 0.85,
+};
 /** Tutorials and lessons are what learners usually want; roadmaps and categories rank slightly lower for the same terms. */
-const KIND_BOOST: Partial<Record<SearchDocumentKind, number>> = { technology: 1.6, lesson: 1.2, category: 1, path: 0.9 };
+const KIND_BOOST: Partial<Record<SearchDocumentKind, number>> = {
+  technology: 1.6,
+  lesson: 1.2,
+  category: 1,
+  path: 0.9,
+};
 
 /** Client-side search over the prebuilt index files shipped with the content. */
 export class LocalSearchProvider implements SearchProvider {

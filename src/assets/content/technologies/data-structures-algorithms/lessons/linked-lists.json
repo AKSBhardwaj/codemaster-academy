@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "slug": "linked-lists",
+  "title": "Linked lists",
+  "summary": "Follow a chain of linked nodes, just like a treasure trail. Visit three values, stop at the end, and see how links differ from indexes.",
+  "introduction": "A treasure clue points to the next clue. You follow the trail one clue at a time. A linked list holds items this way: each little box points to the next box.",
+  "learningObjectives": [
+    "Explain nodes, links, and the head of a list",
+    "Visit every node without losing the first link",
+    "Recognize an empty list and the end of a chain"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A **node** is a small box that holds a value and a link to the next node. A link is a reference to another box. C and C++ call such an address a pointer."
+    },
+    {
+      "type": "paragraph",
+      "text": "The **head** points to the first node. The final node has an empty next link, written null, NULL, nullptr, or None in these languages."
+    },
+    {
+      "type": "paragraph",
+      "text": "This is a **singly linked list**: each node links forward once. Unlike an array, it does not let us jump straight to item number 20. We must follow the links from the head."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through one small task"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Build a last node holding 9 with no next node.",
+        "Build a node holding 6 that links to 9, then a head node holding 3 that links to 6.",
+        "Set current to the head. Print 3, then move current to its next node.",
+        "Print 6 and then 9. Stop when current has no node."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read it in your language"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose one tab. All six programs do the same task and print the same result. JavaScript can run here. The other languages need the separate local tools in [Language setup](/tutorials/data-structures-algorithms/language-setup)."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Linked lists example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "const last = { value: 9, next: null };\nconst middle = { value: 6, next: last };\nconst head = { value: 3, next: middle };\nlet current = head;\nwhile (current !== null) {\n  console.log(current.value);\n  current = current.next;\n}",
+          "caption": "Run this JavaScript in the browser playground, or save main.js and use Node.js.",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int value; struct Node *next; };\n\nint main(void) {\n    struct Node last = {9, NULL};\n    struct Node middle = {6, &last};\n    struct Node first = {3, &middle};\n    struct Node *head = &first;\n    struct Node *current = head;\n    while (current != NULL) {\n        printf(\"%d\\n\", current->value);\n        current = current->next;\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C11 compiler. Save this complete program as main.c; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\nstruct Node { int value; Node* next; };\n\nint main() {\n    Node last{9, nullptr};\n    Node middle{6, &last};\n    Node first{3, &middle};\n    Node* head = &first;\n    Node* current = head;\n    while (current != nullptr) {\n        std::cout << current->value << '\\n';\n        current = current->next;\n    }\n    return 0;\n}",
+          "caption": "Use a separate local C++17 compiler. Save this complete program as main.cpp; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\nhead = Node(3, Node(6, Node(9)))\ncurrent = head\nwhile current is not None:\n    print(current.value)\n    current = current.next",
+          "caption": "Use a separate local Python 3 interpreter. Save this complete program as main.py; see Language setup.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "Node head = new Node(3, new Node(6, new Node(9, null)));\nNode? current = head;\nwhile (current is not null)\n{\n    System.Console.WriteLine(current.Value);\n    current = current.Next;\n}\n\nclass Node\n{\n    public int Value;\n    public Node? Next;\n    public Node(int value, Node? next) { Value = value; Next = next; }\n}",
+          "caption": "Use a separate local .NET 8 or newer console project. Replace Program.cs with this complete program.",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "public class Main {\n    static class Node {\n        int value;\n        Node next;\n        Node(int value, Node next) { this.value = value; this.next = next; }\n    }\n    public static void main(String[] args) {\n        Node head = new Node(3, new Node(6, new Node(9, null)));\n        Node current = head;\n        while (current != null) {\n            System.out.println(current.value);\n            current = current.next;\n        }\n    }\n}",
+          "caption": "Use a separate local JDK 17 or newer. Save this complete program as Main.java; see Language setup.",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected output in every language",
+      "content": "3\n6\n9"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each value prints once because current moves forward after each print. The head still points to 3. The C and C++ nodes are local variables that remain alive for this whole walk; these examples do not allocate memory by hand."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check the small and tricky cases"
+    },
+    {
+      "type": "paragraph",
+      "text": "An empty list has an empty head link, so the loop runs zero times. A one-node list prints once, then follows an empty link and stops."
+    },
+    {
+      "type": "paragraph",
+      "text": "A cycle is a link that goes back to an earlier node. This simple walk assumes there is no cycle. A cycle would make it repeat forever."
+    },
+    {
+      "type": "paragraph",
+      "text": "Walking n nodes takes O(n) time. Adding a node after a node you already have can take O(1) link changes. Finding that place first can still take O(n)."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Change only the middle value from 6 to 8.",
+        "The three lines become 3, 8, and 9. Changing a value does not change where the links lead."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Remember to move current to current.next. Also keep a separate current variable so you do not lose the head while walking."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-linked-lists"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-linked-lists"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "array-positions"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "stacks"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "queues"
+    }
+  ],
+  "seo": {
+    "title": "DSA: Linked lists in six languages",
+    "description": "Follow a chain of linked nodes, just like a treasure trail. Visit three values, stop at the end, and see how links differ from indexes."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "ping-pong",
+  "title": "Check that a peer responds",
+  "summary": "WebSockets: Check that a peer responds. Change the text sent after pong.",
+  "introduction": "Ping and pong are control messages. The ws client automatically answers a ping with pong.",
+  "learningObjectives": [
+    "Check that a peer responds with WebSockets",
+    "Change the text sent after pong"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check that a peer responds"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Check that a peer responds",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", socket => { socket.once(\"pong\", () => socket.send(\"Still here\")); socket.ping(); });\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"message\", data => { console.log(data.toString()); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The ws client answers the ping automatically. Receiving pong causes the server to send Still here."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Still here"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the text sent after pong."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A real heartbeat needs a timeout for peers that never answer."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-ping-pong-check"
+    }
+  ],
+  "exerciseIds": ["websockets-ping-pong-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "binary"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Check that a peer responds",
+    "description": "WebSockets: Check that a peer responds. Change the text sent after pong. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

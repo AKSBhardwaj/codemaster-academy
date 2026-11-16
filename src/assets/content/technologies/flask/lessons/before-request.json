@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "before-request",
+  "title": "Run a shared check",
+  "summary": "Flask: Run a shared check. Visit a route outside that prefix.",
+  "introduction": "before_request runs before route handlers. This practice check rejects paths under /closed. Visit GET /closed/books.",
+  "learningObjectives": ["Run a shared check with Flask", "Visit a route outside that prefix"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Run a shared check"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Run a shared check",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.before_request\ndef check_path():\n    if request.path.startswith(\"/closed/\"):\n        return \"Closed for practice\", 403\n@app.get(\"/closed/books\")\ndef books():\n    return \"Books\"\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The hook sees the /closed/ prefix and returns a response. The later view is not called."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Closed for practice"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit a route outside that prefix."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Returning a response stops the request from reaching its view."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-before-request-check"
+    }
+  ],
+  "exerciseIds": ["flask-before-request-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "headers"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Run a shared check",
+    "description": "Flask: Run a shared check. Visit a route outside that prefix. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

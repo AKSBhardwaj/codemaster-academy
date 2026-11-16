@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "errors",
+  "title": "Report a missing item",
+  "summary": "NestJS: Report a missing item. Try a custom missing-item message.",
+  "introduction": "A built-in exception creates an HTTP error response. GET /missing reports a missing book.",
+  "learningObjectives": ["Report a missing item with NestJS", "Try a custom missing-item message"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a practice project with npx @nestjs/cli new school. Replace src/main.ts with one complete example and run npm run start. Use http://127.0.0.1:3000. The original app files are unused by these small examples."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Report a missing item"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "Report a missing item",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"missing\") missing() { throw new NotFoundException(\"Book not found\"); }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "NotFoundException stops the normal result path and creates an HTTP 404 error with the supplied message."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "404 Not Found: Book not found"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try a custom missing-item message."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Use a suitable HTTP error instead of returning a success status for a failure."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "nestjs-errors-check"
+    }
+  ],
+  "exerciseIds": ["nestjs-errors-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "nestjs",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "NestJS: Report a missing item",
+    "description": "NestJS: Report a missing item. Try a custom missing-item message. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

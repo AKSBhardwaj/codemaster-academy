@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "dependencies",
+  "title": "Connect two objects",
+  "summary": "Spring Framework: Connect two objects. Change the Score value to 7.",
+  "introduction": "Spring can pass one bean into another bean method. This is dependency injection: the object receives what it needs.",
+  "learningObjectives": [
+    "Connect two objects with Spring Framework",
+    "Change the Score value to 7"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install Java 17 or later and JBang. Save each example as Lesson.java and run jbang Lesson.java. The //DEPS line lets JBang fetch Spring. These examples use the core container and do not start a web server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Connect two objects"
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Connect two objects",
+      "code": "//DEPS org.springframework:spring-context:6.1.14\nimport org.springframework.context.annotation.*;\nimport org.springframework.beans.factory.annotation.Value;\npublic class Lesson {\nrecord Score(int value) {}\nrecord Badge(Score score) { int value() { return score.value() * 2; } }\n@Configuration\nstatic class Config {\n@Bean Score score() { return new Score(4); }\n@Bean Badge badge(Score score) { return new Badge(score); }\n}\npublic static void main(String[] args) {\n try (var context = new AnnotationConfigApplicationContext(Config.class)) {\nSystem.out.println(context.getBean(Badge.class).value());\n }\n}\n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Spring creates Score first and passes it to badge. The Badge method doubles its stored 4."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "8"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change the Score value to 7."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Declare the needed dependency instead of creating a second hidden copy."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "spring-framework-dependencies-check"
+    }
+  ],
+  "exerciseIds": ["spring-framework-dependencies-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "spring-framework",
+      "slug": "two-beans"
+    }
+  ],
+  "seo": {
+    "title": "Spring Framework: Connect two objects",
+    "description": "Spring Framework: Connect two objects. Change the Score value to 7. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

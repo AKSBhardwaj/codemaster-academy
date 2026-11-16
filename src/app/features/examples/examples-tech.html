@@ -1,18 +1,68 @@
 @if (set(); as set) {
   <cma-page-header eyebrow="Examples" [title]="set.title" [lead]="set.description">
     <div slot="top"><cma-breadcrumbs [items]="crumbs()" /></div>
-    <form class="mt-3" role="search" (submit)="$event.preventDefault()">
+    <form
+      class="mt-3 d-flex flex-wrap align-items-end gap-3"
+      role="search"
+      (submit)="$event.preventDefault()"
+    >
       <label class="visually-hidden" for="examples-filter">Filter examples</label>
-      <input id="examples-filter" type="search" class="form-control" style="max-width: 24rem" placeholder="Filter {{ set.examples.length }} examples…" autocomplete="off" [formControl]="filter" />
+      <input
+        id="examples-filter"
+        type="search"
+        class="form-control"
+        style="max-width: 24rem"
+        placeholder="Filter {{ set.examples.length }} examples…"
+        autocomplete="off"
+        [formControl]="filter"
+      />
+      @if (languages().length > 1) {
+        <div>
+          <label for="examples-language" class="form-label small mb-1">Code language</label>
+          <select
+            id="examples-language"
+            class="form-select"
+            [value]="language()"
+            [disabled]="!interactive()"
+            (change)="chooseLanguage($event)"
+          >
+            <option value="all" [attr.selected]="language() === 'all' ? '' : null">
+              All languages
+            </option>
+            @for (item of languages(); track item) {
+              <option [value]="item" [attr.selected]="language() === item ? '' : null">
+                {{ languageLabel(item) }}
+              </option>
+            }
+          </select>
+        </div>
+      }
     </form>
+    <p class="small mt-3 mb-0" role="status">{{ examples().length }} examples shown</p>
+    @if (tech() === 'data-structures-algorithms') {
+      <p class="small mt-2 mb-0">
+        Read all six versions in each lesson, or get the full source download from
+        <a routerLink="/tutorials/data-structures-algorithms/language-setup"
+          >Choose and set up a language</a
+        >.
+      </p>
+    }
   </cma-page-header>
   <div class="container-xxl py-4 py-lg-5">
     <div class="cma-lesson">
       @for (example of examples(); track example.id) {
-        <article class="mb-5" [id]="example.id" style="scroll-margin-top: calc(var(--cma-navbar-height) + 1rem)">
+        <article
+          class="mb-5"
+          [id]="example.id"
+          style="scroll-margin-top: calc(var(--cma-navbar-height) + 1rem)"
+        >
           <h2 class="h4 mb-1">{{ example.title }}</h2>
           <p class="cma-text-secondary">{{ example.description }}</p>
-          <cma-code-block [code]="example.code" [language]="example.language" [tokens]="example.tokens" />
+          <cma-code-block
+            [code]="example.code"
+            [language]="example.language"
+            [tokens]="example.tokens"
+          />
           @if (example.output) {
             <div class="cma-output">
               <div class="cma-output__header">Output</div>
@@ -24,23 +74,40 @@
               <span class="badge text-bg-light border">{{ tag }}</span>
             }
             @if (example.lessonSlug) {
-              <a [routerLink]="['/tutorials', set.technologySlug, example.lessonSlug]">Related lesson</a>
+              <a [routerLink]="['/tutorials', set.technologySlug, example.lessonSlug]"
+                >Related lesson</a
+              >
             }
           </div>
         </article>
       } @empty {
-        <cma-empty-state icon="funnel" title="No examples match" text="Try a different word or clear the filter." />
+        <cma-empty-state
+          icon="funnel"
+          title="No examples match"
+          text="Try a different word, choose another language, or clear the filter."
+        />
       }
     </div>
   </div>
 } @else if (missing()) {
   <cma-page-header eyebrow="Examples" [title]="(entry()?.name ?? 'Technology') + ' examples'" />
   <div class="container-xxl py-5">
-    <cma-empty-state icon="file-earmark-code" title="These examples are not published yet" text="Example sets ship together with each tutorial's lessons. Check the tutorial page for its current status.">
-      <a class="btn btn-primary" [routerLink]="['/tutorials', tech()]">Go to the tutorial</a>
+    <cma-empty-state
+      icon="file-earmark-code"
+      title="These examples could not load"
+      text="Check your connection, then try again."
+    >
+      <button type="button" class="btn btn-primary" (click)="setResource.reload()">
+        Try again
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/tutorials', tech()]"
+        >Go to the tutorial</a
+      >
       <a class="btn btn-outline-secondary" routerLink="/examples">All examples</a>
     </cma-empty-state>
   </div>
 } @else {
-  <div class="container-xxl py-5" aria-busy="true"><div class="cma-skeleton" style="height: 10rem"></div></div>
+  <div class="container-xxl py-5" aria-busy="true">
+    <div class="cma-skeleton" style="height: 10rem"></div>
+  </div>
 }

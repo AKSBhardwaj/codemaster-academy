@@ -1,0 +1,138 @@
+{
+  "title": "REST API Development Examples",
+  "description": "Each example belongs to one starter lesson. Follow its setup steps before trying it. These examples need the named tools and do not run in this site playground.",
+  "examples": [
+    {
+      "id": "resources",
+      "title": "Name a resource",
+      "description": "A resource is a thing an API exposes. /books/1 names one book, while /books names a collection.",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\"}",
+      "output": "Book 1 is returned with status 200.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "resources"
+    },
+    {
+      "id": "get",
+      "title": "Read without changing data",
+      "description": "GET asks to read a resource. Reading this collection does not add or remove books.",
+      "language": "http",
+      "code": "GET /books HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"title\":\"Moon Trip\"}]",
+      "output": "A list with one book is returned.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "get"
+    },
+    {
+      "id": "post",
+      "title": "Create a resource",
+      "description": "POST sends data for the collection to handle. A successful creation often returns 201 and a Location header.",
+      "language": "http",
+      "code": "POST /books HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Sun Trip\"}\n\nHTTP/1.1 201 Created\nLocation: /books/2\nContent-Type: application/json\n\n{\"id\":2,\"title\":\"Sun Trip\"}",
+      "output": "Book 2 is created; its location is /books/2.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "post"
+    },
+    {
+      "id": "put",
+      "title": "Replace a known resource",
+      "description": "PUT supplies the desired representation at a known URL. This example replaces the book title and page count.",
+      "language": "http",
+      "code": "PUT /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}",
+      "output": "Book 1 now has 30 pages.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "put"
+    },
+    {
+      "id": "patch",
+      "title": "Change part of a resource",
+      "description": "PATCH can send only changes. This example uses JSON Merge Patch to change the page count.",
+      "language": "http",
+      "code": "PATCH /books/1 HTTP/1.1\nHost: example.test\nContent-Type: application/merge-patch+json\n\n{\"pages\":30}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1,\"title\":\"Moon Trip\",\"pages\":30}",
+      "output": "Only the page count is changed to 30.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "patch"
+    },
+    {
+      "id": "delete",
+      "title": "Remove a resource",
+      "description": "DELETE asks to remove the target resource. A 204 success response has no body.",
+      "language": "http",
+      "code": "DELETE /books/1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 204 No Content",
+      "output": "The book is removed; the response body is empty.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "delete"
+    },
+    {
+      "id": "not-found",
+      "title": "Report an unknown item",
+      "description": "404 means the requested resource was not found. A short error body can help a client explain the problem.",
+      "language": "http",
+      "code": "GET /books/99 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 404 Not Found\nContent-Type: application/json\n\n{\"error\":\"Book not found\"}",
+      "output": "The API reports a missing book with status 404.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "not-found"
+    },
+    {
+      "id": "filters",
+      "title": "Choose matching results",
+      "description": "A query string can describe a filter. The exact parameter names belong to the API design.",
+      "language": "http",
+      "code": "GET /books?colour=blue HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n[{\"id\":1,\"colour\":\"blue\"}]",
+      "output": "Only matching blue books are returned.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "filters"
+    },
+    {
+      "id": "pagination",
+      "title": "Read a small page of results",
+      "description": "Pagination divides a large collection into smaller pieces. This example returns a next link.",
+      "language": "http",
+      "code": "GET /books?limit=1 HTTP/1.1\nHost: example.test\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"items\":[{\"id\":1}],\"next\":\"/books?after=1&limit=1\"}",
+      "output": "The client gets one item and a link for the next page.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "pagination"
+    },
+    {
+      "id": "content-types",
+      "title": "Describe the body format",
+      "description": "Content-Type says what format a body uses. Accept says which response formats the client can understand.",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"id\":1}",
+      "output": "The response body is JSON.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "content-types"
+    },
+    {
+      "id": "idempotence",
+      "title": "Repeat a request safely",
+      "description": "An idempotent operation has the same intended final effect when repeated. Setting pages to 30 twice leaves it at 30.",
+      "language": "http",
+      "code": "PUT /books/1 HTTP/1.1\nContent-Type: application/json\n\n{\"title\":\"Moon Trip\",\"pages\":30}\n\n# Send the same PUT a second time.\n# Final stored representation:\n{\"title\":\"Moon Trip\",\"pages\":30}",
+      "output": "The page count remains 30 after both PUT requests.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "idempotence"
+    },
+    {
+      "id": "conditional-get",
+      "title": "Reuse an unchanged response",
+      "description": "An ETag labels a version. If-None-Match asks whether that version is still current. A 304 has no new body.",
+      "language": "http",
+      "code": "GET /books/1 HTTP/1.1\nHost: example.test\nIf-None-Match: \"book-v1\"\n\nHTTP/1.1 304 Not Modified\nETag: \"book-v1\"",
+      "output": "The client may reuse its cached book-v1 body.",
+      "runnable": false,
+      "tags": ["starter", "practice"],
+      "lessonSlug": "conditional-get"
+    }
+  ]
+}

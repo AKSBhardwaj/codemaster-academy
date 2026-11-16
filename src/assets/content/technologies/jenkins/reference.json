@@ -1,0 +1,150 @@
+{
+  "title": "Jenkins Reference",
+  "description": "A quick reminder of the ideas and examples in the Jenkins lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Meet a pipeline",
+          "summary": "A pipeline is a saved sequence of build or check steps. Jenkins can run it and keep a record of the result.",
+          "example": {
+            "language": "groovy",
+            "code": "pipeline {\n  agent any\n  stages {\n    stage(\"Hello\") {\n      steps { echo \"Hello, club\" }\n    }\n  }\n}"
+          },
+          "notes": [
+            "Jenkins is a separate automation tool; this learning app does not need a Jenkins server."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "controllers-and-agents",
+          "name": "Controllers and agents",
+          "summary": "The Jenkins controller coordinates work. An agent is an environment where jobs can execute.",
+          "example": {
+            "language": "text",
+            "code": "Controller: schedules and records jobs\nAgent: runs the assigned build steps"
+          },
+          "notes": ["Do not give a build more access to the host machine than it needs."],
+          "lessonSlug": "controllers-and-agents"
+        },
+        {
+          "slug": "stages-show-the-journey",
+          "name": "Stages show the journey",
+          "summary": "A stage groups related steps under a clear name. This helps people see where a run failed.",
+          "example": {
+            "language": "groovy",
+            "code": "pipeline {\n  agent any\n  stages {\n    stage(\"Read\") { steps { echo \"Read source\" } }\n    stage(\"Check\") { steps { echo \"Check source\" } }\n  }\n}"
+          },
+          "notes": [
+            "Do not label a stage Test if it only prints a message; the example messages are demonstrations."
+          ],
+          "lessonSlug": "stages-show-the-journey"
+        },
+        {
+          "slug": "shell-steps-need-the-right-agent",
+          "name": "Shell steps need the right agent",
+          "summary": "sh runs a shell command on a suitable Unix-like agent. Windows agents normally use a different step such as bat or powershell.",
+          "example": {
+            "language": "groovy",
+            "code": "steps {\n  sh 'printf \"Hello from the agent\\n\"'\n}"
+          },
+          "notes": ["Do not assume sh exists on every agent."],
+          "lessonSlug": "shell-steps-need-the-right-agent"
+        },
+        {
+          "slug": "environment-settings",
+          "name": "Environment settings",
+          "summary": "An environment block provides named values to the pipeline. Use it for ordinary configuration, not hard-coded secrets.",
+          "example": {
+            "language": "groovy",
+            "code": "environment {\n  CLUB_NAME = \"Reading club\"\n}"
+          },
+          "notes": [
+            "A value written in a Jenkinsfile is visible to people who can read that file."
+          ],
+          "lessonSlug": "environment-settings"
+        },
+        {
+          "slug": "parameters-let-a-person-choose",
+          "name": "Parameters let a person choose",
+          "summary": "A parameter is an input supplied when a job is started. Treat input as data and validate it before using it.",
+          "example": {
+            "language": "groovy",
+            "code": "parameters {\n  booleanParam(name: \"RUN_CHECKS\", defaultValue: true, description: \"Run the practice checks\")\n}"
+          },
+          "notes": ["Never run arbitrary parameter text as a shell command."],
+          "lessonSlug": "parameters-let-a-person-choose"
+        },
+        {
+          "slug": "conditions-skip-unneeded-stages",
+          "name": "Conditions skip unneeded stages",
+          "summary": "when controls whether a stage runs. It lets a pipeline state a clear condition rather than hiding it inside many shell commands.",
+          "example": {
+            "language": "groovy",
+            "code": "stage(\"Optional check\") {\n  when { expression { params.RUN_CHECKS } }\n  steps { echo \"Run the chosen check\" }\n}"
+          },
+          "notes": ["Skipping a check should be visible and intentional."],
+          "lessonSlug": "conditions-skip-unneeded-stages"
+        },
+        {
+          "slug": "always-perform-cleanup",
+          "name": "Always perform cleanup",
+          "summary": "A post block can run after the main stages. always is useful for cleanup or reporting whether the run passed or failed.",
+          "example": {
+            "language": "groovy",
+            "code": "post {\n  always { echo \"Practice run finished\" }\n}"
+          },
+          "notes": ["Do not use a broad delete command as a generic cleanup step."],
+          "lessonSlug": "always-perform-cleanup"
+        },
+        {
+          "slug": "bound-a-long-running-step",
+          "name": "Bound a long-running step",
+          "summary": "A timeout stops waiting after a chosen limit. It keeps stuck work from occupying an agent indefinitely.",
+          "example": {
+            "language": "groovy",
+            "code": "steps {\n  timeout(time: 2, unit: \"MINUTES\") {\n    echo \"A bounded practice step\"\n  }\n}"
+          },
+          "notes": ["A timeout is a limit, not evidence that the work is correct."],
+          "lessonSlug": "bound-a-long-running-step"
+        },
+        {
+          "slug": "parallel-work-needs-independence",
+          "name": "Parallel work needs independence",
+          "summary": "Parallel branches can run independent checks at the same time. They should not accidentally change the same temporary files.",
+          "example": {
+            "language": "groovy",
+            "code": "stage(\"Checks\") {\n  parallel {\n    stage(\"Spelling\") { steps { echo \"Spelling check\" } }\n    stage(\"Links\") { steps { echo \"Link check\" } }\n  }\n}"
+          },
+          "notes": ["Parallel steps that share mutable files can interfere with each other."],
+          "lessonSlug": "parallel-work-needs-independence"
+        },
+        {
+          "slug": "credentials-stay-outside-source",
+          "name": "Credentials stay outside source",
+          "summary": "Jenkins can provide credentials through configured bindings. A job should request only what it needs and avoid printing secret values.",
+          "example": {
+            "language": "text",
+            "code": "Jenkinsfile: names an approved credential binding\nCredential store: holds the secret\nStep: uses it for the authorised job only"
+          },
+          "notes": ["Masking log output is not permission to expose secrets to untrusted code."],
+          "lessonSlug": "credentials-stay-outside-source"
+        },
+        {
+          "slug": "read-results-honestly",
+          "name": "Read results honestly",
+          "summary": "A Jenkins result reports the configured pipeline outcome. Useful reports explain what was actually checked and what still needs review.",
+          "example": {
+            "language": "text",
+            "code": "Stage Check: completed\nConfigured checks: formatting only\nNot checked: browser interactions"
+          },
+          "notes": ["Do not confuse a successful demonstration echo with a real test suite."],
+          "lessonSlug": "read-results-honestly"
+        }
+      ]
+    }
+  ]
+}

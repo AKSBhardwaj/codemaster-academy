@@ -1,0 +1,133 @@
+{
+  "title": "MySQL Examples",
+  "description": "Copy-ready MySQL snippets for everyday tasks: creating a schema, bulk inserts and upserts, pagination, reports with joins and GROUP BY, indexes, accounts, transactions, JSON and backups. Run them in your own MySQL 8.4 or 9 client.",
+  "examples": [
+    {
+      "id": "create-schema-utf8mb4",
+      "title": "Create a database and tables",
+      "description": "A database with explicit utf8mb4 settings and two InnoDB tables linked by a named foreign key, with auto-increment keys, defaults and an ENUM status.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["schema", "utf8mb4", "foreign key"],
+      "lessonSlug": "databases-tables",
+      "code": "CREATE DATABASE roastery CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;\nUSE roastery;\n\nCREATE TABLE customers (\n  id        INT AUTO_INCREMENT PRIMARY KEY,\n  name      VARCHAR(100) NOT NULL,\n  email     VARCHAR(255) NOT NULL UNIQUE,\n  city      VARCHAR(60),\n  joined_on DATE NOT NULL\n);\n\nCREATE TABLE orders (\n  id          INT AUTO_INCREMENT PRIMARY KEY,\n  customer_id INT NOT NULL,\n  quantity    INT UNSIGNED NOT NULL DEFAULT 1,\n  status      ENUM('pending', 'paid', 'shipped', 'cancelled') NOT NULL DEFAULT 'pending',\n  ordered_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id)\n);"
+    },
+    {
+      "id": "bulk-insert-last-id",
+      "title": "Bulk insert and read the generated id",
+      "description": "Insert several rows in one statement, then fetch the AUTO_INCREMENT value of a single insert on the same connection.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["insert", "auto_increment"],
+      "lessonSlug": "crud",
+      "code": "INSERT INTO customers (name, email, city, joined_on) VALUES\n  ('Priya Nair',    'priya@example.com', 'Bengaluru', '2025-01-12'),\n  ('Tom\u00e1s Ribeiro', 'tomas@example.com', 'Lisbon',    '2025-02-03'),\n  ('Mei Chen',      'mei@example.com',   'Taipei',    '2025-02-28');\n\nINSERT INTO customers (name, email, city, joined_on)\nVALUES ('Yusuf Demir', 'yusuf@example.com', 'Istanbul', '2025-03-19');\n\nSELECT LAST_INSERT_ID();",
+      "output": "Query OK, 3 rows affected (0.01 sec)\nRecords: 3  Duplicates: 0  Warnings: 0\n\nQuery OK, 1 row affected (0.01 sec)\n\n+------------------+\n| LAST_INSERT_ID() |\n+------------------+\n|                4 |\n+------------------+\n1 row in set (0.00 sec)"
+    },
+    {
+      "id": "upsert-on-duplicate-key",
+      "title": "Upsert with ON DUPLICATE KEY UPDATE",
+      "description": "Insert a row or, when the unique email already exists, update the city instead. Uses the row alias syntax from MySQL 8.0.20.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["upsert", "unique"],
+      "lessonSlug": "crud",
+      "code": "INSERT INTO customers (name, email, city, joined_on)\nVALUES ('Mei Chen', 'mei@example.com', 'Kaohsiung', '2025-02-28') AS new\nON DUPLICATE KEY UPDATE city = new.city;",
+      "output": "Query OK, 2 rows affected (0.01 sec)"
+    },
+    {
+      "id": "keyset-pagination",
+      "title": "Page through rows with keyset pagination",
+      "description": "Offset pagination for the first pages and keyset pagination for deep pages, which stays fast because it seeks the index instead of skipping rows.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["pagination", "limit", "performance"],
+      "lessonSlug": "select-filtering",
+      "code": "-- Page 3 of 20 rows (skips 40 rows)\nSELECT id, name, price FROM coffees ORDER BY id LIMIT 20 OFFSET 40;\n\n-- Next page after the last id seen (fast at any depth)\nSELECT id, name, price FROM coffees WHERE id > 60 ORDER BY id LIMIT 20;"
+    },
+    {
+      "id": "customers-order-counts",
+      "title": "Customers with order counts and revenue",
+      "description": "A LEFT JOIN report that keeps customers without orders, counting with COUNT(o.id) and turning the NULL sum into 0.00 with COALESCE.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["left join", "group by", "report"],
+      "lessonSlug": "aggregates",
+      "code": "SELECT c.name, COUNT(o.id) AS orders,\n       COALESCE(SUM(k.price * o.quantity), 0) AS revenue\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nLEFT JOIN coffees k ON k.id = o.coffee_id\nGROUP BY c.id, c.name\nORDER BY revenue DESC;",
+      "output": "+---------------+--------+---------+\n| name          | orders | revenue |\n+---------------+--------+---------+\n| Tom\u00e1s Ribeiro |      2 |   69.50 |\n| Priya Nair    |      3 |   55.00 |\n| Mei Chen      |      1 |   32.00 |\n| Yusuf Demir   |      1 |   12.50 |\n| Hannah Weiss  |      0 |    0.00 |\n+---------------+--------+---------+\n5 rows in set (0.00 sec)"
+    },
+    {
+      "id": "monthly-revenue",
+      "title": "Revenue per month",
+      "description": "Group orders by calendar month with DATE_FORMAT and sum the line totals; output for the rows loaded in the CRUD lesson.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["group by", "dates", "report"],
+      "lessonSlug": "aggregates",
+      "code": "SELECT DATE_FORMAT(o.ordered_at, '%Y-%m') AS month,\n       COUNT(*) AS orders,\n       SUM(k.price * o.quantity) AS revenue\nFROM orders o\nJOIN coffees k ON k.id = o.coffee_id\nGROUP BY month\nORDER BY month;",
+      "output": "+---------+--------+---------+\n| month   | orders | revenue |\n+---------+--------+---------+\n| 2025-05 |      6 |  155.00 |\n| 2025-06 |      1 |   14.00 |\n+---------+--------+---------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "id": "coffees-per-customer",
+      "title": "Comma-separated list per group",
+      "description": "GROUP_CONCAT with ORDER BY and SEPARATOR builds one sorted list of coffees for each customer who has ordered.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["group_concat", "join"],
+      "lessonSlug": "aggregates",
+      "code": "SELECT c.name,\n       GROUP_CONCAT(DISTINCT k.name ORDER BY k.name SEPARATOR ', ') AS coffees\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN coffees k ON k.id = o.coffee_id\nGROUP BY c.id, c.name\nORDER BY c.id;",
+      "output": "+---------------+--------------------------------------------+\n| name          | coffees                                    |\n+---------------+--------------------------------------------+\n| Priya Nair    | Espresso Roast, Morning Blend, Yirgacheffe |\n| Tom\u00e1s Ribeiro | Decaf Colombia, Espresso Roast             |\n| Mei Chen      | Yirgacheffe                                |\n| Yusuf Demir   | Morning Blend                              |\n+---------------+--------------------------------------------+\n4 rows in set (0.00 sec)"
+    },
+    {
+      "id": "index-and-explain",
+      "title": "Add a composite index and check the plan",
+      "description": "Create an index on the columns a query filters by, then confirm with EXPLAIN that the access type changed from ALL to ref.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["index", "explain", "performance"],
+      "lessonSlug": "indexes",
+      "code": "CREATE INDEX idx_coffees_origin_roast ON coffees (origin, roast);\n\nEXPLAIN SELECT name FROM coffees WHERE origin = 'Brazil' AND roast = 'dark';",
+      "output": "Query OK, 0 rows affected (0.03 sec)\nRecords: 0  Duplicates: 0  Warnings: 0\n\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n| id | select_type | table   | partitions | type | possible_keys            | key                      | key_len | ref         | rows | filtered | Extra |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n|  1 | SIMPLE      | coffees | NULL       | ref  | idx_coffees_origin_roast | idx_coffees_origin_roast | 163     | const,const |    1 |   100.00 | NULL  |\n+----+-------------+---------+------------+------+--------------------------+--------------------------+---------+-------------+------+----------+-------+\n1 row in set, 1 warning (0.00 sec)"
+    },
+    {
+      "id": "readonly-reporting-role",
+      "title": "Read-only reporting role and account",
+      "description": "Bundle SELECT on a database into a role, grant it to a reporting account restricted to one network, and make it active on login.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["users", "roles", "security"],
+      "lessonSlug": "users-privileges",
+      "code": "CREATE ROLE 'reporting';\nGRANT SELECT ON roastery.* TO 'reporting';\n\nCREATE USER 'bi'@'10.0.0.%' IDENTIFIED BY 'B1!Str0ngPass' PASSWORD EXPIRE INTERVAL 90 DAY;\nGRANT 'reporting' TO 'bi'@'10.0.0.%';\nSET DEFAULT ROLE ALL TO 'bi'@'10.0.0.%';\n\nSHOW GRANTS FOR 'bi'@'10.0.0.%' USING 'reporting';"
+    },
+    {
+      "id": "stock-transfer-transaction",
+      "title": "Sell stock inside a transaction",
+      "description": "Lock the stock row with FOR UPDATE, decrement it and insert the order, committing both changes together so concurrent sales cannot oversell.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["transaction", "locking"],
+      "lessonSlug": "transactions",
+      "code": "START TRANSACTION;\n\nSELECT stock FROM coffees WHERE id = 1 FOR UPDATE;\n-- application checks stock >= 2, otherwise ROLLBACK\n\nUPDATE coffees SET stock = stock - 2 WHERE id = 1;\nINSERT INTO orders (customer_id, coffee_id, quantity, status) VALUES (5, 1, 2, 'paid');\n\nCOMMIT;"
+    },
+    {
+      "id": "json-column-query",
+      "title": "Store and query a JSON column",
+      "description": "Keep flexible event attributes in a JSON column and read them with the ->> operator, which returns unquoted strings and NULL for missing paths.",
+      "language": "sql",
+      "runnable": false,
+      "tags": ["json"],
+      "lessonSlug": "data-types",
+      "code": "CREATE TABLE events (\n  id      INT AUTO_INCREMENT PRIMARY KEY,\n  payload JSON NOT NULL\n);\n\nINSERT INTO events (payload) VALUES\n  ('{\"kind\": \"click\", \"x\": 10}'),\n  ('{\"kind\": \"scroll\"}');\n\nSELECT id, payload->>'$.kind' AS kind, payload->>'$.x' AS x FROM events;",
+      "output": "Query OK, 0 rows affected (0.03 sec)\n\nQuery OK, 2 rows affected (0.01 sec)\nRecords: 2  Duplicates: 0  Warnings: 0\n\n+----+--------+------+\n| id | kind   | x    |\n+----+--------+------+\n|  1 | click  | 10   |\n|  2 | scroll | NULL |\n+----+--------+------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "id": "backup-restore-mysqldump",
+      "title": "Back up and restore with mysqldump",
+      "description": "A consistent logical backup of one database including stored programs, restored into a separate database for verification.",
+      "language": "bash",
+      "runnable": false,
+      "tags": ["backup", "mysqldump"],
+      "lessonSlug": "backup-restore",
+      "code": "# Back up\nmysqldump --single-transaction --routines --triggers --events \\\n  -u root -p roastery > roastery-$(date +%F).sql\n\n# Restore into a fresh database and check it\nmysql -u root -p -e \"CREATE DATABASE roastery_restore\"\nmysql -u root -p roastery_restore < roastery-2026-11-14.sql\nmysql -u root -p -e \"SELECT COUNT(*) AS orders FROM roastery_restore.orders\""
+    }
+  ]
+}

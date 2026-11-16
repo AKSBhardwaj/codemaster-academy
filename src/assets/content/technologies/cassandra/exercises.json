@@ -1,0 +1,129 @@
+{
+  "title": "Cassandra Practice",
+  "description": "Practise the twelve ideas in this Cassandra course. Choose an answer, then read why it fits the example.",
+  "exercises": [
+    {
+      "id": "cassandra-introduction-check",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "How many replicas does this practice setup request?",
+      "options": ["One", "One per browser tab"],
+      "correctIndex": 0,
+      "explanation": "A keyspace groups Cassandra tables and defines replication. Replication means how many copies of data are kept across nodes."
+    },
+    {
+      "id": "cassandra-design-a-table-for-one-question-check",
+      "type": "multiple-choice",
+      "lessonSlug": "design-a-table-for-one-question",
+      "difficulty": "beginner",
+      "question": "Which field is the partition key?",
+      "options": ["pages", "reader_id"],
+      "correctIndex": 1,
+      "explanation": "The partition key chooses a group of rows stored together. A clustering column orders rows inside that partition."
+    },
+    {
+      "id": "cassandra-insert-a-reading-entry-check",
+      "type": "multiple-choice",
+      "lessonSlug": "insert-a-reading-entry",
+      "difficulty": "beginner",
+      "question": "What identifies this row uniquely?",
+      "options": ["reader_id together with day", "The title alone"],
+      "correctIndex": 0,
+      "explanation": "An INSERT writes values at a primary-key address. Writing the same key again updates those supplied values rather than making a duplicate row."
+    },
+    {
+      "id": "cassandra-read-one-partition-check",
+      "type": "multiple-choice",
+      "lessonSlug": "read-one-partition",
+      "difficulty": "beginner",
+      "question": "Which condition lets this query choose a partition?",
+      "options": ["pages is any number", "reader_id equals mia"],
+      "correctIndex": 1,
+      "explanation": "A Cassandra query is efficient when it names the partition key. It can then read the rows grouped under that key."
+    },
+    {
+      "id": "cassandra-read-a-range-inside-a-partition-check",
+      "type": "multiple-choice",
+      "lessonSlug": "read-a-range-inside-a-partition",
+      "difficulty": "beginner",
+      "question": "What column supplies this range?",
+      "options": ["The clustering day column", "An unrelated browser setting"],
+      "correctIndex": 0,
+      "explanation": "After choosing a partition, a query can use a range on its clustering column. This is useful for a reader's recent days."
+    },
+    {
+      "id": "cassandra-keep-partitions-a-manageable-size-check",
+      "type": "multiple-choice",
+      "lessonSlug": "keep-partitions-a-manageable-size",
+      "difficulty": "beginner",
+      "question": "Why add month to this partition key?",
+      "options": [
+        "To sort all readers alphabetically on one node",
+        "To split an unbounded history into smaller groups"
+      ],
+      "correctIndex": 1,
+      "explanation": "A partition should not grow without a useful bound. A time bucket can split a long history into smaller groups."
+    },
+    {
+      "id": "cassandra-expire-temporary-fields-check",
+      "type": "multiple-choice",
+      "lessonSlug": "expire-temporary-fields",
+      "difficulty": "beginner",
+      "question": "What unit is USING TTL 60 measured in?",
+      "options": ["Seconds", "Days"],
+      "correctIndex": 0,
+      "explanation": "A TTL gives written values a time to live. Cassandra removes them from ordinary reads after they expire."
+    },
+    {
+      "id": "cassandra-update-by-the-full-key-check",
+      "type": "multiple-choice",
+      "lessonSlug": "update-by-the-full-key",
+      "difficulty": "beginner",
+      "question": "Why include both key parts in the WHERE clause?",
+      "options": ["To make a title become a primary key", "To identify the exact row to update"],
+      "correctIndex": 1,
+      "explanation": "An UPDATE names the row through its key and changes selected values. Cassandra writes can create missing non-key values at that address."
+    },
+    {
+      "id": "cassandra-delete-one-known-row-check",
+      "type": "multiple-choice",
+      "lessonSlug": "delete-one-known-row",
+      "difficulty": "beginner",
+      "question": "What is a tombstone used for?",
+      "options": ["Representing a deletion across replicas", "Drawing a chart border"],
+      "correctIndex": 0,
+      "explanation": "A DELETE marks selected data as deleted. Cassandra uses tombstones so replicas can learn that a value was removed."
+    },
+    {
+      "id": "cassandra-group-a-small-related-write-check",
+      "type": "multiple-choice",
+      "lessonSlug": "group-a-small-related-write",
+      "difficulty": "beginner",
+      "question": "Is a large unrelated batch automatically faster?",
+      "options": ["Yes, more partitions always make it faster", "No, it can add coordination cost"],
+      "correctIndex": 1,
+      "explanation": "A batch can group related mutations. It is not a general speed trick for sending many unrelated partitions at once."
+    },
+    {
+      "id": "cassandra-use-a-dedicated-counter-table-check",
+      "type": "multiple-choice",
+      "lessonSlug": "use-a-dedicated-counter-table",
+      "difficulty": "beginner",
+      "question": "Does repeating this counter update leave the value unchanged?",
+      "options": ["No, it can increment again", "Yes, every counter update is idempotent"],
+      "correctIndex": 0,
+      "explanation": "Cassandra counters use a special column type and update rules. Keep them in a table designed for counts."
+    },
+    {
+      "id": "cassandra-match-consistency-to-the-cluster-check",
+      "type": "multiple-choice",
+      "lessonSlug": "match-consistency-to-the-cluster",
+      "difficulty": "beginner",
+      "question": "How many responses form a quorum of three?",
+      "options": ["All three are always required", "Two"],
+      "correctIndex": 1,
+      "explanation": "A consistency level tells Cassandra how many replicas must answer an operation. It only makes sense together with the replication setup."
+    }
+  ]
+}

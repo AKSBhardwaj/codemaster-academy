@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "ready-state",
+  "title": "Check connection state",
+  "summary": "WebSockets: Check connection state. Read the state before open and compare.",
+  "introduction": "readyState reports the current state. Inside open, it equals WebSocket.OPEN.",
+  "learningObjectives": [
+    "Check connection state with WebSockets",
+    "Read the state before open and compare"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Run npm init -y and npm install ws@8 in a practice folder. Save each example as lesson.mjs and run node lesson.mjs. Each file starts a local server and test client, prints a result, then closes both."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Check connection state"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Check connection state",
+      "code": "import WebSocket, { WebSocketServer } from \"ws\";\nconst server = new WebSocketServer({ host: \"127.0.0.1\", port: 8080, maxPayload: 1024 });\nawait new Promise(resolve => server.once(\"listening\", resolve));\nserver.on(\"connection\", () => {});\nconst client = new WebSocket(\"ws://127.0.0.1:8080\");\nclient.on(\"open\", () => { console.log(client.readyState === WebSocket.OPEN); client.close(); server.close(); });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The callback runs only after open. Comparing readyState with OPEN therefore prints true."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "true"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read the state before open and compare."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "The connection can close later, so readiness is not a permanent promise."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "websockets-ready-state-check"
+    }
+  ],
+  "exerciseIds": ["websockets-ready-state-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "websockets",
+      "slug": "broadcast"
+    }
+  ],
+  "seo": {
+    "title": "WebSockets: Check connection state",
+    "description": "WebSockets: Check connection state. Read the state before open and compare. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

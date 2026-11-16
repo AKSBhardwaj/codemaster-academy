@@ -1,0 +1,150 @@
+{
+  "title": "Kubernetes Reference",
+  "description": "A quick reminder of the ideas and examples in the Kubernetes lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "A cluster and its tools",
+          "summary": "A cluster is a group of machines managed together. kubectl is a command-line tool that asks the Kubernetes API about that cluster.",
+          "example": {
+            "language": "bash",
+            "code": "kubectl version --client"
+          },
+          "notes": ["Check the target context before any command that changes resources."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "check-the-current-context",
+          "name": "Check the current context",
+          "summary": "A context chooses a cluster, user and sometimes namespace. Read it first so you know where a command would act.",
+          "example": {
+            "language": "bash",
+            "code": "kubectl config current-context\nkubectl config get-contexts"
+          },
+          "notes": ["Never assume the current context is a safe practice environment."],
+          "lessonSlug": "check-the-current-context"
+        },
+        {
+          "slug": "pods-hold-containers",
+          "name": "Pods hold containers",
+          "summary": "A Pod is Kubernetes' smallest runnable unit. Containers in one Pod share some resources, such as the network address.",
+          "example": {
+            "language": "text",
+            "code": "Pod: club-web\nContainer: web server\nPod network address: shared by containers in that Pod"
+          },
+          "notes": ["Do not expect an individual Pod name or address to last forever."],
+          "lessonSlug": "pods-hold-containers"
+        },
+        {
+          "slug": "deployments-manage-replicas",
+          "name": "Deployments manage replicas",
+          "summary": "A Deployment describes how many matching Pods should run and how their template looks. A replica is one copy.",
+          "example": {
+            "language": "yaml",
+            "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: club-web\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: club-web\n  template:\n    metadata:\n      labels:\n        app: club-web\n    spec:\n      containers:\n        - name: web\n          image: nginx:stable"
+          },
+          "notes": ["The selector must match the labels on the Pod template."],
+          "lessonSlug": "deployments-manage-replicas"
+        },
+        {
+          "slug": "labels-group-resources",
+          "name": "Labels group resources",
+          "summary": "A label is a key-value marker attached to a resource. Selectors find resources with matching labels.",
+          "example": {
+            "language": "yaml",
+            "code": "labels:\n  app: club-web\n  purpose: practice"
+          },
+          "notes": ["Labels should not hold secret or sensitive values."],
+          "lessonSlug": "labels-group-resources"
+        },
+        {
+          "slug": "inspect-resources",
+          "name": "Inspect resources",
+          "summary": "get lists resources. describe gives a detailed human-readable view with events that can explain problems.",
+          "example": {
+            "language": "bash",
+            "code": "kubectl get pods\nkubectl describe deployment club-web"
+          },
+          "notes": [
+            "A resource existing in another namespace does not mean it exists in the current one."
+          ],
+          "lessonSlug": "inspect-resources"
+        },
+        {
+          "slug": "services-give-a-stable-route",
+          "name": "Services give a stable route",
+          "summary": "A Service gives a stable way to reach a selected group of Pods. This example is internal to the cluster.",
+          "example": {
+            "language": "yaml",
+            "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: club-web\nspec:\n  selector:\n    app: club-web\n  ports:\n    - port: 80\n      targetPort: 80\n  type: ClusterIP"
+          },
+          "notes": ["A Service with no matching healthy Pods cannot serve the app."],
+          "lessonSlug": "services-give-a-stable-route"
+        },
+        {
+          "slug": "configmaps-hold-ordinary-settings",
+          "name": "ConfigMaps hold ordinary settings",
+          "summary": "A ConfigMap stores non-secret configuration. An application may read selected values through environment variables or files.",
+          "example": {
+            "language": "yaml",
+            "code": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: club-settings\ndata:\n  WELCOME_TEXT: \"Hello, club\""
+          },
+          "notes": [
+            "Use the appropriate secret-management approach for real credentials; a ConfigMap is not one."
+          ],
+          "lessonSlug": "configmaps-hold-ordinary-settings"
+        },
+        {
+          "slug": "resource-requests-and-limits",
+          "name": "Resource requests and limits",
+          "summary": "Requests help schedule a container. Limits bound some resource use. CPU m means one thousandth of a CPU unit.",
+          "example": {
+            "language": "yaml",
+            "code": "resources:\n  requests:\n    cpu: \"100m\"\n    memory: \"64Mi\"\n  limits:\n    cpu: \"200m\"\n    memory: \"128Mi\""
+          },
+          "notes": ["A request is not a measurement of current usage."],
+          "lessonSlug": "resource-requests-and-limits"
+        },
+        {
+          "slug": "readiness-and-liveness",
+          "name": "Readiness and liveness",
+          "summary": "A readiness check asks whether a container should receive traffic. A liveness check asks whether Kubernetes should restart it.",
+          "example": {
+            "language": "text",
+            "code": "Readiness fails -> stop sending Service traffic to that Pod\nLiveness fails repeatedly -> container may restart"
+          },
+          "notes": ["Do not use a restart as the answer to every readiness problem."],
+          "lessonSlug": "readiness-and-liveness"
+        },
+        {
+          "slug": "read-logs-and-rollout-state",
+          "name": "Read logs and rollout state",
+          "summary": "Logs show the program's messages. Rollout status reports progress while a Deployment changes its Pods.",
+          "example": {
+            "language": "bash",
+            "code": "kubectl logs deployment/club-web\nkubectl rollout status deployment/club-web"
+          },
+          "notes": ["A successful rollout does not prove every user journey works."],
+          "lessonSlug": "read-logs-and-rollout-state"
+        },
+        {
+          "slug": "namespaces-organise-a-cluster",
+          "name": "Namespaces organise a cluster",
+          "summary": "A namespace groups namespaced resources. It helps separate teams or practice work, but is not by itself a complete security boundary.",
+          "example": {
+            "language": "text",
+            "code": "Namespace: club-practice\nDeployment: club-web inside club-practice\nService: club-web inside club-practice"
+          },
+          "notes": [
+            "Delete only a namespace you created for disposable practice; it may contain many resources."
+          ],
+          "lessonSlug": "namespaces-organise-a-cluster"
+        }
+      ]
+    }
+  ]
+}

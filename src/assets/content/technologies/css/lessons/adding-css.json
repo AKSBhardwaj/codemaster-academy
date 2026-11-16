@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "slug": "adding-css",
+  "title": "Adding CSS to a Page",
+  "summary": "You can add CSS rules to a page in a style element or in a separate CSS file.",
+  "introduction": "You can add CSS rules to a page in a style element or in a separate CSS file. Start with one colour rule. Then move it to a file so more than one page can use the same style.",
+  "learningObjectives": [
+    "Attach CSS with the style attribute, a style element and a linked stylesheet",
+    "Choose the right method for a given situation",
+    "Write a correct link element and fix the typical path mistakes"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Inline styles: the style attribute"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `style` attribute holds declarations for one element only. There is no selector because the element is already chosen. It is handy for a quick test, for HTML emails (where stylesheets are poorly supported) and for values that JavaScript computes at runtime, such as the width of a progress bar."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "runnable": true,
+      "code": "<p style=\"color: #b91c1c; font-weight: bold;\">This paragraph is styled inline.</p>\n<p>This one is not.</p>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<p style=\"color: #b91c1c; font-weight: bold;\">This paragraph is styled inline.</p><p>This one is not.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "For everything else, inline styles are a poor choice. They cannot be reused, so the same declarations get copied onto every similar element; they cannot be cached; and they beat almost every other rule in the cascade, which makes them hard to override later."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Internal stylesheet: the style element"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `<style>` element inside `<head>` holds ordinary CSS rules with selectors. It is the right tool for a single-page demo, for the examples in this tutorial, and for *critical CSS*: a few rules inlined into the page so the first paint does not have to wait for a file download."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "index.html",
+      "runnable": true,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Internal stylesheet</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    h1 { color: #1d4ed8; }\n    .note { background: #fef3c7; padding: 8px 12px; }\n  </style>\n</head>\n<body>\n  <h1>Internal stylesheet</h1>\n  <p class=\"note\">The rules live in the head of this page.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{color:#1d4ed8}.note{background:#fef3c7;padding:8px 12px}</style><h1>Internal stylesheet</h1><p class=\"note\">The rules live in the head of this page.</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The drawback appears as soon as a site has a second page: the rules must be copied into every file, and a change means editing all of them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "External stylesheets: the link element"
+    },
+    {
+      "type": "paragraph",
+      "text": "For a real site the CSS lives in its own file and every page references it with a `<link>` element in the `<head>`. The browser downloads the file once, caches it, and reuses it for every page that links to it. `rel=\"stylesheet\"` tells the browser what kind of resource it is and `href` says where to find it; no `type` attribute is needed."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "index.html",
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>External stylesheet</title>\n  <link rel=\"stylesheet\" href=\"css/styles.css\">\n</head>\n<body>\n  <h1>External stylesheet</h1>\n  <p class=\"note\">The rules live in css/styles.css.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "css/styles.css",
+      "code": "body {\n  font-family: system-ui, sans-serif;\n}\n\nh1 {\n  color: #1d4ed8;\n}\n\n.note {\n  background: #fef3c7;\n  padding: 8px 12px;\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "The result is identical to the internal version. The `href` path is resolved relative to the HTML file, exactly like a link or image path (see [HTML Links](/tutorials/html/links)). From a page at `/blog/post.html` the paths resolve as follows:"
+    },
+    {
+      "type": "table",
+      "headers": ["href", "File requested"],
+      "rows": [
+        ["`styles.css`", "`/blog/styles.css` (same folder as the page)"],
+        ["`css/styles.css`", "`/blog/css/styles.css`"],
+        ["`../css/styles.css`", "`/css/styles.css` (one folder up)"],
+        ["`/css/styles.css`", "`/css/styles.css` from any page (leading slash = site root)"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "When the stylesheet \"does not work\"",
+      "text": "Almost always the `link` element is at fault: `src` instead of `href` (images use `src`, stylesheets use `href`), a missing `rel=\"stylesheet\"`, or a path relative to the wrong folder. Open the *Network* panel in the developer tools and reload: a red 404 next to the CSS file means the path is wrong."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Several stylesheets and their order"
+    },
+    {
+      "type": "paragraph",
+      "text": "A page can link several files, and the order matters: when two rules have the same specificity, the one the browser reads *later* wins. Teams usually load a reset or base stylesheet first and component styles after it, so component rules can override the base. The same ordering applies between a `<link>` and a `<style>` element: whichever comes later in the document wins ties."
+    },
+    {
+      "type": "code",
+      "language": "html",
+      "title": "Base first, overrides later",
+      "code": "<head>\n  <link rel=\"stylesheet\" href=\"/css/base.css\">\n  <link rel=\"stylesheet\" href=\"/css/components.css\">\n  <link rel=\"stylesheet\" href=\"/css/print.css\" media=\"print\">\n</head>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The optional `media` attribute restricts a stylesheet to a situation; `media=\"print\"` loads the file but applies it only when printing. You will see the same conditions written inside CSS as media queries in [Responsive Design](/tutorials/css/responsive-design)."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Avoid @import for loading files"
+    },
+    {
+      "type": "paragraph",
+      "text": "CSS can also pull in another file with `@import url(\"reset.css\");` at the top of a stylesheet. It works, but the browser only discovers the imported file after downloading the first one, so the two downloads happen one after the other instead of in parallel. Prefer multiple `<link>` elements, or a build tool that combines files."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Which method wins?"
+    },
+    {
+      "type": "paragraph",
+      "text": "All three methods feed the same cascade. An inline `style` attribute beats any normal rule from a `<style>` element or a linked file, regardless of order, because the cascade treats it as more specific than any selector; only a declaration marked `!important` can beat it. Between a `<style>` element and a linked stylesheet nothing special happens: they are just rules, resolved by specificity and then by order."
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: move the inline style into the style element",
+      "height": 200,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Three ways</title>\n  <style>\n    body { font-family: system-ui, sans-serif; }\n    .highlight { background: #fef3c7; }\n    /* 1. Add a rule here that makes .highlight text dark red (#b91c1c). */\n  </style>\n</head>\n<body>\n  <h1>Where does the CSS live?</h1>\n  <!-- 2. Then remove the inline style below and check the colour still applies. -->\n  <p class=\"highlight\" style=\"color: #b91c1c;\">Highlighted paragraph.</p>\n  <p class=\"highlight\">Second highlighted paragraph.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Rule of thumb",
+      "text": "External stylesheet for everything that is part of the site, a `<style>` element for single-file demos and critical CSS, inline styles only for values generated at runtime. If you are unsure, use the external file."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-adding-css-link"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-adding-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "adding-css",
+          "difficulty": "beginner",
+          "question": "Where should a `<link rel=\"stylesheet\">` element be placed?",
+          "explanation": "Stylesheet links belong in the `<head>` so the browser can download and apply them before it renders the body.",
+          "options": [
+            "At the end of `<body>`",
+            "Inside `<head>`",
+            "Before `<!DOCTYPE html>`",
+            "Inside the first `<div>`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-adding-qc-2",
+          "type": "true-false",
+          "lessonSlug": "adding-css",
+          "difficulty": "beginner",
+          "question": "A rule in a linked stylesheet always overrides an inline `style` attribute on the same element.",
+          "explanation": "It is the other way round: an inline style attribute beats any ordinary rule from a stylesheet, whatever its selector.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-adding-css-link"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "syntax"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "specificity-cascade"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "links"
+    }
+  ],
+  "seo": {
+    "title": "Adding CSS to HTML – Inline, Internal and External Styles",
+    "description": "Learn three ways to add CSS to a page: the style attribute, the style element and external stylesheets with link, plus file paths, loading order and @import."
+  },
+  "updatedOn": "2026-11-16"
+}

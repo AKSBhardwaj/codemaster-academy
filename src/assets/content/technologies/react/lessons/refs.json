@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "slug": "refs",
+  "title": "Refs and the DOM",
+  "summary": "A ref lets a React component keep a value without asking React to redraw the page when that value changes.",
+  "introduction": "A ref lets a React component keep a value without asking React to redraw the page when that value changes. Use a ref to reach a text input and put the typing cursor in it. Compare this with state, which is used for values shown on the page.",
+  "learningObjectives": [
+    "Explain the difference between a ref and state",
+    "Attach a ref to a DOM element and call its methods",
+    "Store timer ids and other mutable values in refs",
+    "Pass a ref to a custom component using the React 19 ref prop"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What a ref is"
+    },
+    {
+      "type": "paragraph",
+      "text": "`useRef(initialValue)` returns an object with one property, `current`, that React keeps the same between renders. You can read and write `current` freely, and doing so **never** causes a re-render. That is the whole API, and both of its uses follow from it: holding a DOM node, and holding any value that must survive renders but does not affect what is rendered."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reaching a DOM element"
+    },
+    {
+      "type": "paragraph",
+      "text": "Pass the ref object to the `ref` attribute of a JSX element. After React commits the element to the DOM, `ref.current` points at that node; before that, and after the element is removed, it is `null`."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "SearchBox.jsx",
+      "code": "import { useRef } from 'react';\n\nfunction SearchBox() {\n  const inputRef = useRef(null);\n\n  return (\n    <>\n      <input ref={inputRef} placeholder=\"Search\" />\n      <button onClick={() => inputRef.current.focus()}>Focus the search box</button>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "After clicking the button",
+      "content": "document.activeElement === inputRef.current  →  true   (the input has keyboard focus)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Focus management, scrolling (`element.scrollIntoView()`), measuring (`element.getBoundingClientRect()`) and media control (`video.play()`) are the common cases. Do everything through the node's own DOM API, and do not change attributes or children that React renders, or the two will fight over them."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Refs versus state"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Clicks.jsx",
+      "code": "import { useRef, useState } from 'react';\n\nfunction Clicks() {\n  const clicks = useRef(0);\n  const [renders, setRenders] = useState(0);\n\n  function handleClick() {\n    clicks.current += 1;\n    console.log('clicks:', clicks.current);\n  }\n\n  return (\n    <>\n      <button onClick={handleClick}>Click (ref)</button>\n      <button onClick={() => setRenders(renders + 1)}>Re-render</button>\n      <p>Clicks shown: {clicks.current}, renders: {renders}</p>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Three clicks on the first button, then one on the second",
+      "content": "console:                          clicks: 1  /  clicks: 2  /  clicks: 3\nparagraph after the three clicks: Clicks shown: 0, renders: 0\nparagraph after Re-render:        Clicks shown: 3, renders: 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The ref counted correctly, but the screen only caught up when something else caused a render. That is the rule: if a value is used in the JSX, it is state; if it is only used inside handlers and effects, a ref will do."
+    },
+    {
+      "type": "table",
+      "headers": ["Question", "State", "Ref"],
+      "rows": [
+        ["Does changing it re-render?", "Yes", "No"],
+        [
+          "Value during render",
+          "A snapshot for this render",
+          "The latest value (reading it during render is discouraged)"
+        ],
+        [
+          "Typical contents",
+          "Anything that is displayed",
+          "DOM nodes, timer ids, previous values, flags"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Storing a timer id"
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Stopwatch.jsx",
+      "code": "import { useEffect, useRef, useState } from 'react';\n\nfunction Stopwatch() {\n  const [elapsed, setElapsed] = useState(0);\n  const intervalRef = useRef(null);\n\n  function start() {\n    if (intervalRef.current !== null) return;\n    intervalRef.current = setInterval(() => setElapsed((t) => t + 1), 1000);\n  }\n\n  function stop() {\n    clearInterval(intervalRef.current);\n    intervalRef.current = null;\n  }\n\n  useEffect(() => () => clearInterval(intervalRef.current), []);\n\n  return (\n    <>\n      <p>{elapsed} s</p>\n      <button onClick={start}>Start</button>\n      <button onClick={stop}>Stop</button>\n    </>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Start, wait five seconds, Stop",
+      "content": "<p>5 s</p>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The interval id is not displayed, so it does not belong in state, and a plain variable would be lost on the next render. The guard in `start` prevents two intervals running at once, and the effect's cleanup clears whatever interval is still running when the component unmounts."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Passing refs to your own components"
+    },
+    {
+      "type": "paragraph",
+      "text": "A ref on a custom component does nothing by itself: `<TextField ref={r} />` has no DOM node to attach to. In React 19, `ref` arrives as an **ordinary prop**, so the component can forward it to the element it wants to expose. Before React 19 this required wrapping the component in `forwardRef`; that code still runs, but new code does not need it."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "TextField.jsx",
+      "code": "import { useRef } from 'react';\n\nfunction TextField({ label, ref, ...props }) {\n  return (\n    <label>\n      {label}\n      <input ref={ref} {...props} />\n    </label>\n  );\n}\n\nfunction Form() {\n  const emailRef = useRef(null);\n\n  function handleSubmit(e) {\n    e.preventDefault();\n    if (!emailRef.current.value) emailRef.current.focus();\n  }\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <TextField label=\"Email\" ref={emailRef} type=\"email\" />\n      <button>Send</button>\n    </form>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Rendered; submitting with an empty field moves focus into the input",
+      "content": "<form><label>Email<input type=\"email\"></label><button>Send</button></form>"
+    },
+    {
+      "type": "paragraph",
+      "text": "If you want to expose a small custom API instead of the raw node, `useImperativeHandle(ref, () => ({ focus() { ... } }))` does that. It is rarely needed; forwarding the node is usually enough."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Ref callbacks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Instead of a ref object you can pass a function. React calls it with the node when the element mounts, and in React 19 the function may return a cleanup that runs when the element unmounts. This is the tidiest way to set something up per element, such as an observer, without an effect."
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "title": "Observed.jsx",
+      "code": "function Observed() {\n  return (\n    <div\n      ref={(node) => {\n        const observer = new ResizeObserver(() => console.log('resized'));\n        observer.observe(node);\n        return () => observer.disconnect();\n      }}\n    >\n      Resize me\n    </div>\n  );\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Console",
+      "content": "resized          ← once when the element mounts (ResizeObserver reports the initial size)\nresized          ← again after every size change"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: reading a ref during the first render",
+      "text": "`const el = ref.current; el.focus();` in the component body runs before the element exists, so `current` is `null` and the call throws. Refs are populated after commit. Use them in event handlers and effects, and never put `ref.current` in the JSX expecting the screen to follow it."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "react-refs-rerender"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "react-refs-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "refs",
+          "difficulty": "beginner",
+          "question": "In React 19, how does a function component receive a ref passed as `<Input ref={r} />`?",
+          "explanation": "React 19 passes `ref` like any other prop, so `function Input({ ref, ...props })` can forward it. `forwardRef` still works but is no longer necessary.",
+          "options": [
+            "Only through `forwardRef`",
+            "As a normal `ref` prop",
+            "Through `this.ref`",
+            "It cannot receive one"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "react-refs-qc-2",
+          "type": "true-false",
+          "lessonSlug": "refs",
+          "difficulty": "beginner",
+          "question": "Writing to `ref.current` causes the component to re-render.",
+          "explanation": "Refs are deliberately invisible to rendering. Only state and props (and context) trigger renders.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["react-refs-rerender"],
+  "relatedLessons": [
+    {
+      "technologySlug": "react",
+      "slug": "state-usestate"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "effects"
+    },
+    {
+      "technologySlug": "react",
+      "slug": "events-forms"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "dom"
+    }
+  ],
+  "seo": {
+    "title": "React useRef – DOM Access and Mutable Values",
+    "description": "Learn useRef in React 19: focus and measure DOM elements, keep timer ids without re-rendering, pass ref as a prop to your own components and use ref callbacks."
+  },
+  "updatedOn": "2026-11-16"
+}

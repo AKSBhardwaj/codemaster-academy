@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "slug": "setup-atlas-shell",
+  "title": "Setting Up Atlas and mongosh",
+  "summary": "Create a free MongoDB Atlas cluster, install mongosh, connect with a connection string and run your first shell commands, or run MongoDB 8 locally instead.",
+  "introduction": "Before you can store a document you need a server to talk to and a shell to talk with. MongoDB Atlas gives you a free hosted cluster in a few minutes, and mongosh is the official shell for sending commands to it. This lesson walks through creating the cluster, adding a database user and a network rule, installing mongosh, connecting, and the handful of shell commands you will use in every session. It also shows how to run MongoDB 8 locally if you prefer to work offline.",
+  "learningObjectives": [
+    "Create a free Atlas cluster with a database user and an IP access rule",
+    "Install mongosh and connect to a cluster with a connection string",
+    "Switch databases, list collections and insert a first document from the shell"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Atlas or local?"
+    },
+    {
+      "type": "paragraph",
+      "text": "**MongoDB Atlas** is MongoDB's hosted service. Its free tier, an *M0* cluster, costs nothing, needs no credit card, gives you 512 MB of storage and runs a real three-member replica set, which matters later for transactions. A **local** installation of MongoDB Community Server is also free and works offline, but by default it runs as a single server. This tutorial uses Atlas; every command works the same against a local server, and the end of this lesson shows how to start one."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 1: create a free cluster"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Sign up at [mongodb.com/atlas](https://www.mongodb.com/atlas) and create a project.",
+        "Choose to create a cluster, pick the free **M0** tier, a cloud provider and the region closest to you, and keep the default name `Cluster0`. Provisioning takes a few minutes.",
+        "Under **Security**, open **Database Access** and add a database user with a username and a strong password. Give it *Read and write to any database* for now; the [Security Basics](/tutorials/mongodb/security-basics) lesson narrows that down.",
+        "Open **Network Access** and add your current IP address. Atlas rejects every connection from an address that is not on this list.",
+        "Back on the cluster, click **Connect**, choose the **Shell** option and copy the connection string."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "A connection string looks like this:"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "title": "Atlas connection string",
+      "code": "mongodb+srv://appuser:<password>@cluster0.ab12cd.mongodb.net/"
+    },
+    {
+      "type": "paragraph",
+      "text": "The scheme `mongodb+srv://` means *DNS seed list*: Atlas publishes the addresses of the cluster's servers in DNS, so the string stays short and keeps working when servers are replaced. `appuser` is the database user, `<password>` is a placeholder for its password, and the host name identifies your cluster. Options such as `?retryWrites=true` may follow the slash."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 2: install mongosh"
+    },
+    {
+      "type": "paragraph",
+      "text": "mongosh is a separate download from the server. On Windows, download the installer from the MongoDB download centre and accept the defaults. On macOS and Linux a package manager is quicker:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "# macOS with Homebrew\nbrew tap mongodb/brew\nbrew install mongosh\n\n# Ubuntu and Debian, after adding the MongoDB apt repository\nsudo apt-get install -y mongodb-mongosh\n\n# any platform: check the installation\nmongosh --version"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (your version number will differ)",
+      "content": "2.5.6"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Step 3: connect"
+    },
+    {
+      "type": "paragraph",
+      "text": "Pass the connection string without the credentials and give the username as an option, so that mongosh prompts for the password instead of leaving it in your shell history:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "mongosh \"mongodb+srv://cluster0.ab12cd.mongodb.net/\" --username appuser"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (abridged; versions vary)",
+      "content": "Enter password: ********\nCurrent Mongosh Log ID: 69a3a9c0d1e2f3a4b5c6d7e8\nConnecting to:    mongodb+srv://<credentials>@cluster0.ab12cd.mongodb.net/?appName=mongosh+2.5.6\nUsing MongoDB:    8.0.12\nUsing Mongosh:    2.5.6\n\nAtlas atlas-ab12cd-shard-0 [primary] test>"
+    },
+    {
+      "type": "paragraph",
+      "text": "The banner confirms the server version, and the prompt tells you three things: you are connected to an Atlas cluster, to its *primary* member (the one that accepts writes), and the current database is `test`. For a local server the prompt is simply `test>`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Your first commands"
+    },
+    {
+      "type": "paragraph",
+      "text": "mongosh is a JavaScript environment with a few shell-style helpers. `use` switches the current database, `db` refers to it, and `show collections` lists what it contains. Switching to a database that does not exist yet is fine: MongoDB creates the database and the collection the moment you insert the first document."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.getName()\nshow collections"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\nshop"
+    },
+    {
+      "type": "paragraph",
+      "text": "`show collections` printed nothing because `shop` is still empty. Insert one document and look again:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.insertOne({ name: 'Mechanical keyboard', price: 89.5 })\nshow collections"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{\n  acknowledged: true,\n  insertedId: ObjectId('69a3a800f1e2d3c4b5a69701')\n}\nproducts"
+    },
+    {
+      "type": "paragraph",
+      "text": "The result says the server acknowledged the write and shows the `_id` it stored; your `ObjectId` value will differ, because it is generated on the fly. The `products` collection now exists, and `show dbs` would list `shop` alongside the system databases `admin` and `local`."
+    },
+    {
+      "type": "table",
+      "headers": ["Command", "What it does"],
+      "rows": [
+        ["`show dbs`", "Lists the databases you can see, with their size on disk"],
+        ["`use shop`", "Makes `shop` the current database (created on first insert)"],
+        ["`db`", "Prints the name of the current database"],
+        ["`show collections`", "Lists the collections in the current database"],
+        ["`db.products.help()`", "Lists the methods available on a collection"],
+        ["`exit`", "Leaves the shell (so does Ctrl+D)"]
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "If mongosh waits about thirty seconds and then fails with `MongoServerSelectionError`, the usual cause is that your current IP address is not on the Atlas access list, for example because you moved to another network. Add the new address under Network Access and connect again. The next most common cause is a password containing characters such as `@`, `:` or `/` pasted straight into the connection string; such characters must be percent-encoded, which is one more reason to let mongosh prompt for the password."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Running MongoDB locally instead"
+    },
+    {
+      "type": "paragraph",
+      "text": "If you have Docker, one command starts a MongoDB 8 server on the default port 27017; without Docker, install MongoDB Community Server from the download centre and it runs as a background service on the same port. Connect to either with a plain `mongodb://` string:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "docker run --name mongo8 -d -p 27017:27017 mongo:8.0\nmongosh \"mongodb://localhost:27017\""
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output (abridged; the container id is random)",
+      "content": "3f9c2a8e1b7d6c5a4e3f2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a\nCurrent Mongosh Log ID: 69a3a9c0d1e2f3a4b5c6d7e9\nConnecting to:    mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.6\nUsing MongoDB:    8.0.12\nUsing Mongosh:    2.5.6\n\ntest>"
+    },
+    {
+      "type": "paragraph",
+      "text": "A local server started this way has no authentication and no replication, which is fine on your own machine for learning. Remember two consequences: anyone who can reach the port can read the data, so never expose it to the internet, and multi-document transactions will not work until the server is started as a replica set, as the [Transactions](/tutorials/mongodb/transactions) lesson explains."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-setup-connection-string"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-setup-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "setup-atlas-shell",
+          "difficulty": "beginner",
+          "question": "You run `use inventory` in mongosh and the database does not exist. What happens?",
+          "explanation": "`use` only changes the current database. MongoDB creates the database, and the collection, when the first document is inserted.",
+          "options": [
+            "mongosh prints an error because the database does not exist",
+            "The database is created immediately with an empty default collection",
+            "The current database switches to `inventory`; it is created when you insert the first document",
+            "mongosh asks whether you want to create it"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "mongodb-setup-qc-2",
+          "type": "true-false",
+          "lessonSlug": "setup-atlas-shell",
+          "difficulty": "beginner",
+          "question": "Atlas accepts connections from any IP address as long as the username and password are correct.",
+          "explanation": "Atlas rejects connections from addresses that are not on the project's IP access list, regardless of credentials. Add your address under Network Access.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-setup-connection-string"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "introduction"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "documents-collections"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "security-basics"
+    }
+  ],
+  "seo": {
+    "title": "Set Up MongoDB Atlas and mongosh – Connect in Minutes",
+    "description": "Create a free MongoDB Atlas cluster, add a user and IP rule, install mongosh, connect with a connection string and learn the shell commands you use daily."
+  },
+  "updatedOn": "2026-11-15"
+}

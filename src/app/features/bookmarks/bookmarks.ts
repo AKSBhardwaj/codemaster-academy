@@ -11,12 +11,21 @@ import { TechnologyCardComponent } from '../../shared/components/technology-card
 
 @Component({
   selector: 'cma-bookmarks',
-  imports: [DatePipe, RouterLink, EmptyStateComponent, IconComponent, PageHeaderComponent, TechnologyCardComponent],
+  imports: [
+    DatePipe,
+    RouterLink,
+    EmptyStateComponent,
+    IconComponent,
+    PageHeaderComponent,
+    TechnologyCardComponent,
+  ],
   templateUrl: './bookmarks.html',
 })
 export class BookmarksPage {
   protected readonly bookmarks = inject(BookmarkStore);
   protected readonly recent = inject(RecentStore);
   private readonly catalog = inject(CatalogService);
-  protected readonly technologies = computed(() => this.catalog.bySlugs(this.bookmarks.technologies()));
+  protected readonly technologies = computed(() =>
+    this.catalog.bySlugs(this.bookmarks.technologies()),
+  );
 }

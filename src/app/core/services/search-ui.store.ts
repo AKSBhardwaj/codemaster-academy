@@ -26,7 +26,12 @@ export class SearchUiStore {
   remember(query: string): void {
     const text = query.trim();
     if (!text) return;
-    this.recent.update((list) => [text, ...list.filter((item) => item.toLowerCase() !== text.toLowerCase())].slice(0, MAX_RECENT));
+    this.recent.update((list) =>
+      [text, ...list.filter((item) => item.toLowerCase() !== text.toLowerCase())].slice(
+        0,
+        MAX_RECENT,
+      ),
+    );
     this.persistence.write(RECENT_KEY, this.recent());
   }
 

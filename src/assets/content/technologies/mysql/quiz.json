@@ -1,0 +1,164 @@
+{
+  "id": "mysql-quiz",
+  "title": "MySQL Quiz",
+  "description": "Fourteen questions covering the whole MySQL tutorial: server and client, databases and types, CRUD, filtering, joins, aggregates, indexes, users, transactions, backups and dialect differences.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "mysql-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which storage engine is the default in MySQL 8.4 and provides transactions, row locks and foreign keys?",
+      "explanation": "InnoDB has been the default engine since 5.5. MyISAM is the legacy engine without transactions or foreign keys; MEMORY and CSV are special-purpose engines.",
+      "options": ["MyISAM", "InnoDB", "MEMORY", "CSV"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-q-02",
+      "type": "true-false",
+      "lessonSlug": "installing-connecting",
+      "difficulty": "beginner",
+      "question": "In the mysql client, `-P` (capital) sets the port and `-p` (lower case) asks for the password.",
+      "explanation": "The two options differ only in case: -P 3306 is the port, -p prompts for the password. The default port is 3306.",
+      "correct": true
+    },
+    {
+      "id": "mysql-q-03",
+      "type": "true-false",
+      "lessonSlug": "databases-tables",
+      "difficulty": "beginner",
+      "question": "In MySQL, `utf8` is an alias for the four-byte `utf8mb4` character set.",
+      "explanation": "utf8 is an alias for utf8mb3, the old three-byte encoding that rejects emoji and many other characters. Always write utf8mb4 explicitly.",
+      "correct": false
+    },
+    {
+      "id": "mysql-q-04",
+      "type": "fill-blank",
+      "lessonSlug": "databases-tables",
+      "difficulty": "beginner",
+      "question": "Ending a statement with `___` instead of a semicolon makes the mysql client print each row vertically, which is how you read `SHOW CREATE TABLE` output.",
+      "explanation": "\\G prints every column on its own line, labelled. It is a client command, so it works for any query.",
+      "answers": ["\\G"],
+      "caseSensitive": true
+    },
+    {
+      "id": "mysql-q-05",
+      "type": "multiple-choice",
+      "lessonSlug": "data-types",
+      "difficulty": "intermediate",
+      "question": "Which type converts values to UTC when storing them and back to the session time zone when reading them?",
+      "explanation": "TIMESTAMP is stored as UTC and converted on the way in and out; DATETIME is stored exactly as written with no time zone handling. DATE and TIME have no zone either.",
+      "options": ["`DATETIME`", "`TIMESTAMP`", "`DATE`", "`TIME`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-q-06",
+      "type": "predict-output",
+      "lessonSlug": "crud",
+      "difficulty": "beginner",
+      "question": "This UPDATE is executed twice in a row. What does the client print the second time?",
+      "explanation": "The WHERE clause still matches the one row, but its stock is already 30, so nothing changes. Rows matched counts matches, Changed counts actual modifications.",
+      "language": "sql",
+      "code": "UPDATE coffees SET stock = 30 WHERE id = 3;",
+      "options": [
+        "`Rows matched: 1  Changed: 1`",
+        "`Rows matched: 1  Changed: 0`",
+        "`Rows matched: 0  Changed: 0`",
+        "`ERROR 1062: Duplicate entry`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-q-07",
+      "type": "fill-blank",
+      "lessonSlug": "select-filtering",
+      "difficulty": "intermediate",
+      "question": "The MySQL-specific null-safe equality operator, which returns 1 when both sides are NULL, is written `___`.",
+      "explanation": "<=> compares like = but treats two NULLs as equal and NULL versus a value as not equal, returning 0 or 1 instead of NULL.",
+      "answers": ["<=>"],
+      "caseSensitive": true
+    },
+    {
+      "id": "mysql-q-08",
+      "type": "multiple-choice",
+      "lessonSlug": "joins",
+      "difficulty": "beginner",
+      "question": "With 7 orders and 5 customers, how many rows does `SELECT * FROM orders JOIN customers;` return?",
+      "explanation": "Without an ON clause MySQL performs a cross join, pairing every order with every customer: 7 × 5 = 35 rows. There is no error message.",
+      "options": ["7", "5", "12", "35"],
+      "correctIndex": 3
+    },
+    {
+      "id": "mysql-q-09",
+      "type": "find-error",
+      "lessonSlug": "aggregates",
+      "difficulty": "intermediate",
+      "question": "With the default sql_mode this query fails with error 1055. Why?",
+      "explanation": "ONLY_FULL_GROUP_BY requires every selected column to be grouped or aggregated. ordered_at is neither, so MySQL refuses to pick an arbitrary value. Use MAX(ordered_at), add it to GROUP BY, or wrap it in ANY_VALUE().",
+      "language": "sql",
+      "code": "SELECT customer_id, ordered_at, COUNT(*)\nFROM orders\nGROUP BY customer_id;",
+      "options": [
+        "ordered_at is neither grouped nor aggregated, which ONLY_FULL_GROUP_BY forbids",
+        "COUNT(*) must have an alias",
+        "GROUP BY requires an ORDER BY",
+        "customer_id must come last in the SELECT list"
+      ],
+      "correctIndex": 0,
+      "errorLine": 1
+    },
+    {
+      "id": "mysql-q-10",
+      "type": "true-false",
+      "lessonSlug": "indexes",
+      "difficulty": "intermediate",
+      "question": "An index on `(origin, roast)` can be used to satisfy `WHERE roast = 'dark'` on its own.",
+      "explanation": "A composite index is sorted by its first column; a condition on the second column alone cannot use it (the leftmost-prefix rule). It serves origin alone or origin plus roast.",
+      "correct": false
+    },
+    {
+      "id": "mysql-q-11",
+      "type": "multiple-choice",
+      "lessonSlug": "users-privileges",
+      "difficulty": "intermediate",
+      "question": "Which authentication plugin is the default in MySQL 8.4 and the only built-in password plugin remaining in 9.0?",
+      "explanation": "caching_sha2_password has been the default since 8.0. mysql_native_password was deprecated, disabled by default in 8.4 and removed in 9.0; auth_socket is used only for local root on some Linux packages.",
+      "options": [
+        "`mysql_native_password`",
+        "`caching_sha2_password`",
+        "`auth_socket`",
+        "`sha256_password`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-q-12",
+      "type": "fill-blank",
+      "lessonSlug": "transactions",
+      "difficulty": "intermediate",
+      "question": "InnoDB's default transaction isolation level is ___.",
+      "explanation": "REPEATABLE READ gives each transaction a consistent snapshot from its first read. PostgreSQL defaults to READ COMMITTED instead.",
+      "answers": ["REPEATABLE READ", "REPEATABLE-READ"],
+      "caseSensitive": false
+    },
+    {
+      "id": "mysql-q-13",
+      "type": "multiple-choice",
+      "lessonSlug": "backup-restore",
+      "difficulty": "intermediate",
+      "question": "Which backup tool was deprecated in 8.0.34 and removed in MySQL 8.4?",
+      "explanation": "mysqlpump is gone; mysqldump remains and MySQL Shell's util.dumpInstance and util.loadDump are the recommended parallel tools.",
+      "options": ["`mysqldump`", "`mysqlpump`", "`mysqlbinlog`", "`mysqlsh`"],
+      "correctIndex": 1
+    },
+    {
+      "id": "mysql-q-14",
+      "type": "true-false",
+      "lessonSlug": "mysql-vs-others",
+      "difficulty": "beginner",
+      "question": "Under MySQL's default collation `'Mei' = 'mei'` is true, while in PostgreSQL the same comparison is false.",
+      "explanation": "utf8mb4_0900_ai_ci compares case-insensitively; PostgreSQL compares exactly unless you use ILIKE or a case-insensitive collation.",
+      "correct": true
+    }
+  ]
+}

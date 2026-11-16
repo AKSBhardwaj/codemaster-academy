@@ -1,0 +1,192 @@
+{
+  "id": "typescript-quiz",
+  "title": "TypeScript Quiz",
+  "description": "Fourteen questions covering the whole TypeScript tutorial: the compiler, basic types, functions, interfaces, modules, tuples, enums, classes, generics, narrowing, utility types, async code, strict mode and declaration files.",
+  "passPercent": 70,
+  "questions": [
+    {
+      "id": "ts-q-01",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What happens to interfaces and type annotations when `tsc` compiles a file?",
+      "explanation": "Types exist only at compile time. The emitted JavaScript contains no annotations, interfaces or type aliases and performs no type checks.",
+      "options": [
+        "They are converted into runtime checks that throw on wrong types",
+        "They are removed; the JavaScript output contains no types",
+        "They are kept as comments so the browser can read them",
+        "They are moved into a separate JavaScript file"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "ts-q-02",
+      "type": "true-false",
+      "lessonSlug": "strict-config",
+      "difficulty": "beginner",
+      "question": "Setting `\"strict\": true` in tsconfig.json enables `noImplicitAny` and `strictNullChecks` at the same time.",
+      "explanation": "strict is a shortcut for a family of flags that includes noImplicitAny, strictNullChecks, strictPropertyInitialization, useUnknownInCatchVariables and more.",
+      "correct": true
+    },
+    {
+      "id": "ts-q-03",
+      "type": "fill-blank",
+      "lessonSlug": "basic-types",
+      "difficulty": "beginner",
+      "question": "The type that accepts any value but must be narrowed before you can call methods on it is `___`.",
+      "explanation": "unknown is the type-safe counterpart of any: everything is assignable to it, but it cannot be used until a check such as typeof proves what it holds.",
+      "answers": ["unknown"],
+      "caseSensitive": false
+    },
+    {
+      "id": "ts-q-04",
+      "type": "multiple-choice",
+      "lessonSlug": "functions",
+      "difficulty": "beginner",
+      "question": "`function add(a: number, b: number): number` is called as `add(1)`. What does the compiler report?",
+      "explanation": "Argument counts are checked. Calling with one argument produces TS2554: Expected 2 arguments, but got 1, together with a note pointing at the parameter that was not provided.",
+      "options": [
+        "Nothing; `b` becomes `undefined` as in JavaScript",
+        "TS2322: Type 'undefined' is not assignable to type 'number'",
+        "TS2554: Expected 2 arguments, but got 1",
+        "A runtime error when the function executes"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "ts-q-05",
+      "type": "predict-output",
+      "lessonSlug": "objects-interfaces",
+      "difficulty": "intermediate",
+      "question": "What does this program print?",
+      "explanation": "task is a variable, not a fresh object literal, so the excess property check does not apply. It has an id of type number, which is all HasId requires, so the call compiles and prints #3.",
+      "language": "typescript",
+      "code": "interface HasId {\n  id: number;\n}\n\nfunction show(item: HasId): string {\n  return `#${item.id}`;\n}\n\nconst task = { id: 3, title: \"Write quiz\" };\nconsole.log(show(task));",
+      "options": [
+        "A compiler error, because `title` is not in `HasId`",
+        "#undefined",
+        "#3",
+        "{ id: 3, title: 'Write quiz' }"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "ts-q-06",
+      "type": "multiple-choice",
+      "lessonSlug": "modules",
+      "difficulty": "intermediate",
+      "question": "In a project with `\"module\": \"nodenext\"` and `\"type\": \"module\"`, which import of the local file `src/dates.ts` compiles?",
+      "explanation": "The compiler never rewrites import paths, so you write the path that exists after compilation. ./dates.js resolves to dates.ts while checking and to dist/dates.js at runtime.",
+      "options": [
+        "`import { today } from \"./dates\";`",
+        "`import { today } from \"./dates.js\";`",
+        "`import { today } from \"dates\";`",
+        "`import { today } from \"./dates.d.ts\";`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "ts-q-07",
+      "type": "find-error",
+      "lessonSlug": "arrays-tuples",
+      "difficulty": "beginner",
+      "question": "Why does this line fail to compile?",
+      "explanation": "A tuple type fixes the type of each position. The first element must be a string and the second a number; the literal has them swapped, so tsc reports two TS2322 errors.",
+      "language": "typescript",
+      "code": "const pair: [string, number] = [1, \"one\"];",
+      "options": [
+        "Tuples cannot mix strings and numbers",
+        "The elements are in the wrong order for the tuple type",
+        "The tuple needs a third element",
+        "`const` cannot hold a tuple; use `let`"
+      ],
+      "correctIndex": 1,
+      "errorLine": 1
+    },
+    {
+      "id": "ts-q-08",
+      "type": "true-false",
+      "lessonSlug": "enums-literals",
+      "difficulty": "intermediate",
+      "question": "Given `enum LogLevel { Info = \"info\" }` and `function log(level: LogLevel)`, the call `log(\"info\")` is accepted.",
+      "explanation": "String enums are nominal: only the enum member LogLevel.Info is accepted, even though its value is the same string. A literal union would accept the plain string.",
+      "correct": false
+    },
+    {
+      "id": "ts-q-09",
+      "type": "multiple-choice",
+      "lessonSlug": "classes",
+      "difficulty": "beginner",
+      "question": "Where may a `readonly` class property be assigned?",
+      "explanation": "readonly allows assignment in the property declaration and inside the constructor only. Any later assignment, including from methods of the same class, is a TS2540 error.",
+      "options": [
+        "From any method of the class, but not from outside",
+        "Only from subclasses",
+        "Only in the declaration or in the constructor",
+        "Never; a readonly property has no value"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "ts-q-10",
+      "type": "fill-blank",
+      "lessonSlug": "generics",
+      "difficulty": "beginner",
+      "question": "In `function first<T>(items: T[]): T | undefined`, the `T` declared in angle brackets is called a type ___.",
+      "explanation": "T is a type parameter (also called a type variable): a placeholder that the compiler replaces with a concrete type at each call, either by inference or from an explicit type argument.",
+      "answers": ["parameter", "variable"],
+      "caseSensitive": false
+    },
+    {
+      "id": "ts-q-11",
+      "type": "predict-output",
+      "lessonSlug": "narrowing",
+      "difficulty": "intermediate",
+      "question": "What does this program print?",
+      "explanation": "ok is the discriminant. When it is true the compiler narrows result to the member with value; when it is false, to the member with error. The first call prints error nope and the second value 7.",
+      "language": "typescript",
+      "code": "type Result = { ok: true; value: number } | { ok: false; error: string };\n\nfunction show(result: Result): string {\n  return result.ok ? `value ${result.value}` : `error ${result.error}`;\n}\n\nconsole.log(show({ ok: false, error: \"nope\" }), show({ ok: true, value: 7 }));",
+      "options": [
+        "value undefined error nope",
+        "A compiler error: `value` does not exist on type `Result`",
+        "false 7",
+        "error nope value 7"
+      ],
+      "correctIndex": 3
+    },
+    {
+      "id": "ts-q-12",
+      "type": "multiple-choice",
+      "lessonSlug": "utility-types",
+      "difficulty": "beginner",
+      "question": "What does `Partial<User>` produce?",
+      "explanation": "Partial is a mapped type that adds ? to every property. It is typically used for update payloads where any subset of fields may be supplied.",
+      "options": [
+        "A type where every property of `User` is read-only",
+        "A type with all of `User`'s properties made optional",
+        "A union of `User`'s property names",
+        "A type with only the first property of `User`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "ts-q-13",
+      "type": "multiple-choice",
+      "lessonSlug": "async-types",
+      "difficulty": "beginner",
+      "question": "What is the return type of `async function load() { return \"ready\"; }`?",
+      "explanation": "An async function always returns a promise. The returned string becomes the resolved value, so the type is Promise<string>; await load() gives a string.",
+      "options": ["`string`", "`Promise<void>`", "`Awaited<string>`", "`Promise<string>`"],
+      "correctIndex": 3
+    },
+    {
+      "id": "ts-q-14",
+      "type": "true-false",
+      "lessonSlug": "declaration-files",
+      "difficulty": "beginner",
+      "question": "A `.d.ts` file contains only type declarations and produces no JavaScript when compiled.",
+      "explanation": "Declaration files describe the types of code that lives elsewhere, such as a JavaScript package or your own compiled library. They are never emitted as JavaScript.",
+      "correct": true
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "slug": "where",
+  "title": "Filtering with WHERE",
+  "summary": "WHERE filters rows by a rule. Only rows that match the rule appear in the answer.",
+  "introduction": "WHERE filters rows by a rule. Only rows that match the rule appear in the answer. Ask for books above a page count or items with a certain name. Try a rule that matches several rows and one that matches none.",
+  "learningObjectives": [
+    "Filter rows with comparison operators",
+    "Combine conditions with AND, OR and NOT",
+    "Use parentheses to control precedence",
+    "Compare text and ISO dates correctly"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The WHERE clause"
+    },
+    {
+      "type": "paragraph",
+      "text": "`WHERE` comes after `FROM` and holds a condition. The database evaluates it for every row and keeps the rows where it is true. The condition can use any column of the table, even one you do not select."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, price FROM products WHERE price > 10;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name                | price\n--------------------+------\nUSB cable           | 12\nMechanical keyboard | 89\nMonitor stand       | 39.5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparison operators"
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Meaning", "Example"],
+      "rows": [
+        ["`=`", "equal to", "`category = 'Office'`"],
+        ["`<>` or `!=`", "not equal to", "`country <> 'US'`"],
+        ["`<`, `>`", "less than, greater than", "`price > 10`"],
+        ["`<=`, `>=`", "at most, at least", "`joined >= '2025-01-01'`"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "`<>` is the standard not-equal operator; `!=` is accepted by every major database as well. Text values go in single quotes; numbers do not. Writing `price > '10'` happens to work (SQLite converts the text, and PostgreSQL treats a quoted literal as untyped), but mixing types is a habit that breaks as soon as a real text column is involved, so keep the types matching: quotes around text and dates, none around numbers."
+    },
+    {
+      "type": "paragraph",
+      "text": "A condition is evaluated for one row at a time, so it can only compare values of that row with constants or with each other; it cannot ask about other rows (\"customers who ordered more than Ada\"). Questions like that need a join or a subquery, which come later in the tutorial."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, country FROM customers WHERE country <> 'US';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name             | country\n-----------------+------------\nAda Lovelace     | UK\nLinus Torvalds   | Finland\nGuido van Rossum | Netherlands"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Combining conditions: AND, OR, NOT"
+    },
+    {
+      "type": "paragraph",
+      "text": "`AND` requires both conditions to be true, `OR` requires at least one, and `NOT` inverts a condition. Office products under 20:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, category, price\nFROM products\nWHERE category = 'Office' AND price < 20;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name      | category | price\n----------+----------+------\nMouse pad | Office   | 8.99"
+    },
+    {
+      "type": "paragraph",
+      "text": "`OR` keeps a row when either side is true: `WHERE country = 'UK' OR country = 'Finland'` lists Ada and Linus. `NOT` flips a condition, so `WHERE NOT country = 'US'` means the same as `country <> 'US'`; it becomes more useful with the operators of the next lesson, where `NOT LIKE`, `NOT IN` and `NOT BETWEEN` read almost like English. Conditions can be chained as far as you like, which is exactly where the next trap lies."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Precedence: AND binds before OR"
+    },
+    {
+      "type": "paragraph",
+      "text": "When a condition mixes AND and OR, `AND` is evaluated first, like multiplication before addition. The query below *looks* like it asks for cheap office and stationery items, but it actually returns all office products plus the stationery under 3:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, category, price\nFROM products\nWHERE category = 'Office' OR category = 'Stationery' AND price < 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name          | category   | price\n--------------+------------+------\nMouse pad     | Office     | 8.99\nMonitor stand | Office     | 39.5\nSticky notes  | Stationery | 2.75"
+    },
+    {
+      "type": "paragraph",
+      "text": "Parentheses make the intended grouping explicit and change the result:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, category, price\nFROM products\nWHERE (category = 'Office' OR category = 'Stationery') AND price < 3;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name         | category   | price\n-------------+------------+------\nSticky notes | Stationery | 2.75"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Mixing AND and OR without parentheses",
+      "text": "This is the most common WHERE bug, and it never produces an error message, only wrong rows. Whenever a condition contains both `AND` and `OR`, add parentheses even when they are not strictly needed; the next person reading the query will thank you."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparing text and dates"
+    },
+    {
+      "type": "paragraph",
+      "text": "Text comparisons are case-sensitive in SQLite and PostgreSQL (`'US'` and `'us'` are different values), while MySQL's default collations ignore case. Dates in this database are stored as ISO 8601 text (`YYYY-MM-DD`), a format whose alphabetical order is also chronological order, so `>=` works on them as expected:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name, joined FROM customers WHERE joined >= '2025-01-01';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "name              | joined\n------------------+-----------\nMargaret Hamilton | 2025-02-09\nGuido van Rossum  | 2025-05-30"
+    },
+    {
+      "type": "paragraph",
+      "text": "A query whose condition matches nothing is not an error. The playground prints `OK` and no table, as this lower-case search shows:"
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "runnable": true,
+      "code": "SELECT name FROM customers WHERE country = 'us';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "OK: SELECT name FROM customers WHERE country = 'us'"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Find the products that cost between 5 and 50 using two comparisons joined by `AND`, then wrap the whole condition in `NOT (...)` to get the other products."
+    },
+    {
+      "type": "interactive",
+      "language": "sql",
+      "title": "Try it yourself",
+      "height": 220,
+      "code": "SELECT name, price\nFROM products\nWHERE price >= 5 AND price <= 50;"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "sql-where-precedence"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "where-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "where",
+          "difficulty": "beginner",
+          "question": "Which rows does `WHERE price > 10 AND category = 'Office'` return?",
+          "explanation": "AND requires both conditions to hold for the same row: the product must be in the Office category and cost more than 10.",
+          "options": [
+            "Products over 10 in any category",
+            "Office products of any price",
+            "Office products over 10",
+            "Products that are either over 10 or in Office"
+          ],
+          "correctIndex": 2
+        },
+        {
+          "id": "where-qc-2",
+          "type": "fill-blank",
+          "lessonSlug": "where",
+          "difficulty": "beginner",
+          "question": "Text values in a WHERE condition are enclosed in ___ quotes.",
+          "explanation": "Single quotes mark text values in SQL. Double quotes are reserved for identifiers such as column names.",
+          "answers": ["single"],
+          "caseSensitive": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["sql-where-precedence"],
+  "relatedLessons": [
+    {
+      "technologySlug": "sql",
+      "slug": "filtering-operators"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "select"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "sorting-limiting"
+    }
+  ],
+  "seo": {
+    "title": "SQL WHERE – Filter Rows with AND, OR and NOT",
+    "description": "Learn the SQL WHERE clause: comparison operators, combining conditions with AND, OR and NOT, precedence and parentheses, and text and date comparisons."
+  },
+  "updatedOn": "2026-11-16"
+}

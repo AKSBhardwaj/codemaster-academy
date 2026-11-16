@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "slug": "conditionals",
+  "title": "Conditionals",
+  "summary": "An if statement lets Python choose a step when a rule is true. An else part gives another path.",
+  "introduction": "An if statement lets Python choose a step when a rule is true. An else part gives another path. A club might need different messages for a full or empty reading list. Try both cases and watch the spaces at the start of each line.",
+  "learningObjectives": [
+    "Branch with if, elif and else and predict which block runs",
+    "Combine conditions with and, or and not, including chained comparisons",
+    "Write a conditional expression on one line",
+    "Use match to select among several structured cases"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "if, elif and else"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "grade.py",
+      "code": "score = 83\n\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelif score >= 70:\n    grade = \"C\"\nelse:\n    grade = \"F\"\n\nprint(f\"Score {score} is grade {grade}\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python grade.py",
+      "content": "Score 83 is grade B"
+    },
+    {
+      "type": "paragraph",
+      "text": "Python tests the conditions from top to bottom and runs the *first* block whose condition is true, then skips the rest; the `else` block catches everything that remains. Order matters: if the `score >= 70` test came first, an 83 would be a C. `elif` and `else` are optional, and an `if` with neither is common."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Comparison operators"
+    },
+    {
+      "type": "table",
+      "headers": ["Operator", "Meaning", "Example"],
+      "rows": [
+        ["`==`, `!=`", "Equal, not equal", "`age == 18`"],
+        [
+          "`<`, `<=`, `>`, `>=`",
+          "Less than, less or equal, greater than, greater or equal",
+          "`price >= 10`"
+        ],
+        [
+          "`in`, `not in`",
+          "Membership in a string, list, tuple, set or dict",
+          "`\"py\" in \"python\"`"
+        ],
+        ["`is`, `is not`", "Identity: the very same object", "`result is None`"]
+      ]
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "compare.py",
+      "code": "age = 20\nprint(age == 20, age != 20)\nprint(age > 18, age <= 18)\nprint(18 <= age < 65)           # chained: both comparisons must hold\nprint(\"a\" < \"b\", \"apple\" < \"banana\")\nprint(\"py\" in \"python\", 3 in [1, 2, 3])\nresult = None\nprint(result is None, result is not None)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python compare.py",
+      "content": "True False\nTrue False\nTrue\nTrue True\nTrue True\nTrue False"
+    },
+    {
+      "type": "paragraph",
+      "text": "Chained comparisons read like mathematics: `18 <= age < 65` is true only when both halves are. Strings compare character by character using their Unicode code, so upper-case letters sort before lower-case ones. For `None` use `is` and `is not`: `is` asks whether two names refer to the *same object*, which is exactly the right question for singletons like `None`, `True` and `False`; for ordinary values stick to `==`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "and, or and not"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "logic.py",
+      "code": "is_member = True\nage = 15\nbalance = 0\n\nprint(is_member and age >= 18)\nprint(is_member or age >= 18)\nprint(not is_member)\n\nif balance:\n    print(\"You have money\")\nelse:\n    print(\"Balance is zero\")\n\nname = \"\"\ndisplay = name or \"Anonymous\"\nprint(display)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python logic.py",
+      "content": "False\nTrue\nFalse\nBalance is zero\nAnonymous"
+    },
+    {
+      "type": "paragraph",
+      "text": "`and` is true only when both sides are true, `or` when at least one is, and `not` flips a value. Python evaluates lazily and returns the deciding operand: `a or b` gives `a` if it is truthy, otherwise `b`, which is where the `name or \"Anonymous\"` idiom for default values comes from. `if balance:` relies on truthiness: zero, `None`, empty strings and empty collections count as false, everything else as true (see [Data Types](/tutorials/python/data-types))."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A condition that is always true",
+      "text": "`if day == \"Sat\" or \"Sun\":` reads naturally but does not do what it says. Python evaluates `day == \"Sat\"`, then `\"Sun\"` on its own, and a non-empty string is always truthy, so the block runs for every day of the week. Write `if day == \"Sat\" or day == \"Sun\":` or, better, `if day in (\"Sat\", \"Sun\"):`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The conditional expression"
+    },
+    {
+      "type": "paragraph",
+      "text": "When all you need is to choose between two *values*, an `if` block is heavy. The conditional expression `a if condition else b` fits on one line and can sit inside an f-string or a function call."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "ternary.py",
+      "code": "temperature = 12\nlabel = \"warm\" if temperature > 20 else \"cold\"\nprint(label)\n\nitems = 1\nprint(f\"{items} item{'s' if items != 1 else ''}\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python ternary.py",
+      "content": "cold\n1 item"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The match statement"
+    },
+    {
+      "type": "paragraph",
+      "text": "When one value must be compared with many possibilities, a chain of `elif`s works, but `match` (Python 3.10 and later) reads better. Each `case` is tried in order, `|` separates alternatives, and `_` is the wildcard that matches anything, so it plays the role of `else`."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "status.py",
+      "code": "status = 404\n\nmatch status:\n    case 200:\n        print(\"OK\")\n    case 301 | 302:\n        print(\"Redirect\")\n    case 404:\n        print(\"Not found\")\n    case _:\n        print(\"Something else\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python status.py",
+      "content": "Not found"
+    },
+    {
+      "type": "paragraph",
+      "text": "`match` can also pull values *out* of structured data. The patterns below match lists of a certain length and bind the pieces to names, so a tiny text-adventure parser needs no indexing at all:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "command.py",
+      "code": "command = \"go north\"\n\nmatch command.split():\n    case [\"go\", direction]:\n        print(f\"Moving {direction}\")\n    case [\"take\", item]:\n        print(f\"Picking up the {item}\")\n    case [\"quit\"] | [\"exit\"]:\n        print(\"Goodbye\")\n    case _:\n        print(\"I do not understand\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python command.py",
+      "content": "Moving north"
+    },
+    {
+      "type": "paragraph",
+      "text": "Change `command` to `\"take lamp\"`, `\"exit\"` or `\"dance\"` and run it again to see the other branches. Capturing names such as `direction` are plain variables: the first pattern only matches a two-item list whose first item is `\"go\"`."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Keep conditions readable",
+      "text": "Deeply nested `if` blocks are hard to follow. Give a complex condition a name (`is_eligible = age >= 18 and is_member`), handle the exceptional case first and leave the main path unindented, and reach for `match` once an `elif` chain compares the same value more than three times."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-conditionals-ticket-price"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-cond-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "conditionals",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "Only the first true branch runs. `x > 5` is true, so `big` is printed and the `elif` is never tested, even though `x > 6` is also true.",
+          "language": "python",
+          "code": "x = 7\nif x > 5:\n    print(\"big\")\nelif x > 6:\n    print(\"bigger\")\nelse:\n    print(\"small\")",
+          "options": ["`big`", "`bigger`", "`big` then `bigger`", "`small`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "py-cond-qc-2",
+          "type": "true-false",
+          "lessonSlug": "conditionals",
+          "difficulty": "beginner",
+          "question": "`if x == 1 or 2:` is true only when `x` is 1 or 2.",
+          "explanation": "The expression is `(x == 1) or 2`, and `2` is truthy, so the condition is true for every value of `x`. Write `x == 1 or x == 2` or `x in (1, 2)`.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-conditionals-ticket-price"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "syntax-variables"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "data-types"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "loops"
+    }
+  ],
+  "seo": {
+    "title": "Python Conditionals – if, elif, else and match",
+    "description": "Learn Python if, elif and else statements, comparison and boolean operators, chained comparisons, conditional expressions and the match statement with examples."
+  },
+  "updatedOn": "2026-11-16"
+}

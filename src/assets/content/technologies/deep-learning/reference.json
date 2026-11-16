@@ -1,0 +1,152 @@
+{
+  "title": "Deep Learning Reference",
+  "description": "A quick reminder of the ideas and examples in the Deep Learning lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Start with a weighted input",
+          "summary": "A weight controls how strongly an input affects a calculation. A bias is a number added afterward. A neural network combines many such calculations.",
+          "example": {
+            "language": "python",
+            "code": "input_value = 3\nweight = 2\nbias = 1\nprint(input_value * weight + bias)"
+          },
+          "notes": [
+            "The word neuron is a loose comparison; this simple calculation is not a whole brain cell."
+          ],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "combine-two-features",
+          "name": "Combine two features",
+          "summary": "One unit can combine several inputs. Multiply each input by its own weight, add the products, then add the bias.",
+          "example": {
+            "language": "python",
+            "code": "inputs = [2, 3]\nweights = [4, 1]\nbias = 1\nvalue = sum(x * w for x, w in zip(inputs, weights)) + bias\nprint(value)"
+          },
+          "notes": ["Each feature needs the intended matching weight; order matters."],
+          "lessonSlug": "combine-two-features"
+        },
+        {
+          "slug": "an-activation-changes-the-shape",
+          "name": "An activation changes the shape",
+          "summary": "An activation applies a chosen rule after a weighted sum. ReLU keeps positive numbers and changes negative numbers to zero.",
+          "example": {
+            "language": "python",
+            "code": "def relu(value):\n    return max(0, value)\nprint([relu(v) for v in [-2, 0, 3]])"
+          },
+          "notes": ["ReLU does not turn every output into a probability."],
+          "lessonSlug": "an-activation-changes-the-shape"
+        },
+        {
+          "slug": "make-a-small-layer",
+          "name": "Make a small layer",
+          "summary": "A layer is a group of units that work on the same incoming values. Two units can produce two outputs from one input.",
+          "example": {
+            "language": "python",
+            "code": "x = 3\nfirst = max(0, x * 2 + 1)\nsecond = max(0, x * -1 + 1)\nprint([first, second])"
+          },
+          "notes": [
+            "Two output values do not mean two examples; here one example produced two values."
+          ],
+          "lessonSlug": "make-a-small-layer"
+        },
+        {
+          "slug": "connect-layers-in-order",
+          "name": "Connect layers in order",
+          "summary": "A later layer uses the earlier layer outputs as its inputs. Deep networks have several layers that transform information step by step.",
+          "example": {
+            "language": "python",
+            "code": "hidden = [7, 0]\noutput = hidden[0] * 0.5 + hidden[1] * 2\nprint(output)"
+          },
+          "notes": [
+            "Without suitable activations, stacking plain linear layers still gives one overall linear rule."
+          ],
+          "lessonSlug": "connect-layers-in-order"
+        },
+        {
+          "slug": "use-shape-to-check-connections",
+          "name": "Use shape to check connections",
+          "summary": "Shape describes how values are arranged. For a batch, each row is one example. A layer must receive the number of features it expects.",
+          "example": {
+            "language": "python",
+            "code": "batch = [[1, 2], [3, 4], [5, 6]]\nprint(len(batch), len(batch[0]))"
+          },
+          "notes": ["Do not mix the number of examples with the number of features."],
+          "lessonSlug": "use-shape-to-check-connections"
+        },
+        {
+          "slug": "loss-measures-a-mistake",
+          "name": "Loss measures a mistake",
+          "summary": "A loss is a number that measures how wrong a prediction is. Squared error multiplies the difference by itself.",
+          "example": {
+            "language": "python",
+            "code": "prediction = 5\nanswer = 3\nloss = (prediction - answer) ** 2\nprint(loss)"
+          },
+          "notes": ["Small training loss alone does not prove good results on new data."],
+          "lessonSlug": "loss-measures-a-mistake"
+        },
+        {
+          "slug": "a-slope-points-toward-a-change",
+          "name": "A slope points toward a change",
+          "summary": "A slope describes how quickly a value changes nearby. For the loss (weight - 3) squared, its slope is twice (weight - 3).",
+          "example": {
+            "language": "python",
+            "code": "weight = 5.0\nslope = 2 * (weight - 3)\nprint(slope)"
+          },
+          "notes": ["A slope is a local guide; a large jump can go past a useful value."],
+          "lessonSlug": "a-slope-points-toward-a-change"
+        },
+        {
+          "slug": "take-one-learning-step",
+          "name": "Take one learning step",
+          "summary": "The learning rate sets how big a weight update is. Subtracting a small amount in the slope direction can reduce the loss.",
+          "example": {
+            "language": "python",
+            "code": "weight = 5.0\nrate = 0.1\nslope = 2 * (weight - 3)\nweight = weight - rate * slope\nprint(round(weight, 2))"
+          },
+          "notes": ["A larger learning rate is not always better; it can overshoot."],
+          "lessonSlug": "take-one-learning-step"
+        },
+        {
+          "slug": "backpropagation-follows-the-links",
+          "name": "Backpropagation follows the links",
+          "summary": "Backpropagation finds how each weight affects the loss by following the calculation links backward. Libraries handle this bookkeeping for large networks.",
+          "example": {
+            "language": "text",
+            "code": "Forward: input -> hidden layer -> output -> loss\nBackward: loss -> output weights -> hidden weights\nUpdate: use each weight slope to make a small change"
+          },
+          "notes": ["Calculating slopes does not itself update weights in every library."],
+          "lessonSlug": "backpropagation-follows-the-links"
+        },
+        {
+          "slug": "batches-and-epochs",
+          "name": "Batches and epochs",
+          "summary": "A batch is a small group of examples processed together. An epoch is one pass through the training set. More passes do not guarantee a better test result.",
+          "example": {
+            "language": "text",
+            "code": "Training set: 12 examples\nBatch size: 4 examples\nOne epoch: 3 batches\nTwo epochs: 6 batches in total"
+          },
+          "notes": ["Do not count an epoch as a new set of data."],
+          "lessonSlug": "batches-and-epochs"
+        },
+        {
+          "slug": "check-before-trusting-a-network",
+          "name": "Check before trusting a network",
+          "summary": "Training, validation and test sets have different jobs. Validation helps choose settings. The final test checks a choice that has already been made.",
+          "example": {
+            "language": "text",
+            "code": "Training: adjust weights\nValidation: choose settings and when to stop\nTest: report the final check\nReport: describe errors and data limits"
+          },
+          "notes": [
+            "A large network can learn unfair or misleading patterns from its data. Check important groups and failure cases."
+          ],
+          "lessonSlug": "check-before-trusting-a-network"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "users-privileges",
+  "title": "Users and Privileges",
+  "summary": "Create MySQL accounts as user@host pairs, grant the least privilege each application needs, bundle privileges into roles, manage passwords and authentication plugins, and read SHOW GRANTS.",
+  "introduction": "Your application should never connect as root. MySQL accounts are a user name and a host, privileges are granted per database, table or column, and MySQL 8 adds roles so you can define a privilege set once and hand it to many accounts. This lesson creates a read-only reporting account and an application role, shows what happens when an account oversteps its privileges, and explains the authentication change that broke many old clients when 8.4 and 9.0 arrived.",
+  "learningObjectives": [
+    "Create accounts with CREATE USER and explain the user@host pair",
+    "Grant and revoke privileges and verify them with SHOW GRANTS",
+    "Define roles and assign them to accounts",
+    "Explain caching_sha2_password and why mysql_native_password is gone"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "An account is a user and a host"
+    },
+    {
+      "type": "paragraph",
+      "text": "`'report'@'localhost'` and `'report'@'%'` are two different accounts with their own passwords and privileges. The host part says where the connection may come from: `localhost` for socket connections on the same machine, an address or network such as `'10.0.0.%'`, or `%` for anywhere. When several accounts could match, MySQL uses the most specific host. This is the detail behind most *access denied* surprises, including the Docker case from the [installation lesson](/tutorials/mysql/installing-connecting)."
+    },
+    {
+      "type": "paragraph",
+      "text": "A new account can log in and nothing else, which `SHOW GRANTS` reports as `USAGE`. Privileges are granted on a scope: `*.*` is the whole server, `roastery.*` every table in one database, `roastery.orders` one table, and `GRANT SELECT (name, city) ON roastery.customers` single columns."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE USER 'report'@'localhost' IDENTIFIED BY 'Rep0rt!2026';\n\nGRANT SELECT ON roastery.* TO 'report'@'localhost';\n\nSHOW GRANTS FOR 'report'@'localhost';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.02 sec)\n\nQuery OK, 0 rows affected (0.01 sec)\n\n+------------------------------------------------------+\n| Grants for report@localhost                          |\n+------------------------------------------------------+\n| GRANT USAGE ON *.* TO `report`@`localhost`           |\n| GRANT SELECT ON `roastery`.* TO `report`@`localhost` |\n+------------------------------------------------------+\n2 rows in set (0.00 sec)"
+    },
+    {
+      "type": "table",
+      "headers": ["Privileges", "Allow"],
+      "rows": [
+        [
+          "`SELECT`, `INSERT`, `UPDATE`, `DELETE`",
+          "Reading and changing rows; the full set for a typical application account"
+        ],
+        [
+          "`CREATE`, `ALTER`, `DROP`, `INDEX`, `CREATE VIEW`",
+          "Changing the schema; give these to the migration tool, not the application"
+        ],
+        ["`EXECUTE`, `CREATE ROUTINE`, `TRIGGER`, `EVENT`", "Stored programs"],
+        [
+          "`ALL PRIVILEGES`",
+          "Everything on the scope; reasonable for a developer on a scratch database, never for an application"
+        ],
+        ["`WITH GRANT OPTION`", "Lets the account pass its privileges on; rarely needed"],
+        [
+          "`PROCESS`, `RELOAD`, `BACKUP_ADMIN` and other administrative privileges",
+          "Server operations; granted on `*.*` to administrators and backup accounts only"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "What a missing privilege looks like"
+    },
+    {
+      "type": "paragraph",
+      "text": "Connect as the new account (`mysql -u report -p roastery`) and try to delete. `CURRENT_USER()` shows which account's privileges apply, which is not always the name you typed when a wildcard host matched."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT CURRENT_USER();\n\nDELETE FROM orders WHERE id = 7;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+------------------+\n| CURRENT_USER()   |\n+------------------+\n| report@localhost |\n+------------------+\n1 row in set (0.00 sec)\n\nERROR 1142 (42000): DELETE command denied to user 'report'@'localhost' for table 'orders'"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "FLUSH PRIVILEGES is not needed after GRANT",
+      "text": "Old guides end every `GRANT` with `FLUSH PRIVILEGES`. It is only required after editing the grant tables in the `mysql` database directly with `INSERT` or `UPDATE`, which you should never do. `CREATE USER`, `GRANT`, `REVOKE` and `ALTER USER` take effect by themselves: table-level changes on the client's next statement, database-level changes when it next runs `USE`, and global privileges and passwords when it next connects. What actually confuses people is an application that keeps an old connection open and therefore keeps its old privileges until it reconnects."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Roles"
+    },
+    {
+      "type": "paragraph",
+      "text": "A role is a named bundle of privileges. Grant privileges to the role once, grant the role to accounts, and later changes to the role reach every account. A role granted to a user is inactive until it is made a default role or activated with `SET ROLE`; forgetting `SET DEFAULT ROLE` is the usual reason a freshly created account can log in but see nothing. `SHOW GRANTS ... USING` lists the privileges an account actually has through a role."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "CREATE ROLE 'app_rw';\nGRANT SELECT, INSERT, UPDATE, DELETE ON roastery.* TO 'app_rw';\n\nCREATE USER 'api'@'%' IDENTIFIED BY 'Ap1!Str0ngPass';\nGRANT 'app_rw' TO 'api'@'%';\nSET DEFAULT ROLE ALL TO 'api'@'%';\n\nSHOW GRANTS FOR 'api'@'%' USING 'app_rw';"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.01 sec)\n\nQuery OK, 0 rows affected (0.01 sec)\n\nQuery OK, 0 rows affected (0.02 sec)\n\nQuery OK, 0 rows affected (0.01 sec)\n\nQuery OK, 0 rows affected (0.01 sec)\n\n+-------------------------------------------------------------------+\n| Grants for api@%                                                  |\n+-------------------------------------------------------------------+\n| GRANT USAGE ON *.* TO `api`@`%`                                   |\n| GRANT SELECT, INSERT, UPDATE, DELETE ON `roastery`.* TO `api`@`%` |\n| GRANT `app_rw`@`%` TO `api`@`%`                                   |\n+-------------------------------------------------------------------+\n3 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Taking a privilege away works the same way in reverse, and because `api` holds its privileges through the role, revoking from the role is enough. `ALTER USER` changes passwords and password policy; `DROP USER` removes an account together with its privileges."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "REVOKE DELETE ON roastery.* FROM 'app_rw';\n\nALTER USER 'report'@'localhost'\n  IDENTIFIED BY 'N3w!Passw0rd'\n  PASSWORD EXPIRE INTERVAL 90 DAY;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Query OK, 0 rows affected (0.01 sec)\n\nQuery OK, 0 rows affected (0.02 sec)"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Passwords and authentication plugins"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each account authenticates through a plugin, recorded in `mysql.user`. The default since 8.0 is `caching_sha2_password`, which stores a salted SHA-256 hash and encrypts the exchange. The old `mysql_native_password` was deprecated in 8.0, is disabled by default in 8.4 and was removed in 9.0, so drivers that only speak the old protocol fail with *Authentication plugin 'caching_sha2_password' cannot be loaded*. The fix is to update the driver, not to weaken the server. Roles appear in the same table as locked accounts."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "SELECT user, host, plugin FROM mysql.user ORDER BY host, user;"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "+------------------+-----------+-----------------------+\n| user             | host      | plugin                |\n+------------------+-----------+-----------------------+\n| api              | %         | caching_sha2_password |\n| app_rw           | %         | caching_sha2_password |\n| mysql.infoschema | localhost | caching_sha2_password |\n| mysql.session    | localhost | caching_sha2_password |\n| mysql.sys        | localhost | caching_sha2_password |\n| report           | localhost | caching_sha2_password |\n| root             | localhost | caching_sha2_password |\n+------------------+-----------+-----------------------+\n7 rows in set (0.00 sec)"
+    },
+    {
+      "type": "paragraph",
+      "text": "On Debian and Ubuntu packages, root uses `auth_socket` instead, so only the system root user can open it. The three `mysql.` accounts are internal and locked; leave them alone. Other options worth knowing: the `validate_password` component enforces password strength, `CREATE USER ... REQUIRE SSL` refuses unencrypted connections, and `FAILED_LOGIN_ATTEMPTS 5 PASSWORD_LOCK_TIME 1` locks an account after repeated failures."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Least-privilege checklist"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "One account per application and per environment; never share root, and never let an application use it.",
+        "Grant on `database.*`, not `*.*`, and grant data privileges separately from schema privileges.",
+        "Restrict the host part to where the connection really comes from.",
+        "Use roles when several accounts need the same privileges, so a change is made once.",
+        "Review with `SHOW GRANTS` and `SELECT user, host FROM mysql.user` after every change, and drop accounts that nothing uses."
+      ]
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mysql-users-grant-readonly"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "users-privileges-qc-1",
+          "type": "true-false",
+          "lessonSlug": "users-privileges",
+          "difficulty": "beginner",
+          "question": "`'api'@'localhost'` and `'api'@'%'` are the same account with two allowed hosts.",
+          "explanation": "They are two separate accounts, each with its own password and privileges. The host part is part of the account's identity.",
+          "correct": false
+        },
+        {
+          "id": "users-privileges-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "users-privileges",
+          "difficulty": "intermediate",
+          "question": "A user granted a role can log in but gets `command denied` on every table. What is most likely missing?",
+          "explanation": "Roles are inactive until they become default roles (SET DEFAULT ROLE) or are activated with SET ROLE in the session.",
+          "options": [
+            "`FLUSH PRIVILEGES`",
+            "`SET DEFAULT ROLE` for the account",
+            "A `GRANT USAGE` statement",
+            "The `WITH GRANT OPTION` clause"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mysql-users-grant-readonly"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mysql",
+      "slug": "installing-connecting"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "backup-restore"
+    },
+    {
+      "technologySlug": "mysql",
+      "slug": "transactions"
+    }
+  ],
+  "seo": {
+    "title": "MySQL Users and Privileges – CREATE USER, GRANT, Roles",
+    "description": "Create MySQL accounts as user@host pairs, grant least-privilege access, use roles, manage passwords and caching_sha2_password, and read SHOW GRANTS output."
+  },
+  "updatedOn": "2026-11-15"
+}

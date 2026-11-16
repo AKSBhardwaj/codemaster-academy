@@ -19,7 +19,8 @@ export const TUTORIALS_ROUTES: Routes = [
   },
   {
     path: ':tech',
-    loadComponent: () => import('../technology/tutorial-layout').then((m) => m.TutorialLayoutComponent),
+    loadComponent: () =>
+      import('../technology/tutorial-layout').then((m) => m.TutorialLayoutComponent),
     children: [
       {
         path: '',

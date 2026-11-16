@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "slug": "declaration-files",
+  "title": "Declaration Files and @types",
+  "summary": "A declaration file describes the types of code that is written somewhere else.",
+  "introduction": "A declaration file describes the types of code that is written somewhere else. Think of a menu that tells you what you can order. The menu does not cook the food. In the same way, this file describes code but does not run it.",
+  "learningObjectives": [
+    "Explain what a .d.ts file contains and generate one with the declaration option",
+    "Fix TS7016 by installing @types packages or writing a declare module block",
+    "Augment global types such as process.env with declare global"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What a declaration file is"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `.d.ts` file is the type-level half of a module: the signatures of its exports with the bodies removed. The compiler produces them for your own code when `\"declaration\": true` is set, and that is what library authors publish next to their JavaScript so consumers get types without the source. Compile this file and look at the result."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/geometry.ts",
+      "code": "export interface Point {\n  x: number;\n  y: number;\n}\n\nexport const ORIGIN: Point = { x: 0, y: 0 };\n\nexport function distance(a: Point, b: Point): number {\n  return Math.hypot(a.x - b.x, a.y - b.y);\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc --declaration, then cat dist/geometry.d.ts",
+      "content": "export interface Point {\n    x: number;\n    y: number;\n}\nexport declare const ORIGIN: Point;\nexport declare function distance(a: Point, b: Point): number;"
+    },
+    {
+      "type": "paragraph",
+      "text": "The `declare` keyword means *this exists, but its implementation lives elsewhere*. `dist/geometry.js` holds the implementation; `dist/geometry.d.ts` lets another project type-check calls to `distance` without reading the JavaScript. The built-in `lib.*.d.ts` files that ship with TypeScript describe the JavaScript language and the DOM in exactly this way, which is how the compiler knows that `Math.hypot` returns a number."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Packages with and without types"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most popular packages now ship their own `.d.ts` files, listed in the `types` or `exports` field of their `package.json`. Packages written in plain JavaScript rely on the community-maintained DefinitelyTyped repository, published as `@types/<name>`: `@types/node` for Node's APIs, `@types/express`, `@types/lodash` and thousands more. When neither exists, importing the package produces TS7016."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/use-untyped.ts (legacy-slugify is an imaginary JavaScript-only package)",
+      "code": "import slugify from \"legacy-slugify\";\n\nconsole.log(slugify(\"Hello World\"));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc (path shortened)",
+      "content": "src/use-untyped.ts:1:21 - error TS7016: Could not find a declaration file for module 'legacy-slugify'. '.../node_modules/legacy-slugify/index.js' implicitly has an 'any' type.\n  Try `npm i --save-dev @types/legacy-slugify` if it exists or add a new declaration (.d.ts) file containing `declare module 'legacy-slugify';`\n\n1 import slugify from \"legacy-slugify\";\n                      ~~~~~~~~~~~~~~~~\n\n\nFound 1 error in src/use-untyped.ts:1"
+    },
+    {
+      "type": "paragraph",
+      "text": "The message lists the fixes in order of preference. First try `npm install --save-dev @types/legacy-slugify`; if the package exists, the error disappears with no further work. If it does not, write the declaration yourself."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Writing a declare module block"
+    },
+    {
+      "type": "paragraph",
+      "text": "Create a `.d.ts` file inside the project (a `types` folder is conventional) and describe the parts of the package you use. The file must be visible to the compiler: add the folder to `include` in `tsconfig.json`. Everything inside `declare module \"name\"` is an ambient declaration, so there are no bodies, only signatures."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "types/legacy-slugify.d.ts",
+      "code": "declare module \"legacy-slugify\" {\n  export default function slugify(input: string, separator?: string): string;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc && node dist/use-untyped.js (after adding \"types\" to include)",
+      "content": "hello-world"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake: the one-line shorthand",
+      "text": "The error message also offers `declare module 'legacy-slugify';` with no body. That shorthand types every export of the package as `any`, so the import compiles but calls are unchecked: `slugify(42)` or `slugify()` would pass. Use it only as a temporary measure while migrating, and prefer a real declaration of the functions you call, even if it covers only a fraction of the package."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Augmenting globals and process.env"
+    },
+    {
+      "type": "paragraph",
+      "text": "`@types/node` declares `process.env` as a dictionary of `string | undefined`, which is correct in general but inconvenient for variables your deployment guarantees. A `declare global` block inside a module file (the `export {}` makes it one) merges extra members into the existing `ProcessEnv` interface, thanks to the declaration merging that interfaces support."
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/env.d.ts",
+      "code": "export {};\n\ndeclare global {\n  namespace NodeJS {\n    interface ProcessEnv {\n      DATABASE_URL: string;\n      PORT?: string;\n    }\n  }\n}"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "title": "src/env-use.ts",
+      "code": "const url: string = process.env.DATABASE_URL;\nconst port = Number(process.env.PORT ?? \"3000\");\nconst region: string = process.env.REGION;\n\nconsole.log(url, port, region);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "npx tsc",
+      "content": "src/env-use.ts:3:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.\n  Type 'undefined' is not assignable to type 'string'.\n\n3 const region: string = process.env.REGION;\n        ~~~~~~\n\n\nFound 1 error in src/env-use.ts:3"
+    },
+    {
+      "type": "paragraph",
+      "text": "`DATABASE_URL` is now a plain `string` and `PORT` is `string | undefined`, exactly as declared, while the undeclared `REGION` keeps the cautious default and is rejected. Remember that the declaration is a promise: the program must still refuse to start when `DATABASE_URL` is really missing. The same `declare global` technique adds properties to `Window` in browser code, and a bare `declare const __BUILD_ID__: string;` declares a global that a bundler injects at build time."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Configuration that affects declarations"
+    },
+    {
+      "type": "table",
+      "headers": ["Option", "Effect"],
+      "rows": [
+        [
+          "`declaration: true`",
+          "Emit a `.d.ts` next to every `.js`; required for publishing a typed library"
+        ],
+        [
+          "`declarationMap: true`",
+          "Lets *Go to definition* jump from a `.d.ts` to the original `.ts` source"
+        ],
+        [
+          "`types: [\"node\"]`",
+          "Include only the listed `@types` packages instead of every one in `node_modules/@types` (the 5.9 `tsc --init` template sets `types: []`)"
+        ],
+        [
+          "`skipLibCheck: true`",
+          "Do not type-check `.d.ts` files; faster builds and immunity to conflicts between packages, at the cost of not checking your own `.d.ts` files"
+        ],
+        [
+          "`lib: [\"es2022\", \"dom\"]`",
+          "Which built-in declaration files to load; drop `dom` for pure Node code"
+        ]
+      ]
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Checking what the compiler sees",
+      "text": "`npx tsc --listFiles` prints every file in the program, including the `.d.ts` files it loaded, and `--explainFiles` says why each one was included. Both are the fastest way to find out why a global is unknown or why two copies of a type conflict."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "ts-declaration-files-types"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "ts-declaration-qc-1",
+          "type": "true-false",
+          "lessonSlug": "declaration-files",
+          "difficulty": "beginner",
+          "question": "A `.d.ts` file can contain function bodies that run at runtime.",
+          "explanation": "Declaration files hold only types and ambient declarations. They produce no JavaScript and cannot contain implementations.",
+          "correct": false
+        },
+        {
+          "id": "ts-declaration-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "declaration-files",
+          "difficulty": "intermediate",
+          "question": "Why does `src/env.d.ts` start with `export {};`?",
+          "explanation": "A file with no import or export is a global script. The empty export turns it into a module, which is required for declare global to be allowed and keeps its other declarations out of the global scope.",
+          "options": [
+            "To export the ProcessEnv interface for other files",
+            "To make the file a module so that `declare global` is permitted",
+            "Because every .d.ts file must export something",
+            "To prevent the compiler from emitting JavaScript for it"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["ts-declaration-files-types"],
+  "relatedLessons": [
+    {
+      "technologySlug": "typescript",
+      "slug": "modules"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "setup"
+    },
+    {
+      "technologySlug": "typescript",
+      "slug": "strict-config"
+    }
+  ],
+  "seo": {
+    "title": "TypeScript Declaration Files – .d.ts, @types, declare module",
+    "description": "How TypeScript declaration files work, where @types packages come from, fixing TS7016 with declare module, and typing process.env with declare global."
+  },
+  "updatedOn": "2026-11-16"
+}

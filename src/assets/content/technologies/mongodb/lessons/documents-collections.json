@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "slug": "documents-collections",
+  "title": "Documents and Collections",
+  "summary": "How documents are built from fields and BSON types, what _id and ObjectId are, how dot notation reaches nested data, and how collections and databases are created and dropped.",
+  "introduction": "Every piece of data in MongoDB is a document, so it pays to understand exactly what one can hold before you insert many. This lesson covers the BSON types you will use most, how nested documents and arrays work and how to reach into them, what the mandatory `_id` field is and where ObjectIds come from, and how collections and databases come into being and go away. You will also meet the one hard limit every document obeys.",
+  "learningObjectives": [
+    "Build documents from strings, numbers, dates, booleans, arrays and nested documents",
+    "Explain what `_id` and ObjectId are and when to supply your own key",
+    "Use dot notation to query nested fields and array elements",
+    "Create, inspect and drop collections and databases from mongosh"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Fields and BSON types"
+    },
+    {
+      "type": "paragraph",
+      "text": "A document is an ordered set of field–value pairs. Field names are strings; values have a **BSON type**. BSON extends JSON with types that JSON lacks, such as dates and binary data, and it distinguishes integers from floating-point numbers. The table lists the types you will meet in this tutorial and how mongosh displays them."
+    },
+    {
+      "type": "table",
+      "headers": ["Type", "As mongosh shows it", "Notes"],
+      "rows": [
+        ["String", "`'Desk lamp'`", "UTF-8 text of any length"],
+        ["Double", "`24.5`", "The default for numbers with a fraction"],
+        [
+          "Int32 / Int64",
+          "`40` / `Long('9007199254740993')`",
+          "mongosh stores whole numbers that fit in 32 bits as Int32"
+        ],
+        ["Boolean", "`true`", "`true` or `false`"],
+        [
+          "Date",
+          "`ISODate('2026-02-01T00:00:00.000Z')`",
+          "Milliseconds since 1970, always stored in UTC"
+        ],
+        ["Array", "`[ 'led', 'office' ]`", "Ordered; elements may be of different types"],
+        ["Embedded document", "`{ height: 45, base: 18 }`", "Nests to any depth up to 100 levels"],
+        [
+          "ObjectId",
+          "`ObjectId('69a3a800f1e2d3c4b5a69701')`",
+          "12-byte unique id; the default type of `_id`"
+        ],
+        ["Null", "`null`", "The field exists but has no value"],
+        ["Decimal128", "`Decimal128('19.99')`", "Exact decimal arithmetic; use it for money"]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Continue in the `shop` database from the previous lesson and insert a document that uses most of these types. Here the `_id` is supplied explicitly, so the output is predictable:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "use shop\ndb.products.insertOne({\n  _id: 1,\n  name: 'Desk lamp',\n  price: 24.5,\n  stock: 40,\n  active: true,\n  tags: ['led', 'office'],\n  dimensions: { height: 45, base: 18 },\n  addedOn: new Date('2026-02-01'),\n  discontinuedOn: null\n})\ndb.products.findOne({ _id: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "switched to db shop\n{ acknowledged: true, insertedId: 1 }\n{\n  _id: 1,\n  name: 'Desk lamp',\n  price: 24.5,\n  stock: 40,\n  active: true,\n  tags: [ 'led', 'office' ],\n  dimensions: { height: 45, base: 18 },\n  addedOn: ISODate('2026-02-01T00:00:00.000Z'),\n  discontinuedOn: null\n}"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two details matter. `new Date('2026-02-01')` became a BSON Date, displayed as `ISODate(...)` in UTC; dates stored as strings cannot be compared or sorted correctly, so always use real dates. And `price: 24.5` is a double while `stock: 40` is an Int32: mongosh picks the narrowest type that holds the number, which is why `$type` queries and schema validation can tell them apart."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested documents and arrays"
+    },
+    {
+      "type": "paragraph",
+      "text": "Nested documents and arrays are what make the document model expressive, and **dot notation** is how you reach into them. `dimensions.height` is the `height` field inside `dimensions`; `tags.0` is the first tag. Dot notation works in filters, projections, sort specifications and updates, and the path must be quoted because it contains a dot. A filter on an array field matches when *any* element equals the value:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.find({ 'dimensions.height': { $gt: 40 } }, { name: 1, 'dimensions.height': 1 })\ndb.products.find({ tags: 'led' }, { _id: 0, name: 1, tags: 1 })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "[ { _id: 1, name: 'Desk lamp', dimensions: { height: 45 } } ]\n[ { name: 'Desk lamp', tags: [ 'led', 'office' ] } ]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The second argument of `find` is a **projection**: `1` includes a field and `0` excludes it. `_id` is included unless you exclude it explicitly, and a projection that includes nested paths returns only those parts of the nested document."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The _id field and ObjectId"
+    },
+    {
+      "type": "paragraph",
+      "text": "Every document has an `_id` field that is unique within its collection. It is the primary key, it is always indexed, and it cannot be changed once the document is stored. If you leave it out, the driver, not the server, generates an **ObjectId**: 12 bytes made of a 4-byte timestamp in seconds, a 5-byte random value unique to the process and a 3-byte counter. That structure makes ObjectIds unique across machines without any coordination, and it means they sort roughly in creation order. You can read the timestamp back:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const id = ObjectId('69a3a9c0d1e2f3a4b5c6d7e8')\nid.getTimestamp()\nObjectId().toString().length"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "ISODate('2026-03-01T02:51:44.000Z')\n24"
+    },
+    {
+      "type": "paragraph",
+      "text": "The string form is 24 hexadecimal characters, which is what you will see in URLs and in the Node.js driver. Supply your own `_id` when a stable natural key exists, such as a product code, an ISO country code or a user name that never changes. Any BSON type except an array is allowed. A second document with the same `_id` is rejected:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.products.insertOne({ _id: 1, name: 'Another lamp' })"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "MongoServerError[DuplicateKey]: E11000 duplicate key error collection: shop.products index: _id_ dup key: { _id: 1 }"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Common mistake",
+      "text": "Choosing a natural key that later turns out to change, such as an email address, forces you to delete and re-insert the document and to update every reference to it. When in doubt, let MongoDB generate an `ObjectId` and put the business value in an ordinary field with a unique index, which you will learn to create in the [Indexes](/tutorials/mongodb/indexes) lesson."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Collections and databases"
+    },
+    {
+      "type": "paragraph",
+      "text": "Collections are created implicitly by the first insert, and that is how most applications create them. `db.createCollection()` exists for the cases where you need options up front, such as schema validation rules or a capped size, and it is also the clearest way to show how collections are listed and removed:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "db.createCollection('customers')\nshow collections\ndb.customers.drop()\nshow collections"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "{ ok: 1 }\ncustomers\nproducts\ntrue\nproducts"
+    },
+    {
+      "type": "paragraph",
+      "text": "`drop()` removes the collection, its documents and its indexes in one step and cannot be undone. `db.dropDatabase()` does the same for the whole current database. Names follow a few rules: collection names cannot be empty, contain the `$` character or start with `system.`; database names cannot contain `/`, `\\`, `.`, spaces or quotes, are limited to 63 characters and are case-sensitive. A namespace, written `shop.products`, is the database and collection name together, and it is how error messages and logs refer to a collection."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The 16 MB limit"
+    },
+    {
+      "type": "paragraph",
+      "text": "A single document cannot be larger than 16 MB. In practice that limit is far away for a product or a customer, and it exists to stop one document from consuming too much memory and bandwidth. The designs that hit it are the ones that keep appending to an array without bound, such as storing every event a user ever generated inside the user document. The [Schema Design](/tutorials/mongodb/schema-design) lesson shows how to recognise and avoid that pattern."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Insert a document with a nested `address` object and an array of `phones`, then query it with dot notation (`'address.city'`) and project only the array. Then run `db.products.find({ tags: 'office' })` and notice it matches the lamp even though `tags` is an array."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "mongodb-documents-predict-insert"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "mongodb-documents-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "documents-collections",
+          "difficulty": "beginner",
+          "question": "Which filter matches documents whose nested `address` document has `city` equal to `'Lisbon'`?",
+          "explanation": "Nested fields are addressed with dot notation and the path must be quoted. `{ address: { city: 'Lisbon' } }` would match only documents whose whole `address` is exactly that one-field document.",
+          "options": [
+            "`{ address.city: 'Lisbon' }`",
+            "`{ 'address.city': 'Lisbon' }`",
+            "`{ address: 'Lisbon' }`",
+            "`{ city: 'Lisbon' }`"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "mongodb-documents-qc-2",
+          "type": "true-false",
+          "lessonSlug": "documents-collections",
+          "difficulty": "beginner",
+          "question": "The `_id` of a document can be changed with an update after the document has been inserted.",
+          "explanation": "`_id` is immutable. To change a document's key you must insert a new document with the new `_id` and delete the old one.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["mongodb-documents-predict-insert"],
+  "relatedLessons": [
+    {
+      "technologySlug": "mongodb",
+      "slug": "crud-insert-find"
+    },
+    {
+      "technologySlug": "mongodb",
+      "slug": "schema-design"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "objects"
+    }
+  ],
+  "seo": {
+    "title": "MongoDB Documents and Collections – BSON Types and _id",
+    "description": "Understand MongoDB documents: BSON types, nested documents and arrays with dot notation, the _id field and ObjectId, and how collections and databases are created."
+  },
+  "updatedOn": "2026-11-15"
+}

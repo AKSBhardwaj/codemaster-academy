@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query-limits",
+  "title": "Limit an input range",
+  "summary": "FastAPI: Limit an input range. Try n=0 and n=11.",
+  "introduction": "Query can add rules such as a minimum and maximum. Open GET /page?n=3.",
+  "learningObjectives": ["Limit an input range with FastAPI", "Try n=0 and n=11"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "Install fastapi and uvicorn with python -m pip install fastapi uvicorn. Save one example as app.py and run uvicorn app:app --host 127.0.0.1 --port 8000. Use the stated route on that address."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Limit an input range"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Limit an input range",
+      "code": "from fastapi import FastAPI, Query, HTTPException, Response, status\nfrom fastapi.responses import PlainTextResponse, RedirectResponse\nfrom pydantic import BaseModel, Field\napp = FastAPI()\n@app.get(\"/page\")\ndef page(n: int = Query(default=1, ge=1, le=10)):\n    return {\"page\": n}\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "Query checks the bounds as well as the type. The allowed value 3 reaches the function."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"page\":3}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try n=0 and n=11."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Type checks alone do not enforce a useful range."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastapi-query-limits-check"
+    }
+  ],
+  "exerciseIds": ["fastapi-query-limits-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastapi",
+      "slug": "query-defaults"
+    }
+  ],
+  "seo": {
+    "title": "FastAPI: Limit an input range",
+    "description": "FastAPI: Limit an input range. Try n=0 and n=11. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

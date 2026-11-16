@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "slug": "collections-linq",
+  "title": "Collections and LINQ",
+  "summary": "Store data in arrays, List<T>, Dictionary<TKey,TValue> and HashSet<T>, then filter, transform, sort and aggregate it with LINQ, including deferred execution.",
+  "introduction": "Real programs deal with many values at once: the lines of a file, the items in a cart, the users of a system. .NET's generic collections hold them, and LINQ (Language Integrated Query) lets you ask questions about them in a few readable lines instead of nested loops. This lesson introduces the collections you will use daily, the methods for adding, finding and removing items, and the core LINQ operators: Where, Select, OrderBy, GroupBy, aggregates and query syntax, including the deferred execution rule that trips up newcomers.",
+  "learningObjectives": [
+    "Choose between arrays, List<T>, Dictionary<TKey,TValue> and HashSet<T>",
+    "Filter, project, sort and aggregate collections with LINQ methods and lambdas",
+    "Explain deferred execution and when a query actually runs"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Arrays and List<T>"
+    },
+    {
+      "type": "paragraph",
+      "text": "An **array** has a fixed length chosen when it is created and is the leanest option when the size is known. A `List<T>` grows as you add items and is the default choice for \"a bunch of things\". The `<T>` is a **generic type parameter**: `List<string>` holds only strings, and the compiler rejects `todo.Add(42)`. Both use zero-based indexes, `^1` means \"one from the end\", and `1..3` is a range covering indexes 1 and 2."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "List<string> todo = [\"write code\", \"run tests\"];\ntodo.Add(\"ship it\");\ntodo.Insert(0, \"plan\");\ntodo.Remove(\"run tests\");\n\nConsole.WriteLine(todo.Count);\nConsole.WriteLine(string.Join(\", \", todo));\nConsole.WriteLine(todo[0]);\nConsole.WriteLine(todo[^1]);\nConsole.WriteLine(todo.Contains(\"ship it\"));\nConsole.WriteLine(todo.IndexOf(\"missing\"));\n\nint[] primes = [2, 3, 5, 7];\nConsole.WriteLine(primes.Length);\nConsole.WriteLine(string.Join(\" \", primes[1..3]));"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\nplan, write code, ship it\nplan\nship it\nTrue\n-1\n4\n3 5"
+    },
+    {
+      "type": "table",
+      "headers": ["Collection", "Use when"],
+      "rows": [
+        ["`T[]` (array)", "The length never changes; also what many APIs give you"],
+        ["`List<T>`", "An ordered, growable sequence; the default choice"],
+        ["`Dictionary<TKey, TValue>`", "You look things up by a key, such as a user by id"],
+        ["`HashSet<T>`", "You need unique items and fast \"is it there?\" checks"],
+        ["`Queue<T>`, `Stack<T>`", "First-in-first-out or last-in-first-out processing"]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Dictionary and HashSet"
+    },
+    {
+      "type": "paragraph",
+      "text": "A `Dictionary<TKey, TValue>` maps each unique key to a value and finds it in constant time no matter how many entries it holds. Reading a key that is missing throws `KeyNotFoundException`, so use `TryGetValue` or `ContainsKey` when the key might be absent. A `HashSet<T>` is a bag of unique items; adding a duplicate is ignored and `Add` returns `false`."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "var stock = new Dictionary<string, int>\n{\n    [\"apple\"] = 5,\n    [\"pear\"] = 0,\n};\nstock[\"kiwi\"] = 12;      // adds a new key\nstock[\"apple\"] += 3;     // updates an existing one\n\nforeach (var (fruit, quantity) in stock)\n{\n    Console.WriteLine($\"{fruit}: {quantity}\");\n}\n\nConsole.WriteLine(stock.TryGetValue(\"mango\", out int mango) ? mango : -1);\nConsole.WriteLine(stock.ContainsKey(\"pear\"));\n\nvar seen = new HashSet<string>();\nConsole.WriteLine(seen.Add(\"ada\"));\nConsole.WriteLine(seen.Add(\"ada\"));\nConsole.WriteLine(seen.Count);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "apple: 8\npear: 0\nkiwi: 12\n-1\nTrue\nTrue\nFalse\n1"
+    },
+    {
+      "type": "paragraph",
+      "text": "Dictionaries do not promise an order. The insertion order you see here happens to be preserved while nothing has been removed, but never rely on it; use `SortedDictionary` or sort the keys with LINQ when order matters. The `foreach` line deconstructs each `KeyValuePair` into two variables."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "LINQ"
+    },
+    {
+      "type": "paragraph",
+      "text": "LINQ adds query methods to every `IEnumerable<T>`, which includes arrays, lists, dictionaries and strings. Each method takes a **lambda expression**, an inline function written as `parameter => result`. `Where` keeps the elements for which the lambda is true, `Select` transforms each element, `OrderBy` sorts, and aggregates such as `Sum`, `Max`, `Average`, `Count`, `Any`, `All` and `First` reduce a sequence to one value. The `System.Linq` namespace is imported automatically in new projects."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "int[] numbers = [7, 2, 9, 4, 11, 6];\n\nvar evens = numbers.Where(n => n % 2 == 0);\nvar squares = numbers.Select(n => n * n);\nvar sorted = numbers.OrderBy(n => n);\n\nConsole.WriteLine(string.Join(\" \", evens));\nConsole.WriteLine(string.Join(\" \", squares));\nConsole.WriteLine(string.Join(\" \", sorted));\nConsole.WriteLine(numbers.Max());\nConsole.WriteLine(numbers.Average());\nConsole.WriteLine(numbers.Count(n => n > 5));\nConsole.WriteLine(numbers.Any(n => n > 10));\nConsole.WriteLine(numbers.First(n => n > 5));\nConsole.WriteLine(numbers.Sum());"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "2 4 6\n49 4 81 16 121 36\n2 4 6 7 9 11\n11\n6.5\n4\nTrue\n7\n39"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice that `numbers` itself never changes: LINQ methods return new sequences and leave the source alone. `First` throws when nothing matches; `FirstOrDefault` returns `null` or `0` instead."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Chaining and query syntax"
+    },
+    {
+      "type": "paragraph",
+      "text": "Each LINQ method returns a new sequence, so calls chain naturally into a pipeline that reads top to bottom. The same queries can be written in **query syntax** that looks like SQL; the compiler translates it into the method calls, so pick whichever reads better. `ToList()` or `ToArray()` at the end turns the result into a real collection, and `GroupBy` splits a sequence into groups with a `Key`. (`record` declares a compact data class; the [next lesson](/tutorials/csharp/properties-records) explains it.)"
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "List<Student> students =\n[\n    new Student(\"Ada\", 92),\n    new Student(\"Grace\", 78),\n    new Student(\"Linus\", 85),\n    new Student(\"Ken\", 61),\n    new Student(\"Mei\", 70),\n];\n\nvar honours = students\n    .Where(s => s.Score >= 80)\n    .OrderByDescending(s => s.Score)\n    .Select(s => $\"{s.Name} ({s.Score})\")\n    .ToList();\nConsole.WriteLine(string.Join(\", \", honours));\n\nvar passing = from s in students\n              where s.Score >= 65\n              orderby s.Name\n              select s.Name;\nConsole.WriteLine(string.Join(\", \", passing));\n\nvar byBand = students.GroupBy(s => s.Score >= 80 ? \"high\" : \"low\");\nforeach (var group in byBand)\n{\n    Console.WriteLine($\"{group.Key}: {group.Count()}\");\n}\n\nrecord Student(string Name, int Score);"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Ada (92), Linus (85)\nAda, Grace, Linus, Mei\nhigh: 2\nlow: 3"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Deferred execution"
+    },
+    {
+      "type": "paragraph",
+      "text": "Most LINQ methods do not run when you call them. `Where` and `Select` build a *description* of the query; the work happens when something enumerates the result, such as `foreach`, `string.Join`, `ToList()` or `Count()`. That is efficient, because only the elements that are needed get produced, but it means the query sees the collection as it is *at enumeration time*, and enumerating twice runs it twice."
+    },
+    {
+      "type": "code",
+      "language": "csharp",
+      "code": "List<int> list = [1, 2, 3];\nvar query = list.Where(n => n > 1);       // nothing runs yet\nList<int> snapshot = query.ToList();      // runs now: 2, 3\n\nlist.Add(10);\nConsole.WriteLine(query.Count());         // runs again and sees 10\nConsole.WriteLine(snapshot.Count);        // the materialised list is unchanged"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "3\n2"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Modifying a collection while iterating it",
+      "text": "Adding or removing items inside a `foreach` over a `List<T>` throws `InvalidOperationException: Collection was modified; enumeration operation may not execute.` Build a new list with `Where` (or use `RemoveAll`) instead of removing inside the loop, and because LINQ is deferred, call `ToList()` *before* you start changing the source."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "LINQ and SQL",
+      "text": "If you know SQL, `Where`, `OrderBy`, `GroupBy` and `Select` map almost one to one onto `WHERE`, `ORDER BY`, `GROUP BY` and the select list; the [SQL tutorial](/tutorials/sql) is a good companion. Entity Framework Core translates the same LINQ queries into real SQL against a database."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "csharp-linq-top-scores"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "csharp-linq-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "collections-linq",
+          "difficulty": "beginner",
+          "question": "What does this program print?",
+          "explanation": "`Where` keeps 3, 8 and 9; `Select` multiplies them by 10 to 30, 80 and 90; `First` returns the first element, 30.",
+          "language": "csharp",
+          "code": "int[] values = [3, 8, 1, 9];\nConsole.WriteLine(values.Where(v => v > 2).Select(v => v * 10).First());",
+          "options": ["30", "80", "3", "10"],
+          "correctIndex": 0
+        },
+        {
+          "id": "csharp-linq-qc-2",
+          "type": "true-false",
+          "lessonSlug": "collections-linq",
+          "difficulty": "intermediate",
+          "question": "Calling list.Where(...) immediately creates a new list containing the matching items.",
+          "explanation": "`Where` is deferred: it returns a query that runs only when enumerated. Call `ToList()` to materialise the result.",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["csharp-linq-top-scores"],
+  "relatedLessons": [
+    {
+      "technologySlug": "csharp",
+      "slug": "properties-records"
+    },
+    {
+      "technologySlug": "csharp",
+      "slug": "files-json"
+    },
+    {
+      "technologySlug": "sql",
+      "slug": "select"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "comprehensions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "arrays"
+    }
+  ],
+  "seo": {
+    "title": "C# Collections and LINQ – List, Dictionary, Where, Select",
+    "description": "Learn C# collections (arrays, List, Dictionary, HashSet) and LINQ: Where, Select, OrderBy, GroupBy, aggregates, query syntax and deferred execution, with output."
+  },
+  "updatedOn": "2026-11-15"
+}

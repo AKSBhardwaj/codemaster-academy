@@ -1,5 +1,9 @@
 import type { Provider } from '@angular/core';
-import { CONTENT_SOURCE, ContentNotFoundError, type ContentSource } from '../content/loader/content-source';
+import {
+  CONTENT_SOURCE,
+  ContentNotFoundError,
+  type ContentSource,
+} from '../content/loader/content-source';
 
 /** Minimal valid home config for component tests. */
 export const EMPTY_HOME_CONFIG = {
@@ -21,10 +25,14 @@ export const EMPTY_CATALOG_FIXTURES: Record<string, unknown> = {
 };
 
 /** Replaces the HTTP content source with in-memory fixtures keyed by relative path. */
-export function provideTestContent(files: Record<string, unknown> = EMPTY_CATALOG_FIXTURES): Provider[] {
+export function provideTestContent(
+  files: Record<string, unknown> = EMPTY_CATALOG_FIXTURES,
+): Provider[] {
   const source: ContentSource = {
     load: <T>(path: string): Promise<T> =>
-      path in files ? Promise.resolve(files[path] as T) : Promise.reject(new ContentNotFoundError(path)),
+      path in files
+        ? Promise.resolve(files[path] as T)
+        : Promise.reject(new ContentNotFoundError(path)),
   };
   return [{ provide: CONTENT_SOURCE, useValue: source }];
 }

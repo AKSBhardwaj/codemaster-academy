@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "headers",
+  "title": "Add a response header",
+  "summary": "Flask: Add a response header. Inspect the header with curl -i.",
+  "introduction": "make_response lets you add metadata before sending a reply. GET /note has Cache-Control: no-store.",
+  "learningObjectives": ["Add a response header with Flask", "Inspect the header with curl -i"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder create a virtual environment and install Flask with python -m pip install flask. Save one example as app.py and run python app.py. Use http://127.0.0.1:8000."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Add a response header"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "Add a response header",
+      "code": "from flask import Flask, request, jsonify, redirect, url_for, make_response, abort\napp = Flask(__name__)\n@app.get(\"/note\")\ndef note():\n    response = make_response(\"Practice note\")\n    response.headers[\"Cache-Control\"] = \"no-store\"\n    return response\nif __name__ == \"__main__\":\n    app.run(host=\"127.0.0.1\", port=8000)\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "make_response builds a response first, allowing the cache header to be added before return."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Practice note"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the header with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Headers describe the response; changing one does not change its body."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "flask-headers-check"
+    }
+  ],
+  "exerciseIds": ["flask-headers-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "flask",
+      "slug": "redirects"
+    }
+  ],
+  "seo": {
+    "title": "Flask: Add a response header",
+    "description": "Flask: Add a response header. Inspect the header with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

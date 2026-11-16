@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "evaluation-mode-and-checking",
+  "title": "Evaluation mode and checking",
+  "summary": "model.eval switches training-sensitive layers to evaluation behaviour. Use it with no_grad when making ordinary evaluation predictions.",
+  "introduction": "model.eval switches training-sensitive layers to evaluation behaviour. Use it with no_grad when making ordinary evaluation predictions. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain evaluation mode and checking",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "model.eval switches training-sensitive layers to evaluation behaviour. Use it with no_grad when making ordinary evaluation predictions."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "import torch\n\nmodel = torch.nn.Sequential(torch.nn.Linear(1, 1))\nmodel.eval()\nwith torch.no_grad():\n    result = model(torch.tensor([[3.0]]))\nprint(tuple(result.shape))",
+      "title": "Evaluation mode and checking",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The shape is (1, 1). This model is untrained; the example shows the evaluation procedure, not an accurate prediction."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Explain why held-out examples are needed to judge usefulness.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "eval does not train a model and does not by itself disable gradients."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "pytorch-evaluation-mode-and-checking"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [PyTorch further reading](https://pytorch.org/tutorials/beginner/basics/intro.html)."
+    }
+  ],
+  "exerciseIds": ["pytorch-evaluation-mode-and-checking"],
+  "relatedLessons": [
+    {
+      "technologySlug": "pytorch",
+      "slug": "introduction"
+    }
+  ],
+  "seo": {
+    "title": "PyTorch: Evaluation mode and checking",
+    "description": "Learn about evaluation mode and checking in PyTorch. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "slug": "intercept-a-request",
+  "title": "Intercept a request",
+  "summary": "intercept can supply a known network response. Set it up before the page sends the request.",
+  "introduction": "intercept can supply a known network response. Set it up before the page sends the request. We will use a small example so you can follow each step.",
+  "learningObjectives": [
+    "Explain intercept a request",
+    "Use the example to answer a practice question"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "intercept can supply a known network response. Set it up before the page sends the request."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Look at this example"
+    },
+    {
+      "type": "code",
+      "language": "typescript",
+      "code": "describe(\"local practice\", () => {\n  it(\"intercept a request\", () => {\n    cy.intercept(\"GET\", \"/books.json\", { body: [{ title: \"Moon\" }] }).as(\"books\");\n    cy.visit(\"/practice.html\");\n    cy.window().then(win => win.fetch(\"/books.json\"));\n    cy.wait(\"@books\").its(\"response.statusCode\").should(\"eq\", 200);\n  });\n});",
+      "title": "Intercept a request",
+      "runnable": false
+    },
+    {
+      "type": "paragraph",
+      "text": "The intercepted request returns a test response with status 200. No book API service is required."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try one small change"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Read the example from top to bottom. Point to the part that uses the new idea.",
+        "Use a response with an empty list.",
+        "Explain what changed in your own words. Check the example again if you get stuck."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "A mocked response tests the frontend contract, not a real server implementation."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cypress-intercept-a-request"
+    },
+    {
+      "type": "paragraph",
+      "text": "For more detail later, use this [Cypress further reading](https://docs.cypress.io/app/get-started/why-cypress)."
+    }
+  ],
+  "exerciseIds": ["cypress-intercept-a-request"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cypress",
+      "slug": "keep-tests-independent"
+    }
+  ],
+  "seo": {
+    "title": "Cypress: Intercept a request",
+    "description": "Learn about intercept a request in Cypress. Follow a small example, understand the result, and practise with a clear question."
+  },
+  "updatedOn": "2026-11-16"
+}

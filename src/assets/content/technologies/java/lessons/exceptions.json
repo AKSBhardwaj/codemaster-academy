@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "slug": "exceptions",
+  "title": "Exceptions",
+  "summary": "Read a stack trace, handle failures with try, catch and finally, tell checked from unchecked exceptions, throw your own exception classes and close resources with try-with-resources.",
+  "introduction": "Files go missing, users type letters where numbers belong, networks drop. Java reports such failures with exceptions: objects that carry what went wrong and where, and that travel up the call stack until some code deals with them. Handled well, exceptions keep error handling out of the main logic and make failures impossible to ignore by accident. In this lesson you read a stack trace, catch and recover from errors, learn why the compiler forces you to deal with some exceptions and not others, define an exception of your own, and let Java close files for you.",
+  "learningObjectives": [
+    "Read a stack trace and find the line that caused it",
+    "Handle errors with try, catch and finally and order multiple catch blocks",
+    "Distinguish checked from unchecked exceptions and use throws correctly",
+    "Throw custom exceptions and release resources with try-with-resources"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What an exception is"
+    },
+    {
+      "type": "paragraph",
+      "text": "When an operation cannot complete, Java **throws** an exception: it creates an object such as `ArithmeticException`, abandons the current statement and unwinds the call stack, method by method, looking for a handler. If no handler exists, the thread ends and the JVM prints a **stack trace**. Dividing an `int` by zero is the simplest way to see one."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Crash.java",
+      "code": "public class Crash {\n    static int divide(int a, int b) {\n        return a / b;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"Starting\");\n        System.out.println(divide(10, 0));\n        System.out.println(\"Done\");\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Crash.java",
+      "content": "Starting\nException in thread \"main\" java.lang.ArithmeticException: / by zero\n\tat Crash.divide(Crash.java:3)\n\tat Crash.main(Crash.java:8)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Read a stack trace from the top. The first line names the exception class and its message. The `at` lines list the call chain from the innermost method outwards: the failure happened in `divide` at line 3, which was called from `main` at line 8. `Done` never printed, because the exception left `main` before it got there. In longer traces, scan for the first line that mentions your own class; the lines above it are usually library code that only reported the problem."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "try, catch and finally"
+    },
+    {
+      "type": "paragraph",
+      "text": "Wrap the risky code in `try` and put the recovery in `catch`, which receives the exception object. A `finally` block runs after the try block whether it succeeded, threw or returned, which makes it the place for cleanup. Here the second input is not a number, so `parseInt` throws, the rest of the try block is skipped, and the catch block reports the problem."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Inside main",
+      "code": "String[] inputs = {\"42\", \"abc\"};\nfor (String input : inputs) {\n    try {\n        int value = Integer.parseInt(input);\n        System.out.println(\"Parsed \" + value);\n    } catch (NumberFormatException e) {\n        System.out.println(\"Not a number: \" + e.getMessage());\n    } finally {\n        System.out.println(\"Checked \" + input);\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "content": "Parsed 42\nChecked 42\nNot a number: For input string: \"abc\"\nChecked abc"
+    },
+    {
+      "type": "paragraph",
+      "text": "Several `catch` blocks may follow one `try`; Java picks the first whose type matches, so put specific exceptions before general ones or the compiler reports that the later block is unreachable. Two unrelated exceptions that need the same handling can share a block with `catch (NumberFormatException | NullPointerException e)`."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Checked and unchecked exceptions"
+    },
+    {
+      "type": "paragraph",
+      "text": "All exceptions descend from `Throwable`. The `Error` branch covers JVM-level problems such as running out of memory, which programs should not catch. The `Exception` branch splits in two. `RuntimeException` and its subclasses are **unchecked**: they usually signal programming mistakes, and the compiler does not force you to handle them. Every other `Exception` is **checked**: it represents a failure the caller can reasonably expect, such as a missing file, and a method that may throw one must either catch it or announce it with `throws` in its signature. Forgetting both gives `error: unreported exception IOException; must be caught or declared to be thrown`."
+    },
+    {
+      "type": "table",
+      "headers": ["Exception", "Kind", "Typical cause"],
+      "rows": [
+        ["`NullPointerException`", "unchecked", "calling a method on a reference that is `null`"],
+        ["`ArrayIndexOutOfBoundsException`", "unchecked", "an index outside `0` to `length - 1`"],
+        ["`NumberFormatException`", "unchecked", "`Integer.parseInt` on text that is not a number"],
+        ["`ArithmeticException`", "unchecked", "integer division by zero"],
+        ["`IllegalArgumentException`", "unchecked", "a method rejecting an argument it was given"],
+        ["`IOException`", "checked", "a file or network operation failed"],
+        [
+          "`java.nio.file.NoSuchFileException`",
+          "checked",
+          "the path does not exist (a subclass of `IOException`)"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Throwing your own exceptions"
+    },
+    {
+      "type": "paragraph",
+      "text": "`throw` raises an exception you create with `new`, and you can define your own exception class by extending `Exception` (checked) or `RuntimeException` (unchecked). A custom class makes the failure specific enough to catch on its own and gives it a descriptive name. The message passed to `super` is what `getMessage()` later returns."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "Bank.java",
+      "code": "class InsufficientFundsException extends Exception {\n    InsufficientFundsException(String message) {\n        super(message);\n    }\n}\n\nclass Account {\n    private double balance = 100;\n\n    void withdraw(double amount) throws InsufficientFundsException {\n        if (amount > balance) {\n            throw new InsufficientFundsException(\"need \" + amount + \" but only \" + balance + \" available\");\n        }\n        balance -= amount;\n    }\n}\n\npublic class Bank {\n    public static void main(String[] args) {\n        Account account = new Account();\n        try {\n            account.withdraw(30);\n            account.withdraw(500);\n            System.out.println(\"Both withdrawals succeeded\");\n        } catch (InsufficientFundsException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n        System.out.println(\"Program continues\");\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java Bank.java",
+      "content": "Rejected: need 500.0 but only 70.0 available\nProgram continues"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first withdrawal succeeds and lowers the balance to 70; the second throws, so the success message is skipped, the catch block runs, and the program continues normally after the try statement. Because the exception is checked, `withdraw` must declare it, and `main` must catch it or declare it in turn."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "try-with-resources"
+    },
+    {
+      "type": "paragraph",
+      "text": "Files, network connections and database handles must be closed when you are done, even if an exception interrupts the work. Declaring the resource inside the parentheses of `try` makes Java call `close()` automatically at the end of the block, in every case. Any class implementing `AutoCloseable` works, and several resources may be listed separated by semicolons."
+    },
+    {
+      "type": "code",
+      "language": "java",
+      "title": "ReadFirst.java",
+      "code": "import java.io.BufferedReader;\nimport java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\n\npublic class ReadFirst {\n    public static void main(String[] args) {\n        try (BufferedReader reader = Files.newBufferedReader(Path.of(\"missing.txt\"))) {\n            System.out.println(reader.readLine());\n        } catch (IOException e) {\n            System.out.println(\"Could not read file: \" + e.getMessage());\n        }\n    }\n}"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "java ReadFirst.java (no such file exists)",
+      "content": "Could not read file: missing.txt"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Handling errors well"
+    },
+    {
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "Catch an exception only where you can do something useful: retry, use a default, tell the user. Otherwise let it propagate to a caller that can.",
+        "Catch the most specific type that covers the failure; `catch (Exception e)` also swallows `NullPointerException` and hides real bugs.",
+        "Throw `IllegalArgumentException` or `IllegalStateException` for programming errors, and a checked exception for failures the caller must plan for.",
+        "Put context in the message: which file, which value, which account. Future you will read it in a log at 3 a.m.",
+        "Never use exceptions for ordinary control flow; a `hasNextInt()` check is cheaper and clearer than catching the failure."
+      ]
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "The empty catch block",
+      "text": "`catch (Exception e) { }` compiles and makes the error disappear, together with any chance of finding out what happened. The program continues with half-done work and fails somewhere else later. At the very least print or log the exception; better, catch only what you can handle and let the rest propagate so the stack trace points at the real cause."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "java-exceptions-finally"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "java-exceptions-qc-1",
+          "type": "true-false",
+          "lessonSlug": "exceptions",
+          "difficulty": "beginner",
+          "question": "A `finally` block runs even when the `try` block ends with a `return` statement.",
+          "explanation": "`finally` runs on every exit from the try statement: normal completion, an exception, or a return. That is what makes it suitable for cleanup.",
+          "correct": true
+        },
+        {
+          "id": "java-exceptions-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "exceptions",
+          "difficulty": "intermediate",
+          "question": "Which of these exceptions must be caught or declared with `throws`?",
+          "explanation": "`IOException` is a checked exception. The other three extend `RuntimeException` and are unchecked, so the compiler does not require handling.",
+          "options": [
+            "`NullPointerException`",
+            "`IOException`",
+            "`ArithmeticException`",
+            "`IllegalArgumentException`"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["java-exceptions-finally"],
+  "relatedLessons": [
+    {
+      "technologySlug": "java",
+      "slug": "methods"
+    },
+    {
+      "technologySlug": "java",
+      "slug": "strings-io"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "errors-exceptions"
+    },
+    {
+      "technologySlug": "javascript",
+      "slug": "errors-debugging"
+    }
+  ],
+  "seo": {
+    "title": "Java Exceptions – try, catch, finally and throws",
+    "description": "Read Java stack traces, handle errors with try, catch and finally, tell checked from unchecked exceptions, write your own and use try-with-resources."
+  },
+  "updatedOn": "2026-11-15"
+}

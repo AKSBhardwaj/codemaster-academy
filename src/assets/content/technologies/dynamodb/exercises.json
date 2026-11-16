@@ -1,0 +1,135 @@
+{
+  "title": "DynamoDB Practice",
+  "description": "Practise the twelve ideas in this DynamoDB course. Choose an answer, then read why it fits the example.",
+  "exercises": [
+    {
+      "id": "dynamodb-introduction-check",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "Which pair identifies this sample item?",
+      "options": ["reader and book", "title and the JSON field order"],
+      "correctIndex": 0,
+      "explanation": "A partition key chooses an item group. A sort key identifies and orders items within that group. Together they can identify one item."
+    },
+    {
+      "id": "dynamodb-create-a-local-keyed-table-check",
+      "type": "multiple-choice",
+      "lessonSlug": "create-a-local-keyed-table",
+      "difficulty": "beginner",
+      "question": "Which attributes are declared in this table definition?",
+      "options": ["Every possible item field", "The key attributes reader and book"],
+      "correctIndex": 1,
+      "explanation": "A DynamoDB table declares its key attributes. Other item fields do not need to be declared as table columns."
+    },
+    {
+      "id": "dynamodb-write-a-known-item-check",
+      "type": "multiple-choice",
+      "lessonSlug": "write-a-known-item",
+      "difficulty": "beginner",
+      "question": "What happens to an existing item at the same key?",
+      "options": [
+        "PutItem replaces it unless guarded by a condition",
+        "It always creates a duplicate key"
+      ],
+      "correctIndex": 0,
+      "explanation": "PutItem writes a complete item at its key. A later PutItem with the same key replaces the item unless a condition prevents it."
+    },
+    {
+      "id": "dynamodb-read-an-exact-key-check",
+      "type": "multiple-choice",
+      "lessonSlug": "read-an-exact-key",
+      "difficulty": "beginner",
+      "question": "What key information does this GetItem need?",
+      "options": ["Only the pages field", "Both reader and book"],
+      "correctIndex": 1,
+      "explanation": "GetItem reads one item by its complete primary key. A missing item gives no Item field in the response."
+    },
+    {
+      "id": "dynamodb-query-one-partition-check",
+      "type": "multiple-choice",
+      "lessonSlug": "query-one-partition",
+      "difficulty": "beginner",
+      "question": "What does Query require for this table?",
+      "options": ["A partition-key equality condition", "Any random field name"],
+      "correctIndex": 0,
+      "explanation": "Query selects one partition key and can return its related items. It is different from scanning the entire table."
+    },
+    {
+      "id": "dynamodb-use-a-sort-key-prefix-check",
+      "type": "multiple-choice",
+      "lessonSlug": "use-a-sort-key-prefix",
+      "difficulty": "beginner",
+      "question": "Which field does begins_with test here?",
+      "options": ["Every text field in every item", "The book sort key"],
+      "correctIndex": 1,
+      "explanation": "A sort key can support a range or prefix inside one partition. begins_with keeps keys that start with the supplied text."
+    },
+    {
+      "id": "dynamodb-read-all-result-pages-check",
+      "type": "multiple-choice",
+      "lessonSlug": "read-all-result-pages",
+      "difficulty": "beginner",
+      "question": "When is the full query finished?",
+      "options": [
+        "When there is no LastEvaluatedKey to continue",
+        "Always after the first response"
+      ],
+      "correctIndex": 0,
+      "explanation": "A Query response can be only one page of data. LastEvaluatedKey tells the caller where to continue."
+    },
+    {
+      "id": "dynamodb-update-one-attribute-check",
+      "type": "multiple-choice",
+      "lessonSlug": "update-one-attribute",
+      "difficulty": "beginner",
+      "question": "Why might an existence condition be useful?",
+      "options": [
+        "To sort the whole table by pages",
+        "To stop an update from creating an unintended missing item"
+      ],
+      "correctIndex": 1,
+      "explanation": "UpdateItem can change selected attributes at a key. Expression names and values keep field names and data separate from the expression."
+    },
+    {
+      "id": "dynamodb-avoid-replacing-an-existing-item-check",
+      "type": "multiple-choice",
+      "lessonSlug": "avoid-replacing-an-existing-item",
+      "difficulty": "beginner",
+      "question": "What protects the old item from replacement?",
+      "options": ["The attribute_not_exists condition", "The title being a different string"],
+      "correctIndex": 0,
+      "explanation": "A conditional put can require that a key does not already exist. The condition is checked as part of the write."
+    },
+    {
+      "id": "dynamodb-understand-filters-and-read-cost-check",
+      "type": "multiple-choice",
+      "lessonSlug": "understand-filters-and-read-cost",
+      "difficulty": "beginner",
+      "question": "When is this filter applied?",
+      "options": ["Before any read work as a new key", "After key-matching items are read"],
+      "correctIndex": 1,
+      "explanation": "A FilterExpression removes items after DynamoDB reads the key-matching data. It does not make that earlier read work disappear."
+    },
+    {
+      "id": "dynamodb-know-that-ttl-is-not-an-exact-timer-check",
+      "type": "multiple-choice",
+      "lessonSlug": "know-that-ttl-is-not-an-exact-timer",
+      "difficulty": "beginner",
+      "question": "Does TTL guarantee deletion at the exact expiry second?",
+      "options": ["No, deletion is asynchronous", "Yes, every item vanishes at that exact instant"],
+      "correctIndex": 0,
+      "explanation": "DynamoDB TTL uses an epoch-seconds attribute for expiry. Deletion happens later in the background, not at an exact second."
+    },
+    {
+      "id": "dynamodb-remove-one-sample-item-check",
+      "type": "multiple-choice",
+      "lessonSlug": "remove-one-sample-item",
+      "difficulty": "beginner",
+      "question": "What limits this deletion to one item?",
+      "options": ["The word DELETE anywhere in the title", "The complete primary key"],
+      "correctIndex": 1,
+      "explanation": "DeleteItem targets one full key. A condition can be added when deletion must depend on the current item state."
+    }
+  ]
+}

@@ -25,7 +25,7 @@ const link = (
 
 /** Primary navigation. Technology categories are appended to the Tutorials group at runtime from the catalog. */
 export const PRIMARY_NAV: readonly NavItem[] = [
-  link('Home', '/', { exact: true, icon: 'house' }),
+  link('Start here', '/start', { icon: 'house' }),
   {
     kind: 'group',
     label: 'Tutorials',
@@ -37,22 +37,24 @@ export const PRIMARY_NAV: readonly NavItem[] = [
       }),
     ],
   },
-  link('References', '/references', { icon: 'journal-code' }),
-  link('Examples', '/examples', { icon: 'file-earmark-code' }),
-  link('Exercises', '/exercises', { icon: 'pencil-square' }),
-  link('Quizzes', '/quizzes', { icon: 'patch-check' }),
+  link('Learning paths', '/learning-paths', { icon: 'compass' }),
+  {
+    kind: 'group',
+    label: 'Practice',
+    links: [
+      link('Exercises', '/exercises', { icon: 'pencil-square' }),
+      link('Quizzes', '/quizzes', { icon: 'patch-check' }),
+      link('Examples', '/examples', { icon: 'file-earmark-code' }),
+      link('References', '/references', { icon: 'journal-code' }),
+    ],
+  },
   link('Playground', '/playground', { icon: 'code-slash' }),
 ];
 
-export const ACCOUNT_NAV_GUEST: readonly NavLink[] = [
-  link('Log in', '/login', { icon: 'person-circle' }),
-  link('Create account', '/register', { icon: 'plus-circle' }),
-];
-
-export const ACCOUNT_NAV_USER: readonly NavLink[] = [
-  link('Dashboard', '/dashboard', { icon: 'speedometer2' }),
+export const LEARNING_NAV: readonly NavLink[] = [
+  link('My learning', '/dashboard', { icon: 'speedometer2' }),
   link('Bookmarks', '/bookmarks', { icon: 'bookmark' }),
-  link('Profile', '/profile', { icon: 'gear' }),
+  link('Learning settings', '/settings', { icon: 'gear' }),
 ];
 
 export const FOOTER_NAV: readonly NavGroup[] = [
@@ -77,12 +79,11 @@ export const FOOTER_NAV: readonly NavGroup[] = [
   },
   {
     kind: 'group',
-    label: 'Account',
+    label: 'My learning',
     links: [
-      link('Dashboard', '/dashboard'),
+      link('My learning', '/dashboard'),
       link('Bookmarks', '/bookmarks'),
-      link('Log in', '/login'),
-      link('Create account', '/register'),
+      link('Learning settings', '/settings'),
     ],
   },
   {

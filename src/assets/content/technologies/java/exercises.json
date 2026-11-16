@@ -1,0 +1,280 @@
+{
+  "title": "Java Exercises",
+  "description": "Practise every Java lesson with multiple-choice questions, output prediction, find-the-error tasks and small coding tasks to compile and run on your own machine with javac and java.",
+  "exercises": [
+    {
+      "id": "java-intro-jvm",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "You compile `App.java` on Windows and copy the resulting `App.class` to a Linux server that has a JDK installed. What happens when you run `java App` there?",
+      "explanation": "javac produces bytecode, not machine code. Bytecode is instructions for the JVM, and the JVM on each platform interprets and JIT-compiles it for the local processor. That is what 'write once, run anywhere' means; no recompilation is needed.",
+      "options": [
+        "It fails: class files only run on the operating system that compiled them",
+        "It runs: bytecode is portable and the Linux JVM executes it",
+        "It must be recompiled with javac on Linux first",
+        "It runs only if the server has the same CPU model"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-setup-run-command",
+      "type": "fill-blank",
+      "lessonSlug": "setup-jdk",
+      "difficulty": "beginner",
+      "question": "After `javac Greeting.java` has produced `Greeting.class`, the command that runs the program is `java ___`.",
+      "explanation": "The launcher takes the class name, not the file name. `java Greeting.class` fails with 'Could not find or load main class Greeting.class' because it looks for a class literally named that.",
+      "answers": ["Greeting"],
+      "caseSensitive": true
+    },
+    {
+      "id": "java-setup-first-program",
+      "type": "coding-task",
+      "lessonSlug": "setup-jdk",
+      "difficulty": "beginner",
+      "question": "Create `Profile.java` containing a class `Profile` whose main method prints three lines: your name, the language you are learning (Java) and the version (25). Compile it with javac and run it with java, then run the source file directly with `java Profile.java` and confirm both print the same lines.",
+      "explanation": "The public class and the file name must match, main needs the exact signature the JVM looks for, and every statement ends with a semicolon. javac writes Profile.class, which java runs by class name; the source launcher compiles in memory and skips the .class file.",
+      "language": "java",
+      "starterCode": "public class Profile {\n    public static void main(String[] args) {\n        // Print three lines here\n    }\n}",
+      "solutionCode": "public class Profile {\n    public static void main(String[] args) {\n        System.out.println(\"Name: Ada Lovelace\");\n        System.out.println(\"Learning: Java\");\n        System.out.println(\"Version: 25\");\n    }\n}",
+      "checklist": [
+        "The file is named Profile.java and contains public class Profile",
+        "main has the exact signature public static void main(String[] args)",
+        "Three System.out.println statements, each ending with a semicolon",
+        "javac Profile.java finishes without errors and creates Profile.class",
+        "java Profile and java Profile.java print the same three lines"
+      ]
+    },
+    {
+      "id": "java-syntax-find-error",
+      "type": "find-error",
+      "lessonSlug": "syntax-variables",
+      "difficulty": "beginner",
+      "question": "This program does not compile. What is wrong?",
+      "explanation": "Java is case-sensitive and the text type is `String` with a capital S. `string` is not a known type, so javac reports `error: cannot find symbol` pointing at it. The concatenation on the next line is fine.",
+      "language": "java",
+      "code": "public class Greeting {\n    public static void main(String[] args) {\n        string name = \"Ada\";\n        System.out.println(\"Hello, \" + name);\n    }\n}",
+      "options": [
+        "`name` must be declared with `var`",
+        "The type `string` does not exist; it must be `String`",
+        "`main` is missing a return statement",
+        "Strings cannot be joined with `+`"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "java-data-types-predict",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "beginner",
+      "question": "What does this code print?",
+      "explanation": "`7 / 2` is integer division and gives 3. Storing it in a `double` widens the already-computed 3 to 3.0; the division itself is not repeated. `7 / 2.0` is done in double arithmetic and gives 3.5, and the cast `(int) 7.9` truncates to 7.",
+      "language": "java",
+      "code": "int a = 7 / 2;\ndouble b = 7 / 2;\ndouble c = 7 / 2.0;\nint d = (int) 7.9;\nSystem.out.println(a + \" \" + b + \" \" + c + \" \" + d);",
+      "options": ["3 3.5 3.5 8", "3 3.0 3.5 7", "3.5 3.5 3.5 7", "3 3 3.5 7"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-operators-increment",
+      "type": "predict-output",
+      "lessonSlug": "operators-conditionals",
+      "difficulty": "intermediate",
+      "question": "What does this code print?",
+      "explanation": "`a++` yields the current value 5 and then makes `a` 6; `++a` first makes `a` 7 and yields 7. So `b` is 5 + 7 = 12 and `a` ends as 7. Code like this is legal but hard to read, which is why the lesson recommends keeping `++` on its own line.",
+      "language": "java",
+      "code": "int a = 5;\nint b = a++ + ++a;\nSystem.out.println(a + \" \" + b);",
+      "options": ["6 11", "7 12", "7 11", "6 12"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-operators-string-equality",
+      "type": "find-error",
+      "lessonSlug": "operators-conditionals",
+      "difficulty": "beginner",
+      "question": "The user types `yes` and presses Enter, but the program prints `Cancelled`. Why?",
+      "explanation": "`==` on objects compares references. The string returned by `nextLine()` is a new object, so it is never the same object as the literal `\"yes\"` even though the characters match. Compare content with `answer.equals(\"yes\")` or `answer.equalsIgnoreCase(\"yes\")`.",
+      "language": "java",
+      "code": "Scanner in = new Scanner(System.in);\nString answer = in.nextLine();\nif (answer == \"yes\") {\n    System.out.println(\"Confirmed\");\n} else {\n    System.out.println(\"Cancelled\");\n}",
+      "options": [
+        "`nextLine()` returns the text with a trailing newline",
+        "`==` compares references; use `answer.equals(\"yes\")`",
+        "String literals must be compared with `===`",
+        "The condition needs parentheses around `answer`"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "java-loops-fizzbuzz",
+      "type": "coding-task",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "question": "Print the numbers 1 to 20, one per line, but print `Fizz` instead of multiples of 3, `Buzz` instead of multiples of 5, and `FizzBuzz` instead of numbers that are multiples of both.",
+      "explanation": "Test the combined case first: a multiple of 15 is also a multiple of 3, so if the `Fizz` check came first, 15 would print `Fizz`. The remainder operator `%` tells you whether a number divides evenly, and the else branch prints the number itself.",
+      "language": "java",
+      "starterCode": "public class FizzBuzz {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 20; i++) {\n            // Decide what to print for i\n        }\n    }\n}",
+      "solutionCode": "public class FizzBuzz {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 20; i++) {\n            if (i % 15 == 0) {\n                System.out.println(\"FizzBuzz\");\n            } else if (i % 3 == 0) {\n                System.out.println(\"Fizz\");\n            } else if (i % 5 == 0) {\n                System.out.println(\"Buzz\");\n            } else {\n                System.out.println(i);\n            }\n        }\n    }\n}",
+      "checklist": [
+        "The loop runs exactly 20 times, from 1 to 20 inclusive",
+        "The multiple-of-both case is tested before the single-multiple cases",
+        "3, 6, 9, 12 and 18 print Fizz and 5, 10 and 20 print Buzz",
+        "15 prints FizzBuzz, not Fizz",
+        "Every other number prints as itself, one per line"
+      ]
+    },
+    {
+      "id": "java-methods-pass-by-value",
+      "type": "predict-output",
+      "lessonSlug": "methods",
+      "difficulty": "intermediate",
+      "question": "What does this program print?",
+      "explanation": "`change` receives a copy of the int, so `x` stays 1. `fill` receives a copy of the reference to the same array, follows it and overwrites slot 0, which the caller sees. Java always passes by value; for objects the value is the reference.",
+      "language": "java",
+      "code": "import java.util.Arrays;\n\npublic class Main {\n    static void change(int n) {\n        n = 99;\n    }\n\n    static void fill(int[] values) {\n        values[0] = 99;\n    }\n\n    public static void main(String[] args) {\n        int x = 1;\n        int[] arr = {1, 2};\n        change(x);\n        fill(arr);\n        System.out.println(x + \" \" + Arrays.toString(arr));\n    }\n}",
+      "options": ["99 [99, 2]", "1 [1, 2]", "1 [99, 2]", "99 [1, 2]"],
+      "correctIndex": 2
+    },
+    {
+      "id": "java-methods-overloading",
+      "type": "true-false",
+      "lessonSlug": "methods",
+      "difficulty": "beginner",
+      "question": "Two methods in the same class may have the same name and the same parameter list as long as their return types differ.",
+      "explanation": "Overloads are told apart by the number and types of their parameters only. The return type is not part of the signature, so javac reports that the second method is already defined in the class.",
+      "correct": false
+    },
+    {
+      "id": "java-classes-bank-account",
+      "type": "coding-task",
+      "lessonSlug": "classes-objects",
+      "difficulty": "beginner",
+      "question": "Write a `SavingsAccount` class with a private `double balance` set by the constructor, a `deposit(double amount)` method that ignores amounts of zero or less, an `addInterest(double ratePercent)` method that increases the balance by that percentage, and a `getBalance()` method. In `main`, open an account with 1000, deposit 500, add 2 percent interest and print the balance.",
+      "explanation": "The balance is private so that only the methods can change it, and each method enforces its own rule. `this.balance` distinguishes the field from a parameter of the same name. Interest computed as balance times rate divided by 100 gives 1500 + 30 = 1530.0.",
+      "language": "java",
+      "starterCode": "public class SavingsAccount {\n    private double balance;\n\n    public SavingsAccount(double openingBalance) {\n        // store the opening balance\n    }\n\n    public void deposit(double amount) {\n        // ignore amounts of zero or less\n    }\n\n    public void addInterest(double ratePercent) {\n        // increase the balance by ratePercent percent\n    }\n\n    public double getBalance() {\n        return 0;\n    }\n\n    public static void main(String[] args) {\n        SavingsAccount account = new SavingsAccount(1000);\n        account.deposit(500);\n        account.addInterest(2);\n        System.out.println(account.getBalance());\n    }\n}",
+      "solutionCode": "public class SavingsAccount {\n    private double balance;\n\n    public SavingsAccount(double openingBalance) {\n        this.balance = openingBalance;\n    }\n\n    public void deposit(double amount) {\n        if (amount > 0) {\n            balance += amount;\n        }\n    }\n\n    public void addInterest(double ratePercent) {\n        balance += balance * ratePercent / 100;\n    }\n\n    public double getBalance() {\n        return balance;\n    }\n\n    public static void main(String[] args) {\n        SavingsAccount account = new SavingsAccount(1000);\n        account.deposit(500);\n        account.addInterest(2);\n        System.out.println(account.getBalance());\n    }\n}",
+      "checklist": [
+        "The balance field is private and only changed through the methods",
+        "The constructor stores the opening balance with this.balance",
+        "deposit ignores zero and negative amounts instead of subtracting them",
+        "addInterest adds balance * ratePercent / 100 to the balance",
+        "The program prints 1530.0"
+      ]
+    },
+    {
+      "id": "java-inheritance-override",
+      "type": "find-error",
+      "lessonSlug": "inheritance-interfaces",
+      "difficulty": "intermediate",
+      "question": "javac stops at the `@Override` line of `Bike` with an error. What is the cause?",
+      "explanation": "The subclass method is spelled `descibe`, so there is no parent method with that name to override. `@Override` makes javac check and report `method does not override or implement a method from a supertype`. Without the annotation the typo would silently create a new method and `describe()` on a Bike would still return `a vehicle`.",
+      "language": "java",
+      "code": "class Vehicle {\n    String describe() {\n        return \"a vehicle\";\n    }\n}\n\nclass Bike extends Vehicle {\n    @Override\n    String descibe() {\n        return \"a bike\";\n    }\n}",
+      "options": [
+        "`Bike` must declare a constructor that calls `super()`",
+        "`descibe` is misspelled, so `@Override` finds no method to override",
+        "Methods in a subclass must be declared `public`",
+        "`Vehicle` must be declared `abstract` to be extended"
+      ],
+      "correctIndex": 1,
+      "errorLine": 8
+    },
+    {
+      "id": "java-collections-remove",
+      "type": "predict-output",
+      "lessonSlug": "collections",
+      "difficulty": "intermediate",
+      "question": "What does this code print?",
+      "explanation": "`remove(1)` with an int argument removes the element at index 1 (the 20), leaving [10, 30, 40]. `remove(Integer.valueOf(10))` removes by value, leaving [30, 40]. `add(0, 5)` inserts 5 at the front.",
+      "language": "java",
+      "code": "List<Integer> nums = new ArrayList<>(List.of(10, 20, 30, 40));\nnums.remove(1);\nnums.remove(Integer.valueOf(10));\nnums.add(0, 5);\nSystem.out.println(nums);",
+      "options": ["[5, 20, 30, 40]", "[5, 30, 40]", "[5, 10, 30, 40]", "[30, 40]"],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-collections-word-count",
+      "type": "coding-task",
+      "lessonSlug": "collections",
+      "difficulty": "intermediate",
+      "question": "Count how often each word occurs in the sentence `the cat and the dog and the bird` using a Map, then print the counts in alphabetical order as `word=count`, one per line.",
+      "explanation": "`split(\" \")` turns the sentence into words. `merge(word, 1, Integer::sum)` stores 1 for a new word and adds 1 to an existing count, replacing the usual get-then-put pair. A `TreeMap` keeps keys sorted, so iterating its entries prints them alphabetically without an extra sort.",
+      "language": "java",
+      "starterCode": "import java.util.Map;\nimport java.util.TreeMap;\n\npublic class WordCount {\n    public static void main(String[] args) {\n        String sentence = \"the cat and the dog and the bird\";\n        Map<String, Integer> counts = new TreeMap<>();\n        // 1. Split the sentence into words and count each one\n\n        // 2. Print every entry as word=count\n    }\n}",
+      "solutionCode": "import java.util.Map;\nimport java.util.TreeMap;\n\npublic class WordCount {\n    public static void main(String[] args) {\n        String sentence = \"the cat and the dog and the bird\";\n        Map<String, Integer> counts = new TreeMap<>();\n        for (String word : sentence.split(\" \")) {\n            counts.merge(word, 1, Integer::sum);\n        }\n        for (Map.Entry<String, Integer> entry : counts.entrySet()) {\n            System.out.println(entry.getKey() + \"=\" + entry.getValue());\n        }\n    }\n}",
+      "checklist": [
+        "The sentence is split on spaces into single words",
+        "merge or getOrDefault starts a new word at 1 and increments an existing count",
+        "A TreeMap (or an explicit sort of the keys) gives alphabetical order",
+        "The output is and=2, bird=1, cat=1, dog=1, the=3, one entry per line"
+      ]
+    },
+    {
+      "id": "java-generics-bounded",
+      "type": "multiple-choice",
+      "lessonSlug": "generics",
+      "difficulty": "intermediate",
+      "question": "Which method header lets `largest` accept a `List<Integer>`, a `List<String>` or any other list whose elements can be compared with each other, and return an element of the same type as the list holds?",
+      "explanation": "The bound `T extends Comparable<T>` guarantees that `compareTo` exists on every element and keeps the return type tied to the element type. An unbounded `T` cannot call `compareTo`, `List<Object>` would reject a `List<Integer>` because generics are invariant, and raw `Comparable` loses the element type.",
+      "options": [
+        "`static Object largest(List<Object> items)`",
+        "`static <T> T largest(List<T> items)`",
+        "`static <T extends Comparable<T>> T largest(List<T> items)`",
+        "`static Comparable largest(List<Comparable> items)`"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "id": "java-exceptions-finally",
+      "type": "predict-output",
+      "lessonSlug": "exceptions",
+      "difficulty": "intermediate",
+      "question": "In what order do the lines appear when this program runs?",
+      "explanation": "`parsing` prints, then `parseInt(\"x\")` throws, so the catch block prints `bad input` and prepares to return -1. Before the method actually returns, the finally block runs and prints `finally`. Only then does main print the returned -1.",
+      "language": "java",
+      "code": "public class Main {\n    static int parse(String s) {\n        try {\n            System.out.println(\"parsing\");\n            return Integer.parseInt(s);\n        } catch (NumberFormatException e) {\n            System.out.println(\"bad input\");\n            return -1;\n        } finally {\n            System.out.println(\"finally\");\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(parse(\"x\"));\n    }\n}",
+      "options": [
+        "parsing, bad input, -1",
+        "parsing, bad input, finally, -1",
+        "parsing, finally, bad input, -1",
+        "parsing, -1, finally"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "java-strings-scanner",
+      "type": "find-error",
+      "lessonSlug": "strings-io",
+      "difficulty": "intermediate",
+      "question": "The user types `36` and presses Enter. The program immediately prints ` is 36` without waiting for a name. Why?",
+      "explanation": "`nextInt()` consumes only the digits and leaves the newline from the Enter key in the input buffer. The following `nextLine()` reads up to that newline and returns an empty string at once. Call `in.nextLine()` once to discard the leftover, or read everything with `nextLine()` and parse the number with `Integer.parseInt`.",
+      "language": "java",
+      "code": "Scanner in = new Scanner(System.in);\nSystem.out.print(\"Age: \");\nint age = in.nextInt();\nSystem.out.print(\"Name: \");\nString name = in.nextLine();\nSystem.out.println(name + \" is \" + age);",
+      "options": [
+        "`nextInt()` reads the whole line including the name",
+        "`nextInt()` leaves the Enter newline in the buffer, so `nextLine()` returns an empty string immediately",
+        "`print` must be `println` before reading input",
+        "A Scanner cannot read an int and a String from the same stream"
+      ],
+      "correctIndex": 1,
+      "errorLine": 5
+    },
+    {
+      "id": "java-records-stream-pipeline",
+      "type": "coding-task",
+      "lessonSlug": "records-streams",
+      "difficulty": "intermediate",
+      "question": "Using the list of `Student` records below, print the names of the students with a grade of at least 60, sorted from highest grade to lowest and joined with `, `. Then print the average grade of the whole class with one decimal place.",
+      "explanation": "The first pipeline filters, sorts with a comparator on the grade component reversed for descending order, maps each record to its name and joins the names. The second maps to an IntStream, whose `average()` returns an OptionalDouble; `orElse(0)` handles an empty list. (92 + 58 + 75 + 60) / 4 = 71.25, printed as 71.3.",
+      "language": "java",
+      "starterCode": "import java.util.Comparator;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Report {\n    record Student(String name, int grade) {}\n\n    public static void main(String[] args) {\n        List<Student> students = List.of(\n            new Student(\"Ada\", 92),\n            new Student(\"Bob\", 58),\n            new Student(\"Cy\", 75),\n            new Student(\"Dee\", 60));\n        // 1. names with grade >= 60, highest grade first, joined with \", \"\n\n        // 2. average grade with one decimal place\n    }\n}",
+      "solutionCode": "import java.util.Comparator;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\npublic class Report {\n    record Student(String name, int grade) {}\n\n    public static void main(String[] args) {\n        List<Student> students = List.of(\n            new Student(\"Ada\", 92),\n            new Student(\"Bob\", 58),\n            new Student(\"Cy\", 75),\n            new Student(\"Dee\", 60));\n\n        String passing = students.stream()\n            .filter(s -> s.grade() >= 60)\n            .sorted(Comparator.comparingInt(Student::grade).reversed())\n            .map(Student::name)\n            .collect(Collectors.joining(\", \"));\n        System.out.println(passing);\n\n        double average = students.stream()\n            .mapToInt(Student::grade)\n            .average()\n            .orElse(0);\n        System.out.printf(\"%.1f%n\", average);\n    }\n}",
+      "checklist": [
+        "filter keeps grades of 60 or more, so Dee with exactly 60 is included",
+        "sorted uses a comparator on grade, reversed so the highest comes first",
+        "The names are joined with Collectors.joining(\", \") and print as Ada, Cy, Dee",
+        "The average uses mapToInt(...).average() and prints 71.3"
+      ]
+    }
+  ]
+}

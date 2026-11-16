@@ -1,0 +1,288 @@
+{
+  "title": "JavaScript Exercises",
+  "description": "Practice every JavaScript lesson with multiple-choice questions, output prediction, find-the-error tasks, fill-in-the-blank questions and coding tasks that are checked against the console output.",
+  "exercises": [
+    {
+      "id": "js-introduction-script-order",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "A script tries to change a heading before the browser has made it. Why might the code fail?",
+      "explanation": "The browser has to make the heading before code can find it. Put this small script below the heading. Later you will learn other ways to wait for a page to be ready.",
+      "options": [
+        "Every id needs a # at the start",
+        "The heading does not exist yet when the script runs",
+        "Headings cannot be changed",
+        "JavaScript can only do maths"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "js-variables-const-reassign",
+      "type": "find-error",
+      "lessonSlug": "variables",
+      "difficulty": "beginner",
+      "question": "This script stops with a TypeError. What is wrong?",
+      "explanation": "A const binding cannot be reassigned, and line 2 assigns a new string to greeting. Either declare it with let, or build the longer string into a new const.",
+      "language": "javascript",
+      "code": "const greeting = \"Hello\";\ngreeting = greeting + \", world\";\nconsole.log(greeting);",
+      "options": [
+        "Strings cannot be joined with `+`",
+        "A `const` variable is reassigned on line 2",
+        "`console.log` needs a semicolon inside the parentheses",
+        "Variable names must start with a capital letter"
+      ],
+      "correctIndex": 1,
+      "errorLine": 2
+    },
+    {
+      "id": "js-data-types-typeof",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "beginner",
+      "question": "What does this script print, one value per line?",
+      "explanation": "A declared variable without a value is undefined. typeof null is the famous \"object\" quirk. The string \"null\" is just text, so its type is string.",
+      "language": "javascript",
+      "code": "let value;\nconsole.log(typeof value);\nvalue = null;\nconsole.log(typeof value);\nvalue = \"null\";\nconsole.log(typeof value);",
+      "options": [
+        "undefined, object, string",
+        "undefined, null, string",
+        "object, object, string",
+        "undefined, undefined, string"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-operators-strict-equality",
+      "type": "fill-blank",
+      "lessonSlug": "operators",
+      "difficulty": "beginner",
+      "question": "To compare two values without any type conversion, so that `5` and `\"5\"` are not considered equal, use the ___ operator (three characters).",
+      "explanation": "The strict equality operator === compares type and value. The loose == converts the operands first, which is why 5 == \"5\" is true and why === is preferred.",
+      "answers": ["==="],
+      "caseSensitive": false
+    },
+    {
+      "id": "js-conditionals-grade",
+      "type": "coding-task",
+      "lessonSlug": "conditionals",
+      "difficulty": "beginner",
+      "question": "Complete the `grade` function so that it returns \"A\" for scores of 90 and above, \"B\" for 80 to 89, \"C\" for 70 to 79 and \"F\" for anything lower. Keep the four console.log calls so the output can be checked.",
+      "explanation": "Checking the thresholds from highest to lowest with early returns keeps every condition simple: once score >= 90 has failed, score >= 80 can only match the 80 to 89 range, and so on. The final return handles everything below 70.",
+      "language": "javascript",
+      "starterCode": "function grade(score) {\n  // return \"A\", \"B\", \"C\" or \"F\"\n}\n\nconsole.log(grade(95));\nconsole.log(grade(83));\nconsole.log(grade(71));\nconsole.log(grade(40));",
+      "solutionCode": "function grade(score) {\n  if (score >= 90) return \"A\";\n  if (score >= 80) return \"B\";\n  if (score >= 70) return \"C\";\n  return \"F\";\n}\n\nconsole.log(grade(95));\nconsole.log(grade(83));\nconsole.log(grade(71));\nconsole.log(grade(40));",
+      "checklist": [
+        "grade(95) returns \"A\"",
+        "grade(83) returns \"B\" and grade(71) returns \"C\"",
+        "Any score below 70 returns \"F\"",
+        "The conditions are checked from highest to lowest, or use explicit ranges"
+      ],
+      "check": {
+        "kind": "console-output",
+        "expectedLines": ["A", "B", "C", "F"]
+      }
+    },
+    {
+      "id": "js-loops-even-sum",
+      "type": "coding-task",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "question": "Use a loop to add up every even number from 1 to 20 inclusive and log the total. Use the remainder operator to detect even numbers.",
+      "explanation": "A for loop counts from 1 to 20; n % 2 === 0 is true for even numbers, which are added to the running total with +=. The even numbers 2 + 4 + ... + 20 add up to 110. Starting the loop at 2 and stepping by 2 (n += 2) also works.",
+      "language": "javascript",
+      "starterCode": "let total = 0;\n\n// loop from 1 to 20 and add the even numbers to total\n\nconsole.log(total);",
+      "solutionCode": "let total = 0;\n\nfor (let n = 1; n <= 20; n++) {\n  if (n % 2 === 0) {\n    total += n;\n  }\n}\n\nconsole.log(total);",
+      "checklist": [
+        "A for or while loop visits the numbers 1 to 20",
+        "n % 2 === 0 (or a step of 2) selects the even numbers",
+        "The total is accumulated with += and logged once",
+        "The output is 110"
+      ],
+      "check": {
+        "kind": "console-output",
+        "expectedLines": ["110"]
+      }
+    },
+    {
+      "id": "js-functions-closure",
+      "type": "predict-output",
+      "lessonSlug": "functions",
+      "difficulty": "intermediate",
+      "question": "What does this script print?",
+      "explanation": "makeMultiplier returns a closure that remembers its factor. double(5) is 10 and triple(2) is 6, so the sum is 16.",
+      "language": "javascript",
+      "code": "function makeMultiplier(factor) {\n  return (n) => n * factor;\n}\n\nconst double = makeMultiplier(2);\nconst triple = makeMultiplier(3);\nconsole.log(double(5) + triple(2));",
+      "options": ["16", "11", "25", "undefined"],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-arrays-map-filter",
+      "type": "coding-task",
+      "lessonSlug": "arrays",
+      "difficulty": "intermediate",
+      "question": "Starting from `numbers`, build an array containing the squares of the odd numbers, log it joined with commas, then log the sum of those squares computed with reduce.",
+      "explanation": "filter keeps 1, 3, 5 and 7; map turns them into 1, 9, 25 and 49; reduce adds them up starting from 0, giving 84. None of the three methods changes the original array, so numbers stays intact.",
+      "language": "javascript",
+      "starterCode": "const numbers = [1, 2, 3, 4, 5, 6, 7];\n\n// 1. keep the odd numbers with filter\n// 2. square them with map\nconst oddSquares = numbers;\n\n// 3. add them up with reduce\nconst sum = 0;\n\nconsole.log(oddSquares.join(\",\"));\nconsole.log(sum);",
+      "solutionCode": "const numbers = [1, 2, 3, 4, 5, 6, 7];\n\nconst oddSquares = numbers.filter((n) => n % 2 === 1).map((n) => n * n);\nconst sum = oddSquares.reduce((total, n) => total + n, 0);\n\nconsole.log(oddSquares.join(\",\"));\nconsole.log(sum);",
+      "checklist": [
+        "filter keeps only the odd numbers",
+        "map squares each remaining number",
+        "reduce starts from 0 and adds every square",
+        "The original numbers array is not modified"
+      ],
+      "check": {
+        "kind": "console-output",
+        "expectedLines": ["1,9,25,49", "84"]
+      }
+    },
+    {
+      "id": "js-objects-keys",
+      "type": "fill-blank",
+      "lessonSlug": "objects",
+      "difficulty": "beginner",
+      "question": "`Object.___(user)` returns an array containing the property names of `user`, in the order they were added.",
+      "explanation": "Object.keys returns the property names, Object.values the values and Object.entries the [key, value] pairs. All three return arrays, so array methods such as map and filter can be used on them.",
+      "answers": ["keys"],
+      "caseSensitive": false
+    },
+    {
+      "id": "js-strings-palindrome",
+      "type": "coding-task",
+      "lessonSlug": "strings",
+      "difficulty": "intermediate",
+      "question": "Complete `isPalindrome(text)` so that it returns true when the text reads the same backwards, ignoring case and spaces. Hint: lower-case the text, remove spaces with replaceAll, then compare it with its reverse.",
+      "explanation": "Normalise first: toLowerCase removes case differences and replaceAll(\" \", \"\") removes spaces. A string has no reverse method, so split it into characters, reverse the array (toReversed or reverse) and join it back. The function then returns the result of a strict comparison, which is already a boolean.",
+      "language": "javascript",
+      "starterCode": "function isPalindrome(text) {\n  // normalise the text, then compare it with its reverse\n}\n\nconsole.log(isPalindrome(\"Racecar\"));\nconsole.log(isPalindrome(\"never odd or even\"));\nconsole.log(isPalindrome(\"JavaScript\"));",
+      "solutionCode": "function isPalindrome(text) {\n  const clean = text.toLowerCase().replaceAll(\" \", \"\");\n  const reversed = clean.split(\"\").toReversed().join(\"\");\n  return clean === reversed;\n}\n\nconsole.log(isPalindrome(\"Racecar\"));\nconsole.log(isPalindrome(\"never odd or even\"));\nconsole.log(isPalindrome(\"JavaScript\"));",
+      "checklist": [
+        "The text is lower-cased before comparing",
+        "Spaces are removed with replaceAll or split and join",
+        "The string is reversed with split, reverse (or toReversed) and join",
+        "The function returns a boolean, not a string"
+      ],
+      "check": {
+        "kind": "console-output",
+        "expectedLines": ["true", "true", "false"]
+      }
+    },
+    {
+      "id": "js-numbers-math-float",
+      "type": "true-false",
+      "lessonSlug": "numbers-math",
+      "difficulty": "beginner",
+      "question": "In JavaScript, `0.1 + 0.2 === 0.3` evaluates to `true`.",
+      "explanation": "0.1 and 0.2 cannot be stored exactly in binary floating point, so the sum is 0.30000000000000004 and the comparison is false. Compare with a tolerance, round with toFixed, or work in integer cents.",
+      "correct": false
+    },
+    {
+      "id": "js-es6-features-rest",
+      "type": "predict-output",
+      "lessonSlug": "es6-features",
+      "difficulty": "intermediate",
+      "question": "What does this script print?",
+      "explanation": "Array destructuring puts \"x\" in a and the remaining two elements in others. Spreading others passes \"y\" and \"z\" as separate arguments, which the rest parameter collects again, so rest.length is 2.",
+      "language": "javascript",
+      "code": "function tally(first, ...rest) {\n  return `${first} + ${rest.length} more`;\n}\n\nconst [a, ...others] = [\"x\", \"y\", \"z\"];\nconsole.log(tally(a, ...others));",
+      "options": ["x + 2 more", "x + 3 more", "x,y,z + 2 more", "SyntaxError"],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-dom-nodelist-map",
+      "type": "find-error",
+      "lessonSlug": "dom",
+      "difficulty": "intermediate",
+      "question": "This script throws `TypeError: items.map is not a function`. What is wrong?",
+      "explanation": "querySelectorAll returns a NodeList, which supports forEach but not map, filter or reduce. Convert it to an array first with Array.from(items) or [...items], then call map.",
+      "language": "javascript",
+      "code": "const items = document.querySelectorAll(\".item\");\nconst names = items.map((item) => item.textContent);\nconsole.log(names.join(\", \"));",
+      "options": [
+        "querySelectorAll needs `#` instead of `.` before the class name",
+        "A NodeList has no `map` method; convert it with `Array.from` or spread first",
+        "`textContent` must be called as a function",
+        "`join` cannot be used on the result of `map`"
+      ],
+      "correctIndex": 1,
+      "errorLine": 2
+    },
+    {
+      "id": "js-events-handler-reference",
+      "type": "multiple-choice",
+      "lessonSlug": "events",
+      "difficulty": "beginner",
+      "question": "With `button.addEventListener(\"click\", openMenu());` the menu opens as soon as the page loads, and clicking the button does nothing. Why?",
+      "explanation": "The parentheses call openMenu immediately, while the listener is being registered, and its return value (undefined) is what gets registered as the handler. Pass the function itself: addEventListener(\"click\", openMenu), or wrap it: () => openMenu().",
+      "options": [
+        "`click` is not a valid event name",
+        "`openMenu()` is called immediately and its return value is registered instead of the function",
+        "`addEventListener` requires a third argument",
+        "The button needs an `id` attribute"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "js-fetch-json-parse",
+      "type": "coding-task",
+      "lessonSlug": "fetch-json",
+      "difficulty": "intermediate",
+      "question": "The string `json` holds a list of products exactly as a server would send it. Parse it, log one line per product in the form `name: price`, then log `Total: ` followed by the sum of the prices.",
+      "explanation": "JSON.parse turns the text into an array of objects. A for...of loop (or forEach) logs each product with a template literal, and reduce adds the price properties: 2 + 5 + 20 = 27. This is the same work you do after await response.json().",
+      "language": "javascript",
+      "starterCode": "const json = '[{\"name\":\"Pen\",\"price\":2},{\"name\":\"Notebook\",\"price\":5},{\"name\":\"Bag\",\"price\":20}]';\n\n// parse the JSON, log each product as \"name: price\", then log the total",
+      "solutionCode": "const json = '[{\"name\":\"Pen\",\"price\":2},{\"name\":\"Notebook\",\"price\":5},{\"name\":\"Bag\",\"price\":20}]';\n\nconst products = JSON.parse(json);\nfor (const product of products) {\n  console.log(`${product.name}: ${product.price}`);\n}\n\nconst total = products.reduce((sum, p) => sum + p.price, 0);\nconsole.log(`Total: ${total}`);",
+      "checklist": [
+        "JSON.parse converts the string into an array of objects",
+        "A loop or forEach logs each product as name: price",
+        "The total is computed from the price properties",
+        "The last line is exactly Total: 27"
+      ],
+      "check": {
+        "kind": "console-output",
+        "expectedLines": ["Pen: 2", "Notebook: 5", "Bag: 20", "Total: 27"]
+      }
+    },
+    {
+      "id": "js-async-order",
+      "type": "predict-output",
+      "lessonSlug": "async",
+      "difficulty": "intermediate",
+      "question": "In which order are the four words printed?",
+      "explanation": "Synchronous code runs first: one, then four. When the script finishes, the microtask queue (promise reactions) is drained before the task queue (timers), so three is printed before two even though the timer delay is 0.",
+      "language": "javascript",
+      "code": "console.log(\"one\");\nsetTimeout(() => console.log(\"two\"), 0);\nPromise.resolve().then(() => console.log(\"three\"));\nconsole.log(\"four\");",
+      "options": [
+        "one, four, three, two",
+        "one, two, three, four",
+        "one, four, two, three",
+        "one, three, four, two"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "js-errors-debugging-finally",
+      "type": "true-false",
+      "lessonSlug": "errors-debugging",
+      "difficulty": "intermediate",
+      "question": "A `finally` block runs even when the `try` block ends with a `return` statement.",
+      "explanation": "finally always runs: after a normal completion, after a return in try or catch, and after an error. That is why it is the right place for cleanup such as hiding a spinner or closing a connection.",
+      "correct": true
+    },
+    {
+      "id": "js-modules-classes-import",
+      "type": "multiple-choice",
+      "lessonSlug": "modules-classes",
+      "difficulty": "beginner",
+      "question": "The file `utils.js` contains `export function formatDate(date) { ... }`. Which statement imports it correctly in another module?",
+      "explanation": "formatDate is a named export, so it must be imported in braces with its exact name. Importing without braces only works for a default export, bare specifiers such as \"utils\" are not resolved by browsers, and include is not JavaScript.",
+      "options": [
+        "`import formatDate from \"./utils.js\";`",
+        "`import { formatDate } from \"./utils.js\";`",
+        "`import formatDate from \"utils\";`",
+        "`include \"./utils.js\";`"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

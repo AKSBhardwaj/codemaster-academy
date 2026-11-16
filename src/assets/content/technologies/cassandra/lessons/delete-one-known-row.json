@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "delete-one-known-row",
+  "title": "Delete one known row",
+  "summary": "A DELETE marks selected data as deleted.",
+  "introduction": "A DELETE marks selected data as deleted. Your task: Explain why the delete names both key fields.",
+  "learningObjectives": [
+    "Explain why the delete names both key fields.",
+    "Explain the example for delete one known row"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "A DELETE marks selected data as deleted. Cassandra uses tombstones so replicas can learn that a value was removed."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use a local single-node Cassandra 4+ practice cluster and cqlsh. The SimpleStrategy keyspace below is only for that local lesson. These commands do not run in this site's SQLite playground."
+    },
+    {
+      "type": "code",
+      "language": "sql",
+      "code": "DELETE FROM reading_by_reader WHERE reader_id='temporary-reader' AND day='2026-11-16';",
+      "title": "Delete one known row",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`WHERE` keeps only rows that pass its condition. Check the condition with sample data before using it for a change."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The named temporary sample entry is no longer returned by normal reads."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Delete only intended keys. Large tombstone-heavy reads can become expensive, so design retention carefully."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why the delete names both key fields."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "cassandra-delete-one-known-row-check"
+    }
+  ],
+  "exerciseIds": ["cassandra-delete-one-known-row-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "cassandra",
+      "slug": "update-by-the-full-key"
+    }
+  ],
+  "seo": {
+    "title": "Cassandra: Delete one known row",
+    "description": "A DELETE marks selected data as deleted. Cassandra uses tombstones so replicas can learn that a value was removed."
+  },
+  "updatedOn": "2026-11-16"
+}

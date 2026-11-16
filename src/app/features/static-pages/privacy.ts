@@ -1,34 +1,48 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SITE_CONFIG } from '../../core/config/site-config';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'cma-privacy',
-  imports: [PageHeaderComponent],
+  imports: [PageHeaderComponent, RouterLink],
   template: `
-    <cma-page-header eyebrow="Legal" title="Privacy policy" lead="Last updated 15 November 2026" />
+    <cma-page-header
+      eyebrow="Your information"
+      title="Privacy policy"
+      lead="Last updated 16 November 2026"
+    />
     <div class="container-xxl py-5">
       <div class="cma-prose">
         <h2 class="h4">Data stored in your browser</h2>
         <p>
-          Learning progress, bookmarks, quiz results, theme preference and the optional demo account are stored only
-          in your browser's local storage. Nothing is sent to a server, and clearing your browser data removes it.
-          You can also reset it from your profile page.
+          Your browser saves your progress, bookmarks, quiz scores, code drafts, theme choice and
+          optional nickname. This learning data stays on this device. Clearing your browser data
+          removes it. You can download a copy or clear it from
+          <a routerLink="/settings">Learning settings</a>.
         </p>
-        <h2 class="h4 mt-4">No accounts on a server</h2>
+        <h2 class="h4 mt-4">No account needed</h2>
         <p>
-          The current version of {{ site.name }} has no backend. "Registration" and "login" create a demo profile
-          that lives in this browser only and does not synchronise across devices.
+          {{ site.name }} has no sign-up form, passwords or online accounts. You can start a lesson
+          right away. Your progress does not move between browsers or devices.
         </p>
-        <h2 class="h4 mt-4">Analytics and cookies</h2>
-        <p>We do not use analytics, advertising or tracking cookies.</p>
+        <h2 class="h4 mt-4">Visits to the site</h2>
+        <p>
+          We do not add advertising or tracking cookies. The service that hosts the website may keep
+          normal visit logs, such as the pages requested.
+        </p>
         <h2 class="h4 mt-4">Embedded content</h2>
         <p>
-          Video lessons use privacy-enhanced embeds that load only after you click play. The code playground runs
-          your code in an isolated sandbox that cannot access this site's storage.
+          Videos load only after you press play. Playing a video connects to the video provider. The
+          code playground runs in your browser. HTML and JavaScript examples use a separate frame
+          that cannot read your saved learning data.
         </p>
         <h2 class="h4 mt-4">Contact</h2>
-        <p class="mb-0">Privacy questions: <a href="mailto:{{ site.contactEmail }}">{{ site.contactEmail }}</a>.</p>
+        <p class="mb-0">
+          The <a routerLink="/contact">feedback page</a> lets you prepare, copy or download a note.
+          It does not send or save your message. If an email option is available and you choose it,
+          your email app handles sending.
+        </p>
       </div>
     </div>
   `,

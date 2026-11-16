@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "slug": "redirects",
+  "title": "Point to another route",
+  "summary": "Express.js: Point to another route. Inspect the first response Location header with curl -i.",
+  "introduction": "A redirect asks the client to visit another URL. GET /start points to /hello; a browser follows it.",
+  "learningObjectives": [
+    "Point to another route with Express.js",
+    "Inspect the first response Location header with curl -i"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install express@5. Save one example as server.mjs and run node server.mjs. Use the stated URL on http://127.0.0.1:3000; stop with Ctrl+C before another example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Point to another route"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Point to another route",
+      "code": "import express from \"express\";\nconst app = express();\napp.use(express.json({ limit: \"10kb\" }));\napp.get(\"/start\", (req, res) => res.redirect(302, \"/hello\"));\napp.get(\"/hello\", (req, res) => res.send(\"Welcome\"));\napp.listen(3000, \"127.0.0.1\");\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The first handler sends Location: /hello. The following request receives Welcome."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "Welcome"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspect the first response Location header with curl -i."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A redirect is a new request, not an internal function call."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "express-redirects-check"
+    }
+  ],
+  "exerciseIds": ["express-redirects-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "express",
+      "slug": "status-codes"
+    }
+  ],
+  "seo": {
+    "title": "Express.js: Point to another route",
+    "description": "Express.js: Point to another route. Inspect the first response Location header with curl -i. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

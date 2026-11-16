@@ -1,0 +1,269 @@
+{
+  "title": "Python Exercises",
+  "description": "Practice every Python lesson with multiple-choice questions, output prediction, find-the-error tasks and small coding tasks to run locally with Python 3.13.",
+  "exercises": [
+    {
+      "id": "py-introduction-what-is-python",
+      "type": "multiple-choice",
+      "lessonSlug": "introduction",
+      "difficulty": "beginner",
+      "question": "What do you need to run these Python examples on your computer?",
+      "explanation": "A Python interpreter reads and runs Python code. Use Python 3 for these lessons. This site shows Python examples and answers, but does not run Python.",
+      "options": [
+        "Only the HTML Run button on this site",
+        "A Python 3 interpreter",
+        "A paper printer",
+        "A new account on this site"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "py-syntax-variables-indentation-error",
+      "type": "find-error",
+      "lessonSlug": "syntax-variables",
+      "difficulty": "beginner",
+      "question": "Running this file stops with an error before anything is printed. What is wrong?",
+      "explanation": "Line 4 is indented by five spaces while the loop body on line 3 uses four. Lines in the same block must share the same indentation, so Python raises `IndentationError: unexpected indent`. Remove the extra space.",
+      "language": "python",
+      "code": "total = 0\nfor n in [1, 2, 3]:\n    total += n\n     print(total)",
+      "options": [
+        "The loop variable n must be declared before the loop",
+        "Line 4 is indented more than line 3, so Python reports an unexpected indent",
+        "total += n needs a semicolon at the end",
+        "A list cannot be used directly in a for loop"
+      ],
+      "correctIndex": 1,
+      "errorLine": 4
+    },
+    {
+      "id": "py-data-types-predict",
+      "type": "predict-output",
+      "lessonSlug": "data-types",
+      "difficulty": "beginner",
+      "question": "What does this program print?",
+      "explanation": "`value` is a string, so the first line prints `<class 'str'>`. `int(value)` is 7, and multiplying an int by the float `2.0` gives a float, so the second line prints `<class 'float'>`.",
+      "language": "python",
+      "code": "value = \"7\"\nprint(type(value))\nprint(type(int(value) * 2.0))",
+      "options": [
+        "`<class 'str'>` then `<class 'float'>`",
+        "`<class 'int'>` then `<class 'float'>`",
+        "`<class 'str'>` then `<class 'int'>`",
+        "A TypeError on the second line"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "py-strings-index",
+      "type": "fill-blank",
+      "lessonSlug": "strings",
+      "difficulty": "beginner",
+      "question": "Given `word = \"Python\"`, the expression `word[-1]` evaluates to the one-character string ___.",
+      "explanation": "Negative indexes count from the end of the string, so `-1` is the last character, `n`. Note that `word[6]` would raise IndexError because valid positive indexes stop at 5.",
+      "answers": ["n", "'n'", "\"n\""],
+      "caseSensitive": true
+    },
+    {
+      "id": "py-numbers-division-predict",
+      "type": "predict-output",
+      "lessonSlug": "numbers",
+      "difficulty": "beginner",
+      "question": "What does this line print?",
+      "explanation": "`/` is true division and always gives a float (3.5). `//` is floor division and keeps the whole part (3). `%` gives the remainder (1).",
+      "language": "python",
+      "code": "print(7 / 2, 7 // 2, 7 % 2)",
+      "options": ["`3.5 3 1`", "`3 3 1`", "`3.5 3.5 1`", "`3.5 3 0.5`"],
+      "correctIndex": 0
+    },
+    {
+      "id": "py-conditionals-ticket-price",
+      "type": "coding-task",
+      "lessonSlug": "conditionals",
+      "difficulty": "beginner",
+      "question": "Store an age in a variable and print the ticket price for it: free under 5, 8 euro from 5 to 17, 15 euro from 18 to 64, and 10 euro from 65 upwards. Run the script with several ages to check every branch.",
+      "explanation": "An if/elif/else chain with the boundaries in ascending order needs only one comparison per branch, because each elif runs only when the earlier conditions were false. Testing the boundary ages (4, 5, 17, 18, 64, 65) is the quickest way to find off-by-one mistakes.",
+      "language": "python",
+      "starterCode": "age = 30\n\n# Decide the price with if / elif / else, then print it\nprice = 0\n\nprint(f\"Age {age}: {price} EUR\")",
+      "solutionCode": "age = 30\n\nif age < 5:\n    price = 0\nelif age < 18:\n    price = 8\nelif age < 65:\n    price = 15\nelse:\n    price = 10\n\nprint(f\"Age {age}: {price} EUR\")",
+      "checklist": [
+        "Uses a single if/elif/else chain with the boundaries in ascending order",
+        "Age 4 prints 0, age 5 prints 8 and age 17 prints 8",
+        "Age 18 prints 15, age 64 prints 15 and age 65 prints 10",
+        "No branch repeats a comparison that an earlier branch already settled"
+      ]
+    },
+    {
+      "id": "py-loops-sum-even",
+      "type": "coding-task",
+      "lessonSlug": "loops",
+      "difficulty": "beginner",
+      "question": "Using a loop, add up every even number from 1 to 100 inclusive and print the result. The correct total is 2550.",
+      "explanation": "`range(1, 101)` covers 1 to 100 because the end is exclusive. Testing `number % 2 == 0` keeps the even numbers; alternatively `range(2, 101, 2)` produces only even numbers and needs no test. Either way the total must be initialised to 0 before the loop.",
+      "language": "python",
+      "starterCode": "total = 0\n\n# Loop from 1 to 100 and add the even numbers to total\n\nprint(total)",
+      "solutionCode": "total = 0\n\nfor number in range(1, 101):\n    if number % 2 == 0:\n        total += number\n\nprint(total)",
+      "checklist": [
+        "Uses range(1, 101) or another range that includes 100",
+        "Tests evenness with number % 2 == 0, or steps by two with range(2, 101, 2)",
+        "Accumulates into a variable set to 0 before the loop starts",
+        "Prints 2550"
+      ]
+    },
+    {
+      "id": "py-lists-append",
+      "type": "fill-blank",
+      "lessonSlug": "lists",
+      "difficulty": "beginner",
+      "question": "To add a single item to the end of a list in place, call `my_list.___(item)`.",
+      "explanation": "`append()` adds one item at the end and returns None. `extend()` adds every item of another iterable, and `insert()` needs a position as its first argument.",
+      "answers": ["append"],
+      "caseSensitive": false
+    },
+    {
+      "id": "py-tuples-sets-immutable",
+      "type": "true-false",
+      "lessonSlug": "tuples-sets",
+      "difficulty": "beginner",
+      "question": "A tuple can be used as a dictionary key, but a list cannot.",
+      "explanation": "Dictionary keys must be hashable, which requires immutability. A tuple never changes, so Python can hash it (as long as everything inside it is hashable too); a list can change after it is inserted, so it is rejected with TypeError: unhashable type: 'list'.",
+      "correct": true
+    },
+    {
+      "id": "py-dictionaries-keyerror",
+      "type": "find-error",
+      "lessonSlug": "dictionaries",
+      "difficulty": "beginner",
+      "question": "This script is meant to count votes but crashes on the first iteration. Why?",
+      "explanation": "`tally[vote] += 1` first reads `tally[vote]`, and on the first vote the key does not exist yet, so Python raises KeyError: 'yes'. Use `tally[vote] = tally.get(vote, 0) + 1`, or `collections.Counter(votes)`.",
+      "language": "python",
+      "code": "votes = [\"yes\", \"no\", \"yes\"]\ntally = {}\nfor vote in votes:\n    tally[vote] += 1\nprint(tally)",
+      "options": [
+        "tally must be created with dict() instead of {}",
+        "tally[vote] += 1 reads a key that does not exist yet, so the first vote raises KeyError",
+        "A list of strings cannot be used in a for loop",
+        "The print call must be inside the loop"
+      ],
+      "correctIndex": 1,
+      "errorLine": 4
+    },
+    {
+      "id": "py-comprehensions-predict",
+      "type": "predict-output",
+      "lessonSlug": "comprehensions",
+      "difficulty": "beginner",
+      "question": "What does this program print?",
+      "explanation": "`range(6)` gives 0 to 5. The `if` keeps the even numbers 0, 2 and 4, and the expression squares them: 0, 4 and 16.",
+      "language": "python",
+      "code": "print([x * x for x in range(6) if x % 2 == 0])",
+      "options": ["`[0, 4, 16]`", "`[1, 9, 25]`", "`[0, 2, 4]`", "`[4, 16, 36]`"],
+      "correctIndex": 0
+    },
+    {
+      "id": "py-functions-reset-total",
+      "type": "find-error",
+      "lessonSlug": "functions",
+      "difficulty": "intermediate",
+      "question": "This function should return 9 for `[2, 3, 4]` but returns 4. What is wrong?",
+      "explanation": "`sum = 0` sits inside the loop, so the total is reset to zero on every iteration and only the last price survives. Move the initialisation above the loop. The name `sum` also shadows the built-in `sum()` function, so call it `total` instead.",
+      "language": "python",
+      "code": "def total(prices):\n    for price in prices:\n        sum = 0\n        sum += price\n    return sum\n\nprint(total([2, 3, 4]))",
+      "options": [
+        "The function needs a return inside the loop",
+        "sum = 0 is inside the loop, so the running total is reset on every iteration",
+        "for loops cannot be used inside functions",
+        "prices must be converted to a tuple first"
+      ],
+      "correctIndex": 1,
+      "errorLine": 3
+    },
+    {
+      "id": "py-modules-packages-import-style",
+      "type": "multiple-choice",
+      "lessonSlug": "modules-packages",
+      "difficulty": "beginner",
+      "question": "A script needs only `sqrt` from the math module. Which import keeps the code clear and the namespace clean?",
+      "explanation": "`from math import sqrt` brings in exactly one name. `from math import *` dumps every name into your file, `import math.sqrt` fails because sqrt is a function rather than a module, and `include` is not Python.",
+      "options": [
+        "`from math import *`",
+        "`from math import sqrt`",
+        "`import math.sqrt`",
+        "`include math`"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "id": "py-errors-exceptions-finally",
+      "type": "true-false",
+      "lessonSlug": "errors-exceptions",
+      "difficulty": "intermediate",
+      "question": "A `finally` block runs even when the `try` block leaves through a `return` statement.",
+      "explanation": "`finally` runs on every exit from the try statement: normal completion, return, break, or an exception. That guarantee is what makes it suitable for clean-up such as closing files.",
+      "correct": true
+    },
+    {
+      "id": "py-classes-objects-bank-account",
+      "type": "coding-task",
+      "lessonSlug": "classes-objects",
+      "difficulty": "intermediate",
+      "question": "Complete the BankAccount class. `deposit(amount)` adds to the balance and `withdraw(amount)` subtracts from it, but raises ValueError when the amount exceeds the balance. Both methods must reject amounts of zero or less. Add a `__str__` method so that printing the account shows `Ada: 120`.",
+      "explanation": "Validation belongs inside the methods so that no caller can put the object into an impossible state. Raising ValueError, rather than printing a message, lets the caller decide how to react. `__str__` is what print() uses, so returning an f-string with the owner and balance gives the expected output.",
+      "language": "python",
+      "starterCode": "class BankAccount:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        pass\n\n    def withdraw(self, amount):\n        pass\n\n\naccount = BankAccount(\"Ada\", 100)\naccount.deposit(50)\naccount.withdraw(30)\nprint(account)      # expected: Ada: 120",
+      "solutionCode": "class BankAccount:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        self.balance += amount\n\n    def withdraw(self, amount):\n        if amount <= 0:\n            raise ValueError(\"amount must be positive\")\n        if amount > self.balance:\n            raise ValueError(\"insufficient funds\")\n        self.balance -= amount\n\n    def __str__(self):\n        return f\"{self.owner}: {self.balance}\"\n\n\naccount = BankAccount(\"Ada\", 100)\naccount.deposit(50)\naccount.withdraw(30)\nprint(account)      # expected: Ada: 120",
+      "checklist": [
+        "Both methods take self as their first parameter and change self.balance",
+        "Amounts of zero or less raise ValueError in both methods",
+        "withdraw raises ValueError when the amount is greater than the balance",
+        "__str__ returns the owner and balance so that print(account) shows Ada: 120"
+      ]
+    },
+    {
+      "id": "py-file-handling-count",
+      "type": "coding-task",
+      "lessonSlug": "file-handling",
+      "difficulty": "intermediate",
+      "question": "Write a function `count_words(path)` that opens a text file, ignores blank lines and returns the total number of words. The script creates a sample file for you; the expected result is 5.",
+      "explanation": "Looping over the open file reads one line at a time, which works for files of any size. `line.strip()` is empty for blank lines, and `len(line.split())` counts the words on a non-blank line. The `with` statement closes the file even if something goes wrong.",
+      "language": "python",
+      "starterCode": "def count_words(path):\n    # open the file with `with`, loop over its lines and count the words\n    return 0\n\n\nwith open(\"sample.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one two three\\n\\nfour five\\n\")\n\nprint(count_words(\"sample.txt\"))   # expected: 5",
+      "solutionCode": "def count_words(path):\n    total = 0\n    with open(path, encoding=\"utf-8\") as file:\n        for line in file:\n            if line.strip():\n                total += len(line.split())\n    return total\n\n\nwith open(\"sample.txt\", \"w\", encoding=\"utf-8\") as file:\n    file.write(\"one two three\\n\\nfour five\\n\")\n\nprint(count_words(\"sample.txt\"))   # expected: 5",
+      "checklist": [
+        "Opens the file inside a with statement and passes encoding=\"utf-8\"",
+        "Loops over the file object line by line instead of reading everything with read()",
+        "Skips blank lines, for example by testing line.strip()",
+        "Returns 5 for the sample file"
+      ]
+    },
+    {
+      "id": "py-json-and-apis-loads-predict",
+      "type": "predict-output",
+      "lessonSlug": "json-and-apis",
+      "difficulty": "beginner",
+      "question": "What does this program print?",
+      "explanation": "`json.loads` converts JSON `true` to Python `True` (a bool) and `null` to `None`. The lower-case spellings are correct JSON, so there is no error.",
+      "language": "python",
+      "code": "import json\n\ndata = json.loads('{\"ok\": true, \"count\": 2, \"items\": null}')\nprint(type(data[\"ok\"]).__name__, data[\"items\"])",
+      "options": [
+        "`bool None`",
+        "`str null`",
+        "`bool null`",
+        "An error, because JSON must use True rather than true"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "py-virtual-environments-activate",
+      "type": "multiple-choice",
+      "lessonSlug": "virtual-environments",
+      "difficulty": "beginner",
+      "question": "After running `python -m venv .venv` on macOS or Linux, which command activates the environment in the current shell?",
+      "explanation": "Activation is a shell script that must be sourced so it can change the current shell's PATH. On Windows the equivalent is `.venv\\Scripts\\Activate.ps1` (PowerShell) or `.venv\\Scripts\\activate.bat` (Command Prompt).",
+      "options": [
+        "`python .venv`",
+        "`source .venv/bin/activate`",
+        "`pip activate .venv`",
+        "`.venv/bin/python --activate`"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

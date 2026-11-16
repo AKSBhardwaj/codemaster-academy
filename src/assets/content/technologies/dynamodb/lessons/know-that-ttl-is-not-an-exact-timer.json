@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "slug": "know-that-ttl-is-not-an-exact-timer",
+  "title": "Know that TTL is not an exact timer",
+  "summary": "DynamoDB TTL uses an epoch-seconds attribute for expiry.",
+  "introduction": "DynamoDB TTL uses an epoch-seconds attribute for expiry. Your task: Explain why an expiry field alone is not a countdown timer.",
+  "learningObjectives": [
+    "Explain why an expiry field alone is not a countdown timer.",
+    "Explain the example for know that ttl is not an exact timer"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "DynamoDB TTL uses an epoch-seconds attribute for expiry. Deletion happens later in the background, not at an exact second."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use DynamoDB Local and the AWS CLI or SDK in a separate practice project. Point every command at http://localhost:8000. Low-level JSON examples show request bodies; provide them to the matching CLI command or SDK method."
+    },
+    {
+      "type": "code",
+      "language": "json",
+      "code": "{\"reader\":{\"S\":\"temporary\"},\"book\":{\"S\":\"practice\"},\"expiresAt\":{\"N\":\"1800000000\"}}",
+      "title": "Know that TTL is not an exact timer",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "expiresAt is the configured candidate expiry field, expressed as epoch seconds.",
+        "The background deletion service is asynchronous and is not simulated by DynamoDB Local."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "This item shape has an expiry field. A real table must enable TTL on that field; DynamoDB Local does not perform the real background TTL deletion service."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Do not rely on TTL to hide a value immediately at its expiry time. Applications may need to filter expired values while deletion is pending."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Explain why an expiry field alone is not a countdown timer."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "dynamodb-know-that-ttl-is-not-an-exact-timer-check"
+    }
+  ],
+  "exerciseIds": ["dynamodb-know-that-ttl-is-not-an-exact-timer-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "dynamodb",
+      "slug": "understand-filters-and-read-cost"
+    }
+  ],
+  "seo": {
+    "title": "DynamoDB: Know that TTL is not an exact timer",
+    "description": "DynamoDB TTL uses an epoch-seconds attribute for expiry. Deletion happens later in the background, not at an exact second."
+  },
+  "updatedOn": "2026-11-16"
+}

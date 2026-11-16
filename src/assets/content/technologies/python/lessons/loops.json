@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "slug": "loops",
+  "title": "Loops",
+  "summary": "A loop repeats steps. A for loop can visit each item in a list, one after another.",
+  "introduction": "A loop repeats steps. A for loop can visit each item in a list, one after another. Imagine reading every name on a class list. Write the greeting step once, then let the loop use it for each name.",
+  "learningObjectives": [
+    "Iterate over lists, strings and ranges with for",
+    "Repeat until a condition changes with while, and stop early with break",
+    "Skip iterations with continue and use enumerate() and zip() for indexes and pairs",
+    "Spot off-by-one errors in range() and infinite while loops"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "for loops"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "for_loops.py",
+      "code": "fruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit.upper())\n\nfor letter in \"abc\":\n    print(letter, end=\" \")\nprint()\n\ntotal = 0\nfor n in [4, 8, 15]:\n    total += n\nprint(\"Total:\", total)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python for_loops.py",
+      "content": "APPLE\nBANANA\nCHERRY\na b c \nTotal: 27"
+    },
+    {
+      "type": "paragraph",
+      "text": "`for item in collection:` takes the items one at a time, in order, and runs the block once for each. The loop variable is just a name you choose; `fruit`, `letter` and `n` are ordinary variables that keep their last value after the loop ends. The bare `print()` after the letter loop ends the line that `end=\" \"` left open."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "range()"
+    },
+    {
+      "type": "paragraph",
+      "text": "To repeat something a fixed number of times, or to count, loop over a `range`. `range(stop)` counts from `0` up to but not including `stop`; `range(start, stop)` and `range(start, stop, step)` let you choose where to start and how far to jump, including backwards with a negative step."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "ranges.py",
+      "code": "for i in range(5):\n    print(i, end=\" \")\nprint()\n\nfor i in range(1, 6):\n    print(i, end=\" \")\nprint()\n\nfor i in range(10, 0, -3):\n    print(i, end=\" \")\nprint()\n\nprint(list(range(0, 20, 5)))\nprint(sum(range(1, 101)))"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python ranges.py",
+      "content": "0 1 2 3 4 \n1 2 3 4 5 \n10 7 4 1 \n[0, 5, 10, 15]\n5050"
+    },
+    {
+      "type": "paragraph",
+      "text": "The exclusive end is deliberate: `range(len(items))` produces exactly the valid indexes of `items`, and `range(a, b)` always has `b - a` numbers. A range is not a list but a lazy description of the numbers, which is why `range(1, 101)` costs almost nothing even for huge ranges; wrap it in `list()` when you need the actual items."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Off by one",
+      "text": "`range(1, 10)` stops at 9. If you want the numbers 1 to 10 inclusive, write `range(1, 11)`. The same rule applies to slices: `items[0:3]` gives three items, at indexes 0, 1 and 2. When a loop runs one time too few or too many, check the end value first."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "while loops"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "countdown.py",
+      "code": "count = 3\nwhile count > 0:\n    print(count)\n    count -= 1\nprint(\"Lift-off!\")\n\nnumber = 1\nwhile True:\n    number *= 2\n    if number > 100:\n        break\nprint(\"First power of two above 100:\", number)"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python countdown.py",
+      "content": "3\n2\n1\nLift-off!\nFirst power of two above 100: 128"
+    },
+    {
+      "type": "paragraph",
+      "text": "`while` re-tests its condition before every repetition and stops as soon as the condition is false. Something inside the loop must move towards that moment, here `count -= 1`, or the loop never ends. `while True:` with a `break` is the idiom for loops whose exit condition sits in the middle of the work, such as reading commands until the user types `quit`."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Infinite loops",
+      "text": "Forget `count -= 1` and the condition stays true forever: the program hangs and the terminal shows nothing. Press Ctrl+C to stop it (Python raises `KeyboardInterrupt`), then make sure every `while` loop changes something its condition depends on, or contains a `break` that is guaranteed to be reached."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "break and continue"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "break_continue.py",
+      "code": "for n in range(1, 10):\n    if n % 2 == 0:\n        continue        # skip even numbers\n    if n > 7:\n        break           # stop the loop completely\n    print(n, end=\" \")\nprint()\n\nfor n in [3, 5, 8, 11]:\n    if n % 2 == 0:\n        print(\"Found an even number:\", n)\n        break\nelse:\n    print(\"No even numbers\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python break_continue.py",
+      "content": "1 3 5 7 \nFound an even number: 8"
+    },
+    {
+      "type": "paragraph",
+      "text": "`continue` jumps straight to the next iteration; `break` leaves the loop entirely. A `for` loop may also have an `else` block, which runs only when the loop finished *without* hitting `break`. That makes it a tidy way to express a search: the `else` is the \"not found\" case."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "enumerate() and zip()"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two helpers remove most of the index arithmetic from loops. `enumerate()` yields `(index, item)` pairs, so you never have to write `range(len(items))` and index by hand; `zip()` walks two or more sequences in parallel and stops at the shortest."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "pairs.py",
+      "code": "players = [\"Mina\", \"Ravi\", \"Sofia\"]\nscores = [82, 91, 77]\n\nfor position, player in enumerate(players, start=1):\n    print(f\"{position}. {player}\")\n\nfor player, score in zip(players, scores):\n    print(f\"{player}: {score}\")"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python pairs.py",
+      "content": "1. Mina\n2. Ravi\n3. Sofia\nMina: 82\nRavi: 91\nSofia: 77"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Nested loops"
+    },
+    {
+      "type": "paragraph",
+      "text": "A loop inside a loop runs the inner loop completely for every pass of the outer one. That is how you build tables and grids; the `:3` in the f-string right-aligns each number in a field three characters wide."
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "title": "table.py",
+      "code": "for row in range(1, 4):\n    for col in range(1, 4):\n        print(f\"{row * col:3}\", end=\"\")\n    print()"
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "python table.py",
+      "content": "  1  2  3\n  2  4  6\n  3  6  9"
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try it",
+      "text": "Print the 7 times table from 1 to 12 with a `for` loop, then rewrite it with a `while` loop. Which version is shorter, and which one is easier to get wrong?"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "py-loops-sum-even"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "py-loops-qc-1",
+          "type": "predict-output",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "What does this loop print?",
+          "explanation": "`range(2, 11, 4)` starts at 2 and adds 4 each time while staying below 11: 2, 6, 10. The next value, 14, is out of range.",
+          "language": "python",
+          "code": "for i in range(2, 11, 4):\n    print(i, end=\" \")",
+          "options": ["`2 6 10`", "`2 6 10 14`", "`2 4 6 8 10`", "`2 6`"],
+          "correctIndex": 0
+        },
+        {
+          "id": "py-loops-qc-2",
+          "type": "multiple-choice",
+          "lessonSlug": "loops",
+          "difficulty": "beginner",
+          "question": "What does `continue` do inside a loop?",
+          "explanation": "`continue` abandons the rest of the current iteration and moves on to the next one; `break` is the statement that ends the loop entirely.",
+          "options": [
+            "Ends the loop immediately",
+            "Skips the rest of the current iteration and moves to the next one",
+            "Restarts the loop from the first item",
+            "Pauses the loop until the user presses a key"
+          ],
+          "correctIndex": 1
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["py-loops-sum-even"],
+  "relatedLessons": [
+    {
+      "technologySlug": "python",
+      "slug": "conditionals"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "lists"
+    },
+    {
+      "technologySlug": "python",
+      "slug": "comprehensions"
+    }
+  ],
+  "seo": {
+    "title": "Python Loops – for, while, range, break and continue",
+    "description": "Learn Python for and while loops, range(), break and continue, enumerate() and zip(), nested loops, and how to avoid off-by-one and infinite-loop mistakes."
+  },
+  "updatedOn": "2026-11-16"
+}

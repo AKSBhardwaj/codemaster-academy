@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "slug": "merge-sort",
+  "title": "Merge Sort",
+  "summary": "Split a list into small parts, then merge them in order. Trace merge sort and its extra buffer with complete code in six languages.",
+  "introduction": "Imagine two neat piles of score cards. To combine them, look at the first card in each pile and take the smaller one. Merge sort first makes small sorted piles, then joins them with this simple choice.",
+  "learningObjectives": [
+    "Split a list until each part needs no sorting",
+    "Merge two sorted parts using a temporary buffer"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Start with the idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "Merge means join. Merge sort splits a list into two halves, sorts each half, and joins them in order. This is divide and conquer: solve smaller parts, then combine their answers."
+    },
+    {
+      "type": "paragraph",
+      "text": "Recursion means a function calls itself on a smaller problem. The base case is the stop rule: a part with zero or one item is already sorted. A buffer is temporary room where we build a merged part before copying it back."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Walk through a small example"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Start with [4, 2, 3, 1]. Split it into [4, 2] and [3, 1]. Split again into the single items [4], [2], [3], and [1].",
+        "Merge [4] and [2] by taking 2 first, then 4. Do the same on the other side to get [1, 3].",
+        "Merge [2, 4] with [1, 3]. Compare the front values: take 1, then 2, then 3.",
+        "The right part is empty, so copy the remaining 4. Copy [1, 2, 3, 4] from the buffer back to the list."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The same program in six languages"
+    },
+    {
+      "type": "paragraph",
+      "text": "Choose the language you are learning. Each tab solves the same problem and prints the same result. JavaScript can run in this page. The other tabs need separate local tools: a C11 compiler, a C++17 compiler, Python 3, .NET 8 or later for C#, or Java 17. Use Program.cs for C# and Main.java for Java."
+    },
+    {
+      "type": "code-tabs",
+      "title": "Merge Sort example",
+      "defaultLanguage": "javascript",
+      "variants": [
+        {
+          "type": "code",
+          "language": "javascript",
+          "code": "function mergeSort(a, buffer, left, right) {\n  if (left >= right) return;\n  let mid = left + Math.floor((right - left) / 2);\n  mergeSort(a, buffer, left, mid);\n  mergeSort(a, buffer, mid + 1, right);\n  let i = left, j = mid + 1, k = left;\n  while (i <= mid && j <= right) {\n      if (a[i] <= a[j]) buffer[k++] = a[i++];\n      else buffer[k++] = a[j++];\n  }\n  while (i <= mid) buffer[k++] = a[i++];\n  while (j <= right) buffer[k++] = a[j++];\n  for (let pos = left; pos <= right; pos++) a[pos] = buffer[pos];\n}\nconst a = [4, 2, 3, 1];\nconst buffer = new Array(a.length);\nmergeSort(a, buffer, 0, a.length - 1);\nconsole.log(a.join(\" \"));",
+          "runnable": true
+        },
+        {
+          "type": "code",
+          "language": "c",
+          "code": "#include <stdio.h>\n#include <stdlib.h>\n\nvoid mergeSort(int a[], int buffer[], int left, int right) {\n    if (left >= right) return;\n    int mid = left + (right - left) / 2;\n    mergeSort(a, buffer, left, mid);\n    mergeSort(a, buffer, mid + 1, right);\n    int i = left, j = mid + 1, k = left;\n    while (i <= mid && j <= right) {\n        if (a[i] <= a[j]) buffer[k++] = a[i++];\n        else buffer[k++] = a[j++];\n    }\n    while (i <= mid) buffer[k++] = a[i++];\n    while (j <= right) buffer[k++] = a[j++];\n    for (int pos = left; pos <= right; pos++) a[pos] = buffer[pos];\n}\n\nint main(void) {\n    int a[] = {4, 2, 3, 1};\n    int n = sizeof a / sizeof a[0];\n    int *buffer = malloc((size_t)n * sizeof *buffer);\n    if (n > 0 && buffer == NULL) return 1;\n    mergeSort(a, buffer, 0, n - 1);\n    for (int i = 0; i < n; i++) {\n        if (i > 0) printf(\" \");\n        printf(\"%d\", a[i]);\n    }\n    printf(\"\\n\");\n    free(buffer);\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nvoid mergeSort(std::vector<int>& a, std::vector<int>& buffer, int left, int right) {\n    if (left >= right) return;\n    int mid = left + (right - left) / 2;\n    mergeSort(a, buffer, left, mid);\n    mergeSort(a, buffer, mid + 1, right);\n    int i = left, j = mid + 1, k = left;\n    while (i <= mid && j <= right) {\n        if (a[i] <= a[j]) buffer[k++] = a[i++];\n        else buffer[k++] = a[j++];\n    }\n    while (i <= mid) buffer[k++] = a[i++];\n    while (j <= right) buffer[k++] = a[j++];\n    for (int pos = left; pos <= right; pos++) a[pos] = buffer[pos];\n}\n\nint main() {\n    std::vector<int> a = {4, 2, 3, 1};\n    int n = static_cast<int>(a.size());\n    std::vector<int> buffer(n);\n    mergeSort(a, buffer, 0, n - 1);\n    for (int i = 0; i < n; i++) {\n        if (i > 0) std::cout << \" \";\n        std::cout << a[i];\n    }\n    std::cout << \"\\n\";\n    return 0;\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "code": "def merge_sort(a, buffer, left, right):\n    if left >= right:\n        return\n    mid = left + (right - left) // 2\n    merge_sort(a, buffer, left, mid)\n    merge_sort(a, buffer, mid + 1, right)\n    i, j, k = left, mid + 1, left\n    while i <= mid and j <= right:\n        if a[i] <= a[j]:\n            buffer[k] = a[i]\n            i += 1\n        else:\n            buffer[k] = a[j]\n            j += 1\n        k += 1\n    while i <= mid:\n        buffer[k] = a[i]\n        i += 1\n        k += 1\n    while j <= right:\n        buffer[k] = a[j]\n        j += 1\n        k += 1\n    for pos in range(left, right + 1):\n        a[pos] = buffer[pos]\n\na = [4, 2, 3, 1]\nbuffer = [0] * len(a)\nmerge_sort(a, buffer, 0, len(a) - 1)\nprint(*a)",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "csharp",
+          "code": "using System;\nusing System.Collections.Generic;\n\nint[] a = {4, 2, 3, 1};\nint[] buffer = new int[a.Length];\nMergeSort(a, buffer, 0, a.Length - 1);\nConsole.WriteLine(string.Join(\" \", a));\n\nstatic void MergeSort(int[] a, int[] buffer, int left, int right) {\n    if (left >= right) return;\n    int mid = left + (right - left) / 2;\n    MergeSort(a, buffer, left, mid);\n    MergeSort(a, buffer, mid + 1, right);\n    int i = left, j = mid + 1, k = left;\n    while (i <= mid && j <= right) {\n        if (a[i] <= a[j]) buffer[k++] = a[i++];\n        else buffer[k++] = a[j++];\n    }\n    while (i <= mid) buffer[k++] = a[i++];\n    while (j <= right) buffer[k++] = a[j++];\n    for (int pos = left; pos <= right; pos++) a[pos] = buffer[pos];\n}",
+          "runnable": false
+        },
+        {
+          "type": "code",
+          "language": "java",
+          "code": "import java.util.*;\n\nclass Main {\n    static void mergeSort(int[] a, int[] buffer, int left, int right) {\n        if (left >= right) return;\n        int mid = left + (right - left) / 2;\n        mergeSort(a, buffer, left, mid);\n        mergeSort(a, buffer, mid + 1, right);\n        int i = left, j = mid + 1, k = left;\n        while (i <= mid && j <= right) {\n            if (a[i] <= a[j]) buffer[k++] = a[i++];\n            else buffer[k++] = a[j++];\n        }\n        while (i <= mid) buffer[k++] = a[i++];\n        while (j <= right) buffer[k++] = a[j++];\n        for (int pos = left; pos <= right; pos++) a[pos] = buffer[pos];\n    }\n\n    public static void main(String[] args) {\n        int[] a = {4, 2, 3, 1};\n        int n = a.length;\n        int[] buffer = new int[n];\n        mergeSort(a, buffer, 0, n - 1);\n        for (int i = 0; i < n; i++) {\n            if (i > 0) System.out.print(\" \");\n            System.out.print(a[i]);\n        }\n        System.out.println();\n    }\n}",
+          "runnable": false
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Output in every language",
+      "content": "1 2 3 4"
+    },
+    {
+      "type": "paragraph",
+      "text": "The output shows the final merged order. i tracks the left part, j tracks the right part, and k tracks the next buffer position. After one part runs out, the two short loops copy whichever items remain."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you use it"
+    },
+    {
+      "type": "paragraph",
+      "text": "The bounds left and right include both ends. The first call uses 0 and length - 1. The left >= right check safely handles empty and one-item ranges before reading any value."
+    },
+    {
+      "type": "paragraph",
+      "text": "This version changes the original list and creates one shared buffer of the same length. It handles duplicates and is stable: when two values tie, <= takes the left value first. C releases the allocated buffer with free after printing."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "How much work and extra room?"
+    },
+    {
+      "type": "paragraph",
+      "text": "At each splitting level, the merges together touch n items. Halving creates about log n levels, so this version takes O(n log n) time in the best and worst cases. Unlike simple quick sort, already ordered input does not cause badly uneven splits."
+    },
+    {
+      "type": "paragraph",
+      "text": "The buffer takes O(n) extra space. The waiting function calls take O(log n) stack space; the stack remembers where to return. Together, the extra space is O(n), dominated by the buffer."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Try one small change",
+      "text": "Change the list to [4, 2, 2, 1]. Trace the final merge and take the left 2 first on a tie. The printed result should be 1 2 2 4."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A common mistake",
+      "text": "Do not stop merging as soon as one half is empty without copying the other half. Those leftover items still belong in the answer. Keep the two cleanup loops."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "data-structures-algorithms-merge-sort"
+    }
+  ],
+  "exerciseIds": ["data-structures-algorithms-merge-sort"],
+  "relatedLessons": [
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "recursion"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "quick-sort"
+    },
+    {
+      "technologySlug": "data-structures-algorithms",
+      "slug": "insertion-sort"
+    }
+  ],
+  "seo": {
+    "title": "Merge Sort in Six Languages | DSA",
+    "description": "Split a list into small parts, then merge them in order. Trace merge sort and its extra buffer with complete code in six languages."
+  },
+  "updatedOn": "2026-11-16"
+}

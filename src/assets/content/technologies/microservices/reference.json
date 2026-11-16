@@ -1,0 +1,146 @@
+{
+  "title": "Microservices Reference",
+  "description": "A quick reminder of the ideas and examples in the Microservices lessons. Open the linked lesson when you need more help.",
+  "groups": [
+    {
+      "id": "ideas",
+      "title": "Ideas and examples",
+      "entries": [
+        {
+          "slug": "introduction",
+          "name": "Small services with clear jobs",
+          "summary": "A service is a part that does work for another part. Microservices divide an app by jobs, such as catalog search and lending.",
+          "example": {
+            "language": "text",
+            "code": "Catalog service: book titles and authors\nLoan service: who borrowed each copy\nBrowser: shows results to a learner"
+          },
+          "notes": ["Many tiny services can be harder to manage than one clear application."],
+          "lessonSlug": "introduction"
+        },
+        {
+          "slug": "own-the-data-you-change",
+          "name": "Own the data you change",
+          "summary": "A service should clearly own the data it changes. Other services use its interface rather than editing its tables directly.",
+          "example": {
+            "language": "text",
+            "code": "Catalog owns Book records\nLoans owns Loan records\nLoans asks Catalog whether book 17 exists"
+          },
+          "notes": ["Shared writable tables create hidden links between services."],
+          "lessonSlug": "own-the-data-you-change"
+        },
+        {
+          "slug": "contracts-explain-requests",
+          "name": "Contracts explain requests",
+          "summary": "A contract describes the request fields and response fields. Both sides need to agree on their meaning.",
+          "example": {
+            "language": "text",
+            "code": "Request: GET /books/17\nResponse: {\"id\":17,\"title\":\"Moon\"}\nMissing book: status 404"
+          },
+          "notes": ["Do not change a field meaning without telling callers."],
+          "lessonSlug": "contracts-explain-requests"
+        },
+        {
+          "slug": "direct-calls-can-wait",
+          "name": "Direct calls can wait",
+          "summary": "In a direct call, the caller waits for a reply. This is simple to follow but the caller depends on the other service responding.",
+          "example": {
+            "language": "text",
+            "code": "Loans -> Catalog: is book 17 known?\nCatalog -> Loans: yes\nLoans continues"
+          },
+          "notes": ["Always plan for slow or missing replies."],
+          "lessonSlug": "direct-calls-can-wait"
+        },
+        {
+          "slug": "events-announce-something-happened",
+          "name": "Events announce something happened",
+          "summary": "An event reports a past fact. Other services may react to it without the sender waiting for every reaction.",
+          "example": {
+            "language": "text",
+            "code": "Event: BookBorrowed\nFields: eventId=81, copyId=203\nReport service updates a daily count"
+          },
+          "notes": ["Choose names that describe a fact, not a vague request."],
+          "lessonSlug": "events-announce-something-happened"
+        },
+        {
+          "slug": "duplicate-messages-are-possible",
+          "name": "Duplicate messages are possible",
+          "summary": "Message delivery can repeat. A consumer should recognise an event it has already handled.",
+          "example": {
+            "language": "text",
+            "code": "Receive event 81: increase count; remember 81\nReceive event 81 again: ignore duplicate\nCount increases once"
+          },
+          "notes": ["Do not assume every event arrives exactly once."],
+          "lessonSlug": "duplicate-messages-are-possible"
+        },
+        {
+          "slug": "timeouts-bound-waiting",
+          "name": "Timeouts bound waiting",
+          "summary": "A timeout sets a limit on waiting. The caller must choose a useful response when that limit passes.",
+          "example": {
+            "language": "text",
+            "code": "Request begins at 0 ms\nTimeout limit: 800 ms\nNo reply at 800 ms -> show a retry message"
+          },
+          "notes": ["A timeout does not cancel all work in another service automatically."],
+          "lessonSlug": "timeouts-bound-waiting"
+        },
+        {
+          "slug": "circuit-breakers-pause-failing-calls",
+          "name": "Circuit breakers pause failing calls",
+          "summary": "A circuit breaker stops repeated calls to a service that is failing. Later it allows a small trial to see whether recovery happened.",
+          "example": {
+            "language": "text",
+            "code": "Several Catalog calls fail\nBreaker opens: new calls fail fast\nAfter a pause: allow one trial call"
+          },
+          "notes": ["A circuit breaker does not repair the failed service."],
+          "lessonSlug": "circuit-breakers-pause-failing-calls"
+        },
+        {
+          "slug": "work-across-services-needs-recovery",
+          "name": "Work across services needs recovery",
+          "summary": "A multi-step business action can partly succeed. A recovery action, often called compensation, tries to undo an earlier step.",
+          "example": {
+            "language": "text",
+            "code": "1. Reserve a book copy\n2. Record the loan\nIf step 2 fails: release the reservation"
+          },
+          "notes": ["Do not assume several services share one automatic database transaction."],
+          "lessonSlug": "work-across-services-needs-recovery"
+        },
+        {
+          "slug": "versions-protect-callers",
+          "name": "Versions protect callers",
+          "summary": "A new contract version gives callers time to move. A safe added optional field is often easier than removing a field callers still need.",
+          "example": {
+            "language": "text",
+            "code": "Old response: {\"id\":17,\"title\":\"Moon\"}\nNew response: {\"id\":17,\"title\":\"Moon\",\"pages\":24}"
+          },
+          "notes": ["Adding a field can still break strict callers; check their contracts."],
+          "lessonSlug": "versions-protect-callers"
+        },
+        {
+          "slug": "trace-a-request-across-parts",
+          "name": "Trace a request across parts",
+          "summary": "A trace follows one request through several services. A shared trace ID connects the records.",
+          "example": {
+            "language": "text",
+            "code": "trace-7 Browser -> Catalog\ntrace-7 Catalog -> Search index\ntrace-7 Search index took 900 ms"
+          },
+          "notes": ["Unrelated log lines are hard to join without a shared ID."],
+          "lessonSlug": "trace-a-request-across-parts"
+        },
+        {
+          "slug": "choose-services-only-when-needed",
+          "name": "Choose services only when needed",
+          "summary": "Microservices bring independent releases and scaling, but add network calls and more operations work. Compare those costs before splitting an app.",
+          "example": {
+            "language": "text",
+            "code": "Small team, one release schedule -> one well-organised app\nMany teams, different scaling needs -> consider service boundaries"
+          },
+          "notes": [
+            "Do not turn a static tutorial website into a backend project just to practise architecture."
+          ],
+          "lessonSlug": "choose-services-only-when-needed"
+        }
+      ]
+    }
+  ]
+}

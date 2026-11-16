@@ -1,0 +1,158 @@
+{
+  "title": "NestJS Exercises",
+  "description": "Read each example in its lesson first. Predict the result, then check your answer. The notes explain the idea and one common mistake.",
+  "exercises": [
+    {
+      "id": "nestjs-controllers-check",
+      "lessonSlug": "controllers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"hello\") hello() { return \"Hello, Asha!\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "A controller holds request handlers. @Get maps GET /hello to its method. What result does this example give after the setup steps?",
+      "explanation": "The module lists the controller. The Get decorator maps hello to /hello and Nest sends its returned string. A controller must be listed in a module to be used.",
+      "options": ["hello, asha!", "Hello, Asha!", "Hello, Ravi!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "nestjs-json-check",
+      "lessonSlug": "json",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"book\") book() { return { title: \"Moon Trip\", pages: 24 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "Nest sends returned objects as JSON. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The controller returns an object. Nest serialises title and pages into JSON. Let Nest write the returned object instead of writing a second response.",
+      "options": [
+        "{\"title\":\"Moon Trip\",\"pages\":24}",
+        "{\"title\":\"Sun Trip\",\"pages\":24}",
+        "[\"Moon Trip\",24]"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "nestjs-path-inputs-check",
+      "lessonSlug": "path-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"hello/:name\") hello(@Param(\"name\") name: string) { return `Hi, ${name}!`; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@Param reads a named part of the route. Open GET /hello/Ravi. What result does this example give after the setup steps?",
+      "explanation": "The Param decorator takes the name segment from the URL. The handler receives Ravi. A TypeScript type does not validate a value sent over HTTP.",
+      "options": ["hi, ravi!", "Hi, Ravi!", "Hi, Asha!"],
+      "correctIndex": 1
+    },
+    {
+      "id": "nestjs-query-inputs-check",
+      "lessonSlug": "query-inputs",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"search\") search(@Query(\"q\") q: string = \"\") { return { term: q }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@Query reads the query string. Visit GET /search?q=cat. What result does this example give after the setup steps?",
+      "explanation": "The Query decorator supplies q from the URL. Its value becomes the term field. Validate query input before using it for important work.",
+      "options": ["{\"term\":\"dog\"}", "[\"cat\"]", "{\"term\":\"cat\"}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "nestjs-integer-pipe-check",
+      "lessonSlug": "integer-pipe",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"double/:n\") twice(@Param(\"n\", ParseIntPipe) n: number) { return { answer: n * 2 }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "ParseIntPipe reads an integer or rejects bad input. GET /double/4 uses the checked number. What result does this example give after the setup steps?",
+      "explanation": "ParseIntPipe converts 4 before the method runs. Multiplying the resulting number gives 8. The pipe does the runtime check; the number annotation alone does not.",
+      "options": ["{\"answer\":9}", "[8]", "{\"answer\":8}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "nestjs-post-body-check",
+      "lessonSlug": "post-body",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"books\") create(@Body() body: { title?: unknown }) { if (typeof body?.title !== \"string\") throw new BadRequestException(\"Title needed\"); return { title: body.title }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@Body supplies parsed JSON. Send POST /books with application/json and {\"title\":\"Moon Trip\"}. What result does this example give after the setup steps?",
+      "explanation": "Body supplies the parsed object. The string check passes and its title is returned. Check body fields instead of trusting the TypeScript shape.",
+      "options": ["{\"title\":\"Moon Trip\"}", "{\"title\":\"Sun Trip\"}", "[\"Moon Trip\"]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "nestjs-services-check",
+      "lessonSlug": "services",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n@Injectable()\nclass Books { title() { return \"Moon Trip\"; } }\n@Controller()\nclass LessonController {\nconstructor(private readonly books: Books) {}\n@Get(\"book\") book() { return this.books.title(); }\n}\n@Module({ controllers: [LessonController], providers: [Books] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "A provider is a shared helper supplied by Nest. The controller asks for Books in its constructor. Open GET /book. What result does this example give after the setup steps?",
+      "explanation": "The module creates Books as a provider. Constructor injection gives the same helper to the controller. List Books in module providers so Nest can create it.",
+      "options": ["Moon Trip", "Sun Trip", "moon trip"],
+      "correctIndex": 0
+    },
+    {
+      "id": "nestjs-defaults-check",
+      "lessonSlug": "defaults",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"page\") page(@Query(\"n\", new DefaultValuePipe(1), ParseIntPipe) n: number) { return { page: n }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "DefaultValuePipe supplies a value before ParseIntPipe checks it. Open GET /page with no query. What result does this example give after the setup steps?",
+      "explanation": "The default pipe supplies 1 for the missing query input. The integer pipe then checks it. Pipe order matters: the default should happen before parsing.",
+      "options": ["{\"page\":1}", "{\"page\":2}", "[1]"],
+      "correctIndex": 0
+    },
+    {
+      "id": "nestjs-status-check",
+      "lessonSlug": "status",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Post(\"check\") @HttpCode(200) check() { return { ready: true }; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@HttpCode changes a handler status. POST /check returns 200 instead of the usual Nest POST status. What result does this example give after the setup steps?",
+      "explanation": "HttpCode overrides the usual POST status. The returned object still controls the JSON body. A status describes the reply; it does not change the returned data.",
+      "options": ["{\"ready\":false}", "[true]", "{\"ready\":true}"],
+      "correctIndex": 2
+    },
+    {
+      "id": "nestjs-headers-check",
+      "lessonSlug": "headers",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"note\") @Header(\"Cache-Control\", \"no-store\") note() { return \"Private practice note\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@Header adds metadata to a response. Open GET /note and inspect its Cache-Control header. What result does this example give after the setup steps?",
+      "explanation": "The Header decorator adds no-store before Nest sends the text. Headers must be set before a response is sent.",
+      "options": ["Private practice note", "PRIVATE PRACTICE NOTE", "private practice note"],
+      "correctIndex": 0
+    },
+    {
+      "id": "nestjs-redirects-check",
+      "lessonSlug": "redirects",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"start\") @Redirect(\"/hello\", 302) start() {}\n@Get(\"hello\") hello() { return \"Welcome\"; }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "@Redirect sends a location to the client. A browser following GET /start ends at /hello. What result does this example give after the setup steps?",
+      "explanation": "Redirect sends a 302 with /hello as its location. The browser then requests the greeting route. A redirect makes the client send a new request.",
+      "options": ["welcome", "Welcome", "Hello"],
+      "correctIndex": 1
+    },
+    {
+      "id": "nestjs-errors-check",
+      "lessonSlug": "errors",
+      "difficulty": "beginner",
+      "type": "predict-output",
+      "language": "typescript",
+      "code": "import { Controller, Get, Post, Body, Param, Query, Module, Injectable, ParseIntPipe, DefaultValuePipe, BadRequestException, NotFoundException, HttpCode, Header, Redirect } from \"@nestjs/common\";\nimport { NestFactory } from \"@nestjs/core\";\n\n@Controller()\nclass LessonController {\n\n@Get(\"missing\") missing() { throw new NotFoundException(\"Book not found\"); }\n}\n@Module({ controllers: [LessonController], providers: [] })\nclass AppModule {}\nasync function main() { const app = await NestFactory.create(AppModule); await app.listen(3000, \"127.0.0.1\"); }\nvoid main();\n",
+      "question": "A built-in exception creates an HTTP error response. GET /missing reports a missing book. What result does this example give after the setup steps?",
+      "explanation": "NotFoundException stops the normal result path and creates an HTTP 404 error with the supplied message. Use a suitable HTTP error instead of returning a success status for a failure.",
+      "options": [
+        "0 Not Found: Book not found",
+        "404 Not Found: Book not found",
+        "405 Not Found: Book not found"
+      ],
+      "correctIndex": 1
+    }
+  ]
+}

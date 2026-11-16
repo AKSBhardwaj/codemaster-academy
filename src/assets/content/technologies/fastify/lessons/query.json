@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "query",
+  "title": "Read a query string",
+  "summary": "Fastify: Read a query string. Visit /search with no q.",
+  "introduction": "Query input follows the question mark. GET /search?q=cat reads q.",
+  "learningObjectives": ["Read a query string with Fastify", "Visit /search with no q"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install fastify@5. Save one example as server.mjs and run node server.mjs. Use http://127.0.0.1:3000 and stop each server before the next example."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read a query string"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Read a query string",
+      "code": "import Fastify from \"fastify\";\nconst app = Fastify();\napp.get(\"/search\", async request => ({ term: typeof request.query.q === \"string\" ? request.query.q : \"\" }));\nawait app.listen({ port: 3000, host: \"127.0.0.1\" });\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "request.query.q holds cat. The type check accepts it and creates the term field."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"term\":\"cat\"}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Visit /search with no q."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "Check query values rather than assuming they are always strings."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "fastify-query-check"
+    }
+  ],
+  "exerciseIds": ["fastify-query-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "fastify",
+      "slug": "params"
+    }
+  ],
+  "seo": {
+    "title": "Fastify: Read a query string",
+    "description": "Fastify: Read a query string. Visit /search with no q. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

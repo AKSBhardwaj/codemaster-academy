@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "slug": "stop-a-request",
+  "title": "Stop a request",
+  "summary": "AbortController gives a request a stop signal.",
+  "introduction": "AbortController gives a request a stop signal. Your task: Find the signal passed into fetch.",
+  "learningObjectives": [
+    "Find the signal passed into fetch.",
+    "Explain the example for stop a request"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "The idea"
+    },
+    {
+      "type": "paragraph",
+      "text": "AbortController gives a request a stop signal. It is useful when a page no longer needs a slow answer."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the example"
+    },
+    {
+      "type": "paragraph",
+      "text": "Use these examples in a local page in a current browser. APIs involving files, storage, clipboard or location may need HTTPS, a user action or permission. They are shown as code because this site's sandbox limits those features."
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "const controller = new AbortController();\nfetch(\"/books.json\", {signal: controller.signal})\n  .then(response => response.text()).then(console.log)\n  .catch(error => console.log(error.name));\ncontroller.abort();",
+      "title": "Stop a request",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Read the code step by step"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "`AbortController` supplies a signal that can stop waiting for an in-progress request. It does not undo remote work already performed."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "What happens"
+    },
+    {
+      "type": "paragraph",
+      "text": "The request is cancelled if it is still in progress. Its rejection is handled, usually with the name AbortError."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "A mistake to avoid",
+      "text": "Cancelling a request does not undo work a server has already done. It stops waiting or reading on the client side."
+    },
+    {
+      "type": "callout",
+      "icon": "lightbulb",
+      "title": "Your small task",
+      "text": "Find the signal passed into fetch."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "web-apis-stop-a-request-check"
+    }
+  ],
+  "exerciseIds": ["web-apis-stop-a-request-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "web-apis",
+      "slug": "fetch-local-data"
+    }
+  ],
+  "seo": {
+    "title": "Web APIs: Stop a request",
+    "description": "AbortController gives a request a stop signal. It is useful when a page no longer needs a slow answer."
+  },
+  "updatedOn": "2026-11-16"
+}

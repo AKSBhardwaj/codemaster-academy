@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { difficultySchema, iconRefSchema, isoDateSchema, slugSchema, technologyStatusSchema } from './common';
+import {
+  difficultySchema,
+  iconRefSchema,
+  isoDateSchema,
+  slugSchema,
+  technologyStatusSchema,
+} from './common';
 
 export const categorySchema = z.strictObject({
   slug: slugSchema,

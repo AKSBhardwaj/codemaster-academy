@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "slug": "typography",
+  "title": "Fonts and Text",
+  "summary": "Typography means the choices that shape how text looks, such as font, size and line spacing.",
+  "introduction": "Typography means the choices that shape how text looks, such as font, size and line spacing. Make a paragraph easy to read. Try larger letters and more space between lines before adding decorative styles.",
+  "learningObjectives": [
+    "Write a font-family stack with a generic fallback and load a web font with @font-face",
+    "Set font-size, font-weight, line-height and the font shorthand",
+    "Control alignment, decoration, transformation and spacing of text"
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Font families and fallbacks"
+    },
+    {
+      "type": "paragraph",
+      "text": "`font-family` takes a list. The browser uses the first font in the list that is installed on the reader's device, which is why the list should end with a *generic family* (`serif`, `sans-serif`, `monospace`, `system-ui`) that always exists. Quote names that contain spaces. `system-ui` picks the operating system's own interface font, which looks native and costs no download."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "body {\n  font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\n}\n\nh1, h2 {\n  font-family: Georgia, \"Times New Roman\", serif;\n}\n\ncode {\n  font-family: ui-monospace, \"Cascadia Code\", Consolas, monospace;\n  font-size: 0.95em;\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>body{font-family:system-ui,sans-serif}h1,h2{font-family:Georgia,'Times New Roman',serif}h1{font-size:1.4em}code{font-family:ui-monospace,Consolas,monospace;font-size:.95em}</style><h1>Sample heading</h1><p>It has a <strong>bold text</strong> and <code>inline code</code>.</p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Loading a web font"
+    },
+    {
+      "type": "paragraph",
+      "text": "An `@font-face` rule names a font and tells the browser where to download it. Use the `woff2` format (smallest, supported everywhere), self-host the file next to your CSS, and declare the weights it covers; a *variable* font covers a whole range in one file. `font-display: swap` shows the fallback font immediately and swaps in the web font when it arrives, instead of leaving the text invisible while it loads. Then use the family name in a normal `font-family` list with fallbacks behind it."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "title": "fonts.css",
+      "code": "@font-face {\n  font-family: \"Inter\";\n  src: url(\"../fonts/inter-variable.woff2\") format(\"woff2\");\n  font-weight: 100 900;      /* the file covers every weight */\n  font-style: normal;\n  font-display: swap;\n}\n\nbody {\n  font-family: \"Inter\", system-ui, sans-serif;\n}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Size, weight and style"
+    },
+    {
+      "type": "paragraph",
+      "text": "`font-size` is best written in `rem` so it scales with the user's settings (see [Units](/tutorials/css/units)). `font-weight` runs from 100 to 900; `400` is normal and `700` is bold, and the keywords `normal` and `bold` map to those two. If a font does not ship a weight you ask for, the browser picks the nearest one or synthesises a fake bold, which looks smudged, so check which weights your font provides. `font-style: italic` works the same way. The `font` shorthand sets style, weight, size, line height and family in one go; size and family are mandatory, and everything you omit is reset."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h1 {\n  font-size: 2.25rem;\n  font-weight: 800;\n}\n\nh2 {\n  font: italic 600 1.25rem/1.3 Georgia, serif;  /* style weight size/line-height family */\n}\n\nstrong {\n  font-weight: 600;   /* a lighter bold than the default 700 */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h1{font-size:1.8rem;font-weight:800}h2{font:italic 600 1.15rem/1.3 Georgia,serif}strong{font-weight:600}</style><h1>Sample heading</h1><h2>Card title</h2><p>It has <strong>bold text</strong> at weight 600.</p>"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Line height and line length"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two numbers do more for readability than any font choice. `line-height` is the distance between baselines; `1.5` to `1.6` suits body text and `1.1` to `1.25` suits large headings, where the default spacing looks loose. Write it as a unitless number, which means \"this many times the element's own font size\", so headings and paragraphs each get a proportional value from a single rule. Line *length* matters as much: 45 to 75 characters per line is comfortable, and `max-width: 65ch` enforces it in any font."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "body {\n  line-height: 1.6;\n}\n\nh1, h2 {\n  line-height: 1.15;\n}\n\np {\n  max-width: 60ch;\n  margin: 0 0 1rem;\n}"
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Do not set line-height in pixels on the body",
+      "text": "`body { line-height: 24px; }` looks fine for paragraphs, but every heading inherits the same 24px: a 40px heading that wraps onto two lines overlaps itself. A unitless `line-height: 1.5` is inherited as a *factor* and recomputed from each element's own font size, so headings stay readable without extra rules."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Alignment, decoration, transform and spacing"
+    },
+    {
+      "type": "paragraph",
+      "text": "`text-align` accepts `left`, `right`, `center` and `justify`; avoid `justify` on the web, where the lack of hyphenation leaves rivers of white space. `text-decoration` adds or removes underlines; keep the underline on links inside running text, where it is the main cue that something is clickable, and tune it with `text-decoration-thickness` and `text-underline-offset`. `text-transform: uppercase` is for short labels and pairs with a little `letter-spacing`. `white-space: nowrap` stops wrapping, and combined with `overflow: hidden` and `text-overflow: ellipsis` it truncates a single line with a trailing ellipsis."
+    },
+    {
+      "type": "code",
+      "language": "css",
+      "runnable": true,
+      "code": "h2 {\n  text-transform: uppercase;\n  letter-spacing: 0.08em;\n  font-size: 0.9rem;\n}\n\na {\n  text-decoration-thickness: 2px;\n  text-underline-offset: 3px;\n}\n\nli {\n  max-width: 9ch;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;   /* \"Second item\" becomes \"Second i…\" */\n}"
+    },
+    {
+      "type": "output",
+      "kind": "html",
+      "content": "<style>h2{text-transform:uppercase;letter-spacing:.08em;font-size:.9rem}a{text-decoration-thickness:2px;text-underline-offset:3px}li{max-width:9ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}ul{margin:0}</style><h2>Card title</h2><p>It has a <a href=\"#\">link</a>.</p><ul><li>First item</li><li>Second item</li><li>Third item</li></ul>"
+    },
+    {
+      "type": "table",
+      "headers": ["Property", "Common values", "Use it for"],
+      "rows": [
+        ["`text-align`", "`left`, `center`, `right`", "Headings, captions, table cells"],
+        ["`text-decoration`", "`underline`, `none`, `line-through`", "Links, deleted prices"],
+        ["`text-transform`", "`uppercase`, `capitalize`, `none`", "Labels, eyebrow headings"],
+        ["`letter-spacing`", "`0.05em`, `-0.02em`", "Uppercase labels, tight display headings"],
+        ["`white-space`", "`nowrap`, `pre-wrap`", "Badges, preformatted text"],
+        ["`text-overflow`", "`ellipsis`", "Truncating single lines"]
+      ]
+    },
+    {
+      "type": "interactive",
+      "language": "html",
+      "title": "Try it: tune an article's typography",
+      "height": 260,
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Typography</title>\n  <style>\n    body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 60ch; }\n    h1 { font-family: Georgia, serif; line-height: 1.15; font-size: 2rem; }\n    .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: #64748b; }\n    /* Try: a different heading font, font-weight: 300 on p, text-align: center on h1 */\n  </style>\n</head>\n<body>\n  <p class=\"eyebrow\">Field notes</p>\n  <h1>Why line length matters more than the font</h1>\n  <p>A line of sixty characters lets the eye travel back to the start of the next line without losing its place. Longer lines tire readers; shorter ones break the rhythm of the sentence.</p>\n</body>\n</html>"
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "css-typography-font-stack"
+    },
+    {
+      "type": "quiz",
+      "title": "Quick check",
+      "questions": [
+        {
+          "id": "css-typography-qc-1",
+          "type": "multiple-choice",
+          "lessonSlug": "typography",
+          "difficulty": "beginner",
+          "question": "Why should a `font-family` list end with a generic family such as `sans-serif`?",
+          "explanation": "The browser walks the list and uses the first available font. A generic family is always available, so the text is guaranteed a sensible fallback.",
+          "options": [
+            "It makes the first font load faster",
+            "It guarantees a usable font when none of the named fonts is installed",
+            "Generic families are required by the CSS validator",
+            "It enables bold and italic styles"
+          ],
+          "correctIndex": 1
+        },
+        {
+          "id": "css-typography-qc-2",
+          "type": "true-false",
+          "lessonSlug": "typography",
+          "difficulty": "beginner",
+          "question": "`font-weight: bold` and `font-weight: 700` request the same weight.",
+          "explanation": "The keyword `bold` maps to 700 and `normal` maps to 400 on the numeric scale.",
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "exerciseIds": ["css-typography-font-stack"],
+  "relatedLessons": [
+    {
+      "technologySlug": "css",
+      "slug": "units"
+    },
+    {
+      "technologySlug": "css",
+      "slug": "colors"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "formatting"
+    },
+    {
+      "technologySlug": "html",
+      "slug": "paragraphs"
+    }
+  ],
+  "seo": {
+    "title": "CSS Fonts and Text – font-family, Size, Weight, Line Height",
+    "description": "Learn CSS typography: font-family stacks and fallbacks, @font-face web fonts, font-size and weight, line-height, text alignment, decoration and spacing."
+  },
+  "updatedOn": "2026-11-16"
+}

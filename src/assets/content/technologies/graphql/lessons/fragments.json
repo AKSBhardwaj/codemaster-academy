@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "fragments",
+  "title": "Reuse a field selection",
+  "summary": "GraphQL: Reuse a field selection. Remove pages from the fragment.",
+  "introduction": "A fragment gives a group of fields a name. The query spreads that group onto a Book.",
+  "learningObjectives": ["Reuse a field selection with GraphQL", "Remove pages from the fragment"],
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Before you start"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a practice folder run npm init -y and npm install graphql@16. Save one example as lesson.mjs and run node lesson.mjs. These examples execute queries locally and do not need an HTTP server."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Reuse a field selection"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "title": "Reuse a field selection",
+      "code": "import { buildSchema, graphql } from \"graphql\";\nconst schema = buildSchema(\"type Book { title: String!, pages: Int! } type Query { book: Book! }\");\n\nconst rootValue = { book: () => ({ title: \"Moon Trip\", pages: 24 }) };\nconst result = await graphql({ schema, rootValue, source: \"{ book { ...BookCard } } fragment BookCard on Book { title pages }\", variableValues: {} });\nconsole.log(JSON.stringify(result.data));\n",
+      "runnable": false
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "How the example works"
+    },
+    {
+      "type": "paragraph",
+      "text": "The fragment supplies title and pages selections for Book. Both fields appear in the result."
+    },
+    {
+      "type": "output",
+      "kind": "text",
+      "title": "Expected result",
+      "content": "{\"book\":{\"title\":\"Moon Trip\",\"pages\":24}}"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Try a small change"
+    },
+    {
+      "type": "paragraph",
+      "text": "Remove pages from the fragment."
+    },
+    {
+      "type": "alert",
+      "variant": "warning",
+      "title": "Watch out",
+      "text": "A fragment has to apply to the type at that position."
+    },
+    {
+      "type": "exercise",
+      "exerciseId": "graphql-fragments-check"
+    }
+  ],
+  "exerciseIds": ["graphql-fragments-check"],
+  "relatedLessons": [
+    {
+      "technologySlug": "graphql",
+      "slug": "aliases"
+    }
+  ],
+  "seo": {
+    "title": "GraphQL: Reuse a field selection",
+    "description": "GraphQL: Reuse a field selection. Remove pages from the fragment. Follow a small example and practise the idea."
+  },
+  "updatedOn": "2026-11-16"
+}

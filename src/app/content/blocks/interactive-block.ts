@@ -12,9 +12,18 @@ import { InlineRunnerComponent } from '../../features/playground/inline-runner/i
   imports: [CodeBlockComponent, InlineRunnerComponent],
   template: `
     @defer (on viewport; hydrate on viewport) {
-      <cma-inline-runner [initialCode]="block().code" [language]="block().language" [title]="block().title ?? 'Try it yourself'" [height]="block().height ?? 180" />
+      <cma-inline-runner
+        [initialCode]="block().code"
+        [language]="block().language"
+        [title]="block().title ?? 'Try it yourself'"
+        [height]="block().height ?? 180"
+      />
     } @placeholder {
-      <cma-code-block [code]="block().code" [language]="block().language" [title]="block().title ?? 'Try it yourself'" />
+      <cma-code-block
+        [code]="block().code"
+        [language]="block().language"
+        [title]="block().title ?? 'Try it yourself'"
+      />
     }
   `,
 })
